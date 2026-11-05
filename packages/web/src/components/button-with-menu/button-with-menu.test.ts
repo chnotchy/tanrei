@@ -78,9 +78,10 @@ async function wire(page: P, { product = true }: { product?: boolean } = {}) {
     for (const el of document.querySelectorAll('tanrei-button-with-menu')) {
       const split = el as HTMLElement & { open: boolean };
       split.addEventListener('click', () => log.push('click'));
+      // The element's toggle is a CustomEvent with { open }, not the platform's ToggleEvent the DOM types give the name.
       split.addEventListener('toggle', (e) => {
-        log.push(`toggle:${(e as CustomEvent).detail.open}`);
-        if (drive) split.open = (e as CustomEvent).detail.open;
+        log.push(`toggle:${(e as Event as CustomEvent).detail.open}`);
+        if (drive) split.open = (e as Event as CustomEvent).detail.open;
       });
       split.addEventListener('close', (e) => {
         log.push(`close:${(e as CustomEvent).detail.reason}`);
@@ -2081,7 +2082,7 @@ test.describe('React wrappers', () => {
       });
       const split = main.querySelector('tanrei-button-with-menu') as HTMLElement & { open: boolean };
       // The events the ButtonWithMenu wrapper maps (custom events), as the product sets open from them.
-      split.addEventListener('toggle', (e) => (split.open = (e as CustomEvent).detail.open));
+      split.addEventListener('toggle', (e) => (split.open = (e as Event as CustomEvent).detail.open));
       split.addEventListener('close', () => (split.open = false));
       // The mapped onClick of each item: a listener on the element.
       for (const item of split.querySelectorAll('[slot="menu"]')) item.addEventListener('click', () => log.push(`onClick:${item.getAttribute('label')}`));

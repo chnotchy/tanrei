@@ -1605,8 +1605,8 @@ test.describe('baselines', () => {
 
 test.describe('without the package’s script', () => {
   test('BRC-18: the stylesheet alone shows a press on a link at once and holds it for press-hold — the pressed container is what is drawn, in the state’s place, in every frame of the hold', async ({ page }) => {
-    const document = await fixturesDocument(spec, { icons: true, fixtures: some('default') });
-    await page.setContent(`${document.slice(0, document.lastIndexOf('<script type="module">'))}</body></html>`);
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: some('default') });
+    await page.setContent(`${markup.slice(0, markup.lastIndexOf('<script type="module">'))}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate((tag) => !!customElements.get(tag), TAG)).toBe(false);
     const home = level(page, 'default', 1);

@@ -25,7 +25,7 @@ interface Surface {
   /** The boolean that opens it (`open`, or the search's `expanded`). */
   prop?: 'open' | 'expanded';
   /** What it is mounted with besides being closed (the search's real overlay, not its view drawn in place). */
-  props?: Record<string, unknown>;
+  props?: Fixture['props'];
   /** Focus goes back to the element itself (the search's bar input or trigger, in its shadow root), not to the opener. */
   returnsToSelf?: boolean;
 }
@@ -369,7 +369,7 @@ for (const surface of SURFACES) {
  * draws an expanded search's view in place unless `inline` is false). A collapsible modal drawer written open is drawn
  * open from its first frame as NVD-40 says (its own test).
  */
-const WRITTEN_OPEN: (Pick<Surface, 'name' | 'spec' | 'fixture' | 'window' | 'scrim'> & { open: Record<string, unknown> })[] = SURFACES.map((surface) => ({
+const WRITTEN_OPEN: (Pick<Surface, 'name' | 'spec' | 'fixture' | 'window' | 'scrim'> & { open: Fixture['props'] })[] = SURFACES.map((surface) => ({
   ...surface,
   open: { ...surface.props, [propOf(surface)]: true },
 }));

@@ -657,7 +657,7 @@ test.describe('keys and semantics', () => {
     const inset = await px(page, T('inset'));
     const fromLeft = async () => (await centreOf(circle(page, 'both-bottom-end'))).x - (await bounds(box(page, 'both-bottom-end'))).x;
     expect(await fromLeft()).toBeCloseTo((await bounds(box(page, 'both-bottom-end'))).width - r - inset, 1);
-    await stage.evaluate((el) => (el.dir = 'rtl'));
+    await stage.evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     expect(await fromLeft()).toBeCloseTo(r + inset, 1);
     await expect(box(page, 'both-bottom-end')).toHaveCSS('cursor', 'nesw-resize');
     // The turn has no motion of its own: nothing moves the arc's transform.

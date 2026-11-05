@@ -13,7 +13,13 @@ const spec = loadSpec('resizable-frame');
 type P = Page;
 const T = (name: string) => `--tanrei-comp-resizable-frame-${name}`;
 const fixtureOf = (id: string) => spec.fixtures.find((f) => f.id === id)!;
-const fx = (id: string, props: Fixture['props'] = {}, extra: Partial<Fixture> = {}): Fixture => ({ id, props: { width: 480, height: 240, widthLabel: 'Resize preview width', ...props }, slots: { default: 'Preview' }, ...extra });
+/** A fixture of the frame: 480 × 240 unless `props` says otherwise; a prop given as null is left unset (no attribute). */
+const fx = (id: string, props: Record<string, Fixture['props'][string] | null> = {}, extra: Partial<Fixture> = {}): Fixture => ({
+  id,
+  props: Object.fromEntries(Object.entries({ width: 480, height: 240, widthLabel: 'Resize preview width', ...props }).filter(([, value]) => value !== null)) as Fixture['props'],
+  slots: { default: 'Preview' },
+  ...extra,
+});
 
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-resizable-frame`);
 const box = (page: P, id: string) => host(page, id).locator('.box');

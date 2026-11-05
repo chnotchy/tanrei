@@ -173,7 +173,7 @@ test.describe('behavior', () => {
     expect(await list('field')).toEqual(['Kyoto ✓', '[Elsewhere]', 'Lisbon (Portugal)']);
     expect(await list('field')).toEqual(await list('alone'));
     // Never copies: the options are the element's own children, and neither member holds one.
-    expect(await one(page, 'field').evaluate((el) => [[...el.children].map((child) => child.localName), el.shadowRoot!.querySelectorAll('tanrei-option, tanrei-option-group').length, el.shadowRoot!.querySelector('slot:not([name])')!.assignedElements().length])).toEqual([['tanrei-option', 'tanrei-option-group'], 0, 2]);
+    expect(await one(page, 'field').evaluate((el) => [[...el.children].map((child) => child.localName), el.shadowRoot!.querySelectorAll('tanrei-option, tanrei-option-group').length, el.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])')!.assignedElements().length])).toEqual([['tanrei-option', 'tanrei-option-group'], 0, 2]);
     // Each change, made to both, changes both lists alike — and at once: in the turn after the change.
     const changes = [
       `owner.insertAdjacentHTML('beforeend', '<tanrei-option value="tokyo">Tokyo</tanrei-option>')`,

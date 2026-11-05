@@ -298,7 +298,7 @@ test.describe('checkbox group', () => {
     const built = (selector: string) =>
       page.locator(selector).evaluate((el) => {
         const root = el.shadowRoot!;
-        const frame = root.querySelector('tanrei-field-group')! as HTMLElement & Record<string, unknown>;
+        const frame = root.querySelector<HTMLElement>('tanrei-field-group')! as HTMLElement & Record<string, unknown>;
         const names = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'];
         return {
           root: [...root.children].map((child) => child.localName),

@@ -218,7 +218,7 @@ test.describe('behavior', () => {
     const duration = await resolveToken(page, T('motion-duration'), 'duration');
     const layers = () =>
       ticker.evaluate((el) =>
-        [...el.shadowRoot!.querySelectorAll<HTMLElement>('.layer')].map((layer) => ({ text: layer.textContent, half: layer.classList.contains('top') ? 'top' : layer.classList.contains('bottom') ? 'bottom' : 'whole', ...Object.fromEntries(['opacity', 'filter', 'translate'].map((p) => [p, getComputedStyle(layer).getPropertyValue(p)])), angle: ((t) => (t === 'none' ? 0 : Math.round((Math.acos(Math.max(-1, Math.min(1, new DOMMatrixReadOnly(t).m22))) * 180) / Math.PI)))(getComputedStyle(layer).transform) })),
+        [...el.shadowRoot!.querySelectorAll<HTMLElement>('.layer')].map((layer) => ({ text: layer.textContent, half: layer.classList.contains('top') ? 'top' : layer.classList.contains('bottom') ? 'bottom' : 'whole', ...(Object.fromEntries(['opacity', 'filter', 'translate'].map((p) => [p, getComputedStyle(layer).getPropertyValue(p)])) as Record<'opacity' | 'filter' | 'translate', string>), angle: ((t) => (t === 'none' ? 0 : Math.round((Math.acos(Math.max(-1, Math.min(1, new DOMMatrixReadOnly(t).m22))) * 180) / Math.PI)))(getComputedStyle(layer).transform) })),
       );
     const column = (key: string) => ticker.evaluate((el, k) => Object.fromEntries(['opacity', 'filter', 'translate', 'visibility'].map((p) => [p, getComputedStyle(el.shadowRoot!.querySelector(`[data-key="${k}"] .column`)!).getPropertyValue(p)])), key);
     await set(ticker, { animation: 'blur' });

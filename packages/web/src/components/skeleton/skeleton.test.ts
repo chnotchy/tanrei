@@ -217,7 +217,7 @@ test.describe('skeleton', () => {
     expect([pill.at(1, 1), pill.at(20, 2), pill.at(2, 20), pill.at(48, 20), pill.column(48).map(([top, bottom]) => bottom - top)]).toEqual([surface, fill, fill, fill, [40]]);
     // Nothing else, and never the label.
     for (const f of of('text', 'person')) {
-      expect(await host(page, f.id).evaluate((el) => [el.innerText.trim(), el.shadowRoot === null, [...el.querySelectorAll('*')].every((child) => child.matches('.tanrei-skeleton-placeholder'))]), f.id).toEqual(['', true, true]);
+      expect(await host(page, f.id).evaluate((el: HTMLElement) => [el.innerText.trim(), el.shadowRoot === null, [...el.querySelectorAll('*')].every((child) => child.matches('.tanrei-skeleton-placeholder'))]), f.id).toEqual(['', true, true]);
     }
   });
 

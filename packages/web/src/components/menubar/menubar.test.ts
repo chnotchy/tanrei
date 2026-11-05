@@ -77,7 +77,7 @@ const wire = (page: P) =>
     const log: string[] = ((window as any).log = []);
     document.addEventListener('toggle', (event) => {
       const target = event.target as HTMLElement & { label: string };
-      log.push(`${target.localName === 'tanrei-menubar-menu' ? 'toggle' : 'sub'}:${target.label}:${(event as CustomEvent).detail.open}`);
+      log.push(`${target.localName === 'tanrei-menubar-menu' ? 'toggle' : 'sub'}:${target.label}:${(event as Event as CustomEvent).detail.open}`);
     });
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement & { label?: string };
@@ -1716,7 +1716,7 @@ const watchClicks = (page: P) =>
   });
 const heard = (page: P) => page.evaluate(() => (window as any).heard.splice(0) as string[]);
 /** A click as the browser sends it for a link, dispatched on `target`: with a modifier key, or another button. */
-const send = (target: Locator, type: 'click' | 'auxclick', init: MouseEventInit) => target.evaluate((el, [t, i]) => void el.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, composed: true, ...i })), [type, init] as const);
+const send = (target: Locator, type: 'click' | 'auxclick', init: Omit<MouseEventInit, 'view' | 'relatedTarget'>) => target.evaluate((el, [t, i]) => void el.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, composed: true, ...i })), [type, init] as const);
 const hash = (page: P) => page.evaluate(() => location.hash);
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const dist = (file: string) => fs.readFileSync(path.join(pkg, 'dist', file), 'utf8');

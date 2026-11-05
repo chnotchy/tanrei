@@ -182,7 +182,7 @@ const painted = (page: Page) =>
 /** Two frames drawn. */
 const frames = (page: Page) => page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
-const runs = (host: Locator) => host.evaluate((el) => [...(el as Element & { runs: string[] }).runs]);
+const runs = (host: Locator) => host.evaluate((el: HTMLElement & { runs: string[] }) => [...el.runs]);
 
 /**
  * Holds every motion in `host`'s shadow root at `fraction` of its duration (paused there, so it stays where it is
@@ -388,7 +388,7 @@ test.describe('appearStyles and AppearController', () => {
     await painted(page);
     const host = page.locator('#a');
     await holdClock(page);
-    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean }) => {
+    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean; updateComplete: Promise<unknown> }) => {
       el.open = false;
       void el.updateComplete.then(() => el.left.then((left) => (el.settledAs = left)));
     });
@@ -404,7 +404,7 @@ test.describe('appearStyles and AppearController', () => {
     await open(page, '<div id="stage"><x-anchored id="a" open></x-anchored></div>');
     await painted(page);
     const host = page.locator('#a');
-    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean }) => {
+    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean; updateComplete: Promise<unknown> }) => {
       el.open = false;
       void el.updateComplete.then(() => el.left.then((left) => (el.settledAs = left)));
     });
@@ -648,10 +648,12 @@ test.describe('AnimatedSize', () => {
     const host = page.locator('#s');
     await setLines(host, 4);
     await holdAt(host, 1 / 3);
-    await host.evaluate(async (el: HTMLElement & { animate: boolean; lines: number; updateComplete: Promise<unknown> }) => {
-      el.animate = false;
-      el.lines = 5;
-      await el.updateComplete;
+    await host.evaluate(async (el) => {
+      // The element's own `animate` switch shadows Element's animate() method, so it is not typed as an HTMLElement.
+      const size = el as unknown as { animate: boolean; lines: number; updateComplete: Promise<unknown> };
+      size.animate = false;
+      size.lines = 5;
+      await size.updateComplete;
     });
     await expect(host.locator('.box')).toHaveCSS('height', '100px');
     await frames(page);

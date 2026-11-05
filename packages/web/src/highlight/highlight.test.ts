@@ -197,7 +197,7 @@ test.describe('the highlighter', () => {
     H.registerLanguage(['INI', ' conf '], ini);
     expect(H.languages()).toEqual(expect.arrayContaining(['ini', 'conf']));
     expect(marked((await H.highlight('; c\na = 1', 'Conf'))!)).toBe('‹co:; c›\n‹pr:a› = 1');
-    H.registerLanguage('ini', () => ({ default: { states: { main: [{ match: '=', role: 'punctuation' }] } } }));
+    H.registerLanguage('ini', async () => ({ default: { states: { main: [{ match: '=', role: 'punctuation' }] } } }));
     expect(marked((await H.highlight('a = 1', 'ini'))!)).toBe('a ‹pn:=› 1');
     expect(marked((await H.highlight('a = 1', 'conf'))!)).toBe('‹pr:a› = 1');
     // A grammar that cannot be loaded: the answer is refused, and the next ask tries again.

@@ -1882,7 +1882,7 @@ test.describe('forms and focus', () => {
       await mount(page, [fixture('m', MAIL, { variant: 'modal' })]);
       return px(page, T('container-width'));
     })();
-    const cases: [string, () => Promise<void>][] = [
+    const cases: [string, () => Promise<unknown>][] = [
       ['scrim', () => page.mouse.click(width + 40, 300)],
       ['Escape', () => page.keyboard.press('Escape')],
       ['back', () => drawer(page, 'm').locator('dialog').evaluate((el) => el.dispatchEvent(new Event('cancel', { cancelable: true })))],
@@ -2528,9 +2528,9 @@ test.describe('a site’s sidebar', () => {
   /** Mounts `fixtures` in a page that has watched them since before they were upgraded, and waits for twenty drawn frames. */
   const watched = async (page: P, fixtures: Fixture[], inline = '') => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    const document = await fixturesDocument(spec, { icons: true, fixtures });
+    const html = await fixturesDocument(spec, { icons: true, fixtures });
     // `inline`: a script of the page's own right after the drawer's markup, as a site's would stand.
-    await page.setContent(document.replace('<head>', `<head><script>${WATCH}</script>`).replace('</main>', () => `</main><script>${inline}</script>`));
+    await page.setContent(html.replace('<head>', `<head><script>${WATCH}</script>`).replace('</main>', () => `</main><script>${inline}</script>`));
     await page.waitForFunction(() => (window as any).seen.frames.length >= 20);
   };
   const seen = (page: P) => page.evaluate(() => (window as any).seen as Seen);
@@ -2753,7 +2753,8 @@ test.describe('a site’s sidebar', () => {
       return { pages, said, navigated };
     };
     const plain = page.locator('#plain');
-    for (const press of [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }] as const) {
+    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }];
+    for (const press of presses) {
       const there = await opened(() => plain.click(press));
       const here = await opened(() => cell(page, 'k', 3).click(press), there.pages);
       const what = `${browserName} ${JSON.stringify(press)}`;
@@ -2865,7 +2866,8 @@ test.describe('a site’s sidebar', () => {
     // What the drawer cancels is only a wheel its items cannot take and nothing else would: one toward the end they are
     // at. Not one back up, not one with Ctrl (the page's zoom, and how a trackpad's pinch arrives), not one sideways,
     // and not one that a scroller inside the items can still take.
-    const cancelled = (init: WheelEventInit, from = 'tanrei-navigation-drawer-item') =>
+    // What crosses to the page: a wheel event's init without the objects it may name (a view, a related target).
+    const cancelled = (init: Omit<WheelEventInit, 'view' | 'relatedTarget'>, from = 'tanrei-navigation-drawer-item') =>
       long.evaluate((el, [init, from]) => {
         const event = new WheelEvent('wheel', { bubbles: true, composed: true, cancelable: true, ...(init as WheelEventInit) });
         el.querySelector(from as string)!.dispatchEvent(event);
@@ -3890,7 +3892,7 @@ const focusedAt = (page: P) =>
     while (cell && !/^tanrei-navigation-drawer-(item|group)$/.test(cell.localName)) cell = (cell.getRootNode() as ShadowRoot).host ?? null;
     return { tag: deep?.localName ?? null, label: (cell as any)?.label ?? null };
   });
-const SIDEBAR = fx('filter-empty-field').items;
+const SIDEBAR = fx('filter-empty-field').items!;
 
 test.describe('filter', () => {
   test('NVD-79: the field stands after the header, filter.gap above what it narrows, inside the padding; a medium text input while regular, small while compact; a collapsed drawer draws none and keeps the text', async ({ page }) => {

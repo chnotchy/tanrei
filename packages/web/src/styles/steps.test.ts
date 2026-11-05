@@ -854,12 +854,12 @@ test.describe('scaling, forced colors, direction', () => {
     const gap = await resolveToken(page, T('marker-gap'));
     const first = items(list).first();
     near((await content(first)).right, (await box(list)).right - (await column(list)) - gap, 'right to left', 0.5);
-    await page.locator('#around').evaluate((el) => (el.dir = 'ltr'));
+    await page.locator('#around').evaluate((el: HTMLElement) => (el.dir = 'ltr'));
     near((await content(first)).left, (await box(list)).x + (await column(list)) + gap, 'left to right at once', 0.5);
     await expect(items(list)).toHaveCount(3);
     await expectNumbers(list, [1, 2, 3]);
     expect(await css(first, 'transition-duration')).toBe('0s');
-    await page.locator('#around').evaluate((el) => (el.dir = 'rtl'));
+    await page.locator('#around').evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     near((await content(first)).right, (await box(list)).right - (await column(list)) - gap, 'and back', 0.5);
     // The document's own direction, where no ancestor sets one.
     await mount(page, list3(), { dir: 'rtl' });
@@ -956,12 +956,12 @@ test.describe('what is not valid', () => {
 
 test.describe('without the script', () => {
   test('the stylesheet alone draws every fixture: with scripting off the layout is the same box for box, and the list is the document’s own ordered list (STP-4, STP-12)', async ({ page, browser }) => {
-    const document = (await fixturesDocument(spec)).replace(/<script type="module">[\s\S]*<\/script>/, '');
+    const markup = (await fixturesDocument(spec)).replace(/<script type="module">[\s\S]*<\/script>/, '');
     await mountSpec(page);
     // The code blocks are elements, which draw differently before they are defined: the fixtures without one are compared.
     const context = await browser.newContext({ javaScriptEnabled: false, deviceScaleFactor: 2 });
     const off = await context.newPage();
-    await off.setContent(document);
+    await off.setContent(markup);
     await off.waitForFunction(() => document.fonts.status === 'loaded').catch(() => {});
     // …and the fixture whose numbers are too long for a circle: its column is measured by the script (STP-1).
     const without = spec.fixtures.filter((f) => !['with-code', 'with-code-medium', 'with-table-and-tabs', 'with-code-rtl', 'three-digits'].includes(f.id));

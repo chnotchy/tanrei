@@ -902,12 +902,12 @@ test.describe('forced colors, scaling, direction', () => {
     const [previous, next] = [page.locator('[data-direction="previous"]'), page.locator('[data-direction="next"]')];
     expect((await box(previous)).x).toBeGreaterThan((await box(next)).x);
     await tabTo(page, next);
-    await page.locator('#around').evaluate((el) => (el.dir = 'ltr'));
+    await page.locator('#around').evaluate((el: HTMLElement) => (el.dir = 'ltr'));
     expect((await box(previous)).x).toBeLessThan((await box(next)).x);
     expect(await css(next, 'text-align')).toBe('right');
     expect(await page.evaluate(() => document.activeElement?.getAttribute('data-direction'))).toBe('next');
     expect(await css(next, 'outline-style')).toBe('solid');
-    await page.locator('#around').evaluate((el) => (el.dir = 'rtl'));
+    await page.locator('#around').evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     expect((await box(previous)).x).toBeGreaterThan((await box(next)).x);
     expect(await css(next, 'text-align')).toBe('left');
     expect(await page.evaluate(() => document.activeElement?.getAttribute('data-direction'))).toBe('next');
@@ -995,13 +995,13 @@ test.describe('forced colors, scaling, direction', () => {
 
 test.describe('without the script', () => {
   test('the stylesheet alone draws every fixture: with scripting off the layout is the same box for box (PNL-2, PNL-4, PNL-6)', async ({ page, browser }) => {
-    const document = (await fixturesDocument(spec, { icons: true })).replace(/<script type="module">[\s\S]*<\/script>/, '');
+    const markup = (await fixturesDocument(spec, { icons: true })).replace(/<script type="module">[\s\S]*<\/script>/, '');
     const measure = (p: P) =>
       p.evaluate(() => [...document.querySelectorAll('.tanrei-previous-next-links, .tanrei-previous-next-links-item, .tanrei-previous-next-links-label, .tanrei-previous-next-links-title')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, Math.round(r.left * 8), Math.round(r.top * 8), Math.round(r.width * 8), Math.round(r.height * 8)].join(' '); }));
     await mountSpec(page);
     const context = await browser.newContext({ javaScriptEnabled: false, deviceScaleFactor: 2 });
     const off = await context.newPage();
-    await off.setContent(document);
+    await off.setContent(markup);
     await off.waitForFunction(() => document.fonts.status === 'loaded').catch(() => {});
     const [on, bareRows] = [await measure(page), await measure(off)];
     expect(bareRows.length).toBeGreaterThan(40);

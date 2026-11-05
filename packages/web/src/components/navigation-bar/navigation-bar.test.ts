@@ -1569,7 +1569,8 @@ test.describe('links', () => {
       return all;
     };
     const plain = page.locator('#plain');
-    for (const press of [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Control'] }, { modifiers: ['Meta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }] as const) {
+    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Control'] }, { modifiers: ['Meta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }];
+    for (const press of presses) {
       await plain.click(press);
       const there = await said();
       await cell(page, 'links', 2).click(press);
@@ -1931,8 +1932,8 @@ test.describe('the first frame', () => {
       requestAnimationFrame(frame);
     })();`;
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    const document = await fixturesDocument(spec, { icons: true, fixtures: [four('first'), four('third', { value: 'starred' })] });
-    await page.setContent(document.replace('<head>', `<head><script>${WATCH}</script>`));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [four('first'), four('third', { value: 'starred' })] });
+    await page.setContent(markup.replace('<head>', `<head><script>${WATCH}</script>`));
     await page.waitForFunction(() => (window as any).seen.frames.length >= 12);
     const frames = await page.evaluate(() => (window as any).seen.frames as { moving: string[]; selected: boolean[] }[]);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);

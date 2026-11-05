@@ -724,7 +724,7 @@ test.describe('forms, focus and dismissal', () => {
 
   test('SSH-4: an open modal sheet asks to close once, with the reason, on a press on the scrim, Escape, back, or a drag toward its end past half its width or a fling; the drag follows past the slop, and one that does not ask slides back over the enter motion (at once where reduced)', async ({ page }) => {
     const width = 320;
-    const cases: [string, () => Promise<void>][] = [
+    const cases: [string, () => Promise<unknown>][] = [
       ['scrim', () => page.mouse.click(100, 100)],
       ['escape', () => page.keyboard.press('Escape')],
       ['back', () => host(page).locator('dialog').evaluate((el) => el.dispatchEvent(new Event('cancel', { cancelable: true })))],

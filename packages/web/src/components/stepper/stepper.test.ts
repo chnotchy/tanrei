@@ -690,11 +690,11 @@ test.describe('accessibility, words, direction', () => {
   test('SPR-24: the stepper takes its direction from an ancestor inside the page and has none of its own; a change while it is shown is drawn at once, keeping focus', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
     const stage = page.locator('[data-fixture="pressable-visited"]');
-    await stage.evaluate((el) => (el.dir = 'rtl'));
+    await stage.evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     expect(await stepper(page, 'pressable-visited').evaluate((el) => el.hasAttribute('dir'))).toBe(false);
     expect((await bounds(step(page, 'pressable-visited', 0))).x).toBeGreaterThan((await bounds(step(page, 'pressable-visited', 1))).x);
     await tabTo(page, step(page, 'pressable-visited', 1));
-    await stage.evaluate((el) => (el.dir = 'ltr'));
+    await stage.evaluate((el: HTMLElement) => (el.dir = 'ltr'));
     expect((await bounds(step(page, 'pressable-visited', 0))).x).toBeLessThan((await bounds(step(page, 'pressable-visited', 1))).x);
     expect(await step(page, 'pressable-visited', 1).evaluate((el) => el.matches(':focus-within'))).toBe(true);
   });

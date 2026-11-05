@@ -185,8 +185,8 @@ test.describe('the parts and their order', () => {
 
     // One h1 with the title's text, with no script, before the element is defined and after.
     const fresh = await page.context().newPage();
-    const document = await fixturesDocument(spec, { fixtures: some('medium') });
-    await fresh.setContent(`${document.slice(0, document.lastIndexOf('<script type="module">'))}</body></html>`);
+    const markup = await fixturesDocument(spec, { fixtures: some('medium') });
+    await fresh.setContent(`${markup.slice(0, markup.lastIndexOf('<script type="module">'))}</body></html>`);
     const h1 = () => fresh.evaluate(() => [...document.querySelectorAll('h1')].map((el) => el.textContent));
     expect([await fresh.evaluate((tag) => !!customElements.get(tag), TAG), await h1()]).toEqual([false, ['Typography']]);
     await expect(fresh.getByRole('heading', { level: 1, name: 'Typography' })).toHaveCount(1);
@@ -841,8 +841,8 @@ test.describe('the block', () => {
       - button "Share"
     `);
     // A machine that reads the document without running script finds the same heading.
-    const document = await fixturesDocument(spec, { fixtures: some('everything') });
-    expect(document.replace(/<style>[\s\S]*?<\/style>/g, '').match(/<h1>[^<]+<\/h1>/g)).toEqual(['<h1>Add a design system as a layer</h1>']);
+    const markup = await fixturesDocument(spec, { fixtures: some('everything') });
+    expect(markup.replace(/<style>[\s\S]*?<\/style>/g, '').match(/<h1>[^<]+<\/h1>/g)).toEqual(['<h1>Add a design system as a layer</h1>']);
   });
 
   test('PGH-17: a title, a description, an eyebrow, a size or a part that changes while the head is shown is drawn at once, with no motion, and nothing is announced and focus does not move', async ({ page }) => {
@@ -1073,8 +1073,8 @@ test.describe('the element and its stylesheet', () => {
   test('the stylesheet alone draws every fixture, and defining the element moves nothing and writes nothing (PGH-1, PGH-2, PGH-14)', async ({ page }) => {
     // The fixtures with actions hold Buttons, which draw themselves when they are defined: they are measured apart.
     const fixtures = spec.fixtures.filter((f) => !f.slots?.actions);
-    const document = await fixturesDocument(spec, { fixtures });
-    await page.setContent(`${document.slice(0, document.lastIndexOf('<script type="module">'))}</body></html>`);
+    const source = await fixturesDocument(spec, { fixtures });
+    await page.setContent(`${source.slice(0, source.lastIndexOf('<script type="module">'))}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate((tag) => !!customElements.get(tag), TAG)).toBe(false);
     // Drawn without script: the title's style, the eyebrow's capitals, the measure, the dots, the line.

@@ -154,7 +154,7 @@ test.describe('behavior', () => {
       const root = el.shadowRoot!;
       const drawn = (node: Node) => node.nodeType === Node.ELEMENT_NODE || (node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim());
       const [frame, region] = root.children;
-      const input = frame!.querySelector('tanrei-text-input') as HTMLElement & Record<string, unknown>;
+      const input = frame!.querySelector<HTMLElement>('tanrei-text-input') as HTMLElement & Record<string, unknown>;
       const list = input.firstElementChild as HTMLElement;
       return {
         root: [...root.childNodes].filter(drawn).map((node) => (node as Element).localName),

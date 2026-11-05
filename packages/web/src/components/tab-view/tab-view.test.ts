@@ -141,7 +141,7 @@ interface Point {
  * time the finger was there. Returns what the page shows in the same task as the release (the commit of TBV-4 is
  * synchronous): the view's and the tabs' value and the tabs' indicatorOffset.
  */
-async function gesture(page: P, id: string, points: Point[], { up = 300, pointerType = 'touch', on = null as string | null } = {}) {
+async function gesture(page: P, id: string, points: Point[], { up = 300 as number | null, pointerType = 'touch', on = null as string | null } = {}) {
   return page.evaluate(
     ({ id, points, up, pointerType, on }) => {
       const stage = document.querySelector(`[data-fixture="${id}"]`)!;

@@ -94,7 +94,7 @@ const seen = (page: Page) => page.evaluate(() => (window as unknown as { __sheet
 const BARE_TOKENS = 'src/generated/tokens.css';
 
 /** A page of `body`, with the tokens, `css` as the page's own stylesheets and the bundle that defines every element. */
-const document = (body: string, css: string[] = [], module = read('dist/tanrei.bundle.js'), tokens = 'dist/tokens.css') =>
+const pageHtml = (body: string, css: string[] = [], module = read('dist/tanrei.bundle.js'), tokens = 'dist/tokens.css') =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read(tokens)}</style>${css.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}</head><body>${body}<script type="module">${module}</script></body></html>`;
 
 /** Loads `html` as a page of its own, so that the counting starts before any of its scripts (an init script runs at a navigation). */
@@ -128,7 +128,7 @@ test.describe('the sheets an element adds to its root', () => {
 
       // The page loaded the stylesheet: the cascade already answers, and the document's list is not written for it.
       await watch(page, marks);
-      await open(page, document(instances(subject), [subject.css]));
+      await open(page, pageHtml(instances(subject), [subject.css]));
       await settle(page, subject.tag);
       let { writes } = await seen(page);
       expect(writes.filter((write) => write.root === 'document' && write.added.includes(subject.mark)), 'the document already has these rules').toEqual([]);
@@ -138,7 +138,7 @@ test.describe('the sheets an element adds to its root', () => {
       for (const drawing of loaded) expect(drawing.mark, `${subject.mark} on a drawn instance`).not.toBe('');
 
       // The page did not: the first instance adds it, the others find it there.
-      await open(page, document(instances(subject)));
+      await open(page, pageHtml(instances(subject)));
       await settle(page, subject.tag);
       ({ writes } = await seen(page));
       expect(writes.filter((write) => write.root === 'document' && write.added.includes(subject.mark)), 'one write for every instance').toHaveLength(1);
@@ -172,7 +172,7 @@ test.describe('the sheets an element adds to its root', () => {
         );
 
       await watch(page, marks);
-      await open(page, document(subject.html(0), [subject.css]));
+      await open(page, pageHtml(subject.html(0), [subject.css]));
       await settle(page, subject.tag);
       await nest();
       await settle(page, subject.tag);
@@ -183,7 +183,7 @@ test.describe('the sheets an element adds to its root', () => {
       expect(loaded).toHaveLength(1);
       if (loaded[0] !== null) expect(loaded[0], `${subject.mark} on the inner one`).not.toBe('');
 
-      await open(page, document(subject.html(0)));
+      await open(page, pageHtml(subject.html(0)));
       await settle(page, subject.tag);
       await nest();
       await settle(page, subject.tag);
@@ -201,7 +201,7 @@ test.describe('the sheets an element adds to its root', () => {
     );
     const body = `${SUBJECTS.map(instances).join('\n')}${Array.from({ length: N * 4 }, (_, n) => `<tanrei-button label="Button ${n}"></tanrei-button>`).join('')}`;
     await open(page, 
-      document(
+      pageHtml(
         body,
         SUBJECTS.map((s) => s.css),
       ),
@@ -232,7 +232,7 @@ test.describe('the sheets an element adds to its root', () => {
     );
     // The tokens of this page register nothing, so that it is the elements' own stylesheets that would answer.
     await open(page, 
-      document(
+      pageHtml(
         subjects.map(instances).join('\n'),
         subjects.map((s) => s.css),
         undefined,
@@ -251,7 +251,7 @@ test.describe('the sheets an element adds to its root', () => {
   test('a page that loaded the package\'s tokens has no registered property and registers none from script: a switch, a calendar, an accordion and a tree view need none', async ({ page }) => {
     const answers = () => page.evaluate(() => ['--_tanrei-switch-progress', '--_tanrei-calendar-progress', '--_acc-open', '--_trv-step'].map((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()));
     await watch(page, []);
-    await open(page, document('<tanrei-button label="Button"></tanrei-button>'));
+    await open(page, pageHtml('<tanrei-button label="Button"></tanrei-button>'));
     await settle(page, 'tanrei-button');
     // Nothing is registered: a registered name has its initial value where nothing sets it, and these have none.
     expect(await answers()).toEqual(['', '', '', '']);
@@ -274,7 +274,7 @@ test.describe('the sheets an element adds to its root', () => {
 
   test('a page that loaded none of the stylesheets: the elements hand the document their sheets, and nothing is registered — by a rule of a sheet or from script', async ({ page }) => {
     await watch(page, []);
-    await open(page, document(instances(SUBJECTS.find((s) => s.tag === 'tanrei-tree-view')!), [], undefined, BARE_TOKENS));
+    await open(page, pageHtml(instances(SUBJECTS.find((s) => s.tag === 'tanrei-tree-view')!), [], undefined, BARE_TOKENS));
     await settle(page, 'tanrei-tree-view');
     expect((await seen(page)).registered).toEqual([]);
     expect(await page.evaluate(() => ['--_trv-step', '--_trv-target'].map((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()))).toEqual(['', '']);
@@ -288,7 +288,7 @@ test.describe('the sheets an element adds to its root', () => {
     // The outer table is the page's (its stylesheet is loaded); a cell of it holds the product's own element, whose
     // shadow root holds another table. The page's rules do not reach in, and the outer table's private names do.
     await open(page, 
-      document(
+      pageHtml(
         `<tanrei-table><table><tbody><tr><td><div id="product"></div></td></tr></tbody></table></tanrei-table>
         <script>
           const root = document.getElementById('product').attachShadow({ mode: 'open' });
@@ -312,7 +312,7 @@ test.describe('the sheets an element adds to its root', () => {
   test('the question whether style queries are answered writes nothing into the document\'s sheets', async ({ page }) => {
     await watch(page, []);
     // A menu asks when it is drawn (MNU-35); so do the others that read a choice of kind.
-    await open(page, document('<tanrei-menu open><tanrei-menu-item label="One"></tanrei-menu-item></tanrei-menu><tanrei-button label="Button"></tanrei-button>'));
+    await open(page, pageHtml('<tanrei-menu open><tanrei-menu-item label="One"></tanrei-menu-item></tanrei-menu><tanrei-button label="Button"></tanrei-button>'));
     await settle(page, 'tanrei-menu');
     const { writes } = await seen(page);
     expect(writes.filter((write) => write.root === 'document')).toEqual([]);
@@ -343,7 +343,7 @@ test.describe('the sheets an element adds to its root', () => {
       };
     }, SUBJECTS.map((subject) => subject.mark));
     await watch(page, SUBJECTS.map((subject) => subject.mark));
-    await open(page, document(SUBJECTS.map((subject) => subject.html(0)).join('\n'), SUBJECTS.map((subject) => subject.css)));
+    await open(page, pageHtml(SUBJECTS.map((subject) => subject.html(0)).join('\n'), SUBJECTS.map((subject) => subject.css)));
     await settle(page, 'tanrei-table');
     const log = await page.evaluate(() => (window as unknown as { __log: string[] }).__log);
     const tags = SUBJECTS.map((subject) => subject.tag);

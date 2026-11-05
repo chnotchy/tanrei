@@ -1383,7 +1383,7 @@ test.describe('behavior', () => {
       const now = await host(page, 'button').evaluate(async (el: HTMLElement & { selectionText: string; updateComplete: Promise<unknown> }, t) => {
         el.selectionText = t;
         await el.updateComplete;
-        return { drawn: el.shadowRoot!.querySelector('.selection')?.textContent ?? null, moving: el.shadowRoot!.getAnimations({ subtree: true }).length };
+        return { drawn: el.shadowRoot!.querySelector('.selection')?.textContent ?? null, moving: el.shadowRoot!.getAnimations().length };
       }, text);
       expect(now, `"${text}"`).toEqual({ drawn: text || null, moving: 0 });
     }
@@ -1585,13 +1585,13 @@ test.describe('behavior', () => {
     near((await box(trigger(page, id))).x, whole.x, 'left-to-right from the document');
     await native(page, id).focus();
     // The focused state has been drawn: what moves after this is the direction's doing.
-    await expect.poll(() => trigger(page, id).evaluate((el) => el.shadowRoot!.getAnimations({ subtree: true }).length)).toBe(0);
+    await expect.poll(() => trigger(page, id).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
     // An ancestor's direction, not the root's.
     const moving = await stage(page, id).evaluate((el) => {
       el.setAttribute('dir', 'rtl');
       const picker = el.querySelector('tanrei-file-picker')!;
       void picker.getBoundingClientRect();
-      return picker.shadowRoot!.getAnimations({ subtree: true }).length;
+      return picker.shadowRoot!.getAnimations().length;
     });
     expect(moving, 'without a motion of its own').toBe(0);
     const t = await box(trigger(page, id));

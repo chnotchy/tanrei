@@ -308,8 +308,8 @@ test.describe('copying', () => {
 
   test('CPY-2, CPY-4: the browser’s own clipboard — a person’s press on a secure page copies and is confirmed; a copy the browser refuses (the permission denied, or a page that is not secure) is a failure', async ({ page, context, browserName }) => {
     // A secure page of the fixture: the Clipboard API exists only there.
-    const document = await fixturesDocument(spec, { icons: true, fixtures: only('icon') });
-    await page.route('https://copy.test/**', (route) => route.fulfill({ contentType: 'text/html', body: document }));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: only('icon') });
+    await page.route('https://copy.test/**', (route) => route.fulfill({ contentType: 'text/html', body: markup }));
     await page.goto('https://copy.test/');
     await page.waitForFunction((tag) => !!customElements.get(tag), TAG);
     expect(await page.evaluate(() => window.isSecureContext && typeof navigator.clipboard?.writeText === 'function')).toBe(true);
@@ -326,7 +326,7 @@ test.describe('copying', () => {
     const refusing: [string, Record<string, string>][] = [['http://insecure.test/', {}]];
     if (browserName === 'chromium') refusing.push(['https://denied.test/', { 'Permissions-Policy': 'clipboard-write=()' }]);
     for (const [url, headers] of refusing) {
-      await page.route(`${url}**`, (route) => route.fulfill({ contentType: 'text/html', headers, body: document }));
+      await page.route(`${url}**`, (route) => route.fulfill({ contentType: 'text/html', headers, body: markup }));
       await page.goto(url);
       await page.waitForFunction((tag) => !!customElements.get(tag), TAG);
       expect(await page.evaluate(() => typeof navigator.clipboard?.writeText === 'function'), url).toBe(url.startsWith('https'));

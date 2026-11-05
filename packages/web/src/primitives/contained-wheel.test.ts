@@ -34,7 +34,8 @@ async function open(page: Page) {
 }
 
 /** Whether a wheel event sent from `from`, with the scroller `id` at `at` (top, or left), is cancelled. */
-const cancelled = (page: Page, id: string, at: number, init: WheelEventInit, from = `${id}-in`) =>
+// What crosses to the page: a wheel event's init without the objects it may name (a view, a related target).
+const cancelled = (page: Page, id: string, at: number, init: Omit<WheelEventInit, 'view' | 'relatedTarget'>, from = `${id}-in`) =>
   page.evaluate(
     ([id, at, init, from]) => {
       const scroller = document.getElementById(id as string)!;
