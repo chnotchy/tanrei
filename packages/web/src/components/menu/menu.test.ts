@@ -530,6 +530,24 @@ test.describe('overlay', () => {
     expect(await log(page)).toEqual([]);
   });
 
+  test('MNU-65: an anchor taken out of the page in the task the menu was shown in — before any frame has looked at it — closes the menu once with the reason anchor-hidden', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await wire(page);
+    // Shown in its update and followed from then on; the anchor goes in the same task, so the menu's first look at it
+    // is after it has gone (no longer found by its id).
+    const shownFirst = await menu(page, 'edit').evaluate(async (m: any) => {
+      m.open = true;
+      await m.updateComplete;
+      const shown = (m.renderRoot.querySelector('.surface') as HTMLElement).matches(':popover-open');
+      document.getElementById(m.anchor)!.remove();
+      return shown;
+    });
+    expect(shownFirst, 'shown before the anchor went').toBe(true);
+    await expect.poll(() => log(page)).toEqual(['close:anchor-hidden']);
+    await expect.poll(() => isOpen(page, 'edit')).toBe(false);
+    expect(await log(page), 'once').toEqual(['close:anchor-hidden']);
+  });
+
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

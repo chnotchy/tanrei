@@ -96,7 +96,7 @@ export class FollowController implements ReactiveController {
   private scheme: MediaQueryList | null = null;
   /** The anchor was found not drawn, and the component told; until it is drawn again. */
   private undrawn = false;
-  /** The anchor last found: one taken out of the page is no longer found by its id, and is still the one that went. */
+  /** The anchor last found, from `start()` on: one taken out of the page is no longer found by its id, and is still the one that went. */
   private lastAnchor: Element | null = null;
 
   constructor(
@@ -124,7 +124,9 @@ export class FollowController implements ReactiveController {
     if (this.active || typeof window === 'undefined') return;
     this.active = true;
     this.undrawn = false;
-    this.lastAnchor = null;
+    // The anchor it is shown against now: one taken out of the page before the first check is still the one that went
+    // (found by its id no longer, and remembered by no check yet).
+    this.lastAnchor = this.options.anchor?.() ?? null;
     window.addEventListener('scroll', this.request, { capture: true, passive: true });
     window.addEventListener('resize', this.request, { passive: true });
     window.visualViewport?.addEventListener('resize', this.request, { passive: true });

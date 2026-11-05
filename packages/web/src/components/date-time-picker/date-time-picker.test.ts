@@ -301,6 +301,23 @@ test.describe('presentation, focus and closing', () => {
     expect(await log(page)).toEqual([]);
   });
 
+  test('DTM-51: an anchor taken out of the page in the task the docked picker was shown in — before any frame has looked at it — closes the picker once with the reason anchor-hidden', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    // Shown in its update and followed from then on; the anchor goes in the same task, so the picker's first look at it
+    // is after it has gone (no longer found by its id).
+    const shownFirst = await host(page, 'd').evaluate(async (p: any) => {
+      p.open = true;
+      await p.updateComplete;
+      const shown = (p.renderRoot.querySelector('div.surface.docked') as HTMLElement).matches(':popover-open');
+      document.getElementById(p.anchor)!.remove();
+      return shown;
+    });
+    expect(shownFirst, 'shown before the anchor went').toBe(true);
+    await expect.poll(() => log(page)).toEqual(['close:anchor-hidden']);
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    expect(await log(page), 'once, and nothing chosen').toEqual(['close:anchor-hidden']);
+  });
+
   test('DTM-2: placed again as the page moves or the window resizes, a scrolled body keeps its offset and the focused day stays in view', async ({ page }) => {
     await mount(page, [docked('d', { value: '2026-09-17' })]);
     // The anchor at the top of the page, so that the picker opens below it, taller than the room there.
