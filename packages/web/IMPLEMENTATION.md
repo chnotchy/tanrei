@@ -7366,12 +7366,15 @@ the panel before anything else of the closing update is styled and once the chan
 (`data-form-change`): a part the change of form recolors — the focused destination's container — then moves over that
 motion, in step with the width, and never over the state motion (in Chromium, where the style was brought up to date
 while focus left and before the change of form's motion was in force, it took the state motion and ended before the
-width did). Once the narrowing has finished the dialog leaves the top layer and the column takes its place, in the same
+width did). While it narrows it is exposed as the column is (NVD-23): the dialog takes the
+navigation landmark's role and the label (`role="navigation"`, its own `<nav>` `role="none"`) and is not focusable
+itself — it cannot be inert (it holds what has focus), and an engine keeps a dialog's role where it is given none
+(Chromium, `role="none"`), but not where it is given another; Chromium still marks the element focusable, which no key
+reaches. Once the narrowing has finished the dialog leaves the top layer and the column takes its place, in the same
 frame, drawn as the dialog's last frame was, focus kept where it is, its items scrolled where the dialog's were (and the
 dialog's where the column's were, opening); where motion is reduced that happens at once, and focus returns once the
-column is drawn. Opened again while it narrows, it turns back from where it is (`openModal()`). One element cannot be
-both: a closed `<dialog>` that is drawn is still exposed as a dialog (Chromium keeps the role whatever `role` says), and
-the column is a navigation landmark only (NVD-23).
+column is drawn. Opened again while it narrows, it turns back from where it is (`openModal()`) and is the modal dialog
+again.
 
 **Groups (NVD-44…48).** A group's row is drawn as a destination's, with the icon set's `expand_more` at
 `item.trailing-icon.size` in place of trailing content, turned half a turn while open. Its items are revealed and hidden

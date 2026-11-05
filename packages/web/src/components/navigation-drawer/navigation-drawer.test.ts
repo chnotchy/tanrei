@@ -4,6 +4,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
+import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
@@ -1388,6 +1389,79 @@ test.describe('the collapsed form', () => {
     // What of it is on screen goes to nothing, and its scrim to 0, without a frame that cuts either short.
     expectNoJump(sliding, ['reach', 'scrim']);
     expect(sliding.rest.probe).toMatchObject({ shown: false, modal: false, reach: 0, scrim: 0 });
+  });
+
+  test('NVD-23, NVD-40: narrowing back to its column, closed, the drawer is exposed as its column is — the navigation landmark named by its label and its destinations, no dialog — in every engine; opened again as it narrows, it is the modal dialog again', async ({ page, browserName }) => {
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
+    const stage = page.locator('[data-fixture="r"]');
+    // The tree computed from the page's roles and names (Playwright's, in every engine), and Chromium's own, the one
+    // engine that gives it to a test: Chromium keeps a dialog's role where the page says none. It also marks a dialog
+    // element focusable whatever its role and tabindex (no key reaches it: it is in no sequential focus order), so the
+    // landmark's line is read without that state.
+    const trees = async () => ({
+      aria: await stage.ariaSnapshot(),
+      engine: browserName === 'chromium' ? (await axTree(page, '[data-fixture="r"]')).map((line) => line.replace(/^(\s*navigation "[^"]*") focusable=true$/, '$1')) : [],
+    });
+    const column = await trees();
+    expect(column.aria).toMatch(/^- navigation "Mail/);
+    expect(column.aria).not.toContain('dialog');
+    await menu(page, 'r').locator('button').click();
+    await motionEnded(drawer(page, 'r'));
+    expect(await stage.ariaSnapshot()).toMatch(/^- dialog "Mail/);
+    // Every motion of the drawer held halfway, from the task that closes it: the moment read is mid-narrowing on any
+    // machine.
+    const holdHalfway = () =>
+      drawer(page, 'r').evaluate((el, source) => {
+        el.addEventListener(
+          'close',
+          () => {
+            for (const motion of ((0, eval)(source) as (root: Element) => Animation[])(el)) {
+              const end = Number(motion.effect?.getComputedTiming().endTime);
+              if (!Number.isFinite(end)) continue;
+              motion.pause();
+              motion.currentTime = end / 2;
+            }
+          },
+          { once: true },
+        );
+      }, EVERY_ANIMATION);
+    const held = () =>
+      drawer(page, 'r').evaluate((el) => {
+        const dialog = el.shadowRoot!.querySelector('dialog');
+        return { open: dialog?.open, top: dialog?.matches(':popover-open'), width: Math.round(dialog?.getBoundingClientRect().width ?? 0) };
+      });
+    const letGo = () =>
+      drawer(page, 'r').evaluate((el, source) => {
+        for (const motion of ((0, eval)(source) as (root: Element) => Animation[])(el)) if (motion.playState === 'paused') motion.play();
+      }, EVERY_ANIMATION);
+    await holdHalfway();
+    await page.keyboard.press('Escape');
+    const halfway = await held();
+    expect(halfway, 'closed, still narrowing in the top layer').toMatchObject({ open: false, top: true });
+    expect(halfway.width).toBeGreaterThan(72);
+    expect(halfway.width).toBeLessThan(240);
+    expect(await trees(), 'narrowing, it is exposed as its column is').toEqual(column);
+    expect(await activeValue(page)).toBe('header-button:Menu');
+    // Opened again while it narrows: the modal dialog named by its label (MOT-2: it widens from where it is).
+    await drawer(page, 'r').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+    });
+    expect(await drawer(page, 'r').locator('dialog').evaluate((el) => el.matches(':modal'))).toBe(true);
+    expect(await stage.ariaSnapshot()).toMatch(/^- dialog "Mail/);
+    await letGo();
+    await motionEnded(drawer(page, 'r'));
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    // Once it has narrowed, the column's own tree, focus on the menu button.
+    await holdHalfway();
+    await page.keyboard.press('Escape');
+    expect(await trees()).toEqual(column);
+    await letGo();
+    await expect(drawer(page, 'r').locator('nav.column')).toHaveCount(1);
+    await expect(drawer(page, 'r').locator('dialog')).toHaveCount(0);
+    expect(await trees()).toEqual(column);
+    expect(await activeValue(page)).toBe('header-button:Menu');
   });
 
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
