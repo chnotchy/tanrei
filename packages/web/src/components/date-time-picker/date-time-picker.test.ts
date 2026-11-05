@@ -1760,18 +1760,22 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
       await mount(page, [fixture], { window: pickerWindow(fixture) });
       await override(page, { [T('modal-motion-open-duration')]: '600ms', [T('docked-motion-open-duration')]: '600ms' });
       const isModal = fixture.props.presentation === 'modal';
-      // A modal picker is read in the middle of its open motion, whatever the machine: the surface's own transitions
-      // are held a quarter of the way in as soon as the press has started them, and let go once the tabs have been
-      // read. Held in the page, in the turn the dialog is shown in: WebKit on Linux spends 0.8 s in the picker's next
-      // update (the first style of what the dialog shows — 20 ms on a Mac), still in that turn, and so is past the
-      // 600 ms at the first moment after it — a later turn or a frame finds a surface that has grown in.
-      if (isModal) {
-        const held = await surface(page, 't').evaluate(async (el, button) => {
+      // The picker is read in the middle of its open motion, whatever the machine: the surface's own motion — a modal
+      // one's transitions, a docked one's growth from its anchor (an animation) — is held a quarter of the way in as
+      // soon as the press has started it, and let go once the tabs have been read. A surface left moving is read at two
+      // moments: the thumb, written from the boxes of one frame, and the box it is compared with, read at a later one
+      // (a docked picker under load, WebKit: the thumb 0.808 px off its container, where the rounding through the scale
+      // allows 0.697). Held in the page, in the turn the surface is shown in: WebKit on Linux spends 0.8 s in the
+      // picker's next update (the first style of what the dialog shows — 20 ms on a Mac), still in that turn, and so is
+      // past the 600 ms at the first moment after it — a later turn or a frame finds a surface that has grown in.
+      const held = await surface(page, 't').evaluate(
+        async (el, { button, isModal }) => {
           document.querySelector<HTMLElement>(button)!.click();
+          const grows = (a: Animation) => (isModal ? a instanceof CSSTransition && a.transitionProperty === 'scale' : a instanceof CSSAnimation && a.animationName === 'docked-open');
           for (let turns = 0; turns < 300; turns++) {
-            // (Asking for the animations resolves the style, which starts the transitions of a surface just shown.)
+            // (Asking for the animations resolves the style, which starts the motion of a surface just shown.)
             const own = el.getAnimations();
-            if (own.some((a) => a instanceof CSSTransition && a.transitionProperty === 'scale')) {
+            if (own.some(grows)) {
               for (const a of own) {
                 a.pause();
                 a.currentTime = Number(a.effect!.getComputedTiming().duration) / 4;
@@ -1782,19 +1786,22 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
             await (turns < 100 ? Promise.resolve() : new Promise((resolve) => setTimeout(resolve, 0)));
           }
           return false;
-        }, '#open-t');
-        expect(held, `${name}: the surface grows in`).toBe(true);
-      } else await opener(page, 't').evaluate((el) => (el as HTMLElement).click());
+        },
+        { button: isModal ? '#open-t' : '#a-t', isModal },
+      );
+      expect(held, `${name}: the surface grows in`).toBe(true);
       await expect.poll(() => isOpen(page, 't')).toBe(true);
       await expect.poll(() => tabsRow(page, 't', 'entry').count()).toBe(1);
       await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const check = async (when: string) => {
         await expectOneThumb(tabsRow(page, 't', 'entry'), 'circle', `${name}, entry, ${when}`);
       };
-      // A modal picker is still growing in: its tabs are drawn smaller than they are laid out.
-      if (isModal) expect((await readThumb(tabsRow(page, 't', 'entry')))[0].scale, name).toBeLessThan(0.9995);
+      // The picker is still growing in: its tabs are drawn smaller than they are laid out — a modal one's both ways
+      // about its centre, a docked one's only along the axis that leaves its anchor.
+      const [growing] = await readThumb(tabsRow(page, 't', 'entry'));
+      expect(isModal ? growing.scale : growing.scaleY, name).toBeLessThan(0.9995);
       await check('opening');
-      if (isModal) await surface(page, 't').evaluate((el) => el.getAnimations().forEach((a) => a.play()));
+      await surface(page, 't').evaluate((el) => el.getAnimations().forEach((a) => a.play()));
       await settle(page, 't');
       await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       expect((await readThumb(tabsRow(page, 't', 'entry')))[0].scale, name).toBeCloseTo(1, 3);
@@ -3026,7 +3033,10 @@ test.describe('accessibility', () => {
       await page.setViewportSize(pickerWindow(fixture));
       for (const theme of ['light', 'dark'] as const) {
         await mountFixtures(page, spec, { theme, icons: true, fixtures: [fixture] });
-        await page.waitForTimeout(300);
+        // The second mount writes its document into a window that was painted already, so an open modal fixture plays
+        // its entrance (MOT-4): axe reads it at rest — its contrast is that of the surface at full opacity — once every
+        // motion in the page has ended, not after a fixed wait, which a loaded machine's entrance outlasts.
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${fixture.id} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
