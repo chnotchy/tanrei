@@ -301,6 +301,63 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'ime').evaluate((el) => (el as any).value)).toBe('漢字入');
   });
 
+  test('TXI-4, TXI-1: a composition that ends with the value as it began — cancelled, or committing nothing — emits no input as it ends, in the order of every engine; a committed one emits exactly one input that is not composing; one the limit cuts back to where it began emits one input with that value', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('c', { label: 'Name', value: 'ab' }), fixture('limit', { label: 'Code', value: 'abc', maxLength: 3 })] });
+    await page.evaluate(() => {
+      const log = ((window as any).events = [] as string[]);
+      for (const el of document.querySelectorAll('tanrei-text-input')) el.addEventListener('input', (event) => log.push(`input:${(el as any).value}:${(event as InputEvent).isComposing}`));
+    });
+    /**
+     * A composition driven with the platform's events, as an engine sends them: `steps` are what the element holds after
+     * each of its `input`s while it composes; `last` is what the engine's own `input` after `compositionend` brings, as
+     * Firefox sends it (Chromium and WebKit send none: their last `input` comes before the end, and the field sends one
+     * where the composition is committed). Returns, with the events heard, once the task in which the field may send
+     * that input has run — a timer set after `compositionend` runs after every one the field set in it.
+     */
+    const compose = (id: string, steps: string[], last?: string) =>
+      host(page, id)
+        .locator('.input')
+        .evaluate(
+          (el: HTMLInputElement, [steps, last]) =>
+            new Promise<string[]>((resolve) => {
+              el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' }));
+              for (const step of steps) {
+                el.value = step;
+                el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: step }));
+              }
+              el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+              if (last !== undefined) {
+                el.value = last;
+                el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: false, inputType: 'insertCompositionText', data: '' }));
+              }
+              setTimeout(() => resolve((window as any).events.splice(0)));
+            }),
+          [steps, last] as const,
+        );
+    const value = (id: string) => host(page, id).evaluate((el) => (el as any).value);
+    await input(page, 'c').focus();
+    // Cancelled, in Chromium's and WebKit's order: the input method's own inputs, the last taking its text away; none after.
+    expect(await compose('c', ['abk', 'abき', 'ab'])).toEqual(['input:abk:true', 'input:abき:true', 'input:ab:true']);
+    expect(await value('c')).toBe('ab');
+    // A composition that inserted nothing at all.
+    expect(await compose('c', [])).toEqual([]);
+    // Cancelled, in Firefox's order: the engine's input after the end changed nothing and is stopped at the element.
+    expect(await compose('c', ['abk', 'ab'], 'ab')).toEqual(['input:abk:true', 'input:ab:true']);
+    expect(await compose('c', [], 'ab')).toEqual([]);
+    expect(await value('c')).toBe('ab');
+    // Committed, in Chromium's and WebKit's order: one input that is not composing, sent by the field.
+    expect(await compose('c', ['abk', 'abき', 'ab木'])).toEqual(['input:abk:true', 'input:abき:true', 'input:ab木:true', 'input:ab木:false']);
+    // Committed, in Firefox's order: the engine's own input after the end is the one, and nothing more is sent.
+    expect(await compose('c', ['ab木k'], 'ab木く')).toEqual(['input:ab木k:true', 'input:ab木く:false']);
+    expect(await value('c')).toBe('ab木く');
+    // A field at its limit: the composition is not cut while it runs, and its commit is cut back to the value it began
+    // with — the last input reported another value, so one input reports it again.
+    await input(page, 'limit').focus();
+    expect(await compose('limit', ['abcd'])).toEqual(['input:abcd:true', 'input:abc:false']);
+    expect(await value('limit')).toBe('abc');
+    await expect(input(page, 'limit')).toHaveValue('abc');
+  });
+
   test('TXI-5: a disabled field is not focusable or editable, emits nothing, is exposed disabled, is left out of its form and draws its disabled tokens', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...only(/^(outlined|filled)-(?!date|multiline)/, /^stacked-disabled$/), fixture('disabled-error', { variant: 'outlined', label: 'Email', value: 'ada@', error: true, disabled: true })] });
     for (const [id, variant, error] of [['outlined-disabled', 'outlined', false], ['filled-disabled', 'filled', false], ['stacked-disabled', 'stacked', false], ['disabled-error', 'outlined', true]] as const) {

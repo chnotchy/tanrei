@@ -1639,13 +1639,14 @@ test.describe('behavior: the list', () => {
     /**
      * A composition — inserting `text`, or nothing (cancelled) — then, in the same task, before the `input` that closes it
      * arrives (src/primitives/native-text.ts sends it in a later task), the list is closed: by Escape from the input, or
-     * by the product. Returns once that closing input has reached the element.
+     * by the product. Returns once the task in which that closing input may be sent has run — a timer set after
+     * `compositionend` runs after the component's — whether or not one was (TXI-4: none closes a composition that
+     * changed nothing).
      */
     const closeInTheGap = (how: 'escape' | 'product', text: string) =>
       input(page, 'c').evaluate(
         (el: HTMLInputElement, [by, inserted]) =>
           new Promise<void>((resolve) => {
-            el.addEventListener('input', (event) => (event as InputEvent).isComposing || resolve());
             el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
             el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
             if (inserted) {
@@ -1655,6 +1656,7 @@ test.describe('behavior: the list', () => {
             el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: inserted }));
             if (by === 'escape') el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true }));
             else ((el.getRootNode() as ShadowRoot).host as HTMLElement & { open: boolean }).open = false;
+            setTimeout(resolve);
           }),
         [how, text] as const,
       );
@@ -1686,6 +1688,63 @@ test.describe('behavior: the list', () => {
     await type(page, 'o');
     expect(await heard(page)).toEqual(['toggle true', 'input kyoto']);
     await shownList(page, 'c').toBe(true);
+  });
+
+  test('CMB-16, CMB-21 (TXI-4, TXI-1): a composition that ends with the text as it began — cancelled, or committing nothing — emits no input as it ends, in the order of every engine, and the first match is active again; a committed one emits exactly one input that is not composing', async ({ page }) => {
+    await mount(page, [fx('c', {})], { reducedMotion: true });
+    await host(page, 'c').evaluate((el) => {
+      const log = ((window as any).heard = [] as string[]);
+      el.addEventListener('input', (event) => log.push(`input ${(el as any).inputValue} ${(event as InputEvent).isComposing}`));
+      el.addEventListener('toggle', (event) => log.push(`toggle ${(event as CustomEvent).detail.open}`));
+    });
+    /**
+     * A composition driven with the platform's events, as an engine sends them: `steps` are what the input holds after
+     * each of its `input`s while it composes; `last` is what the engine's own `input` after `compositionend` brings, as
+     * Firefox sends it (Chromium and WebKit send none). Returns the events heard once the task in which the combobox may
+     * send the input that closes the composition has run — a timer set after `compositionend` runs after the combobox's.
+     */
+    const compose = (steps: string[], last?: string) =>
+      input(page, 'c').evaluate(
+        (el: HTMLInputElement, [steps, last]) =>
+          new Promise<string[]>((resolve) => {
+            el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' }));
+            for (const step of steps) {
+              el.value = step;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: step }));
+            }
+            el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+            if (last !== undefined) {
+              el.value = last;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: false, inputType: 'insertCompositionText', data: '' }));
+            }
+            setTimeout(() => resolve((window as any).heard.splice(0)));
+          }),
+        [steps, last] as const,
+      );
+    await focusInput(page, 'c');
+    // Before any typing: a composition that inserted nothing opens nothing and emits nothing, in either order.
+    expect(await compose([])).toEqual([]);
+    expect(await compose([], '')).toEqual([]);
+    expect(await read(page, 'c')).toMatchObject({ text: '', open: false });
+    await type(page, 'k');
+    await shownList(page, 'c').toBe(true);
+    const active = (await read(page, 'c')).active;
+    expect(active, 'typing made a match active').toBeTruthy();
+    await page.evaluate(() => (window as any).heard.splice(0));
+    // Cancelled in Chromium's and WebKit's order — the input method takes its text away — and in Firefox's: only the
+    // input method's own inputs, and the first match is active again once it has ended.
+    expect(await compose(['ky', 'k'])).toEqual(['input ky true', 'input k true']);
+    await expect.poll(async () => (await read(page, 'c')).active).toBe(active);
+    expect(await compose(['ky', 'k'], 'k')).toEqual(['input ky true', 'input k true']);
+    await expect.poll(async () => (await read(page, 'c')).active).toBe(active);
+    expect(await compose([])).toEqual([]);
+    expect(await compose([], 'k')).toEqual([]);
+    expect(await read(page, 'c')).toMatchObject({ text: 'k', open: true });
+    // Committed: exactly one input that is not composing — the combobox's in Chromium's and WebKit's order, the
+    // engine's own in Firefox's.
+    expect(await compose(['ky'])).toEqual(['input ky true', 'input ky false']);
+    expect(await compose(['kyo'], 'kyo')).toEqual(['input kyo true', 'input kyo false']);
+    expect(await read(page, 'c')).toMatchObject({ text: 'kyo', open: true });
   });
 
   test('CMB-30: Escape with the list open closes it, keeps the text and goes no further; with the list closed and the text edited it writes the committed value’s text back, emits input once and stops; otherwise it passes on, and never empties a value; a press outside closes with the reason outside and resolves the text; a list with nothing left to show closes with the reason empty and opens again when there is', async ({ page }) => {
