@@ -69,11 +69,15 @@ const PAINTED = [
   'outline-offset',
   'display',
 ] as const;
+/** What `painted` reads: each of `PAINTED` as its computed value, and the box's width and height in px. */
+type Painted = Record<(typeof PAINTED)[number], string> & { width: number; height: number };
 export const painted = (host: Locator) =>
-  container(host).evaluate((el, props) => {
+  container(host).evaluate((el, props): Painted => {
     const style = getComputedStyle(el);
     const box = el.getBoundingClientRect();
-    return { ...Object.fromEntries(props.map((prop) => [prop, style.getPropertyValue(prop)])), width: Math.round(box.width * 100) / 100, height: Math.round(box.height * 100) / 100 };
+    // Object.fromEntries cannot know its keys: they are PAINTED's, each read once.
+    const read = Object.fromEntries(props.map((prop) => [prop, style.getPropertyValue(prop)])) as Record<(typeof PAINTED)[number], string>;
+    return { ...read, width: Math.round(box.width * 100) / 100, height: Math.round(box.height * 100) / 100 };
   }, PAINTED as readonly string[]);
 
 /** A state is read once it has settled: two frames for its transitions to start, then every one of them finished. */
