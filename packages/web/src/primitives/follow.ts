@@ -74,6 +74,9 @@ const sizeOf = (entry: ResizeObserverEntry) => {
   return box ? `${box.inlineSize},${box.blockSize}` : `${entry.contentRect.width},${entry.contentRect.height}`;
 };
 
+/** A box `getBoundingClientRect()` gave, as one comparable string: compared only with another such, never with a report. */
+const boxOf = (box: DOMRectReadOnly) => `${box.left},${box.top},${box.width},${box.height}`;
+
 /**
  * Follows what an overlay is placed against by events, frame by frame only while it moves (TIP-9, MNU-2, MNU-46,
  * FBM-13, SRC-7, DTM-2), and tells it when its anchor is no longer drawn (MNU-65, DTM-51). `start()` when the overlay is
@@ -93,6 +96,8 @@ export class FollowController implements ReactiveController {
   private resizes: ResizeObserver | null = null;
   private attributes: MutationObserver | null = null;
   private readonly places = new Map<Element, IntersectionObserver>();
+  /** The box each followed element's place observer was set at (`boxOf`). */
+  private readonly armedAt = new WeakMap<Element, string>();
   private scheme: MediaQueryList | null = null;
   /** The anchor was found not drawn, and the component told; until it is drawn again. */
   private undrawn = false;
@@ -206,7 +211,11 @@ export class FollowController implements ReactiveController {
     if (!same(followed, this.followed) || !same(sized, this.sized)) {
       this.unwatch();
       this.watch(followed, sized);
-    } else if (changed) for (const element of this.followed) this.arm(element);
+    } else if (changed) {
+      // Set again at its new box, each one that moved: one that has not (the anchor, while a submenu's item moves with
+      // its surface) is still watched where it is.
+      for (const element of this.followed) if (!this.places.has(element) || boxOf(element.getBoundingClientRect()) !== this.armedAt.get(element)) this.arm(element);
+    }
     return changed;
   }
 
@@ -268,6 +277,13 @@ export class FollowController implements ReactiveController {
    * A size changed. Checked at once, in the same frame — with the sized elements (which the placement itself resizes: a
    * capped height) out of the observer until the next frame, so that placing inside the callback is not a resize loop.
    * Observing again reports each once more; a report of the size already seen is not a change.
+   *
+   * A size is only ever compared with one the observer reported, never with one read from the page: the observer gives
+   * the box before any transform, at its own precision, while `getBoundingClientRect()` gives it after (a surface
+   * scaled by its entrance, or at rest) and, in Firefox, at another precision (101.01666… against 101.01667… for one
+   * width). Either made every report after observing again a change, and so a check and another observing in every
+   * frame for as long as the overlay was open. A placement that resized what is sized is seen in that report: one
+   * check more, which finds nothing to place.
    */
   private readonly onResize = (entries: ResizeObserverEntry[]) => {
     let changed = false;
@@ -283,12 +299,7 @@ export class FollowController implements ReactiveController {
     this.reobserve = requestAnimationFrame(() => {
       this.reobserve = 0;
       if (!this.active) return;
-      for (const element of this.sized) {
-        // The size it has now is the one placed for, unless something else changed it since: the report says which.
-        const box = element.getBoundingClientRect();
-        this.sizes.set(element, `${box.width},${box.height}`);
-        this.resizes?.observe(element);
-      }
+      for (const element of this.sized) this.resizes?.observe(element);
     });
   };
 
@@ -304,6 +315,7 @@ export class FollowController implements ReactiveController {
     if (typeof IntersectionObserver === 'undefined' || !element.isConnected) return;
     const box = element.getBoundingClientRect();
     if (!box.width || !box.height) return;
+    this.armedAt.set(element, boxOf(box));
     const root = element.ownerDocument.documentElement;
     const inset = (value: number) => `${-Math.floor(value)}px`;
     const rootMargin = `${inset(box.top)} ${inset(root.clientWidth - box.right)} ${inset(root.clientHeight - box.bottom)} ${inset(box.left)}`;
