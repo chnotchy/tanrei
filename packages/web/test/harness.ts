@@ -14,7 +14,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
 const repo = path.resolve(pkg, '../..');
 
-type Props = Record<string, string | boolean | number | string[]>;
+type Props = Record<string, string | boolean | number | string[] | number[]>;
 type PropDecl = { name: string; type: string; default?: unknown; /** The member's prop this one is (`"<member>.<prop>"`), kept by `resolveFrom`. */ from?: string };
 /** One item of a fixture: its kind, its props, its text or glyph, and — for a group kind — its own items. */
 export interface FixtureItem {
@@ -52,7 +52,8 @@ export interface Spec {
   builtFrom?: string[];
   props?: PropDecl[];
   items?: { name: string; component?: string; container?: boolean; props: PropDecl[]; slots?: { name: string }[] }[];
-  slots?: { name: string; fixture?: SlotFixture }[] | null;
+  /** `from`: the member's slot this one is, kept by `resolveFrom`. */
+  slots?: { name: string; fixture?: SlotFixture; from?: string }[] | null;
   fixtures: Fixture[];
   behavior: { id: string; text: string }[];
   platforms: { web: { name: string; props?: Record<string, string>; items?: Record<string, { name: string; props?: Record<string, string> }> } };
@@ -337,8 +338,8 @@ function itemsMarkup(spec: Spec, items: FixtureItem[], staging: Staging): string
       // Button's own (an icon action's `text` variant); an icon-only kind that declares no variant is a text Button.
       const isButton = kind.component === 'button';
       const iconOnlyKind = isButton && !!kind.slots?.length && kind.slots.every((slot) => slot.name === 'icon');
-      const textByDefault = iconOnlyKind && !kind.props.some((p) => p.name === 'variant') ? { variant: 'text' } : {};
-      const { icon, ...buttonProps } = isButton ? { ...textByDefault, ...buttonDefaults(kind.props), ...given } : { icon: undefined };
+      const textByDefault: Props = iconOnlyKind && !kind.props.some((p) => p.name === 'variant') ? { variant: 'text' } : {};
+      const { icon, ...buttonProps }: Props = isButton ? { ...textByDefault, ...buttonDefaults(kind.props), ...given } : {};
       // A kind that is another component whose web mapping puts `icon` in a slot (a tag group's tag and chip:
       // `"icon": "slot=\"icon\""`) takes the glyph there too, and no attribute for it.
       const slotted = !isButton && typeof given.icon === 'string' && /^slot=/.test(web.props?.icon ?? '');
@@ -535,7 +536,7 @@ export async function inputBoxSetApart(page: Page, tag: string, inner?: string):
       const settled = async () => {
         for (const element of pair) {
           await (element as HTMLElement & { updateComplete?: Promise<unknown> }).updateComplete;
-          await (member ? (element.shadowRoot!.querySelector(member) as HTMLElement & { updateComplete?: Promise<unknown> }) : element).updateComplete;
+          await ((member ? element.shadowRoot!.querySelector(member) : element) as HTMLElement & { updateComplete?: Promise<unknown> }).updateComplete;
         }
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       };
@@ -588,7 +589,7 @@ function framedLanguage(element: string, fixture: Fixture, tag: string): string 
 
 /** A checkbox group's items with `checked` on each whose value the fixture's `value` holds: the first value, as markup says it (CKG-3). */
 export function checkedItems(fixture: Fixture): FixtureItem[] {
-  const held = Array.isArray(fixture.props.value) ? fixture.props.value : [];
+  const held: unknown[] = Array.isArray(fixture.props.value) ? fixture.props.value : [];
   return (fixture.items ?? []).map((item) => (held.includes(String(item.props.value)) ? { ...item, props: { ...item.props, checked: true } } : item));
 }
 
@@ -2455,7 +2456,7 @@ export function glyphsSpelled(families: string[]): string[] {
   const visit = (root: Document | ShadowRoot, host: string) => {
     for (const el of root.querySelectorAll<HTMLElement>('*')) {
       if (el.shadowRoot) visit(el.shadowRoot, el.localName);
-      const texts = [...el.childNodes].filter((node): node is Text => node.nodeType === Node.TEXT_NODE && !!node.data.trim());
+      const texts = [...el.childNodes].filter((node): node is Text => node.nodeType === Node.TEXT_NODE && !!(node as Text).data.trim());
       // Content that is not rendered (in a closed `<details>`, a `hidden="until-found"` list, under `display: none`) is
       // in no picture, and is not looked into: measuring it makes Chromium lay it out (a tree's closed rows then report
       // their parent's place).

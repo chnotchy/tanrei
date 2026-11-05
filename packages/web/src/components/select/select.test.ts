@@ -1313,7 +1313,7 @@ test.describe('behavior: the list', () => {
     await row(page, 'one', 'Kenya').click();
     expect(await read(page, 'one')).toMatchObject({ value: 'ke', open: false, expanded: 'false' });
     expect(await heard(page)).toEqual(['toggle true', 'change ke', 'toggle false select']);
-    expect(await part(page, 'one', '.surface').evaluate((el) => [el.matches(':popover-open'), getComputedStyle(el).pointerEvents, el.inert]), 'still drawn, taking no input').toEqual([true, 'none', true]);
+    expect(await part(page, 'one', '.surface').evaluate((el: HTMLElement) => [el.matches(':popover-open'), getComputedStyle(el).pointerEvents, el.inert]), 'still drawn, taking no input').toEqual([true, 'none', true]);
     expect(await css(motion, 'transition-duration')).toBe('40s');
     // Told to open while still closing: it turns round from where it is. (It had faded for a few answers of 40 s: from
     // nothing it would be near 0 now, from where it was it is near 1.)
@@ -2214,7 +2214,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await mount(page, [fx('one', { value: 'team', open: true, inline: false, placeholder: 'Choose a plan', label: 'Plan' }, [group('Plans', [option('Free', 'free', { supportingText: 'One project' }), option('Team', 'team', { supportingText: 'Unlimited projects', leadingIcon: 'group' })]), group('', [option('Enterprise', 'enterprise', { disabled: true })])])]);
     await shownList(page, 'one').toBe(true);
     const c = container(page, 'one');
-    expect(await c.evaluate((el) => [el.getAttribute('role'), el.localName, el.isContentEditable, el.querySelector('input, textarea') === null, el.getAttribute('aria-autocomplete'), el.getAttribute('aria-label')])).toEqual(['combobox', 'div', false, true, null, 'Plan']);
+    expect(await c.evaluate((el: HTMLElement) => [el.getAttribute('role'), el.localName, el.isContentEditable, el.querySelector('input, textarea') === null, el.getAttribute('aria-autocomplete'), el.getAttribute('aria-label')])).toEqual(['combobox', 'div', false, true, null, 'Plan']);
     const active = await c.getAttribute('aria-activedescendant');
     expect(await part(page, 'one', `#${active}`).locator('.option-label').textContent()).toBe('Team');
     const list = part(page, 'one', '#list');
@@ -2491,7 +2491,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     near(list.x, c.x, 'left to right: start edges at the left');
     expect(chevron.x).toBeGreaterThan(c.x + c.width / 2);
     // The ancestor — not the root — becomes right-to-left.
-    await page.locator('#region').evaluate((el) => (el.dir = 'rtl'));
+    await page.locator('#region').evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     await expect.poll(async () => Math.round(right(await box(part(page, 'one', '.list'))) - right(await box(container(page, 'one'))))).toBe(0);
     [c, list, chevron] = [await box(container(page, 'one')), await box(part(page, 'one', '.list')), await box(part(page, 'one', '.chevron'))];
     expect(c.x, 'the select moved to the right edge').toBeGreaterThan(300);
@@ -2499,7 +2499,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await read(page, 'one')).toMatchObject({ value: 'fr', open: true, active: 'Japan', focused: true, shown: true });
     expect(await page.evaluate(() => document.documentElement.dir)).toBe('');
     // …and back.
-    await page.locator('#region').evaluate((el) => (el.dir = 'ltr'));
+    await page.locator('#region').evaluate((el: HTMLElement) => (el.dir = 'ltr'));
     await expect.poll(async () => Math.round((await box(part(page, 'one', '.list'))).x - (await box(container(page, 'one'))).x)).toBe(0);
     expect(await read(page, 'one')).toMatchObject({ open: true, active: 'Japan', focused: true });
     expect(await host(page, 'one').evaluate((el) => (el as unknown as Record<string, unknown>).dir === '' && !('direction' in el))).toBe(true);

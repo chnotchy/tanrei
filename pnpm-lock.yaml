@@ -521,6 +521,9 @@ importers:
       '@tanrei/tools':
         specifier: workspace:*
         version: link:../tools
+      '@types/node':
+        specifier: ^22.20.3
+        version: 22.20.3
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2

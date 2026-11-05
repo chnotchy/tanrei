@@ -205,7 +205,7 @@ test.describe('the platform’s own link', () => {
   });
 
   test('LKC-36 before its script has run, or without it, every fixture is drawn whole and at rest, and nothing moves when the script arrives: the box of the card and of each of its parts is the same before and after', async ({ browser, page }) => {
-    const document = await fixturesDocument(spec, { icons: true });
+    const markup = await fixturesDocument(spec, { icons: true });
     const measure = (p: P) =>
       p.evaluate(() =>
         Object.fromEntries(
@@ -222,7 +222,7 @@ test.describe('the platform’s own link', () => {
     // context with scripting turned off cannot be measured in every engine; LKC-1's test follows a card in one.)
     const context = await browser.newContext({ viewport: { width: 1000, height: 800 } });
     const plain = await context.newPage();
-    await plain.setContent(document.replace(/<script type="module">[\s\S]*<\/script>/, ''));
+    await plain.setContent(markup.replace(/<script type="module">[\s\S]*<\/script>/, ''));
     await plain.evaluate(() => document.fonts.ready);
     expect(await plain.evaluate(() => customElements.get('tanrei-link-card'))).toBeUndefined();
     const before = await measure(plain);

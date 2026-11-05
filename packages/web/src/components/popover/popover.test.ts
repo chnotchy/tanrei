@@ -392,7 +392,7 @@ test.describe('presentation', () => {
     expect(turned.opacity).toBeCloseTo(opening.opacity, 2);
     expect(turned.scale).toBeCloseTo(opening.scale, 2);
     // Closing: no pointer and no focus — a press reaches what lies under it.
-    expect(await surface(page).evaluate((el) => [getComputedStyle(el).pointerEvents, el.inert, el.matches(':popover-open')])).toEqual(['none', true, true]);
+    expect(await surface(page).evaluate((el: HTMLElement) => [getComputedStyle(el).pointerEvents, el.inert, el.matches(':popover-open')])).toEqual(['none', true, true]);
     await page.evaluate(() => document.querySelector('#under')!.addEventListener('click', () => (window as unknown as { __log: string[] }).__log.push('under')));
     await page.mouse.click(380, 275);
     expect(await log(page)).toEqual(['under']);
@@ -407,7 +407,7 @@ test.describe('presentation', () => {
     expect(back.scale).toBeCloseTo(before.scale, 2);
     expect(back.opacity).toBeLessThan(1);
     expect(back.scale).toBeGreaterThan(start);
-    expect(await surface(page).evaluate((el) => [el.matches(':popover-open'), el.inert])).toEqual([true, false]);
+    expect(await surface(page).evaluate((el: HTMLElement) => [el.matches(':popover-open'), el.inert])).toEqual([true, false]);
     // The rest takes no longer than the whole motion it turned to.
     const left = await motion.evaluate((el) => Math.max(0, ...el.getAnimations().map((animation) => Number(animation.effect!.getComputedTiming().endTime) - Number(animation.currentTime ?? 0))));
     expect(left).toBeLessThanOrEqual(600);

@@ -99,7 +99,7 @@ test.describe('the parts and their sizes', () => {
       expect(await table(page, id).locator('> thead > tr').count()).toBe(1);
       expect(await table(page, id).locator('> thead > tr > th').allTextContents()).toEqual(columns.map((c) => String(c.props.header)));
       expect(await table(page, id).locator('> tbody > tr > :first-child').allTextContents()).toEqual(rows.filter((r) => !r.props.footer).map((r) => r.items![0].content));
-      expect(await table(page, id).evaluate((el) => [...el.rows].map((tr) => tr.cells.length))).toEqual(Array(rows.length + 1).fill(columns.length));
+      expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.rows].map((tr) => tr.cells.length))).toEqual(Array(rows.length + 1).fill(columns.length));
       // The native table is a table still, and the box is its layout's width.
       expect(await css(table(page, id), 'display')).toBe('table');
       const [outer, inner, wrapper] = [await box(stage(page, id)), await box(table(page, id)), await box(host(page, id))];
@@ -543,7 +543,7 @@ test.describe('caption, footer, cells', () => {
     await expect.poll(() => seen.filter((m) => m.includes('TBL-14') && m.includes('5 cells') && m.includes('3 columns')).length).toBe(1);
     // Too few: reported as well, and the row holds the one cell it was given.
     await expect.poll(() => seen.filter((m) => m.includes('TBL-14') && m.includes('1 cells') && m.includes('3 columns')).length).toBe(1);
-    expect(await table(page, 'ragged').evaluate((el) => el.tBodies[0].rows[1].cells.length)).toBe(1);
+    expect(await table(page, 'ragged').evaluate((el: HTMLTableElement) => el.tBodies[0].rows[1].cells.length)).toBe(1);
   });
 
   test('TBL-15: a component in a cell is placed by the column’s alignment on the cell’s first line, takes nothing from the table, adds no height to the row, and is reached by pointer and keyboard as outside the table', async ({ page }) => {
@@ -660,7 +660,7 @@ test.describe('scrolling in its own box', () => {
     await host(page, 'with-status').evaluate((el) => (el.scrollTop = 0));
     const natural = await box(host(page, 'sticky-header'));
     near(natural.height, (await box(table(page, 'sticky-header'))).height, 0.1);
-    const parts = await table(page, 'sticky-header').evaluate((el) => [el.caption!, ...el.rows].reduce((sum, part) => sum + part.getBoundingClientRect().height, 0));
+    const parts = await table(page, 'sticky-header').evaluate((el: HTMLTableElement) => [el.caption!, ...el.rows].reduce((sum, part) => sum + part.getBoundingClientRect().height, 0));
     near(natural.height, parts, 0.5);
     expect(await css(host(page, 'sticky-header'), 'max-height')).toBe('none');
     await size(page, 'sticky-header', { height: 240 });
@@ -745,7 +745,7 @@ test.describe('scrolling in its own box', () => {
         near((await box(c)).width, widths[index], 0.1);
       }
       // For the table's whole height: every first cell, and they touch.
-      expect(await table(page, id).evaluate((el) => [...el.rows].every((r) => getComputedStyle(r.cells[0]).borderRightWidth !== '0px'))).toBe(true);
+      expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.rows].every((r) => getComputedStyle(r.cells[0]).borderRightWidth !== '0px'))).toBe(true);
       // Over the columns that pass under it.
       expect(await firsts[1].evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.left + r.width - 4, r.top + r.height / 2) === el; })).toBe(true);
       // The start line of the box is this line: the box draws none of its own there (TBL-21).
@@ -1021,7 +1021,7 @@ test.describe('changes, direction, text size, forced colors', () => {
   test('TBL-25: rows, columns and cells that change are drawn at once, without a motion, the scroll kept, and nothing announces the change — the status line is the one place that tells one (TBL-52), and focus stays on the sort button through a change of rows (TBL-34)', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('wide', 'basic') });
     await host(page, 'wide').evaluate((el) => (el.scrollLeft = 120));
-    await table(page, 'wide').evaluate((el) => {
+    await table(page, 'wide').evaluate((el: HTMLTableElement) => {
       const added = el.tBodies[0].insertRow();
       for (let i = 0; i < 9; i++) added.insertCell().textContent = i ? String(1000 + i) : 'Highlands';
       for (const tr of el.rows) tr.deleteCell(4);
@@ -1040,12 +1040,12 @@ test.describe('changes, direction, text size, forced colors', () => {
     }
     expect(await host(page, 'wide').evaluate((el) => [el, ...el.querySelectorAll('*')].filter((part) => part.hasAttribute('aria-live') || ['status', 'alert', 'log'].includes(part.getAttribute('role') ?? '')).length)).toBe(0);
     // Columns enough to overflow make the box a region; rows taken away make it none again.
-    await table(page, 'basic').evaluate((el) => {
+    await table(page, 'basic').evaluate((el: HTMLTableElement) => {
       for (const tr of el.rows) for (let i = 0; i < 8; i++) tr.insertCell().textContent = 'One more column of text';
       for (const td of el.querySelectorAll('td')) td.setAttribute('data-wrap', 'false');
     });
     await expect(host(page, 'basic')).toHaveAttribute('role', 'region');
-    await table(page, 'basic').evaluate((el) => {
+    await table(page, 'basic').evaluate((el: HTMLTableElement) => {
       for (const tr of el.rows) while (tr.cells.length > 3) tr.deleteCell(-1);
     });
     await expect(host(page, 'basic')).not.toHaveAttribute('role', 'region');
@@ -1294,9 +1294,9 @@ test.describe('changes, direction, text size, forced colors', () => {
 test.describe('the element and its stylesheet', () => {
   /** The fixtures' document with the stylesheet a page loads and no script: the table before its element is defined. */
   const withoutScript = async (page: P, fixtures: Fixture[]) => {
-    const document = await fixturesDocument(spec, { fixtures });
-    const script = document.lastIndexOf('<script type="module">');
-    await page.setContent(`${document.slice(0, script)}</body></html>`);
+    const markup = await fixturesDocument(spec, { fixtures });
+    const script = markup.lastIndexOf('<script type="module">');
+    await page.setContent(`${markup.slice(0, script)}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
   };
   const geometry = (page: P) =>
@@ -1430,9 +1430,9 @@ test.describe('the element and its stylesheet', () => {
       }
     };
     // The page counts what the element asks of it, from before the element is defined.
-    const document = (await fixturesDocument(spec, { fixtures: [many] })).replace('<head>', `<head><script>(${instrument.toString()})()</script>`);
+    const markup = (await fixturesDocument(spec, { fixtures: [many] })).replace('<head>', `<head><script>(${instrument.toString()})()</script>`);
     const started = Date.now();
-    await page.setContent(document);
+    await page.setContent(markup);
     await page.waitForFunction(() => !!customElements.get('tanrei-table') && document.querySelector('tanrei-table')!.hasAttribute('data-columns'));
     const mounted = Date.now() - started;
     await page.evaluate(() => document.fonts.ready);
@@ -1595,7 +1595,7 @@ test.describe('a column that can be sorted', () => {
     // A change of order moves no label and changes no column's width.
     const widths = () => Promise.all([1, 2, 3].map(async (n) => [(await box(cell(page, 'sortable', 'thead', 1, n))).width, (await labelBox(control(page, 'sortable', n))).left]));
     const before = await widths();
-    await table(page, 'sortable').evaluate((el) => {
+    await table(page, 'sortable').evaluate((el: HTMLTableElement) => {
       el.tHead!.rows[0].cells[0].setAttribute('aria-sort', 'none');
       el.tHead!.rows[0].cells[2].setAttribute('aria-sort', 'descending');
     });
@@ -1624,11 +1624,11 @@ test.describe('a column that can be sorted', () => {
     // The sorted label is the color of the data; the others keep the header's.
     sameColor((await drawn(1)).label, await css(cell(page, 'sortable', 'tbody', 1, 1), 'color'));
     sameColor((await drawn(2)).label, await css(cell(page, 'basic', 'thead', 1, 1), 'color'));
-    const order = () => table(page, 'sortable').evaluate((el) => [...el.tBodies[0].rows].map((row) => row.cells[0].textContent));
+    const order = () => table(page, 'sortable').evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].map((row) => row.cells[0].textContent));
     const given = await order();
     expect(given).toEqual(['Filter paper', 'Hand grinder', 'Kettle', 'Scale']);
     // The product sets another order: the other glyph and colors at once, and the rows as they are given.
-    await table(page, 'sortable').evaluate((el) => {
+    await table(page, 'sortable').evaluate((el: HTMLTableElement) => {
       el.tHead!.rows[0].cells[0].setAttribute('aria-sort', 'none');
       el.tHead!.rows[0].cells[2].setAttribute('aria-sort', 'descending');
     });
@@ -1640,7 +1640,7 @@ test.describe('a column that can be sorted', () => {
     expect(await order()).toEqual(given);
     expect(await cell(page, 'sortable', 'thead', 1, 2).getAttribute('aria-sort')).toBe('none');
     // Two columns that say the rows are in their order: each drawn as given, and reported once.
-    await table(page, 'sortable').evaluate((el) => el.tHead!.rows[0].cells[0].setAttribute('aria-sort', 'ascending'));
+    await table(page, 'sortable').evaluate((el: HTMLTableElement) => el.tHead!.rows[0].cells[0].setAttribute('aria-sort', 'ascending'));
     await expectPart(1, 'sorted', 'arrow_upward');
     await expectPart(3, 'sorted', 'arrow_downward');
     await expect.poll(() => seen.filter((m) => m.includes('TBL-33')).length).toBeGreaterThanOrEqual(1);
@@ -1951,7 +1951,7 @@ test.describe('a column that can be sorted', () => {
 
   test('TBL-41: a sortable column’s header cell is a column header that carries the order — ascending, descending or none — and holds a button named by the column’s header; the mark is hidden from assistive technology; a table that sorts nothing has no order; the table announces no order', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('sortable', 'basic') });
-    expect(await table(page, 'sortable').evaluate((el) => [...el.tHead!.rows[0].cells].map((c) => [c.localName, c.getAttribute('scope'), c.getAttribute('aria-sort')]))).toEqual([['th', 'col', 'ascending'], ['th', 'col', 'none'], ['th', 'col', 'none']]);
+    expect(await table(page, 'sortable').evaluate((el: HTMLTableElement) => [...el.tHead!.rows[0].cells].map((c) => [c.localName, c.getAttribute('scope'), c.getAttribute('aria-sort')]))).toEqual([['th', 'col', 'ascending'], ['th', 'col', 'none'], ['th', 'col', 'none']]);
     for (const [column, name] of [[1, 'Name'], [2, 'Stock'], [3, 'Price']] as const) {
       await expect(cell(page, 'sortable', 'thead', 1, column).getByRole('button', { name, exact: true })).toHaveCount(1);
       await expect(stage(page, 'sortable').getByRole('columnheader', { name, exact: true })).toHaveCount(1);
@@ -2004,9 +2004,9 @@ test.describe('no rows, and the status line', () => {
     expect(await css(only, 'background-color')).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
     // One row of one cell, with no word, glyph or role of the table's, and nothing live.
     await expect(stage(page, 'empty').getByRole('row')).toHaveCount(2);
-    expect(await row.evaluate((el) => [el.getAttribute('role'), el.querySelectorAll('[role], [aria-live]').length, getComputedStyle(el.cells[0], '::before').content, getComputedStyle(el.cells[0], '::after').content])).toEqual([null, 0, 'none', 'none']);
+    expect(await row.evaluate((el: HTMLTableRowElement) => [el.getAttribute('role'), el.querySelectorAll('[role], [aria-live]').length, getComputedStyle(el.cells[0], '::before').content, getComputedStyle(el.cells[0], '::after').content])).toEqual([null, 0, 'none', 'none']);
     // Nothing in the slot: the header alone.
-    expect(await table(page, 'header-alone').evaluate((el) => el.tBodies[0].rows.length)).toBe(0);
+    expect(await table(page, 'header-alone').evaluate((el: HTMLTableElement) => el.tBodies[0].rows.length)).toBe(0);
     near((await box(table(page, 'header-alone'))).height, (await box(table(page, 'header-alone').locator('> thead > tr'))).height, 0.1);
     // A table wider than its box: the element puts the colspan right, the content is as wide as the box at most and
     // stays in view sideways; the footer rows follow it, and no stripe is drawn through it.
@@ -2321,14 +2321,14 @@ test.describe('the data features in other conditions', () => {
     const ids = ['sortable', 'sorted-end', 'sortable-compact', 'sortable-long-headers', 'empty', 'status', 'status-pagination', 'status-long', 'rtl-empty'];
     const linked = raw('linked', { label: 'Linked' }, '<table><thead><tr><th scope="col" aria-sort="none"><a href="#by-stock">Stock</a></th></tr></thead><tbody><tr><td>15</td></tr></tbody></table>');
     const kept: Fixture = { ...fixture('status-pagination'), id: 'short', props: { caption: 'Short', status: '1–4 of 132' } };
-    const document = await fixturesDocument(spec, { icons: true, fixtures: [...some(...ids), linked, kept] });
-    const script = document.lastIndexOf('<script type="module">');
-    const html = `${document.slice(0, script)}<style>[data-fixture="short"] tanrei-table { max-block-size: 150px; } tanrei-table th > :is(button, a)::before { transition: none !important; }</style></body></html>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [...some(...ids), linked, kept] });
+    const script = markup.lastIndexOf('<script type="module">');
+    const html = `${markup.slice(0, script)}<style>[data-fixture="short"] tanrei-table { max-block-size: 150px; } tanrei-table th > :is(button, a)::before { transition: none !important; }</style></body></html>`;
     await off.setContent(html);
     expect(await off.locator('tanrei-table').first().evaluate((el) => el.matches(':defined'))).toBe(false);
     // The same document with the script: every box of every part is where the stylesheet alone drew it.
     const on = await off.context().newPage();
-    await on.setContent(`${html.replace('</body></html>', '')}${document.slice(script)}`);
+    await on.setContent(`${html.replace('</body></html>', '')}${markup.slice(script)}`);
     await on.waitForFunction(() => !!customElements.get('tanrei-table') && [...document.querySelectorAll('tanrei-table')].every((el) => el.hasAttribute('data-columns')));
     const geometry = (p: P) =>
       p.evaluate(async () => {
@@ -2427,7 +2427,7 @@ test.describe('rows that can be chosen', () => {
     const f = fixture('selection');
     const columns = f.items!.filter((item) => item.kind === 'column').length;
     // One cell more than the columns of data in every row, and the first is the selection cell: a cell, not a header.
-    expect(await table(page, 'selection').evaluate((el) => [...el.rows].map((tr) => [tr.cells.length, tr.cells[0].localName, tr.cells[0].dataset.part].join(' ')))).toEqual(Array(6).fill(`${columns + 1} td selection`));
+    expect(await table(page, 'selection').evaluate((el: HTMLTableElement) => [...el.rows].map((tr) => [tr.cells.length, tr.cells[0].localName, tr.cells[0].dataset.part].join(' ')))).toEqual(Array(6).fill(`${columns + 1} td selection`));
     // The header row's holds the checkbox for every row, a body row's its own, the footer row's nothing.
     await expect(check(page, 'selection', 'thead', 1)).toHaveCount(1);
     for (const r of [1, 2, 3, 4]) await expect(check(page, 'selection', 'tbody', r)).toBeVisible();
@@ -2617,12 +2617,12 @@ test.describe('rows that can be chosen', () => {
       expect(await choices(page)).toHaveLength(4);
       // The rows given again in another order: each is drawn by its own selected.
       const now = await chosen(page, id);
-      await table(page, id).evaluate((el) => el.tBodies[0].append(...[...el.tBodies[0].rows].reverse()));
+      await table(page, id).evaluate((el: HTMLTableElement) => el.tBodies[0].append(...[...el.tBodies[0].rows].reverse()));
       await frame(page);
       expect(await chosen(page, id)).toEqual([...now].reverse());
-      expect(await table(page, id).evaluate((el) => [...el.tBodies[0].rows].filter((tr) => tr.dataset.value).map((tr) => (tr.cells[0].firstElementChild as HTMLInputElement).checked === tr.hasAttribute('data-selected')))).toEqual(Array(order.length).fill(true));
+      expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].filter((tr) => tr.dataset.value).map((tr) => (tr.cells[0].firstElementChild as HTMLInputElement).checked === tr.hasAttribute('data-selected')))).toEqual(Array(order.length).fill(true));
       // Other rows, one with the value of a row that was chosen: nothing is carried over to it.
-      await table(page, id).evaluate((el, value) => {
+      await table(page, id).evaluate((el: HTMLTableElement, value) => {
         const fresh = [...el.tBodies[0].rows].find((tr) => tr.dataset.value)!.cloneNode(true) as HTMLTableRowElement;
         fresh.dataset.value = value;
         fresh.removeAttribute('data-selected');
@@ -2702,7 +2702,7 @@ test.describe('rows that can be chosen', () => {
       el.closest('tbody')!.append(fresh);
     });
     await expect.poll(() => said(check(page, 'selection-all', 'thead', 1))).toBe('mixed enabled');
-    await table(page, 'selection-all').evaluate((el) => el.tBodies[0].replaceChildren());
+    await table(page, 'selection-all').evaluate((el: HTMLTableElement) => el.tBodies[0].replaceChildren());
     await expect.poll(() => said(check(page, 'selection-all', 'thead', 1))).toBe('unchecked disabled');
   });
 
@@ -3119,17 +3119,17 @@ test.describe('rows that can be chosen', () => {
     await tabTo(page, check(page, id, 'tbody', 3));
     expect(await page.evaluate(() => (document.activeElement as unknown as { label: string }).label)).toBe('Select Kettle');
     // Given again as new rows, in another order: the row "kettle" is now the first.
-    await table(page, id).evaluate((el) => {
+    await table(page, id).evaluate((el: HTMLTableElement) => {
       const copies = [...el.tBodies[0].rows].map((tr) => tr.cloneNode(true) as HTMLTableRowElement);
       el.tBodies[0].replaceChildren(copies[2], copies[0], copies[1], copies[3]);
     });
     await expect.poll(() => page.evaluate(() => (document.activeElement as unknown as { label?: string } | null)?.label)).toBe('Select Kettle');
     expect(await check(page, id, 'tbody', 1).evaluate((el) => el === document.activeElement)).toBe(true);
     // The same rows, moved: focus stays with the row.
-    await table(page, id).evaluate((el) => el.tBodies[0].append(el.tBodies[0].rows[0]));
+    await table(page, id).evaluate((el: HTMLTableElement) => el.tBodies[0].append(el.tBodies[0].rows[0]));
     await expect.poll(() => check(page, id, 'tbody', 4).evaluate((el) => el === document.activeElement)).toBe(true);
     // A row that is gone takes focus with it, and the table sends it nowhere.
-    await table(page, id).evaluate((el) => el.tBodies[0].rows[3].remove());
+    await table(page, id).evaluate((el: HTMLTableElement) => el.tBodies[0].rows[3].remove());
     await frame(page);
     expect(await page.evaluate(() => document.activeElement === document.body || document.activeElement === null)).toBe(true);
     // Under a header row and a status line kept in view.
@@ -3206,7 +3206,7 @@ test.describe('a loading body', () => {
     const line = (await box(table(page, 'selection').locator('> tbody > tr').first())).height;
     near(line, 46, 0.1);
     for (const tr of rows.slice(0, 4)) near((await box(tr)).height, line, 0.1);
-    expect(await table(page, id).evaluate((el) => [...el.tBodies[0].rows].every((tr) => [...tr.cells].every((c) => c.childNodes.length === 0)))).toBe(true);
+    expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].every((tr) => [...tr.cells].every((c) => c.childNodes.length === 0)))).toBe(true);
     expect(await said(check(page, id, 'thead', 1))).toBe('unchecked disabled');
     // A cell's paddings, and the line between rows.
     expect(await px(cell(page, id, 'tbody', 1, 2), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-regular')));
@@ -3238,7 +3238,7 @@ test.describe('a loading body', () => {
     await expect(table(page, 'held').locator('> tbody > tr').nth(0)).toBeVisible();
     await expect.poll(() => seen.filter((m) => m.includes('TBL-50')).length).toBe(1);
     // The record arrives in the row that stood for it: the row is a row again.
-    await table(page, 'held').locator('> tbody > tr').nth(0).evaluate((el) => { el.removeAttribute('data-placeholder'); el.setAttribute('data-value', 'kettle'); el.cells[1].textContent = 'Kettle'; });
+    await table(page, 'held').locator('> tbody > tr').nth(0).evaluate((el: HTMLTableRowElement) => { el.removeAttribute('data-placeholder'); el.setAttribute('data-value', 'kettle'); el.cells[1].textContent = 'Kettle'; });
     await expect.poll(() => table(page, 'held').locator('> tbody > tr').nth(0).getAttribute('aria-hidden')).toBeNull();
     await expect(check(page, 'held', 'tbody', 1)).toBeVisible();
     await expect.poll(() => said(check(page, 'held', 'thead', 1))).toBe('unchecked enabled');
@@ -3329,13 +3329,13 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     const NATIVE_FORM = NATIVE.replace('<input type="checkbox">', '<input type="checkbox" aria-label="Select all products">');
     const placeholders = raw('placeholders', { label: 'Placeholders', selection: 'multiple', loading: true }, '<table aria-busy="true"><thead><tr><td data-part="selection"><input type="checkbox" aria-label="All" disabled></td><th scope="col">Name</th></tr></thead><tbody><tr data-placeholder aria-hidden="true"><td data-part="selection"></td><td></td></tr><tr data-placeholder aria-hidden="true"><td data-part="selection"></td><td><span class="tanrei-skeleton-placeholder"></span></td></tr><tr data-part="empty"><td colspan="2"><div>None</div></td></tr></tbody></table>');
     const fixtures = [raw('form', { label: 'form', selection: 'multiple', rowHeaders: true, striped: true }, NATIVE_FORM), placeholders, ...some('basic')];
-    const document = await fixturesDocument(spec, { fixtures });
-    const script = document.lastIndexOf('<script type="module">');
-    const html = `${document.slice(0, script)}<style>${fs.readFileSync(path.join(pkg, 'dist/skeleton.css'), 'utf8')}</style></body></html>`;
+    const source = await fixturesDocument(spec, { fixtures });
+    const script = source.lastIndexOf('<script type="module">');
+    const html = `${source.slice(0, script)}<style>${fs.readFileSync(path.join(pkg, 'dist/skeleton.css'), 'utf8')}</style></body></html>`;
     await off.setContent(html);
     expect(await off.locator('tanrei-table').first().evaluate((el) => el.matches(':defined'))).toBe(false);
     const on = await off.context().newPage();
-    await on.setContent(`${html.replace('</body></html>', '')}${document.slice(script)}`);
+    await on.setContent(`${html.replace('</body></html>', '')}${source.slice(script)}`);
     await on.waitForFunction(() => !!customElements.get('tanrei-table') && [...document.querySelectorAll('tanrei-table')].every((el) => el.hasAttribute('data-columns')));
     const drawn = (p: P) =>
       p.evaluate(async () => {
@@ -3391,7 +3391,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     const id = 'selection-single';
     const f = fixture(id);
     const columns = f.items!.filter((item) => item.kind === 'column').length;
-    expect(await table(page, id).evaluate((el) => [...el.rows].map((tr) => [tr.cells.length, tr.cells[0].dataset.part].join(' ')))).toEqual(Array(6).fill(`${columns + 1} selection`));
+    expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.rows].map((tr) => [tr.cells.length, tr.cells[0].dataset.part].join(' ')))).toEqual(Array(6).fill(`${columns + 1} selection`));
     // The header row's selection cell holds nothing: no control stands for every row.
     expect(await cell(page, id, 'thead', 1, 1).evaluate((el) => el.childElementCount)).toBe(0);
     for (const r of [1, 2, 3, 4]) await expect(radio(page, id, r)).toBeVisible();
@@ -3494,7 +3494,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
       await expect.poll(() => chosen(page, id)).toEqual([order[0]]);
       expect(await radioed(page, id)).toEqual([order[0]]);
       // Several written at once: the first in row order stands, and a debug build says so.
-      await table(page, id).evaluate((el) => { el.tBodies[0].rows[1].setAttribute('data-selected', ''); el.tBodies[0].rows[2].setAttribute('data-selected', ''); });
+      await table(page, id).evaluate((el: HTMLTableElement) => { el.tBodies[0].rows[1].setAttribute('data-selected', ''); el.tBodies[0].rows[2].setAttribute('data-selected', ''); });
       await expect.poll(() => chosen(page, id)).toEqual([order[1]]);
       expect(await radioed(page, id)).toEqual([order[1]]);
       // The product lets every row go: none is chosen, no radio button is checked.
@@ -3587,9 +3587,9 @@ test.describe('chosen rows and a loading body in other conditions', () => {
       <tr data-value="kettle"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Kettle" checked></td><th scope="row">Kettle</th></tr>
       <tr data-value="scale"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Scale"></td><th scope="row">Scale</th></tr>
       </tbody></table>`;
-    const document = await fixturesDocument(spec, { fixtures: [raw('form', { label: 'form', selection: 'single', rowHeaders: true }, markup)] });
-    const script = document.lastIndexOf('<script type="module">');
-    await off.setContent(`${document.slice(0, script)}</body></html>`);
+    const source = await fixturesDocument(spec, { fixtures: [raw('form', { label: 'form', selection: 'single', rowHeaders: true }, markup)] });
+    const script = source.lastIndexOf('<script type="module">');
+    await off.setContent(`${source.slice(0, script)}</body></html>`);
     expect(await off.locator('tanrei-table').first().evaluate((el) => el.matches(':defined'))).toBe(false);
     const fill = await resolveColor(off, T('row-selected-container-color'));
     const image = (r: number) => css(cell(off, 'form', 'tbody', r, 2), 'background-image');

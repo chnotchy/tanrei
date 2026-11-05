@@ -178,7 +178,7 @@ async function modules(page: P, body: string, { before = '', refuse = [] as stri
   const lit = fs.realpathSync(path.join(pkg, 'node_modules/lit'));
   const requested: string[] = [];
   const imports = { lit: '/m/lit/index.js', 'lit/': '/m/lit/', 'lit-html': '/m/lit-html/lit-html.js', 'lit-html/': '/m/lit-html/', 'lit-element/': '/m/lit-element/', '@lit/reactive-element': '/m/@lit/reactive-element/reactive-element.js', '@lit/reactive-element/': '/m/@lit/reactive-element/' };
-  const document = `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>modules</title>
+  const markup = `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>modules</title>
     <script type="importmap">${JSON.stringify({ imports })}</script><style>${read('dist/tokens.css')}</style></head>
     <body>${body}<script type="module">
       import '/dist/components/code-block/code-block.js';
@@ -188,7 +188,7 @@ async function modules(page: P, body: string, { before = '', refuse = [] as stri
   await page.unroute('http://tanrei.test/**');
   await page.route('http://tanrei.test/**', (route) => {
     const { pathname } = new URL(route.request().url());
-    if (pathname === '/') return route.fulfill({ contentType: 'text/html', body: document });
+    if (pathname === '/') return route.fulfill({ contentType: 'text/html', body: markup });
     requested.push(pathname);
     if (refuse.some((each) => pathname.includes(each))) return route.abort();
     const file = pathname.startsWith('/dist/') ? path.join(pkg, pathname) : path.join(lit, '..', pathname.replace(/^\/m\//, ''));

@@ -1,0 +1,24 @@
+{
+  // The tests and their helpers, type-checked as the source is (`pnpm typecheck:test`, the last step of `pnpm build`).
+  // Playwright only strips their types, so nothing else would see an error in them. Nothing is emitted.
+  // - `types: ["node"]`: the tests run in Node, and read files, paths and the environment.
+  // - `allowJs`: the repository's tools that the tests import (packages/tools, packages/tokens-build, scripts/) are
+  //   JavaScript; their types are inferred from their code, which is not itself checked here (`checkJs: false`).
+  //   `maxNodeModuleJsDepth: 1` does the same for the one module reached by its file in node_modules (test/harsh/).
+  // - `rootDir`: those modules stand outside the package. `allowImportingTsExtensions`: a helper may import another by
+  //   its `.ts` name, as Playwright loads it.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "sourceMap": false,
+    "rootDir": "../..",
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": false,
+    "maxNodeModuleJsDepth": 1,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "playwright.config.ts"],
+  "exclude": []
+}

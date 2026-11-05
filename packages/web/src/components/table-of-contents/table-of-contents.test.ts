@@ -121,7 +121,7 @@ const sectionList = (count: number, top = false) =>
 async function reading(page: P, options: Reading = {}) {
   const heights = typeof options.sections === 'object' ? options.sections : Array.from({ length: options.sections ?? 8 }, () => GAP);
   const bar = options.bar ?? BAR;
-  const document = await fixturesDocument(spec, { fixtures: [raw('reading', { ...LABEL, ...options.props }, options.list ?? sectionList(heights.length, options.top))] });
+  const markup = await fixturesDocument(spec, { fixtures: [raw('reading', { ...LABEL, ...options.props }, options.list ?? sectionList(heights.length, options.top))] });
   // Every change of `aria-current` on the page, from before the element is defined (TOC-13).
   const marks = `<script>window.__marks = []; new MutationObserver((records) => { for (const record of records) if (record.target.getAttribute('aria-current')) window.__marks.push(record.target.getAttribute('href')); }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['aria-current'] });</script>`;
   const styles = `<style>
@@ -137,7 +137,7 @@ async function reading(page: P, options: Reading = {}) {
     .map((height, i) => `<section style="block-size: ${height}px"><h2 id="s${i + 1}">Section ${i + 1}</h2><button type="button" id="b${i + 1}">In section ${i + 1}</button></section>`)
     .join('')}</article>`;
   await page.setViewportSize({ width: 1000, height: 800 });
-  await page.setContent(document.replace('<body><main>', `<body>${marks}${styles}${article}<main>`));
+  await page.setContent(markup.replace('<body><main>', `<body>${marks}${styles}${article}<main>`));
   await page.waitForFunction((tag) => !!customElements.get(tag), TAG);
   await frame(page);
   await watchEvents(page);
@@ -1574,9 +1574,9 @@ test.describe('missing, unknown, empty', () => {
 test.describe('before the element is defined, and without script', () => {
   test('TOC-1, TOC-2, TOC-6, TOC-20: the stylesheet alone draws the title and the list — a plain nested list of anchors with the items’ hrefs, each followed by a click and by Enter, hover and focus drawn, a press the overlay held for press-hold — and nothing of the list presentation moves when the element is defined', async ({ page }) => {
     const fixtures = [...some('nested', 'density-compact-three-levels', 'flat'), raw('marked', { ...LABEL, tracking: 'manual' }, THREE.replace('href="#two"', 'href="#two" aria-current="location"')), raw('slotted', LABEL, `<h3 slot="title">Contents</h3>${THREE}`)];
-    const document = await fixturesDocument(spec, { icons: true, fixtures });
-    const bundle = document.slice(document.lastIndexOf('<script type="module">'), document.lastIndexOf('</script>') + '</script>'.length);
-    await page.setContent(document.replace(bundle, ''));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures });
+    const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
+    await page.setContent(markup.replace(bundle, ''));
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate((tag) => !!customElements.get(tag), TAG)).toBe(false);
     const geometry = () =>

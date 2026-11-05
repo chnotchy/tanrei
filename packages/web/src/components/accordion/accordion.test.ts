@@ -1855,9 +1855,9 @@ test.describe('nested, missing, unknown, empty', () => {
 test.describe('before the element is defined, and without script', () => {
   test('ACC-1, ACC-7, ACC-21: the stylesheet alone draws the whole look and every state — an item opens, closes and is focusable, hover and focus are drawn, a press is the overlay held for press-hold — and nothing moves when the element is defined', async ({ page }) => {
     const fixtures = some('plain', 'outlined-gap', 'all-parts-compact', 'disabled', 'icon-rtl');
-    const document = await fixturesDocument(spec, { icons: true, fixtures });
-    const bundle = document.slice(document.lastIndexOf('<script type="module">'), document.lastIndexOf('</script>') + '</script>'.length);
-    await page.setContent(document.replace(bundle, ''));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures });
+    const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
+    await page.setContent(markup.replace(bundle, ''));
     await page.evaluate(async () => {
       await document.fonts.ready;
       const family = getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-icon-family-unselected').trim();

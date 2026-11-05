@@ -1097,13 +1097,13 @@ test.describe('behavior', () => {
     near((await box(trigger(page, id))).x, whole.x, 'left-to-right from the document');
     await inRow(row(page, id, 1), 'remove').focus();
     // The focused state has been drawn: what moves after this is the direction's doing.
-    await expect.poll(() => row(page, id, 1).evaluate((el) => el.shadowRoot!.getAnimations({ subtree: true }).length)).toBe(0);
+    await expect.poll(() => row(page, id, 1).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
     // An ancestor's direction, not the root's.
     const moving = await stage(page, id).evaluate((el) => {
       el.setAttribute('dir', 'rtl');
       const upload = el.querySelector('tanrei-file-upload')!;
       void upload.getBoundingClientRect();
-      return upload.getAnimations({ subtree: true }).length + [...upload.querySelectorAll('tanrei-file-item')].reduce((sum, item) => sum + item.shadowRoot!.getAnimations({ subtree: true }).length, 0);
+      return upload.getAnimations({ subtree: true }).length + [...upload.querySelectorAll('tanrei-file-item')].reduce((sum, item) => sum + item.shadowRoot!.getAnimations().length, 0);
     });
     expect(moving, 'without a motion of its own').toBe(0);
     const t = await box(trigger(page, id));

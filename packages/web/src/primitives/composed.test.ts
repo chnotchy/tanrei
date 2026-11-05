@@ -95,7 +95,7 @@ interface Driven {
    * `bubbles: false` for an event that is composed and does not bubble, as the platform's own `toggle` (a select's or a
    * combobox's list opening): it is heard on the element and by capturing listeners above it, and by no bubbling one on an ancestor.
    */
-  events: Record<string, { before?: (page: Page, element: Locator) => Promise<void>; act: (page: Page, element: Locator) => Promise<void>; value: unknown; detail?: unknown; bubbles?: false; /** The event is a member's own and leaves as it is, though the spec writes it whole and names no `from` (the chat composer's `input`). */ member?: boolean }>;
+  events: Record<string, { before?: (page: Page, element: Locator) => Promise<unknown>; act: (page: Page, element: Locator) => Promise<void>; value: unknown; detail?: unknown; bubbles?: false; /** The event is a member's own and leaves as it is, though the spec writes it whole and names no `from` (the chat composer's `input`). */ member?: boolean }>;
   /** A value the value member changes when it is given it, and what it keeps (W5). Only where the spec forwards `value`. */
   kept?: { given: unknown; kept: unknown };
   /** A value for the forms: the `value` attribute, and another the product sets later. Only where the spec forwards `value`. */

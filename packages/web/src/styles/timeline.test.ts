@@ -466,7 +466,7 @@ test.describe('layout', () => {
     const surface = rgb(await resolveColor(page, '--tanrei-sys-color-surface'));
     const [primary, onPrimary] = [rgb(await resolveColor(page, T('marker-current-container-color'))), rgb(await resolveColor(page, T('marker-current-icon-color')))];
     const width = await resolveToken(page, T('marker-outline-width'));
-    const shots = [];
+    const shots: Awaited<ReturnType<typeof pixels>>[] = [];
     for (const [i, item] of all.entries()) {
       const [marker, drawn] = [await markerBox(item), await generatedBox(item)];
       // Every status marker is the whole box.
@@ -1170,11 +1170,11 @@ test.describe('what is not valid', () => {
 
 test.describe('without the script', () => {
   test('the stylesheet alone draws every fixture: with scripting off the layout is the same box for box, the list is the document’s own ordered list with its time elements, and the status is still in words; only the current item is the script’s (TML-12)', async ({ page, browser, browserName }) => {
-    const document = (await fixturesDocument(spec, { icons: true })).replace(/<script type="module">[\s\S]*<\/script>/, '');
+    const html = (await fixturesDocument(spec, { icons: true })).replace(/<script type="module">[\s\S]*<\/script>/, '');
     await mountSpec(page);
     const context = await browser.newContext({ javaScriptEnabled: false, deviceScaleFactor: 2 });
     const off = await context.newPage();
-    await off.setContent(document);
+    await off.setContent(html);
     await off.waitForFunction(() => document.fonts.status === 'loaded').catch(() => {});
     const own = async (p: P) => {
       const rows: string[] = [];

@@ -400,7 +400,7 @@ test.describe('scrolling', () => {
       expect((await bounds(screenBar(page))).height, `${d}`).toBe(expandedHeight - d);
     }
     // The expanded title's top is still visible: nothing of it is covered, so the top title is invisible.
-    const title = await screenBar(page).locator('.expanded .title').evaluate((el) => ({ top: el.offsetTop, height: el.offsetHeight }));
+    const title = await screenBar(page).locator('.expanded .title').evaluate((el: HTMLElement) => ({ top: el.offsetTop, height: el.offsetHeight }));
     await scrollTo(page, title.top - 1);
     expect(await topTitleOpacity()).toBe(0);
     // Half the title covered: half visible.
@@ -544,7 +544,7 @@ test.describe('insets and items', () => {
     `);
     // Connected: one heading at every point of the collapse.
     await scrollPage(page, 'size="large" headline="Inbox" scroll-target="list"');
-    const title = await screenBar(page).locator('.expanded .title').evaluate((el) => ({ top: el.offsetTop, height: el.offsetHeight }));
+    const title = await screenBar(page).locator('.expanded .title').evaluate((el: HTMLElement) => ({ top: el.offsetTop, height: el.offsetHeight }));
     for (const d of [0, title.top + title.height / 2, 400]) {
       await scrollTo(page, d);
       await expect(page.locator('#screen').getByRole('heading', { name: 'Inbox' }), `${d}`).toHaveCount(1);

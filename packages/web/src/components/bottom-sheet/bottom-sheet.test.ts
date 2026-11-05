@@ -378,7 +378,7 @@ test.describe('the drag handle', () => {
     await expect(host(page).getByRole('button')).toHaveCount(0);
     await expect(handle(page)).toBeVisible();
     await expect(handleHost(page)).toHaveAttribute('aria-hidden', 'true');
-    expect(await handleHost(page).evaluate((el) => el.inert)).toBe(true);
+    expect(await handleHost(page).evaluate((el: HTMLElement) => el.inert)).toBe(true);
     await expect(handle(page, 'empty')).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('BSH-11')).length).toBe(1);
   });
@@ -699,7 +699,7 @@ test.describe('forms, focus and dismissal', () => {
   });
 
   test('BSH-5: while dismissible, the scrim, Escape, back and a drag below the lowest height ask to close — once, with the reason — and the product closes it; with closedby none nothing is asked and the scrim still blocks', async ({ page }) => {
-    const cases: [string, () => Promise<void>][] = [
+    const cases: [string, () => Promise<unknown>][] = [
       ['scrim', () => page.mouse.click(200, 100)],
       ['escape', () => page.keyboard.press('Escape')],
       ['back', () => host(page).locator('dialog').evaluate((el) => el.dispatchEvent(new Event('cancel', { cancelable: true })))],
@@ -891,7 +891,7 @@ test.describe('forms, focus and dismissal', () => {
     expect(atRelease.top).toBeGreaterThan(partial + partial / 4);
     // Then it settles back over the enter motion, starting from where the drag left it.
     expect(nextFrame.durations).toEqual([await ms(page, T('motion-enter-duration'))]);
-    expect(nextFrame.top).toBeCloseTo(atRelease.top, 0);
+    expect(nextFrame.top).toBeCloseTo(atRelease.top!, 0);
     await still(page);
     expect(await top(page)).toBeCloseTo(partial, 1);
     expect(await log(page)).toEqual(['close:drag']);

@@ -762,7 +762,7 @@ test.describe('behavior', () => {
     expect(await css(own(page, 'slow', 'preview'), 'visibility')).toBe('hidden');
     expect(await glyphShown('slow')).toBe(true);
     await expect(own(page, 'slow', 'icon')).toHaveText('image');
-    expect(await host(page, 'slow').evaluate((el) => [el.shadowRoot!.querySelectorAll('tanrei-progress-indicator, [role="progressbar"], [aria-busy]').length, el.shadowRoot!.getAnimations({ subtree: true }).length]), 'no sign of loading').toEqual([0, 0]);
+    expect(await host(page, 'slow').evaluate((el) => [el.shadowRoot!.querySelectorAll('tanrei-progress-indicator, [role="progressbar"], [aria-busy]').length, el.shadowRoot!.getAnimations().length]), 'no sign of loading').toEqual([0, 0]);
     const before = [await box(host(page, 'slow')), await box(own(page, 'slow', 'media')), await box(own(page, 'slow', 'headline'))];
     await listen(page);
     await page.evaluate(() => {
@@ -773,7 +773,7 @@ test.describe('behavior', () => {
     release();
     await expect.poll(() => drawn('slow')).toBe('');
     expect(await glyphShown('slow')).toBe(false);
-    expect(await host(page, 'slow').evaluate((el) => el.shadowRoot!.getAnimations({ subtree: true }).length), 'without a motion').toBe(0);
+    expect(await host(page, 'slow').evaluate((el) => el.shadowRoot!.getAnimations().length), 'without a motion').toBe(0);
     expect(Number.parseFloat(await css(own(page, 'slow', 'preview'), 'transition-duration'))).toBe(0);
     expect([await box(host(page, 'slow')), await box(own(page, 'slow', 'media')), await box(own(page, 'slow', 'headline'))], 'the size of nothing changes').toEqual(before);
     // It cannot be drawn: the glyph, no sign of the failure, no event, the status as it was — and one report for the address.
@@ -934,7 +934,7 @@ test.describe('behavior', () => {
         strip.style.cssText = 'display:flex;flex-wrap:wrap;';
         const raw = Uint8Array.from(atob(data as string), (ch) => ch.charCodeAt(0));
         for (let i = 0; i < (count as number); i++) {
-          const item = document.createElement('tanrei-file-item') as HTMLElement & Record<string, unknown>;
+          const item = document.createElement('tanrei-file-item');
           Object.assign(item, { form: 'tile', preview: true, value: String(i), removeLabel: 'Remove {name}', width: 88, height: 40, nameHidden: true, file: new File([raw], `photo-${i}.png`, { type: 'image/png' }) });
           strip.append(item);
         }
@@ -953,7 +953,7 @@ test.describe('behavior', () => {
       const strip = document.querySelector('#strip')!;
       const raw = Uint8Array.from(atob(data), (ch) => ch.charCodeAt(0));
       const add = (i: number) => {
-        const item = document.createElement('tanrei-file-item') as HTMLElement & Record<string, unknown>;
+        const item = document.createElement('tanrei-file-item');
         Object.assign(item, { form: 'tile', preview: true, removeLabel: 'Remove {name}', file: new File([raw], `again-${i}.png`, { type: 'image/png' }) });
         strip.append(item);
       };
@@ -1307,7 +1307,7 @@ test.describe('behavior', () => {
     }
     expect(await focused(page)).toBe(at('e', 'button.action.remove'));
     expect(await heard(page)).toEqual([]);
-    expect(await host(page, id).evaluate((el) => [el.draggable, el.hasAttribute('aria-selected'), el.shadowRoot!.querySelectorAll('[draggable="true"], [aria-selected], [aria-grabbed], [role="checkbox"], input').length])).toEqual([false, false, 0]);
+    expect(await host(page, id).evaluate((el: HTMLElement) => [el.draggable, el.hasAttribute('aria-selected'), el.shadowRoot!.querySelectorAll('[draggable="true"], [aria-selected], [aria-grabbed], [role="checkbox"], input').length])).toEqual([false, false, 0]);
   });
 
   test('FIT-12: with interactive and no href the body — the glyph or the picture, and the texts — is exactly one button, before the actions in the focus order, and emits click exactly once with value by pointer, Enter or Space, opening nothing itself; without interactive the body is no stop, emits no click and answers no pointer; in a tile the body is the box and the texts beneath it, and a press on an action’s visible bounds is that action’s', async ({ page }) => {
@@ -2402,13 +2402,13 @@ test.describe('behavior', () => {
     }
     // A change of form, of status, of a text, of the glyph and of the picture: drawn at once.
     const item = host(page, 'changing');
-    const still = () => item.evaluate((el) => el.shadowRoot!.getAnimations({ subtree: true }).filter((animation) => !(animation instanceof CSSAnimation)).length);
+    const still = () => item.evaluate((el) => el.shadowRoot!.getAnimations().filter((animation) => !(animation instanceof CSSAnimation)).length);
     for (const change of [{ form: 'tile' }, { status: 'done', statusText: 'Uploaded' }, { name: 'renamed.zip' }, { glyph: 'key' }, { preview: true, previewSrc: PICTURE }, { status: 'error', errorText: 'Lost.', retryable: true }, { form: 'row' }, { readOnly: true }]) {
       const drawn = await item.evaluate(async (el: HTMLElement & { updateComplete: Promise<unknown> }, props) => {
         Object.assign(el, props);
         await el.updateComplete;
         void el.getBoundingClientRect();
-        return el.shadowRoot!.getAnimations({ subtree: true }).length;
+        return el.shadowRoot!.getAnimations().length;
       }, change);
       expect(drawn, `${JSON.stringify(change)}: without a motion`).toBe(0);
     }
@@ -2694,13 +2694,13 @@ test.describe('behavior', () => {
       near(before.x + before.width, whole.x + whole.width - (id.startsWith('tile') ? await token(page, 'tile-action-inset') : 0), 'the actions at the right');
       await remove.focus();
       // The focused state has been drawn: what moves after this is the direction's doing.
-      await expect.poll(() => host(page, id).evaluate((el) => el.shadowRoot!.getAnimations({ subtree: true }).length)).toBe(0);
+      await expect.poll(() => host(page, id).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
       // An ancestor's direction, not the root's.
       const moving = await stage(page, id).evaluate((el) => {
         el.setAttribute('dir', 'rtl');
         const item = el.querySelector('tanrei-file-item')!;
         void item.getBoundingClientRect();
-        return item.shadowRoot!.getAnimations({ subtree: true }).length;
+        return item.shadowRoot!.getAnimations().length;
       });
       expect(moving, 'without a motion of its own').toBe(0);
       const now = await box(host(page, id));

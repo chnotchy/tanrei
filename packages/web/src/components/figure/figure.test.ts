@@ -1150,9 +1150,9 @@ test.describe('the ground pattern', () => {
 test.describe('the element and its stylesheet', () => {
   /** The fixtures' document with the stylesheet a page loads and no script: the figure before its element is defined. */
   const withoutScript = async (page: P, fixtures: Fixture[]) => {
-    const document = await fixturesDocument(spec, { fixtures });
-    const script = document.lastIndexOf('<script type="module">');
-    await page.setContent(`${document.slice(0, script)}</body></html>`);
+    const markup = await fixturesDocument(spec, { fixtures });
+    const script = markup.lastIndexOf('<script type="module">');
+    await page.setContent(`${markup.slice(0, script)}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
   };
   const geometry = (page: P) =>
