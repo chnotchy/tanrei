@@ -24,7 +24,25 @@ export const ENGINE_NAMES = ['chromium', 'firefox', 'webkit'];
 // and the policies' test in none either way. No test here is about the
 // policy in a browser (no page opens another; the CSP test reads the headers the host sends, which this leaves as they
 // are), and the other engines keep it.
-const OPTIONS = { firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } } };
+//
+// Chromium's V8 collects garbage on the page's own thread (`--single-threaded-gc`), so that no collector job of V8's
+// competes with the compositor's raster jobs in the renderer's thread pool. Beside those jobs, a page of the headless
+// shell (which rasters in software) could stop for good as it was scrolled: a tile painted ahead of the view by the
+// raster pool's low-priority job is needed once the page scrolls to it; that job finishes it, is asked to yield to the
+// collector's higher-priority jobs, and returns without waking the pool's other job, the one that runs the step that
+// lets the newly committed tree be shown (`CategorizedWorkerPoolJob::Run` in cc/raster/categorized_worker_pool.cc,
+// Chromium 153; unchanged on Chromium's main branch). Nothing wakes it again, the tree is never shown, the next commit
+// never comes, and the page's thread waits for it in its next write to the compositor (a scroll:
+// `LayerTreeHost::WaitForCommitCompletion`) without end: no script runs, no timer fires, the debugger cannot stop it.
+// Measured in the CI's container image (its arm64 build, 2 CPUs): the fixture gallery's file stopped on a page in 2 of 72 runs recorded with a
+// trace, each time on that wait (the renderer's native stack and its trace both show it). A page made to show it
+// (tiles slow to raster, a window scrolled each frame, garbage made each frame), four at a time for 5 minutes, three
+// times: 76 of 125 pages stopped; side by side with the flag, 0 of 96; without the garbage, 0 of 32. With the flag the
+// gallery's file passed in 99 runs of 99, and takes as long as without it.
+const OPTIONS = {
+  chromium: { args: ['--js-flags=--single-threaded-gc'] },
+  firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } },
+};
 
 /**
  * The engines a file runs in: those `DOCS_ENGINES` names (comma-separated), or the file's own when it names none.
