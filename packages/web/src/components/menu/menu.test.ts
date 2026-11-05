@@ -14,7 +14,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionCount, settledCss } from '../../../test/motions.js';
+import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -37,27 +37,6 @@ const paintAnchor = (page: P, id: string) =>
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
-/**
- * Every motion running in the page — a surface opening or closing, a state's colors — has ended on its own timeline, and
- * what follows a frame (a surface placed against its anchor) has been drawn. Where a test reads geometry or colors
- * after a motion it waits on this, not for a length of time: a loaded machine keeps no schedule.
- */
-const motionEnded = (page: P) =>
-  page.evaluate(async () => {
-    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-    for (;;) {
-      await frame();
-      await frame();
-      // A document's animations are its own tree's: each shadow root answers for the elements it holds.
-      const roots: (Document | ShadowRoot)[] = [document];
-      for (const root of roots) for (const el of root.querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
-      const running = roots
-        .flatMap((root) => root.getAnimations())
-        .filter((a) => a.playState !== 'finished' && a.playState !== 'idle' && a.playState !== 'paused' && Number.isFinite(Number(a.effect?.getComputedTiming().endTime)));
-      if (!running.length) return;
-      await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
-    }
-  });
 const T = (name: string) => `--tanrei-comp-menu-${name}`;
 type Rgb = [number, number, number];
 /**
@@ -349,7 +328,7 @@ test.describe('overlay', () => {
     await anchor(page, 'long').focus();
     await page.keyboard.press('Enter');
     await expect.poll(() => isOpen(page, 'long')).toBe(true);
-    await surface(page, 'long').evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined))));
+    await motionEnded(surface(page, 'long'));
     // Down to the tenth item, which scrolls the list; back up to the eighth, which leaves it there, two rows clear of the
     // bottom edge — so neither a few pixels less room nor a few more can hide it or clamp the offset.
     for (let n = 0; n < 9; n++) await page.keyboard.press('ArrowDown');
@@ -1776,7 +1755,7 @@ const openMenu = async (page: P, id: string, first = 'New') => {
   await page.keyboard.press('Enter');
   await expect.poll(() => focused(page)).toBe(first);
   // The open motion scales the surface: its boxes are where they will stay once it has ended.
-  await surface(page, id).evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished.catch(() => undefined))));
+  await motionEnded(surface(page, id));
 };
 /** Presses `key` until the item called `label` has focus. */
 const pressTo = async (page: P, label: string, key = 'ArrowDown') => {
@@ -3102,7 +3081,7 @@ test.describe('separation, selection and marks', () => {
       const target = row(page, 'checkbox-checked', 1);
       const [from, to] = [await paintedIn(page, target), await paintedIn(page, row(page, 'checkbox-checked', 0))];
       await item(page, 'checkbox-checked', 1).evaluate((el: any) => (el.checked = true));
-      await expect.poll(() => target.evaluate((el) => el.getAnimations().length)).toBeGreaterThan(0);
+      await expect.poll(() => motionCount(target)).toBeGreaterThan(0);
       const along: Rgb[] = [];
       for (const share of [0.25, 0.5, 0.75]) {
         await target.evaluate((el, at) => {
@@ -3296,11 +3275,8 @@ test.describe('separation, selection and marks', () => {
       expect(Number.parseFloat(await css(r, 'border-top-left-radius')), condition).toBe(size / 2);
       expect(await settledCss(r, 'box-shadow'), condition).toBe(`${color} 0px 0px 0px ${thick}px inset`);
       const fill = r.locator('.fill');
-      const inner = await fill.evaluate(async (el) => {
-        await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-        const rect = el.getBoundingClientRect();
-        return { x: rect.x, width: rect.width };
-      });
+      await motionEnded(fill);
+      const inner = await bounds(fill);
       expect(inner.width, condition).toBeCloseTo(size - 2 * thick - 2 * inset, 1);
       expect(inner.x - at.x, condition).toBeCloseTo(thick + inset, 1);
       expect(await settledCss(fill, 'background-color'), condition).toBe(condition === 'selected' ? await mixed(T('selected-control-color')) : 'rgba(0, 0, 0, 0)');
@@ -3311,10 +3287,11 @@ test.describe('separation, selection and marks', () => {
     // radio-none-checked: every ring thin. A share that leaves nothing inside: no fill is drawn.
     for (const n of [0, 1]) expect(await settledCss(row(page, 'radio-none-checked', n).locator('.ring'), 'box-shadow')).toContain(`${width}px inset`);
     await override(page, { [T('control-ring-selected-width-share')]: '1' });
-    await expect.poll(async () => (await row(page, 'radio-checked', 0).locator('.fill').evaluate(async (el) => {
-      await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-      return el.getBoundingClientRect().width;
-    }))).toBe(0);
+    await expect.poll(async () => {
+      const fill = row(page, 'radio-checked', 0).locator('.fill');
+      await motionEnded(fill);
+      return (await bounds(fill)).width;
+    }).toBe(0);
     // A share below the unchecked width: the ring is never thinner than control.ring.width.
     await override(page, { [T('control-ring-selected-width-share')]: '0.05' });
     await expect.poll(() => settledCss(row(page, 'radio-checked', 0).locator('.ring'), 'box-shadow')).toContain(`${width}px inset`);
@@ -3911,7 +3888,7 @@ test.describe('link items', () => {
     await expect.poll(() => isOpen(page, 'places')).toBe(true);
     // The open motion draws the surface from no height at all: a row is pressed where it stands once the motion has
     // ended, never while it is still a sliver that no pointer can be put on.
-    await surface(page, 'places').evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished.catch(() => undefined))));
+    await motionEnded(surface(page, 'places'));
     expect((await bounds(linkRow(page, 'places', 'Archive'))).height).toBeCloseTo((await bounds(linkRow(page, 'places', 'Guides'))).height, 1);
     // The mark stays with it, in the disabled trailing-icon color.
     const mark = linkRow(page, 'places', 'Elsewhere').locator('.link-mark');
