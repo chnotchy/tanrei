@@ -2,7 +2,7 @@
 title: Capa modal
 description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Escape, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
 translationOf: components/modal-layer.mdx
-sourceHash: 8a469382865ac350a70a4ce9f969a738e26e6df4
+sourceHash: 6dff609b840b61a4b73e9fe67a639e16f0edfb1c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,6 +132,26 @@ La opacidad del velo es el alfa de su color: cambia el color, o el rol `scrim` d
 ### Sin el velo
 
 Desactiva `scrim` para un contenido que cubre toda la ventana con un relleno propio, como un visor sobre un fondo oscuro. No queda nada que atenuar. La capa sigue bloqueando todo lo que hay detrás, y una pulsación fuera de tu contenido sigue pidiendo que se cierre.
+
+### Elementos fijados a la ventana
+
+Mientras una superficie modal está abierta, la página no se desplaza y su barra de desplazamiento desaparece. Donde la barra de desplazamiento ocupaba espacio, la capa conserva ese espacio, así que la página no se mueve hacia los lados, y en la mayoría de los navegadores los elementos fijados a la ventana tampoco se mueven. Algunos navegadores no pueden conservar ese espacio para ellos: Safari, y Chrome en macOS, con una barra de desplazamiento con estilo de `::-webkit-scrollbar`. Allí la ventana crece el ancho de la barra mientras la superficie está abierta, y un elemento fijado de lado a lado se ensancharía o se movería.
+
+En la web, la capa indica entonces cuánto creció la ventana por cada lado, con `--tanrei-scroll-hold-inset-left` y `--tanrei-scroll-hold-inset-right` en la raíz del documento. Súmalas a las posiciones de tus propios elementos fijados a los bordes de la ventana, como una barra de aplicación fijada arriba de lado a lado o un botón fijado en una esquina, y se quedan donde estaban. Los de Tanrei, como el snackbar, ya lo hacen. Las dos solo existen mientras hacen falta, así que da siempre `0px` como valor de reserva.
+
+```css
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: var(--tanrei-scroll-hold-inset-left, 0px);
+  right: var(--tanrei-scroll-hold-inset-right, 0px);
+}
+.compose-button {
+  position: fixed;
+  bottom: var(--tanrei-sys-space-space400);
+  right: calc(var(--tanrei-sys-space-space400) + var(--tanrei-scroll-hold-inset-right, 0px));
+}
+```
 
 ### Recomendado
 

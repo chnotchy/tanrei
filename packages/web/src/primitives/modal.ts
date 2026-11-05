@@ -137,14 +137,39 @@ let heldOverflow: string | null = null;
 let heldRoom: [property: string, value: string][] = [];
 
 /**
+ * The room the window gains on its left and on its right while the page's scroll is held, where the hold cannot keep the
+ * scroll bar's room for what is placed against the window (MDL-2): set on the root, as a length, only while the scroll is
+ * held and only on a side that gained room — so a product reads it with a fallback, `var(--tanrei-scroll-hold-inset-right,
+ * 0px)`. An element in `position: fixed` (or in the top layer) that stands against the window's edge adds it to its inset
+ * on that side and stays where it was.
+ */
+export const SCROLL_HOLD_INSET = { left: '--tanrei-scroll-hold-inset-left', right: '--tanrei-scroll-hold-inset-right' } as const;
+
+/**
+ * Where the window's own box stands — the containing block of an element in `position: fixed` — read from such an
+ * element, a child of the root, for the instant it is measured. The root's `clientWidth` does not say it: Chromium keeps a
+ * stable gutter and reports it as no room taken.
+ */
+function windowBox(root: HTMLElement) {
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position: fixed; left: 0; right: 0; top: 0; height: 0; margin: 0; padding: 0; border: 0; visibility: hidden; pointer-events: none';
+  root.append(probe);
+  const { left, right } = probe.getBoundingClientRect();
+  probe.remove();
+  return { left, right };
+}
+
+/**
  * The page's scroll, held while any modal overlay is open (DLG-1, NVD-19, MDL-2): `overflow: hidden` on the root from the
  * first holder until the last lets go, then the root's own value back. A root whose scroll bar takes room (a classic
  * scroll bar, not an overlay one) keeps that room while it is held, so that nothing behind moves sideways as the bar
  * goes and comes back: `scrollbar-gutter: stable`, and — where the engine keeps no gutter for the bar (WebKit, and
  * Chromium on macOS, for a bar styled with `::-webkit-scrollbar`) — as much padding on the bar's side. Padding keeps the
- * page's content in place but not the window's width, so there an element in `position: fixed` across the window still
- * moves by the bar's width. A root with no bar, or one that keeps its gutter already, is given nothing: a stable gutter
- * where no bar is drawn would make room for one, and move the page.
+ * page's content in place but not the window's own box, which widens by the bar's width: an element in `position:
+ * fixed` across the window would move. The room the window gained on each side is written on the root as
+ * `SCROLL_HOLD_INSET`, measured, for such elements to add to their insets (a product's own; a snackbar's). A root with no
+ * bar, or one that keeps its gutter already, is given nothing: a stable gutter where no bar is drawn would make room for
+ * one, and move the page.
  */
 export function holdPageScroll(holder: Element, hold: boolean) {
   if (hold) holders.add(holder);
@@ -170,11 +195,15 @@ export function holdPageScroll(holder: Element, hold: boolean) {
     // which leaves out only a scroll bar that is drawn: Chromium keeps the gutter and reports it as no room taken, and
     // padding over it would narrow the page by the bar's width again.
     const width = root.getBoundingClientRect().width;
+    const edges = room ? windowBox(root) : null;
     root.style.overflow = 'hidden';
-    if (room) {
+    if (edges) {
       write('scrollbar-gutter', 'stable');
       const lost = root.getBoundingClientRect().width - width;
       if (lost > 0) write(side, `calc(${padding} + ${lost}px)`);
+      const held = windowBox(root);
+      if (edges.left - held.left > 0) write(SCROLL_HOLD_INSET.left, `${edges.left - held.left}px`);
+      if (held.right - edges.right > 0) write(SCROLL_HOLD_INSET.right, `${held.right - edges.right}px`);
     }
   } else if (holders.size === 0 && heldOverflow !== null) {
     root.style.overflow = heldOverflow;

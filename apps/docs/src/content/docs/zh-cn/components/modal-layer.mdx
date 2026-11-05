@@ -2,7 +2,7 @@
 title: "模态层"
 description: "每个模态表面下面的那一层。它把所呈现内容背后的窗口变暗，让那里的一切变为惰性；把焦点移进来、留在里面、关闭时交还；并在用户按下 Escape、使用平台的返回操作或按下变暗区域时请求关闭。只需调整它一次，所有模态表面都会随之改变。"
 translationOf: components/modal-layer.mdx
-sourceHash: 8a469382865ac350a70a4ce9f969a738e26e6df4
+sourceHash: 6dff609b840b61a4b73e9fe67a639e16f0edfb1c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,6 +132,26 @@ import Example from '../../../../components/visuals/Example.astro';
 ### 不变暗时
 
 如果内容用自己的填充覆盖整个窗口，例如深色背景上的查看器，就关闭 `scrim`。这时已经没有什么可以变暗了。这一层仍然挡住背后的一切，在内容之外按下仍然会请求关闭。
+
+### 固定在窗口上的元素
+
+模态界面打开期间，页面不会滚动，滚动条也会消失。滚动条原本占据空间的地方，图层会保留这块空间，所以页面不会左右移动；在大多数浏览器中，固定在窗口上的元素也保持原位。但有些浏览器无法为这些元素保留这块空间：使用 `::-webkit-scrollbar` 设置了样式的滚动条时的 Safari，以及 macOS 上的 Chrome。在这些浏览器中，界面打开期间窗口会变宽一个滚动条的宽度，横跨窗口固定的元素会随之变宽或移动。
+
+在 Web 上，这时图层会把窗口在左右两侧各变宽了多少，写在文档根上的 `--tanrei-scroll-hold-inset-left` 和 `--tanrei-scroll-hold-inset-right` 中。对于你自己贴着窗口边缘固定的元素，例如横跨顶部固定的应用栏，或固定在角落的按钮，把这两个值加到对应一侧的位置上，它们就会留在原处。Tanrei 自己的元素（例如消息条）已经这样做了。这两个属性只在需要时才会设置，所以务必以 `0px` 作为后备值。
+
+```css
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: var(--tanrei-scroll-hold-inset-left, 0px);
+  right: var(--tanrei-scroll-hold-inset-right, 0px);
+}
+.compose-button {
+  position: fixed;
+  bottom: var(--tanrei-sys-space-space400);
+  right: calc(var(--tanrei-sys-space-space400) + var(--tanrei-scroll-hold-inset-right, 0px));
+}
+```
 
 ### 推荐
 
