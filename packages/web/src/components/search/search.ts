@@ -110,6 +110,24 @@ const CARET_KEYS: ReadonlySet<string> = new Set(['ArrowLeft', 'ArrowRight', 'Hom
  */
 export type TanreiSearchCloseReason = 'escape' | 'back' | 'select' | 'submit' | 'outside' | 'tab' | 'focus-out' | 'shortcut';
 
+/**
+ * SRC-23: what the suggestions' listbox draws — what the search holds while its view is open, or, while the view leaves,
+ * what it held as it closed.
+ */
+interface Listing {
+  suggestions: readonly TanreiSearchSuggestion[];
+  /** SRC-57: the query row is drawn first. */
+  queryRow: boolean;
+  /** The active option's index, or -1 (SRC-14). */
+  active: number;
+  value: string;
+  /** SRC-55: the completion the query row shows after the value, or empty. */
+  completion: string;
+  queryRowText: string;
+  /** SRC-52: every row keeps the leading icon column. */
+  icons: boolean;
+}
+
 /** What `toggle` carries: the new `expanded`, and when closing, why. */
 export interface TanreiSearchToggleDetail {
   expanded: boolean;
@@ -911,6 +929,10 @@ export class TanreiSearch extends TanreiElement {
 
   private viewShown = false;
   private fullShown = false;
+  /** SRC-23: what the listbox was drawn with in the last render while the view was open, or null. */
+  private drawnListing: Listing | null = null;
+  /** SRC-23: what the listbox held as the view closed, drawn until the view has left (`letGo`), or null. */
+  private leavingListing: Listing | null = null;
   private lastLayout = '';
   private listening = false;
   /** SRC-42: the result whose row is pressed by a pointer now. */
@@ -2171,6 +2193,7 @@ export class TanreiSearch extends TanreiElement {
         if (this.viewShown || !view.classList.contains('leaving')) return;
         view.classList.remove('leaving');
         if (view.matches(':popover-open')) view.hidePopover();
+        this.letGo();
       };
       const running = view.getAnimations();
       if (running.length === 0) finish();
@@ -2221,8 +2244,9 @@ export class TanreiSearch extends TanreiElement {
     const active = deepActive();
     const inside = !!active && (dialog?.contains(active) || focusWithin(this) || active === document.body);
     // SRC-23, SRC-41: no longer modal at once — the page is given back and focus moves now, not when the motion ends —
-    // and drawn in the top layer, with its scrim, until their fade has played (closeModal), in every engine.
-    if (dialog) void closeModal(dialog, { instant });
+    // and drawn in the top layer, with its scrim, until their fade has played (closeModal), in every engine. What it
+    // listed is drawn until then (`letGo`); opened again first, it lists what it holds now.
+    if (dialog) void closeModal(dialog, { instant }).then((left) => left && this.letGo());
     // SRC-9, SRC-40: focus back to the bar's input — which does not reopen it — or to the trigger.
     if (restoreFocus && inside && !this.inert_) (this.triggered ? this.trigger : this.barInput)?.focus();
   }
@@ -2244,6 +2268,23 @@ export class TanreiSearch extends TanreiElement {
     }
     if (wanted) this.presentFull();
     else this.withdrawFull();
+  }
+
+  /** SRC-23: a view is fading out: the docked view, or the dialog view still in the top layer (closeModal). */
+  private get viewLeaving(): boolean {
+    const dialog = this.dialog;
+    return !!this.view?.classList.contains('leaving') || (!!dialog && isLeaving(dialog));
+  }
+
+  /**
+   * SRC-23: once no view is leaving, the listbox lists what the search holds now — which, closed, is nothing. Until then
+   * it draws what it held as the view closed: only the drawing lingers, for what the search exposes and what its keys
+   * do changed when it closed, and the leaving view is inert.
+   */
+  private letGo() {
+    if (!this.leavingListing || this.viewLeaving) return;
+    this.leavingListing = null;
+    this.requestUpdate();
   }
 
   // ── Updates ────────────────────────────────────────────────────────────────────────────────────────────
@@ -2276,9 +2317,13 @@ export class TanreiSearch extends TanreiElement {
     if (changed.has('expanded') || changed.has('disabled') || changed.has('queryRow') || (changed as Map<PropertyKey, unknown>).has('formDisabled')) this.firstCurrent(false);
     if (this.active >= this.offset + this.suggestions.length || !this.expanded) this.active = -1;
     if (changed.has('inlineCompletion') && !this.inlineCompletion) this.dropCompletion();
+    // SRC-23: open, the listbox lists what the search holds; closed, the view goes on drawing what it listed as it
+    // closed while it fades out (`letGo` ends that).
+    if (this.expanded && !this.inert_) this.leavingListing = null;
+    else if (this.drawnListing) this.leavingListing = this.drawnListing;
     // SRC-44: a group stands group.gap below whatever stands above it in the view and above whatever follows it; two
     // groups that follow each other stand one gap apart.
-    let above = (this.expanded && !this.inert_ && this.suggestions.length > 0) || this.statusShown;
+    let above = (this.expanded && !this.inert_ && this.suggestions.length > 0) || !!this.leavingListing || this.statusShown;
     // SRC-52: the query row, drawn with the search glyph, keeps the leading icon column for the view while it is drawn.
     this.decideIconColumn();
     this.entries.forEach((entry, index) => {
@@ -2388,6 +2433,8 @@ export class TanreiSearch extends TanreiElement {
     this.internals.setFormValue(this.disabled ? null : this.value, this.value);
     this.syncView();
     this.syncFull();
+    // SRC-23: closed with no exit to play (motion reduced, drawn in place, no view shown), it lists nothing at once.
+    this.letGo();
     this.listen(this.expanded && !this.inert_ && !this.modal && !this.inline);
     this.keepActions();
     this.syncShortcut();
@@ -2488,29 +2535,30 @@ export class TanreiSearch extends TanreiElement {
    * statusText while idle, the assertive one while the query failed; while loading both are empty, so nothing is
    * announced, and the loading indicator, named by statusText, stands in the text's place. SRC-50: the results are links
    * in one list named by label, outside the listbox, marked busy while loading.
+   *
+   * SRC-23: `listing` is what the listbox draws — null, no listbox.
    */
-  private renderBody(listed: boolean) {
-    const icons = this.iconColumn;
+  private renderBody(listing: Listing | null) {
     const status = this.statusNow;
     const label = this.label || undefined;
     return html`<div class=${this.viewHasContent ? 'scroll' : 'scroll empty'} @wheel=${containedWheel}>
-      ${listed
+      ${listing
         ? html`<div part="listbox" class="listbox" id="listbox" role="listbox" aria-label=${ifDefined(this.label || undefined)}>
-            ${this.queryRowShown ? this.renderQueryRow() : nothing}
+            ${listing.queryRow ? this.renderQueryRow(listing) : nothing}
             ${repeat(
-              this.suggestions,
+              listing.suggestions,
               (s) => s,
               (s, i) => {
-                const at = this.offset + i;
+                const at = (listing.queryRow ? 1 : 0) + i;
                 return html`<div
                   class="option"
                   id=${optionId(s)}
                   role="option"
-                  aria-selected=${at === this.active ? 'true' : 'false'}
+                  aria-selected=${at === listing.active ? 'true' : 'false'}
                   aria-labelledby="${optionId(s)}-headline"
                   aria-describedby=${ifDefined(s.supportingText ? `${optionId(s)}-supporting` : undefined)}
                   data-index=${i}
-                  ?data-active=${at === this.active}
+                  ?data-active=${at === listing.active}
                   data-tanrei-shape
                   @pointerdown=${this.onRowPointerDown}
                   @pointerup=${this.rowPress.release}
@@ -2518,9 +2566,9 @@ export class TanreiSearch extends TanreiElement {
                   @pointerleave=${this.rowPress.release}
                   @click=${this.onRowClick}
                 >
-                  ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
+                  ${listing.icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
                   <span class="text">
-                    <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s.headline)}</span>
+                    <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s.headline, listing.value)}</span>
                     ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
                   </span>
                 </div>`;
@@ -2545,8 +2593,8 @@ export class TanreiSearch extends TanreiElement {
    * drawn heavier, in one text with the rest, so that it is read as the headline alone. A headline that does not begin
    * with the value is drawn as it is.
    */
-  private renderCompletion(headline: string) {
-    const pieces = completionOf(headline, this.value);
+  private renderCompletion(headline: string, value: string) {
+    const pieces = completionOf(headline, value);
     if (!pieces || !pieces[1]) return headline;
     return html`${pieces[0]}<span part="completion" class="completion">${pieces[1]}</span>`;
   }
@@ -2556,10 +2604,10 @@ export class TanreiSearch extends TanreiElement {
    * typed with the inline completion after it while one is shown (SRC-55, emphasised as SRC-56 says), and queryRowText
    * under it. A press on it submits the value (SRC-13); it is never a suggestion to choose.
    */
-  private renderQueryRow() {
-    const active = this.active === 0;
-    const supporting = this.queryRowText;
-    const completion = this.completion && this.queryActive && this.typing ? this.completion : '';
+  private renderQueryRow(listing: Listing) {
+    const active = listing.active === 0;
+    const supporting = listing.queryRowText;
+    const completion = listing.completion;
     return html`<div
       class="option query"
       id=${QUERY_ROW_ID}
@@ -2577,7 +2625,7 @@ export class TanreiSearch extends TanreiElement {
     >
       <span class="option-icon query-glyph" aria-hidden="true"><span class="ink">${SEARCH_GLYPH}</span></span>
       <span class="text">
-        <span class="headline" id="${QUERY_ROW_ID}-headline">${this.value}${completion ? html`<span part="completion" class="completion">${completion}</span>` : nothing}</span>
+        <span class="headline" id="${QUERY_ROW_ID}-headline">${listing.value}${completion ? html`<span part="completion" class="completion">${completion}</span>` : nothing}</span>
         ${supporting ? html`<span class="supporting" id="${QUERY_ROW_ID}-supporting">${supporting}</span>` : nothing}
       </span>
     </div>`;
@@ -2639,7 +2687,21 @@ export class TanreiSearch extends TanreiElement {
     const hung = mode === 'dialog';
     const listed = open && this.suggestions.length > 0;
     const endButton = this.clearShown || this.trailingCount > 0;
-    const body = this.renderBody(listed);
+    // SRC-23: what the listbox draws: what the search holds while the view is open; while it fades out, what it held
+    // as it closed (the input's semantics, from `listed`, are already a closed search's: SRC-24).
+    const listing: Listing | null = listed
+      ? {
+          suggestions: this.suggestions,
+          queryRow: this.queryRowShown,
+          active: this.active,
+          value: this.value,
+          completion: this.completion && this.queryActive && this.typing ? this.completion : '',
+          queryRowText: this.queryRowText,
+          icons: this.iconColumn,
+        }
+      : this.leavingListing;
+    this.drawnListing = listed ? listing : null;
+    const body = this.renderBody(listing);
     // The <dialog> is never a Tab stop of its own view: Firefox reports `tabIndex` 0 for it, so the focus trap would
     // count it as the first one (SRC-9, SRC-49). `tabindex="-1"` says what every other engine assumes.
     // For tests and documentation, a modal view drawn in place stands for the window: what opened it is not drawn.

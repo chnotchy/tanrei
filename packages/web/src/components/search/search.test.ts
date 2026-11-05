@@ -23,6 +23,7 @@ import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
+import { type Probe, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -1120,7 +1121,109 @@ test.describe('opening and closing', () => {
     await page.keyboard.press('Escape');
     expect(await popoverOpen(view(page, 's'))).toBe(false);
   });
+
+  for (const presentation of ['docked', 'dialog', 'full-screen'] as const) {
+    /** Opens it from the bar's input, waits for its entrance to end, and makes the first suggestion active. */
+    const openWithActive = async (page: P) => {
+      const s = host(page, 's');
+      await input(page, 's').focus();
+      await s.evaluate(async (el: any) => {
+        el.expanded = true;
+        await el.updateComplete;
+      });
+      await motionEnded(s);
+      await page.keyboard.press('ArrowDown');
+      await expect(s.locator('.option[data-active]')).toHaveCount(1);
+    };
+
+    test(`SRC-23, SRC-24: while the ${presentation} view fades out it still draws what it held as it closed — every option, the active one — inert, the input a search box again from the first frame; then it is gone and empty`, async ({ page }) => {
+      await mount(page, [live('s', { presentation, value: 'inv' })], { reducedMotion: false });
+      const s = host(page, 's');
+      await openWithActive(page);
+      const seen = await sampleFrames(s, () => page.keyboard.press('Escape'), { probe: leavingView, elements: false });
+      const before = seen.before.probe;
+      expect(before, 'open, it lists the query row and the three suggestions, the first suggestion active, the input a combobox').toMatchObject({ drawn: true, options: 4, combobox: true, inert: false });
+      expect(before.active).not.toBe('');
+      const frames = seen.frames;
+      const moving = frames.filter((frame, i) => i < frames.length - 1 && frame.probe.opacity !== frames[i + 1]!.probe.opacity);
+      expect(moving.length, 'it fades out over several frames').toBeGreaterThanOrEqual(4);
+      const last = moving.at(-1)!.index;
+      const exit = frames.filter((frame) => frame.index <= last);
+      expect(exit.filter((frame) => frame.probe.drawn !== true).map((frame) => frame.index), 'it is drawn in every frame of its exit').toEqual([]);
+      const drawnAs = (frame: (typeof frames)[number]) => `frame ${frame.index}: ${frame.probe.options} options, active ${frame.probe.active || 'none'}, opacity ${frame.probe.opacity}`;
+      expect(
+        exit.filter((frame) => frame.probe.options !== before.options || frame.probe.active !== before.active).map(drawnAs),
+        'every frame of its exit draws the options and the active row it showed open',
+      ).toEqual([]);
+      // What it exposes changed when it closed, not when its motion ends: the leaving view is inert (out of the
+      // accessibility tree and out of reach), and no input says it controls a listbox or names an option.
+      expect(exit.filter((frame) => frame.probe.inert !== true || frame.probe.combobox !== false).map((frame) => frame.index), 'inert, and the input no longer a combobox, from the first frame').toEqual([]);
+      expect(seen.rest.probe, 'at rest it is gone, and it lists nothing').toMatchObject({ drawn: false, listed: 0, combobox: false });
+    });
+
+    test(`SRC-23: opened again while it fades out, the ${presentation} view shows what it holds now, the input a combobox again`, async ({ page }) => {
+      await mount(page, [live('s', { presentation, value: 'inv' })], { reducedMotion: false });
+      const s = host(page, 's');
+      await openWithActive(page);
+      // In one task, so that the exit is still under way: closed, a suggestion taken away while it leaves, opened again.
+      const read = await s.evaluate(async (el: any) => {
+        const shadow = el.shadowRoot as ShadowRoot;
+        const surface = () => [shadow.querySelector<HTMLElement>('.view'), shadow.querySelector<HTMLElement>('dialog.full')].find((v) => !!v && (v.matches(':popover-open') || v.matches(':modal')));
+        const headlines = () => [...(surface()?.querySelectorAll('.option:not(.query) .headline') ?? [])].map((h) => h.textContent);
+        el.expanded = false;
+        await el.updateComplete;
+        const leaving = { headlines: headlines(), inert: !!surface()?.inert };
+        el.querySelector('tanrei-search-suggestion:last-of-type').remove();
+        await Promise.resolve();
+        await el.updateComplete;
+        const removed = headlines();
+        el.expanded = true;
+        await el.updateComplete;
+        const input = shadow.querySelector(el.presentation === 'docked' ? '.bar .input' : '.header .input')!;
+        return { leaving, removed, reopened: headlines(), inert: !!surface()?.inert, role: input.getAttribute('role'), modal: !!surface()?.matches(':modal') };
+      });
+      const all = SUGGESTIONS.map((item) => item.props!.headline);
+      expect(read.leaving, 'leaving, it draws the three suggestions, inert').toEqual({ headlines: all, inert: true });
+      expect(read.removed, 'and goes on drawing them while it leaves, though one was taken away').toEqual(all);
+      expect(read, 'opened again, it lists the two it holds now, in reach, its input a combobox').toMatchObject({ reopened: all.slice(0, 2), inert: false, role: 'combobox', modal: presentation !== 'docked' });
+      await motionEnded(s);
+      await expect(s.locator('.option:not(.query)')).toHaveCount(2);
+      expect(await prop(s, 'expanded')).toBe(true);
+    });
+
+    test(`SRC-23: where motion is reduced the ${presentation} view is gone at once, with what it listed`, async ({ page }) => {
+      await mount(page, [live('s', { presentation, value: 'inv' })], { reducedMotion: true });
+      const s = host(page, 's');
+      await openWithActive(page);
+      const seen = await sampleFrames(s, () => page.keyboard.press('Escape'), { probe: leavingView, elements: false });
+      expect(seen.before.probe).toMatchObject({ drawn: true, options: 4 });
+      expect(seen.frames.filter((frame) => frame.probe.drawn !== false || frame.probe.listed !== 0).map((frame) => frame.index), 'gone and empty from the first frame').toEqual([]);
+      expect(seen.rest.probe).toMatchObject({ drawn: false, listed: 0, combobox: false });
+    });
+  }
 });
+
+/**
+ * SRC-23: the view of the search that is drawn — its docked view in the top layer, or its dialog — and what it draws:
+ * its options, the active one, its opacity, whether it is inert; every option in its shadow root; and whether an input
+ * says it is a combobox, expanded, controlling a listbox or naming an active option. Self-contained: sent as its source.
+ */
+const leavingView: Probe = (root) => {
+  const shadow = root.shadowRoot!;
+  const surface = [shadow.querySelector<HTMLElement>('.view'), shadow.querySelector<HTMLElement>('dialog.full')].find(
+    (el) => !!el && (el.matches(':popover-open') || el.matches(':modal')) && getComputedStyle(el).display !== 'none',
+  );
+  const inputs = [...shadow.querySelectorAll('.input')];
+  return {
+    drawn: !!surface,
+    options: surface ? surface.querySelectorAll('.option').length : 0,
+    active: surface?.querySelector('.option[data-active]')?.id ?? '',
+    opacity: surface ? Number(getComputedStyle(surface).opacity) : 0,
+    inert: !!surface?.inert,
+    listed: shadow.querySelectorAll('.option').length,
+    combobox: inputs.some((el) => ['role', 'aria-expanded', 'aria-controls', 'aria-activedescendant'].some((name) => el.hasAttribute(name))),
+  };
+};
 
 test.describe('suggestions', () => {
   test('SRC-14, SRC-57, SRC-13, SRC-15: with queryRow first (the default) the query row is current from the moment the view shows suggestions, so Enter searches for the query as typed; the arrow keys go through the rows from there — the first Down Arrow to the first suggestion — each suggestion shown in the input without changing the value or emitting input, and round at both ends; the query comes back on the query row; Enter on a suggestion chooses it; an edit of the suggestion shown makes it the value; a caret move leaves the row; closing or leaving shows the value again', async ({ page }) => {
