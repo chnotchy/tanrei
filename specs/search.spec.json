@@ -532,7 +532,7 @@
     },
     {
       "id": "SRC-23",
-      "text": "WHEN the view opens THE search SHALL fade it in over comp.search.motion.open-duration with comp.search.motion.open-easing, a docked view also growing from its edge that faces the bar, and WHEN it closes SHALL fade it out over comp.search.motion.close-duration with comp.search.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. Focus SHALL move (SRC-9) when the view opens or closes, not when the motion ends."
+      "text": "WHEN the view opens THE search SHALL fade it in over comp.search.motion.open-duration with comp.search.motion.open-easing, a docked view also growing from its edge that faces the bar, and WHEN it closes SHALL fade it out over comp.search.motion.close-duration with comp.search.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. Focus SHALL move (SRC-9) when the view opens or closes, not when the motion ends. WHILE the view fades out THE search SHALL go on drawing what it showed as it closed — the suggestions it listed and the active one, whatever suggestions the product adds or takes away meanwhile — and draw what it holds once the view has gone, or WHEN it opens again before then; what it exposes and answers SHALL change when the view closes (SRC-24), the view that fades out being out of reach and hidden from assistive technology."
     },
     {
       "id": "SRC-24",
