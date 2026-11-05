@@ -1305,7 +1305,7 @@ test.describe('behavior: the list', () => {
     const arrive = () => motion.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter, display, overlay', '40s', true]);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter', '40s', true]);
     expect(Number(await css(motion, 'opacity')), 'still fading in').toBeLessThan(1);
     await arrive();
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
@@ -1329,7 +1329,7 @@ test.describe('behavior: the list', () => {
     // Reduced motion: only a fade, over role.reduced — no scale, no distance.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await container(page, 'one').click();
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity, display, overlay', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
     await page.keyboard.press('Escape');
     await expect.poll(() => part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);

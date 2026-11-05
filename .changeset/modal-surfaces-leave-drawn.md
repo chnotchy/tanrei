@@ -14,9 +14,9 @@ finished; opened again on the way out, it goes back from where it was, modal aga
   the web package's primitives. While it leaves, the `<dialog>` carries `data-tanrei-leaving`, is a manual popover and
   is `inert`; a style that targets a closed dialog sees it closed (no `[open]`, not `:modal`) from the first frame.
 - The modal surfaces no longer transition `display` and `overlay` (`transition-behavior: allow-discrete`): their
-  `transition-property` lists only what moves (`opacity`, `scale`, `translate`). The one appearance the dialog, the
-  image preview's image and the modal picker are drawn with still lists them, for the anchored surfaces that rely on
-  them; a leaving dialog holds its display, so they change nothing there.
+  `transition-property` lists only what moves (`opacity`, `scale`, `translate`), and so does the appearance every
+  surface that opens beside a control is drawn with: those popovers are all manual and each leaves the top layer only
+  after its own exit has finished.
 - The page's scroll, held while a modal surface is open (MDL-2), no longer moves the page sideways where the scroll bar
   takes room: the root keeps that room (`scrollbar-gutter: stable`, or as much padding where the engine keeps no gutter
   for the bar). Nothing changes where the bar is drawn over the page.
