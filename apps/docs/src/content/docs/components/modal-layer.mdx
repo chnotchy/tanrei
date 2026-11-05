@@ -131,6 +131,26 @@ The dim's opacity is the alpha of its color: change the color, or the system's `
 
 Turn `scrim` off for content that covers the whole window with a fill of its own, such as a viewer over a dark background. There is nothing left to dim. The layer still blocks everything behind, and a press outside your content still asks to close.
 
+### Elements fixed to the window
+
+While a modal surface is open, the page does not scroll and its scroll bar goes away. Where the scroll bar took room, the layer keeps that room, so the page does not shift sideways, and in most browsers elements fixed to the window stay where they are too. Some browsers cannot keep the room for them: Safari, and Chrome on macOS, under a scroll bar styled with `::-webkit-scrollbar`. There the window grows by the scroll bar's width while the surface is open, and an element fixed across it would widen or move.
+
+On the web, the layer then sets how much the window grew on each side, as `--tanrei-scroll-hold-inset-left` and `--tanrei-scroll-hold-inset-right` on the document's root. Add them to the insets of your own elements fixed to the window's edges, such as an app bar fixed across the top or a button fixed in a corner, and they stay where they were. Tanrei's own, such as the snackbar, already do. The two are set only while they are needed, so always give `0px` as the fallback.
+
+```css
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: var(--tanrei-scroll-hold-inset-left, 0px);
+  right: var(--tanrei-scroll-hold-inset-right, 0px);
+}
+.compose-button {
+  position: fixed;
+  bottom: var(--tanrei-sys-space-space400);
+  right: calc(var(--tanrei-sys-space-space400) + var(--tanrei-scroll-hold-inset-right, 0px));
+}
+```
+
 ### Do
 
 - Name the layer with `label`. A screen reader announces it when focus moves in.

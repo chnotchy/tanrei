@@ -112,6 +112,7 @@
 //                 for a choice of kind drawn from script (a calendar's arrows, a picker's actions)
 //   modal       — modalLayer: the Tanrei modal overlays open in the window, which a snackbar waits and pauses for (SNK-9, SNK-12);
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
+//                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets)
 //   contained-wheel — containWheel(), containedWheel: a wheel toward an end a scroller already stands at is cancelled,
 //                 so that it does not reach the page where Gecko's wheel transaction has let `overscroll-behavior` go
@@ -302,7 +303,7 @@ export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
-export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
+export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
 export { SCRIM_FILTER, scrimFilter } from './scrim.js';
