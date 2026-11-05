@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
 
 const spec = loadSpec('file-picker');
 type P = Page;
@@ -736,7 +737,7 @@ test.describe('behavior', () => {
         await expect.poll(() => target.getAttribute('data-pressed'), { message: 'the press ends' }).toBeNull();
         await expect(target.locator('.ripple')).toHaveCount(0);
         // At rest again before the next press: the way back from a state is a motion (FPK-20).
-        await expect.poll(() => target.evaluate((el) => el.getAnimations().length), { message: 'at rest' }).toBe(0);
+        await expect.poll(() => motionCount(target), { message: 'at rest' }).toBe(0);
       };
       const feedback = async (value: string) => override(page, { '--tanrei-sys-behavior-pressed-feedback': value });
       // overlay (the default, and what an unknown name is): the pressed tokens on the whole container at once.
@@ -1380,11 +1381,15 @@ test.describe('behavior', () => {
     expect(Number.parseFloat(await css(selection(page, 'button'), 'transition-duration'))).toBe(0);
     expect(await css(selection(page, 'button'), 'animation-name')).toBe('none');
     for (const text of ['brief.pdf', '', '3 files']) {
-      const now = await host(page, 'button').evaluate(async (el: HTMLElement & { selectionText: string; updateComplete: Promise<unknown> }, t) => {
-        el.selectionText = t;
-        await el.updateComplete;
-        return { drawn: el.shadowRoot!.querySelector('.selection')?.textContent ?? null, moving: el.shadowRoot!.getAnimations().length };
-      }, text);
+      // Its own motions: those in its shadow root and in every shadow root inside it (the trigger it slots is the product's).
+      const now = await host(page, 'button').evaluate(
+        async (el: HTMLElement & { selectionText: string; updateComplete: Promise<unknown> }, [t, every]) => {
+          el.selectionText = t;
+          await el.updateComplete;
+          return { drawn: el.shadowRoot!.querySelector('.selection')?.textContent ?? null, moving: ((0, eval)(every) as (root: ShadowRoot) => Animation[])(el.shadowRoot!).length };
+        },
+        [text, EVERY_ANIMATION] as const,
+      );
       expect(now, `"${text}"`).toEqual({ drawn: text || null, moving: 0 });
     }
     // Reduced motion: at once.
@@ -1585,14 +1590,15 @@ test.describe('behavior', () => {
     near((await box(trigger(page, id))).x, whole.x, 'left-to-right from the document');
     await native(page, id).focus();
     // The focused state has been drawn: what moves after this is the direction's doing.
-    await expect.poll(() => trigger(page, id).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
-    // An ancestor's direction, not the root's.
-    const moving = await stage(page, id).evaluate((el) => {
+    await expect.poll(() => motionCount(trigger(page, id))).toBe(0);
+    // An ancestor's direction, not the root's. Its own motions: those in its shadow root and in every shadow root inside
+    // it (the trigger it slots is the product's).
+    const moving = await stage(page, id).evaluate((el, every) => {
       el.setAttribute('dir', 'rtl');
       const picker = el.querySelector('tanrei-file-picker')!;
       void picker.getBoundingClientRect();
-      return picker.shadowRoot!.getAnimations().length;
-    });
+      return ((0, eval)(every) as (root: ShadowRoot) => Animation[])(picker.shadowRoot!).length;
+    }, EVERY_ANIMATION);
     expect(moving, 'without a motion of its own').toBe(0);
     const t = await box(trigger(page, id));
     near(t.x + t.width, whole.x + whole.width, 'drawn for the new direction at once');
