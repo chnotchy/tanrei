@@ -4426,6 +4426,9 @@ test.describe('where the list stands, and how Japanese lines break', () => {
       await page.keyboard.press('End');
       await expect.poll(() => focused(page)).toBe(LAST);
       await expect.poll(() => toEnd(page)).toBeLessThan(1);
+      // The offset changes in the key's task, and its scroll event is told in the next frame drawn: it has been told
+      // before the scrolls of the next opening are watched, or it is counted among them.
+      await expect.poll(async () => (await scrolled(page)).at(-1), 'the scroll to the end, told').toBe(await offset(page));
       // Closed at its end and opened again — at once, before its closing motion may have ended — it is at its top.
       await page.keyboard.press('Escape');
       await expect.poll(() => focused(page)).toBe('a-actions');
