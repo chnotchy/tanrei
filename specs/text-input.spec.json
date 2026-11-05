@@ -460,8 +460,8 @@
     },
     {
       "id": "TXI-4",
-      "text": "WHILE an input method is composing text THE text input SHALL leave the composition to the platform's native text element: it SHALL NOT write the value back into the element, trim, truncate, reformat or apply maxLength to it, and SHALL NOT emit change; input during a composition SHALL be the platform's own (marked as composing where the platform marks it), a committed composition SHALL always produce an input, and a value the product sets during a composition SHALL be applied when the composition ends.",
-      "verify": "Drive a Japanese input method (or the platform's composition test API) through a marked-text sequence and a commit, with maxLength set and a product that echoes value back on every input."
+      "text": "WHILE an input method is composing text THE text input SHALL leave the composition to the platform's native text element: it SHALL NOT write the value back into the element, trim, truncate, reformat or apply maxLength to it, and SHALL NOT emit change; input during a composition SHALL be the platform's own (marked as composing where the platform marks it), a committed composition SHALL always produce an input, and a value the product sets during a composition SHALL be applied when the composition ends. A composition that ends with the value as it was when the composition began — cancelled by the person, with Escape say, or committing nothing — is not a committed composition: THE text input SHALL emit no input as it ends, because the value did not change (TXI-1), unless the last input during the composition reported another value, when it SHALL emit one input with the value as it now is.",
+      "verify": "Drive a Japanese input method (or the platform's composition test API) through a marked-text sequence and a commit, with maxLength set and a product that echoes value back on every input. A composition cancelled, leaving the value as it began, emits no input as it ends; a committed one emits exactly one input that is not composing."
     },
     {
       "id": "TXI-5",

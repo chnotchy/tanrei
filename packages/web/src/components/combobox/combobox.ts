@@ -360,8 +360,6 @@ export class TanreiCombobox extends TanreiElement {
   private query: string | null = null;
   /** The text was last taken during a composition: its end makes the first match active (CMB-26). */
   private composedText = false;
-  /** CMB-21 (TXI-4): the text as the last composition began. */
-  private composedFrom = '';
   /** CMB-21 (TXI-4): the list was open as the last composition ended. */
   private openAtEnd = false;
   /**
@@ -740,6 +738,9 @@ export class TanreiCombobox extends TanreiElement {
     // What the native element holds is taken from here on: `inputValue` is the element's own again.
     this.nativeSeen = this.input?.value ?? text;
     if (text === this.text && this.editing && (composing || !this.composedText)) return;
+    // CMB-21 (TXI-4): a composition that ended with the text as it began, having taken none of its own, changed nothing
+    // — it starts no edit and opens no list.
+    if (text === this.text && !composing && !this.composedText && this.native.ending) return;
     this.composedText = composing;
     this.inputValue = text;
     this.ownText = text;
@@ -756,25 +757,16 @@ export class TanreiCombobox extends TanreiElement {
 
   #onInput(event: Event) {
     if (this.native.composingInput(event)) return;
-    const input = event.target as HTMLInputElement;
-    // CMB-16 (TXI-4): where the composition left the text as it found it, its closing `input` changed nothing and goes
-    // no further.
-    const kept = this.closedInTheGap;
-    if (kept && input.value === this.composedFrom) event.stopPropagation();
-    this.took(input.value, false, !kept);
+    this.took((event.target as HTMLInputElement).value, false, !this.closedInTheGap);
   }
 
   /**
    * CMB-21 (TXI-4): the list closed — by the person or the product — after a composition ended and before the `input`
-   * that closes it: the text that input brings does not open it again.
+   * that closes it: the text that input brings does not open it again. (A composition that left the text as it began
+   * has no such input: src/primitives/native-text.ts.)
    */
   private get closedInTheGap() {
     return this.native.ending && !this.native.composing && this.openAtEnd && !this.open;
-  }
-
-  #onCompositionStart() {
-    this.composedFrom = this.text;
-    this.native.onCompositionStart();
   }
 
   #onCompositionEnd(event: CompositionEvent) {
@@ -1273,7 +1265,7 @@ export class TanreiCombobox extends TanreiElement {
               @keydown=${this.#onKeyDown}
               @focus=${this.#onFocus}
               @blur=${this.#onBlur}
-              @compositionstart=${this.#onCompositionStart}
+              @compositionstart=${this.native.onCompositionStart}
               @compositionend=${this.#onCompositionEnd}
             />
           </div>
