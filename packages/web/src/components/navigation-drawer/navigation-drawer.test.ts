@@ -3602,7 +3602,10 @@ test.describe('accessibility', () => {
       for (const fixtures of [inline, only('modal'), only('modal-collapsible-open'), ...responsive.map((f) => [f])]) {
         await page.setViewportSize(fixtures.length === 1 ? drawerWindow(fixtures[0].id) : { width: 1280, height: 720 });
         await mount(page, fixtures, { theme, reducedMotion: true });
-        await page.waitForTimeout(400);
+        // Every mount after the first writes its document into a window that was painted already, so an open modal
+        // drawer plays its entrance (MOT-4; under reduced motion, a cross-fade): axe reads it at rest, once every motion
+        // in the page has ended.
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
