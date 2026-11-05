@@ -7366,7 +7366,19 @@ the panel before anything else of the closing update is styled and once the chan
 (`data-form-change`): a part the change of form recolors — the focused destination's container — then moves over that
 motion, in step with the width, and never over the state motion (in Chromium, where the style was brought up to date
 while focus left and before the change of form's motion was in force, it took the state motion and ended before the
-width did). While it narrows it is exposed as the column is (NVD-23): the dialog takes the
+width did). Focus that is already where it goes back to — a destination that had focus in the column when the drawer
+was opened by the product — does not leave at all. Nor does a pointer's press on the menu button move focus while the
+drawer is open (its `mousedown` default is prevented): left to the engine it gave focus to the button (Chromium, Firefox)
+or to the dialog itself (WebKit) before the click closed it, and the focused destination lost its focused color over the
+state motion, before the narrowing began; focus goes back once the close is under way, given as the press would have
+given it (`focusVisible: false`, so no focus indicator is drawn for a pointer's press). Opening, a destination that has
+focus in the column keeps it (`openModal()`'s `keep`): `showModal()` gives focus to the dialog's first focusable element
+(Chromium) or to the dialog (Firefox, WebKit) first, and Chromium brought the style up to date before it came back, so the
+destination and the menu button each began a motion that ended in no time; the destination carries `autofocus` while
+`showModal()` runs, which Chromium takes through slots and shadow roots, and Firefox and WebKit, which look only in the
+dialog's own tree, have focus given back in the same task before any style is read. Focus that comes from elsewhere moves
+once the dialog is drawn, as before: WebKit draws a destination first styled in the top layer as it is then, so focus
+given to it earlier would draw its focused color at once. While it narrows it is exposed as the column is (NVD-23): the dialog takes the
 navigation landmark's role and the label (`role="navigation"`, its own `<nav>` `role="none"`) and is not focusable
 itself — it cannot be inert (it holds what has focus), and an engine keeps a dialog's role where it is given none
 (Chromium, `role="none"`), but not where it is given another; Chromium still marks the element focusable, which no key

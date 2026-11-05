@@ -1464,6 +1464,98 @@ test.describe('the collapsed form', () => {
     expect(await activeValue(page)).toBe('header-button:Menu');
   });
 
+  test('NVD-37, NVD-40, NVD-35, NVD-22: a pointer’s press on its menu button closes the open drawer without moving focus first — the focused destination keeps its color until the drawer narrows, then moves with the width — and focus goes back to the menu button as the press would give it, with no focus indicator, in every engine', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
+    const stage = page.locator('[data-fixture="r"]');
+    const column = await drawer(page, 'r').evaluate(panelLook);
+    // Opened from the keyboard: the selected destination has focus, drawn focused.
+    await tabTo(page, menu(page, 'r').locator('button'));
+    await page.keyboard.press('Enter');
+    await motionEnded(drawer(page, 'r'));
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    const open = await drawer(page, 'r').evaluate(panelLook);
+    expect(open.selA, 'the selected destination is drawn focused').toBeGreaterThan(column.selA as number);
+    // The pointer goes down on the menu button: nothing has focus but what had it (Chromium and Firefox gave it to the
+    // button, WebKit to the dialog itself), so no color of the destination begins to move before the drawer does.
+    const at = centre((await menu(page, 'r').boundingBox())!);
+    await page.mouse.move(at.x, at.y);
+    await motionEnded(drawer(page, 'r'));
+    await watchFocus(page);
+    const pressed = await sampleFrames(stage, () => page.mouse.down(), { probe: panelLook, elements: false });
+    expect(await activeValue(page), 'the press moves no focus').toBe('inbox');
+    expect(await focusMoves(page), 'the press moves no focus').toEqual([]);
+    expect(selectedOf(pressed.rest.probe), 'the selected destination as it was').toEqual(selectedOf(open));
+    expect(pressed.motions.filter((motion) => motion.on.startsWith('span.indicator')), 'no motion of the destination’s container').toEqual([]);
+    // It goes up: the drawer closes, the destination's color moving with its width to the column's (NVD-35, NVD-40).
+    const closing = await sampleFrames(stage, () => page.mouse.up(), { probe: panelLook, elements: false });
+    expect(closing.complete).toBe(true);
+    expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72 });
+    expectNoJump(closing, [...LOOK, ...SELECTED, 'width', 'scrim']);
+    expectInStep(closing, 'selA');
+    expect(selectedOf(closing.rest.probe), 'the selected destination after closing').toEqual(selectedOf(column));
+    // NVD-22: focus back where it was when the drawer opened, once the change of form is under way — and given as the
+    // pointer's press would have given it, with no focus indicator (as before this press moved none).
+    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+    expect(await focusMoves(page)).toEqual(['focusout button.cell.selected (changing form)', 'focusin button.has-icon.icon-only (changing form)']);
+    expect(await menu(page, 'r').locator('button').evaluate((button) => button.matches(':focus-visible')), 'the menu button is given focus as a press gives it').toBe(false);
+  });
+
+  test('NVD-40, NVD-35, NVD-19, NVD-22: opened by its product while the selected destination in its column has focus, the destination keeps focus as the drawer widens and as it narrows back — nothing else takes focus on the way, and no frame changes its focused color — in every engine', async ({ page, browserName }) => {
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
+    const stage = page.locator('[data-fixture="r"]');
+    const resting = await drawer(page, 'r').evaluate(panelLook);
+    await tabTo(page, cell(page, 'r', 0));
+    await motionEnded(drawer(page, 'r'));
+    // The column's selected destination, focused from the keyboard.
+    const column = await drawer(page, 'r').evaluate(panelLook);
+    expect(column.selA, 'the column’s selected destination is drawn focused').toBeGreaterThan(resting.selA as number);
+    await watchFocus(page);
+    const opening = await sampleFrames(
+      stage,
+      () =>
+        drawer(page, 'r').evaluate(async (el: any) => {
+          el.open = true;
+          await el.updateComplete;
+        }),
+      { probe: panelLook, elements: false },
+    );
+    expect(opening.complete).toBe(true);
+    expect(opening.rest.probe).toMatchObject({ tag: 'dialog', modal: true, width: 240 });
+    expect(await activeValue(page), 'NVD-19: the selected destination keeps focus').toBe('inbox');
+    // Chromium gives focus to nothing else on the way. Firefox and WebKit give it to the dialog itself as it is shown —
+    // their showModal() looks for what to focus in the dialog's own tree, and the destinations are slotted into it — and
+    // the destination has it back in the same task, before any style is read: no frame and no motion shows it.
+    const DIALOG_FOR_NO_FRAME = ['focusout button.cell.selected (changing form)', 'focusin dialog.drawer.widening (changing form)', 'focusout dialog.drawer.widening (changing form)', 'focusin button.cell.selected (changing form)'];
+    expect(await focusMoves(page), 'NVD-19: nothing else had focus on the way').toEqual(browserName === 'chromium' ? [] : DIALOG_FOR_NO_FRAME);
+    expectNoJump(opening, [...LOOK, 'width', 'scrim']);
+    // The column's focused destination is drawn as the open drawer's (the collapsed form's selected container aliases
+    // the expanded one's): no frame changes it, and no motion of it begins — before the change, the engines gave focus
+    // to the menu button (Chromium) or the dialog (Firefox, WebKit) as it was shown, and the destination's color turned
+    // round in no time (Chromium) or was drawn unfocused in the first frame (WebKit).
+    expect(selectedOf(opening.rest.probe), 'the open drawer’s focused destination').toEqual(selectedOf(column));
+    expectSteady(opening, SELECTED);
+    await watchFocus(page);
+    const closing = await sampleFrames(
+      stage,
+      () =>
+        drawer(page, 'r').evaluate(async (el: any) => {
+          el.open = false;
+          await el.updateComplete;
+        }),
+      { probe: panelLook, elements: false },
+    );
+    expect(closing.complete).toBe(true);
+    expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72 });
+    expectNoJump(closing, [...LOOK, 'width', 'scrim']);
+    // NVD-22: focus back on the destination that had it when the drawer opened — it never left it — drawn focused as it was.
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    expect(await focusMoves(page), 'NVD-22: focus stays on the destination').toEqual([]);
+    expectSteady(closing, SELECTED);
+    expect(selectedOf(closing.rest.probe), 'the destination after closing, focused, as before it opened').toEqual(selectedOf(column));
+  });
+
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
     await mount(page, [fixture('e', MAIL), rail('c', MAIL), ...only('collapsed-labels-selected')], { reducedMotion: false });
     // The two motions are told apart only where the selection's is the longer: a system may time them alike (the
@@ -3720,6 +3812,21 @@ function expectNoJump(seen: Frames, names: string[]) {
   }
   expect(jumps, 'no frame changes the panel at once').toEqual([]);
 }
+/**
+ * Logs every element that gains or loses focus from now on, the deepest one, through shadow roots — and, where the
+ * drawer's change of form is under way as it does (`data-form-change`), says so. Read with `focusMoves()`.
+ */
+const watchFocus = (page: P) =>
+  page.evaluate(() => {
+    const w = window as any;
+    w.focusMoves = [];
+    if (w.focusWatched) return;
+    w.focusWatched = true;
+    const name = (el: Element) => [el.localName, ...[...el.classList].slice(0, 2)].join('.');
+    const changing = () => (document.querySelector('tanrei-navigation-drawer')?.hasAttribute('data-form-change') ? ' (changing form)' : '');
+    for (const type of ['focusin', 'focusout']) document.addEventListener(type, (event) => w.focusMoves.push(`${type} ${name(event.composedPath()[0] as Element)}${changing()}`), true);
+  });
+const focusMoves = (page: P): Promise<string[]> => page.evaluate(() => (window as any).focusMoves);
 /** What `names` read is the same in every frame of the change. */
 function expectSteady(seen: Frames, names: string[]) {
   const frames = course(seen);
