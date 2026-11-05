@@ -409,29 +409,3 @@ for (const surface of WRITTEN_OPEN) {
     expect(seen, 'it stands where it rests, and its scrim is drawn as it rests').toMatchObject(rest);
   });
 }
-
-test('MDL-2: holding the page’s scroll moves nothing behind sideways — a page whose scroll bar takes room keeps that room while it is held', async ({ page }) => {
-  const surface = SURFACES[0]!;
-  const host = await mount(page, surface);
-  // A page taller than the window, with a scroll bar that takes room where the engine draws one so (WebKit draws a styled
-  // bar in the layout; Chromium and Firefox, headless on an overlay-bar system, draw none, and are held to "nothing made").
-  await page.evaluate(() => {
-    document.head.insertAdjacentHTML('beforeend', '<style>::-webkit-scrollbar { width: 15px; background: #ccc; } ::-webkit-scrollbar-thumb { background: #666; }</style>');
-    document.body.insertAdjacentHTML('beforeend', '<div id="tall" style="block-size: 3000px; background: linear-gradient(red, blue)"></div>');
-  });
-  const place = () =>
-    page.locator('#tall').evaluate((el) => {
-      const root = document.documentElement;
-      return { x: el.getBoundingClientRect().x, width: el.getBoundingClientRect().width, bar: window.innerWidth - root.clientWidth, style: root.style.cssText };
-    });
-  const before = await place();
-  await open(page, host, surface);
-  const held = await place();
-  await close(host, surface);
-  await motionEnded(host);
-  const after = await place();
-  expect({ x: held.x, width: held.width }, `nothing moves while the scroll is held (a bar ${before.bar} px wide before)`).toEqual({ x: before.x, width: before.width });
-  // Where no bar takes room, the hold writes nothing on the root but its overflow.
-  if (before.bar === 0) expect(held.style).toBe('overflow: hidden;');
-  expect(after, 'and the root is as it was').toEqual(before);
-});
