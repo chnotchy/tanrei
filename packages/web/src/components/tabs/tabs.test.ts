@@ -4285,11 +4285,26 @@ test.describe('vertical', () => {
     expect(await corner()).toBeLessThan((await bounds(track(page, V))).width / 2 - 10);
     // A row's track is as before: its own shape, at most half its height.
     expect(await track(page, 'primary').evaluate((el) => Number.parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThan(1000);
-    await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
-    await expect.poll(async () => (await pill(page, V, 0)).height).toBeGreaterThan(p.height + 4);
+    // The row puts its tabs back in the resize observers of the frame after the text size changes, before that frame is
+    // painted (TAB-15). A read in a task between the change and that frame sees what is never drawn: the indicator its
+    // content's height plus the padding (88 where it rests at 80) and the track's corner from the old indicator. So the
+    // change is waited for in the task that makes it, to the paint of the next frame: an observer made after the row's is
+    // told after it, in the same frame. What is read after that is what the page shows.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          document.documentElement.style.fontSize = '200%';
+          const painted = new ResizeObserver(() => {
+            painted.disconnect();
+            resolve();
+          });
+          painted.observe(document.documentElement);
+        }),
+    );
     const taller = await pill(page, V, 0);
+    expect(taller.height).toBeGreaterThan(p.height + 4);
     // (The inset is in the text size's units too: twice as large now.)
-    await expect.poll(corner).toBeCloseTo(taller.height / 2 + (await resolveToken(page, T('track-padding'))), 1);
+    expect(await corner()).toBeCloseTo(taller.height / 2 + (await resolveToken(page, T('track-padding'))), 1);
   });
 
   test('TAB-59: indicatorOffset draws the indicator along the column, between the selected tab and the one below it or above it', async ({ page }) => {
