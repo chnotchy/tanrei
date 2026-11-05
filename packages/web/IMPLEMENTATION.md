@@ -6529,23 +6529,32 @@ pauses under, an open dialog (`src/primitives/modal.ts`).
 
 **Holding the page's scroll (MDL-2)** is `holdPageScroll()` (`src/primitives/modal.ts`), shared by every modal surface:
 `overflow: hidden` on the root from the first holder until the last lets go. Where a classic scroll bar took room, the
-room stays: `scrollbar-gutter: stable` (Chromium and Firefox keep it, for the root's box and for the window's), and where
-the engine keeps no gutter for the bar — WebKit, and Chromium over overlay scroll bars (macOS by default), under a bar
-styled with `::-webkit-scrollbar` — padding on the root, on the bar's side, as wide as the root's box grew. The page's
-content stays; the window's own box, which is the containing block of what is `position: fixed` or in the top layer, does
-not: it widens by the bar's width. That box cannot be kept from a page's style (react-remove-scroll, Radix, MUI and
-Bootstrap pad the body the same way and leave a fixed element to a class of the product's; keeping the bar drawn and
-moving the scroll to the body, as Base UI does, would set `window.scrollY` to 0 and fire `scroll`, and an app bar that
-follows the document's scroll would change its look behind the scrim). So the hold measures that box (a fixed probe, a
-child of the root, for the instant it reads it) before and after, and writes the room it gained on each side on the root:
+room stays: `scrollbar-gutter: stable` (Chromium and Firefox keep it, for the root's box and for the window's; a root
+that has a stable gutter of its own keeps it, `both-edges` too), and where the engine keeps no gutter for the bar —
+WebKit, and Chromium over overlay scroll bars (macOS by default), under a bar styled with `::-webkit-scrollbar` —
+padding on the root, on the bar's side, as wide as the root's box grew. Those engines keep no gutter for a root that
+asks for one itself either, so the root's box is measured whatever its own `scrollbar-gutter` says. The page's content
+stays; the window's own box, which is the containing block of what is `position: fixed` or in the top layer, does not:
+it widens by the bar's width. That box cannot be kept from a page's style (react-remove-scroll, Radix, MUI and Bootstrap
+pad the body the same way and leave a fixed element to a class of the product's; keeping the bar drawn and moving the
+scroll to the body, as Base UI does, would set `window.scrollY` to 0 and fire `scroll`, and an app bar that follows the
+document's scroll would change its look behind the scrim). So the hold measures that box (a fixed probe, a child of the
+root, for the instant it reads it) before and after, and writes the room it gained on each side on the root:
 `--tanrei-scroll-hold-inset-left` and `--tanrei-scroll-hold-inset-right` (`SCROLL_HOLD_INSET`), only while the scroll is
 held and only on a side that gained room. An element fixed against the window's edge adds them to its insets and stays
 where it was; read them with a fallback, `var(--tanrei-scroll-hold-inset-right, 0px)`. The snackbar's host box does
 (bottom and top end). A product's own fixed elements are the product's: a fixed app bar across the window is written
-`left: var(--tanrei-scroll-hold-inset-left, 0px); right: var(--tanrei-scroll-hold-inset-right, 0px)`. Tested with the
-engines' bars drawn (`src/primitives/page-scroll-hold*.test.ts`): Chromium without `--hide-scrollbars`, and with
-`--enable-features=OverlayScrollbar` for the branch where the window widens; Firefox headed on Linux under `Xvfb` with GTK's
-overlay bars off (headless Firefox draws none).
+`left: var(--tanrei-scroll-hold-inset-left, 0px); right: var(--tanrei-scroll-hold-inset-right, 0px)`. The room is
+measured when the hold begins and again on each `resize` of the window while it lasts: a window made shorter would bring
+the bar back once the hold lets go, one made taller would not, and a zoom changes a bar's width in CSS pixels. Within
+the `resize` event the hold gives the root back what it wrote and its own overflow, measures it as it begins, and writes
+it all again, so that no frame is drawn in between (Base UI's `useScrollLock` lets go and takes hold again on `resize`
+too, in the next animation frame). Each measure reads the root's box before its `clientWidth`: read first after the
+root's overflow has changed, Chromium's root `clientWidth` still leaves out a bar that layout has just brought back
+(seen on Linux over overlay scroll bars, under a styled bar). Tested with the engines' bars drawn
+(`src/primitives/page-scroll-hold*.test.ts`): Chromium without `--hide-scrollbars`, and with
+`--enable-features=OverlayScrollbar` for the branch where the window widens; Firefox headed on Linux under `Xvfb` with
+GTK's overlay bars off (headless Firefox draws none); a window resized while the scroll is held, both ways, in each.
 
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
 least `container.margin` from every edge and the safe area, as wide as its content between `container.min-width` and
