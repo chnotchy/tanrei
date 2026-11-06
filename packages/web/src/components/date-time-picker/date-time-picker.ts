@@ -31,7 +31,6 @@ import {
   containedWheel,
   deepActive,
   deviceTime,
-  hasFocusVisibleOption,
   headerDateText,
   holdPageScroll,
   hostAria,
@@ -555,9 +554,11 @@ export class TanreiDateTimePicker extends TanreiElement {
    */
   protected armed: Unit | null = null;
   /**
-   * DTM-20, DTM-47: the wheel — or the period, wheel or selector — whose focus is keyboard focus, and so shows its ring.
-   * An input's own `:focus-visible` cannot tell, and whether a key pressed after a pointer press makes a focused element
-   * match it is each browser's own guess: the picker keeps the answer itself, so every engine draws the same.
+   * DTM-20, DTM-22, DTM-47: the wheel or the selector — of the hour, the minute or the period — whose focus is keyboard
+   * focus, and so shows its ring. An input's own `:focus-visible` cannot tell, whether a key pressed after a pointer
+   * press makes a focused element match it is each browser's own guess, and an engine whose `focus()` does not read
+   * `focusVisible` (Safari before 18.4) draws a modal dialog's first focus after a press with the indicator: the picker
+   * keeps the answer itself, so every engine draws the same.
    */
   protected ringed: Unit | 'period' | null = null;
   /**
@@ -1394,14 +1395,15 @@ export class TanreiDateTimePicker extends TanreiElement {
   };
 
   /**
-   * DTM-20: a wheel that has just been worked by the keyboard — a digit, a key that moves it, a key that ends its entry,
-   * text from an on-screen keyboard — holds keyboard focus from then on, however focus first reached it: the wheel that
-   * has focus now shows its ring. So the minute wheel shows where focus is once the hour's entry has moved on to it
-   * (DTM-44), and a wheel whose entry has ended still does, where a press on it had shown none.
+   * DTM-20, DTM-22: a wheel or a selector that has just been worked by the keyboard — a digit, a key that moves it, a key
+   * that ends its entry, Enter or Space on a selector, text from an on-screen keyboard — holds keyboard focus from then
+   * on, however focus first reached it: the wheel or the selector that has focus now shows its ring. So the minute's
+   * shows where focus is once the hour's entry has moved on to it (DTM-44), and one whose entry has ended still does,
+   * where a press on it had shown none.
    */
   private ringKeyed() {
     const active = deepActive();
-    if (!(active instanceof HTMLInputElement) || !active.classList.contains('entry') || active.getRootNode() !== this.renderRoot) return;
+    if (!(active instanceof HTMLElement) || !active.matches('input.entry, .selector:not(.period)') || active.getRootNode() !== this.renderRoot) return;
     const unit = active.dataset.unit as Unit | undefined;
     if (unit === 'hour' || unit === 'minute') this.ringed = unit;
   }
@@ -1522,12 +1524,22 @@ export class TanreiDateTimePicker extends TanreiElement {
       input.focus({ preventScroll: true });
       return;
     }
-    // DTM-22, DTM-28: the same for the minute selector — its ring, whether or not the hour selector showed one. Not
-    // the hour's own `:focus-visible`: whether a key pressed after a pointer's press makes it match is each engine's
-    // guess (Chromium and WebKit say yes, Firefox no), and the minute selector would show a ring in two engines and
-    // none in the third. An engine that does not read the option draws this script's focus by its own rule, which
-    // counts a focus moved within a key press as the keyboard's.
-    this.renderRoot.querySelector<HTMLElement>(".selector[data-unit='minute']")?.focus({ focusVisible: true } as FocusOptions);
+    // DTM-22, DTM-28: the same for the minute selector — its ring, whether or not the hour selector showed one, drawn
+    // by the picker (data-ring) as the wheels' is.
+    this.focusSelector('minute', true);
+  }
+
+  /**
+   * DTM-22, DTM-25, DTM-28: focus to the selector of `unit`, with its ring or without, as the picker draws it — the
+   * option is given too, so that the engine's own `:focus-visible` agrees where it reads it.
+   */
+  private focusSelector(unit: Unit, ring: boolean) {
+    this.nextRing = ring;
+    try {
+      this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${unit}']`)?.focus({ focusVisible: ring } as FocusOptions);
+    } finally {
+      this.nextRing = null;
+    }
   }
 
   /** DTM-44: reads `text` as typed on `unit`, character by character, each on the unit the one before left the entry at. */
@@ -1856,16 +1868,27 @@ export class TanreiDateTimePicker extends TanreiElement {
       onPointerDown: (event: PointerEvent) => {
         // DTM-45: a press ends a typed entry, keeping what it read.
         this.endEntry(true);
+        // DTM-22, DTM-28: the selector takes focus on the press, as a pointer's, with no ring — given here, so that no
+        // engine's own guess of how focus arrived decides it.
+        const control = event.currentTarget as HTMLElement;
+        if ((event.pointerType !== 'mouse' || event.button === 0) && deepActive() !== control) {
+          this.nextRing = false;
+          control.focus({ preventScroll: true, focusVisible: false } as FocusOptions);
+          this.nextRing = null;
+        }
         press.onPointerDown(event);
         this.showUnit(unit);
       },
       onKeyDown: (event: KeyboardEvent) => {
         if (event.altKey || event.ctrlKey || event.metaKey) return;
         // DTM-22: digits typed on a selector are read as a wheel's typed entry is; the dial mode raises no keyboard.
-        if (this.entryKey(unit, event)) return;
+        // A key the entry reads makes the focus keyboard focus — on the selector that has it now (the hour's entry
+        // may have moved on to the minute).
+        if (this.entryKey(unit, event)) return this.ringKeyed();
         press.onKeyDown(event);
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
+          this.ringKeyed();
           this.showUnit(unit);
           return;
         }
@@ -1873,20 +1896,30 @@ export class TanreiDateTimePicker extends TanreiElement {
         const key = event.key === 'ArrowRight' ? 'ArrowUp' : event.key === 'ArrowLeft' ? 'ArrowDown' : event.key;
         if (!this.keyTime(unit, key)) return;
         event.preventDefault();
+        this.ringKeyed();
         // DTM-45: the keys that move the value end a typed entry first, keeping what it read.
         this.endEntry(true);
         this.showUnit(unit);
         this.instant = false;
         this.setTime(this.keyTime(unit, key)!);
       },
+      /**
+       * DTM-22, DTM-28: a selector shows its ring for keyboard focus only — what the picker asked for where it moved
+       * the focus itself (none after a press on it), otherwise what the browser says of how focus arrived (Tab).
+       */
       onFocus: (event: FocusEvent) => {
-        syncFocusStyle(this, event.currentTarget as HTMLElement);
+        const control = event.currentTarget as HTMLElement;
+        syncFocusStyle(this, control);
+        const ring = this.nextRing ?? control.matches(':focus-visible');
+        this.nextRing = null;
+        this.ringed = ring ? unit : this.ringed === unit ? null : this.ringed;
         if (!this.presenting) this.showUnit(unit);
       },
       onBlur: () => {
         press.onBlur();
         // DTM-45: focus leaving ends a typed entry, keeping what it read.
         if (this.typed?.unit === unit) this.endEntry(true);
+        if (this.ringed === unit) this.ringed = null;
       },
     };
   };
@@ -1984,8 +2017,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     const hourHadFocus = !!hour && deepActive() === hour;
     this.shownUnit = 'minute';
     if (hourHadFocus) {
-      const ring = hour.matches(':focus-visible');
-      void this.updateComplete.then(() => this.renderRoot.querySelector<HTMLElement>(".selector[data-unit='minute']")?.focus({ focusVisible: ring } as FocusOptions));
+      // DTM-22, DTM-28: the minute selector shows the ring exactly when the hour selector did — the picker's answer
+      // (`ringed`), not the hour's own `:focus-visible`, which after a press and then a key is each engine's guess.
+      const ring = this.ringed === 'hour';
+      void this.updateComplete.then(() => this.focusSelector('minute', ring));
     }
   };
 
@@ -2285,11 +2320,15 @@ export class TanreiDateTimePicker extends TanreiElement {
       } else if (this.shownEntry === 'wheels') {
         // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up.
         this.nextRing = this.openedRing;
-        focusAgain(this.spin('hour'), options, { ownRing: true });
+        focusAgain(this.spin('hour'), options);
+      } else {
+        // DTM-3, DTM-28: the selector's ring is the picker's to draw (data-ring), as the wheels' is.
+        this.nextRing = this.openedRing;
+        focusAgain(this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${this.shownUnit}']`), options);
       }
-      else focusAgain(this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${this.shownUnit}']`), options);
     } finally {
       this.presenting = false;
+      this.nextRing = null;
     }
   }
 
@@ -2802,6 +2841,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       part="selector"
       class=${classMap({ selector: true, selected: this.shownUnit === unit })}
       data-unit=${unit}
+      ?data-ring=${this.ringed === unit}
       role="spinbutton"
       tabindex="0"
       aria-label=${ifDefined((unit === 'hour' ? this.say.hourLabel : this.say.minuteLabel) || undefined)}
@@ -2994,18 +3034,12 @@ export class TanreiDateTimePicker extends TanreiElement {
 
 /**
  * Focus to `element` with `options`. `showModal()` may have focused it already (the dialog's focusing steps): it is
- * focused again, so that whether its ring shows is the options' call, not the first focus's — where the engine reads
- * them, or where the picker draws the element's ring itself (`ownRing`: a wheel, DTM-20). Where it does not (Chromium
- * before 145, Safari before 18.4) focusing again would be a script's focus, which such an engine draws with the ring
- * after any focus that was not a pointer's — the dialog's among them; the focus the element has was drawn as the press
- * or the key that opened the picker, and is kept.
+ * focused again, so that whether its ring shows is the picker's call, not the first focus's — the picker draws the ring
+ * of a wheel and of a selector itself (DTM-20, DTM-28: `data-ring`), from what it asked for as it moved the focus.
  */
-function focusAgain(element: HTMLElement | null, options: FocusOptions, { ownRing = false } = {}) {
+function focusAgain(element: HTMLElement | null, options: FocusOptions) {
   if (!element) return;
-  if (deepActive() === element) {
-    if (!ownRing && !hasFocusVisibleOption()) return;
-    element.blur();
-  }
+  if (deepActive() === element) element.blur();
   element.focus(options);
 }
 

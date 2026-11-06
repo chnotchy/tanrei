@@ -6277,12 +6277,21 @@ where it was", which a disabled button cannot.
 previous or next month chooses it — `change` first — and then shows its month with the same motion; the chosen day is
 the active day and takes focus if focus was in the grid. An unavailable one does nothing. The press itself moves no
 focus (its `mousedown` default is prevented), and the day of its month is given focus with no ring (`focusVisible:
-false`). Chromium before 145 and Safari before 18.4 (`hasFocusVisibleOption()`) do not read that option, and draw a
-script's focus after a press that gave none as the last focus was drawn: after a day focused from the keyboard, with the
-ring. There, while a day has keyboard focus, a press on an available neighbouring day is left to give focus itself, as
-a pointer's, and the day of its month takes it from there with none. Likewise a press on the year that has keyboard
-focus lets that focus go (`pressGivesFocus()`), so that the press gives it again as a pointer's before the day view's
-active day takes it.
+false`).
+
+**Keyboard focus (CAL-18, CAL-19).** The ring and the focused state of a day, a year and the view toggle are drawn for
+focus on a cell the calendar marks `data-ring`, never from the engine's `:focus-visible`: the calendar marks a cell as
+focus arrives — as the calendar asked where it moved focus itself (true after a key, false after a press), as
+`focus({ focusVisible })` asks, also on a cell that has focus already, and otherwise as the browser says (Tab) — and
+again when a key works the cell that has focus (Enter, Space). Whether an element a press focused matches
+`:focus-visible` after a key is each engine's guess (Chromium and WebKit say yes, Firefox no), and Chromium before 145
+and Safari before 18.4 (`hasFocusVisibleOption()`) do not read the option at all, Safari also drawing a modal dialog's
+first focus after a press with the indicator. Those engines draw a script's focus after a press that gave none as the
+last focus was drawn, so the calendar keeps their own `:focus-visible` in step with its ring where a press would leave it
+otherwise — what a product's `::part(day):focus-visible` reads: while a day has keyboard focus, a press on an available
+neighbouring day is left to give focus itself, as a pointer's, and the day of its month takes it from there; and a press
+on the year that has keyboard focus lets that focus go (`pressGivesFocus()`), so that the press gives it again as a
+pointer's before the day view's active day takes it.
 
 **Keys (CAL-10…13).** The grid is one Tab stop (the active day): the arrows move by a day in the direction they point
 (mirrored right to left) or a week, Home and End to the ends of the week row, Page Up and Page Down by a month and with
@@ -6381,14 +6390,15 @@ it asks to close (`tab`) and focus goes on from its anchor; focus moving elsewhe
 outside it and its anchor asks to close (`outside`) **and also reaches the element under it**, as the menu's does. Both
 move focus in when they open — to the calendar's active day (or year), the hour wheel, or the selector of `unit` — with
 the ring only when the picker was opened from the keyboard, and give it back when they close. Whether it was is read from
-the element that had focus as the picker opened, before a modal picker's dialog takes focus from it. Focus that the
-dialog's focusing steps gave the element already is given again with `focusVisible`, so that the ring is the picker's
-call — where `focus()` reads the option. Chromium before 145 and Safari before 18.4, inside the package's floor
-(`hasFocusVisibleOption()`), do not: given again, it would be a script's focus, which they draw with the ring after any
-focus that was not a pointer's, the dialog's among them, so there the dialog's focus is kept as the engine drew it (a
-wheel, which draws its own ring, is still given focus again). Safari before 18.4 draws the focus a modal dialog gives
-with the ring after a press too, as it does for any modal dialog, so there a modal picker opened by a press shows the
-ring on the calendar's day, its year or the selector.
+the element that had focus as the picker opened, before a modal picker's dialog takes focus from it. The ring of the
+part focus moves to is never the engine's own `:focus-visible`: a wheel, a selector and the period draw theirs from the
+picker's own record of which one has keyboard focus (`data-ring`), and the calendar's day and year from the calendar's
+(its `focus({ focusVisible })`, CAL-19). So the ring is the same in every engine — also in Chromium before 145 and
+Safari before 18.4, inside the package's floor, which do not read the `focusVisible` option of `focus()`
+(`hasFocusVisibleOption()`) and draw a script's focus with the ring after any focus that was not a pointer's, and also
+where Safari before 18.4 draws the focus a modal dialog gives after a press with the ring, as it does for any modal
+dialog. Focus that the dialog's focusing steps gave a wheel or a selector already is given again, with the ring the
+picker asked for.
 
 **Choosing (DTM-6…8, DTM-11, DTM-33).** Every picker but a docked one for a date only holds a pending choice from opening
 to OK — a `value` you set meanwhile does not move it — and OK is disabled while it is incomplete or a date-time range's
@@ -6477,7 +6487,11 @@ no on-screen keyboard. Nothing is emitted: OK commits the time.
 
 **The dial (DTM-21…26).** The hour and minute selectors are spin buttons (Up and Right the next value, Down and Left the
 previous) drawn from their conditions' state tokens, with the Button's press (see "Choices of kind"); focusing or pressing
-one shows its unit on the dial. The dial is drawn in HTML (`aria-hidden`), `direction: ltr` so it runs clockwise in every
+one shows its unit on the dial. Their keyboard focus — the focused state and the ring — is the picker's to say
+(`data-ring`), as the wheels' is: a press gives a selector focus with none, Tab with the ring, and a key that works a
+selector a press focused (an arrow, Enter, Space, a digit) makes its focus keyboard focus, since whether an element a
+press focused matches `:focus-visible` after a key is each engine's guess (Chromium and WebKit say yes, Firefox no). The
+minute selector that typing or a press on the hour dial moves focus to takes the hour selector's ring with it. The dial is drawn in HTML (`aria-hidden`), `direction: ltr` so it runs clockwise in every
 direction; a press or drag sets the value under the pointer at once (the nearer ring for 24 hours, a minute of the
 step), and the end of a press on the hour dial shows the minutes and moves focus to the minute selector if it was on the
 hour's. The handle turns along the shorter arc over the dial motion (a copy of the numbers inside it, turned back).
