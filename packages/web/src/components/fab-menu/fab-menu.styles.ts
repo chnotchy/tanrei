@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, appearStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -263,24 +263,13 @@ export const menuStyles = css`
     inset-block-end: calc(100% + ${t('list-offset')});
     inset-inline-end: 0;
   }
-  /* FBM-19: the items leave together. At once where motion is reduced. */
-  .list.leaving {
-    animation: fab-menu-leave ${t('motion-close-duration')} ${t('motion-close-easing')} forwards;
-  }
-  @keyframes fab-menu-leave {
-    to {
-      opacity: 0;
-    }
-  }
+  /* FBM-19: the list does not move; each item appears and leaves on its own (itemStyles). */
 
   @media (prefers-reduced-motion: reduce) {
     .toggle,
     .toggle.turning,
     .glyph {
       transition: none;
-    }
-    .list.leaving {
-      animation: none;
     }
   }
   @media (forced-colors: active) {
@@ -312,9 +301,47 @@ const itemPaint = (s: string) => `
     background: var(--_fbm-ic${s});${itemContent(s)}`;
 
 /**
+ * FBM-19: an item appears as a surface does (`appearStyles()`, src/primitives/motion.ts): closed, its `.appear` box stands
+ * where `sys.motion.appear.*` start it — under m3-like, opacity 0 and scale 0 — grown from the middle of its end edge on
+ * both axes under every appearance (it grows beside the toggle, not away from it, so `unfold`'s one axis is not its own),
+ * and open (`.open`) it is whole, moving between the two over the open and close tokens, turned round from what it shows,
+ * and as a cross-fade over `sys.motion.role.reduced` where motion is reduced. The entrance waits `--_order`
+ * stagger steps (the item nearest the toggle first); the exit, and an entrance turned round from an exit, wait none.
+ * `.appear` is a box of its own around the container, which keeps its own opacity and state transitions.
+ */
+const appearance = css`
+  ${appearStyles({
+    motion: '.appear',
+    open: '.appear.open',
+    role: 'anchored',
+    origin: 'inline-end',
+    unfold: false,
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+  })}
+  .appear {
+    display: block;
+  }
+  .appear.open {
+    transition-delay: calc(var(--_order, 0) * ${t('motion-stagger')});
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .appear.open {
+      transition-delay: 0s;
+    }
+  }
+  /* Drawn in place (a fixture's, FBM-13's verify) it is whole and never moves. Made whole at once by the controller, a
+     box first drawn open in place in a document already painted would still play its entrance in WebKit, from the next
+     frame on (as the menu's surface did). */
+  .appear.in-place {
+    transition-property: none !important;
+  }
+`;
+
+/**
  * An item (FBM-3…5, FBM-9, FBM-10, FBM-18, FBM-19, FBM-22): a raised container at least item.height tall and as wide as
  * its content, the icon and then the label, each state from the item parts of the menu's variant (inherited from the
- * menu), its own press, ring and corners; it grows in from its end edge when the menu opens.
+ * menu), its own press, ring and corners; it appears from its end edge when the menu opens.
  */
 export const itemStyles = css`
   :host {
@@ -322,6 +349,7 @@ export const itemStyles = css`
     /* The ring is drawn on the container, never around the host. */
     outline: none;
   }
+  ${appearance}
   .container {
     box-sizing: border-box;
     position: relative;
@@ -345,11 +373,6 @@ export const itemStyles = css`
     transition-property: background-color, color, box-shadow, opacity;
     transition-duration: ${t('motion-state-duration')};
     transition-timing-function: ${t('motion-state-easing')};
-    /* FBM-19: an item grows in from its end edge. */
-    transform-origin: right center;
-  }
-  :host(:dir(rtl)) .container {
-    transform-origin: left center;
   }
   /* FBM-5: at least item.height and the minimum target tall — stacked items cannot extend a hit area over each other —
      and the whole container is the hit area. */
@@ -406,26 +429,10 @@ export const itemStyles = css`
   /* FBM-8 for an item: the label carries press-hold for PressController; it has no transition of its own. */
   ${pressHold('.label')}
 
-  /* FBM-19: fade and grow in from the end edge, the item nearest the toggle first, each next motion.stagger later. Only
-     the delay holds the start value (backwards), so the item's own state paints are never held by the animation. */
-  .container.entering {
-    animation: fab-menu-item-in ${t('motion-open-duration')} ${t('motion-open-easing')} backwards;
-    animation-delay: calc(var(--_order, 0) * ${t('motion-stagger')});
-  }
-  @keyframes fab-menu-item-in {
-    from {
-      opacity: 0;
-      transform: scale(0);
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .container,
     .icon {
       transition: none;
-    }
-    .container.entering {
-      animation: none;
     }
   }
   @media (forced-colors: active) {

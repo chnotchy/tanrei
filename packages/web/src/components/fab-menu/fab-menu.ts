@@ -2,6 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   FollowController,
   GlyphDrawnController,
@@ -76,6 +77,9 @@ export class TanreiFabMenuItem extends TanreiElement {
     label: { type: String },
     icon: { type: String },
     context: { state: true },
+    shown: { state: true },
+    inPlace: { state: true },
+    order: { state: true },
   };
 
   /** The item's text and its accessible name. Required. */
@@ -86,6 +90,16 @@ export class TanreiFabMenuItem extends TanreiElement {
 
   /** What the FAB menu says about this item. */
   protected context: ItemContext = { position: 0, size: 0 };
+
+  /** FBM-19: shown by the FAB menu (its `.appear` box open). */
+  protected shown = false;
+  /** Drawn in place (a fixture's): whole at once, and never moving. */
+  protected inPlace = false;
+  /** FBM-19: how many stagger steps its entrance waits (0 for the item nearest the toggle). */
+  protected order = 0;
+
+  /** FBM-19: its appearance — opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear = new AppearController(this, { motion: () => this.renderRoot?.querySelector<HTMLElement>('.appear') ?? null });
 
   /**
    * FBM-26: the item's glyph is marked when the icon set mirrors its name in right-to-left (src/primitives/glyph-mirror.ts);
@@ -127,18 +141,28 @@ export class TanreiFabMenuItem extends TanreiElement {
   }
 
   /**
-   * @internal FBM-19: grows in, `order` motion.stagger after the first (0 is the item nearest the toggle); `null`
-   * shows it at once (in place, or a menu that is not animating).
+   * @internal FBM-19: appears, `order` motion.stagger steps after the item nearest the toggle (0); `inPlace` draws it
+   * whole at once (a fixture's), as the controller does before the document's first paint (MOT-4).
    */
-  async enter(order: number | null) {
-    await this.updateComplete;
-    const container = this.container;
-    if (!container) return;
-    container.classList.remove('entering');
-    if (order === null) return;
-    container.style.setProperty('--_order', String(order));
-    void container.offsetWidth; // restart the animation
-    container.classList.add('entering');
+  enter(order: number, inPlace = false) {
+    this.order = order;
+    this.inPlace = inPlace;
+    this.shown = true;
+    this.appear.enter(inPlace);
+  }
+
+  /**
+   * @internal FBM-19: leaves the way it came (at once with `instant`); resolves true once it has, false when it was told
+   * to appear again before that.
+   */
+  leave(instant = false): Promise<boolean> {
+    this.shown = false;
+    return this.appear.exit(instant);
+  }
+
+  /** @internal Whether the FAB menu shows it. */
+  get entered(): boolean {
+    return this.appear.open;
   }
 
   /** Enter activates on key-down and Space on key-up, as a native button does. */
@@ -186,18 +210,21 @@ export class TanreiFabMenuItem extends TanreiElement {
   }
 
   protected override render() {
+    // FBM-19: `.appear` is what moves as the item appears and leaves; the container keeps its own state transitions.
     return html`
-      <div
-        part="container"
-        class="container p"
-        data-tanrei-shape
-        @pointerdown=${this.press.onPointerDown}
-        @pointerup=${this.press.release}
-        @pointercancel=${this.press.release}
-        @pointerleave=${this.press.release}
-      >
-        <span part="icon" class=${classMap({ icon: true, empty: !this.icon.trim() })} aria-hidden="true">${this.icon}</span>
-        <span part="label" class="label">${this.label}</span>
+      <div class=${classMap({ appear: true, open: this.shown, 'in-place': this.inPlace })} style="--_order: ${this.order}">
+        <div
+          part="container"
+          class="container p"
+          data-tanrei-shape
+          @pointerdown=${this.press.onPointerDown}
+          @pointerup=${this.press.release}
+          @pointercancel=${this.press.release}
+          @pointerleave=${this.press.release}
+        >
+          <span part="icon" class=${classMap({ icon: true, empty: !this.icon.trim() })} aria-hidden="true">${this.icon}</span>
+          <span part="label" class="label">${this.label}</span>
+        </div>
       </div>
     `;
   }
@@ -395,6 +422,8 @@ export class TanreiFabMenu extends TanreiElement {
   private sync() {
     const items = this.items;
     items.forEach((item, index) => item.setMenuContext({ position: index + 1, size: items.length }));
+    // FBM-19: an item added while the items are shown appears with no stagger (whole at once in place).
+    if (this.presented) for (const item of items) if (!item.entered) item.enter(0, this.inline);
     if (this.settled && (items.length < FEWEST || items.length > MOST)) {
       report(this, 'FBM-23', `it holds ${items.length} item${items.length === 1 ? '' : 's'}; a FAB menu holds two to six`);
     }
@@ -533,29 +562,36 @@ export class TanreiFabMenu extends TanreiElement {
     document.removeEventListener('pointerdown', this.onOutsidePress, true);
   }
 
-  /** FBM-13, FBM-19: the items into the top layer (or in place), placed, growing in one by one; focus to the entry item. */
+  /** FBM-13, FBM-19: the items into the top layer (or in place), placed, appearing one by one; focus to the entry item. */
   private show() {
     const list = this.list;
     if (!list) return;
     this.presented = true;
-    list.classList.remove('leaving');
     const items = this.items;
     if (this.inline) {
-      for (const item of items) void item.enter(null);
+      // Drawn in place (a fixture's), they are whole at once (and move by no transition: fab-menu.styles.ts).
+      for (const item of items) item.enter(0, true);
       return;
     }
-    if (!list.matches(':popover-open')) list.showPopover();
+    // Still leaving, the list stays in the top layer and every item turns round from where its exit has got to, with no
+    // stagger (MOT-2).
+    const leaving = list.matches(':popover-open');
+    if (!leaving) list.showPopover();
+    // Placed by the toggle and the viewport: the list itself never moves or scales, so what it measures is its layout.
     this.place();
     this.following.start();
     document.addEventListener('pointerdown', this.onOutsidePress, true);
     // The item nearest the toggle (the last) first, each next one a stagger later.
-    items.forEach((item, index) => void item.enter(items.length - 1 - index));
+    items.forEach((item, index) => item.enter(leaving ? 0 : items.length - 1 - index));
     const entry = this.entry === 'last' ? items.at(-1) : items[0];
     this.entry = 'first';
     entry?.focus();
   }
 
-  /** FBM-13, FBM-19: focus back to the toggle if it was in the items; all items fading out together, then removed. */
+  /**
+   * FBM-13, FBM-19: focus back to the toggle if it was in the items; all items leaving together, the way they came, and
+   * then out of the top layer — unless the menu was opened again before that. Drawn in place, they are gone at once.
+   */
   private hide() {
     const list = this.list;
     this.stopFollowing();
@@ -563,16 +599,12 @@ export class TanreiFabMenu extends TanreiElement {
     this.presented = false;
     const active = deepActive();
     if (active && this.items.some((item) => item === active || item.contains(active) || item.shadowRoot?.contains(active))) this.toggleButton?.focus();
-    if (!list.matches(':popover-open')) return;
-    list.classList.add('leaving');
-    const finish = () => {
-      if (this.presented || !list.classList.contains('leaving')) return;
-      list.classList.remove('leaving');
-      if (list.matches(':popover-open')) list.hidePopover();
-    };
-    const running = list.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
+    const overlay = list.matches(':popover-open');
+    const exits = this.items.map((item) => item.leave(!overlay));
+    if (!overlay) return;
+    void Promise.all(exits).then((left) => {
+      if (left.every(Boolean) && !this.presented && list.matches(':popover-open')) list.hidePopover();
+    });
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
