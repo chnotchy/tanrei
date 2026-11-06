@@ -7,10 +7,11 @@
 // How a race ends must not hang on how fast the machine is. Where a race can be built so, it is: a fade read a while
 // after it started, counted in the page from its start, passes with harsh mode off on any machine. Where it cannot — a
 // press-hold read after the click's round trip, a state written in the next frame read a fixed time after the click: a
-// loaded machine may take longer than the race allows — the race measures in the page's clock whether its read came
-// later than it takes for granted, and says so (test/harsh/self/late.ts). It ends "late" when it fails having said so:
-// with harsh mode off it must pass or be late, never fail otherwise, and where harsh mode makes it lose it must be late.
-// The races that read late are listed in the run's diagnostics.
+// loaded machine may take longer than the race allows — the race notes in the page whether the timing it takes for
+// granted held (the hold had not ended by the read, the frame had come by it), and says so when it did not
+// (test/harsh/self/late.ts). It ends "late" when it said so, whether it then failed or passed: with harsh mode off it
+// must pass or be late, never fail otherwise, and where harsh mode makes it lose it must be late. The races that read
+// late are listed in the run's diagnostics, and so is the error of every test that ended other than the table says.
 //
 //   node --test test/harsh-self.test.mjs        (part of `test:node`; the browsers Playwright installed are needed)
 import assert from 'node:assert/strict';
@@ -18,6 +19,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINES = ['chromium', 'firefox', 'webkit'];
@@ -69,10 +71,10 @@ const EXPECTED = {
 };
 
 /**
- * Runs harsh mode's own tests with the given environment, and returns how each ended, keyed `<engine> › <title>`, and
- * what each race that read late said of it.
+ * Runs harsh mode's own tests with the given environment, and returns how each ended, keyed `<engine> › <title>`, what
+ * each race that read late said of it, and the error of each test that failed.
  * @param {Record<string, string | undefined>} env
- * @returns {{ ended: Record<string, string>, lateness: Record<string, string> }}
+ * @returns {{ ended: Record<string, string>, lateness: Record<string, string>, errors: Record<string, string> }}
  */
 function run(env) {
   const result = spawnSync(process.execPath, [path.join(pkg, 'node_modules/@playwright/test/cli.js'), 'test', '-c', 'test/harsh/self/playwright.config.ts', '--reporter=json', '--workers=3'], {
@@ -92,6 +94,8 @@ function run(env) {
   const ended = {};
   /** @type {Record<string, string>} */
   const lateness = {};
+  /** @type {Record<string, string>} */
+  const errors = {};
   const walk = (suite) => {
     for (const spec of suite.specs ?? [])
       for (const each of spec.tests) {
@@ -99,13 +103,14 @@ function run(env) {
         const last = each.results.at(-1);
         const status = last?.status === 'timedOut' || last?.status === 'interrupted' ? 'failed' : (last?.status ?? 'skipped');
         const late = [...(last?.annotations ?? []), ...(each.annotations ?? [])].find(({ type }) => type === 'late');
-        if (late) lateness[key] = late.description;
-        ended[key] = status === 'failed' && late ? 'late' : status;
+        if (late) lateness[key] = `it ${status}, ${late.description}`;
+        if (status === 'failed') errors[key] = (last?.errors ?? []).map(({ message }) => message ?? '').join('\n') || `${last?.status ?? 'no result'}`;
+        ended[key] = late && (status === 'failed' || status === 'passed') ? 'late' : status;
       }
     for (const child of suite.suites ?? []) walk(child);
   };
   for (const suite of report.suites) walk(suite);
-  return { ended, lateness };
+  return { ended, lateness, errors };
 }
 
 /** Harsh mode's options, all on, for the `options` run. */
@@ -130,10 +135,11 @@ const wanted = (mode) =>
  * @param {Record<string, string>} env
  */
 function check(t, mode, env) {
-  const { ended, lateness } = run(env);
+  const { ended, lateness, errors } = run(env);
   const want = wanted(mode);
   for (const [key, said] of Object.entries(lateness)) t.diagnostic(`${key}: ${ended[key]}, ${said}`);
   const seen = Object.fromEntries(Object.entries(ended).map(([key, end]) => [key, want[key]?.split(' or ').includes(end) ? want[key] : end]));
+  for (const [key, end] of Object.entries(seen)) if (end !== want[key] && errors[key]) t.diagnostic(`${key}: ${end}, not ${want[key] ?? 'in the table'}: ${stripVTControlCharacters(errors[key])}`);
   assert.deepEqual(seen, want);
 }
 

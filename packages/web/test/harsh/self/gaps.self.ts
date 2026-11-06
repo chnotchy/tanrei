@@ -8,7 +8,7 @@ import { late } from './late.js';
 /** How long the button stays pressed after the pointer is released: shorter than the gap after an action (300 ms). */
 const HOLD = 250;
 
-/** The page notes, in its own clock, when the pointer was released. */
+/** The page notes, in its own clock, when the pointer was released, and when the hold after it ended. */
 const BUTTON = `<button id="button" style="position: absolute; left: 10px; top: 10px; width: 100px; height: 40px">press</button>
 <script>
   const button = document.getElementById('button');
@@ -16,7 +16,10 @@ const BUTTON = `<button id="button" style="position: absolute; left: 10px; top: 
   button.addEventListener('pointerdown', () => { clearTimeout(release); button.toggleAttribute('data-pressed', true); });
   button.addEventListener('pointerup', () => {
     window.releasedAt = performance.now();
-    release = setTimeout(() => button.toggleAttribute('data-pressed', false), ${HOLD});
+    release = setTimeout(() => {
+      window.heldUntil = performance.now();
+      button.toggleAttribute('data-pressed', false);
+    }, ${HOLD});
   });
 </script>`;
 
@@ -24,13 +27,16 @@ test('race: a press-hold read after the click returns', async ({ page }) => {
   await page.setContent(BUTTON);
   await page.locator('#button').click();
   // Read once, as a test that takes the hold to last past the click's round trip does: it does, by a fast machine. With
-  // harsh mode on, the gap after the click outlasts it; on a loaded machine the round trip alone may, and the race says
-  // it was late.
-  const { pressed, since } = await page.locator('#button').evaluate((button) => ({
-    pressed: button.getAttribute('data-pressed'),
-    since: performance.now() - ((window as unknown as { releasedAt?: number }).releasedAt ?? NaN),
-  }));
-  if (since >= HOLD) late(`read ${Math.round(since)} ms after the release, past the ${HOLD} ms hold`);
+  // harsh mode on, the gap after the click outlasts it; on a loaded machine the round trip alone may. The race says it
+  // was late whenever its read came later than it takes for granted: after the hold ended, by their order in the page
+  // (the page's clock counts whole milliseconds in Firefox and WebKit, and a timer may read a millisecond short of its
+  // time there), or 250 ms or more after the release (a hold that ended late itself may then still have shown, and its
+  // pass says nothing).
+  const { pressed, ended, since } = await page.locator('#button').evaluate((button) => {
+    const noted = window as unknown as { releasedAt?: number; heldUntil?: number };
+    return { pressed: button.getAttribute('data-pressed'), ended: noted.heldUntil !== undefined, since: performance.now() - (noted.releasedAt ?? NaN) };
+  });
+  if (Number.isFinite(since) && (ended || since >= HOLD)) late(`read ${Math.round(since)} ms after the release, ${ended ? 'after' : 'before'} the ${HOLD} ms hold ended`);
   expect(pressed).toBe('');
 });
 

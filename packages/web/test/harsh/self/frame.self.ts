@@ -21,31 +21,40 @@ const DEFERRED = `<button id="button">defer</button>
   });
 </script>`;
 
+/** How long after the click the race takes the next frame to have come, and reads the button. */
+const WITHIN = 80;
+
 /**
- * Clicks the button just after a frame, then waits `then` (in the page), and returns what the button says — and, once
- * the frame the click asked for has come (two frames on: it was asked for before them), how long after the click the
- * read and that frame came, in the page's clock.
+ * Clicks the button in a frame's callbacks, so that the frame callback the click asks for goes to the next frame, a
+ * whole frame away (a click in a task after the frame, held up on a loaded machine, may come just before the next one),
+ * then waits `then` (in the page), and returns what the button says; whether the frame the click asked for had come by
+ * the read, by their order in the page (the page's clock counts whole milliseconds in Firefox and WebKit: a frame just
+ * after the read may read the same time); and, once that frame has come (two frames on: it was asked for before them),
+ * how long after the click the read and the frame came, in the page's clock.
  */
 const clickAfterFrame = async (then: 'two frames' | number) => {
   const frames = (count: number) => new Promise<void>((resolve) => (count ? requestAnimationFrame(() => frames(count - 1).then(resolve)) : resolve()));
-  await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  const noted = window as unknown as { clickedAt?: number; frameAt?: number };
   const button = document.getElementById('button')!;
-  button.click();
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve(button.click())));
   if (then === 'two frames') await frames(2);
   else await new Promise((resolve) => setTimeout(resolve, then));
   const state = button.dataset.state ?? null;
+  const framed = noted.frameAt !== undefined;
   const readAt = performance.now();
   await frames(2);
-  const { clickedAt, frameAt } = window as unknown as { clickedAt?: number; frameAt?: number };
-  return { state, read: clickedAt === undefined ? NaN : readAt - clickedAt, frame: clickedAt === undefined || frameAt === undefined ? NaN : frameAt - clickedAt };
+  const { clickedAt, frameAt } = noted;
+  return { state, framed, read: clickedAt === undefined ? NaN : readAt - clickedAt, frame: clickedAt === undefined || frameAt === undefined ? NaN : frameAt - clickedAt };
 };
 
 test('race: a state written in the next frame, read 80 ms after the click', async ({ page }) => {
   await page.setContent(DEFERRED);
   // 80 ms: the next frame comes within it at 60 frames a second, and not at 4 (TANREI_HARSH_FRAME=250). A loaded machine
-  // may draw no frame for longer than that too: the race then loses with harsh mode off, and says it was late.
-  const { state, read, frame } = await page.evaluate(clickAfterFrame, 80);
-  if (frame > read) late(`the next frame came ${Math.round(frame)} ms after the click, after the read at ${Math.round(read)} ms`);
+  // may draw no frame for longer than that too, and the race says it was late whenever the frame came later than it
+  // takes for granted: after the read (it then loses), or more than 80 ms after the click (a read that came late itself
+  // may then have seen it, and its pass says nothing).
+  const { state, framed, read, frame } = await page.evaluate(clickAfterFrame, WITHIN);
+  if (Number.isFinite(read) && (!framed || !(frame <= WITHIN))) late(`the next frame came ${Math.round(frame)} ms after the click, ${framed ? 'before' : 'after'} the read at ${Math.round(read)} ms`);
   expect(state).toBe('done');
 });
 
