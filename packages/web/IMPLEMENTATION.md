@@ -6275,7 +6275,14 @@ where it was", which a disabled button cannot.
 
 **A chosen day of a neighbouring month (CAL-13, CAL-15).** With `show-adjacent-days`, pressing an available day of the
 previous or next month chooses it — `change` first — and then shows its month with the same motion; the chosen day is
-the active day and takes focus if focus was in the grid. An unavailable one does nothing.
+the active day and takes focus if focus was in the grid. An unavailable one does nothing. The press itself moves no
+focus (its `mousedown` default is prevented), and the day of its month is given focus with no ring (`focusVisible:
+false`). Chromium before 145 and Safari before 18.4 (`hasFocusVisibleOption()`) do not read that option, and draw a
+script's focus after a press that gave none as the last focus was drawn: after a day focused from the keyboard, with the
+ring. There, while a day has keyboard focus, a press on an available neighbouring day is left to give focus itself, as
+a pointer's, and the day of its month takes it from there with none. Likewise a press on the year that has keyboard
+focus lets that focus go (`pressGivesFocus()`), so that the press gives it again as a pointer's before the day view's
+active day takes it.
 
 **Keys (CAL-10…13).** The grid is one Tab stop (the active day): the arrows move by a day in the direction they point
 (mirrored right to left) or a week, Home and End to the ends of the week row, Page Up and Page Down by a month and with
@@ -6373,7 +6380,15 @@ grows from the edge that faces the anchor and fades out (at once where motion is
 it asks to close (`tab`) and focus goes on from its anchor; focus moving elsewhere asks to close (`focus-out`); a press
 outside it and its anchor asks to close (`outside`) **and also reaches the element under it**, as the menu's does. Both
 move focus in when they open — to the calendar's active day (or year), the hour wheel, or the selector of `unit` — with
-the ring only when the picker was opened from the keyboard, and give it back when they close.
+the ring only when the picker was opened from the keyboard, and give it back when they close. Whether it was is read from
+the element that had focus as the picker opened, before a modal picker's dialog takes focus from it. Focus that the
+dialog's focusing steps gave the element already is given again with `focusVisible`, so that the ring is the picker's
+call — where `focus()` reads the option. Chromium before 145 and Safari before 18.4, inside the package's floor
+(`hasFocusVisibleOption()`), do not: given again, it would be a script's focus, which they draw with the ring after any
+focus that was not a pointer's, the dialog's among them, so there the dialog's focus is kept as the engine drew it (a
+wheel, which draws its own ring, is still given focus again). Safari before 18.4 draws the focus a modal dialog gives
+with the ring after a press too, as it does for any modal dialog, so there a modal picker opened by a press shows the
+ring on the calendar's day, its year or the selector.
 
 **Choosing (DTM-6…8, DTM-11, DTM-33).** Every picker but a docked one for a date only holds a pending choice from opening
 to OK — a `value` you set meanwhile does not move it — and OK is disabled while it is incomplete or a date-time range's
@@ -9682,7 +9697,13 @@ after the browser has read the address, so a link to the same document (`#page={
 a link to another page leaves this one as usual. Once a page has been activated, focus is on the page now current, or
 stays on the control that was activated while that control is enabled. When a control becomes disabled (next on the
 last page), focus moves to the current page; in the compact form, which draws no pages, it moves to the nearest
-enabled control. The element takes no arrow key: each enabled item is one Tab stop.
+enabled control. The element takes no arrow key: each enabled item is one Tab stop. Focus moved after a pointer's press
+shows no ring (`focusVisible: false`). Chromium before 145 and Safari before 18.4 (`hasFocusVisibleOption()`) do not read
+that option and draw a script's focus as the last focus the engine counted was drawn, so a press on the control that has
+keyboard focus — which gives no focus, the control having it — would hand the ring on: there the press lets that focus
+go (`pressGivesFocus()`) and gives it again as a pointer's first. Safari draws a script's focus after any press on a link
+with the ring (a link takes no focus from a press there), so a pagination with `href` still shows it in Safari before
+18.4.
 
 **The compact form and the narrow fallback (PGN-11).** `variant="compact"` draws the controls and the sentence (`Page
 3 of 10`). The sentence is text: not a control and not a live region, so tell the reader of the change where the

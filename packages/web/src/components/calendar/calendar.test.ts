@@ -8,6 +8,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
+import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -1471,6 +1472,38 @@ test.describe('states, press, corners and focus style', () => {
     const bb = await bounds(b);
     expect([Math.round(bb.width), Math.round(bb.height)]).toEqual([size, size]);
     expect(await css(b, 'transition-property')).not.toContain('outline');
+  });
+
+  test('CAL-15, CAL-19: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a press on a neighbouring month’s day while a day has keyboard focus shows its month with focus on that day and no ring; a press on an unavailable one leaves focus where it was', async ({ page }) => {
+    await mount(page, [f('a', { value: '2026-09-17', showAdjacentDays: true }), f('u', { value: '2026-09-17', showAdjacentDays: true, disabledDates: ['2026-10-02'] })]);
+    // There a script's focus after a press that gave no focus is drawn as the last focus was — the keyboard's: the
+    // press itself gives focus, as a pointer's, before the day of its month takes it.
+    await withoutFocusVisibleOption(page);
+    await tabTo(page, day(page, 'a', '2026-09-17'));
+    expect(await day(page, 'a', '2026-09-17').evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+    await day(page, 'a', '2026-10-01').click();
+    await expect.poll(() => shown(page, 'a')).toBe('October 2026');
+    await land(page, 'a');
+    await expect.poll(() => focused(page)).toBe('2026-10-01');
+    expect(await day(page, 'a', '2026-10-01').evaluate((el) => el.matches(':focus-visible')), 'focused with no ring').toBe(false);
+    expect(await css(box(page, 'a', '2026-10-01'), 'outline-style')).toBe('none');
+    // An unavailable one chooses nothing, shows no other month, and takes no focus.
+    await tabTo(page, day(page, 'u', '2026-09-17'));
+    await day(page, 'u', '2026-10-02').click({ force: true });
+    expect(await shown(page, 'u')).toBe('September 2026');
+    expect(await focused(page)).toBe('2026-09-17');
+  });
+
+  test('CAL-7, CAL-19: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a press on the year that has keyboard focus shows that month’s day view with focus on its active day and no ring', async ({ page }) => {
+    await mount(page, [f('y', { startView: 'year', value: '2026-09-17' })]);
+    await withoutFocusVisibleOption(page);
+    await tabTo(page, year(page, 'y', 2026));
+    expect(await year(page, 'y', 2026).evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+    await year(page, 'y', 2026).click();
+    await expect.poll(() => shown(page, 'y')).toBe('September 2026');
+    await expect.poll(() => focused(page)).toBe('2026-09-17');
+    expect(await day(page, 'y', '2026-09-17').evaluate((el) => el.matches(':focus-visible')), 'focused with no ring').toBe(false);
+    expect(await css(box(page, 'y', '2026-09-17'), 'outline-style')).toBe('none');
   });
 
   test('CAL-20: a press of a day, a year or the view toggle — Enter, Space, a click — shows at once and for at least press-hold', async ({ page }) => {

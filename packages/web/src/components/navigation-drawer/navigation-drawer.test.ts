@@ -12,6 +12,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, motionCount, motionEnded } from '../../../test/motions.js';
+import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -1506,14 +1507,7 @@ test.describe('the collapsed form', () => {
     await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
     // Such an engine: focus() never reads the option (a dictionary member it does not know), so a script's focus is
     // drawn by its own rule — after a drawer opened from the keyboard, with the indicator.
-    await page.evaluate(() => {
-      const focus = HTMLElement.prototype.focus;
-      HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
-        const known: FocusOptions = {};
-        if (options && 'preventScroll' in options) known.preventScroll = options.preventScroll;
-        focus.call(this, known);
-      };
-    });
+    await withoutFocusVisibleOption(page);
     await tabTo(page, menu(page, 'r').locator('button'));
     await page.keyboard.press('Enter');
     await motionEnded(drawer(page, 'r'));

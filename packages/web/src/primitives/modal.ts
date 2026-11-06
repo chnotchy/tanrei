@@ -75,6 +75,22 @@ export function hasFocusVisibleOption(): boolean {
 }
 
 /**
+ * A pointer's press (`mousedown`) on `element` while it has focus and draws the focus indicator, in an engine whose
+ * `focus()` cannot be told to draw none (`hasFocusVisibleOption()` is false): focus is let go, so that the press's own
+ * default gives it back, as a pointer's focus. Such an engine draws the indicator on a script's focus unless the last
+ * focus was given by a pointer, and a press on the element that has focus already gives none — so the focus a component
+ * moves elsewhere for that press (`focusVisible: false`) would draw it, as if a key had moved it. Called from a
+ * `mousedown` listener that leaves the default alone: a touch sends `mousedown` once it is a tap, just before the
+ * platform gives focus, never for a scroll. Where the engine knows the option, or the indicator is not drawn, nothing
+ * happens.
+ */
+export function pressGivesFocus(event: MouseEvent, element: HTMLElement): void {
+  if (event.button !== 0 || event.defaultPrevented) return;
+  if ((element.getRootNode() as Document | ShadowRoot).activeElement !== element || !element.matches(':focus-visible')) return;
+  if (!hasFocusVisibleOption()) element.blur();
+}
+
+/**
  * Focus back to `opener`, the element that had it when an overlay or a region opened (BSH-3, SSH-3) — or, where that
  * element is gone, cannot take focus or is inert, dropped from inside `host` (the platform's default: the document).
  */
