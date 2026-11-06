@@ -1263,6 +1263,8 @@ export const tanrei = {
       connectedInnerShape: 6,
       connectedSeparation: 0,
       connectedVerticalOuterShape: 12,
+      motionStateDuration: 250,
+      motionStateEasing: [0.2, 0, 0, 1],
       standardGap: 16,
     },
     buttonWithMenu: {

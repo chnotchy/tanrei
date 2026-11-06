@@ -1535,6 +1535,8 @@ public data class TanreiButtonGroupTokens(
     public val connectedInnerShape: Dp,
     public val connectedSeparation: Float,
     public val connectedVerticalOuterShape: Dp,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
     public val standardGap: Dp,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {

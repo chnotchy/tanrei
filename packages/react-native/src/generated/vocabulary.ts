@@ -839,6 +839,8 @@ export interface TanreiButtonGroupTokens {
   readonly connectedInnerShape: number;
   readonly connectedSeparation: number;
   readonly connectedVerticalOuterShape: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
   readonly standardGap: number;
 }
 

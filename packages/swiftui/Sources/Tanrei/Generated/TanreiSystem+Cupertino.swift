@@ -836,6 +836,8 @@ private let cupertinoButtonGroupTokens = TanreiButtonGroupTokens(
   connectedInnerShape: 8,
   connectedSeparation: 0,
   connectedVerticalOuterShape: 14,
+  motionStateDuration: 250,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   standardGap: 8
 )
 

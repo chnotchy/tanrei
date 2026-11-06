@@ -951,6 +951,8 @@ private let m3ExpressiveLikeButtonGroupTokens = TanreiButtonGroupTokens(
   connectedInnerShape: 8,
   connectedSeparation: 1,
   connectedVerticalOuterShape: 16,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   standardGap: 8
 )
 

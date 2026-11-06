@@ -141,13 +141,13 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
 
   /**
    * BGR-11: a child that comes or goes, or whose `confirming` or `dismissive` changes, is placed again at once. BGR-24:
-   * one whose `selected`, `toggle` or `variant` changes has the lines beside it drawn again at once — in the same
-   * frame: the observer runs before the next one is drawn.
+   * one whose `selected`, `toggle` or `variant` changes has the lines beside it decided again in the same frame (the
+   * observer runs before the next one is drawn), and a line that comes, goes or changes color fades.
    */
   private readonly children$ = new MutationObserver((records) => {
     const own = records.filter((record) => record.target === this || (record.type === 'attributes' && (record.target as Element).parentElement === this));
     if (own.some((record) => record.type !== 'attributes' || !LOOK_ATTRIBUTES.includes(record.attributeName ?? ''))) this.read();
-    else if (own.length) this.drawSeams();
+    else if (own.length) this.drawSeams(true);
   });
 
   private fit: ResizeObserver | null = null;
@@ -240,9 +240,12 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
 
   /**
    * BGR-22, BGR-24: what each seam carries. A line only while the two items it joins rest on the same fill; in the
-   * on-fill color while both rest on an emphasis fill. Written on the dividers at once (no render, no animation).
+   * on-fill color while both rest on an emphasis fill. Written on the dividers at once, with no render. `fade` is a
+   * change of an item's look: a line that comes, goes or changes color fades over the group's state motion. Anything
+   * else — the group's placement or form changed (BGR-11, BGR-21), a system switched — is drawn at once: the divider
+   * stands still for that change (two frames, as the pagination's renumbered items do).
    */
-  private drawSeams() {
+  private drawSeams(fade = false) {
     const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
     const dividers = this.renderRoot?.querySelectorAll<HTMLElement>('.divider');
     if (!probe || !dividers?.length) return;
@@ -250,7 +253,13 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
     dividers.forEach((divider, i) => {
       const [before, after] = [rests[i], rests[i + 1]];
       const line: SeamLine = !before || !after || before.fill !== after.fill ? 'none' : before.emphasis && after.emphasis ? 'on-fill' : 'line';
-      if (divider.dataset.line !== line) divider.dataset.line = line;
+      if (divider.dataset.line === line) return;
+      // A divider with no line written yet is being drawn for the first time: nothing to fade from.
+      const first = divider.dataset.line === undefined;
+      divider.dataset.line = line;
+      if (fade && !first) return;
+      divider.classList.add('still');
+      requestAnimationFrame(() => requestAnimationFrame(() => divider.classList.remove('still')));
     });
   }
 

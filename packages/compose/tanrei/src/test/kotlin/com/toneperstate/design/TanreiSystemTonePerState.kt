@@ -1086,6 +1086,8 @@ private object TonePerStateSystemSource {
             connectedInnerShape = 6.dp,
             connectedSeparation = 0f,
             connectedVerticalOuterShape = 12.dp,
+            motionStateDuration = 250,
+            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             standardGap = 16.dp,
         )
 

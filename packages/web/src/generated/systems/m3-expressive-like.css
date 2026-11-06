@@ -434,6 +434,8 @@
     --tanrei-comp-button-group-connected-separation: var(--tanrei-sys-behavior-separation);
     --tanrei-comp-button-group-connected-vertical-outer-shape: var(--tanrei-sys-shape-corner-large);
     --tanrei-comp-button-group-connected-vertical-outer-shape-pill: 0;
+    --tanrei-comp-button-group-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
+    --tanrei-comp-button-group-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-button-group-standard-gap: var(--tanrei-sys-target-spacing);
     --tanrei-comp-button-with-menu-container-gap-large: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-medium: var(--tanrei-sys-space-space100);

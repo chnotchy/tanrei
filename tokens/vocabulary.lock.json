@@ -307,6 +307,8 @@
     "tanrei.comp.button-group.connected.inner-shape": "dimension",
     "tanrei.comp.button-group.connected.separation": "number",
     "tanrei.comp.button-group.connected.vertical.outer-shape": "dimension",
+    "tanrei.comp.button-group.motion.state-duration": "duration",
+    "tanrei.comp.button-group.motion.state-easing": "cubicBezier",
     "tanrei.comp.button-group.standard.gap": "dimension",
     "tanrei.comp.button-with-menu.container.gap.large": "dimension",
     "tanrei.comp.button-with-menu.container.gap.medium": "dimension",

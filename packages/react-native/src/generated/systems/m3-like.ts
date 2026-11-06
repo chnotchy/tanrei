@@ -1403,6 +1403,8 @@ export const m3Like = {
       connectedInnerShape: 8,
       connectedSeparation: 1,
       connectedVerticalOuterShape: 16,
+      motionStateDuration: 150,
+      motionStateEasing: [0.2, 0, 0, 1],
       standardGap: 8,
     },
     buttonWithMenu: {

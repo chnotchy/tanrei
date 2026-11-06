@@ -75,7 +75,7 @@ export const RULES = {
       'src/components/avatar/avatar.test.ts': 4,
       'src/components/bottom-sheet/bottom-sheet.test.ts': 3,
       'src/components/breadcrumbs/breadcrumbs.test.ts': 2,
-      'src/components/button-group/button-group.test.ts': 3,
+      'src/components/button-group/button-group.test.ts': 2,
       'src/components/button-with-menu/button-with-menu.test.ts': 4,
       'src/components/calendar/calendar.test.ts': 2,
       'src/components/callout/callout.test.ts': 1,

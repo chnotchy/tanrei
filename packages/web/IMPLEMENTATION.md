@@ -7661,7 +7661,9 @@ or the column, and lets an icon-only item fill a column's or a share's width.
 
 **The divider (BGR-22, BGR-24).** Under divider the group draws the line of a seam itself: an empty `::part(divider)`
 element between two slots — it takes no space, no press (`pointer-events: none`) and is `aria-hidden` — whose `::before`
-is `connected.divider.thickness` thick, centred on the seam and `connected.divider.inset` short of each end. A seam
+and `::after` are the line, each `connected.divider.thickness` thick, centred on the seam and `connected.divider.inset`
+short of each end: `::before` in `connected.divider.color`, `::after` in `connected.divider.on-fill.color`, the seam
+showing one of them or neither by its opacity. A seam
 carries a line only while the two items it joins **rest on the same fill**: the group reads the color each item renders
 its container from at rest (`comp.button.<variant>.container.color`, and a toggle's `selected.` or `unselected.` part)
 from the cascade, resolves it in a hidden probe and compares — two containers without a fill count as the same — and
@@ -7670,8 +7672,14 @@ an outlined one, there is no line: the edge of the fill already marks the seam. 
 the hairline in the default system, the color of an outlined Button's edge — and `connected.divider.on-fill.color`
 between two emphasis fills (filled Buttons that are no toggles; selected toggles of the filled, tonal, elevated or
 outlined variant). The comparison is of resting, enabled looks, so hover, focus, press and disabling move no line; a
-changed `selected`, `toggle` or `variant` is followed in the same frame (a MutationObserver), and a system or theme
-switched on the root when the group renders again. A hairline centred on a whole-pixel seam is drawn on the pixel after it. **No outline and no ring
+changed `selected`, `toggle` or `variant` is decided in the same frame (a MutationObserver), and a system or theme
+switched on the root when the group renders again. A line that a changed `selected`, `toggle` or `variant` brings, takes
+away or recolors fades: a transition of the two layers' opacity over `comp.button-group.motion.state-duration`
+(`sys.motion.role.state.default`) on `comp.button-group.motion.state-easing`, so a line that fades in between two
+emphasis fills is drawn in its own color all the way, and the item's `selected` and `aria-pressed` have changed before
+the first frame of it. A divider whose seam the group's placement or form changed (an item that came, went or moved,
+BGR-11; another separation, BGR-21; a system switched) stands still for that change (`.still`, two frames) and is drawn
+at once, as every line is under reduced motion and while the group settles in its first frames. A hairline centred on a whole-pixel seam is drawn on the pixel after it. **No outline and no ring
 along a seam:** Button's outline and its elevation's ring are rings around its whole box, and a ring cannot leave one
 side out — so under a divider the item's container does not draw them. Its box ends at the seam and paints the fill alone:
 two fills that touch are two neighbouring boxes, which an engine snaps to the same device pixel, so no fill is painted
