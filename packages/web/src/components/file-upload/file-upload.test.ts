@@ -20,6 +20,7 @@ import { type Locator, type Page, type TestInfo, expect, test } from '@playwrigh
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
 
 const spec = loadSpec('file-upload');
 type P = Page;
@@ -704,11 +705,13 @@ test.describe('behavior', () => {
 
   test('FUP-29: a row that is added, removed or changes its status is drawn at once, without a motion of the file upload’s own, and the rows after it take their new places at once — in a strip of tiles also where that moves a tile to another line', async ({ page }) => {
     await mountSpec(page, 'button-multiple', 'tiles');
+    // Its own motions: those in its shadow root and in every shadow root inside it — the File picker, the List and its
+    // items; the rows given as children are the product's.
     const moving = (id: string) =>
-      host(page, id).evaluate((el) => {
+      host(page, id).evaluate((el, every) => {
         const mine = [el, ...el.shadowRoot!.querySelectorAll<HTMLElement>('.group, .list, .rows')];
-        return { animations: el.shadowRoot!.getAnimations().length, transitions: mine.map((node) => getComputedStyle(node).transitionDuration).filter((duration) => duration.split(',').some((each) => Number.parseFloat(each) > 0)), animated: mine.map((node) => getComputedStyle(node).animationName).filter((name) => name !== 'none') };
-      });
+        return { animations: ((0, eval)(every) as (root: ShadowRoot) => Animation[])(el.shadowRoot!).length, transitions: mine.map((node) => getComputedStyle(node).transitionDuration).filter((duration) => duration.split(',').some((each) => Number.parseFloat(each) > 0)), animated: mine.map((node) => getComputedStyle(node).animationName).filter((name) => name !== 'none') };
+      }, EVERY_ANIMATION);
     // A column: the row after a removed one stands where it stood, in the same task that drew the change.
     {
       const id = 'button-multiple';
@@ -1097,14 +1100,15 @@ test.describe('behavior', () => {
     near((await box(trigger(page, id))).x, whole.x, 'left-to-right from the document');
     await inRow(row(page, id, 1), 'remove').focus();
     // The focused state has been drawn: what moves after this is the direction's doing.
-    await expect.poll(() => row(page, id, 1).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
-    // An ancestor's direction, not the root's.
-    const moving = await stage(page, id).evaluate((el) => {
+    await expect.poll(() => motionCount(host(page, id))).toBe(0);
+    // An ancestor's direction, not the root's. Its motions: the host's, its rows', and those in every shadow root inside
+    // it — its own and its rows'.
+    const moving = await stage(page, id).evaluate((el, every) => {
       el.setAttribute('dir', 'rtl');
       const upload = el.querySelector('tanrei-file-upload')!;
       void upload.getBoundingClientRect();
-      return upload.getAnimations({ subtree: true }).length + [...upload.querySelectorAll('tanrei-file-item')].reduce((sum, item) => sum + item.shadowRoot!.getAnimations().length, 0);
-    });
+      return ((0, eval)(every) as (root: Element) => Animation[])(upload).length;
+    }, EVERY_ANIMATION);
     expect(moving, 'without a motion of its own').toBe(0);
     const t = await box(trigger(page, id));
     near(t.x + t.width, whole.x + whole.width, 'drawn for the new direction at once');
@@ -2173,7 +2177,7 @@ test.describe('its own rows', () => {
     await expect(stage(page, id).getByRole('listitem')).toHaveCount(3);
     await expect(inRow(ownRow(page, id, 1), 'remove')).toHaveAttribute('aria-label', 'Remove b.pdf');
     // FUP-29: a row appears and leaves at once, without a motion.
-    expect(await ownRow(page, id, 1).evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
+    expect(await motionCount(ownRow(page, id, 1))).toBe(0);
     // FUP-34: in forced colors the rows are drawn in the system's colors.
     if (browserName !== 'webkit') {
       await page.emulateMedia({ forcedColors: 'active' });

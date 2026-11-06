@@ -21,18 +21,69 @@ export const EVERY_ANIMATION = `(function every(root) {
 })`;
 
 /**
- * Waits until every motion of `target` has ended: the element's own, its subtree's, and those in every shadow root
- * inside it — or, given the page, every motion in it. Those running when it is asked are waited for (asking flushes
- * style, so a motion the last change starts is among them). An animation that never ends (a spinner's) is not waited
- * for, and one that is cancelled counts as ended.
+ * How many drawn frames an animation stays paused before a wait takes it as held. A paused animation moves nothing,
+ * and its `finished` settles only once something plays it again — for a fill a hidden document holds, or a frame a
+ * test holds with `pause()`, never while the test waits. But a pause can also be the first frame of a motion:
+ * `startFromNextFrame()` (src/primitives/motion.ts) holds an entrance at its start in the task that opens a surface
+ * and plays it in the next frame. So one that is paused is looked at again in each frame drawn, and taken as held only
+ * once it has stayed paused through this many.
+ */
+export const HELD_FRAMES = 2;
+
+/**
+ * The source of an in-page expression whose value is a function `(animation) => Promise<void>` that settles once
+ * `animation` is out of motion: it has finished, it was cancelled, or it has stayed paused through `HELD_FRAMES` drawn
+ * frames — whether it was paused when asked or while it was waited for (the carousel's autoplay fill, held as the
+ * pointer comes in or the document is hidden). A frame is a resize observer's first report of the root, which every
+ * drawn frame gives and no page clock holds (`page.clock` holds `requestAnimationFrame`, and with it the frame that
+ * plays a held entrance: a held clock holds that motion too). In a hidden document no frame is drawn, and nothing holds
+ * a motion for one: a paused animation is held at once. Each evaluation makes one function, whose waits share their
+ * frames. For a script the test writes into the page itself, as `EVERY_ANIMATION`.
+ */
+export const OUT_OF_MOTION = `(() => {
+  let next = null;
+  const frame = () =>
+    (next ??= new Promise((resolve) => {
+      const observer = new ResizeObserver(() => {
+        observer.disconnect();
+        next = null;
+        resolve(undefined);
+      });
+      observer.observe(document.documentElement);
+    }));
+  return (animation) => {
+    let settled = false;
+    const ended = animation.finished.then(() => undefined, () => undefined).finally(() => (settled = true));
+    return (async () => {
+      for (let paused = 0; !settled; ) {
+        paused = animation.playState === 'paused' ? paused + 1 : 0;
+        if (paused > ${HELD_FRAMES} || (paused && document.visibilityState === 'hidden')) return;
+        await Promise.race([ended, frame()]);
+      }
+    })();
+  };
+})()`;
+
+/**
+ * Waits until nothing of `target` is in motion: the element's own motions, its subtree's, and those in every shadow
+ * root inside it — or, given the page, every motion in it. Those it has when it is asked are waited for (asking
+ * flushes style, so a motion the last change starts is among them), each until it finishes, is cancelled or is held —
+ * paused through `HELD_FRAMES` drawn frames (`OUT_OF_MOTION`): an entrance held at its start for the frame before it
+ * plays is waited for to its end, and a fill held through a hidden document or a frame a test holds with `pause()` is
+ * not, which would otherwise never end. An animation that never ends (a spinner's) is not waited for, and a motion
+ * that starts while it waits is not either.
  */
 export const motionEnded = (target: Locator | Page): Promise<void> =>
-  ('keyboard' in target ? target.locator(':root') : target).evaluate(async (given, source) => {
-    const el = given === document.documentElement ? document : given;
-    const running = ((0, eval)(source) as (root: Element | Document) => Animation[])(el);
-    const ending = running.filter((animation) => Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY);
-    await Promise.all(ending.map((animation) => animation.finished.catch(() => undefined)));
-  }, EVERY_ANIMATION);
+  ('keyboard' in target ? target.locator(':root') : target).evaluate(
+    async (given, [every, outOfMotion]) => {
+      const el = given === document.documentElement ? document : given;
+      const running = ((0, eval)(every) as (root: Element | Document) => Animation[])(el);
+      const until = (0, eval)(outOfMotion) as (animation: Animation) => Promise<void>;
+      const ending = running.filter((animation) => Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY);
+      await Promise.all(ending.map(until));
+    },
+    [EVERY_ANIMATION, OUT_OF_MOTION] as const,
+  );
 
 /**
  * The element's computed `property` (of its `pseudo`-element, given one), read once no motion that can change it still
@@ -45,27 +96,36 @@ export const motionEnded = (target: Locator | Page): Promise<void> =>
  * engine serializes an interpolated colour like its end value (Firefox writes it in the end value's space, alpha already
  * rounded, and unpremultiplies a translucent one differently from one frame to the next) — and a strict read of the
  * same value a moment later reads another frame of the motion. Poll this, not a plain read, when an exact read of the
- * same value follows; or wait with `motionEnded()` between the two. An animation that never ends (a spinner's) and one
- * that is paused are not waited for; one that is cancelled counts as ended; one that a finished one starts is waited
- * for in turn.
+ * same value follows; or wait with `motionEnded()` between the two. An animation that never ends (a spinner's) is not
+ * waited for; one that is cancelled counts as ended; one that is paused is waited for until it is held — paused through
+ * `HELD_FRAMES` drawn frames (`OUT_OF_MOTION`), so that an entrance held at its start for the frame before it plays is
+ * waited for and a fill held through a hidden document is not; one that a finished one starts is waited for in turn.
  */
 export const settledCss = (target: Locator, property: string, pseudo?: string): Promise<string> =>
   target.evaluate(
-    async (el, [name, part]) => {
+    async (el, [name, part, outOfMotion]) => {
+      const until = (0, eval)(outOfMotion) as (animation: Animation) => Promise<void>;
+      const held = new Set<Animation>();
       for (;;) {
         const chain: Element[] = [];
         for (let node: Element | null = el; node; node = node.assignedSlot ?? node.parentElement ?? ((node.parentNode as ShadowRoot | null)?.host ?? null)) chain.push(node);
         // Asking flushes style, so a motion the last change starts is among them. The element's own list, with
         // subtree, holds its pseudo-elements' (each targets the element); a descendant's is no part of its value.
         const own = el.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect | null)?.target === el);
-        const running = [...own, ...chain.slice(1).flatMap((node) => node.getAnimations())].filter(
-          (animation) => animation.playState === 'running' && Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY,
+        const moving = [...own, ...chain.slice(1).flatMap((node) => node.getAnimations())].filter(
+          (animation) =>
+            (animation.playState === 'running' || (animation.playState === 'paused' && !held.has(animation))) && Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY,
         );
-        if (!running.length) return getComputedStyle(el, part ?? undefined).getPropertyValue(name);
-        await Promise.all(running.map((animation) => animation.finished.catch(() => undefined)));
+        if (!moving.length) return getComputedStyle(el, part ?? undefined).getPropertyValue(name);
+        await Promise.all(
+          moving.map(async (animation) => {
+            await until(animation);
+            if (animation.playState === 'paused') held.add(animation);
+          }),
+        );
       }
     },
-    [property, pseudo ?? null] as const,
+    [property, pseudo ?? null, OUT_OF_MOTION] as const,
   );
 
 /**
