@@ -2232,6 +2232,8 @@ private let acmeCalloutTokens = TanreiCalloutTokens(
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,

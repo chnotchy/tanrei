@@ -1629,6 +1629,8 @@
     --tanrei-comp-callout-info-icon-color-tonal: var(--tanrei-sys-color-info);
     --tanrei-comp-callout-info-title-color-outlined: var(--tanrei-comp-callout-info-body-color-outlined);
     --tanrei-comp-callout-info-title-color-tonal: var(--tanrei-comp-callout-info-body-color-tonal);
+    --tanrei-comp-callout-motion-disclosure-duration: var(--tanrei-sys-motion-role-disclosure);
+    --tanrei-comp-callout-motion-disclosure-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-callout-outline-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-callout-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-callout-success-body-color-outlined: var(--tanrei-comp-callout-body-color-outlined);

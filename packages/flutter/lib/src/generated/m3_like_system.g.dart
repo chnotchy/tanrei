@@ -2238,6 +2238,8 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     iconGap: 12.0,
     iconOpacity: 0.85,
     iconSize: 20.0,
+    motionDisclosureDuration: 350,
+    motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
     outlineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     outlineWidth: 1.0,
     titleGap: 4.0,

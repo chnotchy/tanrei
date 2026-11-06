@@ -2358,6 +2358,8 @@ private object AcmeSystemSource {
             iconGap = 12.dp,
             iconOpacity = 0.85f,
             iconSize = 20.dp,
+            motionDisclosureDuration = 400,
+            motionDisclosureEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             outlineWidth = 1.dp,
             titleGap = 4.dp,

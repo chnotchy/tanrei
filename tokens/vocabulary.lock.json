@@ -1329,6 +1329,8 @@
     "tanrei.comp.callout.info.icon.color.tonal": "color",
     "tanrei.comp.callout.info.title.color.outlined": "color",
     "tanrei.comp.callout.info.title.color.tonal": "color",
+    "tanrei.comp.callout.motion.disclosure-duration": "duration",
+    "tanrei.comp.callout.motion.disclosure-easing": "cubicBezier",
     "tanrei.comp.callout.outline.color": "color",
     "tanrei.comp.callout.outline.width": "dimension",
     "tanrei.comp.callout.success.body.color.outlined": "color",

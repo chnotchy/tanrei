@@ -18509,6 +18509,26 @@
             }
           }
         },
+        "motion": {
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long the callout takes to open or close (CLO-13): its height and its opacity in one motion, what follows it moving with it. Content that opens and closes in place."
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that motion: a box that opens and closes in place."
+          }
+        },
         "outline": {
           "color": {
             "$type": "color",

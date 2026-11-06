@@ -3347,6 +3347,8 @@ export const tonePerState = {
       iconGap: 12,
       iconOpacity: 0.85,
       iconSize: 20,
+      motionDisclosureDuration: 400,
+      motionDisclosureEasing: [0.2, 0, 0, 1],
       outlineColor: { kind: "role", role: "outlineVariant" },
       outlineWidth: 1,
       titleGap: 4,

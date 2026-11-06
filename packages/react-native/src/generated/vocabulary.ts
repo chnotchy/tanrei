@@ -1193,6 +1193,8 @@ export interface TanreiCalloutTokens {
   readonly iconGap: number;
   readonly iconOpacity: number;
   readonly iconSize: number;
+  readonly motionDisclosureDuration: number;
+  readonly motionDisclosureEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
   readonly titleGap: number;

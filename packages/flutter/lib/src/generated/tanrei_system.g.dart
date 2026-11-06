@@ -2222,6 +2222,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     iconGap: 12.0,
     iconOpacity: 0.85,
     iconSize: 20.0,
+    motionDisclosureDuration: 400,
+    motionDisclosureEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     outlineWidth: 1.0,
     titleGap: 4.0,

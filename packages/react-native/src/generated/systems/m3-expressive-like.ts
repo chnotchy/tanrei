@@ -3499,6 +3499,8 @@ export const m3ExpressiveLike = {
       iconGap: 12,
       iconOpacity: 0.85,
       iconSize: 20,
+      motionDisclosureDuration: 350,
+      motionDisclosureEasing: [0.27, 1.06, 0.18, 1],
       outlineColor: { kind: "role", role: "outlineVariant" },
       outlineWidth: 1,
       titleGap: 4,
