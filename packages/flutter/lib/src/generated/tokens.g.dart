@@ -6307,6 +6307,9 @@ class TanreiChatComposerTokens {
     required this.counterTypescale,
     required this.inputPaddingBlock,
     required this.layoutInlineMinWidth,
+    required this.motionGlyphFadeDuration,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
@@ -6349,6 +6352,12 @@ class TanreiChatComposerTokens {
   final double inputPaddingBlock;
   /// `comp.chat-composer.layout-inline-min-width`
   final double layoutInlineMinWidth;
+  /// `comp.chat-composer.motion-glyph-fade-duration`
+  final int motionGlyphFadeDuration;
+  /// `comp.chat-composer.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.chat-composer.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.chat-composer.motion-state-duration`
   final int motionStateDuration;
   /// `comp.chat-composer.motion-state-easing`
@@ -6393,6 +6402,9 @@ class TanreiChatComposerTokens {
     TanreiTextStyle? counterTypescale,
     double? inputPaddingBlock,
     double? layoutInlineMinWidth,
+    int? motionGlyphFadeDuration,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
@@ -6421,6 +6433,9 @@ class TanreiChatComposerTokens {
         counterTypescale: counterTypescale ?? this.counterTypescale,
         inputPaddingBlock: inputPaddingBlock ?? this.inputPaddingBlock,
         layoutInlineMinWidth: layoutInlineMinWidth ?? this.layoutInlineMinWidth,
+        motionGlyphFadeDuration: motionGlyphFadeDuration ?? this.motionGlyphFadeDuration,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
