@@ -196,6 +196,9 @@ const en = {
   // The foot of a page's links into the repository (components/frame/Footer.astro, lib/repository.ts): the page's own
   // source, a component page's spec, and a new issue about the page in the bug form.
   pageFoot: { pageSource: 'Source of this page', spec: 'Spec of this component', report: 'Report a problem with this page' },
+  // The links under the facts at the head of a component's page (components/frame/PageTitle.astro,
+  // lib/repository.ts `componentLinks`): the landmark's name, the spec on GitHub, the web element's source, the package on npm.
+  componentLinks: { label: 'Links for this component', spec: 'Spec', webSource: 'Web source', npm: 'npm' },
   // A frame pinned to a shipped preset (components/visuals/Example.astro): `{system}` is the system's id, set as code.
   demoUnder: 'Under {system}',
   // The name of the ground the elevation levels are shown on, a figure with no title and no caption
@@ -491,6 +494,7 @@ const ja: typeof en = {
   },
   sourceLink: 'ソースコードと Issue（GitHub）',
   pageFoot: { pageSource: 'このページのソース', spec: 'このコンポーネントの仕様', report: 'このページの問題を報告' },
+  componentLinks: { label: 'このコンポーネントのリンク', spec: '仕様', webSource: 'Web のソース', npm: 'npm' },
   demoUnder: '{system} で表示',
   elevationLevels: 'エレベーションのレベル',
   noPalettes: 'なし',
@@ -753,6 +757,7 @@ const zh: typeof en = {
   },
   sourceLink: 'GitHub 上的源码与 Issue',
   pageFoot: { pageSource: '本页源文件', spec: '本组件的规格', report: '报告本页的问题' },
+  componentLinks: { label: '本组件的链接', spec: '规格', webSource: 'Web 源码', npm: 'npm' },
   demoUnder: '以 {system} 显示',
   elevationLevels: '层级的各个级别',
   noPalettes: '无',
@@ -1014,6 +1019,7 @@ const es: typeof en = {
   },
   sourceLink: 'Código fuente e incidencias en GitHub',
   pageFoot: { pageSource: 'Código fuente de esta página', spec: 'Especificación de este componente', report: 'Informar de un problema en esta página' },
+  componentLinks: { label: 'Enlaces de este componente', spec: 'Especificación', webSource: 'Código fuente web', npm: 'npm' },
   demoUnder: 'Con {system}',
   elevationLevels: 'Niveles de elevación',
   noPalettes: 'Ninguna',
@@ -1275,6 +1281,7 @@ const hi: typeof en = {
   },
   sourceLink: 'GitHub पर सोर्स कोड और इश्यू',
   pageFoot: { pageSource: 'इस पेज का सोर्स', spec: 'इस कंपोनेंट का स्पेक', report: 'इस पेज में कोई समस्या बताएँ' },
+  componentLinks: { label: 'इस कंपोनेंट के लिंक', spec: 'स्पेक', webSource: 'वेब सोर्स', npm: 'npm' },
   demoUnder: '{system} के साथ',
   elevationLevels: 'एलिवेशन के स्तर',
   noPalettes: 'कोई नहीं',
@@ -1536,6 +1543,7 @@ const ar: typeof en = {
   },
   sourceLink: 'الشيفرة المصدرية والمشكلات على GitHub',
   pageFoot: { pageSource: 'مصدر هذه الصفحة', spec: 'مواصفة هذا المكوّن', report: 'الإبلاغ عن مشكلة في هذه الصفحة' },
+  componentLinks: { label: 'روابط هذا المكوّن', spec: 'المواصفة', webSource: 'مصدر الويب', npm: 'npm' },
   demoUnder: 'مع {system}',
   elevationLevels: 'مستويات الارتفاع',
   noPalettes: 'لا توجد',

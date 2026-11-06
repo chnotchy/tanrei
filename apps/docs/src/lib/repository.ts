@@ -23,6 +23,22 @@ export function pageSourceLinks(sources: readonly string[]): { source?: string; 
   return { ...(source ? { source: fileHref(source) } : {}), ...(spec ? { spec: fileHref(spec) } : {}) };
 }
 
+/** The web package: its folder in the repository, which the paths of its manifest start from, and its name on npm. */
+export const WEB_PACKAGE = { dir: 'packages/web', npm: `${config.packages.npmScope}/web` } as const;
+
+/**
+ * What the head of a component's page links to, under its facts: its spec on GitHub; and, where the web package
+ * defines its element (`webModule`, the module its manifest names), that module's source and the package on npm. A
+ * component the web does not build as an element of its own (a class on the product's markup, or none yet) has the
+ * spec alone.
+ */
+export function componentLinks(name: string, webModule: string | undefined): { spec: string; webSource?: string; npm?: string } {
+  return {
+    spec: fileHref(`specs/${name}.spec.json`),
+    ...(webModule ? { webSource: fileHref(`${WEB_PACKAGE.dir}/${webModule.replace(/^\.?\//, '')}`), npm: `https://www.npmjs.com/package/${WEB_PACKAGE.npm}` } : {}),
+  };
+}
+
 /** The issue form a problem with a page is reported in (`.github/ISSUE_TEMPLATE/<template>`), and its fields' ids and the platform it names. */
 export const ISSUE_FORM = { template: 'bug.yml', platform: { field: 'platform', value: 'Docs' }, component: 'component', what: 'what' } as const;
 
