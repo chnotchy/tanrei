@@ -1342,26 +1342,39 @@ test.describe('the bar', () => {
     await expect(part(page, 'expanded-scrolls', 'focus')).toHaveCSS('outline-style', 'solid');
     await expect(text).toHaveCSS('outline-style', 'none');
     expect(await part(page, 'expanded-scrolls', 'focus').boundingBox()).toEqual(await text.boundingBox());
-    // Each key is pressed on text at rest — after its scroll's `scrollend`, and frames without a move — and placed where
-    // the key has room to scroll it: at its start for Arrow Down and Page Down, at its end for Page Up (a key scrolls
-    // over some frames, and read on its way, the next key's start would be wrong). Chromium drops a key that arrives
-    // between the last frame of a scroll and that scroll's end, of any scroller, a plain one too: Arrow Down had brought
-    // the text to 40, Page Down came some milliseconds later and nothing moved.
-    const placed = (end: 'start' | 'end') =>
-      text.evaluate(async (el, to) => {
-        const top = to === 'start' ? 0 : el.scrollHeight - el.clientHeight;
-        if (Math.abs(el.scrollTop - top) >= 1) {
-          const ended = new Promise((r) => el.addEventListener('scrollend', r, { once: true }));
-          el.scrollTop = top;
-          await ended;
-        }
-        for (let last = -1, same = 0; same < 5; ) {
+    // Each key is pressed on text at rest — its last scroll ended (`scrollend`) and five frames without a move — and
+    // placed where the key has room to scroll it: at its start for Arrow Down and Page Down, at its end for Page Up (a
+    // key scrolls over some frames, and read on its way, the next key's start would be wrong). The text is placed only
+    // once the key before has come to rest too: set while Chromium's smooth scroll of Page Down still ran, the text
+    // took the place, the smooth scroll then drew one more frame and never ended, and Page Up was dropped. Chromium
+    // drops a key that arrives between the last frame of a scroll and that scroll's end, of any scroller, a plain one
+    // too: Arrow Down had brought the text to 40, Page Down came some milliseconds later and nothing moved.
+    await text.evaluate((el) => {
+      const seen = { scrolling: false };
+      (el as unknown as { scrolls: typeof seen }).scrolls = seen;
+      el.addEventListener('scroll', () => (seen.scrolling = true), { passive: true });
+      el.addEventListener('scrollend', () => (seen.scrolling = false), { passive: true });
+    });
+    const atRest = () =>
+      text.evaluate(async (el) => {
+        const top = el.scrollTop;
+        for (let frame = 0; frame < 5; frame++) {
           await new Promise((r) => requestAnimationFrame(r));
-          same = el.scrollTop === last ? same + 1 : 0;
-          last = el.scrollTop;
+          if (el.scrollTop !== top) return false;
         }
-        return el.scrollTop;
+        return !(el as unknown as { scrolls: { scrolling: boolean } }).scrolls.scrolling;
+      });
+    const placed = async (end: 'start' | 'end') => {
+      await saysKeys(text, expect.poll(atRest, `at rest before it is placed at its ${end}`).toBe(true));
+      const moved = await text.evaluate((el, to) => {
+        const top = to === 'start' ? 0 : el.scrollHeight - el.clientHeight;
+        if (Math.abs(el.scrollTop - top) < 1) return false;
+        el.scrollTop = top;
+        return true;
       }, end);
+      if (moved) await saysKeys(text, expect.poll(atRest, `at rest at its ${end}`).toBe(true));
+      return text.evaluate((el) => el.scrollTop);
+    };
     // A key is held until the text has moved, as a person's press lasts, and then let go. WebKit on macOS scrolls by an
     // arrow key from the frame after its keydown for as long as the key is down, and a key let go before that frame
     // scrolls nothing: Playwright's `press()` lets go at once, so whether Arrow Down scrolled was whether a frame fell
