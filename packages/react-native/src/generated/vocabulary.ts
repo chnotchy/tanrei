@@ -2876,6 +2876,10 @@ export interface TanreiLinkCardTokens {
   readonly mediaContainerColor: TanreiPaint;
   readonly mediaWidth: number;
   readonly motionFeedbackDuration: number;
+  readonly motionPictureDuration: number;
+  readonly motionPictureEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;

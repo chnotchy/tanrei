@@ -13358,6 +13358,10 @@ class TanreiLinkCardTokens {
     required this.mediaContainerColor,
     required this.mediaWidth,
     required this.motionFeedbackDuration,
+    required this.motionPictureDuration,
+    required this.motionPictureEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
@@ -13393,6 +13397,14 @@ class TanreiLinkCardTokens {
   final double mediaWidth;
   /// `comp.link-card.motion-feedback-duration`
   final int motionFeedbackDuration;
+  /// `comp.link-card.motion-picture-duration`
+  final int motionPictureDuration;
+  /// `comp.link-card.motion-picture-easing`
+  final TanreiCubicBezier motionPictureEasing;
+  /// `comp.link-card.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.link-card.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.link-card.motion-state-duration`
   final int motionStateDuration;
   /// `comp.link-card.motion-state-easing`
@@ -13435,6 +13447,10 @@ class TanreiLinkCardTokens {
     TanreiPaint? mediaContainerColor,
     double? mediaWidth,
     int? motionFeedbackDuration,
+    int? motionPictureDuration,
+    TanreiCubicBezier? motionPictureEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
@@ -13460,6 +13476,10 @@ class TanreiLinkCardTokens {
         mediaContainerColor: mediaContainerColor ?? this.mediaContainerColor,
         mediaWidth: mediaWidth ?? this.mediaWidth,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionPictureDuration: motionPictureDuration ?? this.motionPictureDuration,
+        motionPictureEasing: motionPictureEasing ?? this.motionPictureEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
