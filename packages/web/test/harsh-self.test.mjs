@@ -27,6 +27,14 @@ const EXPECTED = {
   'race: a fade read once, a while after the click that starts it': { plain: 'passed', harsh: { chromium: 'failed', firefox: 'passed', webkit: 'passed' } },
   'sound: a fade waited for until it ends': { plain: 'passed', harsh: 'passed' },
   'check: the self-check refuses a motion rate it was not given': { plain: 'skipped', harsh: { chromium: 'passed', firefox: 'skipped', webkit: 'skipped' } },
+  'check: a test that sets no time gets the config’s, multiplied': { plain: 'passed', harsh: 'passed' },
+  'check: test.setTimeout() in a test is multiplied': { plain: 'passed', harsh: 'passed' },
+  'check: test.setTimeout(0) stays no timeout': { plain: 'passed', harsh: 'passed' },
+  'check: test.slow() triples the multiplied time': { plain: 'passed', harsh: 'passed' },
+  'check: test.setTimeout() in a describe block is multiplied': { plain: 'passed', harsh: 'passed' },
+  'check: test.describe.configure({ timeout }) is multiplied': { plain: 'passed', harsh: 'passed' },
+  'check: test.setTimeout() of a test extended from harsh mode’s is multiplied': { plain: 'passed', harsh: 'passed' },
+  'check: the guard refuses a test with no test type to multiply on': { plain: 'passed', harsh: 'passed' },
 };
 
 /**

@@ -15,7 +15,10 @@
 // - Chromium: its animations and transitions played slower (CDP `Animation.setPlaybackRate`), so a single read during a
 //   motion lands in the motion, not after it; on request, the page's CPU slowed (`Emulation.setCPUThrottlingRate`).
 //   The page clock (`page.clock`) is untouched: a test that holds it counts time as before.
-// - every engine: a test gets 4 times its time and an `expect` 3 times its own (15 s), for waits on slowed motion.
+// - every engine: a test gets 4 times its time and an `expect` 3 times its own (15 s), for waits on slowed motion — a
+//   time the test or its describe block sets itself (`test.setTimeout()`, `test.describe.configure({ timeout })`) is
+//   multiplied too, or it would put the test back on its unslowed time. A timeout given to one call (an `expect`'s, an
+//   action's `{ timeout }`) is not.
 // - every engine, once a worker before its first test: harsh mode checks that its own slowing takes effect — that an
 //   action of each kind (a locator's, an element handle's, the mouse's, the keyboard's, the touchscreen's) reaches the
 //   page no sooner than the gap before it and returns no sooner than the gap after it, in the page's own clock, and that
@@ -104,4 +107,13 @@ export const harshProject = (project: Project): Project =>
  * What a Playwright config takes from harsh mode (nothing when it is off): the tsconfig that puts test/harsh/ in place
  * of @playwright/test, and the test's time. playwright.config.ts and harsh mode's own tests (test/harsh/self/) read it.
  */
-export const harshConfig = (): { tsconfig?: string; timeout?: number } => (harsh ? { tsconfig: path.join(here, 'harsh', 'tsconfig.json'), timeout: 120_000 } : {});
+export const harshConfig = (): { tsconfig?: string; timeout?: number; expect?: { timeout: number } } =>
+  harsh ? { tsconfig: path.join(here, 'harsh', 'tsconfig.json'), timeout: 30_000 * HARSH_TIMEOUT, expect: { timeout: 5_000 * HARSH_EXPECT_TIMEOUT } } : {};
+
+/**
+ * How many times its time a test gets in harsh mode: Playwright's default (30 s), or what the test or its describe
+ * block sets (`test.setTimeout()`, `test.describe.configure({ timeout })`, which test/harsh/playwright-test.ts multiplies).
+ */
+export const HARSH_TIMEOUT = 4;
+/** How many times its time an `expect` gets in harsh mode (Playwright's default, 5 s). */
+export const HARSH_EXPECT_TIMEOUT = 3;

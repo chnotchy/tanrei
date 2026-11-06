@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { harsh, harshConfig, harshProject } from './test/harsh.js';
+import { harshConfig, harshProject } from './test/harsh.js';
 
 /** Tests that compare against a recorded image are titled `snapshot: <fixture id>`. */
 const BASELINES = /snapshot: /;
@@ -8,7 +8,7 @@ const BASELINES = /snapshot: /;
  * Harsh mode (`TANREI_HARSH=1`, test/harsh.ts): this run's tsconfig puts test/harsh/ in place of @playwright/test, whose
  * fixtures wait around every input action in every engine and slow Chromium's motion (and, on request, its CPU). The
  * tests exempted by name, each with its reason, do not run (`harshProject`); a test gets 4 times its time, an expect 3
- * times.
+ * times — a time a test sets itself too.
  */
 export default defineConfig({
   ...harshConfig(),
@@ -27,7 +27,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['blob'], ['github'], ['list']] : 'list',
   // A missing baseline is a failure, not something to write silently. Record with `pnpm test:update`.
   updateSnapshots: 'none',
-  expect: { ...(harsh ? { timeout: 15_000 } : {}), toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
+  expect: { ...harshConfig().expect, toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
   // On CI only a retry is traced (in the blob report, so in the merged HTML report): a trace of a harness page is large,
   // and tracing every attempt runs a shard out of disk and about doubles its time (measured: Chromium shards of 26–40
   // minutes took 56 to more than 60). A targeted run (ci.yml sets TANREI_TRACE=first-failure: a few tests, repeated)

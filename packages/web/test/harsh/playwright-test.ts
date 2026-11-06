@@ -9,13 +9,49 @@
 //   tests if it does not.
 import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
 import * as real from '../../node_modules/@playwright/test/index.mjs';
-import { type Harsh, harsh } from '../harsh.js';
+import { HARSH_TIMEOUT, type Harsh, harsh } from '../harsh.js';
 
 // The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
 // re-export only from its real path in the store, not from the link, so its `test` is typed here as the name's.
 const base = (real as unknown as { test: typeof realTest }).test;
 
 export * from '../../node_modules/@playwright/test/index.mjs';
+
+/** A test's time as harsh mode gives it: `HARSH_TIMEOUT` times the time asked for (0, no timeout, stays 0). */
+const longer = (timeout: number) => (timeout > 0 ? timeout * HARSH_TIMEOUT : timeout);
+
+type TestTypePrototype = { _setTimeout?: (location: unknown, timeout: number) => void; _configure?: (location: unknown, options: { timeout?: number }) => void };
+
+/**
+ * The prototype of the test type behind `test`: its methods are what `test.setTimeout()` and
+ * `test.describe.configure()` call (in a describe block, they set the block's time; in a test or a hook, its own). It is
+ * reached through the symbol Playwright keys it by on `test`. Throws, naming what is missing, if it is not there.
+ */
+export function testTypePrototype(of: object): Required<TestTypePrototype> {
+  const key = Object.getOwnPropertySymbols(of).find((symbol) => symbol.description === 'testType');
+  const type = key === undefined ? undefined : (of as Record<symbol, object | undefined>)[key];
+  const proto = (type && Object.getPrototypeOf(type)) as TestTypePrototype | undefined;
+  if (typeof proto?._setTimeout !== 'function' || typeof proto._configure !== 'function')
+    throw new Error(
+      `harsh mode found nothing to multiply a test's own time on: Playwright's test has no ${key === undefined ? 'test type (Symbol(testType))' : 'TestTypeImpl._setTimeout or _configure'} — has it renamed them? Without them test.setTimeout() puts a test back on its unslowed time (test/harsh/playwright-test.ts)`,
+    );
+  return proto as Required<TestTypePrototype>;
+}
+
+// A time the test sets itself is multiplied as the config's is. The methods are replaced on the prototype before
+// `base.extend()` below makes this module's `test`: a test type binds them as it is made, so this `test` and every
+// test extended from it (a file's own `test.extend()`) take the multiplied ones; the real module's own `test`, made
+// before, keeps its own.
+if (harsh) {
+  const proto = testTypePrototype(base);
+  const { _setTimeout: setTimeout, _configure: configure } = proto;
+  proto._setTimeout = function (this: unknown, location, timeout) {
+    return setTimeout.call(this, location, longer(timeout));
+  };
+  proto._configure = function (this: unknown, location, options) {
+    return configure.call(this, location, options?.timeout === undefined ? options : { ...options, timeout: longer(options.timeout) });
+  };
+}
 
 /** The client's input actions, by the object that carries them. A frame's are a locator's and a page's too. */
 const ACTIONS = {
