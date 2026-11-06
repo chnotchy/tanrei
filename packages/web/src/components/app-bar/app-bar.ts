@@ -253,8 +253,8 @@ export class TanreiAppBar extends TanreiElement {
   private source: { target: EventTarget; read: () => number } | null = null;
   private retry = 0;
   private offset = 0;
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.onResize());
-  /** Between a decision made in the observer's callback and the next frame, nothing is observed (see `onResize`). */
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.resized());
+  /** Between a decision made in the observer's callback and the next frame, nothing is observed (see `resized`). */
   private resting = false;
 
   override connectedCallback() {
@@ -418,7 +418,7 @@ export class TanreiAppBar extends TanreiElement {
    * shown, the observation is laid down and taken up again in the next frame, where its first report decides once more
    * and finds nothing to change.
    */
-  private onResize() {
+  private resized() {
     this.measure();
     if (!this.fit() || !this.resize$) return;
     this.resize$.disconnect();
@@ -561,7 +561,7 @@ export class TanreiAppBar extends TanreiElement {
       const isOut = out.has(item);
       if (item.hasAttribute(OUT) === isOut) continue;
       // An action that goes out is no longer watched (it is drawn as nothing); one that comes back is watched again from
-      // the next frame, so that its first report is not one the observer must defer (see `onResize`).
+      // the next frame, so that its first report is not one the observer must defer (see `resized`).
       if (isOut) this.resize$?.unobserve(item);
       item.toggleAttribute(OUT, isOut);
       if (!isOut) requestAnimationFrame(() => {
