@@ -240,7 +240,8 @@ const dropFrame: (handle: number) => void = typeof cancelAnimationFrame === 'fun
  * the first day of the week come from `Intl` for `locale` — without it, the nearest `lang` attribute, then the browser's
  * language. Every visual value comes from `--tanrei-comp-calendar-*` tokens; the navigation buttons are
  * `<tanrei-button variant="text">` elements that keep their own. `focus()` moves focus to the active day (or the
- * displayed year in the year view).
+ * displayed year in the year view); `focus({ focusVisible })` shows the focus ring there or not as it asks, in every
+ * browser (CAL-19).
  *
  * @tag tanrei-calendar
  * @csspart navigation - The top row: the view toggle and the previous and next buttons.
@@ -382,6 +383,8 @@ export class TanreiCalendar extends TanreiElement {
   /** Where focus goes after the next update, and whether it shows its ring (true after a key, false after a press). */
   private focusAfter: 'day' | 'year' | null = null;
   private ringAfter: boolean | undefined;
+  /** CAL-19: whether the focus the calendar is giving a cell now is keyboard focus; null where the platform says. */
+  private nextRing: boolean | null = null;
   private scrollYearsAfter = false;
   /**
    * The year list holds its years: while the year view is shown, and until it has faded out after it (CAL-6's
@@ -430,22 +433,44 @@ export class TanreiCalendar extends TanreiElement {
     }, untilMidnight());
   }
 
-  /** Moves focus to the active day, or to the displayed year in the year view (CAL-10, CAL-12). */
+  /** Moves focus to the active day, or to the displayed year in the year view (CAL-10, CAL-12), with the ring or without as `focusVisible` asks (CAL-19). */
   override focus(options?: FocusOptions & { focusVisible?: boolean }) {
     const target =
       this.view === 'year'
         ? this.renderRoot?.querySelector<HTMLElement>(`.year[data-year="${this.activeYear}"]`)
         : this.renderRoot?.querySelector<HTMLElement>(`.page.current .day[data-date="${isoOf(this.active)}"]`);
     if (!target) return super.focus(options);
-    // Focused already (a dialog's focusing steps): focused again, so that whether its ring shows is the options' call —
-    // where the engine reads them. Where it does not (Chromium before 145, Safari before 18.4) it would be a script's
-    // focus, drawn by the engine's own rule with the ring after any focus that was not a pointer's — the dialog's among
-    // them; the focus it has was drawn as the press or the key that opened the dialog, and is kept.
-    if (options && 'focusVisible' in options && (this.renderRoot as ShadowRoot).activeElement === target) {
-      if (!hasFocusVisibleOption()) return;
-      target.blur();
+    this.focusCell(target, options ?? {});
+  }
+
+  /**
+   * CAL-19: focus to `cell`, its ring shown or not as `focusVisible` asks — also where the cell has focus already (a
+   * dialog's focusing steps gave it), and also where the engine does not read the option (Chromium before 145, Safari
+   * before 18.4), whose own rule would draw a script's focus with the ring after any focus that was not a pointer's,
+   * the dialog's among them. Without `focusVisible`, focus arriving is keyboard focus where the platform says so.
+   */
+  private focusCell(cell: HTMLElement, options: FocusOptions & { focusVisible?: boolean }) {
+    const ring = options.focusVisible ?? null;
+    if ((this.renderRoot as ShadowRoot).activeElement === cell) {
+      if (ring !== null) cell.toggleAttribute('data-ring', ring);
+      cell.focus(options);
+      return;
     }
-    target.focus(options);
+    this.nextRing = ring;
+    try {
+      cell.focus(options);
+    } finally {
+      this.nextRing = null;
+    }
+  }
+
+  /**
+   * CAL-19: the cell that has focus — a day, a year or the view toggle — has just been worked by a key (Enter, Space;
+   * the keys that move focus give it with the ring): its focus is keyboard focus from now on, however it first arrived.
+   */
+  private ringFocused() {
+    const focused = (this.renderRoot as ShadowRoot).activeElement;
+    if (focused instanceof HTMLElement && focused.classList.contains('cell')) focused.toggleAttribute('data-ring', true);
   }
 
   // ── Reading the props (CAL-24, CAL-27) ────────────────────────────────────────────────────────────────────────────
@@ -788,7 +813,7 @@ export class TanreiCalendar extends TanreiElement {
     this.active = clampDate({ ...month, day: Math.min(this.active.day, daysInMonth(month.year, month.month)) }, min, max);
     if (focused instanceof HTMLElement && focused.classList.contains('day')) {
       this.focusAfter = 'day';
-      this.ringAfter = focused.matches(':focus-visible');
+      this.ringAfter = focused.hasAttribute('data-ring');
     }
   }
 
@@ -1275,6 +1300,7 @@ export class TanreiCalendar extends TanreiElement {
       case 'Enter':
       case ' ':
         event.preventDefault();
+        this.ringFocused();
         if (event.repeat) return;
         this.pressedBox = this.containerOf(cell);
         this.press.press(null);
@@ -1307,9 +1333,11 @@ export class TanreiCalendar extends TanreiElement {
 
   /**
    * CAL-15: a press on a neighbouring month's day moves no focus by itself: the day takes it once its month is shown, if
-   * focus was in the grid — given then with no ring (CAL-19). Where focus() cannot be told to draw none (Chromium before
-   * 145, Safari before 18.4), a day with keyboard focus would hand the ring on to it, since the press gave no focus: there
-   * the press on an available day gives focus itself, as a pointer's, and the day of its month takes it from there.
+   * focus was in the grid — given then with no ring (CAL-19), which the calendar draws itself (`focusCell`). Where focus()
+   * cannot be told to draw none (Chromium before 145, Safari before 18.4), the engine's own `:focus-visible` — what a
+   * product's `::part(day):focus-visible` reads — would pass from a day with keyboard focus on to it, since the press gave
+   * no focus: there the press on an available day gives focus itself, as a pointer's, and the day of its month takes it
+   * from there.
    */
   private readonly onGridMouseDown = (event: MouseEvent) => {
     const cell = this.dayOf(event);
@@ -1347,9 +1375,21 @@ export class TanreiCalendar extends TanreiElement {
     this.announce();
   };
 
+  /**
+   * CAL-19: a cell that takes focus shows its ring for keyboard focus only — what the calendar asked for where it moved
+   * the focus itself (`focusCell`), otherwise what the platform says of how focus arrived (Tab, or a press).
+   */
   private readonly onCellFocus = (event: FocusEvent) => {
     const cell = event.target as HTMLElement;
-    if (cell.classList?.contains('cell')) syncFocusStyle(this, cell);
+    if (!cell.classList?.contains('cell')) return;
+    syncFocusStyle(this, cell);
+    cell.toggleAttribute('data-ring', this.nextRing ?? cell.matches(':focus-visible'));
+  };
+
+  /** CAL-19: focus leaving a cell takes its keyboard focus with it; CAL-20: and ends a press it held. */
+  private readonly onCellBlur = (event: FocusEvent) => {
+    (event.target as Element).removeAttribute?.('data-ring');
+    this.press.onBlur();
   };
 
   // ── The year list (CAL-7, CAL-12) ─────────────────────────────────────────────────────────────────────────────────
@@ -1382,6 +1422,7 @@ export class TanreiCalendar extends TanreiElement {
       return;
     }
     if (event.key === 'Enter' || event.key === ' ') {
+      this.ringFocused();
       this.pressedBox = button.querySelector('.box');
       this.press.onKeyDown(event);
     }
@@ -1394,7 +1435,11 @@ export class TanreiCalendar extends TanreiElement {
     this.press.onPointerDown(event);
   };
 
-  /** CAL-7, CAL-19: a press on the year that has keyboard focus gives it again, as a pointer's, where focus() cannot be told to draw no ring (`pressGivesFocus`). */
+  /**
+   * CAL-7: a press on the year that has keyboard focus gives it again, as a pointer's, where focus() cannot be told to
+   * draw no ring (`pressGivesFocus`): the day that then takes focus does not match `:focus-visible` there either, as it
+   * shows no ring (CAL-19).
+   */
   private readonly onYearsMouseDown = (event: MouseEvent) => {
     const button = this.yearOf(event);
     if (button) pressGivesFocus(event, button);
@@ -1446,6 +1491,7 @@ export class TanreiCalendar extends TanreiElement {
   };
 
   private readonly onToggleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') this.ringFocused();
     this.pressedBox = (event.currentTarget as HTMLElement).querySelector('.box');
     this.press.onKeyDown(event);
   };
@@ -1460,7 +1506,7 @@ export class TanreiCalendar extends TanreiElement {
       const focused = (this.renderRoot as ShadowRoot).activeElement;
       if (focused instanceof HTMLElement && focused.classList.contains('day')) {
         this.focusAfter = 'day';
-        this.ringAfter = focused.matches(':focus-visible');
+        this.ringAfter = focused.hasAttribute('data-ring');
       }
       this.forgetScroll();
       this.dropDrag();
@@ -1550,7 +1596,7 @@ export class TanreiCalendar extends TanreiElement {
       else {
         const button = this.renderRoot.querySelector<HTMLElement>(`.year[data-year="${this.activeYear}"]`);
         if (button) {
-          button.focus({ ...options, preventScroll: true });
+          this.focusCell(button, { ...options, preventScroll: true });
           this.revealYear(button);
         }
       }
@@ -1711,7 +1757,7 @@ export class TanreiCalendar extends TanreiElement {
           @pointerleave=${this.press.release}
           @keydown=${this.onToggleKeyDown}
           @keyup=${this.press.onKeyUp}
-          @blur=${this.press.onBlur}
+          @blur=${this.onCellBlur}
           @focus=${this.onCellFocus}
         >
           <span class="lane"
@@ -1760,7 +1806,7 @@ export class TanreiCalendar extends TanreiElement {
           @dragstart=${(event: DragEvent) => event.preventDefault()}
           @wheel=${this.onWheel}
           @focusin=${this.onCellFocus}
-          @focusout=${this.press.onBlur}
+          @focusout=${this.onCellBlur}
         >
           <div role="rowgroup">
             <div role="row" class="row weekdays">
@@ -1786,7 +1832,7 @@ export class TanreiCalendar extends TanreiElement {
           @click=${this.onYearsClick}
           @wheel=${containedWheel}
           @focusin=${this.onCellFocus}
-          @focusout=${this.press.onBlur}
+          @focusout=${this.onCellBlur}
           @transitionend=${this.onYearsFaded}
           @transitioncancel=${this.onYearsFaded}
         >

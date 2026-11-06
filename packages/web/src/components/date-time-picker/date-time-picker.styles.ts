@@ -19,6 +19,14 @@ const BLOCK_ROOM = `calc(100% - 2 * ${T('modal-container-margin')} - env(safe-ar
 /** What each condition colors in every state, as private properties (`--_c-h`: the container, hovered). */
 const SELECTOR_PARTS = { c: 'selector-container-color', l: 'selector-label-color', o: 'selector-outline-color', w: 'selector-outline-width' } as const;
 
+/** The focus condition of a control whose keyboard focus the picker tracks itself (`data-ring`): focus, however the browser reads it. */
+const ownFocus = (focus: string) => focus.replaceAll(':focus-visible', ':focus');
+/**
+ * DTM-22, DTM-27, DTM-28: a selector's and a range field's keyboard focus — their focused state and their ring — is focus
+ * on the control the picker marks `data-ring`, never the engine's `:focus-visible`.
+ */
+const keyboardFocus = (state: string) => state.replaceAll(':focus-visible', '[data-ring]:focus');
+
 /**
  * DTM-27, DTM-30: each state sets, on the selector, the current value of every part from that state's tokens of its
  * condition, and the picker's opacity for that state; pressed > focused > hovered. Under ripple and dim everything but
@@ -31,7 +39,7 @@ function conditionRules(on: string, parts: Record<string, string>): string {
       .map((key) => `\n    --_${key}: var(--_${key}${suffix});`)
       .join('');
   const opacity = (state: string) => `\n    opacity: var(${PREFIX}-${state}-opacity);`;
-  const where = (state: string) => `${on}:where(${state})`;
+  const where = (state: string) => `${on}:where(${keyboardFocus(state)})`;
   return `
   ${on} {${set('-r')}
   }
@@ -49,8 +57,6 @@ const STATE = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
 
 /** What is drawn from the selector's condition tokens: a selector of the time display, and a range field (DTM-15, DTM-27). */
 const FIELD = ':is(.selector, .range-field)';
-/** The focus condition of a control whose keyboard focus the picker tracks itself (`data-ring`): focus, however the browser reads it. */
-const ownFocus = (focus: string) => focus.replace(':focus-visible', ':focus');
 
 export const styles = css`
   :host {
@@ -625,10 +631,11 @@ export const styles = css`
   /* DTM-30 ripple: the pressed container color of the selector's condition, grown over motion.feedback-duration and
      faded over motion.state-duration, inside its outline, clipped to its corners. */
   ${rippleStyles({ color: '--_c-p', inset: '--_w', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  /* DTM-28, DTM-31: the ring (or the glow) around a selector or a range field for keyboard focus only, never animated. */
-  /* DTM-47: the period selector's ring is the picker's to show too (data-ring), as the period wheel's is; and a range
-     field's, which a key pressed after a press of the pointer must show in every engine. */
-  ${focusRing((focus) => `:is(.selector:not(.period)${focus}, :is(.selector.period, .range-field)[data-ring]${ownFocus(focus)})`)}
+  /* DTM-28, DTM-31: the ring (or the glow) around a selector or a range field for keyboard focus only, never animated.
+     DTM-22, DTM-47: the ring is the picker's to show (data-ring), as the wheels' is — after a press and then a key,
+     whether the control matches :focus-visible is each engine's guess, and Safari before 18.4 draws a modal dialog's
+     first focus after a press with the indicator. */
+  ${focusRing((focus) => `${FIELD}${keyboardFocus(focus)}`)}
   ${minimumTarget('.selector')}
 
   /* DTM-23, DTM-24: the dial — a circle of dial.container.size, running clockwise in every direction; its numbers on

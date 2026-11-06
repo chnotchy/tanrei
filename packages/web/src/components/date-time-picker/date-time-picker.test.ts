@@ -402,9 +402,9 @@ test.describe('presentation, focus and closing', () => {
   });
 
   /**
-   * DTM-3, DTM-20, DTM-28: opens each picker of `kinds` twice — from the keyboard (Tab to its button, Enter) and
-   * by a press on its button — and says, for each, whether the focus it moved in shows its ring: a wheel's around its
-   * selection container (the picker's own, DTM-20), a day's, a year's or a selector's as the engine draws it.
+   * DTM-3, DTM-20, DTM-28, CAL-19: opens each picker of `kinds` twice — from the keyboard (Tab to its button, Enter) and
+   * by a press on its button — and says, for each, whether the focus it moved in shows its ring as drawn: a wheel's
+   * around its selection container, a day's or a year's around its container, a selector's around itself.
    */
   const openedRings = async (page: P, simulate: boolean) => {
     const kinds: [string, Fixture['props']][] = [
@@ -429,7 +429,8 @@ test.describe('presentation, focus and closing', () => {
         while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
         const wheel = active?.closest('.wheel');
         if (wheel) return getComputedStyle(wheel.querySelector('.ring')!).outlineStyle !== 'none';
-        return !!active?.matches(':focus-visible');
+        const box = active?.querySelector(':scope > .lane > .box, :scope > .box');
+        return getComputedStyle(box ?? active!).outlineStyle !== 'none';
       });
       await page.keyboard.press('Escape');
       await expect.poll(() => isOpen(page, id), id).toBe(false);
@@ -446,12 +447,10 @@ test.describe('presentation, focus and closing', () => {
     expect(await openedRings(page, false)).toEqual(expectedRings());
   });
 
-  test('DTM-3, DTM-20, DTM-28: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), the focus that moves in shows its ring when the picker was opened from the keyboard and none when it was opened by a press', async ({ page, browserName }) => {
-    // There the focus a modal picker's dialog gives as it opens is kept: given again, it would be a script's focus, drawn
-    // with the ring after the dialog's. WebKit draws the dialog's own focus with the ring after a press too, as it does
-    // for any modal dialog: the calendar's and the selector's are left to it there. The wheels draw their own ring.
-    const webkitDialog = (id: string) => browserName === 'webkit' && id.startsWith('m-') && !id.includes('wheels');
-    expect(await openedRings(page, true)).toEqual(expectedRings(webkitDialog));
+  test('DTM-3, DTM-20, DTM-28, CAL-19: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), the focus that moves in shows its ring when the picker was opened from the keyboard and none when it was opened by a press — a modal picker’s too, whose dialog WebKit gives its first focus with the ring after a press', async ({ page }) => {
+    // The ring of the day, the year, the wheel and the selector is the picker's and the calendar's to show, from how the
+    // picker was opened, whatever the engine draws for the dialog's own focus.
+    expect(await openedRings(page, true)).toEqual(expectedRings());
   });
 
   test('DTM-4: closing returns focus to where it was when the picker opened', async ({ page }) => {
@@ -1633,10 +1632,65 @@ test.describe('states, press, corners and focus style', () => {
     expect(await css(selector(page, 'a', 'hour'), 'transition-property')).not.toContain('outline');
   });
 
+  test('DTM-22, DTM-25, DTM-28: a selector focused by a press shows no ring, and a key that works it then — an arrow, Enter, a digit that does not move on — makes its focus keyboard focus: the ring around it, in every engine and in one without the focusVisible focus option (Chromium before 145, Safari before 18.4), until focus leaves it; a press on the hour dial hands the minute selector the ring exactly when the hour selector showed one', async ({ page }) => {
+    for (const simulate of [false, true]) {
+      await mount(page, [inline('k', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' })], { window: { width: 480, height: 1200 } });
+      if (simulate) await withoutFocusVisibleOption(page);
+      const [h, m] = [selector(page, 'k', 'hour'), selector(page, 'k', 'minute')];
+      const ring = (locator: Locator) => css(locator, 'outline-style');
+      // Up and Right move the hour; Enter shows its unit; a digit that a second one could join (1, for 10 to 12) stays
+      // on the hour and begins its entry.
+      for (const key of ['ArrowUp', 'ArrowRight', 'Enter', '1']) {
+        const how = `${key}${simulate ? ', without the option' : ''}`;
+        await h.click();
+        expect(await focused(page), how).toBe('selector:hour');
+        expect(await ring(h), `${how}: a press shows no ring`).toBe('none');
+        await page.keyboard.press(key);
+        expect(await focused(page), how).toBe('selector:hour');
+        await expect.poll(() => ring(h), `${how}: the ring after a key that works it`).toBe('solid');
+        expect(await css(h, 'outline-color'), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+        expect(await css(h, 'transition-property'), how).not.toContain('outline');
+        // A press on the other selector: focus leaves, and the press gives no ring.
+        await m.click();
+        expect(await ring(h), `${how}: focus has left`).toBe('none');
+        expect(await ring(m), `${how}: a press shows no ring`).toBe('none');
+        await page.keyboard.press('ArrowDown');
+        await expect.poll(() => ring(m), `${how}: the minute's ring after a key`).toBe('solid');
+      }
+      // DTM-25: the hour selector worked by a key after a press hands its ring on; pressed alone, none.
+      const pressDial = async (how: string) => {
+        const d = await bounds(host(page, 'k').locator('.dial'));
+        await page.mouse.click(d.x + d.width - 20, d.y + d.height / 2);
+        await expect.poll(() => focused(page), how).toBe('selector:minute');
+      };
+      await h.click();
+      await page.keyboard.press('ArrowUp');
+      await expect.poll(() => ring(h)).toBe('solid');
+      await pressDial('keyed');
+      await expect.poll(() => ring(m), `after a key${simulate ? ', without the option' : ''}`).toBe('solid');
+      await h.click();
+      await pressDial('pressed');
+      expect(await ring(m), `after a press${simulate ? ', without the option' : ''}`).toBe('none');
+    }
+  });
+
+  test('DTM-28: forced colors still draw a selector’s keyboard focus ring, which the picker shows itself', async ({ page }) => {
+    await mount(page, [opened('a', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' })]);
+    await page.emulateMedia({ forcedColors: 'active' });
+    test.skip(!(await page.evaluate(() => matchMedia('(forced-colors: active)').matches)), 'this browser does not emulate forced colors');
+    const h = selector(page, 'a', 'hour');
+    await h.click();
+    expect(await css(h, 'outline-style')).toBe('none');
+    await page.keyboard.press('ArrowUp');
+    await expect.poll(() => css(h, 'outline-style')).toBe('solid');
+    expect(await px(h, 'outline-width')).toBeGreaterThan(0);
+  });
+
   test('DTM-25, DTM-28, DTM-47: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a press on the hour dial hands the minute selector the hour selector’s ring — the ring after Tab, none after a press — and a press on the period wheel shows no ring', async ({ page }) => {
     await mount(page, [inline('k', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('p', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('w', { mode: 'time', value: '07:30', hourCycle: 'h12' })], { window: { width: 480, height: 2400 } });
     await withoutFocusVisibleOption(page);
-    const ring = (locator: Locator) => locator.evaluate((el) => el.matches(':focus-visible'));
+    // The ring as drawn: the picker shows it itself, whatever the engine's own :focus-visible says of the selector.
+    const ring = (locator: Locator) => css(locator, 'outline-style').then((style) => style !== 'none');
     const pressDial = async (id: string) => {
       const d = await bounds(host(page, id).locator('.dial'));
       await page.mouse.click(d.x + d.width - 20, d.y + d.height / 2);
