@@ -13,6 +13,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { resolveEasing } from '../../../test/appear.js';
 
 const spec = loadSpec('chat-composer');
 const fieldSpec = loadSpec('field');
@@ -1210,6 +1213,384 @@ test.describe('behavior', () => {
     expect(sampled.samples[2]!.capsule).toBeLessThan(sampled.after.capsule - 2);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await host(page, 'a').evaluate((el) => ['.capsule', '.outline', '.counter'].map((selector) => getComputedStyle(el.shadowRoot!.querySelector(selector)!).transitionDuration))).toEqual(['0s', '0s', '0s']);
+  });
+
+  /** CCM-35: hands files to the composer and waits for the update that draws them, and no more: a sampling of frames sees the motion it starts. */
+  const addOwn = (page: P, id: string, names: string[]) =>
+    host(page, id).evaluate(async (el, list) => {
+      const files = list.map((name, index) => new File([new Uint8Array(index + 1)], name, { lastModified: 1767225600000, type: name.endsWith('.pdf') ? 'application/pdf' : 'text/plain' }));
+      (el as El).addFiles(files);
+      await (el as El).updateComplete;
+    }, names);
+  /** CCM-35: the person removes the File item at `index` of the strip — its remove action's `remove` event — and the update draws it. */
+  const removeOwnAt = (page: P, id: string, index: number) =>
+    host(page, id).evaluate(async (el, at) => {
+      el.shadowRoot!.querySelectorAll('.strip > tanrei-file-item:not([data-leaving])')[at]!.dispatchEvent(new CustomEvent('remove', { bubbles: true, composed: true, detail: { value: '' } }));
+      await (el as El).updateComplete;
+    }, index);
+  /**
+   * CCM-35: what the strip's motion is read by in every frame — the capsule's edges and height, the row of the typing
+   * area and the send button, and the first three File items in the order they stand (its own, or the product's):
+   * their opacity (0 for one that is not there), their place, and whether each is leaving (inert and hidden).
+   */
+  const stripProbe: Probe = (root) => {
+    const el = root.querySelector('tanrei-chat-composer')!;
+    const shadow = el.shadowRoot!;
+    const c = shadow.querySelector('.capsule')!.getBoundingClientRect();
+    const line = shadow.querySelector('.line')!.getBoundingClientRect();
+    const send = shadow.querySelector('.send > tanrei-button')!.getBoundingClientRect();
+    const items = [...shadow.querySelectorAll('.strip > tanrei-file-item'), ...el.querySelectorAll('tanrei-file-item')];
+    const seen: Record<string, number | boolean> = { capsuleTop: c.top, capsuleBottom: c.bottom, height: c.height, lineTop: line.top, lineBottom: line.bottom, sendBottom: send.bottom, items: items.length };
+    for (let index = 0; index < 3; index++) {
+      const item = items[index];
+      seen[`opacity${index}`] = item ? Number(getComputedStyle(item).opacity) : 0;
+      seen[`leaving${index}`] = !!item && item.hasAttribute('data-leaving') && (item as HTMLElement).inert && item.getAttribute('aria-hidden') === 'true';
+      if (!item) continue;
+      const r = item.getBoundingClientRect();
+      seen[`x${index}`] = r.left;
+      seen[`y${index}`] = r.top;
+    }
+    return seen;
+  };
+  /** One way only: each value of the probe's `name`, from before the change to rest, is no further from the end than the one before (MOT-2). */
+  const expectOneWay = (seen: Frames, name: string, way: 'up' | 'down') => {
+    const values = [seen.before, ...seen.frames, seen.rest].map((frame) => Number(frame.probe[name]));
+    for (let i = 1; i < values.length; i++) expect(way === 'up' ? values[i]! - values[i - 1]! : values[i - 1]! - values[i]!, `${name}, frame ${i - 1}: ${values.join(' → ')}`).toBeGreaterThanOrEqual(-0.01);
+  };
+  /**
+   * CCM-35: the frames in which `items` File items are drawn — while one leaves, before it is taken out at the end. The
+   * frames name an element by its place among its parent's children, so once the one that left is gone the items after
+   * it carry other names: what they do then is read by the probe, not compared element by element.
+   */
+  const whileDrawn = (seen: Frames, items: number): Frames => ({ ...seen, frames: seen.frames.filter((frame) => frame.probe.items === items), complete: false });
+  /** The motions of a change: what moves (a transition's property, a script's name), on which part, how long and on which curve. */
+  const motionsOf = (seen: Frames) =>
+    [...new Set(seen.motions.map((motion) => JSON.stringify([motion.kind === 'transition' && /^(block-size|height)$/.test(motion.name) ? 'height' : motion.name, motion.on.split('.').slice(0, 2).join('.'), motion.duration, motion.easing])))]
+      .map((each) => JSON.parse(each) as [string, string, number, string])
+      .sort((a, b) => a[0].localeCompare(b[0]));
+  /** CCM-35: the fixture's composer at the foot of a column of a fixed height, as at the bottom of a conversation; moved there, it settles again (MOT-3). */
+  const dock = async (page: P, id: string) => {
+    await stage(page, id).evaluate((el) => {
+      const composer = el.querySelector('tanrei-chat-composer')!;
+      const column = document.createElement('div');
+      column.style.cssText = 'display: flex; flex-direction: column; justify-content: flex-end; block-size: 360px';
+      composer.replaceWith(column);
+      column.append(composer);
+    });
+    await expect(host(page, id)).not.toHaveAttribute('data-tanrei-settling');
+  };
+
+  test('CCM-35: WHEN a File item is added THE capsule changes its height to its new one in one motion over motion.resize-duration with motion.resize-easing, anchored to the row of the typing area — that row and the send button keep their place against the capsule’s bottom edge at every frame — and the item fades in at its place; WHEN it is removed the capsule closes the same way back while the item fades out where it was drawn, leaving from the first frame, and is then gone', async ({ page }) => {
+    // With a text, so that what can be sent does not change: only the strip moves.
+    await mount(page, [fx('a', { attachments: 'own', ...FILES, value: 'Hello' })], { reducedMotion: false });
+    const [duration, easing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await resolveEasing(page, T('motion-resize-easing'))];
+    // The role of a large change of size, on the spatial curve.
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-large', 'duration'));
+    expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    const adding = await sampleFrames(stage(page, 'a'), () => addOwn(page, 'a', ['brief.pdf']), { probe: stripProbe });
+    const [flat, grown] = [Number(adding.before.probe.height), Number(adding.rest.probe.height)];
+    expect(grown, 'grown by a row of the strip').toBeGreaterThan(flat + 20);
+    expectAnimated(adding, 'height', { minSteps: 4 });
+    expectOneWay(adding, 'height', 'up');
+    // Anchored to the row of the typing area: it and the send button keep their place against the bottom edge; the top
+    // edge stays where the capsule stands.
+    expectAnchored(adding, 'lineBottom', 'capsuleBottom');
+    expectAnchored(adding, 'sendBottom', 'capsuleBottom');
+    expectAnchored(adding, 'capsuleTop', 0);
+    // The item fades in at its place, from nothing.
+    expect(Number(adding.frames[0]!.probe.opacity0), 'from transparent').toBeLessThan(0.25);
+    expectAnimated(adding, 'opacity0', { minSteps: 4 });
+    expectOneWay(adding, 'opacity0', 'up');
+    expect(adding.rest.probe.opacity0).toBe(1);
+    expectNoFlicker(adding);
+    expect(motionsOf(adding)).toEqual([
+      ['chat-composer-item-fade', 'tanrei-file-item', duration, easing],
+      ['height', 'div.strip-box', duration, easing],
+    ]);
+    // At rest nothing of the motion is left on the strip's box.
+    expect(await host(page, 'a').evaluate((el) => el.shadowRoot!.querySelector('.strip-box')!.getAttribute('style') ?? '')).toBe('');
+    // Removed: the same path back, the item fading out where it was drawn, inert and hidden from the first frame.
+    const removing = await sampleFrames(stage(page, 'a'), () => removeOwnAt(page, 'a', 0), { probe: stripProbe });
+    const first = removing.frames[0]!.probe;
+    expect(first.leaving0, 'leaving from the first frame').toBe(true);
+    near(Number(first.y0), Number(adding.rest.probe.y0), 'where it was drawn', 0.5);
+    near(Number(first.x0), Number(adding.rest.probe.x0), 'where it was drawn', 0.5);
+    near(Number(removing.rest.probe.height), flat, 'back to one line');
+    expect(removing.rest.probe.items, 'and then gone').toBe(0);
+    expectAnimated(removing, 'height', { minSteps: 4 });
+    expectOneWay(removing, 'height', 'down');
+    expectAnchored(removing, 'lineBottom', 'capsuleBottom');
+    expectAnchored(removing, 'sendBottom', 'capsuleBottom');
+    expectAnimated(removing, 'opacity0', { minSteps: 4 });
+    expectOneWay(removing, 'opacity0', 'down');
+    expectNoFlicker(removing);
+    expect(motionsOf(removing)).toEqual([
+      ['chat-composer-item-fade', 'tanrei-file-item', duration, easing],
+      ['height', 'div.strip-box', duration, easing],
+    ]);
+    expect(await motionCount(host(page, 'a')), 'nothing moves at rest').toBe(0);
+  });
+
+  test('CCM-35: at the foot of a column, as at the bottom of a conversation, the row being written does not move at all while the strip opens and closes: the capsule’s top edge moves, and the items keep their place against it', async ({ page }) => {
+    await mount(page, [fx('a', { attachments: 'own', ...FILES, value: 'Hello' })], { reducedMotion: false });
+    await dock(page, 'a');
+    const adding = await sampleFrames(stage(page, 'a'), () => addOwn(page, 'a', ['brief.pdf']), { probe: stripProbe });
+    expectAnchored(adding, 'lineTop', 0);
+    expectAnchored(adding, 'sendBottom', 0);
+    expectAnchored(adding, 'capsuleBottom', 0);
+    expectAnimated(adding, 'capsuleTop', { minSteps: 4 });
+    expectAnchored(adding, 'y0', 'capsuleTop');
+    const removing = await sampleFrames(stage(page, 'a'), () => removeOwnAt(page, 'a', 0), { probe: stripProbe });
+    expectAnchored(removing, 'lineTop', 0);
+    expectAnchored(removing, 'sendBottom', 0);
+    expectAnimated(removing, 'capsuleTop', { minSteps: 4 });
+    expectNoFlicker(removing);
+  });
+
+  test('CCM-35: an item that stays and whose place in the strip changes moves to it over the same motion — the tiles after a tile that is removed move along to close its place — while the one removed fades out where it was drawn', async ({ page }) => {
+    await mount(page, [fx('a', { attachments: 'own', attachmentForm: 'tile', ...FILES, value: 'Hello' })], { reducedMotion: false });
+    await addOwn(page, 'a', ['a.pdf', 'b.pdf', 'c.pdf']);
+    await motionEnded(stage(page, 'a'));
+    const removing = await sampleFrames(stage(page, 'a'), () => removeOwnAt(page, 'a', 0), { probe: stripProbe });
+    const [before, rest] = [removing.before.probe, removing.rest.probe];
+    // One line of tiles before and after: the height does not change.
+    near(Number(rest.height), Number(before.height), 'the same height');
+    // The two that stay take the places of the first two, moving there; the first fades out at its own.
+    expect(rest.items).toBe(2);
+    near(Number(rest.x0), Number(before.x0), 'b in a’s place');
+    near(Number(rest.x1), Number(before.x1), 'c in b’s place');
+    const during = removing.frames.filter((frame) => frame.probe.items === 3);
+    expect(during.length, 'the one removed is drawn while it fades').toBeGreaterThanOrEqual(4);
+    for (const frame of during) near(Number(frame.probe.x0), Number(before.x0), `frame ${frame.index}: the one removed stays where it was drawn`, 0.5);
+    const moved = (key: string) => [...during.map((frame) => Number(frame.probe[key]))];
+    const [b, c] = [moved('x1'), moved('x2')];
+    near(b[0]!, Number(before.x1), 'b starts where it was drawn', 1);
+    near(c[0]!, Number(before.x2), 'c starts where it was drawn', 1);
+    expect(new Set(b.map((x) => x.toFixed(1))).size, `b moves over frames: ${b.join(' → ')}`).toBeGreaterThanOrEqual(4);
+    expect(new Set(c.map((x) => x.toFixed(1))).size, `c moves over frames: ${c.join(' → ')}`).toBeGreaterThanOrEqual(4);
+    expectNoFlicker(whileDrawn(removing, 3));
+    const duration = await resolveToken(page, T('motion-resize-duration'), 'duration');
+    expect(motionsOf(removing).map(([name, on, time]) => [name, on, time])).toEqual([
+      ['chat-composer-item-fade', 'tanrei-file-item', duration],
+      ['chat-composer-item-move', 'tanrei-file-item', duration],
+    ]);
+  });
+
+  test('CCM-35: the product’s File items arrive and leave the same way — one it removes is put back where it stood, inert, hidden and marked data-leaving, until it has faded out, and is then taken away and given back what it had; one it adds fades in', async ({ page }) => {
+    await mount(page, [fx('g', { attachments: 'given', ...FILES, value: 'Hello' }, { items: [file({ value: 'a', name: 'a.pdf', sizeText: '1 KB', status: 'done' })] })], { reducedMotion: false });
+    const adding = await sampleFrames(
+      stage(page, 'g'),
+      () =>
+        host(page, 'g').evaluate(async (el) => {
+          el.insertAdjacentHTML('beforeend', '<tanrei-file-item value="b" name="b.pdf" size-text="2 KB" status="done" style="--product: 1"></tanrei-file-item>');
+          await (el as El).updateComplete;
+        }),
+      { probe: stripProbe },
+    );
+    expect(Number(adding.rest.probe.height)).toBeGreaterThan(Number(adding.before.probe.height) + 20);
+    expectAnimated(adding, 'height', { minSteps: 4 });
+    expectAnchored(adding, 'lineBottom', 'capsuleBottom');
+    expectAnchored(adding, 'y0', 'capsuleTop');
+    expectAnimated(adding, 'opacity1', { minSteps: 4 });
+    expectOneWay(adding, 'opacity1', 'up');
+    expectNoFlicker(adding);
+    // Taken away by the product: held at the start of its leave, it is the product's element, back where it stood.
+    const b = host(page, 'g').locator('tanrei-file-item[value="b"]');
+    const leaving = await freezeFirstFrame(stage(page, 'g'), () =>
+      host(page, 'g').evaluate(async (el) => {
+        const item = el.querySelector('tanrei-file-item[value="b"]')!;
+        (window as unknown as { __b: Element }).__b = item;
+        item.remove();
+        await (el as El).updateComplete;
+      }),
+    );
+    expect(
+      await b.evaluate((el: HTMLElement) => ({ parent: el.parentElement!.localName, inert: el.inert, hidden: el.getAttribute('aria-hidden'), leaving: el.hasAttribute('data-leaving'), index: [...el.parentElement!.children].indexOf(el), opacity: Number(getComputedStyle(el).opacity) })),
+    ).toEqual({ parent: 'tanrei-chat-composer', inert: true, hidden: 'true', leaving: true, index: 1, opacity: 1 });
+    expect(await host(page, 'g').evaluate((el) => el.querySelectorAll('tanrei-file-item:not([data-leaving])').length), 'the items there now').toBe(1);
+    await leaving.release();
+    await motionEnded(stage(page, 'g'));
+    // Gone, and given back what it had: its own style, no inert, no aria-hidden, no mark.
+    expect(
+      await page.evaluate(() => {
+        const item = (window as unknown as { __b: HTMLElement }).__b;
+        return { connected: item.isConnected, inert: item.inert, hidden: item.getAttribute('aria-hidden'), leaving: item.hasAttribute('data-leaving'), style: item.getAttribute('style') };
+      }),
+    ).toEqual({ connected: false, inert: false, hidden: null, leaving: false, style: '--product: 1' });
+    // Removed and closed the same way back, in frames: the height falls to one row of the strip.
+    const again = await sampleFrames(
+      stage(page, 'g'),
+      () =>
+        host(page, 'g').evaluate(async (el) => {
+          const item = el.querySelector('tanrei-file-item[value="a"]')!;
+          Object.assign(window, { __a: item, __aStyle: item.getAttribute('style') });
+          item.remove();
+          await (el as El).updateComplete;
+        }),
+      { probe: stripProbe },
+    );
+    expectAnimated(again, 'height', { minSteps: 4 });
+    expectOneWay(again, 'height', 'down');
+    expectAnchored(again, 'lineBottom', 'capsuleBottom');
+    expectAnimated(again, 'opacity0', { minSteps: 4 });
+    await motionEnded(stage(page, 'g'));
+    expect(
+      // Its style as it was: no declaration of the chat composer's is left on it (the File item's own update may write
+      // an empty attribute where there was none).
+      await page.evaluate(() => {
+        const { __a: item, __aStyle: style } = window as unknown as { __a: HTMLElement; __aStyle: string | null };
+        return { connected: item.isConnected, inert: item.inert, hidden: item.getAttribute('aria-hidden'), leaving: item.hasAttribute('data-leaving'), style: (item.getAttribute('style') ?? '') === (style ?? '') };
+      }),
+    ).toEqual({ connected: false, inert: false, hidden: null, leaving: false, style: true });
+  });
+
+  test('CCM-35: what a person and assistive technology are given changes at once, not at the end of the motion — the strip’s list and its count, what can be sent, the send button’s state, and focus where an item that held it leaves', async ({ page, browserName }) => {
+    await mount(page, [fx('a', { attachments: 'own', ...FILES }), fx('g', { attachments: 'given', ...FILES }, { items: [file({ value: 'a', name: 'a.pdf' }), file({ value: 'b', name: 'b.pdf' })] })], { reducedMotion: false });
+    const listed = async () => {
+      if (browserName !== 'chromium') return null;
+      const tree = await axTree(page);
+      return { lists: tree.filter((node) => node.role === 'list').length, items: tree.filter((node) => node.role === 'listitem').length, send: tree.filter((node) => node.role === 'button' && node.name === 'Send').map((node) => node.disabled ?? false) };
+    };
+    const sendable = () => send(page, 'a').evaluate((el) => !(el as HTMLElement & { disabled: boolean }).disabled);
+    // Added, and held at the start of the motion: listed, counted and sendable already.
+    const adding = await freezeFirstFrame(stage(page, 'a'), () => addOwn(page, 'a', ['a.pdf', 'b.pdf']));
+    expect(await sendable(), 'two files can be sent').toBe(true);
+    const list = await listed();
+    if (list) expect(list).toEqual({ lists: 2, items: 4, send: [false, false] });
+    await adding.release();
+    await motionEnded(stage(page, 'a'));
+    // Removed, both, held at the start: out of the list and out of the focus order, and nothing to send.
+    const removing = await freezeFirstFrame(stage(page, 'a'), () => host(page, 'a').evaluate((el) => (el as El).clear()));
+    expect(await host(page, 'a').evaluate((el) => el.shadowRoot!.querySelectorAll('.strip > tanrei-file-item[data-leaving][inert][aria-hidden="true"]').length), 'drawn while they leave').toBe(2);
+    expect(await sendable(), 'nothing to send').toBe(false);
+    const gone = await listed();
+    if (gone) expect(gone).toEqual({ lists: 1, items: 2, send: [true, false] });
+    expect(await host(page, 'a').evaluate((el) => el.shadowRoot!.querySelector('.strip')!.getAttribute('role'))).toBeNull();
+    await removing.release();
+    await motionEnded(stage(page, 'a'));
+    // The product's item that held focus leaves: focus is on the remove action of the one before at once (CCM-25).
+    await host(page, 'g').evaluate((el) => el.addEventListener('remove', (event) => (event.target as Element).remove()));
+    await host(page, 'g').locator('tanrei-file-item').nth(1).locator('.action.remove').focus();
+    const leaving = await freezeFirstFrame(stage(page, 'g'), () => page.keyboard.press('Enter'));
+    await expect.poll(() => page.evaluate(() => (document.activeElement as HTMLElement & { value?: string }).value)).toBe('a');
+    expect(await host(page, 'g').evaluate((el) => el.querySelectorAll('tanrei-file-item[data-leaving]').length), 'still drawn').toBe(1);
+    await leaving.release();
+    await motionEnded(stage(page, 'g'));
+  });
+
+  test('CCM-35: WHEN an item is added or removed while the strip moves THE capsule goes on from the height drawn, and the item from the opacity drawn (MOT-2)', async ({ page }) => {
+    await mount(page, [fx('a', { attachments: 'own', ...FILES, value: 'Hello' })], { reducedMotion: false });
+    const flat = (await box(capsule(page, 'a'))).height;
+    // Added, its motion held halfway — the same moment on any machine — and removed.
+    const midway = await host(page, 'a').evaluate(async (el) => {
+      (el as El).addFiles([new File(['a'], 'a.pdf', { type: 'application/pdf' })]);
+      await (el as El).updateComplete;
+      const root = el.shadowRoot!;
+      for (const motion of [...root.querySelector('.strip-box')!.getAnimations(), ...root.querySelector('.strip > tanrei-file-item')!.getAnimations()]) {
+        motion.pause();
+        motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+      }
+      return { height: root.querySelector('.capsule')!.getBoundingClientRect().height, opacity: Number(getComputedStyle(root.querySelector('.strip > tanrei-file-item')!).opacity) };
+    });
+    expect(midway.height, 'partway').toBeGreaterThan(flat + 2);
+    expect(midway.opacity).toBeGreaterThan(0.05);
+    expect(midway.opacity).toBeLessThan(0.95);
+    const turned = await sampleFrames(stage(page, 'a'), () => removeOwnAt(page, 'a', 0), { probe: stripProbe });
+    near(Number(turned.frames[0]!.probe.height), midway.height, 'from the height drawn', 0.5);
+    expect(Math.abs(Number(turned.frames[0]!.probe.opacity0) - midway.opacity), 'from the opacity drawn').toBeLessThanOrEqual(0.05);
+    expectOneWay(turned, 'height', 'down');
+    expectOneWay(turned, 'opacity0', 'down');
+    near(Number(turned.rest.probe.height), flat, 'back to one line');
+    expectNoFlicker(turned);
+  });
+
+  /** CCM-35: the Button in the send button's place — its part, name and state — and the opacity of each glyph drawn in it (0 for one that is not). */
+  const glyphProbe: Probe = (root) => {
+    const button = root.querySelector('tanrei-chat-composer')!.shadowRoot!.querySelector('.send > tanrei-button')! as HTMLElement & { disabled: boolean; label: string };
+    const glyphs = [...button.querySelectorAll('[slot="icon"]')];
+    const of = (name: string) => {
+      const glyph = glyphs.find((each) => each.textContent!.trim() === name);
+      return glyph ? Number(getComputedStyle(glyph).opacity) : 0;
+    };
+    const box = button.shadowRoot!.querySelector('.icon')!.getBoundingClientRect();
+    const placed = glyphs.every((each) => {
+      const r = each.getBoundingClientRect();
+      return Math.abs(r.left - box.left) < 0.5 && Math.abs(r.top - box.top) < 0.5;
+    });
+    return { send: of('send'), stop: of('stop'), glyphs: glyphs.length, placed, part: button.getAttribute('part')!, label: button.label, disabled: button.disabled };
+  };
+
+  test('CCM-35: WHEN the send and the stop button change places THE change is made at once — which button, its name, its action and whether it is enabled — and only the glyph of the Button it brings cross-fades, in place, over motion.glyph-fade-duration with motion.state-easing; a change back while they fade goes on from the opacities drawn', async ({ page }) => {
+    await mount(page, [fx('a', { stoppable: true, stopLabel: 'Stop', value: 'Hello' })], { reducedMotion: false });
+    const [duration, easing] = [await resolveToken(page, T('motion-glyph-fade-duration'), 'duration'), await resolveEasing(page, T('motion-state-easing'))];
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-compact', 'duration'));
+    const toStop = await sampleFrames(stage(page, 'a'), () => set(page, 'a', { sending: true }), { probe: glyphProbe });
+    const first = toStop.frames[0]!.probe;
+    // At once: the stop button, named and enabled, from the first frame.
+    expect([first.part, first.label, first.disabled]).toEqual(['button stop-button', 'Stop', false]);
+    // Only the glyph moves: the one going out over the one coming in, in place.
+    expect(first.glyphs).toBe(2);
+    expect(toStop.frames.filter((frame) => frame.probe.glyphs === 2).every((frame) => frame.probe.placed)).toBe(true);
+    expectAnimated(toStop, 'stop', { minSteps: 4 });
+    expectAnimated(toStop, 'send', { minSteps: 4 });
+    expectOneWay(toStop, 'stop', 'up');
+    expectOneWay(toStop, 'send', 'down');
+    expect([toStop.rest.probe.stop, toStop.rest.probe.send, toStop.rest.probe.glyphs]).toEqual([1, 0, 1]);
+    expect(motionsOf(toStop).filter(([name]) => name === 'chat-composer-glyph-fade')).toEqual([['chat-composer-glyph-fade', 'span', duration, easing]]);
+    expectNoFlicker(toStop);
+    // Turned round halfway: the glyphs go on from the opacities drawn.
+    const midway = await host(page, 'a').evaluate(async (el) => {
+      (el as El & { sending: boolean }).sending = false;
+      await (el as El).updateComplete;
+      const button = el.shadowRoot!.querySelector('.send > tanrei-button')!;
+      for (const glyph of button.querySelectorAll('[slot="icon"]')) {
+        for (const motion of glyph.getAnimations()) {
+          motion.pause();
+          motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+        }
+      }
+      const of = (name: string) => Number(getComputedStyle([...button.querySelectorAll('[slot="icon"]')].find((each) => each.textContent!.trim() === name)!).opacity);
+      return { send: of('send'), stop: of('stop') };
+    });
+    expect(midway.send).toBeGreaterThan(0.05);
+    expect(midway.stop).toBeGreaterThan(0.05);
+    const back = await sampleFrames(stage(page, 'a'), () => set(page, 'a', { sending: true }), { probe: glyphProbe });
+    expect(Math.abs(Number(back.frames[0]!.probe.stop) - midway.stop), 'stop from the opacity drawn').toBeLessThanOrEqual(0.05);
+    expect(Math.abs(Number(back.frames[0]!.probe.send) - midway.send), 'send from the opacity drawn').toBeLessThanOrEqual(0.05);
+    expectOneWay(back, 'stop', 'up');
+    expectOneWay(back, 'send', 'down');
+    expect([back.rest.probe.stop, back.rest.probe.glyphs]).toEqual([1, 1]);
+  });
+
+  test('CCM-35: the send button’s change between enabled and disabled is the Button’s own change of state, moving over the Button’s state motion; the capsule and its strip do not move with it', async ({ page }) => {
+    await mount(page, [fx('a')], { reducedMotion: false });
+    const enabling = await sampleFrames(stage(page, 'a'), () => set(page, 'a', { value: 'Hello' }));
+    const container = /tanrei-button:0>button:0$/;
+    expectAnimated(enabling, { element: container, property: 'background-color' }, { minSteps: 4 });
+    expectAnimated(enabling, { element: container, property: 'color' }, { minSteps: 4 });
+    const state = await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration');
+    expect(enabling.motions.filter((motion) => motion.on.startsWith('button')).map((motion) => [motion.name, motion.duration]).sort()).toEqual([
+      ['background-color', state],
+      ['color', state],
+    ]);
+    expect(enabling.motions.filter((motion) => !motion.on.startsWith('button')), 'nothing else moves').toEqual([]);
+  });
+
+  test('CCM-35: WHERE motion is reduced an item that is added or removed, and the change between send and stop, are made at once (MOT-6)', async ({ page }) => {
+    await mount(page, [fx('a', { attachments: 'own', ...FILES, stoppable: true, stopLabel: 'Stop', value: 'Hello' })], { reducedMotion: false });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Read by the probe: the live region's message of the arrival is written a turn later (CCM-30), and is no motion.
+    const adding = await sampleFrames(stage(page, 'a'), () => addOwn(page, 'a', ['a.pdf']), { probe: stripProbe, elements: false });
+    expectFirstFrameAtRest(adding);
+    expect(adding.motions).toEqual([]);
+    const removing = await sampleFrames(stage(page, 'a'), () => removeOwnAt(page, 'a', 0), { probe: stripProbe, elements: false });
+    expectFirstFrameAtRest(removing);
+    expect(removing.motions).toEqual([]);
+    expect(removing.frames[0]!.probe.items).toBe(0);
+    const toStop = await sampleFrames(stage(page, 'a'), () => set(page, 'a', { sending: true }), { probe: glyphProbe, elements: false });
+    expectFirstFrameAtRest(toStop);
+    expect(toStop.frames[0]!.probe.glyphs).toBe(1);
+    expect(toStop.motions).toEqual([]);
   });
 
   test('CCM-36: in a form it is one control — it submits value under its name and, while it keeps its own files, each under the name given for its files; nothing while disabled or while the form disables its set; a reset empties it; after send the form is asked to submit as a submit button does — validation, then the submit event — unless send was cancelled, and it does not empty itself, whatever keepAfterSend says', async ({ page }) => {
