@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type ReactiveElement, css, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -1498,8 +1498,14 @@ export class TanreiImagePreview extends TanreiElement {
       if (!this.words.get('imageCountText', this.countText)) this.words.missing('imageCountText', { prop: 'countText', id: 'IMP-9', effect: 'no count is drawn' });
       else this.countSentence(true);
     }
-    const image = this.images[this.shown];
-    if (image && !image.alt.trim()) report(this, 'IMP-27', `the image at ${this.shown} has no alt, so the image shown has no accessible name; give every image an alt`);
+    // IMP-27: judged once the images' own pending updates are done. The images are read from their attributes, and a
+    // property set on an image reaches its attribute only in the image's update: React's wrappers set every prop as a
+    // property, children before their parent, once the elements are in the document, so the alt is not there yet when
+    // a preview mounted open first updates. The observer reads the images again in that update, before this goes on.
+    void Promise.all(this.images.map((image) => (image.element as Partial<ReactiveElement>).updateComplete)).then(() => {
+      const image = this.images[this.shown];
+      if (this.isConnected && this.presented && image && !image.alt.trim()) report(this, 'IMP-27', `the image at ${this.shown} has no alt, so the image shown has no accessible name; give every image an alt`);
+    });
     if (failed(this.pictureAt(this.shown)) && !this.words.get('imageErrorText', this.errorText)) {
       this.words.missing('imageErrorText', { prop: 'errorText', id: 'IMP-31', effect: 'the mark is drawn alone and the failure is told to no one' });
     }

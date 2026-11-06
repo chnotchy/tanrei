@@ -3008,6 +3008,30 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     for (const words of ['share the value', 'empty label', 'empty value']) await expect.poll(() => seen.some((w) => w.includes('CMB-57') && w.includes(words)), { message: words }).toBe(true);
   });
 
+  test('CMB-57: options given their values as properties once the combobox is in the document — the options first, as a React wrapper gives them — are judged as given: none is reported for an empty value or a shared one; an option given the empty value still is', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, []);
+    await page.evaluate(async () => {
+      type Lit = HTMLElement & { updateComplete: Promise<unknown>; value: string };
+      const stage = Object.assign(document.createElement('div'), { className: 'stage' });
+      document.querySelector('main')!.append(stage);
+      const make = (id: string, values: string[]) => {
+        // The tree is built with no props, put in the document, then given its props: each option's, then the combobox's.
+        const combobox = Object.assign(document.createElement('tanrei-combobox'), { id, label: 'Country' }) as Lit;
+        const options = values.map((v, i) => combobox.appendChild(Object.assign(document.createElement('tanrei-option') as Lit, { textContent: `Option ${i + 1}` })));
+        stage.append(combobox);
+        options.forEach((o, i) => (o.value = values[i]));
+        combobox.value = values[0];
+        return [combobox, ...options];
+      };
+      const all = [...make('given', ['jp', 'fr']), ...make('empty', ['jp', ''])];
+      for (let round = 0; round < 3; round++) await Promise.all(all.map((el) => el.updateComplete));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    await expect.poll(() => seen.filter((w) => w.includes('CMB-57'))).toEqual([expect.stringContaining('an option has the empty value')]);
+    expect(seen.filter((w) => w.includes('[tanrei]')), 'nothing else is reported: no option was judged without its value').toEqual([expect.stringContaining('an option has the empty value')]);
+  });
+
   test('CMB-58: in a narrow window the list narrows with its container, shortens to the room it has and scrolls, and stays an anchored list; where the browser reports an on-screen keyboard, its top edge is the window’s edge for the list', async ({ page }) => {
     // A window in which the room below a box at the top is less than list.max-height.
     await page.setViewportSize({ width: 320, height: 380 });
