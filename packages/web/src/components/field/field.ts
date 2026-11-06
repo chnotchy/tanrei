@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { AvailabilityController, FieldControlController, FieldProviderController, type FieldSays, type FieldState, GlyphMirrorController, SystemWatchController, WordsController, compChoice, composedContains, namesItself, report } from '../../primitives/index.js';
+import { AnimatedSize, AvailabilityController, FieldControlController, FieldProviderController, type FieldSays, type FieldState, GlyphMirrorController, SystemWatchController, WordsController, compChoice, composedContains, namesItself, report } from '../../primitives/index.js';
 import {
   type FrameRequiredMark,
   SYSTEM_MARKS,
@@ -77,7 +77,9 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design
  * system whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below
  * it. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while
- * focus is inside the field is announced once, politely — the error text alone, never the help again.
+ * focus is inside the field is announced once, politely — the error text alone, never the help again. Where the error
+ * text makes the field taller or shorter, the field's height moves to the new one in one motion, its rows fixed to its top,
+ * and an error text that appears fades in; new words of the same height, reduced motion and the first frames change at once.
  *
  * A press on the label moves focus to the control and never operates it; a press on the help, the error or the count
  * does nothing. A control that names itself (a checkbox with its own label) takes a field with an empty `label`, which
@@ -189,6 +191,21 @@ export class TanreiField extends TanreiElement {
   private drawn = false;
   /** FLD-28: the words of the refusal last shown (null: none), so that a new one is announced once. */
   private refused: string | null = null;
+  /** FLD-31: the error text last drawn, and what the whole row drew with it (the help, the count, the inset). */
+  private drawnError = '';
+  private drawnRow = '';
+
+  /**
+   * FLD-31, MOT-5: the box of the supporting row, whose height follows the row as one motion when the error text comes,
+   * goes or changes its words — anchored at its start, so that nothing above the error text moves — over the field's
+   * resize tokens; at once under reduced motion, in the first frames, and where the height does not change.
+   */
+  private readonly rowSize = new AnimatedSize(this, {
+    box: () => this.renderRoot?.querySelector<HTMLElement>('.supporting-box') ?? null,
+    anchor: () => 'start',
+    duration: `var(${PREFIX}-motion-resize-duration)`,
+    easing: `var(${PREFIX}-motion-resize-easing)`,
+  });
   /** FLD-25: the design system's required mark is read by script for a control that draws the label itself; read again when the system is switched. */
   private readonly system = new SystemWatchController(this);
 
@@ -358,8 +375,34 @@ export class TanreiField extends TanreiElement {
     // (Focus is asked of the document too: a control that refuses an entry as focus leaves it says so before the
     // field has heard that focus left.)
     if (this.drawn && this.inError(said) && this.focused && this.matches(':focus-within') && (changed.has('error') || changed.has('errorText') || refusedAnew)) frameAnnounce(this.renderRoot, this.shownError(said));
+    this.#followRow(said);
     this.drawn = true;
     this.reports(changed);
+  }
+
+  /**
+   * FLD-31: where the error text came, went or changed its words, the row's box moves from the height the last frame
+   * drew to its new one (`AnimatedSize`: no motion where the two are equal, under reduced motion or while the field
+   * settles), and an error text that has just appeared fades in while it does. Any other change of the row — the help,
+   * the count, the inset — is drawn at once, as it always was, unless the height is moving: then the motion is taken on
+   * from the height drawn to the new one (MOT-2), rather than ended at the height it was going to.
+   */
+  #followRow(said: FieldSays) {
+    const wrong = this.shownError(said);
+    const row = [this.shownHelp(wrong), wrong, this.countText, said.inset?.start ?? '', said.inset?.end ?? ''].join('\u0000');
+    const errorChanged = wrong !== this.drawnError;
+    const appeared = !this.drawnError && !!wrong;
+    const rowChanged = row !== this.drawnRow;
+    this.drawnError = wrong;
+    this.drawnRow = row;
+    if (!this.drawn || !(errorChanged || (rowChanged && this.rowSize.resizing))) return;
+    this.rowSize.fit(true);
+    const text = this.renderRoot.querySelector<HTMLElement>('.error-text');
+    if (!appeared || !text || !this.rowSize.resizing) return;
+    // Drawn transparent without a transition, then eased to whole on the state tokens (field.styles.ts).
+    text.setAttribute('data-arriving', '');
+    void getComputedStyle(text).opacity;
+    text.removeAttribute('data-arriving');
   }
 
   /** What a debug build tells the developer; the field still renders. */
@@ -454,15 +497,19 @@ export class TanreiField extends TanreiElement {
             : row
         }
         <div class="control" ?data-inline=${this.inline}><slot @slotchange=${this.#onSlotChange}></slot></div>
-        ${help || wrong || this.countText
-          ? html`<div class="supporting" style=${ifDefined(inset)}>
-              ${help || wrong
-                ? html`<div class="texts">${frameText(help, { id: 'supporting', disabled })}${frameText(wrong, { id: 'error', part: 'error-text', className: 'error-text', disabled })}</div>`
-                : nothing}${this.countText
-                ? html`<span part="counter" class="counter" aria-hidden="true" aria-disabled=${ifDefined(disabled ? 'true' : undefined)}>${this.countText}</span>`
-                : nothing}
-            </div>`
-          : nothing}
+        <div class="supporting-box">${
+          // FLD-31: the row stands in a box that is always there, empty and 0 tall while there is no row, so that its
+          // height can move when the error text comes or goes (MOT-5).
+          help || wrong || this.countText
+            ? html`<div class="supporting" style=${ifDefined(inset)}>
+                ${help || wrong
+                  ? html`<div class="texts">${frameText(help, { id: 'supporting', disabled })}${frameText(wrong, { id: 'error', part: 'error-text', className: 'error-text', disabled })}</div>`
+                  : nothing}${this.countText
+                  ? html`<span part="counter" class="counter" aria-hidden="true" aria-disabled=${ifDefined(disabled ? 'true' : undefined)}>${this.countText}</span>`
+                  : nothing}
+              </div>`
+            : nothing
+        }</div>
         ${frameAnnouncer()}
       </div>
     `;

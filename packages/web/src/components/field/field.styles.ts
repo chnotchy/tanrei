@@ -52,8 +52,14 @@ export const styles = css`
      and ends where the control says its content does (--_inset-start / --_inset-end, which the element writes from
      what the control said; a control that says nothing has the row at the field's edges). The texts wrap; the count
      stays whole on one line, in figures of one width, in the supporting text's style and its own color, and is never
-     announced: the control says its own count. Nothing here moves by itself: the error text comes and goes with the
-     layout, at once (FLD-31). */
+     announced: the control says its own count. */
+  /* FLD-31, MOT-5: the row's box, always there and 0 tall without a row. It holds the row's gap (a block formatting
+     context of its own, so the row's margin is inside it), and its height moves to the row's through AnimatedSize, which
+     clips it with overflow: clip and sets its height and transition inline only while it moves. */
+  .supporting-box {
+    display: flow-root;
+    min-inline-size: 0;
+  }
   .supporting {
     display: flex;
     align-items: flex-start;
@@ -79,7 +85,15 @@ export const styles = css`
     font: var(--tanrei-comp-field-supporting-text-typescale-font);
     letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
     color: var(--_frame-error-text);
-    transition: color var(--tanrei-comp-field-motion-state-duration) var(--tanrei-comp-field-motion-state-easing);
+    transition:
+      color var(--tanrei-comp-field-motion-state-duration) var(--tanrei-comp-field-motion-state-easing),
+      opacity var(--tanrei-comp-field-motion-state-duration) var(--tanrei-comp-field-motion-state-easing);
+  }
+  /* FLD-31: an error text that appears while the field's height moves starts transparent, without a transition, and
+     eases to whole on the state tokens (the element takes the attribute away in the same task). */
+  .error-text[data-arriving] {
+    opacity: 0;
+    transition-property: color;
   }
   /* FLD-21: the error text is a run of its own, in the direction of its first strong character, as the help is. */
   ${productText('.error-text', { align: 'start' })}

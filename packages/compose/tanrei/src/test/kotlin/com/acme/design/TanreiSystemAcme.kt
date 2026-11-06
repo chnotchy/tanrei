@@ -4111,6 +4111,8 @@ private object AcmeSystemSource {
             labelIconSize = 20.dp,
             labelGap = 8.dp,
             labelTypescale = typescale.label,
+            motionResizeDuration = 300,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             requirementAsteriskGap = 2.dp,

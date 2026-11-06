@@ -2310,6 +2310,8 @@ export interface TanreiFieldTokens {
   readonly labelIconSize: number;
   readonly labelGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly requirementAsteriskGap: number;

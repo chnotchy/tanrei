@@ -2526,6 +2526,8 @@
     "tanrei.comp.field.label-icon.size": "dimension",
     "tanrei.comp.field.label.gap": "dimension",
     "tanrei.comp.field.label.typescale": "typography",
+    "tanrei.comp.field.motion.resize-duration": "duration",
+    "tanrei.comp.field.motion.resize-easing": "cubicBezier",
     "tanrei.comp.field.motion.state-duration": "duration",
     "tanrei.comp.field.motion.state-easing": "cubicBezier",
     "tanrei.comp.field.requirement.asterisk-gap": "dimension",

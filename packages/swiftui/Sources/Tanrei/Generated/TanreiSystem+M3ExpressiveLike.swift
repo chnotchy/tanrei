@@ -4159,6 +4159,8 @@ private let m3ExpressiveLikeFieldTokens = TanreiFieldTokens(
   labelIconSize: 20,
   labelGap: 8,
   labelTypescale: m3ExpressiveLikeTypescale.bodyLarge,
+  motionResizeDuration: 200,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   requirementAsteriskGap: 0,

@@ -7209,6 +7209,8 @@ export const acme = {
       labelIconSize: 20,
       labelGap: 8,
       labelTypescale: "label",
+      motionResizeDuration: 300,
+      motionResizeEasing: [0.2, 0, 0, 1],
       motionStateDuration: 250,
       motionStateEasing: [0.2, 0, 0, 1],
       requirementAsteriskGap: 2,

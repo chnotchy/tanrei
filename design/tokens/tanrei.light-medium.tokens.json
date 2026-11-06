@@ -36140,6 +36140,24 @@
           }
         },
         "motion": {
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the field takes to reach its new height when its error text appears, goes or changes its words and the supporting row grows or shrinks with it: a box that changes its size in place. The error text that comes fades in over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that change of height: a box that resizes in place."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
