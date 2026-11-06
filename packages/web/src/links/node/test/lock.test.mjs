@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { asked } from './helpers/network.mjs';
-import { links, pkg, pureIsStandIn } from './helpers/module.mjs';
+import { fetcher, links, pkg, pureIsStandIn } from './helpers/module.mjs';
 import { PUBLIC, ask, optionsIn, page, scratch, serve } from './helpers/server.mjs';
 import { imageStep, png } from './helpers/picture-files.mjs';
 
@@ -124,11 +124,23 @@ test('LKD-24: update reads only the addresses that have no entry; refresh reads 
 });
 
 test('LKD-25: a failure is recorded with its reason and answered from the lock file without trying again, so a build with the network and one without draw the same page', async (t) => {
-  const server = await serve({ 'site.test/gone': { status: 404 }, 'site.test/silent': () => {} });
+  // The request's limit runs on the test's clock, not the machine's. On a real clock, a limit short enough to keep
+  // the test quick was also a race the 404 had to win: on a loaded machine its handshake took longer, and the page
+  // that exists was recorded as a timeout. Here no time passes until the server has been asked for the silent page,
+  // and then exactly the limit passes, so the 404 is answered whenever it comes and the silent page always times out.
+  let asked;
+  const silentAsked = new Promise((resolve) => (asked = resolve));
+  const server = await serve({ 'site.test/gone': { status: 404 }, 'site.test/silent': () => asked() });
   t.after(() => server.close());
-  const { options } = optionsIn(scratch(t), { pictures: 'none', limits: { request: 150 } });
+  const { options } = optionsIn(scratch(t), { pictures: 'none' });
   const seam = server.seam();
-  const first = [await links.resolveLinkDataWith('https://site.test/gone', options, seam), await links.resolveLinkDataWith('https://site.test/silent', options, seam), await links.resolveLinkDataWith('https://[::1]/', options, seam)];
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const gone = await links.resolveLinkDataWith('https://site.test/gone', options, seam);
+  const silent = links.resolveLinkDataWith('https://site.test/silent', options, seam);
+  await silentAsked;
+  t.mock.timers.tick(fetcher.DEFAULT_LIMITS.request);
+  const first = [gone, await silent, await links.resolveLinkDataWith('https://[::1]/', options, seam)];
+  t.mock.timers.reset();
   assert.deepEqual(first.map((result) => result.reason), ['unreachable', 'timeout', 'address-refused']);
   const lock = JSON.parse(fs.readFileSync(options.lock, 'utf8'));
   assert.deepEqual(lock.links, { 'https://[::1]/': { ok: false, reason: 'address-refused' }, 'https://site.test/gone': { ok: false, reason: 'unreachable' }, 'https://site.test/silent': { ok: false, reason: 'timeout' } });
