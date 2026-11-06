@@ -4547,6 +4547,16 @@ put it in your own scroll container. A line wider than the list goes past its en
   other items slide aside by transforms over `motion.reorder-duration`; dropped, it settles into its place; any later
   change of the order is animated from where each item was drawn (FLIP, the Web Animations API). Under
   `prefers-reduced-motion` every motion is at once; a dragged item still follows the pointer.
+- **Items you add or take away (LST-41).** An item you add grows along the list — its height in a column, its width in
+  a line — from nothing to its own over `--tanrei-comp-list-motion-resize-duration` (`sys.motion.role.resize.large`)
+  and fades in over `motion.state-duration`; the items after it follow by the layout in every frame. An item you take
+  away fades out and closes the same way back. In a wrapping list an item fades in or out at its place while the others
+  move. What the list exposes changes at once: while an item leaves, the list puts **your own element back where it
+  stood** until its motion ends — `inert`, `aria-hidden="true"`, `data-leaving` (`data-leaving="placed"` in a wrapping
+  list, outside the flow) — counts it in nothing, then removes it and gives back the `inert` and `aria-hidden` you had
+  on it. Read your items as `tanrei-list-item:not([data-leaving])` while one leaves. Putting that element back gives it
+  back to the list, which grows it from where it is drawn. The list's first frames, the moment it becomes reorderable,
+  a lift, and reduced motion add and take away at once.
 - **The live region** is one visually hidden `role="status"` element in the list's shadow root; while the list is
   reorderable its `list` role is carried by the `items` box around the slot. The name is put in as a `<bdi>`; the numbers
   are `Intl.NumberFormat`'s for the nearest `lang`.
