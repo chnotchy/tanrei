@@ -16,10 +16,20 @@
 //   motion lands in the motion, not after it; on request, the page's CPU slowed (`Emulation.setCPUThrottlingRate`).
 //   The page clock (`page.clock`) is untouched: a test that holds it counts time as before.
 // - every engine: a test gets 4 times its time and an `expect` 3 times its own (15 s), for waits on slowed motion.
+// - every engine, once a worker before its first test: harsh mode checks that its own slowing takes effect — that an
+//   action of each kind (a locator's, an element handle's, the mouse's, the keyboard's, the touchscreen's) reaches the
+//   page no sooner than the gap before it and returns no sooner than the gap after it, in the page's own clock, and that
+//   the page's motion plays at the rate asked for — and fails every test of the worker, saying what did not, if not
+//   (`checkHarsh`, test/harsh/playwright-test.ts). A gap that only Node waits for, or a rate the engine did not take, would
+//   let a race pass harsh mode as it passes a fast machine.
 //
 // Each setting can be changed: TANREI_HARSH=1 takes the defaults below; TANREI_HARSH_BEFORE and TANREI_HARSH_AFTER
 // (ms), TANREI_HARSH_CPU (the throttling rate, 1 = off) and TANREI_HARSH_MOTION (the playback rate, 1 = off) override
 // one each.
+
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { Project } from '@playwright/test';
 
 export interface Harsh {
   /** Milliseconds waited before each input action, in every engine. */
@@ -55,6 +65,8 @@ export interface Harsh {
  */
 export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2 };
 
+const here = path.dirname(fileURLToPath(import.meta.url));
+
 const number = (name: string, fallback: number): number => {
   const raw = process.env[name];
   if (raw === undefined || raw === '') return fallback;
@@ -83,3 +95,13 @@ export const HARSH_OPT_OUTS: readonly { title: RegExp; reason: string }[] = [];
 
 /** The opt-outs as one pattern for a project's `grepInvert`. */
 export const harshOptOuts = (): RegExp => (HARSH_OPT_OUTS.length ? new RegExp(HARSH_OPT_OUTS.map(({ title }) => `(?:${title.source})`).join('|')) : /(?!)/);
+
+/** A Playwright project as harsh mode runs it (as it is when harsh mode is off): without the tests it opts out of. */
+export const harshProject = (project: Project): Project =>
+  harsh ? { ...project, grepInvert: [...[project.grepInvert ?? []].flat(), harshOptOuts()] } : project;
+
+/**
+ * What a Playwright config takes from harsh mode (nothing when it is off): the tsconfig that puts test/harsh/ in place
+ * of @playwright/test, and the test's time. playwright.config.ts and harsh mode's own tests (test/harsh/self/) read it.
+ */
+export const harshConfig = (): { tsconfig?: string; timeout?: number } => (harsh ? { tsconfig: path.join(here, 'harsh', 'tsconfig.json'), timeout: 120_000 } : {});

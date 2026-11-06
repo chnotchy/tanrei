@@ -4,10 +4,12 @@
 // - put a gap before and after every input action, in every engine (once a worker, on the client's own classes: a
 //   locator's and a page's actions go through its frame, and the mouse, the keyboard and the touchscreen are their own);
 // - slow every Chromium page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
-//   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears).
+//   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears);
+// - check, once a worker before its first test, that all of this takes effect (`checkHarsh`), and fail the worker's
+//   tests if it does not.
 import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
 import * as real from '../../node_modules/@playwright/test/index.mjs';
-import { harsh } from '../harsh.js';
+import { type Harsh, harsh } from '../harsh.js';
 
 // The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
 // re-export only from its real path in the store, not from the link, so its `test` is typed here as the name's.
@@ -106,7 +108,98 @@ function slowContext(context: BrowserContext): BrowserContext {
   return context;
 }
 
-export const test = base.extend<{ context: BrowserContext }, { browser: Browser }>({
+/** The page the check acts on: a button to click and tap, a field to type in, and a log of the input events it gets. */
+const PROBE = `<button id="button" style="position: absolute; left: 10px; top: 10px; width: 100px; height: 40px">probe</button>
+<input id="field" style="position: absolute; left: 10px; top: 70px; width: 100px">
+<script>
+  window.harshSeen = [];
+  for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'keydown', 'keyup', 'touchstart', 'touchend'])
+    addEventListener(type, () => window.harshSeen.push(performance.now()), true);
+</script>`;
+
+/** A page clock's resolution is coarsened (Firefox, to a millisecond) and a Node timer may fire a millisecond early. */
+const SLACK = 5;
+
+/** The share of its time a motion moves in the check, at a rate `r`, may be between r × (1 - MOTION_SLACK) and r × (1 + MOTION_SLACK). */
+const MOTION_SLACK = 0.5;
+
+/**
+ * Harsh mode's check of itself, in a context of its own on `browser` (a harsh one: its contexts and pages are slowed as
+ * a test's are). It throws, saying what fell short, unless
+ * - each kind of input action — a locator's (through its frame), an element handle's, the mouse's, the keyboard's, the
+ *   touchscreen's — reaches the page at least `expected.before` ms after it was asked for and returns at least
+ *   `expected.after` ms after its last event, both in the page's own clock: a gap Node waits for where the action does
+ *   not pass through it (a method Playwright renamed or moved) would be missing here;
+ * - in Chromium, a motion moves at `expected.motion` times the time that passes (a transition, a script's `animate()`,
+ *   an `Animation` made and played), not at its own speed.
+ * The fixture below calls it with the run's settings; harsh mode's own tests (test/harsh/self/) call it with more than
+ * the run gives, to see it refuse.
+ */
+export async function checkHarsh(browser: Browser, expected: Harsh): Promise<void> {
+  const engine = browser.browserType().name();
+  const context = await browser.newContext({ hasTouch: true });
+  try {
+    const page = await context.newPage();
+    await page.setContent(PROBE);
+    const problems: string[] = [];
+    const handle = await page.$('#button');
+    const actions: [string, () => Promise<unknown>][] = [
+      ['locator.click', () => page.locator('#button').click()],
+      ['locator.press', () => page.locator('#field').press('a')],
+      ['elementHandle.click', () => handle!.click()],
+      ['mouse.click', () => page.mouse.click(60, 30)],
+      ['keyboard.press', () => page.keyboard.press('b')],
+      ['touchscreen.tap', () => page.touchscreen.tap(60, 30)],
+    ];
+    for (const [name, act] of actions) {
+      const asked = await page.evaluate(() => {
+        (window as unknown as { harshSeen: number[] }).harshSeen = [];
+        document.getElementById('field')!.focus();
+        return performance.now();
+      });
+      await act();
+      const { seen, now } = await page.evaluate(() => ({ seen: (window as unknown as { harshSeen: number[] }).harshSeen, now: performance.now() }));
+      if (!seen.length) {
+        problems.push(`${name} reached the page with no input event`);
+        continue;
+      }
+      const before = Math.min(...seen) - asked;
+      const after = now - Math.max(...seen);
+      if (before < expected.before - SLACK) problems.push(`${name} reached the page ${Math.round(before)} ms after it was asked for, not ${expected.before} ms (the gap before it)`);
+      if (after < expected.after - SLACK) problems.push(`${name} returned ${Math.round(after)} ms after its last event, not ${expected.after} ms (the gap after it)`);
+    }
+    await handle!.dispose();
+    if (engine === 'chromium' && expected.motion !== 1) {
+      const rates = await page.evaluate(async () => {
+        const box = document.createElement('div');
+        box.style.cssText = 'inline-size: 10px; block-size: 10px; opacity: 1; transition: opacity 10s linear';
+        document.body.append(box);
+        getComputedStyle(box).opacity;
+        const start = performance.now();
+        box.style.opacity = '0';
+        const scripted = box.animate([{ translate: '0px' }, { translate: '10px' }], 10_000);
+        const made = new Animation(new KeyframeEffect(box, [{ scale: '1' }, { scale: '2' }], 10_000));
+        made.play();
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const elapsed = performance.now() - start;
+        const transition = box.getAnimations().find((animation) => animation instanceof CSSTransition);
+        const share = (animation: Animation | undefined) => (animation ? Number(animation.currentTime) / elapsed : NaN);
+        const result = { transition: share(transition), 'animate()': share(scripted), 'new Animation()': share(made) };
+        box.remove();
+        return result;
+      });
+      for (const [kind, rate] of Object.entries(rates)) {
+        if (!(rate >= expected.motion * (1 - MOTION_SLACK) && rate <= expected.motion * (1 + MOTION_SLACK)))
+          problems.push(`a ${kind} moved ${rate.toFixed(2)} of the time that passed, not ${expected.motion} (the motion rate)`);
+      }
+    }
+    if (problems.length) throw new Error(`harsh mode did not take effect in ${engine}:\n- ${problems.join('\n- ')}`);
+  } finally {
+    await context.close();
+  }
+}
+
+export const test = base.extend<{ context: BrowserContext }, { browser: Browser; harshChecked: void }>({
   browser: [
     async ({ browser }, use) => {
       const newContext = browser.newContext.bind(browser);
@@ -125,6 +218,14 @@ export const test = base.extend<{ context: BrowserContext }, { browser: Browser 
       await use(browser);
     },
     { scope: 'worker' },
+  ],
+  // Before the worker's first test, on the browser as the tests get it.
+  harshChecked: [
+    async ({ browser }, use) => {
+      if (harsh) await checkHarsh(browser, harsh);
+      await use();
+    },
+    { scope: 'worker', auto: true, timeout: 60_000 },
   ],
   context: async ({ context }, use) => {
     await use(slowContext(context));
