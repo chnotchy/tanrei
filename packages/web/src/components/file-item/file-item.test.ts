@@ -1730,28 +1730,55 @@ test.describe('behavior', () => {
     await page.mouse.up();
   });
 
-  test('FIT-16: a pressable body and an action answer a press as sys.behavior.pressed-feedback names — overlay paints the pressed tokens at once, ripple grows the pressed layer from the point of contact (the centre for a key), dim keeps the container color and takes the pressed opacity, none changes nothing; the ripple runs over motion.feedback-duration and appears whole where motion is reduced; m3-like is ripple, cupertino is dim and the default is overlay', async ({ page }) => {
-    const fixtures = [fx('row', { name: 'brief.pdf', sizeText: '1 MB', interactive: true, ...WORDS }), fx('tile', { form: 'tile', name: 'brief.pdf', interactive: true, ...WORDS })];
-    for (const reduced of [false, true]) {
-      await mount(page, fixtures, { reducedMotion: reduced });
-      const colors: Record<string, string> = { [T('pressed-opacity')]: '0.5' };
-      for (const form of ['row', 'tile']) {
-        colors[T(`${form}-pressed-container-color`)] = 'rgb(1, 2, 3)';
-        colors[T(`${form}-pressed-action-container-color`)] = 'rgb(1, 2, 3)';
-        colors[T(`${form}-pressed-action-icon-color`)] = 'rgb(4, 5, 6)';
-        colors[T(`${form}-container-color`)] = 'rgb(9, 9, 9)';
-        colors[T(`${form}-action-container-color`)] = 'rgb(9, 9, 9)';
-      }
-      await override(page, colors);
-      // [what, the pressed element, the element that paints the container color, whether it is an action]
-      const targets: [string, Locator, Locator, boolean][] = [
-        ['a row’s body', own(page, 'row', 'body'), own(page, 'row', 'layer'), false],
-        ['a tile’s body', own(page, 'tile', 'body'), own(page, 'tile', 'layer'), false],
-        ['a row’s action', own(page, 'row', 'remove'), own(page, 'row', 'remove'), true],
-        ['a tile’s action', own(page, 'tile', 'remove'), own(page, 'tile', 'remove'), true],
-      ];
-      for (const [name, target, container, action] of targets) {
-        const press = (key: string | null) =>
+  // FIT-16, one test for each name sys.behavior.pressed-feedback can hold in each motion setting: in one test, the
+  // answers of four parts to every name in both settings took more than half of its time limit on a busy runner.
+  const PRESSABLE = [fx('row', { name: 'brief.pdf', sizeText: '1 MB', interactive: true, ...WORDS }), fx('tile', { form: 'tile', name: 'brief.pdf', interactive: true, ...WORDS })];
+  interface Pressable {
+    /** What it is, for the messages. */
+    name: string;
+    /** The pressed element. */
+    target: Locator;
+    /** The element that paints the container color. */
+    container: Locator;
+    /** Whether it is an action. */
+    action: boolean;
+    /** Presses it: with the pointer 4 by 6 into its container (`null`), or with a key. */
+    press: (key: string | null) => Promise<void>;
+    /** Ends the press, and waits until it is at rest again. */
+    release: () => Promise<void>;
+    /** Its opacity now. */
+    opacity: () => Promise<number>;
+  }
+  /**
+   * Mounts a pressable row and tile, motion reduced or not, with pressed colors and a pressed opacity no system has, and
+   * gives the parts that answer a press — the body of each and the action of each — each at rest.
+   */
+  const pressables = async (page: P, reduced: boolean): Promise<Pressable[]> => {
+    await mount(page, PRESSABLE, { reducedMotion: reduced });
+    const colors: Record<string, string> = { [T('pressed-opacity')]: '0.5' };
+    for (const form of ['row', 'tile']) {
+      colors[T(`${form}-pressed-container-color`)] = 'rgb(1, 2, 3)';
+      colors[T(`${form}-pressed-action-container-color`)] = 'rgb(1, 2, 3)';
+      colors[T(`${form}-pressed-action-icon-color`)] = 'rgb(4, 5, 6)';
+      colors[T(`${form}-container-color`)] = 'rgb(9, 9, 9)';
+      colors[T(`${form}-action-container-color`)] = 'rgb(9, 9, 9)';
+    }
+    await override(page, colors);
+    const parts: [string, Locator, Locator, boolean][] = [
+      ['a row’s body', own(page, 'row', 'body'), own(page, 'row', 'layer'), false],
+      ['a tile’s body', own(page, 'tile', 'body'), own(page, 'tile', 'layer'), false],
+      ['a row’s action', own(page, 'row', 'remove'), own(page, 'row', 'remove'), true],
+      ['a tile’s action', own(page, 'tile', 'remove'), own(page, 'tile', 'remove'), true],
+    ];
+    const each = parts.map(([name, target, container, action]) => {
+      // At rest before a press: the way back from a state is a motion (FIT-23), and so is the way to the colors above.
+      const atRest = () => expect.poll(() => target.evaluate((el) => el.getAnimations({ subtree: true }).length), { message: `${name}: at rest` }).toBe(0);
+      const pressable: Pressable = {
+        name,
+        target,
+        container,
+        action,
+        press: (key) =>
           target.evaluate(
             (el, [k, inLayer]) => {
               const r = (inLayer ? el.querySelector('.layer')! : el).getBoundingClientRect();
@@ -1759,22 +1786,30 @@ test.describe('behavior', () => {
               else el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, composed: true }));
             },
             [key, !action] as const,
-          );
-        const release = async () => {
+          ),
+        release: async () => {
           await target.evaluate((el) => {
             el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, composed: true }));
             el.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true, composed: true }));
           });
           await expect.poll(() => target.getAttribute('data-pressed'), { message: `${name}: the press ends` }).toBeNull();
           await expect(target.locator('.ripple')).toHaveCount(0);
-          // At rest again before the next press: the way back from a state is a motion (FIT-23).
-          await expect.poll(() => target.evaluate((el) => el.getAnimations({ subtree: true }).length), { message: `${name}: at rest` }).toBe(0);
-        };
-        const feedback = async (value: string) => override(page, { '--tanrei-sys-behavior-pressed-feedback': value });
-        const opacity = async () => Number.parseFloat(await css(target, 'opacity'));
-        // overlay (the default, and what an unknown name is): the pressed tokens on the whole container at once.
+          await atRest();
+        },
+        opacity: async () => Number.parseFloat(await css(target, 'opacity')),
+      };
+      return { pressable, atRest };
+    });
+    for (const { atRest } of each) await atRest();
+    return each.map(({ pressable }) => pressable);
+  };
+  const feedback = (page: P, value: string) => override(page, { '--tanrei-sys-behavior-pressed-feedback': value });
+
+  for (const reduced of [false, true]) {
+    test(`FIT-16: overlay — the default, and what an unknown name is — paints the pressed tokens on the whole container of a pressable body and of an action at once, with no layer${reduced ? ' — where motion is reduced' : ' — in full motion'}`, async ({ page }) => {
+      for (const { name, target, container, action, press, release, opacity } of await pressables(page, reduced)) {
         for (const value of ['overlay', 'something-else']) {
-          await feedback(value);
+          await feedback(page, value);
           await press(null);
           expect(await target.getAttribute('data-pressed'), name).toBe('overlay');
           sameColor(await painted(container, 'background-color'), [1, 2, 3, 255], `${name} overlay container`);
@@ -1785,8 +1820,15 @@ test.describe('behavior', () => {
           await expect(target.locator('.ripple')).toHaveCount(0);
           await release();
         }
-        // ripple: the container color stays; the layer is the pressed color, from the point of contact.
-        await feedback('ripple');
+      }
+    });
+  }
+
+  for (const reduced of [false, true]) {
+    test(`FIT-16: ripple keeps the container color of a pressable body and of an action and grows the pressed layer from the point of contact — the centre for a key — over motion.feedback-duration, and appears whole where motion is reduced${reduced ? ' — where motion is reduced' : ' — in full motion'}`, async ({ page }) => {
+      for (const { name, target, container, action, press, release } of await pressables(page, reduced)) {
+        // The container color stays; the layer is the pressed color, from the point of contact.
+        await feedback(page, 'ripple');
         await press(null);
         expect(await target.getAttribute('data-pressed')).toBe('ripple');
         sameColor(await painted(container, 'background-color'), [9, 9, 9, 255], `${name} ripple keeps the container color`);
@@ -1805,16 +1847,28 @@ test.describe('behavior', () => {
         const centre = await target.locator('.ripple').evaluate((el) => [Number.parseFloat(el.style.getPropertyValue('--_x')), el.parentElement!.getBoundingClientRect().width / 2]);
         near(centre[0], centre[1], `${name}: from the centre for a key`, 1);
         await release();
-        // dim: no layer, the container color stays, the pressed opacity on the whole part.
-        await feedback('dim');
+      }
+    });
+  }
+
+  for (const reduced of [false, true]) {
+    test(`FIT-16: dim draws no layer on a pressable body or an action, keeps the container color and takes the pressed opacity${reduced ? ' — where motion is reduced' : ' — in full motion'}`, async ({ page }) => {
+      for (const { name, target, container, action, press, release, opacity } of await pressables(page, reduced)) {
+        await feedback(page, 'dim');
         await press(null);
         expect(await target.getAttribute('data-pressed')).toBe('dim');
         sameColor(await painted(container, 'background-color'), [9, 9, 9, 255], `${name} dim keeps the container color`);
         if (action) expect(await opacity()).toBe(0.5);
         await expect(target.locator('.ripple')).toHaveCount(0);
         await release();
-        // none: nothing answers.
-        await feedback('none');
+      }
+    });
+  }
+
+  for (const reduced of [false, true]) {
+    test(`FIT-16: none changes nothing on a pressable body or an action${reduced ? ' — where motion is reduced' : ' — in full motion'}`, async ({ page }) => {
+      for (const { name, target, container, press, release, opacity } of await pressables(page, reduced)) {
+        await feedback(page, 'none');
         await expect.poll(opacity, { message: 'at rest again' }).toBe(1);
         await press(null);
         expect(await target.getAttribute('data-pressed')).toBe('none');
@@ -1822,10 +1876,12 @@ test.describe('behavior', () => {
         expect(await opacity()).toBe(1);
         await release();
       }
-    }
-    // What the systems name.
+    });
+  }
+
+  test('FIT-16: m3-like is ripple, cupertino is dim and the default is overlay', async ({ page }) => {
     for (const [system, expected] of [[undefined, 'overlay'], ['m3-like', 'ripple'], ['cupertino', 'dim']] as const) {
-      await mount(page, fixtures, { system, reducedMotion: true });
+      await mount(page, PRESSABLE, { system, reducedMotion: true });
       for (const target of [own(page, 'row', 'body'), own(page, 'tile', 'remove')]) {
         await target.evaluate((el) => el.dispatchEvent(new PointerEvent('pointerdown', { clientX: 5, clientY: 5, button: 0, pointerType: 'mouse', bubbles: true, composed: true })));
         expect(await target.getAttribute('data-pressed'), `${system ?? 'the default'}`).toBe(expected);
