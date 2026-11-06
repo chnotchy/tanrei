@@ -3,6 +3,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
+  AppearController,
   AvailabilityController,
   CoalescedSync,
   FollowController,
@@ -26,7 +27,6 @@ import {
   containedWheel,
   countWork,
   deepActive,
-  documentPainted,
   hostAria,
   linkAttributes,
   layoutSize,
@@ -148,6 +148,17 @@ const DEFAULT_SHORTCUT_VARIANT = 'keycap';
  * part name, never drawn), which the product's `::part(surface)` rules reach and the placement never writes.
  */
 const capOf = (surface: HTMLElement) => surfaceCap((surface.getRootNode() as ShadowRoot).querySelector?.('.cap'));
+/**
+ * The block-axis scale a surface is drawn at now (MNU-4: closed, or appearing, it is scaled toward its origin). Never 0
+ * on that axis: a submenu's surface keeps its height under `unfold`, on either side of its item (`data-side`, which it
+ * carries from its first render).
+ */
+const shownScale = (surface: HTMLElement) => {
+  const scale = getComputedStyle(surface).scale;
+  if (scale === 'none') return 1;
+  const [x = '1', y = x] = scale.split(' ');
+  return Number(y) || 1;
+};
 
 /** Whether `p` lies in the triangle `a`, `b`, `c` (its edges included). MNU-45: the pointer's path to a submenu. */
 export function inTriangle(p: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }, c: { x: number; y: number }): boolean {
@@ -1045,6 +1056,10 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
   lastLayout = '';
   /** @internal When it was opened, among the submenus of the page. */
   openedAt = 0;
+  /** Its appearance (MNU-4, MNU-50): opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear = new AppearController(this, { motion: () => this.surfaceElement });
+  /** Put in the top layer by the last `present()`, not still there leaving: its entrance starts from where it is placed. */
+  private anew = false;
 
   constructor() {
     super();
@@ -1097,8 +1112,9 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
   }
 
   /**
-   * @internal The menu's side (MNU-43, MNU-48 … MNU-50): draws the surface in place or in the top layer, or removes it —
-   * fading out, as the menu's own does (MNU-4). Returns whether the presentation changed.
+   * @internal The menu's side (MNU-43, MNU-48 … MNU-50): draws the surface in place (whole at once) or puts it in the
+   * top layer — where the menu places it and then calls `enter()` — or removes it, leaving as the menu's own does
+   * (MNU-4). Returns whether the presentation changed.
    */
   present(mode: Presentation, quick = false): boolean {
     const surface = this.surfaceElement;
@@ -1108,44 +1124,54 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
     this.presented = mode !== 'hidden';
     this.lastLayout = '';
     surface.classList.toggle('inline', mode === 'inline');
-    surface.classList.remove('entering');
     if (mode === 'overlay') {
-      surface.classList.remove('leaving');
-      if (!surface.matches(':popover-open')) surface.showPopover();
+      // Still leaving, it stays in the top layer and turns round from where its exit has got to (MNU-4).
+      this.anew = !surface.matches(':popover-open');
+      if (this.anew) surface.showPopover();
       // MNU-68: a submenu opens from the top of its list, also where it opens again before its closing motion has ended.
       const scroll = this.scrollElement;
       if (scroll && was === 'hidden') scroll.scrollTop = 0;
-    } else {
-      this.overlap = false;
-      surface.classList.remove('cascading');
-      if (was === 'overlay') {
-        // MBR-29: gone at once where a menubar's menu gives its place to another.
-        if (!quick) this.leave(surface);
-        else if (surface.isConnected && surface.matches(':popover-open')) surface.hidePopover();
-      }
+      return true;
+    }
+    this.overlap = false;
+    surface.classList.remove('cascading');
+    if (mode === 'inline') {
+      // Drawn in place (a fixture's), it is whole at once (and moves by no transition: menu.styles.ts).
+      if (surface.matches(':popover-open')) surface.hidePopover();
+      surface.classList.add('open');
+      this.appear.enter(true);
+      return true;
+    }
+    surface.classList.remove('open');
+    // MBR-29: gone at once where a menubar's menu gives its place to another; drawn in place, gone at once.
+    if (was === 'overlay' && !quick) this.leave();
+    else {
+      void this.appear.exit(true);
+      if (surface.isConnected && surface.matches(':popover-open')) surface.hidePopover();
     }
     return true;
   }
 
-  /** @internal MNU-50: the open motion, growing from the edge that faces the item. Called once the surface is placed. */
-  enter() {
+  /**
+   * @internal MNU-50: the entrance, grown from the edge that faces the item (`data-side`). Called once the surface is
+   * placed. `instant`: whole at once (MBR-29); before the document's first paint it is whole at once too (MOT-4).
+   */
+  enter(instant = false) {
     const surface = this.surfaceElement;
     if (!surface) return;
-    surface.classList.remove('entering');
-    void surface.offsetWidth; // restart the animation
-    surface.classList.add('entering');
+    // Put in the top layer just now, it starts from the side it was placed on (its style was read for its size before).
+    if (this.anew) this.appear.drawAtOnce();
+    this.anew = false;
+    surface.classList.add('open');
+    this.appear.enter(instant);
   }
 
-  private leave(surface: HTMLElement) {
-    surface.classList.add('leaving');
-    const finish = () => {
-      if (this.presentation === 'overlay' || !surface.classList.contains('leaving')) return;
-      surface.classList.remove('leaving');
-      if (surface.isConnected && surface.matches(':popover-open')) surface.hidePopover();
-    };
-    const running = surface.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
+  /** MNU-49, MNU-50: the exit, then out of the top layer — unless it was put back (opened again) before that. */
+  private leave() {
+    void this.appear.exit().then((left) => {
+      const surface = this.surfaceElement;
+      if (left && this.presentation !== 'overlay' && surface?.isConnected && surface.matches(':popover-open')) surface.hidePopover();
+    });
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -1167,7 +1193,7 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
   protected override render() {
     // MNU-24: the submenu's surface is a menu of its own, named by its item's label.
     return html`${this.renderRow()}
-      <div part="surface" class="surface" data-tanrei-shape popover="manual" role="menu" aria-label=${this.label || nothing}>
+      <div part="surface" class="surface" data-tanrei-shape data-side="right" popover="manual" role="menu" aria-label=${this.label || nothing}>
         <div part="scroll" class="scroll" @wheel=${containedWheel}>${blocksTemplate(this.blocks)}</div>
       </div>
       <div part="surface" class="cap" aria-hidden="true"></div>`;
@@ -1402,6 +1428,8 @@ export class TanreiMenu extends TanreiElement {
   private readonly keys = new WeakMap<Level, RovingKeys>();
   private closeRequested = false;
   private shown = false;
+  /** Its appearance (MNU-4): opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear = new AppearController(this, { motion: () => this.surface });
   /** The menu has been presented (in the top layer or in place) since it was last closed: closing it closes its submenus (MNU-49). */
   private live = false;
   private lastLayout = '';
@@ -1780,8 +1808,9 @@ export class TanreiMenu extends TanreiElement {
         const changed = submenu.present(own, !!this.bar?.quick);
         if (own === 'overlay' && changed) {
           this.placeSubmenu(submenu);
-          // MOT-4: a submenu written open in a menu the page's markup opens is there at once, before the first paint.
-          if (!this.bar?.quick && documentPainted()) submenu.enter();
+          // MBR-29: at once where the menu takes the place of another of a menubar. MOT-4: a submenu written open in a
+          // menu the page's markup opens is there at once, before the first paint (the appearance's controller).
+          submenu.enter(!!this.bar?.quick);
           this.following.request();
         }
         walk(submenu, own);
@@ -1829,9 +1858,9 @@ export class TanreiMenu extends TanreiElement {
   /**
    * MNU-68: focus to an item by a key or by the menu's own doing — with the ring, or `quiet`ly without it — and its list
    * scrolled by the menu, just far enough to bring the item whole into view. Never by the engine's own scroll on focus:
-   * Chromium and WebKit compute it through the surface's transform, and on the opening motion's first frame the surface
-   * is scaled to nothing along the block axis, which sent a list taller than its surface to its end and hid its first
-   * items.
+   * Chromium and WebKit compute it through the surface's scale, and on the opening motion's first frame under the unfold
+   * appearance the surface is scaled to nothing along the block axis, which sent a list taller than its surface to its
+   * end and hid its first items.
    */
   private focusItem(item: TanreiMenuRowBase, level: Level = this.levelOf(item), quiet = false) {
     if (quiet) item.focusFromPointer();
@@ -1920,7 +1949,9 @@ export class TanreiMenu extends TanreiElement {
     const prefer = level instanceof TanreiSubmenu ? level.side : null;
     const first = this.rowsOf(submenu)[0];
     const input = { parent: parent.getBoundingClientRect(), row: row.getBoundingClientRect(), viewport, offset, margin, minWidth, touch, rtl, prefer };
-    const lead = () => (first ? first.getBoundingClientRect().top - own.getBoundingClientRect().top + (submenu.scrollElement?.scrollTop ?? 0) : 0);
+    // The first row's distance from the surface's top as laid out. The surface is measured before its entrance, as it
+    // starts (MNU-4): its boxes scaled about one origin, so the distance drawn is the one laid out times the scale shown.
+    const lead = () => (first ? (first.getBoundingClientRect().top - own.getBoundingClientRect().top) / shownScale(own) + (submenu.scrollElement?.scrollTop ?? 0) : 0);
     // The surface's size as laid out, fractional (layoutSize): a snapped width would end it up to a pixel off its edge.
     const free = layoutSize(own).width;
     // MNU-46: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
@@ -1937,7 +1968,8 @@ export class TanreiMenu extends TanreiElement {
     // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
     own.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
     if (scroll && scroll.scrollTop !== scrolled) scroll.scrollTop = scrolled;
-    own.classList.toggle('side-left', at.side === 'left');
+    // MNU-50: the side it grows from, read by its appearance.
+    own.dataset.side = at.side;
     submenu.side = at.side;
     submenu.overlap = at.overlap;
   }
@@ -2476,7 +2508,8 @@ export class TanreiMenu extends TanreiElement {
     surface.style.left = `${at.left}px`;
     // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
     surface.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
-    surface.classList.toggle('side-top', at.side === 'top');
+    // MNU-4: the side it grows from, read by its appearance.
+    surface.dataset.side = at.side;
   }
 
   /**
@@ -2560,15 +2593,21 @@ export class TanreiMenu extends TanreiElement {
     });
   }
 
-  /** MNU-1, MNU-4: into the top layer, placed, growing in; focus to the first enabled item. */
+  /** MNU-1, MNU-4: into the top layer, placed, appearing from the anchor's side; focus to the first enabled item. */
   private show() {
     const surface = this.surface;
     if (!surface) return;
     this.live = true;
     surface.classList.toggle('inline', this.inline);
-    if (this.inline) return;
-    surface.classList.remove('leaving');
-    if (!surface.matches(':popover-open')) surface.showPopover();
+    if (this.inline) {
+      // Drawn in place (a fixture's), it is whole at once (and moves by no transition: menu.styles.ts).
+      surface.classList.add('open');
+      this.appear.enter(true);
+      return;
+    }
+    // Still leaving, it stays in the top layer and turns round from where its exit has got to (MNU-4).
+    const leaving = surface.matches(':popover-open');
+    if (!leaving) surface.showPopover();
     // MNU-68: from the top of its list, also where it opens again before its closing motion has ended.
     const scroll = this.scrollBox;
     if (scroll) scroll.scrollTop = 0;
@@ -2576,23 +2615,27 @@ export class TanreiMenu extends TanreiElement {
     this.place();
     this.following.start();
     document.addEventListener('pointerdown', this.onOutsidePress, true);
-    surface.classList.remove('entering');
-    // MBR-29: no open motion where it takes the place of another menu of a menubar. MOT-4: none for a menu the page's
-    // markup opens, before the document's first paint — there is nothing it could have grown from.
-    if (!this.bar?.quick && documentPainted()) {
-      void surface.offsetWidth; // restart the animation
-      surface.classList.add('entering');
-    }
+    // Placed, it starts from the side it was placed on (its style was read for its size before it had one).
+    if (!leaving) this.appear.drawAtOnce();
+    surface.classList.add('open');
+    // MBR-29: no entrance where it takes the place of another menu of a menubar. MOT-4: none for a menu the page's
+    // markup opens, before the document's first paint — there is nothing it could have grown from (the controller).
+    this.appear.enter(!!this.bar?.quick);
     if (!this.focusless) this.focusFirstItem();
   }
 
-  /** MNU-1, MNU-4, MNU-49: focus back to the anchor if it was inside; every submenu closed with it; fading out, then out of the top layer. */
+  /** MNU-1, MNU-4, MNU-49: focus back to the anchor if it was inside; every submenu closed with it; leaving, then out of the top layer. */
   private hide() {
     const surface = this.surface;
     this.stopFollowing();
     this.forgetPointer();
     if (!surface) return;
-    surface.classList.remove('inline', 'entering', 'cascading');
+    // Drawn in place, it is gone at once.
+    if (surface.classList.contains('inline')) {
+      surface.classList.remove('open');
+      void this.appear.exit(true);
+    }
+    surface.classList.remove('inline', 'cascading');
     if (this.live) {
       this.live = false;
       // MNU-49: every open submenu closes with the menu, its `open` set without a `toggle`.
@@ -2612,21 +2655,17 @@ export class TanreiMenu extends TanreiElement {
     }
     this.asked = null;
     this.returnTo = null;
-    // MBR-29: no close motion where it gives its place to another menu of a menubar.
+    surface.classList.remove('open');
+    // MBR-29: no exit where it gives its place to another menu of a menubar.
     if (this.bar?.quick) {
-      surface.classList.remove('leaving');
+      void this.appear.exit(true);
       if (surface.matches(':popover-open')) surface.hidePopover();
       return;
     }
-    surface.classList.add('leaving');
-    const finish = () => {
-      if (this.open || !surface.classList.contains('leaving')) return;
-      surface.classList.remove('leaving');
-      if (surface.matches(':popover-open')) surface.hidePopover();
-    };
-    const running = surface.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
+    // Out of the top layer once its exit has played; opened again before that, it stays and turns round.
+    void this.appear.exit().then((left) => {
+      if (left && !this.shown && surface.matches(':popover-open')) surface.hidePopover();
+    });
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {

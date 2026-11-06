@@ -15,6 +15,8 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
+import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -92,12 +94,48 @@ const box = (host: Locator, selector: string) =>
     return { x: r.x, y: r.y, width: r.width, height: r.height };
   }, selector);
 const surfaceBox = (host: Locator) => box(host, '.surface');
-/** Whether a submenu item's surface is drawn: in the top layer and not fading out, or in place. */
+/** Whether a submenu item's surface is drawn: open (in the top layer and not leaving, or in place). */
 const shown = (host: Locator) =>
   host.evaluate((el) => {
     const s = el.shadowRoot!.querySelector('.surface')!;
-    return (s.matches(':popover-open') && !s.classList.contains('leaving')) || s.classList.contains('inline');
+    return s.classList.contains('open') && (s.matches(':popover-open') || s.classList.contains('inline'));
   });
+/**
+ * What `appearProbe` (test/appear.ts) reads of the first surface in `root` — the element carrying `data-tanrei-appear`,
+ * through shadow roots — and where it is drawn and placed: its drawn box's top and left, and the `top` and `left` its
+ * placement wrote. Self-contained: it is sent as its source.
+ */
+const placedAppearProbe: Probe = (root) => {
+  const find = (node: ParentNode): Element | null => {
+    for (const child of Array.from(node.children)) {
+      if (child.hasAttribute('data-tanrei-appear')) return child;
+      const inside = (child.shadowRoot && find(child.shadowRoot)) || find(child);
+      if (inside) return inside;
+    }
+    return null;
+  };
+  const start = (root.shadowRoot && find(root.shadowRoot)) || find(root);
+  if (!start) return {};
+  const style = getComputedStyle(start);
+  const [sx = '1', sy = sx] = style.scale === 'none' ? [] : style.scale.split(' ');
+  const [tx = '0px', ty = '0px'] = style.translate === 'none' ? [] : style.translate.split(' ');
+  const blur = /blur\(([^)]+)\)/.exec(style.filter)?.[1] ?? '0px';
+  const box = start.getBoundingClientRect();
+  const placed = (start as HTMLElement).style;
+  return {
+    opacity: Number(style.opacity),
+    sx: Number(sx),
+    sy: Number(sy),
+    tx: Number.parseFloat(tx),
+    ty: Number.parseFloat(ty),
+    blur: Number.parseFloat(blur),
+    origin: style.transformOrigin,
+    top: box.top,
+    left: box.left,
+    placedTop: placed.top,
+    placedLeft: placed.left,
+  };
+};
 /** A real overlay menu (not inline): its anchor is a button with the id `a-<id>`, drawn before it. */
 const overlay = (id: string, children: FixtureItem[], props: Fixture['props'] = {}): Fixture => ({ id, props: { anchor: `a-${id}`, ...props }, items: children });
 const inline = (id: string, children: FixtureItem[], props: Fixture['props'] = {}): Fixture => ({ id, props: { open: true, ...props }, items: children });
@@ -260,7 +298,7 @@ test.describe('overlay', () => {
     await close('bottom-end');
     [a, s] = await open('top-start');
     expect(s.y + s.height).toBeCloseTo(a.y - offset, 0);
-    await expect(surface(page, 'top-start')).toHaveClass(/side-top/);
+    await expect(surface(page, 'top-start')).toHaveAttribute('data-side', 'top');
     await close('top-start');
     // Near the bottom edge it flips above; near the right edge it shifts left to stay within the margin.
     await page.addStyleTag({ content: `#a-bottom-start { top: 540px; left: 760px; inline-size: 30px; }` });
@@ -305,7 +343,7 @@ test.describe('overlay', () => {
     expect(Math.abs(s.x + s.width - (a.x + a.width)), 'end edges aligned').toBeLessThan(0.1);
     await menu(page, 'bottom-end').evaluate((el: any) => (el.open = false));
     [a, s] = await open('top-start');
-    await expect(surface(page, 'top-start')).toHaveClass(/side-top/);
+    await expect(surface(page, 'top-start')).toHaveAttribute('data-side', 'top');
     expect(s.height % 1, 'nor a whole number tall').not.toBeCloseTo(0, 1);
     expect(Math.abs(s.y + s.height - (a.y - offset)), 'the offset above the anchor').toBeLessThan(0.1);
   });
@@ -388,7 +426,7 @@ test.describe('overlay', () => {
     // The keyboard covers all but the top 450 pixels: below the anchor there is no room left, so it flips above.
     await visual({ top: 0, height: 450 });
     await expect.poll(async () => (await placed()).bottom).toBeCloseTo(a.y - offset, 0);
-    await expect(surface(page, 'edit')).toHaveClass(/side-top/);
+    await expect(surface(page, 'edit')).toHaveAttribute('data-side', 'top');
     // The visual viewport scrolled down by 300 as well (iOS moves it to keep a field in view): the room above starts
     // there, and the surface, taller than it, is limited to it and scrolls.
     await visual({ top: 300, height: 150 });
@@ -398,7 +436,7 @@ test.describe('overlay', () => {
     // The keyboard hides: back below the anchor.
     await visual(null);
     await expect.poll(async () => (await placed()).top).toBeCloseTo(a.y + a.height + offset, 0);
-    await expect(surface(page, 'edit')).not.toHaveClass(/side-top/);
+    await expect(surface(page, 'edit')).toHaveAttribute('data-side', 'bottom');
   });
 
   test('MNU-2, MNU-46: no taller than the product lets its surface be — its own max-block-size on the surface part, in pixels or a percentage — scrolled beyond it, and placed by that height, as a submenu is', async ({ page }) => {
@@ -527,33 +565,144 @@ test.describe('overlay', () => {
     expect(await log(page), 'once').toEqual(['close:anchor-hidden']);
   });
 
-  test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
+  test('MNU-4: opening, the surface appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown from the middle of its edge that faces the anchor, over the open motion on its curve; closing, it leaves the same way back over the close motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and it stands where it rests from its first frame', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 100px; left: 200px; }` });
     await wire(page);
-    // (40 s each: the surface is read 'not yet whole' four answers after it opens and 'still open' two after it is
-    // told to close; nothing here waits for either motion's end.)
-    await override(page, { [T('motion-open-duration')]: '40s', [T('motion-close-duration')]: '40s' });
-    await menu(page, 'edit').evaluate((el: any) => (el.open = true));
-    const s = surface(page, 'edit');
-    expect(await css(s, 'animation-name')).toBe('menu-open');
-    expect(await css(s, 'animation-duration')).toBe('40s');
-    expect(await css(s, 'transform-origin')).toMatch(/ 0px$/); // the top edge, which faces an anchor above it
-    expect(Number(await css(s, 'opacity'))).toBeLessThan(1);
-    await menu(page, 'edit').evaluate((el: any) => (el.open = false));
-    expect(await css(s, 'animation-name')).toBe('menu-close');
-    expect(await isOpen(page, 'edit')).toBe(true); // still fading out
+    const host = menu(page, 'edit');
+    const a = await bounds(anchor(page, 'edit'));
+    const offset = await resolveToken(page, T('surface-offset'));
+    const opening = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = true)), { probe: placedAppearProbe });
+    // The first frame, where it starts: the default system's appearance (sys.motion.appear.*), from the top edge's middle.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    const width = await surface(page, 'edit').evaluate((el) => Number.parseFloat(getComputedStyle(el).width));
+    const [ox, oy] = String(opening.frames[0]!.probe.origin).split(' ').map(Number.parseFloat);
+    expect(ox).toBeCloseTo(width / 2, 1);
+    expect(oy).toBe(0);
+    // MNU-2's place is the one at rest, from the first frame: placed once, its top edge on the anchor's side.
+    for (const frame of opening.frames) {
+      expect([frame.probe.placedTop, frame.probe.placedLeft], `frame ${frame.index}`).toEqual([opening.rest.probe.placedTop, opening.rest.probe.placedLeft]);
+      expect(frame.probe.top as number, `frame ${frame.index}`).toBeCloseTo(a.y + a.height + offset, 0);
+    }
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const own = (seen: Frames) => seen.motions.filter((motion) => /^div\.surface\b/.test(motion.on) && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of own(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-open-easing')));
+    }
+    expect(own(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+
+    const closing = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = false)), { probe: placedAppearProbe });
+    // The same way back, to where it started.
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    expectAnimated(closing, 'opacity');
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    for (const motion of own(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expect(own(closing).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+    expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
+    // Out of the top layer once its exit has played.
+    await expect.poll(() => isOpen(page, 'edit')).toBe(false);
+  });
+
+  test('MNU-4: placed above its anchor the surface grows from its bottom edge, below it from its top edge; where appear.origin is center it grows from its centre on either side', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 400px; left: 200px; }` });
+    await wire(page);
+    const originAt = async (placement: string) => {
+      await menu(page, 'edit').evaluate((el: any, p) => Object.assign(el, { placement: p, open: true }), placement);
+      await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+      // Against its box as laid out (a box measured while it grows is the grown one).
+      const [x, y, w, h] = await surface(page, 'edit').evaluate((el: HTMLElement) => [...getComputedStyle(el).transformOrigin.split(' ').map(Number.parseFloat), el.offsetWidth, el.offsetHeight]);
+      const side = await surface(page, 'edit').getAttribute('data-side');
+      await menu(page, 'edit').evaluate((el: any) => (el.open = false));
+      await expect.poll(() => isOpen(page, 'edit')).toBe(false);
+      return [side, Math.round((x! / w!) * 100) / 100, Math.round((y! / h!) * 100) / 100];
+    };
+    expect(await originAt('top-start')).toEqual(['top', 0.5, 1]);
+    expect(await originAt('bottom-start')).toEqual(['bottom', 0.5, 0]);
+    // appear.origin: center — read with a style query on the custom property.
+    await rootTokens(page, { '--tanrei-sys-motion-appear-origin': 'center' });
+    expect(await originAt('top-start')).toEqual(['top', 0.5, 0.5]);
+    expect(await originAt('bottom-start')).toEqual(['bottom', 0.5, 0.5]);
+  });
+
+  test('MNU-4: under the unfold appearance (m3-like) the surface unfolds from the edge that faces the anchor at its full width, on the menu’s own timing there, and folds back the same way', async ({ page }) => {
+    await mountFixtures(page, spec, { system: 'm3-like', fixtures: [overlay('edit', EDIT)] });
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 100px; left: 200px; }` });
+    await wire(page);
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const host = menu(page, 'edit');
+    const opening = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    // A style query on the custom property picks the axis that leaves the anchor: the height, from the top edge.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0, axis: 'y' });
+    expect(String(opening.frames[0]!.probe.origin).split(' ')[1]).toBe('0px');
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const opacity = (seen: Frames) => seen.motions.find((motion) => /^div\.surface\b/.test(motion.on) && motion.name === 'opacity')!;
+    expect(opacity(opening).easing).toBe(await resolveEasing(page, T('motion-open-easing')));
+    expect(opacity(opening).duration).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+    const closing = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = false)), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 0 });
+    expect(opacity(closing).easing).toBe(await resolveEasing(page, T('motion-close-easing')));
+    expect(opacity(closing).duration).toBe(await resolveToken(page, T('motion-close-duration'), 'duration'));
+  });
+
+  test('MNU-4: where motion is reduced the surface only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
-    await menu(page, 'edit').evaluate((el: any) => (el.open = true));
-    expect(await css(surface(page, 'edit'), 'animation-name')).toBe('none');
-    expect(await css(surface(page, 'edit'), 'opacity')).toBe('1');
-    await menu(page, 'edit').evaluate((el: any) => (el.open = false));
-    expect(await isOpen(page, 'edit')).toBe(false);
-    // The tokens' own durations.
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await wire(page);
+    const host = menu(page, 'edit');
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const own = (seen: Frames) => seen.motions.filter((motion) => /^div\.surface\b/.test(motion.on)).map((motion) => [motion.name, motion.duration]);
+    const opening = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    expect(own(opening)).toEqual([['opacity', reduced]]);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1 });
+    const closing = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = false)), { probe: appearProbe });
+    expect(own(closing)).toEqual([['opacity', reduced]]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
+    await expect.poll(() => isOpen(page, 'edit')).toBe(false);
+  });
+
+  test('MNU-4: turned round, the surface goes on from where it is and carries the motions it turns to and none of those it turns from — closed while it opens, and opened again while it closes — and the close that follows ends', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
-    await menu(page, 'edit').evaluate((el: any) => (el.open = true));
-    expect(Number.parseFloat(await css(surface(page, 'edit'), 'animation-duration')) * 1000).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+    await wire(page);
+    // Long enough that neither motion ends between two answers on a slow machine; each turn is read where it is held.
+    await rootTokens(page, { [T('motion-open-duration')]: '6s', [T('motion-close-duration')]: '6s' });
+    const host = menu(page, 'edit');
+    await host.evaluate((el: any) => (el.open = true));
+    const closedMidway = await turnHeld(host, false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.99);
+    expectTurnedAlone(closedMidway);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.sy).toBeCloseTo(closedMidway.held.sy, 3);
+    await surface(page, 'edit').evaluate((el) => el.getAnimations().forEach((animation) => animation.play()));
+    // Opened again while it closes: still in the top layer, it goes on from where its exit has got to.
+    const openedMidway = await turnHeld(host, true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expectTurnedAlone(openedMidway);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.sy).toBeCloseTo(openedMidway.held.sy, 3);
+    expect(await isOpen(page, 'edit')).toBe(true);
+    await surface(page, 'edit').evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
+    expect(await css(surface(page, 'edit'), 'opacity')).toBe('1');
+    // Closed now, it leaves the top layer once its exit has played: no motion left behind holds it there.
+    await host.evaluate(async (el) => {
+      Object.assign(el, { open: false });
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      // Asking flushes style: the exit has begun, and is played to its end at once.
+      (el.shadowRoot!.querySelector('.surface') as HTMLElement).getAnimations().forEach((animation) => animation.finish());
+    });
+    await expect.poll(() => isOpen(page, 'edit')).toBe(false);
   });
 
   test('MNU-4, MNU-50: a menu in the page’s markup with open, and its submenus written open, is open in its first frame — no surface plays its open motion — and one mounted open after the first paint opens with it (MOT-4)', async ({ page }) => {
@@ -586,7 +735,14 @@ test.describe('overlay', () => {
       stage.replaceWith(again);
     });
     for (const host of [menu(page, 'late'), menu(page, 'late').locator('[label="Open recent"]'), menu(page, 'late').locator('[label="Older"]')]) {
-      await expect.poll(() => host.evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.surface')!).animationName)).toMatch(/^(sub)?menu-open$/);
+      await expect
+        .poll(() =>
+          host.evaluate((el) => {
+            const s = el.shadowRoot!.querySelector('.surface')!;
+            return s.classList.contains('open') && s.matches(':popover-open') && Number(getComputedStyle(s).opacity) < 1;
+          }),
+        )
+        .toBe(true);
     }
   });
 
@@ -2392,36 +2548,35 @@ test.describe('submenus', () => {
     expect(await focused(page)).toBe('a-file');
   });
 
-  test('MNU-49: the surfaces fade out together', async ({ page }) => {
+  test('MNU-49: the surfaces leave together, each as MNU-4 says', async ({ page }) => {
     await mount(page);
-    // (40 s: the submenu is read 'still fading out' four answers after the menu is told to close; nothing waits for its end.)
-    await override(page, { [T('motion-close-duration')]: '40s' });
     await openMenu(page, 'file');
     await pressTo(page, 'Open recent');
     await page.keyboard.press('ArrowRight');
     await expect.poll(() => shown(recent(page))).toBe(true);
     await motionEnded(page);
-    await menu(page, 'file').evaluate((el: any) => (el.open = false));
-    expect(await css(surface(page, 'file'), 'animation-name')).toBe('menu-close');
-    expect(await css(ownSurface(recent(page)), 'animation-name')).toBe('submenu-close');
-    expect(await css(ownSurface(recent(page)), 'animation-duration')).toBe('40s');
-    expect(await ownSurface(recent(page)).evaluate((el) => el.matches(':popover-open'))).toBe(true); // still fading out
+    const host = menu(page, 'file');
+    // The probe reads the menu's own surface; the frames hold every motion inside the menu, its submenu's surface too.
+    const closing = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = false)), { probe: appearProbe });
+    const duration = await resolveToken(page, T('motion-close-duration'), 'duration');
+    const leaving = closing.motions.filter((motion) => /^div\.surface\b/.test(motion.on) && motion.name === 'opacity');
+    expect(leaving.map((motion) => [motion.duration, motion.frame]), 'both surfaces fade out over the close motion, from the same frame').toEqual([
+      [duration, leaving[0]!.frame],
+      [duration, leaving[0]!.frame],
+    ]);
+    expectExitEnd(closing, { duration, easing: bezierOf(await resolveEasing(page, T('motion-close-easing'))) });
+    await expect.poll(() => isOpen(page, 'file')).toBe(false);
+    expect(await ownSurface(recent(page)).evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 
-  test('MNU-50: while its submenu is open a submenu item is drawn in the expanded condition, whatever state it is in; the submenu’s surface is drawn from the menu’s surface tokens and grows in from the edge that faces its item', async ({ page }) => {
+  test('MNU-50: while its submenu is open a submenu item is drawn in the expanded condition, whatever state it is in; the submenu’s surface is drawn from the menu’s surface tokens', async ({ page }) => {
     await mount(page);
-    // (20 s, once the menu itself has grown in — `openMenu` waits for that: the submenu's surface is read growing in five
-    // answers after the key that opens it, and at 2 s it had grown in where an answer takes a slow runner half a second.)
     await openMenu(page, 'file');
-    await override(page, { [T('motion-open-duration')]: '20s' });
     await pressTo(page, 'Open recent');
     await page.keyboard.press('ArrowRight');
     await expect.poll(() => shown(recent(page))).toBe(true);
+    await motionEnded(page);
     const own = ownSurface(recent(page));
-    expect(await css(own, 'animation-name')).toBe('submenu-open');
-    expect(await css(own, 'animation-duration')).toBe('20s');
-    expect(await css(own, 'transform-origin')).toMatch(/^0px /); // the left edge, which faces the item
-    expect(Number(await css(own, 'opacity'))).toBeLessThan(1);
     // The surface, as the menu's own (MNU-3).
     expect(await css(own, 'background-color')).toBe(await resolveColor(page, T('surface-color')));
     expect(await css(own, 'box-shadow')).toBe(await resolveShadow(page, T('surface-elevation')));
@@ -2436,21 +2591,88 @@ test.describe('submenus', () => {
     await page.mouse.move(900, 600);
     await expect.poll(drawnItem).toEqual(await expected(page, 'expanded'));
     expect((await expected(page, 'expanded')).bg).not.toBe((await expected(page, 'unselected')).bg);
-    // Flipped to the left, it grows from its right edge.
-    await menu(page, 'file').evaluate((el: any) => (el.open = false));
-    await page.addStyleTag({ content: `#a-file { left: 800px; }` });
-    await override(page, { [T('motion-open-duration')]: '' });
+  });
+
+  test('MNU-50: a submenu’s surface appears as the menu’s does — from opacity 0 and scale 0.96 under the default system, grown from the middle of its edge that faces its item, over the open motion — standing where it rests from its first frame, its first row level with its item; it leaves the same way back over the close motion; flipped to the left it grows from its right edge', async ({ page }) => {
+    await mount(page);
     await openMenu(page, 'file');
-    await override(page, { [T('motion-open-duration')]: '20s' });
     await pressTo(page, 'Open recent');
-    await page.keyboard.press('ArrowRight');
-    await expect.poll(() => shown(recent(page))).toBe(true);
-    const width = (await surfaceBox(recent(page))).width;
-    expect(await own.evaluate((el) => el.classList.contains('side-left'))).toBe(true);
-    expect(Number.parseFloat(await css(own, 'transform-origin'))).toBeGreaterThan(width / 2);
-    // Where motion is reduced, at once.
+    const row = await bounds(rowOf(recent(page)));
+    const opening = await sampleFrames(recent(page), () => page.keyboard.press('ArrowRight'), { probe: placedAppearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    // From the middle of its left edge, which faces the item.
+    const height = await ownSurface(recent(page)).evaluate((el) => Number.parseFloat(getComputedStyle(el).height));
+    const [ox, oy] = String(opening.frames[0]!.probe.origin).split(' ').map(Number.parseFloat);
+    expect(ox).toBe(0);
+    expect(oy).toBeCloseTo(height / 2, 1);
+    expect(await ownSurface(recent(page)).getAttribute('data-side')).toBe('right');
+    // MNU-46's place is the one at rest, from the first frame: placed once, and measured as it rests — its first row
+    // level with the item, although it was measured at the scale it starts from.
+    for (const frame of opening.frames) {
+      expect([frame.probe.placedTop, frame.probe.placedLeft], `frame ${frame.index}`).toEqual([opening.rest.probe.placedTop, opening.rest.probe.placedLeft]);
+      expect(frame.probe.left as number, `frame ${frame.index}`).toBeCloseTo(opening.rest.probe.left as number, 1);
+    }
+    const first = recent(page).locator('> tanrei-menu-item').first();
+    expect((await bounds(first)).y).toBeCloseTo(row.y, 1);
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const own = (seen: Frames) => seen.motions.filter((motion) => /^div\.surface\b/.test(motion.on) && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of own(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-open-easing')));
+    }
+    expect(own(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    // The arrow to the inline start closes it: the same way back.
+    const closing = await sampleFrames(recent(page), () => page.keyboard.press('ArrowLeft'), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    for (const motion of own(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+    await expect.poll(() => ownSurface(recent(page)).evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    // Flipped to the left, it grows from the middle of its right edge.
+    await menu(page, 'file').evaluate((el: any) => (el.open = false));
+    await expect.poll(() => isOpen(page, 'file')).toBe(false);
+    await page.addStyleTag({ content: `#a-file { left: 800px; }` });
+    await openMenu(page, 'file');
+    await pressTo(page, 'Open recent');
+    const flipped = await sampleFrames(recent(page), () => page.keyboard.press('ArrowRight'), { probe: appearProbe });
+    expect(await ownSurface(recent(page)).getAttribute('data-side')).toBe('left');
+    const width = await ownSurface(recent(page)).evaluate((el) => Number.parseFloat(getComputedStyle(el).width));
+    const [fx, fy] = String(flipped.frames[0]!.probe.origin).split(' ').map(Number.parseFloat);
+    expect(fx).toBeCloseTo(width, 1);
+    expect(fy).toBeCloseTo(height / 2, 1);
+    expectAppearStart(flipped.frames[0]!, { opacity: 0, scale: 0.96 });
+  });
+
+  test('MNU-50: under the unfold appearance (m3-like) a submenu’s surface unfolds from the edge that faces its item at its full height, its first row level with its item; where motion is reduced it only fades, over sys.motion.role.reduced', async ({ page }) => {
+    await mount(page, FILE, { system: 'm3-like' });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    await openMenu(page, 'file');
+    await pressTo(page, 'Open recent');
+    const row = await bounds(rowOf(recent(page)));
+    const opening = await sampleFrames(recent(page), () => page.keyboard.press('ArrowRight'), { probe: appearProbe });
+    // Along the axis that leaves the item: the width, from the left edge.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0, axis: 'x' });
+    expect(String(opening.frames[0]!.probe.origin).split(' ')[0]).toBe('0px');
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    // The item's row fades into the expanded condition meanwhile (MNU-50, held by its own tests): WebKit draws the
+    // frames of that fade in oklab() and its end in rgb(), which the check compares channel by channel as one space.
+    expectNoFlicker(opening, { ignore: (flicker) => flicker.key === 'tanrei-submenu:0>div:0' && flicker.property === 'background-color' });
+    expect((await bounds(recent(page).locator('> tanrei-menu-item').first())).y).toBeCloseTo(row.y, 0);
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => ownSurface(recent(page)).evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    // Reduced motion: a cross-fade only.
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    expect(await css(own, 'animation-name')).toBe('none');
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const faded = await sampleFrames(recent(page), () => page.keyboard.press('ArrowRight'), { probe: appearProbe });
+    expectAppearStart(faded.frames[0]!, { opacity: 0, scale: 1 });
+    expect(faded.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1)).toBe(true);
+    expect(faded.motions.filter((motion) => /^div\.surface\b/.test(motion.on)).map((motion) => [motion.name, motion.duration])).toEqual([['opacity', reduced]]);
   });
 
   test('MNU-50: over the sheet the open item’s fill is the color of a hovered plain row, with the pointer elsewhere and with the pointer on it, in light and in dark; under keyboard focus and under a press it takes the plain row’s focused and pressed colors; it is never the color of the current link item’s row', async ({ page }) => {
@@ -3418,8 +3640,8 @@ test.describe('separation, selection and marks', () => {
         expect(own.x, `${id} ${label}`).toBeCloseTo(holder.x + holder.width + offset, 1);
         const first = host.locator('> tanrei-menu-item, > tanrei-menu-group').first();
         expect((await bounds(first)).y, `${id} ${label}`).toBeCloseTo((await bounds(rowOf(host))).y, 1);
-        // In place: without the open motion, and inside the fixture's stage.
-        expect(await css(ownSurface(host), 'animation-name')).toBe('none');
+        // In place: whole, without the open motion, and inside the fixture's stage.
+        expect([await css(ownSurface(host), 'opacity'), await css(ownSurface(host), 'scale')]).toEqual(['1', 'none']);
         const stage = await bounds(page.locator(`[data-fixture="${id}"]`));
         expect(own.x + own.width, `${id} ${label}`).toBeLessThanOrEqual(stage.x + stage.width);
         expect(own.y + own.height, `${id} ${label}`).toBeLessThanOrEqual(stage.y + stage.height);
@@ -4211,7 +4433,7 @@ test.describe('context menu', () => {
     let s = await at(300, 200);
     expect(s.x).toBeCloseTo(300, 0);
     expect(s.y).toBeCloseTo(200, 0);
-    await expect(surface(page, 'ctx')).not.toHaveClass(/side-top/);
+    await expect(surface(page, 'ctx')).toHaveAttribute('data-side', 'bottom');
     // The page scrolled by 50 moves the surface with the area.
     await page.evaluate(() => window.scrollBy(0, 50));
     await expect.poll(async () => (await bounds(surface(page, 'ctx'))).y).toBeCloseTo(150, 0);
@@ -4222,7 +4444,7 @@ test.describe('context menu', () => {
     s = await at(vw - 30, vh - 30);
     expect(s.x + s.width).toBeCloseTo(vw - 30, 0);
     expect(s.y + s.height).toBeCloseTo(vh - 30, 0);
-    await expect(surface(page, 'ctx')).toHaveClass(/side-top/);
+    await expect(surface(page, 'ctx')).toHaveAttribute('data-side', 'top');
     await shut();
     // A placement names the corner: top-end puts the surface's block-end, inline-end corner on the point.
     await menu(page, 'ctx').evaluate((el: any) => (el.placement = 'top-end'));
