@@ -8,6 +8,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Probe, expectAnimated, expectFirstFrameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('toolbar');
 type P = Page;
@@ -346,6 +349,118 @@ test.describe('items', () => {
     await expect(inner(page, 'floating', 1)).toHaveAttribute('aria-pressed', 'true');
     await expect(inner(page, 'floating', 0)).toHaveAttribute('aria-pressed', 'true');
     await expect(inner(page, 'docked-disabled-item', 1)).toBeDisabled();
+  });
+
+  /**
+   * TBR-9: what one toggle item draws and exposes in one frame — its container, label and icon colors as one number
+   * that changes whenever any of them does, its selected and its aria-pressed. The item is the `n`th toggle Button in
+   * the toolbar's tree (a group's included), counted on the root's `data-toggle`.
+   */
+  const toggleFrame: Probe = (root) => {
+    const toggle = root.querySelectorAll('tanrei-button[toggle]')[Number((root as HTMLElement).dataset.toggle)] as (HTMLElement & { selected?: boolean }) | undefined;
+    const native = toggle?.shadowRoot?.querySelector('[part="container"]');
+    if (!toggle || !native) return {};
+    const parts = [native, native.querySelector('.label'), native.querySelector('.icon')].filter((part): part is Element => !!part).map((part) => getComputedStyle(part));
+    const drawn = parts.map((style) => `${style.backgroundColor} ${style.color} ${style.boxShadow}`).join(' ');
+    return {
+      look: (drawn.match(/[\d.]+/g) ?? []).reduce((sum, n, i) => sum + Number(n) * (i + 1), 0),
+      selected: !!toggle.selected,
+      pressed: native.getAttribute('aria-pressed') ?? '',
+    };
+  };
+  /** The toggle items each fixture that holds one draws (not hidden into its overflow menu), by their place among its toggle Buttons. */
+  const shownToggles = (page: P, id: string) =>
+    bar(page, id).evaluate((el) => [...el.querySelectorAll('tanrei-button[toggle]')].map((toggle, n) => ({ n, shown: (toggle as HTMLElement).checkVisibility() })).filter((t) => t.shown).map((t) => t.n));
+  const switchToggle = (page: P, id: string, n: number) =>
+    bar(page, id).evaluate(async (el, index) => {
+      const toggle = el.querySelectorAll('tanrei-button[toggle]')[index] as HTMLElement & { selected: boolean; updateComplete: Promise<unknown> };
+      toggle.selected = !toggle.selected;
+      await toggle.updateComplete;
+    }, n);
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const TOGGLE_FIXTURES = ['floating', 'inline-formatting', 'inline-separation-gap', 'inline-labelled-toggles'];
+
+  test('TBR-9: a toggle item changes between its selected and unselected looks as its Button does — over more than one frame on the state duration of its size and the Button’s state easing, in every fixture that holds one — and the toolbar adds no motion of its own', async ({ page }) => {
+    expect(spec.fixtures.filter((f) => JSON.stringify(f.items).includes('"toggle":true')).map((f) => f.id)).toEqual(TOGGLE_FIXTURES);
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => TOGGLE_FIXTURES.includes(f.id)) });
+    await page.mouse.move(0, 0);
+    // The toolbar's items are medium unless the product says otherwise: the state role's default pace.
+    const duration = await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration');
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+    const easing = await resolveEasing(page, '--tanrei-comp-button-motion-state-easing');
+    let seenToggles = 0;
+    for (const id of TOGGLE_FIXTURES) {
+      const shown = await shownToggles(page, id);
+      expect(shown.length, `${id}: toggles drawn`).toBeGreaterThan(0);
+      for (const n of shown) {
+        await stage(page, id).evaluate((el: HTMLElement, at) => (el.dataset.toggle = String(at)), n);
+        for (const turn of [1, 2]) {
+          const seen = await sampleFrames(stage(page, id), () => switchToggle(page, id, n), { elements: false, probe: toggleFrame });
+          const name = `${id}, toggle ${n}, switch ${turn}`;
+          expect(seen.rest.probe.selected, name).toBe(!seen.before.probe.selected);
+          // Not one frame: the look changes over several.
+          expectAnimated(seen, 'look');
+          // Its own motions only, on its size's duration and the Button's curve: the toolbar starts none.
+          expect(seen.motions.length, name).toBeGreaterThan(0);
+          for (const motion of seen.motions) {
+            expect(motion.on, `${name}: ${motion.name} is the item's`).not.toMatch(/^div\.container|^tanrei-toolbar/);
+            if (/^(background-color|color|box-shadow)$/.test(motion.name)) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, motion.name, duration, easing]);
+          }
+          seenToggles++;
+          await motionEnded(bar(page, id));
+        }
+      }
+    }
+    expect(seenToggles).toBeGreaterThanOrEqual(2 * TOGGLE_FIXTURES.length);
+  });
+
+  test('TBR-9: what a switched toggle item exposes changes at once, not at the end of its motion — in its first frame its selected and aria-pressed are new, its look where it was', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => f.id === 'inline-labelled-toggles') });
+    const id = 'inline-labelled-toggles';
+    await stage(page, id).evaluate((el: HTMLElement) => (el.dataset.toggle = '1'));
+    for (const to of [true, false]) {
+      const before = await stage(page, id).evaluate(toggleFrame);
+      const frozen = await freezeFirstFrame(stage(page, id), () => switchToggle(page, id, 1), { probe: toggleFrame });
+      try {
+        expect(frozen.frame.probe, `Assigned to me ${to ? 'on' : 'off'}`).toMatchObject({ selected: to, pressed: String(to), look: before.look });
+        await expect(bar(page, id).getByRole('button', { name: 'Assigned to me', pressed: to })).toHaveCount(1);
+      } finally {
+        await frozen.release();
+      }
+      await motionEnded(bar(page, id));
+    }
+  });
+
+  test('TBR-9: a toggle item’s look changes at once under reduced motion, and in the frames in which the toolbar is first drawn', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: spec.fixtures.filter((f) => TOGGLE_FIXTURES.includes(f.id)) });
+    for (const id of TOGGLE_FIXTURES) {
+      const [n] = await shownToggles(page, id);
+      await stage(page, id).evaluate((el: HTMLElement, at) => (el.dataset.toggle = String(at)), n!);
+      const seen = await sampleFrames(stage(page, id), () => switchToggle(page, id, n!), { elements: false, probe: toggleFrame });
+      expect(seen.rest.probe.selected, id).toBe(!seen.before.probe.selected);
+      expectFirstFrameAtRest(seen);
+      expect(seen.motions.filter((motion) => /^(background-color|color|box-shadow)$/.test(motion.name)), id).toEqual([]);
+    }
+    // First drawn, with motion allowed: a toolbar put in the page whose toggle is switched while it settles draws the
+    // toggle's new look from its first frame.
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const id = 'inline-labelled-toggles';
+    const first = await sampleFrames(stage(page, id), () =>
+      stage(page, id).evaluate(async (box: HTMLElement) => {
+        box.dataset.toggle = '0';
+        box.replaceChildren();
+        box.insertAdjacentHTML('beforeend', '<tanrei-toolbar label="Late"><tanrei-button variant="outlined" toggle>Late</tanrei-button></tanrei-toolbar>');
+        const toggle = box.querySelector('tanrei-button') as HTMLElement & { selected: boolean; updateComplete: Promise<unknown> };
+        await toggle.updateComplete;
+        toggle.selected = true;
+        await toggle.updateComplete;
+      }),
+      { elements: false, probe: toggleFrame },
+    );
+    expect(first.rest.probe.selected).toBe(true);
+    const drawn = first.frames.filter((frame) => 'look' in frame.probe);
+    expect(drawn.length, 'the late toolbar is drawn').toBeGreaterThan(0);
+    for (const frame of drawn) expect(frame.probe, `frame ${frame.index}`).toEqual(first.rest.probe);
   });
 
   test('TBR-9: between two items the hit areas never overlap — in a floating toolbar they meet where the lengths TBR-16 keeps for the two items meet, in a docked one at the middle of the gap; an item reaches its whole target where it has no neighbour, and along a spread docked row', async ({ page }) => {

@@ -5484,7 +5484,9 @@ An item's own attribute `toolbar-overflow="never"` keeps it when space runs out 
 before it instead.
 
 It fires no event of its own: the items keep their own `click`, `change` and `toggle`, props, states, target and
-semantics, and are never restyled (TBR-9). Parts: `container` (the surface), `separator` (each line), `overflow-button`
+semantics, and are never restyled (TBR-9): a toggle item changes between its selected and unselected looks over its own
+Button's state motion (`comp.button.motion.state-duration` of its size, `sys.motion.role.state.default` at medium),
+with its `aria-pressed` changed at once, and the toolbar adds no motion of its own. Parts: `container` (the surface), `separator` (each line), `overflow-button`
 and `overflow-menu`. The item kinds: `action` (an icon-only `<tanrei-button>`; a toggle is one with `toggle`), `button`
 (a labelled one, which may be a toggle), `menu-button` (a `<tanrei-button id>` with a `<tanrei-menu anchor="<id>">`
 beside it, in the toolbar or the same group: the menu is held out of the line and not counted, TBR-24),
