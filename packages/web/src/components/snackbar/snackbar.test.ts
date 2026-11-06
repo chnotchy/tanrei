@@ -2258,11 +2258,18 @@ test.describe('controls: states, press, corners and focus style', () => {
 
   test('SNK-3, SNK-34: keyboard focus shows the ring around the action, and the expand and close Buttons their own, without animation; pointer focus does not', async ({ page }) => {
     for (const [id, name] of [['closable', 'close'], ['collapsed', 'expand'], ['action', 'action']] as const) {
-      await mountFixtures(page, spec, { icons: true });
+      // The fixture alone, after a button of the test's own: the keyboard comes from that button, so Tab crosses only
+      // the bar's own stops. Among every fixture, Tab went on from the clicked control to the end of the page and back
+      // — 38 presses for each control in Chromium and WebKit and 51 to 73 in Firefox, which does not wrap: 195 in all,
+      // and in harsh mode, with its gaps around each press, past the test's time. On the fixture alone, Tab from the
+      // clicked control does not reach it by the keyboard either: Firefox leaves the focus where the click put it (the
+      // page's last stop) without a ring, and WebKit leaves the page.
+      await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id), lead: '<button id="before">Before</button>' });
       const stop = part(page, id, name);
       const c = name === 'action' ? stop : inner(page, id, name);
       await stop.click();
       await expect(c, name).toHaveCSS('outline-style', 'none');
+      await page.locator('#before').focus();
       await tabTo(page, stop);
       await expect(c, name).toHaveCSS('outline-style', 'solid');
       expect(Number.parseFloat(await css(c, 'outline-offset')), name).toBeGreaterThanOrEqual(0);
