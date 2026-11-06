@@ -29,6 +29,7 @@ import {
   daysInMonth,
   deviceToday,
   fullDateText,
+  hasFocusVisibleOption,
   inMonth,
   isoOf,
   localeFirstDay,
@@ -40,6 +41,7 @@ import {
   numberText,
   parseIsoDate,
   parseValues,
+  pressGivesFocus,
   report,
   sameDate,
   supportedLocale,
@@ -435,8 +437,14 @@ export class TanreiCalendar extends TanreiElement {
         ? this.renderRoot?.querySelector<HTMLElement>(`.year[data-year="${this.activeYear}"]`)
         : this.renderRoot?.querySelector<HTMLElement>(`.page.current .day[data-date="${isoOf(this.active)}"]`);
     if (!target) return super.focus(options);
-    // Focused already (a dialog's focusing steps): focused again, so that whether its ring shows is the options' call.
-    if (options && 'focusVisible' in options && (this.renderRoot as ShadowRoot).activeElement === target) target.blur();
+    // Focused already (a dialog's focusing steps): focused again, so that whether its ring shows is the options' call —
+    // where the engine reads them. Where it does not (Chromium before 145, Safari before 18.4) it would be a script's
+    // focus, drawn by the engine's own rule with the ring after any focus that was not a pointer's — the dialog's among
+    // them; the focus it has was drawn as the press or the key that opened the dialog, and is kept.
+    if (options && 'focusVisible' in options && (this.renderRoot as ShadowRoot).activeElement === target) {
+      if (!hasFocusVisibleOption()) return;
+      target.blur();
+    }
     target.focus(options);
   }
 
@@ -1297,9 +1305,19 @@ export class TanreiCalendar extends TanreiElement {
     this.press.release(event);
   };
 
-  /** CAL-15: a press on a neighbouring month's day moves no focus by itself: the day takes it once its month is shown, if focus was in the grid. */
+  /**
+   * CAL-15: a press on a neighbouring month's day moves no focus by itself: the day takes it once its month is shown, if
+   * focus was in the grid — given then with no ring (CAL-19). Where focus() cannot be told to draw none (Chromium before
+   * 145, Safari before 18.4), a day with keyboard focus would hand the ring on to it, since the press gave no focus: there
+   * the press on an available day gives focus itself, as a pointer's, and the day of its month takes it from there.
+   */
   private readonly onGridMouseDown = (event: MouseEvent) => {
-    if (this.dayOf(event)?.dataset.adjacent !== undefined) event.preventDefault();
+    const cell = this.dayOf(event);
+    if (cell?.dataset.adjacent === undefined) return;
+    const focused = (this.renderRoot as ShadowRoot).activeElement;
+    const ringed = focused instanceof HTMLElement && focused.classList.contains('day') && focused.matches(':focus-visible');
+    if (ringed && event.button === 0 && !this.cfg.unavailable(parseIsoDate(cell.dataset.date)!) && !hasFocusVisibleOption()) return;
+    event.preventDefault();
   };
 
   private readonly onGridClick = (event: MouseEvent) => {
@@ -1374,6 +1392,12 @@ export class TanreiCalendar extends TanreiElement {
     if (!button) return;
     this.pressedBox = button.querySelector('.box');
     this.press.onPointerDown(event);
+  };
+
+  /** CAL-7, CAL-19: a press on the year that has keyboard focus gives it again, as a pointer's, where focus() cannot be told to draw no ring (`pressGivesFocus`). */
+  private readonly onYearsMouseDown = (event: MouseEvent) => {
+    const button = this.yearOf(event);
+    if (button) pressGivesFocus(event, button);
   };
 
   private readonly onYearsClick = (event: MouseEvent) => {
@@ -1755,6 +1779,7 @@ export class TanreiCalendar extends TanreiElement {
           @keydown=${this.onYearsKeyDown}
           @keyup=${this.press.onKeyUp}
           @pointerdown=${this.onYearsPointerDown}
+          @mousedown=${this.onYearsMouseDown}
           @pointerup=${this.press.release}
           @pointercancel=${this.press.release}
           @pointerleave=${this.press.release}

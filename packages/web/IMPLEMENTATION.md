@@ -6275,7 +6275,14 @@ where it was", which a disabled button cannot.
 
 **A chosen day of a neighbouring month (CAL-13, CAL-15).** With `show-adjacent-days`, pressing an available day of the
 previous or next month chooses it — `change` first — and then shows its month with the same motion; the chosen day is
-the active day and takes focus if focus was in the grid. An unavailable one does nothing.
+the active day and takes focus if focus was in the grid. An unavailable one does nothing. The press itself moves no
+focus (its `mousedown` default is prevented), and the day of its month is given focus with no ring (`focusVisible:
+false`). Chromium before 145 and Safari before 18.4 (`hasFocusVisibleOption()`) do not read that option, and draw a
+script's focus after a press that gave none as the last focus was drawn: after a day focused from the keyboard, with the
+ring. There, while a day has keyboard focus, a press on an available neighbouring day is left to give focus itself, as
+a pointer's, and the day of its month takes it from there with none. Likewise a press on the year that has keyboard
+focus lets that focus go (`pressGivesFocus()`), so that the press gives it again as a pointer's before the day view's
+active day takes it.
 
 **Keys (CAL-10…13).** The grid is one Tab stop (the active day): the arrows move by a day in the direction they point
 (mirrored right to left) or a week, Home and End to the ends of the week row, Page Up and Page Down by a month and with
