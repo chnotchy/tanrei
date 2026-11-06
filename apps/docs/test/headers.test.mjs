@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { describe, test } from 'node:test';
-import { headerRules, headersFor } from './browser/host.mjs';
+import { headerRules, headersFor, headersSentTo } from './browser/host.mjs';
 
 const rules = headerRules(fs.readFileSync(new URL('../public/_headers', import.meta.url), 'utf8'));
 const directives = (policy) => Object.fromEntries(policy.split(';').map((d) => d.trim()).filter(Boolean).map((d) => [d.split(/\s+/)[0], d.split(/\s+/).slice(1).join(' ')]));
@@ -14,6 +14,21 @@ describe('the host’s headers', () => {
     const read = headerRules('/*\n  A: one\n  B: one\n\n/x/*\n  ! A\n  A: two\n  B: two\n');
     assert.deepEqual(headersFor(read, '/x/y/'), { a: 'two', b: 'one, two' });
     assert.deepEqual(headersFor(read, '/z/'), { a: 'one', b: 'one' });
+  });
+
+  test('the test host sends every header to each engine, but the opener policy to WebKit (test/browser/host.mjs)', () => {
+    const headers = headersFor(rules, '/');
+    assert.equal(headers['cross-origin-opener-policy'], 'same-origin');
+    const agents = {
+      chromium: 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36',
+      firefox: 'Mozilla/5.0 (X11; Linux aarch64; rv:156.0) Gecko/20100101 Firefox/156.0',
+      webkit: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15',
+    };
+    assert.deepEqual(headersSentTo(headers, agents.chromium), headers);
+    assert.deepEqual(headersSentTo(headers, agents.firefox), headers);
+    assert.deepEqual(headersSentTo(headers, undefined), headers);
+    const { 'cross-origin-opener-policy': _, ...rest } = headers;
+    assert.deepEqual(headersSentTo(headers, agents.webkit), rest);
   });
 
   for (const pathname of ['/', '/components/dialog/', '/ja/components/dialog/', '/_astro/x.js']) {
