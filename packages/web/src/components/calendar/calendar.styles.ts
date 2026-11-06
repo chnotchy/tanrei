@@ -32,6 +32,14 @@ const [ADJACENT, OWN] = [side(0), side(1)];
 const mix = (key: string) => `color-mix(in srgb, var(--_${key}1) calc(var(--_mix) * 100%), var(--_${key}0))`;
 
 /**
+ * CAL-18, CAL-19: keyboard focus is focus on a cell the calendar marks `data-ring` — the calendar says how focus
+ * arrived and which keys worked the cell, since whether a key pressed after a pointer's press makes a focused element
+ * match `:focus-visible` is each engine's own guess, and an engine whose `focus()` does not read `focusVisible` draws a
+ * modal dialog's first focus with the indicator after a press.
+ */
+const keyboardFocus = (state: string) => state.replaceAll(':focus-visible', '[data-ring]:focus');
+
+/**
  * Where each state is read (CAL-18): hover and keyboard focus on the cell (a day's gridcell, a year's or the view
  * toggle's button), disabled as the day's `aria-disabled`, pressed as `data-pressed` on the container that answers the
  * press (`PressController`: a day's circle, or an in-range day's band). `:where()` keeps each selector at one class, so
@@ -40,7 +48,7 @@ const mix = (key: string) => `color-mix(in srgb, var(--_${key}1) calc(var(--_mix
 const on = (state: string) => {
   if (state === ':disabled') return ".cell:where([aria-disabled='true'])";
   if (state.startsWith('[')) return `.cell:where(:has(> .lane > ${state}))`;
-  return `.cell:where(${state})`;
+  return `.cell:where(${keyboardFocus(state)})`;
 };
 
 const STATE = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
@@ -360,8 +368,8 @@ export const styles = css`
   ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
 
   /* CAL-19, CAL-22: the ring (or the glow) around the circle — an in-range day's too — for keyboard focus only, never
-     animated. */
-  ${focusRing((focus) => `.cell${focus} .box`)}
+     animated: focus on a cell the calendar marks data-ring. */
+  ${focusRing((focus) => `.cell${keyboardFocus(focus)} .box`)}
 
   /* CAL-20: press-hold is carried by an element with no transition of its own. */
   .hold {
