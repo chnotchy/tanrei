@@ -58,6 +58,23 @@ export function focusWithin(host: Element): boolean {
 }
 
 /**
+ * Whether the engine reads `focusVisible` from the options of `focus()` (Chromium 145, Firefox 104, Safari 18.4). An
+ * engine that does not know it leaves it unread, and draws the focus indicator its own way for a script's focus: where
+ * the last focus was given from the keyboard, it draws one. Asked of a fresh element that is in no document, so that
+ * asking moves no focus: the options are read before the element is.
+ */
+export function hasFocusVisibleOption(): boolean {
+  let read = false;
+  document.createElement('div').focus({
+    get focusVisible() {
+      read = true;
+      return false;
+    },
+  } as FocusOptions);
+  return read;
+}
+
+/**
  * Focus back to `opener`, the element that had it when an overlay or a region opened (BSH-3, SSH-3) — or, where that
  * element is gone, cannot take focus or is inert, dropped from inside `host` (the platform's default: the document).
  */

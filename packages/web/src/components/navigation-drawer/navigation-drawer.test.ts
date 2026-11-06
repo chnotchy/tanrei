@@ -1501,6 +1501,34 @@ test.describe('the collapsed form', () => {
     expect(await menu(page, 'r').locator('button').evaluate((button) => button.matches(':focus-visible')), 'the menu button is given focus as a press gives it').toBe(false);
   });
 
+  test('NVD-37, NVD-22: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a pointer’s press on the menu button of the open drawer gives focus as the platform does, and the drawer closes with no focus indicator on the menu button', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
+    // Such an engine: focus() never reads the option (a dictionary member it does not know), so a script's focus is
+    // drawn by its own rule — after a drawer opened from the keyboard, with the indicator.
+    await page.evaluate(() => {
+      const focus = HTMLElement.prototype.focus;
+      HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
+        const known: FocusOptions = {};
+        if (options && 'preventScroll' in options) known.preventScroll = options.preventScroll;
+        focus.call(this, known);
+      };
+    });
+    await tabTo(page, menu(page, 'r').locator('button'));
+    await page.keyboard.press('Enter');
+    await motionEnded(drawer(page, 'r'));
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    const at = centre((await menu(page, 'r').boundingBox())!);
+    await page.mouse.move(at.x, at.y);
+    await motionEnded(drawer(page, 'r'));
+    await page.mouse.down();
+    await page.mouse.up();
+    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+    await motionEnded(drawer(page, 'r'));
+    expect(await drawer(page, 'r').evaluate((el: HTMLElement & { open: boolean }) => el.open), 'it closed').toBe(false);
+    expect(await menu(page, 'r').locator('button').evaluate((button) => button.matches(':focus-visible')), 'the menu button has focus as a press gives it, with no focus indicator').toBe(false);
+  });
+
   test('NVD-40, NVD-35, NVD-19, NVD-22: opened by its product while the selected destination in its column has focus, the destination keeps focus as the drawer widens and as it narrows back — nothing else takes focus on the way, and no frame changes its focused color — in every engine', async ({ page, browserName }) => {
     await page.setViewportSize({ width: 800, height: 720 });
     await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
