@@ -4301,6 +4301,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
     labelIconSize: 20.0,
     labelGap: 8.0,
     labelTypescale: _typescaleLabel,
+    motionResizeDuration: 300,
+    motionResizeEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionStateDuration: 250,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     requirementAsteriskGap: 2.0,

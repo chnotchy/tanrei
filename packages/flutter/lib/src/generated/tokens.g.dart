@@ -10721,6 +10721,8 @@ class TanreiFieldTokens {
     required this.labelIconSize,
     required this.labelGap,
     required this.labelTypescale,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.requirementAsteriskGap,
@@ -10747,6 +10749,10 @@ class TanreiFieldTokens {
   final double labelGap;
   /// `comp.field.label-typescale`
   final TanreiTextStyle labelTypescale;
+  /// `comp.field.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.field.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.field.motion-state-duration`
   final int motionStateDuration;
   /// `comp.field.motion-state-easing`
@@ -10777,6 +10783,8 @@ class TanreiFieldTokens {
     double? labelIconSize,
     double? labelGap,
     TanreiTextStyle? labelTypescale,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? requirementAsteriskGap,
@@ -10795,6 +10803,8 @@ class TanreiFieldTokens {
         labelIconSize: labelIconSize ?? this.labelIconSize,
         labelGap: labelGap ?? this.labelGap,
         labelTypescale: labelTypescale ?? this.labelTypescale,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         requirementAsteriskGap: requirementAsteriskGap ?? this.requirementAsteriskGap,

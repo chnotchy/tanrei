@@ -4606,6 +4606,8 @@ public data class TanreiFieldTokens(
     public val labelIconSize: Dp,
     public val labelGap: Dp,
     public val labelTypescale: TanreiTextStyle,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val requirementAsteriskGap: Dp,
