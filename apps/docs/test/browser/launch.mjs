@@ -25,22 +25,28 @@ export const ENGINE_NAMES = ['chromium', 'firefox', 'webkit'];
 // policy in a browser (no page opens another; the CSP test reads the headers the host sends, which this leaves as they
 // are), and the other engines keep it.
 //
-// Chromium's V8 collects garbage on the page's own thread (`--single-threaded-gc`), so that no collector job of V8's
-// competes with the compositor's raster jobs in the renderer's thread pool. Beside those jobs, a page of the headless
-// shell (which rasters in software) could stop for good as it was scrolled: a tile painted ahead of the view by the
-// raster pool's low-priority job is needed once the page scrolls to it; that job finishes it, is asked to yield to the
-// collector's higher-priority jobs, and returns without waking the pool's other job, the one that runs the step that
-// lets the newly committed tree be shown (`CategorizedWorkerPoolJob::Run` in cc/raster/categorized_worker_pool.cc,
-// Chromium 153; unchanged on Chromium's main branch). Nothing wakes it again, the tree is never shown, the next commit
-// never comes, and the page's thread waits for it in its next write to the compositor (a scroll:
-// `LayerTreeHost::WaitForCommitCompletion`) without end: no script runs, no timer fires, the debugger cannot stop it.
-// Measured in the CI's container image (its arm64 build, 2 CPUs): the fixture gallery's file stopped on a page in 2 of 72 runs recorded with a
-// trace, each time on that wait (the renderer's native stack and its trace both show it). A page made to show it
-// (tiles slow to raster, a window scrolled each frame, garbage made each frame), four at a time for 5 minutes, three
-// times: 76 of 125 pages stopped; side by side with the flag, 0 of 96; without the garbage, 0 of 32. With the flag the
-// gallery's file passed in 99 runs of 99, and takes as long as without it.
+// Chromium rasters its pages on the GPU, which is SwiftShader's, on the CPU: the headless shell would raster them in
+// software, and a page rastered in software can stop for good as it is scrolled. The compositor's raster pool runs
+// its tasks in two jobs of the renderer's thread pool: a tile painted ahead of the view goes to the low-priority one.
+// Once the page scrolls to that tile, the step that lets the newly committed tree be shown waits for it. The
+// low-priority job finishes the tile, is asked to yield to any higher-priority job waiting for a worker (V8's
+// compilers, its collector, a script being streamed), and returns without waking the pool's other job, the one that
+// runs that step (`CategorizedWorkerPoolJob::Run` in cc/raster/categorized_worker_pool.cc, Chromium 153; unchanged on
+// Chromium's main branch). Nothing wakes it again: the tree is never shown, the next commit never comes, and the page's
+// thread waits for it in its next write to the compositor (a scroll: `LayerTreeHost::WaitForCommitCompletion`) without
+// end. No script runs, no timer fires, the debugger cannot stop it, and the fixture gallery's test names it "held
+// outside script". A tile rastered on the GPU is never one of that job's tasks (cc/tiles/tile_manager.cc: such a task
+// is not run concurrently, and only the pool's other job runs those), so no tile can be left waiting there.
+// (V8 collecting its garbage on the page's thread took one of those jobs away, not the others: the gallery's file still
+// stopped in CI.) Measured in the CI's container image (its arm64 build, 2 CPUs): every component page scrolled through
+// at both widths ran 109758 raster tasks on the GPU, none of them in the low-priority job; in software, 12 of those
+// pages ran 4710 of their 15611 there. A page made to show it (tiles slow to raster, a window scrolled each frame, fresh
+// functions made hot each frame), four at a time for 5 minutes, with V8's collector on the page's thread: 5 of 58
+// pages stopped in software, the three traced each on that wait, the low-priority job the last to run a raster task,
+// its worker going on to V8's compile jobs; on the GPU, with garbage made each frame as well, 0 of 60 (it draws about a
+// seventh as many frames there, so this count alone proves little; the task counts above are the reason).
 const OPTIONS = {
-  chromium: { args: ['--js-flags=--single-threaded-gc'] },
+  chromium: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-gpu-rasterization'] },
   firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } },
 };
 
@@ -57,11 +63,23 @@ export function engines(fallback = 'chromium') {
 }
 
 /**
- * Launch an engine as every browser test launches it.
+ * Launch an engine as every browser test launches it. A Chromium that does not raster on the GPU is closed and the
+ * launch fails, saying so: the switches above would otherwise stop working without anyone noticing (a new Chromium
+ * that reads them otherwise, a GPU it refuses), and the gallery's pages would be left to stop as before.
  * @param {string} [engine]
  * @returns {Promise<import('@playwright/test').Browser>}
  */
-export function launch(engine = 'chromium') {
+export async function launch(engine = 'chromium') {
   if (!ENGINE_NAMES.includes(engine)) throw new Error(`no engine "${engine}": the engines are ${ENGINE_NAMES.join(', ')}`);
-  return playwright[engine].launch(OPTIONS[engine]);
+  const browser = await playwright[engine].launch(OPTIONS[engine]);
+  if (engine === 'chromium') {
+    const session = await browser.newBrowserCDPSession();
+    const { featureStatus } = (await session.send('SystemInfo.getInfo')).gpu;
+    await session.detach();
+    if (!featureStatus.rasterization?.startsWith('enabled')) {
+      await browser.close();
+      throw new Error(`Chromium rasters in software (rasterization: ${featureStatus.rasterization}, gpu_compositing: ${featureStatus.gpu_compositing}), where a scrolled page can stop for good: it is launched to raster on SwiftShader's GPU (launch.mjs)`);
+    }
+  }
+  return browser;
 }
