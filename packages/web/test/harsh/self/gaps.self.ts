@@ -3,23 +3,35 @@
 import { expect, test } from '@playwright/test';
 import { harsh } from '../../harsh.js';
 import { checkHarsh } from '../playwright-test.js';
+import { late } from './late.js';
 
 /** How long the button stays pressed after the pointer is released: shorter than the gap after an action (300 ms). */
 const HOLD = 250;
 
+/** The page notes, in its own clock, when the pointer was released. */
 const BUTTON = `<button id="button" style="position: absolute; left: 10px; top: 10px; width: 100px; height: 40px">press</button>
 <script>
   const button = document.getElementById('button');
   let release;
   button.addEventListener('pointerdown', () => { clearTimeout(release); button.toggleAttribute('data-pressed', true); });
-  button.addEventListener('pointerup', () => { release = setTimeout(() => button.toggleAttribute('data-pressed', false), ${HOLD}); });
+  button.addEventListener('pointerup', () => {
+    window.releasedAt = performance.now();
+    release = setTimeout(() => button.toggleAttribute('data-pressed', false), ${HOLD});
+  });
 </script>`;
 
 test('race: a press-hold read after the click returns', async ({ page }) => {
   await page.setContent(BUTTON);
   await page.locator('#button').click();
-  // Read once, as a test that takes the hold to last past the click's round trip does: it does, by a fast machine.
-  expect(await page.locator('#button').getAttribute('data-pressed')).toBe('');
+  // Read once, as a test that takes the hold to last past the click's round trip does: it does, by a fast machine. With
+  // harsh mode on, the gap after the click outlasts it; on a loaded machine the round trip alone may, and the race says
+  // it was late.
+  const { pressed, since } = await page.locator('#button').evaluate((button) => ({
+    pressed: button.getAttribute('data-pressed'),
+    since: performance.now() - ((window as unknown as { releasedAt?: number }).releasedAt ?? NaN),
+  }));
+  if (since >= HOLD) late(`read ${Math.round(since)} ms after the release, past the ${HOLD} ms hold`);
+  expect(pressed).toBe('');
 });
 
 test('sound: a press-hold read while the pointer holds it', async ({ page }) => {
