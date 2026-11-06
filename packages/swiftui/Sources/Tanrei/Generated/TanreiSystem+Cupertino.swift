@@ -1188,6 +1188,7 @@ private let cupertinoButtonTokens = TanreiButtonTokens(
   busyIndicatorThickness: 2,
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
+  motionBusyFadeDuration: 200,
   motionFeedbackDuration: 450,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   toneContainerOpacity: 0.16,

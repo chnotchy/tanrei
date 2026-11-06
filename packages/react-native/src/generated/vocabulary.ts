@@ -1040,6 +1040,7 @@ export interface TanreiButtonTokens {
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
+  readonly motionBusyFadeDuration: number;
   readonly motionFeedbackDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;

@@ -1967,6 +1967,7 @@ export const m3ExpressiveLike = {
       hoveredContainerShape: 9999,
       hoveredOpacity: 1,
       motionBusyCycleDuration: 1000,
+      motionBusyFadeDuration: 150,
       motionFeedbackDuration: 450,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 9999,

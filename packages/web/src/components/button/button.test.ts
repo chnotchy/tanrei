@@ -6,6 +6,8 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, res
 import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
@@ -2160,7 +2162,7 @@ test.describe('busy, reachable while disabled, full width', () => {
     });
   const clicked = (page: P) => page.evaluate(() => (window as any).clicks as number);
 
-  test('BTN-36: a busy button keeps its size, draws its enabled tokens with no hovered state, hides its label and icon in place, and turns the loading indicator’s arc at its centre in the icon’s box and the label’s color; not busy, its label is back at once', async ({ page }) => {
+  test('BTN-36: a busy button keeps its size, draws its enabled tokens with no hovered state, hides its label and icon in place, and turns the loading indicator’s arc at its centre in the icon’s box and the label’s color; not busy, the arc is gone at once and its label is back once it has faded in', async ({ page }) => {
     await mountOne(page, [fx('rest', { variant: 'filled' }), fx('busy', { variant: 'filled', busy: true, busyLabel: 'Deploying' }), fx('icon', { variant: 'text', busy: true, busyLabel: 'Saving', label: 'Save' }, '', { slots: { icon: 'save' } }), fx('icon-rest', { variant: 'text', label: 'Save' }, '', { slots: { icon: 'save' } })]);
     const size = async (id: string) => (await inner(page, id).boundingBox())!;
     expect(await size('busy')).toMatchObject({ width: (await size('rest')).width, height: (await size('rest')).height });
@@ -2193,13 +2195,97 @@ test.describe('busy, reachable while disabled, full width', () => {
     const alone = await arc('icon');
     expect(alone.size).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-icon-size-without-label-medium'), 1);
     expect(alone.stroke).toBe(await resolveColor(page, '--tanrei-comp-button-text-icon-color'));
-    // Not busy: the label is drawn again at once, and the arc is gone.
+    // Not busy: the arc is gone at once, and the label is drawn again once it has faded in (the next test follows it).
     await page.locator(button('busy')).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }) => {
       el.busy = false;
       await el.updateComplete;
     });
-    expect(await inner(page, 'busy').locator('.label').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
     await expect(inner(page, 'busy').locator('.busy-arc')).toHaveCount(0);
+    await motionEnded(page.locator(button('busy')));
+    expect(await inner(page, 'busy').locator('.label').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+  });
+
+  /** BTN-36: what a busy button's stage draws and exposes in one frame — the label's and the icon's opacity, the arc, the button's box, and its ARIA. */
+  const busyFrame: Probe = (root) => {
+    const native = root.querySelector('tanrei-button')!.shadowRoot!.querySelector('[part="container"]')!;
+    const r = native.getBoundingClientRect();
+    const style = (selector: string) => getComputedStyle(native.querySelector(selector)!);
+    return {
+      label: Number(style('.label').opacity),
+      icon: Number(style('.icon').opacity),
+      iconShown: style('.icon').visibility === 'visible',
+      arc: !!native.querySelector('.busy-arc'),
+      box: [r.x, r.y, r.width, r.height].join(','),
+      ariaDisabled: native.getAttribute('aria-disabled') ?? '',
+      description: native.getAttribute('aria-description') ?? '',
+    };
+  };
+  const setBusy = (page: P, id: string, busy: boolean) =>
+    page.locator(button(id)).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }, on) => {
+      el.busy = on;
+      await el.updateComplete;
+    }, busy);
+  const stageOf = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+
+  test('BTN-36: when busy ends the label and the icon fade back in, and when it begins they fade out, over busy-fade-duration on state-easing with nothing changing place or size; the arc goes and comes at once', async ({ page }) => {
+    await mountOne(page, [fx('saving', { variant: 'tonal', busy: true, busyLabel: 'Saving' }, 'Save', { slots: { icon: 'save' } })]);
+    const duration = await resolveToken(page, '--tanrei-comp-button-motion-busy-fade-duration', 'duration');
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-compact', 'duration'));
+    const easing = await resolveEasing(page, '--tanrei-comp-button-motion-state-easing');
+    for (const [busy, from, to] of [[false, 0, 1], [true, 1, 0]] as const) {
+      const seen = await sampleFrames(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      const way = busy ? 'out' : 'in';
+      expect(seen.before.probe, way).toMatchObject({ label: from, icon: from, iconShown: busy, arc: !busy });
+      expect(seen.rest.probe, way).toMatchObject({ label: to, icon: to, iconShown: !busy, arc: busy });
+      // A fade over several frames, of the label and of the icon together.
+      expectAnimated(seen, 'label');
+      expectAnimated(seen, 'icon');
+      expectNoFlicker(seen);
+      for (const frame of seen.frames) {
+        expect(frame.probe.box, `${way}, frame ${frame.index}: the box`).toBe(seen.before.probe.box);
+        // The arc is gone (or there) from the first frame; the icon is drawn for the whole of its way in and out.
+        expect(frame.probe.arc, `${way}, frame ${frame.index}: the arc`).toBe(busy);
+        if (Number(frame.probe.icon) > 0) expect(frame.probe.iconShown, `${way}, frame ${frame.index}: the icon is drawn`).toBe(true);
+      }
+      // Each runs on the tokens' duration and curve.
+      const fades = seen.motions.filter((motion) => motion.name === 'opacity');
+      expect(fades.map((motion) => motion.on).sort(), way).toEqual(['span.icon', 'span.label']);
+      for (const motion of fades) expect([motion.on, motion.duration, motion.easing]).toEqual([motion.on, duration, easing]);
+    }
+  });
+
+  test('BTN-36, BTN-37: what a busy button exposes changes at once when busy changes, not at the end of the fade: in the fade’s first frame its name is the same and aria-disabled and its description already say whether it is busy', async ({ page }) => {
+    await mountOne(page, [fx('saving', { variant: 'filled', busy: true, busyLabel: 'Saving' }, 'Save', { slots: { icon: 'save' } })]);
+    const native = inner(page, 'saving');
+    await expect(native).toHaveAccessibleName('Save');
+    await expect(native).toHaveAccessibleDescription('Saving');
+    for (const busy of [false, true]) {
+      // The first frame of the fade, held: the label still stands at the opacity it fades from.
+      const frozen = await freezeFirstFrame(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      try {
+        expect(frozen.frame.probe.label, `busy ${busy}: the fade has not moved on`).toBe(busy ? 1 : 0);
+        expect(frozen.frame.probe).toMatchObject({ ariaDisabled: busy ? 'true' : '', description: busy ? 'Saving' : '' });
+        await expect(native).toHaveAccessibleName('Save');
+        await expect(native).toHaveAccessibleDescription(busy ? 'Saving' : '');
+        if (busy) await expect(native).toHaveAttribute('aria-disabled', 'true');
+        else await expect(native).not.toHaveAttribute('aria-disabled');
+        expect(await native.locator('.label').evaluate((el) => getComputedStyle(el).opacity), `busy ${busy}: still held`).toBe(busy ? '1' : '0');
+      } finally {
+        await frozen.release();
+      }
+      await motionEnded(page.locator(button('saving')));
+    }
+  });
+
+  test('BTN-36: under reduced motion the label and the icon are drawn again, and stop being drawn, at once', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountOne(page, [fx('saving', { variant: 'tonal', busy: true, busyLabel: 'Saving' }, 'Save', { slots: { icon: 'save' } })]);
+    for (const busy of [false, true]) {
+      const seen = await sampleFrames(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      expectFirstFrameAtRest(seen);
+      expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
+      expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
+    }
   });
 
   test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {

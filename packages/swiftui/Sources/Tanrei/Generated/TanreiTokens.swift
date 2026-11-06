@@ -3085,6 +3085,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var busyIndicatorThickness: CGFloat
   public var containerShape: CGFloat
   public var motionBusyCycleDuration: Double
+  public var motionBusyFadeDuration: Double
   public var motionFeedbackDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var toneContainerOpacity: Double
@@ -3103,6 +3104,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     busyIndicatorThickness: CGFloat,
     containerShape: CGFloat,
     motionBusyCycleDuration: Double,
+    motionBusyFadeDuration: Double,
     motionFeedbackDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     toneContainerOpacity: Double,
@@ -3116,6 +3118,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.busyIndicatorThickness = busyIndicatorThickness
     self.containerShape = containerShape
     self.motionBusyCycleDuration = motionBusyCycleDuration
+    self.motionBusyFadeDuration = motionBusyFadeDuration
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateEasing = motionStateEasing
     self.toneContainerOpacity = toneContainerOpacity

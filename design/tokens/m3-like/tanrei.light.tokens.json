@@ -11800,6 +11800,14 @@
             },
             "$description": "One turn of the busy arc (BTN-36): the loading indicator's. Under reduced motion it does not turn, and its opacity eases once per this time instead."
           },
+          "busy-fade-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the label and the icon take to fade out when the button becomes busy, and back in when it stops (BTN-36), with state-easing: a change of what a small part draws in place, the same at every size. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          },
           "feedback-duration": {
             "$type": "duration",
             "$value": {
