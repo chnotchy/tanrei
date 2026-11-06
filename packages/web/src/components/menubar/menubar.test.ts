@@ -1565,27 +1565,27 @@ test.describe('text size, colors, motion', () => {
     expect(await css(c, 'transition-timing-function')).toContain(easing);
     const moving = (label: string) => menu(page, 'editor', label).evaluate((el) => {
       const surface = el.shadowRoot!.querySelector('tanrei-menu')!.shadowRoot!.querySelector('.surface')!;
-      return { classes: [...surface.classList].filter((name) => name === 'entering' || name === 'leaving').join(','), animations: surface.getAnimations().length, shown: surface.matches(':popover-open') };
+      return { open: surface.classList.contains('open'), animations: surface.getAnimations().length, shown: surface.matches(':popover-open') };
     });
     // The first to open moves as MNU-4 says.
     await focusTitle(page, 'editor', 'File');
     await page.keyboard.press('Enter');
     await expect.poll(() => open(page, 'editor')).toEqual(['File']);
-    await expect.poll(() => moving('File')).toMatchObject({ classes: 'entering', shown: true });
+    await expect.poll(() => moving('File')).toMatchObject({ open: true, shown: true });
     expect((await moving('File')).animations).toBeGreaterThan(0);
     // Along the bar: the one is gone and the other there at once, neither moving — by a key and by a pointer.
     await page.keyboard.press('ArrowRight');
     await expect.poll(() => open(page, 'editor')).toEqual(['Edit']);
-    await expect.poll(() => moving('Edit')).toEqual({ classes: '', animations: 0, shown: true });
-    expect(await moving('File')).toEqual({ classes: '', animations: 0, shown: false });
+    await expect.poll(() => moving('Edit')).toEqual({ open: true, animations: 0, shown: true });
+    expect(await moving('File')).toEqual({ open: false, animations: 0, shown: false });
     const at = await box(container(page, 'editor', 'View'));
     await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
-    await expect.poll(() => moving('View')).toEqual({ classes: '', animations: 0, shown: true });
-    expect(await moving('Edit')).toEqual({ classes: '', animations: 0, shown: false });
+    await expect.poll(() => moving('View')).toEqual({ open: true, animations: 0, shown: true });
+    expect(await moving('Edit')).toEqual({ open: false, animations: 0, shown: false });
     // The last to close moves as MNU-4 says: still shown while it fades.
     await page.keyboard.press('Escape');
     await expect.poll(() => open(page, 'editor')).toEqual([]);
-    expect(await moving('View')).toMatchObject({ classes: 'leaving', shown: true });
+    expect(await moving('View')).toMatchObject({ open: false, shown: true });
     expect((await moving('View')).animations).toBeGreaterThan(0);
     await menu(page, 'editor', 'View').evaluate((el) => {
       for (const animation of el.shadowRoot!.querySelector('tanrei-menu')!.shadowRoot!.querySelector('.surface')!.getAnimations()) animation.finish();
@@ -1593,7 +1593,7 @@ test.describe('text size, colors, motion', () => {
     await expect.poll(async () => (await moving('View')).shown, { timeout: 3000 }).toBe(false);
     // Opened again alone, a menu that was once swapped in moves again.
     await page.keyboard.press('Enter');
-    await expect.poll(() => moving('View')).toMatchObject({ classes: 'entering', shown: true });
+    await expect.poll(() => moving('View')).toMatchObject({ open: true, shown: true });
     await page.keyboard.press('Escape');
     // Reduced motion: the colors at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -2288,7 +2288,8 @@ test.describe('entries that act', () => {
     await expect.poll(() => state(page, 'mixed')).toMatchObject({ open: [], focus: 'title:Run', stop: 'Run' });
     expect(await log(page)).toEqual(['toggle:View:false']);
     expect(await css(itemContainer(page, 'mixed', 'Run'), 'outline-style')).toBe('solid');
-    expect(await surfaceShown(menu(page, 'mixed', 'View').locator('tanrei-menu'))).toBe(false);
+    // Gone once its exit has played: even where motion is reduced it fades out, over sys.motion.role.reduced (MNU-4).
+    await expect.poll(() => surfaceShown(menu(page, 'mixed', 'View').locator('tanrei-menu'))).toBe(false);
     // No menu follows focus any more: on to Documentation, and round to File, whose menu stays closed…
     await page.keyboard.press('ArrowRight');
     expect(await state(page, 'mixed')).toMatchObject({ open: [], focus: 'title:Documentation' });
