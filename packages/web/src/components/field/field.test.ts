@@ -5,6 +5,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('field');
 const textField = loadSpec('text-field');
@@ -27,12 +30,12 @@ const OWN: Record<string, string> = {
   '.optional-tag': `${ROW} > .requirement-box > .optional-tag`,
   '.label-line': '.frame > .label-line',
   '.value-text': '.frame > .label-line > .value-text',
-  '.supporting': '.frame > .supporting',
+  '.supporting': '.frame > .supporting-box > .supporting',
   // The help and the error text are one column beside the count (FLD-7, FLD-31).
-  '.texts': '.frame > .supporting > .texts',
-  '.supporting-text': '.frame > .supporting > .texts > .supporting-text',
-  '.error-text': '.frame > .supporting > .texts > .error-text',
-  '.counter': '.frame > .supporting > .counter',
+  '.texts': '.frame > .supporting-box > .supporting > .texts',
+  '.supporting-text': '.frame > .supporting-box > .supporting > .texts > .supporting-text',
+  '.error-text': '.frame > .supporting-box > .supporting > .texts > .error-text',
+  '.counter': '.frame > .supporting-box > .supporting > .counter',
 };
 /** A Tag has a `.label` of its own in its shadow root, so each part is named with its parents in the field's. */
 const part = (page: P, id: string, selector: string) =>
@@ -539,7 +542,7 @@ test.describe('behavior', () => {
     near((await box(host(page, 'slider'))).height, before, 'and returns');
   });
 
-  test('FLD-31: under the default system (replace) the error text is the row’s first line, supporting-text.gap below the control, in the help’s place, and a field in error is as tall as at rest; under append it is drawn error-text.gap below the help’s last line, or as the row’s first line where there is no help; it starts where the help starts, wraps and is never cut; under append a field with a help is taller in error by the gap and the error text’s lines; no room is kept for an error before; it comes and goes at once, with no motion of its own, and an error without words draws none', async ({ page }) => {
+  test('FLD-31: under the default system (replace) the error text is the row’s first line, supporting-text.gap below the control, in the help’s place, and a field in error is as tall as at rest; under append it is drawn error-text.gap below the help’s last line, or as the row’s first line where there is no help; it starts where the help starts, wraps and is never cut; under append a field with a help is taller in error by the gap and the error text’s lines; no room is kept for an error before, and an error without words draws none', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['text-stacked-supporting-error', 'text-outlined-supporting-error', 'text-stacked-supporting-error-long', 'text-stacked-supporting-error-rtl', 'slider-error-without-text'].includes(f.id)),
       fx('both', { label: 'Volume', supportingText: 'Help.', error: true, errorText: 'Wrong.' }),
@@ -602,25 +605,148 @@ test.describe('behavior', () => {
     near(rw.x + rw.width, rightEdge, 'right-to-left: the error text at the right edge');
     expect(rightEdge, 'right-to-left: the row is on the right').toBeGreaterThan((await box(host(page, rtl))).x + (await box(host(page, rtl))).width / 2);
     expect(await css(part(page, rtl, '.error-text'), 'text-align')).toBe('right');
-    // It comes and goes in the same frame, with no motion of the row: no transition but the color's, no animation.
-    expect(await css(part(page, 'both', '.error-text'), 'transition-property')).toBe('color');
-    expect(await css(part(page, 'both', '.error-text'), 'animation-name')).toBe('none');
-    expect(await css(part(page, 'both', '.texts'), 'transition-property')).toBe('all');
-    expect(Number.parseFloat(await css(part(page, 'both', '.texts'), 'transition-duration'))).toBe(0);
-    const heights = await host(page, 'both').evaluate(async (el: HTMLElement & { error: boolean; updateComplete: Promise<unknown> }) => {
-      const out: number[] = [];
-      el.error = false;
-      await el.updateComplete;
-      out.push(el.getBoundingClientRect().height, el.shadowRoot!.querySelectorAll('.error-text').length);
+  });
+
+  /** FLD-31: what the row's motion is read by, in every frame — the field, its control, its error text, a line below it. */
+  const rowProbe: Probe = (root) => {
+    const field = root.querySelector('tanrei-field')!;
+    const control = field.querySelector(':scope > :not([slot])')!;
+    const [f, c] = [field.getBoundingClientRect(), control.getBoundingClientRect()];
+    const text = field.shadowRoot!.querySelector('.error-text');
+    const icon = control.shadowRoot?.querySelector('.trailing');
+    const after = root.parentElement!.querySelector(':scope > .after-field')?.getBoundingClientRect();
+    return {
+      height: f.height,
+      fieldTop: f.top,
+      fieldBottom: f.bottom,
+      controlTop: c.top,
+      controlBottom: c.bottom,
+      errorTop: text ? text.getBoundingClientRect().top : c.bottom + 4,
+      errors: field.shadowRoot!.querySelectorAll('.error-text').length,
+      opacity: text ? Number(getComputedStyle(text).opacity) : -1,
+      iconColor: icon ? getComputedStyle(icon).color : '',
+      // The color as one number that changes with any of its channels, for counting the frames it moves in.
+      icon: icon ? [...getComputedStyle(icon).color.matchAll(/-?\d*\.?\d+/g)].reduce((sum, channel) => sum + Number(channel[0]), 0) : 0,
+      afterTop: after ? after.top : f.bottom,
+    };
+  };
+  /** An outlined text input, which draws the label itself (FLD-25), with a glyph at its end: a field as tall as its control. */
+  const GROWING = '<tanrei-text-input variant="outlined" value="ada@"><span slot="trailing-icon">info</span></tanrei-text-input>';
+  /** A line of the page below the field, which moves with it (MOT-5). */
+  const lineBelow = (page: P, id: string) => stage(page, id).evaluate((el) => el.insertAdjacentHTML('afterend', '<p class="after-field" style="margin: 0">Below.</p>'));
+  const setNow = (page: P, id: string, props: Record<string, unknown>) =>
+    host(page, id).evaluate(async (el, p) => {
+      Object.assign(el, p);
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+    }, props);
+  const heightMotions = (seen: Frames) => seen.motions.filter((motion) => /^(block-size|height)$/.test(motion.name));
+  const where = (motion: { on: string }) => motion.on.split('.').slice(0, 2).join('.');
+
+  test('FLD-31: WHEN the error text appears and the field grows with it THE field moves to its new height in one motion, in its layout, over comp.field.motion.resize-duration with resize-easing, anchored at its top — its control and the error text keep their places and what stands below moves with it at every frame — and the error text fades in over the state motion while the text input’s trailing icon eases its color (TXI-14); WHEN it goes the text is gone at once and the row closes over the same motion', async ({ page }) => {
+    await mount(page, [fx('grow', { label: 'Email', errorText: 'Enter a complete email address.' }, GROWING)]);
+    await lineBelow(page, 'grow');
+    const [rowGap, line] = [await token(page, 'supporting-text-gap'), Math.round((await box(control(page, 'grow'))).height)];
+    const appearing = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: true }), { probe: rowProbe });
+    const [before, rest] = [appearing.before.probe, appearing.rest.probe];
+    // About 48 to 68: the control alone, then the control, the row's gap and one line of error text.
+    expect([Math.round(Number(before.height)), Math.round(Number(rest.height))]).toEqual([line, line + rowGap + 16]);
+    expect(line, 'an outlined text input of the default size').toBe(48);
+    expectAnimated(appearing, 'height', { minSteps: 4 });
+    // One motion: the height never turns back, and never leaves the path from 48 to 68 (MOT-2).
+    const heights = [before, ...appearing.frames.map((frame) => frame.probe), rest].map((probe) => Number(probe.height));
+    for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i - 1} does not shrink`).toBeGreaterThanOrEqual(heights[i - 1]! - 0.01);
+    // Anchored at its top: the field and its control stay, the error text keeps its offset from the control, and the
+    // line below the field follows its bottom edge at every frame.
+    for (const frame of appearing.frames) {
+      near(Number(frame.probe.fieldTop), Number(before.fieldTop), `frame ${frame.index}: the field’s top`, 0.01);
+      near(Number(frame.probe.controlTop), Number(before.controlTop), `frame ${frame.index}: the control`, 0.01);
+      expect(frame.probe.errors, `frame ${frame.index}: the error text is there from the first frame`).toBe(1);
+    }
+    expectAnchored(appearing, 'errorTop', 'controlBottom');
+    expectAnchored(appearing, 'afterTop', 'fieldBottom');
+    // The text fades in from transparent, and the trailing icon changes color, each over several frames.
+    expect(Number(appearing.frames[0]!.probe.opacity)).toBeLessThan(0.5);
+    expect(rest.opacity).toBe(1);
+    expectAnimated(appearing, 'opacity', { minSteps: 4 });
+    expect(before.iconColor).not.toBe(rest.iconColor);
+    expectAnimated(appearing, 'icon', { minSteps: 4 });
+    expectNoFlicker(appearing);
+    // On the tokens: the height on the resize role and the spatial curve, the fade on the state role and curve.
+    const [resize, resizeEasing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await resolveEasing(page, T('motion-resize-easing'))];
+    expect(resize).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-default', 'duration'));
+    expect(resizeEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    expect(heightMotions(appearing).map((motion) => [where(motion), motion.duration, motion.easing])).toEqual([['div.supporting-box', resize, resizeEasing]]);
+    const [state, stateEasing] = [await resolveToken(page, T('motion-state-duration'), 'duration'), await resolveEasing(page, T('motion-state-easing'))];
+    expect(state).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+    expect(appearing.motions.filter((motion) => motion.name === 'opacity').map((motion) => [where(motion), motion.duration, motion.easing])).toEqual([['div.error-text', state, stateEasing]]);
+    // At rest, nothing of the motion is left on the box.
+    const leftOver = await host(page, 'grow').evaluate((el) => {
+      const row = el.shadowRoot!.querySelector<HTMLElement>('.supporting-box')!;
+      return [row.getAttribute('style') ?? '', row.hasAttribute('data-resizing')];
+    });
+    expect(leftOver).toEqual(['', false]);
+    // The error goes: its text is gone in the first frame, and the row closes over the same motion, from the top.
+    const going = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: false }), { probe: rowProbe });
+    expect(going.frames[0]!.probe.errors).toBe(0);
+    near(Number(going.rest.probe.height), Number(before.height), 'back to the control’s height');
+    expectAnimated(going, 'height', { minSteps: 4 });
+    expectAnchored(going, 'controlTop', 'fieldTop');
+    expectAnchored(going, 'afterTop', 'fieldBottom');
+    expect(heightMotions(going).map((motion) => motion.duration)).toEqual([resize]);
+  });
+
+  test('FLD-31: WHEN the error text changes its words, or appears in the help’s place, and the field’s height stays as it was THE field draws the row at once, with no motion of its height and no fade; a change that comes while the height moves takes it on from the height then drawn', async ({ page }) => {
+    await mount(page, [
+      fx('swap', { label: 'Email', error: true, errorText: 'Enter a complete email address.' }, GROWING),
+      fx('helped', { label: 'Email', supportingText: 'We never share your address.', errorText: 'Enter a complete email address.' }, GROWING),
+      fx('turn', { label: 'Email', errorText: 'Enter a complete email address.' }, GROWING),
+    ]);
+    // New words of the same height.
+    const swapped = await sampleFrames(stage(page, 'swap'), () => setNow(page, 'swap', { errorText: 'Enter the whole address, with its domain.' }), { probe: rowProbe });
+    expect(heightMotions(swapped)).toEqual([]);
+    expect(swapped.motions.filter((motion) => motion.name === 'opacity')).toEqual([]);
+    for (const frame of swapped.frames) near(Number(frame.probe.height), Number(swapped.before.probe.height), `frame ${frame.index}: the height`, 0.01);
+    await expect(part(page, 'swap', '.error-text')).toHaveText('Enter the whole address, with its domain.');
+    // Under replace, an error text of one line in the place of a help of one line.
+    const replaced = await sampleFrames(stage(page, 'helped'), () => setNow(page, 'helped', { error: true }), { probe: rowProbe });
+    expect(heightMotions(replaced)).toEqual([]);
+    expect(replaced.motions.filter((motion) => motion.name === 'opacity')).toEqual([]);
+    for (const frame of replaced.frames) near(Number(frame.probe.height), Number(replaced.before.probe.height), `frame ${frame.index}: the height`, 0.01);
+    expect(replaced.frames[0]!.probe.opacity).toBe(1);
+    // Turned round in the middle: the error goes while the row opens — its motion held halfway, the same moment on any
+    // machine — and the height goes back from the height drawn then, not from either end (MOT-2).
+    const resting = (await box(host(page, 'turn'))).height;
+    const [midway, from, moving] = await host(page, 'turn').evaluate(async (el: HTMLElement & { error: boolean; updateComplete: Promise<unknown> }) => {
       el.error = true;
       await el.updateComplete;
-      out.push(el.getBoundingClientRect().height, el.shadowRoot!.querySelectorAll('.error-text').length);
-      return out;
+      const row = el.shadowRoot!.querySelector<HTMLElement>('.supporting-box')!;
+      const [opening] = row.getAnimations();
+      opening!.pause();
+      opening!.currentTime = Number(opening!.effect!.getComputedTiming().activeDuration) / 2;
+      const half = el.getBoundingClientRect().height;
+      el.error = false;
+      await el.updateComplete;
+      return [half, el.getBoundingClientRect().height, row.hasAttribute('data-resizing')] as const;
     });
-    expect(heights[1]).toBe(0);
-    expect(heights[3]).toBe(1);
-    near(heights[0]!, (await box(host(page, 'help'))).height, 'error off: the line and its gap are gone in the same frame');
-    near(heights[2]!, field.height, 'error on: the line is there in the same frame');
+    expect(midway, 'the row is partway open').toBeGreaterThan(resting + 0.5);
+    near(from, midway, 'it goes back from the height drawn', 0.5);
+    expect(moving, 'and moves there').toBe(true);
+    await motionEnded(host(page, 'turn'));
+    near((await box(host(page, 'turn'))).height, resting, 'and closes', 0.01);
+  });
+
+  test('FLD-31: WHERE motion is reduced THE field draws the row as it then is at once, the error text whole, and the colors change at once (FLD-13)', async ({ page }) => {
+    await mount(page, [fx('grow', { label: 'Email', errorText: 'Enter a complete email address.' }, GROWING)]);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const appearing = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: true }), { probe: rowProbe });
+    expectFirstFrameAtRest(appearing);
+    expect(heightMotions(appearing)).toEqual([]);
+    expect(appearing.frames[0]!.probe.opacity).toBe(1);
+    near(Number(appearing.frames[0]!.probe.height), Number(appearing.before.probe.height) + (await token(page, 'supporting-text-gap')) + 16, 'the new height in the first frame');
+    near(Number(appearing.frames[0]!.probe.height), Number(appearing.rest.probe.height), 'which is the height at rest', 0.01);
+    const going = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: false }), { probe: rowProbe });
+    expectFirstFrameAtRest(going);
+    expect(heightMotions(going)).toEqual([]);
   });
 
   test('FLD-8: error draws the label, the glyph, the asterisk and the help from the error parts of the tokens and the error text in its own color — under the default system nothing that was drawn before the error changes color, and the tag never does — exposes the control as invalid and puts it in its own error condition where it has one — a checkbox draws its error form, a slider stays as drawn; the field never sets error itself', async ({ page }) => {
@@ -1418,7 +1544,7 @@ test.describe('a control that is a box: a text input', () => {
       fx('stacked', { label: 'Email', supportingText: 'Help.', required: true }, textInput({ variant: 'stacked' })),
       fx('asterisk', { label: 'Email', required: true, requiredMark: 'asterisk' }, textInput({ variant: 'outlined' })),
       fx('none', { label: 'Email', required: true, requiredMark: 'none' }, textInput({ variant: 'filled' })),
-      fx('hidden', { label: 'Email', labelHidden: true, required: true }, textInput({ variant: 'outlined' })),
+      fx('hidden', { label: 'Email', required: true }, textInput({ variant: 'outlined' })),
       fx('optional', { label: 'Company', required: false, optional: true, error: true, errorText: 'Wrong.' }, textInput({ variant: 'outlined' })),
       { ...fx('glyph', { label: 'Name' }, textInput({ variant: 'outlined' })), slots: { 'label-icon': 'person' } },
       fx('slider', { label: 'Volume', required: true }),
@@ -1769,11 +1895,11 @@ test.describe('the value text', () => {
     // Without a value text the row is the frame's own child, as before; with the label not drawn none is drawn.
     await expect(part(page, 'slider', '.label-line')).toHaveCount(0);
     await set(page, 'slider-label-hidden', { valueText: '40' });
-    await expect(host(page, 'slider-label-hidden').locator('.frame .label-line, .frame > .value-text, .frame > .supporting > .value-text')).toHaveCount(0);
+    await expect(host(page, 'slider-label-hidden').locator('.frame .label-line, .frame > .value-text, .frame > .supporting-box > .supporting > .value-text')).toHaveCount(0);
     await set(page, 'slider-label-hidden', { labelHidden: false, label: '' });
-    await expect(host(page, 'slider-label-hidden').locator('.frame .label-line, .frame > .value-text, .frame > .supporting > .value-text')).toHaveCount(0);
+    await expect(host(page, 'slider-label-hidden').locator('.frame .label-line, .frame > .value-text, .frame > .supporting-box > .supporting > .value-text')).toHaveCount(0);
     // Never in the supporting row.
-    await expect(host(page, 'slider-error').locator('.frame > .supporting > .value-text')).toHaveCount(0);
+    await expect(host(page, 'slider-error').locator('.frame > .supporting-box > .supporting > .value-text')).toHaveCount(0);
     // The gap below the label row is still label.gap, with a value text and without.
     for (const id of ['slider-value-text', 'slider']) near((await box(control(page, id))).y - ((await box(part(page, id, '.label-row'))).y + (await box(part(page, id, '.label-row'))).height), await token(page, 'label-gap'), `${id}: label.gap`);
     near((await box(host(page, 'slider-value-text'))).height, (await box(host(page, 'slider'))).height, 'the field is no taller for a value text on the label’s line');

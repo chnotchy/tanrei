@@ -2138,7 +2138,16 @@ render the help while the error text is there, which is then the column's first 
 draws the error text below it, `--tanrei-comp-field-error-text-gap` away. A product that sets the token on an element
 of its own after the fields have drawn calls `requestUpdate()` on them. With no help the error text is the column's
 first line under both. The count is aligned to the first line and does not move when the error text comes or goes.
-Nothing is animated: the error text comes and goes with the layout. The description given to the control is what the
+The row stands in a `.supporting-box` that is always rendered (`display: flow-root`, so the row's gap is inside it; 0
+tall without a row). Where the error text comes, goes or changes its words, `AnimatedSize` (`src/primitives/motion.ts`)
+moves that box's height from the one the last frame drew to the new one, anchored at its start, over
+`--tanrei-comp-field-motion-resize-duration` with `-resize-easing` (`role.resize.default`, `easing.spatial`), in the
+layout, so that what stands below the field follows at every frame; nothing above the error text moves (FLD-31). An
+error text that appears while the height moves is drawn at opacity 0 for one style pass (`data-arriving`) and eases to
+1 on the state tokens; one that goes is taken out at once and the box closes after it. No motion where the height does
+not change (new words on as many lines, an error text in a help's place of the same height), under reduced motion, or
+while the field settles (MOT-3). Another change of the row while the height moves is taken on from the height drawn.
+The description given to the control is what the
 row draws — the help, the error text, or the two in that order — and the optional text; the live region is given the
 error text alone. `::part(supporting-text)` does not reach the error text: use `::part(error-text)`.
 
