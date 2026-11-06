@@ -7401,12 +7401,20 @@ was opened by the product — does not leave at all. Nor does a pointer's press 
 drawer is open (its `mousedown` default is prevented): left to the engine it gave focus to the button (Chromium, Firefox)
 or to the dialog itself (WebKit) before the click closed it, and the focused destination lost its focused color over the
 state motion, before the narrowing began; focus goes back once the close is under way, given as the press would have
-given it (`focusVisible: false`, so no focus indicator is drawn for a pointer's press). Opening, a destination that has
-focus in the column keeps it (`openModal()`'s `keep`): `showModal()` gives focus to the dialog's first focusable element
-(Chromium) or to the dialog (Firefox, WebKit) first, and Chromium brought the style up to date before it came back, so the
-destination and the menu button each began a motion that ended in no time; the destination carries `autofocus` while
-`showModal()` runs, which Chromium takes through slots and shadow roots, and Firefox and WebKit, which look only in the
-dialog's own tree, have focus given back in the same task before any style is read. Focus that comes from elsewhere moves
+given it (`focusVisible: false`, so no focus indicator is drawn for a pointer's press). An engine without that option
+(Chromium before 145, Safari before 18.4, both inside the package's floor; `hasFocusVisibleOption()`) draws a script's
+focus after a drawer opened from the keyboard with the indicator, so there the press is not prevented: it gives focus as
+the platform does, with no indicator, and the destination loses its focused color before the narrowing, as before.
+Opening, a destination that has focus in the column keeps it (`openModal()`'s `keep`): `showModal()` gives focus to the
+dialog's first focusable element (Chromium) or to the dialog (Firefox, WebKit) first, and Chromium brought the style up
+to date before it came back, so the destination and the menu button each began a motion that ended in no time; the
+destination carries `autofocus` while `showModal()` runs, which Chromium takes through slots and shadow roots, and
+Firefox and WebKit, which look only in the dialog's own tree, have focus given back in the same task before any style is
+read. That focus out to the dialog and back, in Firefox and WebKit, is what the standard asks: the dialog focusing steps
+look among the dialog's descendants, a slotted destination is none of them, and they fall back to the dialog itself
+(whatwg/html#9245 and #12649 ask whether they should look through slots). Nothing standard avoids it: a dialog that
+cannot take focus while it is shown (inert, or not rendered) leaves the steps nothing to focus, and every engine then
+takes focus from the destination. Focus that comes from elsewhere moves
 once the dialog is drawn, as before: WebKit draws a destination first styled in the top layer as it is then, so focus
 given to it earlier would draw its focused color at once. While it narrows it is exposed as the column is (NVD-23): the dialog takes the
 navigation landmark's role and the label (`role="navigation"`, its own `<nav>` `role="none"`) and is not focusable
