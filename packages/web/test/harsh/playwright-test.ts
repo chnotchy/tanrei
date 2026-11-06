@@ -54,10 +54,14 @@ if (harsh) {
   };
 }
 
-/** The client's input actions, by the object that carries them. A frame's are a locator's and a page's too. */
+/**
+ * The client's input actions, by the object that carries them. A frame's are a page's too, and a locator's, except
+ * the locator's own: `blur` and `drop` go to the browser past its frame (and `selectText` through an element handle's).
+ */
 const ACTIONS = {
   frame: ['check', 'click', 'dblclick', 'dispatchEvent', 'dragAndDrop', 'fill', 'focus', 'hover', 'press', 'selectOption', 'setChecked', 'setInputFiles', 'tap', 'type', 'uncheck'],
-  element: ['check', 'click', 'dblclick', 'dispatchEvent', 'fill', 'focus', 'hover', 'press', 'selectOption', 'setChecked', 'setInputFiles', 'tap', 'type', 'uncheck'],
+  element: ['check', 'click', 'dblclick', 'dispatchEvent', 'fill', 'focus', 'hover', 'press', 'selectOption', 'selectText', 'setChecked', 'setInputFiles', 'tap', 'type', 'uncheck'],
+  locator: ['blur', 'drop'],
   mouse: ['click', 'dblclick', 'down', 'move', 'up', 'wheel'],
   keyboard: ['down', 'insertText', 'press', 'type', 'up'],
   touchscreen: ['tap'],
@@ -67,13 +71,29 @@ const pause = (ms: number) => (ms ? new Promise((resolve) => setTimeout(resolve,
 
 const gapped = new WeakSet<object>();
 
-/** Wraps each named method of a prototype (once): the gap before, the action, the gap after. */
-function gapAround(proto: Record<string, unknown>, names: readonly string[]) {
+/** The methods a prototype has of its own, by name (not its constructor, nor one Playwright marks as its own, `_…`). */
+const methods = (proto: object) =>
+  Object.getOwnPropertyNames(proto).filter((name) => name !== 'constructor' && !name.startsWith('_') && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === 'function');
+
+/**
+ * Wraps each named method of a prototype (once): the gap before, the action, the gap after. It throws, naming them,
+ * when a name is not a method of the prototype — Playwright renamed or moved it, and the action would run with no gap
+ * — and, for a class whose every method is an input action (`whole`: the mouse's, the keyboard's, the touchscreen's),
+ * when the prototype has a method that is not named: a new action, which would run with none either.
+ */
+export function gapAround(proto: Record<string, unknown>, names: readonly string[], what: string, whole = false) {
   if (!harsh || gapped.has(proto)) return;
+  const missing = names.filter((name) => typeof proto[name] !== 'function');
+  const unnamed = whole ? methods(proto).filter((name) => !names.includes(name)) : [];
+  const list = (names: string[]) => names.map((name) => `${what}.${name}()`).join(', ');
+  const problems = [
+    ...(missing.length ? [`harsh mode found nothing to wrap for ${list(missing)}: has Playwright renamed or moved it?`] : []),
+    ...(unnamed.length ? [`harsh mode does not wrap ${list(unnamed)}: a new input action? Name it in ACTIONS (test/harsh/playwright-test.ts).`] : []),
+  ];
+  if (problems.length) throw new Error(problems.join('\n'));
   gapped.add(proto);
   for (const name of names) {
-    const action = proto[name];
-    if (typeof action !== 'function') continue;
+    const action = proto[name] as (...args: unknown[]) => Promise<unknown>;
     proto[name] = async function (this: unknown, ...args: unknown[]) {
       await pause(harsh!.before);
       const result = await action.apply(this, args);
@@ -88,17 +108,18 @@ let elementGapped = false;
 const unscripted = new WeakSet<BrowserContext>();
 
 async function gapActions(page: Page) {
-  gapAround(Object.getPrototypeOf(page.mainFrame()), ACTIONS.frame);
-  gapAround(Object.getPrototypeOf(page.mouse), ACTIONS.mouse);
-  gapAround(Object.getPrototypeOf(page.keyboard), ACTIONS.keyboard);
-  gapAround(Object.getPrototypeOf(page.touchscreen), ACTIONS.touchscreen);
+  gapAround(Object.getPrototypeOf(page.mainFrame()), ACTIONS.frame, 'Frame');
+  gapAround(Object.getPrototypeOf(page.locator('html')), ACTIONS.locator, 'Locator');
+  gapAround(Object.getPrototypeOf(page.mouse), ACTIONS.mouse, 'Mouse', true);
+  gapAround(Object.getPrototypeOf(page.keyboard), ACTIONS.keyboard, 'Keyboard', true);
+  gapAround(Object.getPrototypeOf(page.touchscreen), ACTIONS.touchscreen, 'Touchscreen', true);
   // An element handle's class is reached through a handle, asked of a page once a worker — never of a page whose
   // context has scripting off (a test that compares a page without its script): a handle asked there leaves that
   // page's `waitForFunction` never polling again (the steps stylesheet's test waited for its fonts until it timed out).
   if (elementGapped || unscripted.has(page.context())) return;
   elementGapped = true;
   const element = await page.evaluateHandle(() => document.documentElement);
-  gapAround(Object.getPrototypeOf(element), ACTIONS.element);
+  gapAround(Object.getPrototypeOf(element), ACTIONS.element, 'ElementHandle');
   await element.dispose();
 }
 
@@ -160,7 +181,7 @@ const PROBE = `<button id="button" style="position: absolute; left: 10px; top: 1
 <input id="field" style="position: absolute; left: 10px; top: 70px; width: 100px">
 <script>
   window.harshSeen = [];
-  for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'keydown', 'keyup', 'touchstart', 'touchend'])
+  for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'keydown', 'keyup', 'touchstart', 'touchend', 'focusout'])
     addEventListener(type, () => window.harshSeen.push(performance.now()), true);
 </script>`;
 
@@ -173,8 +194,8 @@ const MOTION_SLACK = 0.5;
 /**
  * Harsh mode's check of itself, in a context of its own on `browser` (a harsh one: its contexts and pages are slowed as
  * a test's are). It throws, saying what fell short, unless
- * - each kind of input action — a locator's (through its frame), an element handle's, the mouse's, the keyboard's, the
- *   touchscreen's — reaches the page at least `expected.before` ms after it was asked for and returns at least
+ * - each kind of input action — a locator's (through its frame, and one of its own), an element handle's, the mouse's,
+ *   the keyboard's, the touchscreen's — reaches the page at least `expected.before` ms after it was asked for and returns at least
  *   `expected.after` ms after its last event, both in the page's own clock: a gap Node waits for where the action does
  *   not pass through it (a method Playwright renamed or moved) would be missing here;
  * - a motion in a shadow root moves at `expected.motion` times the time that passes (a CSS transition, a CSS animation,
@@ -197,6 +218,7 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
     const actions: [string, () => Promise<unknown>][] = [
       ['locator.click', () => page.locator('#button').click()],
       ['locator.press', () => page.locator('#field').press('a')],
+      ['locator.blur', () => page.locator('#field').blur()],
       ['elementHandle.click', () => handle!.click()],
       ['mouse.click', () => page.mouse.click(60, 30)],
       ['keyboard.press', () => page.keyboard.press('b')],
@@ -204,8 +226,9 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
     ];
     for (const [name, act] of actions) {
       const asked = await page.evaluate(() => {
-        (window as unknown as { harshSeen: number[] }).harshSeen = [];
+        // Focus first: moving it sends a focusout of its own.
         document.getElementById('field')!.focus();
+        (window as unknown as { harshSeen: number[] }).harshSeen = [];
         return performance.now();
       });
       await act();
