@@ -22975,6 +22975,14 @@
           "customElement": true
         },
         {
+          "kind": "variable",
+          "name": "from"
+        },
+        {
+          "kind": "variable",
+          "name": "to"
+        },
+        {
           "kind": "class",
           "description": "Holds a set of your own items in one column, one line, or lines that wrap into a grid; people read them, open them\none by one, choose from them, or drag them into another order.\n\nContract: specs/list.spec.json. The list draws nothing and adds no space around its `<tanrei-list-item>` children\n(LST-1): `orientation` lays them out as a column or a line, `wrap` lets them run onto further lines (a grid, LST-2),\n`gap` sets the space between them and `dividers` a hairline between them (LST-3). It carries the semantics — a\n`list`, or a `listbox` named by `label` while `selection` is `single` or `multiple` — and moves keyboard focus among\nthe items that are actions, links or options: one tab stop (a roving tabindex), the arrow keys of the arrangement\nwithout wrapping, Home, End and typeahead (LST-17). Moving focus never changes the selection; Space or Enter chooses.\n\nThe selection is the list's: `value` names the selected option of a single-select list, `values` those of a\nmultiple-select list, each by the options' `value`. The list sets them before firing `change`, as a native control\ndoes; set them yourself to select from script (a new array for `values`).\n\nWith `reorderable` (and `selection` none) people can put the items in another order (LST-31): every item is static\nand draws a handle. The whole item can be dragged — a mouse after a few pixels of movement, a touch or a pen after a\nlong press or at once from the handle — while the other items slide aside; the handle opens a menu of four moves\n(start, before, after, end), and with the keyboard Space on the handle lifts the item, the arrow keys carry it, Space\nor Enter drop it and Escape puts it back, each step announced. Every way fires `move` with `from` and `to` and changes\nnothing: the order is your data. Reorder your items in answer (move the elements, or let your framework render the new\norder) and the list draws them changing place, keeps focus on the moved item's handle and says `moved-text` through\nits one polite live region. A move you have not made within `--tanrei-comp-list-motion-reorder-duration` is taken as\nrefused. The words are yours (attributes, or once with `setWords()`).",
           "name": "TanreiList",
@@ -23424,14 +23432,6 @@
           },
           "tagName": "tanrei-list",
           "customElement": true
-        },
-        {
-          "kind": "variable",
-          "name": "from"
-        },
-        {
-          "kind": "variable",
-          "name": "to"
         },
         {
           "kind": "variable",
