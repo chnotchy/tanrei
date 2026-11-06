@@ -4517,6 +4517,9 @@ test.describe('where the list stands, and how Japanese lines break', () => {
       await page.keyboard.press('End');
       await expect.poll(() => focused(page)).toBe('Item 16');
       await expect.poll(() => ownList.evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop)).toBeLessThan(1);
+      // The scroll event of the key's scroll is told in the next frame drawn: told before the log is cleared, or it is
+      // counted as a scroll of the next opening.
+      await expect.poll(async () => (await scrolled(page)).at(-1), 'the scroll to the end, told').toBe(await ownList.evaluate((el) => el.scrollTop));
       await page.keyboard.press('ArrowLeft');
       await expect.poll(() => focused(page)).toBe('Open recent');
       await page.evaluate(() => ((window as any).scrolled.length = 0));
