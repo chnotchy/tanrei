@@ -13,8 +13,9 @@ import { pageSources } from '../src/lib/lastmod.mjs';
 import { translations } from '../i18n/locales.mjs';
 
 register('./vite-shim.mjs', import.meta.url);
-const { fileHref, ISSUE_FORM, pageSourceLinks, reportProblemHref, repositoryHref } = await import('../src/lib/repository.ts');
+const { componentLinks, fileHref, ISSUE_FORM, pageSourceLinks, reportProblemHref, repositoryHref } = await import('../src/lib/repository.ts');
 const { strings } = await import('../src/lib/i18n.ts');
+const { specs, webModuleOf } = await import('../src/lib/repo.ts');
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
 const config = JSON.parse(fs.readFileSync(new URL('tanrei.config.json', `file://${repoRoot}`), 'utf8'));
@@ -55,6 +56,25 @@ describe('the report of a problem with a page', () => {
     assert.equal(url.searchParams.get('platform'), 'Docs');
     assert.equal(url.searchParams.get('component'), 'button');
     assert.equal(new URL(reportProblemHref('https://tanrei.example/foundations/color/')).searchParams.has('component'), false);
+  });
+});
+
+describe('the links at the head of a component’s page', () => {
+  const npm = `https://www.npmjs.com/package/${config.packages.npmScope}/web`;
+  test('a component the web defines as an element: its spec, the module the manifest names, and the package on npm', () => {
+    for (const name of ['button', 'checkbox']) {
+      const module = webModuleOf(specs[name].platforms.web.name);
+      assert.equal(module, `src/components/${name}/${name}.ts`);
+      assert.ok(fs.existsSync(new URL(`packages/web/${module}`, `file://${repoRoot}`)), module);
+      assert.deepEqual(componentLinks(name, module), { spec: blob(`specs/${name}.spec.json`), webSource: blob(`packages/web/${module}`), npm });
+    }
+  });
+  test('a component the web draws as classes, not an element of its own, links its spec alone', () => {
+    assert.equal(webModuleOf(specs.prose.platforms.web.name), undefined);
+    assert.deepEqual(componentLinks('prose', undefined), { spec: blob('specs/prose.spec.json') });
+  });
+  test('every language names the landmark and each link', () => {
+    for (const lang of ['en', ...translations.map(({ lang }) => lang)]) for (const [key, value] of Object.entries(strings(lang).componentLinks)) assert.ok(value.trim(), `${lang}: componentLinks.${key}`);
   });
 });
 
