@@ -264,6 +264,26 @@ export class OptionsController implements ReactiveController {
     this.host.removeEventListener('slotchange', this.onSlotChange);
   }
 
+  /**
+   * Resolves once the options read now have finished their own pending updates, and what those updates wrote has been
+   * read again. The field reads an option's attributes; a property set on an option reaches its attribute only in the
+   * option's own update. A product that sets the options' properties after the field has read them — React's wrappers
+   * set every prop as a property, children before their parent, once the elements are in the document — leaves the
+   * field rendering with options it read without their values, until the observer hears the attributes arrive. A check
+   * of the options (a debug report) waits for this, so that it judges the options as the product gave them.
+   *
+   * The observer's callback for what an option's update wrote is queued during that update, before the update's
+   * promise resolves, so it has run — and the model is read again — by the time this continues.
+   */
+  async settled(): Promise<void> {
+    const elements: Element[] = [];
+    for (const entry of this.model.entries) {
+      if (entry.kind === 'group') elements.push(entry.group.element);
+    }
+    for (const option of this.model.options) elements.push(option.element);
+    await Promise.all(elements.map((element) => (element as Partial<ReactiveControllerHost>).updateComplete));
+  }
+
   /** Reads the options now. Called for you; call it after changing an option in a way no mutation tells. */
   read() {
     const through: Passage = { slots: false, assigned: [] };

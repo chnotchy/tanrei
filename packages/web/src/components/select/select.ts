@@ -794,7 +794,9 @@ export class TanreiSelect extends TanreiElement {
     if (this.frame.required && this.value === '' && !this.inert_ && !this.readOnly) {
       this.says.validity({ valueMissing: true }, missingValueMessage('select', { errorText: '', requiredText: this.frame.state?.requiredText ?? '', label: this.name_ }), container ?? undefined);
     } else this.says.validity();
-    whenParsed(() => this.reports(changed));
+    // SEL-17, SEL-11, SEL-44, SEL-61: the options' checks judge them once their own updates have written what the
+    // product gave them (`settled()`): a wrapper sets an option's value as a property after the select has read it.
+    whenParsed(() => void this.options$.settled().then(() => this.reports(changed)));
   }
 
   private reportedOptions = '';

@@ -621,6 +621,31 @@ test.describe('behavior: the trigger', () => {
     expect(await heard(page)).toEqual([]);
   });
 
+  test('SEL-17: options and a value given as properties once the select is in the document — the options first, as a React wrapper gives them — are judged as given: a value that names one is not reported, one that names none is, once', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, []);
+    await page.evaluate(async () => {
+      type Lit = HTMLElement & { updateComplete: Promise<unknown>; value: string };
+      const stage = Object.assign(document.createElement('div'), { className: 'stage' });
+      document.querySelector('main')!.append(stage);
+      const make = (id: string, value: string, values: string[]) => {
+        // The tree is built with no props, put in the document, then given its props: each option's, then the select's.
+        const select = Object.assign(document.createElement('tanrei-select'), { id, label: 'Country' }) as Lit;
+        const options = values.map((v) => select.appendChild(Object.assign(document.createElement('tanrei-option') as Lit, { textContent: v.toUpperCase() })));
+        stage.append(select);
+        options.forEach((o, i) => (o.value = values[i]));
+        select.value = value;
+        return [select, ...options];
+      };
+      const all = [...make('given', 'b', ['a', 'b', 'c']), ...make('missing', 'zz', ['a', 'b'])];
+      for (let round = 0; round < 3; round++) await Promise.all(all.map((el) => el.updateComplete));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    await expect(page.locator('#given').locator('.value')).toHaveText('B');
+    await expect.poll(() => seen.filter((w) => w.includes('SEL-17'))).toEqual([expect.stringContaining('value "zz" names no option')]);
+    expect(seen.filter((w) => w.includes('[tanrei]')), 'nothing else is reported: no option was judged without its value').toEqual([expect.stringContaining('value "zz" names no option')]);
+  });
+
   test('SEL-18: a glyph in the leading-icon slot is drawn at the start of the container; otherwise the chosen option’s own; otherwise none, and the value starts at the text padding — at icon.size, unselected, in the leading-icon color, hidden from assistive technology; an interactive element in the slot is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
