@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
 
 const spec = loadSpec('file-item');
 type P = Page;
@@ -762,7 +763,8 @@ test.describe('behavior', () => {
     expect(await css(own(page, 'slow', 'preview'), 'visibility')).toBe('hidden');
     expect(await glyphShown('slow')).toBe(true);
     await expect(own(page, 'slow', 'icon')).toHaveText('image');
-    expect(await host(page, 'slow').evaluate((el) => [el.shadowRoot!.querySelectorAll('tanrei-progress-indicator, [role="progressbar"], [aria-busy]').length, el.shadowRoot!.getAnimations().length]), 'no sign of loading').toEqual([0, 0]);
+    expect(await host(page, 'slow').evaluate((el) => el.shadowRoot!.querySelectorAll('tanrei-progress-indicator, [role="progressbar"], [aria-busy]').length), 'no sign of loading').toBe(0);
+    expect(await motionCount(host(page, 'slow')), 'no sign of loading: nothing moves').toBe(0);
     const before = [await box(host(page, 'slow')), await box(own(page, 'slow', 'media')), await box(own(page, 'slow', 'headline'))];
     await listen(page);
     await page.evaluate(() => {
@@ -773,7 +775,7 @@ test.describe('behavior', () => {
     release();
     await expect.poll(() => drawn('slow')).toBe('');
     expect(await glyphShown('slow')).toBe(false);
-    expect(await host(page, 'slow').evaluate((el) => el.shadowRoot!.getAnimations().length), 'without a motion').toBe(0);
+    expect(await motionCount(host(page, 'slow')), 'without a motion').toBe(0);
     expect(Number.parseFloat(await css(own(page, 'slow', 'preview'), 'transition-duration'))).toBe(0);
     expect([await box(host(page, 'slow')), await box(own(page, 'slow', 'media')), await box(own(page, 'slow', 'headline'))], 'the size of nothing changes').toEqual(before);
     // It cannot be drawn: the glyph, no sign of the failure, no event, the status as it was — and one report for the address.
@@ -1768,7 +1770,7 @@ test.describe('behavior', () => {
           await expect.poll(() => target.getAttribute('data-pressed'), { message: `${name}: the press ends` }).toBeNull();
           await expect(target.locator('.ripple')).toHaveCount(0);
           // At rest again before the next press: the way back from a state is a motion (FIT-23).
-          await expect.poll(() => target.evaluate((el) => el.getAnimations({ subtree: true }).length), { message: `${name}: at rest` }).toBe(0);
+          await expect.poll(() => motionCount(target), { message: `${name}: at rest` }).toBe(0);
         };
         const feedback = async (value: string) => override(page, { '--tanrei-sys-behavior-pressed-feedback': value });
         const opacity = async () => Number.parseFloat(await css(target, 'opacity'));
@@ -2402,20 +2404,25 @@ test.describe('behavior', () => {
     }
     // A change of form, of status, of a text, of the glyph and of the picture: drawn at once.
     const item = host(page, 'changing');
-    const still = () => item.evaluate((el) => el.shadowRoot!.getAnimations().filter((animation) => !(animation instanceof CSSAnimation)).length);
+    // Its motions: the host's own, and those in its shadow root and in every shadow root inside it.
+    const still = () => item.evaluate((el, every) => ((0, eval)(every) as (root: Element) => Animation[])(el).filter((animation) => !(animation instanceof CSSAnimation)).length, EVERY_ANIMATION);
     for (const change of [{ form: 'tile' }, { status: 'done', statusText: 'Uploaded' }, { name: 'renamed.zip' }, { glyph: 'key' }, { preview: true, previewSrc: PICTURE }, { status: 'error', errorText: 'Lost.', retryable: true }, { form: 'row' }, { readOnly: true }]) {
-      const drawn = await item.evaluate(async (el: HTMLElement & { updateComplete: Promise<unknown> }, props) => {
-        Object.assign(el, props);
-        await el.updateComplete;
-        void el.getBoundingClientRect();
-        return el.shadowRoot!.getAnimations().length;
-      }, change);
+      const drawn = await item.evaluate(
+        async (el: HTMLElement & { updateComplete: Promise<unknown> }, [props, every]) => {
+          Object.assign(el, props);
+          await el.updateComplete;
+          void el.getBoundingClientRect();
+          return ((0, eval)(every) as (root: Element) => Animation[])(el).length;
+        },
+        [change, EVERY_ANIMATION] as const,
+      );
       expect(drawn, `${JSON.stringify(change)}: without a motion`).toBe(0);
     }
     await expect(own(page, 'changing', 'preview')).toHaveAttribute('data-drawn', '');
     expect(await still()).toBe(0);
     // The picture is the browser's own image element — which plays a picture that moves; the file item runs nothing itself.
-    expect(await own(page, 'changing', 'preview').evaluate((el) => [el.localName, el.getAnimations().length, getComputedStyle(el).animationName])).toEqual(['img', 0, 'none']);
+    expect(await own(page, 'changing', 'preview').evaluate((el) => [el.localName, getComputedStyle(el).animationName])).toEqual(['img', 'none']);
+    expect(await motionCount(own(page, 'changing', 'preview'))).toBe(0);
     expect(await item.evaluate((el) => el.shadowRoot!.querySelectorAll('canvas, video, picture, source').length)).toBe(0);
     // Reduced motion: at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -2694,14 +2701,14 @@ test.describe('behavior', () => {
       near(before.x + before.width, whole.x + whole.width - (id.startsWith('tile') ? await token(page, 'tile-action-inset') : 0), 'the actions at the right');
       await remove.focus();
       // The focused state has been drawn: what moves after this is the direction's doing.
-      await expect.poll(() => host(page, id).evaluate((el) => el.shadowRoot!.getAnimations().length)).toBe(0);
+      await expect.poll(() => motionCount(host(page, id))).toBe(0);
       // An ancestor's direction, not the root's.
-      const moving = await stage(page, id).evaluate((el) => {
+      const moving = await stage(page, id).evaluate((el, every) => {
         el.setAttribute('dir', 'rtl');
         const item = el.querySelector('tanrei-file-item')!;
         void item.getBoundingClientRect();
-        return item.shadowRoot!.getAnimations().length;
-      });
+        return ((0, eval)(every) as (root: Element) => Animation[])(item).length;
+      }, EVERY_ANIMATION);
       expect(moving, 'without a motion of its own').toBe(0);
       const now = await box(host(page, id));
       near((await box(remove)).x, now.x + (id.startsWith('tile') ? await token(page, 'tile-action-inset') : 0), `${id}: drawn for the new direction at once — the actions at the left`);
