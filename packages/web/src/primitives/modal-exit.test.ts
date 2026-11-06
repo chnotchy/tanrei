@@ -6,7 +6,10 @@
 // gone before the motion ends — while focus is back on the opener from the first frame (MDL-5) and the page behind is
 // no longer inert. Where motion is reduced it fades in place, drawn until it has, or, where its spec says so, is gone at
 // once. Opened again while it leaves, it goes back from the values it shows, modal again.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { buildSync } from 'esbuild';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../test/frames.js';
 import { type Fixture, dialogWindow, fixtureHost, fixturesDocument, loadSpec, mountFixtures, popoverWindow } from '../../test/harness.js';
 import { motionEnded } from '../../test/motions.js';
@@ -409,3 +412,174 @@ for (const surface of WRITTEN_OPEN) {
     expect(seen, 'it stands where it rests, and its scrim is drawn as it rests').toMatchObject(rest);
   });
 }
+
+// openModal()'s `keep` (NVD-19: a modal navigation drawer opened while its selected destination has focus keeps it
+// there), on a page of its own: a host whose shadow root holds a `<dialog>` with two controls of its own (`first`, then
+// `own`), and two elements slotted into the host whose shadow roots each hold a control (`lead`, then `cell`, as a
+// drawer's destinations). Each element kept comes after another that the engines would focus in its place, so that what
+// keeps it is seen. Every focus and blur is logged, in every tree, from just before openModal() to two frames
+// after it: what the dialog focusing steps of `showModal()` did is in the log the call leaves, and nothing may come
+// after it.
+const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const KEEP_PAGE = 'http://modal-keep.test/';
+
+/** openModal() and closeModal() as they are built, with what they import, as one module a page can import. */
+let keepBundle: string | undefined;
+const keepModule = () =>
+  (keepBundle ??= buildSync({
+    stdin: { contents: "export { closeModal, openModal } from './dist/primitives/modal-exit.js';\n", resolveDir: pkg, loader: 'js' },
+    bundle: true,
+    write: false,
+    format: 'esm',
+  }).outputFiles[0]!.text);
+
+/**
+ * `<x-modal>`'s dialog fades out over a long time when it closes, so that a dialog closed with closeModal() is still
+ * leaving when the test opens it again; `<x-item>` is the slotted element. Before the dialog opens, the slot is in a
+ * `<div>` beside it, drawn, as a collapsible drawer's column holds its destinations; the test moves the slot into the
+ * dialog, as the drawer's template does as it opens: the slotted element is not moved, and keeps focus.
+ */
+const KEEP_MARKUP = `<button id="outside" type="button">outside</button><x-modal id="host"><x-item id="lead"></x-item><x-item id="item"></x-item></x-modal>
+<script type="module">
+  import { closeModal, openModal } from '/modal-keep.js';
+  customElements.define('x-item', class extends HTMLElement {
+    constructor() {
+      super();
+      const id = this.id === 'item' ? 'cell' : this.id;
+      this.attachShadow({ mode: 'open' }).innerHTML = '<button id="' + id + '" type="button">' + id + '</button>';
+    }
+  });
+  customElements.define('x-modal', class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' }).innerHTML =
+        '<style>dialog { opacity: 0; transition: opacity 600s linear; } dialog[open] { opacity: 1; }</style>' +
+        '<div id="column"><slot></slot></div><dialog id="dialog"><button id="first" type="button">first</button><button id="own" type="button">own</button></dialog>';
+    }
+  });
+  // A focus that moves between two elements of one tree is not seen past that tree's root (its target and its related
+  // target are the same there): each tree logs the moves inside it, the document and each shadow root.
+  window.focusLog = [];
+  const watch = (root) => {
+    for (const type of ['focusin', 'focusout']) {
+      root.addEventListener(type, (event) => {
+        const target = event.composedPath()[0];
+        if (target.getRootNode() === root) window.focusLog.push(type + ' ' + (target.id || target.localName));
+      }, true);
+    }
+  };
+  watch(document);
+  for (const element of document.querySelectorAll('x-modal, x-item')) watch(element.shadowRoot);
+  window.keep = { closeModal, openModal };
+</script>`;
+
+async function openKeepPage(page: Page) {
+  const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>keep</title></head><body>${KEEP_MARKUP}</body></html>`;
+  await page.unroute(KEEP_PAGE);
+  await page.unroute(`${KEEP_PAGE}modal-keep.js`);
+  await page.route(KEEP_PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body }));
+  await page.route(`${KEEP_PAGE}modal-keep.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: keepModule() }));
+  await page.goto(KEEP_PAGE);
+  await expect.poll(() => page.evaluate(() => 'keep' in window)).toBe(true);
+}
+
+type Kept = 'own' | 'cell';
+interface Opened {
+  /** Logged within openModal(). */
+  log: string[];
+  /** Logged in the two frames after it. */
+  after: string[];
+  /** The deepest element with focus once openModal() returns, and two frames later. */
+  active: string;
+  activeAfter: string;
+  modal: boolean;
+  /** Whether the kept element carries `autofocus` afterwards. */
+  autofocus: boolean;
+}
+
+/**
+ * Moves the slot into the dialog, takes it to leaving where `from` is `leaving` (opened, then closed `interactive`, as
+ * a collapsible drawer narrowing to its column: not modal, still drawn, taking focus), focuses `focused`, and opens the
+ * dialog with `keep` — given `autofocus` of its own first where `ownAutofocus` says so.
+ */
+const openKeeping = (page: Page, options: { keep: Kept; focused: Kept | 'outside'; from: 'closed' | 'leaving'; ownAutofocus?: boolean }) =>
+  page.evaluate(async ({ keep, focused, from, ownAutofocus }): Promise<Opened> => {
+    const w = window as unknown as {
+      focusLog: string[];
+      keep: {
+        openModal(dialog: HTMLDialogElement, options?: { instant?: boolean; keep?: HTMLElement | null }): void;
+        closeModal(dialog: HTMLDialogElement, options?: { interactive?: boolean }): Promise<boolean>;
+      };
+    };
+    const root = document.getElementById('host')!.shadowRoot!;
+    const dialog = root.getElementById('dialog') as HTMLDialogElement;
+    const elements: Record<Kept | 'outside', HTMLElement> = {
+      own: root.getElementById('own')!,
+      cell: document.getElementById('item')!.shadowRoot!.getElementById('cell')!,
+      outside: document.getElementById('outside')!,
+    };
+    const deep = () => {
+      let at = document.activeElement;
+      while (at?.shadowRoot?.activeElement) at = at.shadowRoot.activeElement;
+      return at?.id || at?.localName || '';
+    };
+    const kept = elements[keep];
+    // Keeping a slotted element, the dialog's own tree has nothing to focus, as a drawer's has not: what Firefox and
+    // WebKit focus in its place is the dialog itself, and Chromium the first slotted control.
+    if (keep === 'cell') for (const control of root.querySelectorAll('dialog > button')) control.remove();
+    if (ownAutofocus) kept.setAttribute('autofocus', '');
+    if (from === 'leaving') {
+      dialog.append(root.querySelector('slot')!);
+      w.keep.openModal(dialog, { instant: false });
+      void w.keep.closeModal(dialog, { interactive: true });
+      elements[focused].focus();
+    } else {
+      // Focused where it is drawn before the dialog opens, then the slot goes into the dialog.
+      elements[focused].focus();
+      dialog.append(root.querySelector('slot')!);
+    }
+    w.focusLog.length = 0;
+    w.keep.openModal(dialog, { instant: false, keep: kept });
+    const log = [...w.focusLog];
+    const active = deep();
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return { log, after: w.focusLog.slice(log.length), active, activeAfter: deep(), modal: dialog.matches(':modal'), autofocus: kept.hasAttribute('autofocus') };
+  }, options);
+
+/** The focus out of the slotted element to the dialog itself and back that Firefox's and WebKit's `showModal()` makes. */
+const THROUGH_THE_DIALOG = ['focusout cell', 'focusin dialog', 'focusout dialog', 'focusin cell'];
+
+test.describe('openModal() keep', () => {
+  test('NVD-19: an element of the dialog’s own tree that has focus keeps it as the dialog is taken back while it leaves — no focus moves at all, in every engine', async ({ page }) => {
+    await openKeepPage(page);
+    const opened = await openKeeping(page, { keep: 'own', focused: 'own', from: 'leaving' });
+    expect(opened.log, 'the dialog focusing steps find it by its autofocus, focused already: no focus moves').toEqual([]);
+    expect(opened.after, 'nor after').toEqual([]);
+    expect(opened).toMatchObject({ active: 'own', activeAfter: 'own', modal: true, autofocus: false });
+  });
+
+  for (const from of ['closed', 'leaving'] as const) {
+    test(`NVD-19: an element slotted into the dialog that has focus has it once openModal() returns (${from === 'closed' ? 'opened' : 'taken back while it leaves'}) — Chromium moves no focus; Firefox and WebKit, whose showModal() looks only in the dialog’s own tree as the standard says, give it to the dialog and back within the call; nothing moves after it`, async ({ page, browserName }) => {
+      await openKeepPage(page);
+      const opened = await openKeeping(page, { keep: 'cell', focused: 'cell', from });
+      // The dialog focusing steps look among the dialog's descendants, and a slotted element is none of them
+      // (whatwg/html#9245, #12649): Firefox and WebKit focus the dialog itself, and openModal() gives focus back in the
+      // same task. Chromium looks through slots, finds the element's autofocus, and moves no focus. A change in this
+      // log is an engine changing where it looks (openModal()'s `keep` says what each does).
+      expect(opened.log, 'within openModal()').toEqual(browserName === 'chromium' ? [] : THROUGH_THE_DIALOG);
+      expect(opened.after, 'nothing moves focus after it: no frame shows the dialog focused').toEqual([]);
+      expect(opened).toMatchObject({ active: 'cell', activeAfter: 'cell', modal: true, autofocus: false });
+    });
+  }
+
+  test('NVD-19: focus elsewhere goes to the kept element — of the dialog’s own tree in one move in every engine, slotted in one move in Chromium (Firefox and WebKit through the dialog) — and an autofocus of its own stays', async ({ page, browserName }) => {
+    await openKeepPage(page);
+    const own = await openKeeping(page, { keep: 'own', focused: 'outside', from: 'closed', ownAutofocus: true });
+    expect(own.log).toEqual(['focusout outside', 'focusin own']);
+    expect(own).toMatchObject({ after: [], active: 'own', activeAfter: 'own', modal: true, autofocus: true });
+    await openKeepPage(page);
+    const cell = await openKeeping(page, { keep: 'cell', focused: 'outside', from: 'closed' });
+    expect(cell.log).toEqual(browserName === 'chromium' ? ['focusout outside', 'focusin cell'] : ['focusout outside', 'focusin dialog', 'focusout dialog', 'focusin cell']);
+    expect(cell).toMatchObject({ after: [], active: 'cell', activeAfter: 'cell', modal: true, autofocus: false });
+  });
+});

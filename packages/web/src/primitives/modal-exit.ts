@@ -258,15 +258,23 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * taken back from leaving goes on with what its `closeModal()` named.
  *
  * `keep`: an element inside the dialog that has focus as it opens, and keeps it: it has focus once `showModal()`
- * returns. Left to themselves the engines give focus to something else first — Chromium to the dialog's first
- * focusable element, Firefox and WebKit to the dialog itself — and Chromium brings the style up to date before the
- * component can give it back, so the focused element and the one that took focus for a moment each began a motion for
- * a state they then left at once. The element carries `autofocus` while `showModal()` runs (Chromium takes it, through
- * shadow roots and slots, and moves no focus), and where the engine gave focus elsewhere all the same (Firefox and
- * WebKit look for it only in the dialog's own tree) it is given focus back in the same task, before any style is read,
- * and without scrolling: where it is shown is the component's to say. Focus that moves into the dialog from elsewhere
- * is the component's to give, after this: WebKit draws an element that is first styled in the top layer as it is then,
- * so focus given to it before that would be drawn at once.
+ * returns. `showModal()` always runs the dialog focusing steps (HTML): focus goes to the dialog's autofocus delegate,
+ * else to its first focusable descendant, else to the dialog itself — and nowhere, the kept element losing focus, where
+ * none of them can take it. Left to themselves the engines give focus to something else first, and Chromium brings the
+ * style up to date before the component can give it back, so the focused element and the one that took focus for a
+ * moment each began a motion for a state they then left at once. So the element carries `autofocus` while
+ * `showModal()` runs: an element of the dialog's own tree is then its autofocus delegate in every engine, and, focused
+ * already, moves no focus at all.
+ *
+ * An element slotted into the dialog (a navigation drawer's destination) is not one of the dialog's descendants, which
+ * is where the focusing steps look (whatwg/html#9245, #12649 ask whether they should look through slots). Chromium
+ * looks through slots and shadow roots, takes it and moves no focus; Firefox and WebKit, as the standard says, give
+ * focus to the dialog, and the element is given it back in the same task, before any style is read, and without
+ * scrolling (where it is shown is the component's to say): a focus out of it and back, which no frame shows. The
+ * standard leaves no way around it: a dialog that cannot take focus (inert, or not rendered while it is shown) leaves
+ * the steps nothing to focus, and every engine then takes focus from the kept element. Focus that moves into the dialog
+ * from elsewhere is the component's to give, after this: WebKit draws an element that is first styled in the top layer
+ * as it is then, so focus given to it before that would be drawn at once.
  */
 export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [], keep = null }: { instant?: boolean; moves?: ModalMoves; keep?: HTMLElement | null } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;
