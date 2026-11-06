@@ -6,7 +6,7 @@
 // and in the other engines, the test is skipped (page-scroll-hold.test.ts runs them).
 import { spawn } from 'node:child_process';
 import { expect, test as base } from '@playwright/test';
-import { NONE, expectNothingMoved, holdAndRelease, mount } from '../../test/page-scroll-hold.js';
+import { NONE, WINDOW, expectNothingMoved, expectNothingMovesOnRelease, holdAndRelease, mount, resizeWhileHeld } from '../../test/page-scroll-hold.js';
 
 /** Firefox headed on its own X display: `display` is that display, or undefined where none can be had. */
 const test = base.extend<object, { display: string | undefined }>({
@@ -40,3 +40,20 @@ test('MDL-2: holding the page’s scroll moves nothing behind sideways — under
   expect(seen.before.bar, 'Firefox’s classic bar takes room').toBeGreaterThan(0);
   expectNothingMoved(seen, NONE);
 });
+
+// A page 700 px tall draws a bar in a window 480 px tall and none in one 1000 px tall (see page-scroll-hold.test.ts).
+const TALL = { width: WINDOW.width, height: 1000 };
+const RESIZES = [
+  { way: 'shorter, so that the bar comes back once released', from: TALL, to: WINDOW, bar: true },
+  { way: 'taller, so that no bar comes back once released', from: WINDOW, to: TALL, bar: false },
+];
+
+for (const { way, from, to, bar } of RESIZES) {
+  test(`MDL-2: the window made ${way}, while the scroll is held, under Firefox’s classic scroll bar: the hold measures the room again, and nothing behind moves as it lets go`, async ({ page, display }) => {
+    test.skip(display === undefined, 'Firefox on Linux with Xvfb only: elsewhere, headless Firefox draws no scroll bar (see the head of this file)');
+    const host = await mount(page, '', { height: 700, viewport: from });
+    const seen = await resizeWhileHeld(page, host, to);
+    expect(seen.after.bar > 0, `Firefox’s classic bar takes room in the resized window: ${bar} (it takes ${seen.after.bar} px)`).toBe(bar);
+    expectNothingMovesOnRelease(seen, NONE);
+  });
+}
