@@ -7298,6 +7298,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   public var labelIconSize: CGFloat
   public var labelGap: CGFloat
   public var labelTypescale: TanreiTextStyle
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var requirementAsteriskGap: CGFloat
@@ -7317,6 +7319,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
     labelIconSize: CGFloat,
     labelGap: CGFloat,
     labelTypescale: TanreiTextStyle,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     requirementAsteriskGap: CGFloat,
@@ -7335,6 +7339,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
     self.labelIconSize = labelIconSize
     self.labelGap = labelGap
     self.labelTypescale = labelTypescale
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.requirementAsteriskGap = requirementAsteriskGap

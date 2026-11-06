@@ -4031,6 +4031,8 @@ private let tanreiFieldTokens = TanreiFieldTokens(
   labelIconSize: 20,
   labelGap: 8,
   labelTypescale: tanreiTypescale.label,
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   requirementAsteriskGap: 2,

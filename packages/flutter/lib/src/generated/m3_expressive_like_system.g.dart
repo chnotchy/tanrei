@@ -4202,6 +4202,8 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     labelIconSize: 20.0,
     labelGap: 8.0,
     labelTypescale: _typescaleBodyLarge,
+    motionResizeDuration: 200,
+    motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     requirementAsteriskGap: 0.0,

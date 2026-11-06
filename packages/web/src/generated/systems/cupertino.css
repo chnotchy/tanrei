@@ -3100,6 +3100,8 @@
     --tanrei-comp-field-label-typescale-letter-spacing: var(--tanrei-sys-typescale-body-large-letter-spacing);
     --tanrei-comp-field-label-typescale-line-height: var(--tanrei-sys-typescale-body-large-line-height);
     --tanrei-comp-field-label-typescale-font: var(--tanrei-sys-typescale-body-large-font);
+    --tanrei-comp-field-motion-resize-duration: var(--tanrei-sys-motion-role-resize-default);
+    --tanrei-comp-field-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-field-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
     --tanrei-comp-field-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-field-requirement-asterisk-gap: var(--tanrei-sys-space-space25);

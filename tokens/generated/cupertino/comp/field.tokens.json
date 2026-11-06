@@ -38,7 +38,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything the frame around one control reads: the label's text style and its distance from the control; the label glyph's size and gap; the requirement tag's distance from the label, the asterisk's gap, and which mark a required control gets where the field does not say; the value text's text style and its least distance from the label; the supporting row's text style and its distance from the control, the distance between the help and the error text in it, and the least distance between its texts and a count at its end; the duration and curve of a change of state; and the colors of the label, the label glyph, the supporting text, the error text, the count, the value text and the asterisk, plain and under the error condition (error.), at rest, while focus is inside the field and while it is disabled.",
+            "usage": "Everything the frame around one control reads: the label's text style and its distance from the control; the label glyph's size and gap; the requirement tag's distance from the label, the asterisk's gap, and which mark a required control gets where the field does not say; the value text's text style and its least distance from the label; the supporting row's text style and its distance from the control, the distance between the help and the error text in it, and the least distance between its texts and a count at its end; the duration and curve of a change of state, and of the change of height in which an error text comes or goes; and the colors of the label, the label glyph, the supporting text, the error text, the count, the value text and the asterisk, plain and under the error condition (error.), at rest, while focus is inside the field and while it is disabled.",
             "rules": [
               "A field frames exactly one control that has no label row, help or error of its own: a slider, a switch, a text input, a control the product built. A text field is this field around a text input: style its rows here, and never put a text field inside a field. A number field is this field around a number input, a color field around a color input, a select field around a select, a combobox field around a combobox. No component draws this frame from tokens of its own.",
               "These tokens are the frame of every field: a design system styles the label row and the supporting row once, here. One field is set apart by setting a token on that element — on the web a custom property on it, elsewhere a theme around that one view.",
@@ -140,6 +140,16 @@
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.state}",
             "$description": "The curve of that change."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.default}",
+            "$description": "How long the field takes to reach its new height when its error text appears, goes or changes its words and the supporting row grows or shrinks with it: a box that changes its size in place. The error text that comes fades in over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
+            "$description": "The curve of that change of height: a box that resizes in place."
           }
         },
         "standard": {

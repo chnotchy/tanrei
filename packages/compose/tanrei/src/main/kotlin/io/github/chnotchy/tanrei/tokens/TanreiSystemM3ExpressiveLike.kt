@@ -4034,6 +4034,8 @@ private object M3ExpressiveLikeSystemSource {
             labelIconSize = 20.dp,
             labelGap = 8.dp,
             labelTypescale = typescale.bodyLarge,
+            motionResizeDuration = 200,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             requirementAsteriskGap = 0.dp,
