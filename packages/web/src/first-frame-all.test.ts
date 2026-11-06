@@ -30,13 +30,27 @@
 //
 // A fixture whose items a step in script hands over after it is mounted (`itemsStagedInScript`) is not drawn by its
 // markup alone, and is not run.
+//
+// A first frame that is its rest is not yet the fixture: an element that draws nothing once it appears (a container
+// that read its children before the browser upgraded them, so it holds none) is the same in every frame. So the rest
+// is also told apart from the fixture as the page mounted it (`expectDrawnAsMounted`, test/first-frame.ts): the same
+// elements, boxes of the same sizes in the same places in their stage, the same styles, and the same roles, states and
+// Tab stops. The mounted page is read once, at rest, before the first fixture appears, its pictures held as they are
+// when a fixture appears; and a fixture that appears in a window of its own is mounted again in it. Four lists more:
+// - `LATER`: what an element draws by a clock of its own after its rest is read (a loading indicator's show delay), and
+//   a live region's words, said after a pause: left out of that comparison.
+// - `ALONE`: a fixture its spec draws otherwise among the others on one page (one tooltip open in a window, a modal
+//   one above the other, a surface placed against the window): read as mounted from a page that mounts it alone.
+// - `PICTURED`: a fixture whose pictures cannot be held once mounted as they are when it appears. Not compared.
+// - a fixture a step in script draws more of once it is mounted (`drawnAfterMount`: scrolled, handed files, dragged
+//   over) is not compared either.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type BrowserContext, type BrowserContextOptions, type Page, type Route, test as base, expect } from '@playwright/test';
-import { appearAgain, mountForAppearing } from '../test/first-frame.js';
-import { type Frames, type Probe, expectFirstFrameAtRest } from '../test/frames.js';
-import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, itemsStagedInScript, loadSpec, pickerWindow, popoverWindow } from '../test/harness.js';
+import { type Appeared, appearAgain, asStaged, expectDrawnAsMounted, mountForAppearing } from '../test/first-frame.js';
+import { type Probe, expectFirstFrameAtRest } from '../test/frames.js';
+import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, drawnAfterMount, itemsStagedInScript, loadSpec, pickerWindow, popoverWindow } from '../test/harness.js';
 import { MISSING } from '../test/pictures.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -87,8 +101,51 @@ const ARRIVES: ((key: string, property: string, spec: Spec) => boolean)[] = [
   (key, _property, spec) => spec.name === 'code-block' && /\/pre:\d+\/code:\d+\//.test(key),
 ];
 
+/**
+ * What an element draws by a clock of its own, later than the rest of a fixture appearing is read: left out of telling
+ * that rest apart from the fixture as mounted (`(key, property)`, keyed under the stage). A live region the probe finds
+ * (`said`) is left out too: what it says is said once it has stood for a pause (NVD-91).
+ */
+const LATER: ((key: string, property: string) => boolean)[] = [
+  // LDG-14: a loading indicator is shown once its show delay has passed.
+  (key) => /tanrei-loading-indicator:\d+($|[/>]|::)/.test(key),
+  // SKL-7: so is a skeleton.
+  (key) => /tanrei-skeleton:\d+($|[/>]|::)/.test(key),
+  // CMB-48: the option a combobox made active itself is named its input's active descendant once typing has paused.
+  (key, property) => property === 'aria-activedescendant' && /tanrei-combobox:\d+>/.test(key),
+];
+
+/** A fixture that shows a picture of the package's own (`fixtures/<name>.png`, not one that fails or never arrives). */
+const showsPicture: Pick = (f) => /fixtures\/(?!missing\.png|pending\.png)[\w-]+\.png/.test(JSON.stringify(f));
+
+/**
+ * The fixtures not told apart from themselves as mounted, each with the rule: their pictures are held when they appear
+ * (`holdPictures`), and holding a picture a mounted element has already drawn is not what never arriving is.
+ */
+const PICTURED: { spec: string; pick: Pick; rule: string }[] = [
+  { spec: 'image-preview', pick: showsPicture, rule: 'IMP-30: a source changed after its picture has loaded keeps that picture until the new one has' },
+];
+
+/**
+ * The fixtures whose spec makes them draw otherwise among the others on one page, each with the rule: what they are as
+ * mounted is read from a page that mounts them alone, where they stand where they appear.
+ */
+const ALONE: { spec: string; pick: Pick; rule: string }[] = [
+  { spec: 'tooltip', pick: opened, rule: 'TIP-8: at most one tooltip is open in a window' },
+  { spec: 'image-preview', pick: opened, rule: 'IMP-7: an open image preview is a modal dialog, one above the other' },
+  { spec: 'date-time-picker', pick: (f) => opened(f) && f.props.presentation !== 'docked', rule: 'DTM-1: a modal picker is a modal overlay, one above the other' },
+  { spec: 'popover', pick: (f) => opened(f) && f.id.startsWith('compact'), rule: "POP-39, POP-5: a compact popover is placed against the window, and its anchor lies where its stage does" },
+  { spec: 'navigation-drawer', pick: (f) => f.props.filterable === true, rule: 'NVD-87: of the drawers shown that bind one chord, the first keeps it' },
+  { spec: 'app-shell', pick: (f) => f.id.startsWith('compact'), rule: 'APS-13: a compact window keeps the navigation bar at its bottom edge' },
+];
+
 /** Fixtures whose first frame is not their rest, by `<spec>/<fixture>`, with what they show: a defect, not fixed yet. Only shrinks. */
-const KNOWN: Record<string, string> = {};
+const KNOWN: Record<string, string> = Object.fromEntries(
+  loadSpec('menubar').fixtures.map((f) => [
+    `menubar/${f.id}`,
+    'MBR-1, MBR-32: inserted whole as markup, the bar reads its children before the browser has upgraded them, holds no entry and draws no title',
+  ]),
+);
 
 /**
  * The probe: the keys (as test/frames.ts names them) of the surfaces that appear (`data-tanrei-appear`, in every shadow
@@ -103,17 +160,19 @@ const appearing: Probe = (root) => {
     return `${keyOf(el.parentElement!)}/${name(el, [...el.parentElement!.children])}`;
   };
   const found: string[] = [];
+  const said: string[] = [];
   const visit = (scope: ParentNode) => {
     for (const el of scope.querySelectorAll('*')) {
       if (el.hasAttribute('data-tanrei-appear')) {
         found.push(keyOf(el));
         for (const slot of el.querySelectorAll('slot')) for (const slotted of slot.assignedElements({ flatten: true })) found.push(keyOf(slotted));
       }
+      if (el.getAttribute('role') === 'status' || el.hasAttribute('aria-live')) said.push(keyOf(el));
       if (el.shadowRoot) visit(el.shadowRoot);
     }
   };
   visit(root);
-  return { appear: found.join('\n') };
+  return { appear: found.join('\n'), said: said.join('\n') };
 };
 
 const within = (keys: string[]) => (key: string) => keys.some((k) => key === k || key.startsWith(`${k}/`) || key.startsWith(`${k}>`) || key.startsWith(`${k}::`));
@@ -146,6 +205,28 @@ const holdPictures = (page: Page, id: string) =>
   );
 
 /**
+ * Holds every picture the mounted stages show, as `holdPictures` does for a stage that appears, so that the fixtures
+ * as mounted are read with their pictures not arrived either: what an element draws until one has is its spec's (an
+ * avatar its fallback, AVT-4), and a picture arrives at the browser's pace.
+ */
+const holdMountedPictures = (page: Page) =>
+  page.evaluate(
+    ({ held, missing }) => {
+      const w = window as unknown as { __tanreiHeldCount?: number };
+      for (const el of document.querySelectorAll('body > main *, body > div.stages *'))
+        for (const a of [...el.attributes])
+          if (a.value.startsWith('data:image/') && a.value !== missing) el.setAttribute(a.name, `${held}${(w.__tanreiHeldCount = (w.__tanreiHeldCount ?? 0) + 1)}.png`);
+    },
+    { held: HELD, missing: MISSING },
+  );
+
+/** Lets every picture held go: each is answered as one that cannot be loaded. */
+const releasePictures = async (stage: Stage) => {
+  stage.held.open = false;
+  await Promise.all(stage.held.routes.map((route) => route.abort().catch(() => undefined)));
+};
+
+/**
  * A context for each worker, and in it one page for a spec at a time: a spec's fixtures are made to appear on the page
  * that mounted them, and the next spec gets a new page. (One page given every spec's documents in turn grew until it
  * crashed in the Linux container: five crashes in a run of five thousand.)
@@ -155,11 +236,12 @@ interface Stage {
   page: Page | null;
   /** The pictures asked for while the fixture appearing is sampled: answered once it has been. */
   held: { open: boolean; routes: Route[] };
+  /** What the page is mounted with: the spec's name, or `<spec>/<fixture>` for a fixture mounted alone (`ALONE`). */
   spec: string | null;
   viewport: { width: number; height: number };
 }
 
-const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: boolean) => Promise<Frames> }, { stage: Stage }>({
+const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: boolean) => Promise<Appeared> }, { stage: Stage }>({
   stage: [
     async ({ browser }, use, workerInfo) => {
       const u = workerInfo.project.use as BrowserContextOptions;
@@ -172,7 +254,7 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
   ],
   appear: async ({ stage }, use, testInfo) => {
     await use(async (spec, fixture, measured) => {
-      if (stage.spec !== spec.name || !stage.page) {
+      if (stage.spec?.split('/')[0] !== spec.name || !stage.page) {
         stage.spec = null;
         await stage.page?.close();
         stage.page = await stage.context.newPage();
@@ -185,18 +267,29 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
       const { page } = stage;
       const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
       const size = page.viewportSize();
-      if (size?.width !== window.width || size?.height !== window.height) await page.setViewportSize(window);
-      if (stage.spec !== spec.name) {
-        await mountForAppearing(page, spec);
-        stage.spec = spec.name;
+      // The fixtures as mounted are read in the window the page is mounted in: one that appears in another is mounted
+      // again in its own.
+      if (size?.width !== window.width || size?.height !== window.height) {
+        await page.setViewportSize(window);
+        stage.spec = null;
+      }
+      // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
+      const mount = ALONE.some((a) => a.spec === spec.name && a.pick(fixture)) ? `${spec.name}/${fixture.id}` : spec.name;
+      if (stage.spec !== mount) {
+        stage.held = { open: true, routes: [] };
+        try {
+          await mountForAppearing(page, spec, mount === spec.name ? {} : { fixtures: [fixture] }, { asMounted: true, beforeReading: () => holdMountedPictures(page) });
+        } finally {
+          await releasePictures(stage);
+        }
+        stage.spec = mount;
       }
       stage.held = { open: true, routes: [] };
       await holdPictures(page, fixture.id);
       try {
         return await appearAgain(page, fixture.id, { measured, sample: { probe: appearing } });
       } finally {
-        stage.held.open = false;
-        await Promise.all(stage.held.routes.map((route) => route.abort().catch(() => undefined)));
+        await releasePictures(stage);
       }
     });
     // A test that did not end as expected may have left the page in any state: the next one mounts it anew.
@@ -226,6 +319,11 @@ for (const spec of specs) {
           expect(surfaces, 'the overlay draws a surface that appears (data-tanrei-appear)').not.toEqual([]);
           expect(seen.frames.some((frame) => surfaces.some((key) => frame.elements[key]?.moving)), 'the surface that appears plays its entrance').toBe(true);
         }
+        // A fixture that draws nothing once it appears is at rest in its first frame too: its rest is the fixture as
+        // the page mounted it — but where a step in script drew more of it once it was mounted.
+        if (drawnAfterMount(spec, fixture) || PICTURED.some((p) => p.spec === spec.name && p.pick(fixture))) return;
+        const said = within(String(seen.rest.probe.said ?? '').split('\n').filter(Boolean).map(asStaged));
+        expectDrawnAsMounted(seen, { ignore: (key, property) => said(key) || LATER.some((later) => later(key, property)) || ARRIVES.some((arrives) => arrives(key, property, spec)) });
       });
     }
   }
