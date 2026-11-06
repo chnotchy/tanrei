@@ -537,6 +537,8 @@ test.describe('behavior', () => {
     await set(page, 'slider', { error: false });
     await expect(part(page, 'slider', '.error-text')).toHaveCount(0);
     near((await box(part(page, 'slider', '.supporting-text'))).y, helpAt, 'the help is where it was');
+    // The row closes over the resize motion (FLD-31): the height is read once it has come to rest.
+    await motionEnded(host(page, 'slider'));
     near((await box(host(page, 'slider'))).height, before + (await token(page, 'supporting-text-gap')) + (await box(part(page, 'slider', '.supporting-text'))).height, 'the height is the help’s again');
     await set(page, 'slider', { supportingText: '', errorText: '' });
     near((await box(host(page, 'slider'))).height, before, 'and returns');
@@ -1544,7 +1546,7 @@ test.describe('a control that is a box: a text input', () => {
       fx('stacked', { label: 'Email', supportingText: 'Help.', required: true }, textInput({ variant: 'stacked' })),
       fx('asterisk', { label: 'Email', required: true, requiredMark: 'asterisk' }, textInput({ variant: 'outlined' })),
       fx('none', { label: 'Email', required: true, requiredMark: 'none' }, textInput({ variant: 'filled' })),
-      fx('hidden', { label: 'Email', required: true }, textInput({ variant: 'outlined' })),
+      fx('hidden', { label: 'Email', labelHidden: true, required: true }, textInput({ variant: 'outlined' })),
       fx('optional', { label: 'Company', required: false, optional: true, error: true, errorText: 'Wrong.' }, textInput({ variant: 'outlined' })),
       { ...fx('glyph', { label: 'Name' }, textInput({ variant: 'outlined' })), slots: { 'label-icon': 'person' } },
       fx('slider', { label: 'Volume', required: true }),
@@ -1697,6 +1699,9 @@ test.describe('a control that is a box: a text input', () => {
       near(without[1]!, withError[1]!, 'the count does not move up or down');
       await set(page, id, { error: true });
       near((await at())[1]!, withError[1]!, 'nor when the error text comes back');
+      // The row opens over the resize motion (FLD-31) and the fields below move with it (MOT-5): they are measured once
+      // it has come to rest.
+      await motionEnded(host(page, id));
     }
     // Alone: the row is drawn for the count, at its end, supporting-text.gap below the control.
     await expect(part(page, 'alone', '.supporting-text')).toHaveCount(0);
