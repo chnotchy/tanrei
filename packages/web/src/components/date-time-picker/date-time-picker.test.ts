@@ -2796,6 +2796,26 @@ test.describe('the range fields and typed entries', () => {
     expect(await log(page)).toEqual([]);
   });
 
+  test('DTM-22, DTM-28: focus that typing moves on to the minute selector is keyboard focus — its ring, though a press had put focus on the hour selector without one, by each way an hour’s entry moves on, in every engine and in one without the focusVisible focus option (Chromium before 145, Safari before 18.4)', async ({ page }) => {
+    for (const simulate of [false, true]) {
+      await mount(page, [inline('k', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' })]);
+      if (simulate) await withoutFocusVisibleOption(page);
+      const [h, m] = [selector(page, 'k', 'hour'), selector(page, 'k', 'minute')];
+      // Two digits, a digit no second one could join, a second digit that makes no hour, and the separator.
+      for (const keys of [['1', '0'], ['9'], ['1', '3'], ['1', ':']]) {
+        const how = `${keys.join(' ')}${simulate ? ', without the option' : ''}`;
+        await h.click();
+        expect(await focused(page), how).toBe('selector:hour');
+        expect(await css(h, 'outline-style'), `${how}: a press shows no ring`).toBe('none');
+        for (const key of keys) await page.keyboard.press(key);
+        expect(await focused(page), how).toBe('selector:minute');
+        expect(await m.evaluate((el) => el.matches(':focus-visible')), how).toBe(true);
+        await expect.poll(() => css(m, 'outline-style'), how).toBe('solid');
+        expect(await css(m, 'outline-color'), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+      }
+    }
+  });
+
   test('DTM-26: the handle moves along the shorter arc over the dial motion when a typed entry or a range field changes the pending time', async ({ page }) => {
     await mount(page, [opened('r', { mode: 'time', range: true, start: '11:00', end: '14:30', hourCycle: 'h12', entryMode: 'dial' })]);
     await page.waitForTimeout(100);
