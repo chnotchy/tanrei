@@ -61,7 +61,42 @@ export function engines(fallback = 'chromium') {
  * @param {string} [engine]
  * @returns {Promise<import('@playwright/test').Browser>}
  */
-export function launch(engine = 'chromium') {
+export async function launch(engine = 'chromium') {
   if (!ENGINE_NAMES.includes(engine)) throw new Error(`no engine "${engine}": the engines are ${ENGINE_NAMES.join(', ')}`);
-  return playwright[engine].launch(OPTIONS[engine]);
+  const browser = await playwright[engine].launch(OPTIONS[engine]);
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (...args) => {
+    const context = await newContext(...args);
+    context.on('page', sayWhatIsOutstanding);
+    return context;
+  };
+  return browser;
+}
+
+// A navigation that does not end says what it was waiting for. `goto` times out with only the address and the event it
+// waited for; this adds the page's requests that had not ended (each with how long it had run and whether its response
+// had come), the address the page's main frame stands at and its document's state, so a load that never comes names
+// what was outstanding.
+function sayWhatIsOutstanding(page) {
+  /** @type {Map<import('@playwright/test').Request, { started: number, answered?: number }>} */
+  const open = new Map();
+  page.on('request', (request) => open.set(request, { started: Date.now() }));
+  page.on('response', (response) => {
+    const entry = open.get(response.request());
+    if (entry) entry.answered = response.status();
+  });
+  for (const ended of ['requestfinished', 'requestfailed']) page.on(ended, (request) => open.delete(request));
+  const goto = page.goto.bind(page);
+  page.goto = async (...args) => {
+    try {
+      return await goto(...args);
+    } catch (error) {
+      if (!(error instanceof Error) || page.isClosed()) throw error;
+      const now = Date.now();
+      const outstanding = [...open].map(([request, { started, answered }]) => `${request.resourceType()} ${request.url()}, asked ${((now - started) / 1000).toFixed(1)} s ago, ${answered === undefined ? 'no response' : `response ${answered}, body not ended`}`);
+      const state = await Promise.race([page.evaluate(() => document.readyState).catch((cause) => `not read: ${String(cause).split('\n')[0]}`), new Promise((resolve) => setTimeout(() => resolve('not read in 5 s'), 5000))]);
+      error.message += `\nOutstanding when it failed: ${outstanding.length ? outstanding.join('; ') : 'no request'}. The main frame stands at ${page.mainFrame().url()}, its document ${state}.`;
+      throw error;
+    }
+  };
 }
