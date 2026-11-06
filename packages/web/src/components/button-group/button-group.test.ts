@@ -1145,6 +1145,22 @@ test.describe('separation', () => {
     expect(seen.rest.probe.line1, 'the same divider, now between Bold and Italic').toBe(0);
     expect(seen.frames[0]!.probe.line1, 'drawn at once').toBe(0);
     expect(seen.motions.filter((motion) => motion.on.startsWith('span.divider'))).toEqual([]);
+    // Added at the end: an unselected toggle after the selected Underline — a new divider, with no line, from its first
+    // frame.
+    const added = await sampleFrames(stage(page, id), () =>
+      group(page, id).evaluate(async (el) => {
+        const next = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
+        for (const [name, value] of [['variant', 'outlined'], ['toggle', ''], ['label', 'Last']]) next.setAttribute(name, value);
+        next.textContent = 'Last';
+        el.append(next);
+        await next.updateComplete;
+        await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      }),
+      { probe: lineFrame },
+    );
+    expect(added.rest.probe).toMatchObject({ decided3: 'none', line3: 0 });
+    for (const frame of added.frames.filter((f) => 'line3' in f.probe)) expect(frame.probe.line3, `frame ${frame.index}: the new divider`).toBe(0);
+    expect(added.motions.filter((motion) => motion.on.startsWith('span.divider'))).toEqual([]);
     // First drawn: a group put in the page with a toggle switched while it settles has its lines at rest from its first
     // frame.
     const first = await sampleFrames(stage(page, id), () =>

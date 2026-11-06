@@ -254,14 +254,19 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
       const [before, after] = [rests[i], rests[i + 1]];
       const line: SeamLine = !before || !after || before.fill !== after.fill ? 'none' : before.emphasis && after.emphasis ? 'on-fill' : 'line';
       if (divider.dataset.line === line) return;
-      // A divider with no line written yet is being drawn for the first time: nothing to fade from.
-      const first = divider.dataset.line === undefined;
+      // The group's first lines are drawn while it settles, when nothing starts a transition: they take no class, so
+      // the first frame is the group at rest. A divider made later (an item added) is held still as any other.
+      const first = divider.dataset.line === undefined && !this.seamsDrawn;
       divider.dataset.line = line;
-      if (fade && !first) return;
+      if (fade || first) return;
       divider.classList.add('still');
       requestAnimationFrame(() => requestAnimationFrame(() => divider.classList.remove('still')));
     });
+    this.seamsDrawn = true;
   }
+
+  /** BGR-24: whether the group has written its lines once (see drawSeams). */
+  private seamsDrawn = false;
 
   /** BGR-10: fewer than two items, or content that is not a Tanrei Button, still renders and is reported. */
   private checkContent() {
