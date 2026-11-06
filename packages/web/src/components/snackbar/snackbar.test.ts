@@ -90,8 +90,56 @@ async function readsForm(page: P, id: string, props: Fixture['props'], at: strin
     expect(await css(inner(page, id, name), 'color'), `${at} ${name} glyph`).toBe(glyph);
   }
 }
+/**
+ * SNK-25's keys, kept so that a key that scrolled nothing says why: each key the window heard (keydown and keyup), the
+ * element it went to and the element that had focus, through shadow roots; every focus change; each scroll and
+ * scrollend of the text and of the page; each entry with the text's and the page's scroll positions. "Nothing
+ * scrolled" can be a key that went to another element (the focus had moved), a key the page never heard (the press was
+ * lost on its way), or a key that reached the text and whose scroll the engine did not make: the log tells them apart.
+ */
+const logKeys = (text: Locator) =>
+  text.evaluate((el) => {
+    const log: unknown[][] = [];
+    const name = (node: EventTarget | null | undefined): string => {
+      if (!(node instanceof Element)) return node === window ? 'window' : node === document ? 'document' : String(node ?? '(nothing)');
+      const own = `${node.localName}${node.id ? `#${node.id}` : ''}${typeof node.className === 'string' && node.className.trim() ? `.${node.className.trim().split(/\s+/).join('.')}` : ''}`;
+      const host = (node.getRootNode() as ShadowRoot).host as Element | undefined;
+      const fixture = (host ?? node).closest<HTMLElement>('[data-fixture]')?.dataset.fixture;
+      return `${host ? `${name(host)} > ` : fixture ? `[${fixture}] ` : ''}${own}`;
+    };
+    const focused = () => {
+      let active: Element | null = document.activeElement;
+      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+      return name(active);
+    };
+    const add = (...entry: unknown[]) => {
+      log.push([Math.round(performance.now() * 10) / 10, ...entry, `text ${el.scrollTop}`, `page ${document.scrollingElement!.scrollTop}`]);
+      if (log.length > 400) log.splice(0, log.length - 400);
+    };
+    const keys = window as unknown as { __keyLog: unknown[][]; __keyNote: (key: string) => void };
+    keys.__keyLog = log;
+    keys.__keyNote = (key) => add('test', `press ${key}`, `focus on ${focused()}`, `document has focus ${document.hasFocus()}`);
+    for (const type of ['keydown', 'keyup'] as const) window.addEventListener(type, (event) => add(type, event.key, `to ${name(event.composedPath()[0])}`, `focus on ${focused()}`, `trusted ${event.isTrusted}`), { capture: true, passive: true });
+    for (const type of ['focusin', 'focusout'] as const) window.addEventListener(type, (event) => add(type, name(event.composedPath()[0]), `related ${name((event as FocusEvent).relatedTarget)}`), { capture: true, passive: true });
+    for (const [target, where] of [[el, 'text'], [document, 'page']] as const) {
+      target.addEventListener('scroll', () => add('scroll', where), { passive: true });
+      target.addEventListener('scrollend', () => add('scrollend', where), { passive: true });
+    }
+    add('test', 'log started', `focus on ${focused()}`);
+  });
+/** A line of the test's own in the key log: the key it is about to press, and where the focus is then. */
+const noteKey = (text: Locator, key: string) => text.evaluate((_el, k) => (window as unknown as { __keyNote: (key: string) => void }).__keyNote(k), key);
+/** Waits for `waiting`; when it fails, fails with the key log after its own message. */
+async function saysKeys(text: Locator, waiting: Promise<unknown>) {
+  try {
+    await waiting;
+  } catch (error) {
+    const log = await text.evaluate(() => (window as unknown as { __keyLog?: unknown[][] }).__keyLog ?? []).catch((e: Error) => [[`the page could not be read: ${e.message}`]]);
+    throw new Error(`${(error as Error).message}\n\nKeys, focus and scrolls, oldest first: [ms, what, …, the text's scrollTop, the page's scrollTop]:\n${log.map((entry) => JSON.stringify(entry)).join('\n')}`);
+  }
+}
 /** SNK-34: an expand or close Button's own container — the native button it draws in its shadow root, where its colors, its ring and its press are. */
-const inner = (page: P, id: string, name: 'expand' | 'close') => part(page, id, name).locator('[part="container"]');
+const inner =(page: P, id: string, name: 'expand' | 'close') => part(page, id, name).locator('[part="container"]');
 /**
  * SNK-34, BTN-45: what an expand or close Button draws in `form`'s tone, as the page computes it — `tone`, the form's
  * message color (the glyph); `rest`, the tonal circle (that color at comp.button.tone.container.opacity); and each state,
@@ -1285,53 +1333,58 @@ test.describe('the bar', () => {
         });
       });
     const at = await fixed();
-    // The browser scrolls a focused scroller by these keys, not the snackbar; a key this browser does not scroll a plain
-    // scroller by is not asked of the snackbar's text either (Playwright's WebKit on macOS leaves Arrow Down to nothing —
-    // this test failed there on that key since it was written — and scrolls by Page Down).
-    const scrollsBy = async (key: string) => {
-      await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<div id="plain" tabindex="0" style="inline-size: 200px; block-size: 80px; overflow-y: auto"><div style="block-size: 800px"></div></div>'));
-      await page.locator('#plain').focus();
-      await page.keyboard.press(key);
-      const scrolled = await page
-        .waitForFunction(() => document.getElementById('plain')!.scrollTop > 0, undefined, { timeout: 1500 })
-        .then(() => true)
-        .catch(() => false);
-      await page.locator('#plain').evaluate((el) => el.remove());
-      return scrolled;
-    };
-    const keys: string[] = [];
-    for (const key of ['ArrowDown', 'PageDown']) if (await scrollsBy(key)) keys.push(key);
-    expect(keys).toContain('PageDown');
+    // Tab comes from a button of the test's own just before the fixture, not from the top of the page past the
+    // fixtures before it.
+    await page.locator('[data-fixture="expanded-scrolls"]').evaluate((el) => el.insertAdjacentHTML('beforebegin', '<button id="before-scrolls">Before</button>'));
+    await page.locator('#before-scrolls').focus();
     await tabTo(page, text);
     // Its indicator is drawn by the box over it, exactly on it, which does not scroll with the text.
     await expect(part(page, 'expanded-scrolls', 'focus')).toHaveCSS('outline-style', 'solid');
     await expect(text).toHaveCSS('outline-style', 'none');
     expect(await part(page, 'expanded-scrolls', 'focus').boundingBox()).toEqual(await text.boundingBox());
-    // A key scrolls over some frames: where the text came to rest, not where it was on its way there (read on its way,
-    // Page Up could end below that reading).
-    const rest = () =>
-      text.evaluate(async (el) => {
+    // Each key is pressed on text at rest — after its scroll's `scrollend`, and frames without a move — and placed where
+    // the key has room to scroll it: at its start for Arrow Down and Page Down, at its end for Page Up (a key scrolls
+    // over some frames, and read on its way, the next key's start would be wrong). Chromium drops a key that arrives
+    // between the last frame of a scroll and that scroll's end, of any scroller, a plain one too: Arrow Down had brought
+    // the text to 40, Page Down came some milliseconds later and nothing moved.
+    const placed = (end: 'start' | 'end') =>
+      text.evaluate(async (el, to) => {
+        const top = to === 'start' ? 0 : el.scrollHeight - el.clientHeight;
+        if (Math.abs(el.scrollTop - top) >= 1) {
+          const ended = new Promise((r) => el.addEventListener('scrollend', r, { once: true }));
+          el.scrollTop = top;
+          await ended;
+        }
         for (let last = -1, same = 0; same < 5; ) {
           await new Promise((r) => requestAnimationFrame(r));
           same = el.scrollTop === last ? same + 1 : 0;
           last = el.scrollTop;
         }
         return el.scrollTop;
-      });
-    // Each key is pressed on text at rest, as a person presses it. Chromium drops a key that arrives between the last
-    // frame of the scroll before it and that scroll's end (its `scrollend`) — of any scroller, a plain one too — and a
-    // slow machine puts the next key exactly there: Arrow Down had brought the text to 40, Page Down came some
-    // milliseconds later and nothing moved.
-    for (const key of keys) {
-      const top = await rest();
-      await page.keyboard.press(key);
-      await expect.poll(() => text.evaluate((el) => el.scrollTop), key).toBeGreaterThan(top);
-    }
-    const top = await rest();
-    await page.keyboard.press('PageUp');
-    await expect.poll(() => text.evaluate((el) => el.scrollTop)).toBeLessThan(top);
+      }, end);
+    // A key is held until the text has moved, as a person's press lasts, and then let go. WebKit on macOS scrolls by an
+    // arrow key from the frame after its keydown for as long as the key is down, and a key let go before that frame
+    // scrolls nothing: Playwright's `press()` lets go at once, so whether Arrow Down scrolled was whether a frame fell
+    // between the two — 2 times in 8 on a plain scroller, where held for 50 ms it scrolled 8 in 8. This test asked a
+    // plain scroller first and left out a key that did not scroll it; under load the plain scroller's press won that
+    // race, the text's lost it, and the test said the text did not scroll.
+    const scrollsBy = async (key: string, from: 'start' | 'end') => {
+      const top = await placed(from);
+      await noteKey(text, key);
+      await page.keyboard.down(key);
+      try {
+        const moved = expect.poll(() => text.evaluate((el) => el.scrollTop), key);
+        await saysKeys(text, from === 'start' ? moved.toBeGreaterThan(top) : moved.toBeLessThan(top));
+      } finally {
+        await page.keyboard.up(key);
+      }
+    };
+    await logKeys(text);
+    await scrollsBy('ArrowDown', 'start');
+    await scrollsBy('PageDown', 'start');
+    await scrollsBy('PageUp', 'end');
     await text.hover();
-    const wheeled = await rest();
+    const wheeled = await placed('start');
     await page.mouse.wheel(0, 120);
     await expect.poll(() => text.evaluate((el) => el.scrollTop)).toBeGreaterThan(wheeled);
     expect(await fixed()).toEqual(at);
