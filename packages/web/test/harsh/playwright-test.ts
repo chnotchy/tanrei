@@ -3,13 +3,14 @@
 // module's, except `test`, whose fixtures
 // - put a gap before and after every input action, in every engine (once a worker, on the client's own classes: a
 //   locator's and a page's actions go through its frame, and the mouse, the keyboard and the touchscreen are their own);
-// - slow every Chromium page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
+// - slow every page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
 //   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears);
 // - check, once a worker before its first test, that all of this takes effect (`checkHarsh`), and fail the worker's
 //   tests if it does not.
 import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
 import * as real from '../../node_modules/@playwright/test/index.mjs';
 import { HARSH_TIMEOUT, type Harsh, harsh } from '../harsh.js';
+import { slowMotion } from './slow-motion.js';
 
 // The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
 // re-export only from its real path in the store, not from the link, so its `test` is typed here as the name's.
@@ -104,7 +105,8 @@ async function gapActions(page: Page) {
 const slowed = new WeakMap<Page, Promise<void>>();
 
 /**
- * The gaps (every engine), and the CPU throttling and the motion playback rate (Chromium), on one page — once: every
+ * The gaps (every engine), the motion rate (Chromium's engine rate; test/harsh/slow-motion.ts in Firefox and WebKit, on
+ * request) and the CPU throttling (Chromium), on one page — once: every
  * caller waits for the same work, so a page handed over by `newPage()` is slowed before the test has it.
  */
 function slowDown(page: Page): Promise<void> {
@@ -113,7 +115,16 @@ function slowDown(page: Page): Promise<void> {
   if (!done) {
     done = (async () => {
       await gapActions(page);
-      if (page.context().browser()?.browserType().name() !== 'chromium') return;
+      if (page.context().browser()?.browserType().name() !== 'chromium') {
+        // Firefox and WebKit have no rate to set: on request, the page's animations are slowed in the page
+        // (test/harsh/slow-motion.ts), in every document to come and in the one it has. A page with scripting off is left
+        // as it is.
+        if (harsh.pageMotion && harsh.motion !== 1 && !unscripted.has(page.context())) {
+          await page.addInitScript(slowMotion, harsh.motion);
+          await page.evaluate(slowMotion, harsh.motion);
+        }
+        return;
+      }
       const cdp = await page.context().newCDPSession(page);
       if (harsh.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: harsh.cpu });
       if (harsh.motion !== 1) {
@@ -166,8 +177,10 @@ const MOTION_SLACK = 0.5;
  *   touchscreen's — reaches the page at least `expected.before` ms after it was asked for and returns at least
  *   `expected.after` ms after its last event, both in the page's own clock: a gap Node waits for where the action does
  *   not pass through it (a method Playwright renamed or moved) would be missing here;
- * - in Chromium, a motion moves at `expected.motion` times the time that passes (a transition, a script's `animate()`,
- *   an `Animation` made and played), not at its own speed.
+ * - a motion in a shadow root moves at `expected.motion` times the time that passes (a CSS transition, a CSS animation,
+ *   a script's `animate()`, an `Animation` made and played), not at its own speed, and the page reads its playback
+ *   rate as 1 — in Chromium by the engine's rate, in Firefox and WebKit, when `expected.pageMotion` asks, by
+ *   test/harsh/slow-motion.ts.
  * The fixture below calls it with the run's settings; harsh mode's own tests (test/harsh/self/) call it with more than
  * the run gives, to see it refuse.
  */
@@ -205,29 +218,54 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
       if (after < expected.after - SLACK) problems.push(`${name} returned ${Math.round(after)} ms after its last event, not ${expected.after} ms (the gap after it)`);
     }
     await handle!.dispose();
-    if (engine === 'chromium' && expected.motion !== 1) {
-      const rates = await page.evaluate(async () => {
-        const box = document.createElement('div');
-        box.style.cssText = 'inline-size: 10px; block-size: 10px; opacity: 1; transition: opacity 10s linear';
-        document.body.append(box);
+    if (expected.motion !== 1 && (engine === 'chromium' || expected.pageMotion)) {
+      // In a shadow root, as a component's motions are: Firefox and WebKit's rate reaches a transition there by its
+      // root's events. Each motion's time is read in two frame callbacks half a second apart (a motion's time is its
+      // frame's), the first a frame after the motions began, against the page's clock (not the callbacks' own time,
+      // which Chromium's rate slows too).
+      const { rates, reported } = await page.evaluate(async () => {
+        const host = document.createElement('div');
+        document.body.append(host);
+        const root = host.attachShadow({ mode: 'open' });
+        root.innerHTML = `<style>
+          @keyframes harsh-probe { from { rotate: 0deg } to { rotate: 90deg } }
+          div { inline-size: 10px; block-size: 10px; opacity: 1; transition: opacity 10s linear }
+          .on { opacity: 0; animation: harsh-probe 10s linear }
+        </style><div></div>`;
+        const box = root.querySelector('div')!;
         getComputedStyle(box).opacity;
-        const start = performance.now();
-        box.style.opacity = '0';
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        await frame();
+        box.classList.add('on');
         const scripted = box.animate([{ translate: '0px' }, { translate: '10px' }], 10_000);
         const made = new Animation(new KeyframeEffect(box, [{ scale: '1' }, { scale: '2' }], 10_000));
         made.play();
+        await frame();
+        await frame();
+        const all = box.getAnimations();
+        const kinds: Record<string, Animation | undefined> = {
+          transition: all.find((animation) => animation instanceof CSSTransition),
+          'CSS animation': all.find((animation) => animation instanceof CSSAnimation),
+          'animate()': scripted,
+          'new Animation()': made,
+        };
+        const times = () => Object.values(kinds).map((animation) => (animation ? Number(animation.currentTime) : NaN));
+        const [start, first] = [performance.now(), times()];
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const elapsed = performance.now() - start;
-        const transition = box.getAnimations().find((animation) => animation instanceof CSSTransition);
-        const share = (animation: Animation | undefined) => (animation ? Number(animation.currentTime) / elapsed : NaN);
-        const result = { transition: share(transition), 'animate()': share(scripted), 'new Animation()': share(made) };
-        box.remove();
+        await frame();
+        const [end, last] = [performance.now(), times()];
+        const result = {
+          rates: Object.fromEntries(Object.keys(kinds).map((kind, at) => [kind, (last[at] - first[at]) / (end - start)])),
+          reported: all.map((animation) => animation.playbackRate),
+        };
+        host.remove();
         return result;
       });
       for (const [kind, rate] of Object.entries(rates)) {
         if (!(rate >= expected.motion * (1 - MOTION_SLACK) && rate <= expected.motion * (1 + MOTION_SLACK)))
           problems.push(`a ${kind} moved ${rate.toFixed(2)} of the time that passed, not ${expected.motion} (the motion rate)`);
       }
+      if (reported.some((rate) => rate !== 1)) problems.push(`the page reads its animations' playback rates as ${reported.join(', ')}, not 1: the rate shows`);
     }
     if (problems.length) throw new Error(`harsh mode did not take effect in ${engine}:\n- ${problems.join('\n- ')}`);
   } finally {

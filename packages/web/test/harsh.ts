@@ -12,8 +12,12 @@
 //     that lasts only press-hold (100 ms) after the action is gone by then;
 //   - before it, so an action aimed with what the test read earlier (a box measured during a motion, a state seen a
 //     moment ago) lands that much later, when the read may no longer be true.
-// - Chromium: its animations and transitions played slower (CDP `Animation.setPlaybackRate`), so a single read during a
-//   motion lands in the motion, not after it; on request, the page's CPU slowed (`Emulation.setCPUThrottlingRate`).
+// - Chromium: the page's animations and transitions played slower (CDP `Animation.setPlaybackRate`), so a single read
+//   during a motion lands in the motion, not after it. Firefox and WebKit have no such rate; on request
+//   (TANREI_HARSH_PAGE_MOTION=1) their pages' own animations are slowed instead (test/harsh/slow-motion.ts) — not by
+//   default, because a motion the engine lists no animation for cannot be slowed from the page while one that runs
+//   with it is (below).
+// - Chromium: on request, the page's CPU slowed (`Emulation.setCPUThrottlingRate`).
 //   The page clock (`page.clock`) is untouched: a test that holds it counts time as before.
 // - every engine: a test gets 4 times its time and an `expect` 3 times its own (15 s), for waits on slowed motion — a
 //   time the test or its describe block sets itself (`test.setTimeout()`, `test.describe.configure({ timeout })`) is
@@ -28,7 +32,7 @@
 //
 // Each setting can be changed: TANREI_HARSH=1 takes the defaults below; TANREI_HARSH_BEFORE and TANREI_HARSH_AFTER
 // (ms), TANREI_HARSH_CPU (the throttling rate, 1 = off) and TANREI_HARSH_MOTION (the playback rate, 1 = off) override
-// one each.
+// one each; TANREI_HARSH_PAGE_MOTION=1 slows Firefox's and WebKit's motion as well.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,6 +47,8 @@ export interface Harsh {
   cpu: number;
   /** Chromium's animation playback rate (`Animation.setPlaybackRate`); 1 is off, 0.1 plays a 150 ms transition in 1.5 s. */
   motion: number;
+  /** Firefox and WebKit play their pages' own animations at `motion` too (test/harsh/slow-motion.ts). */
+  pageMotion: boolean;
 }
 
 /**
@@ -54,6 +60,13 @@ export interface Harsh {
  *   with both, the four old tests failed 4 runs in 4 each in Chromium, and their fixed versions passed 3 in 3 in
  *   Chromium, Firefox and WebKit. Firefox and WebKit have no motion rate: there the old BRC-16 failed 3 in 3, the old
  *   MDL-9 1 in 3 in Firefox, and the two motion reads passed.
+ * - Firefox's and WebKit's motion slowed in the page (TANREI_HARSH_PAGE_MOTION=1) fails the races harsh mode's own tests
+ *   hold (test/harsh/self/motion.self.ts) as Chromium does, and in a sample of eight suites (1090 tests in the two
+ *   engines) failed one more test, CHF-17, which read where a label rests while it still moved after a change of
+ *   variant (fixed). But it is not on by default: it also failed ACC-13 in both, a correct test. The height of a
+ *   `<details>` element's content is a transition of its `::details-content`, which no engine lists and whose events
+ *   reach no listener, so the page cannot slow it, while the item's clock that runs with it is slowed: the two drift
+ *   apart, and the test, which compares them in every frame, sees a jump that is not there. Chromium's rate slows both.
  * - the CPU is NOT throttled by default: a slower page answers each round trip later, which gives a motion time to
  *   end before the read and hides the motion races above (the old SEL-60 failed 6 runs in 6 unthrottled, 1 in 6 at
  *   8×, 2 in 3 at 4×). Throttling is there for a race of another shape: TANREI_HARSH_CPU=4.
@@ -66,7 +79,7 @@ export interface Harsh {
  *   though the first frame without a listed motion showed the height short in 7 of 10 runs at TANREI_HARSH_CPU=6.
  *   Read such a box with `boxAtRest` (test/at-rest.ts).
  */
-export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2 };
+export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2, pageMotion: false };
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -86,6 +99,7 @@ export const harsh: Harsh | undefined =
         after: number('TANREI_HARSH_AFTER', HARSH_DEFAULTS.after),
         cpu: Math.max(1, number('TANREI_HARSH_CPU', HARSH_DEFAULTS.cpu)),
         motion: number('TANREI_HARSH_MOTION', HARSH_DEFAULTS.motion) || 1,
+        pageMotion: process.env.TANREI_HARSH_PAGE_MOTION ? process.env.TANREI_HARSH_PAGE_MOTION !== '0' : HARSH_DEFAULTS.pageMotion,
       }
     : undefined;
 

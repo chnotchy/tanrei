@@ -14,8 +14,12 @@ import { fileURLToPath } from 'node:url';
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINES = ['chromium', 'firefox', 'webkit'];
 
+const CHROMIUM_ONLY_FAILS = { chromium: 'failed', firefox: 'passed', webkit: 'passed' };
+
 /**
- * How each test ends, by run and engine: 'passed', 'failed' or 'skipped' for all three, or one per engine.
+ * How each test ends, by run and engine: 'passed', 'failed' or 'skipped' for all three, or one per engine. The runs:
+ * `plain` (harsh mode off), `harsh` (its defaults) and `options` (its defaults and every option it has on: `OPTIONS`;
+ * a test that says nothing for it ends as in `harsh`).
  * @type {Record<string, Record<string, string | Record<string, string>>>}
  */
 const EXPECTED = {
@@ -23,10 +27,13 @@ const EXPECTED = {
   'sound: a press-hold read while the pointer holds it': { plain: 'passed', harsh: 'passed' },
   'check: the self-check refuses gaps shorter than it was told to expect': { plain: 'skipped', harsh: 'passed' },
   'check: the self-check passes the gaps the run gives': { plain: 'skipped', harsh: 'passed' },
-  // Firefox and WebKit play motion at its own speed in harsh mode: the race passes there.
-  'race: a fade read once, a while after the click that starts it': { plain: 'passed', harsh: { chromium: 'failed', firefox: 'passed', webkit: 'passed' } },
+  // Firefox and WebKit play motion at its own speed unless asked (TANREI_HARSH_PAGE_MOTION=1): a motion race passes there.
+  'race: a fade read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
+  'race: a fade in a shadow root read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
+  'race: a scripted fade read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
   'sound: a fade waited for until it ends': { plain: 'passed', harsh: 'passed' },
-  'check: the self-check refuses a motion rate it was not given': { plain: 'skipped', harsh: { chromium: 'passed', firefox: 'skipped', webkit: 'skipped' } },
+  'sound: a page reads and sets its animations’ playback rates as it knows them': { plain: 'passed', harsh: 'passed' },
+  'check: the self-check refuses a motion rate it was not given': { plain: 'skipped', harsh: { chromium: 'passed', firefox: 'skipped', webkit: 'skipped' }, options: 'passed' },
   'check: a test that sets no time gets the config’s, multiplied': { plain: 'passed', harsh: 'passed' },
   'check: test.setTimeout() in a test is multiplied': { plain: 'passed', harsh: 'passed' },
   'check: test.setTimeout(0) stays no timeout': { plain: 'passed', harsh: 'passed' },
@@ -69,10 +76,18 @@ function run(env) {
   return ended;
 }
 
-/** @param {'plain' | 'harsh'} mode */
+/** Harsh mode's options, all on, for the `options` run. */
+const OPTIONS = { TANREI_HARSH_PAGE_MOTION: '1' };
+
+/** @param {'plain' | 'harsh' | 'options'} mode */
 const wanted = (mode) =>
   Object.fromEntries(
-    Object.entries(EXPECTED).flatMap(([title, modes]) => ENGINES.map((engine) => [`${engine} › ${title}`, typeof modes[mode] === 'string' ? modes[mode] : modes[mode][engine]])),
+    Object.entries(EXPECTED).flatMap(([title, modes]) =>
+      ENGINES.map((engine) => {
+        const ends = modes[mode] ?? modes.harsh;
+        return [`${engine} › ${title}`, typeof ends === 'string' ? ends : ends[engine]];
+      }),
+    ),
   );
 
 test('harsh mode: its own tests end as they must with it off — every race passes', () => {
@@ -81,4 +96,8 @@ test('harsh mode: its own tests end as they must with it off — every race pass
 
 test('harsh mode: its own tests end as they must with it on — every race fails, every sound test passes', () => {
   assert.deepEqual(run({ TANREI_HARSH: '1' }), wanted('harsh'));
+});
+
+test('harsh mode: its own tests end as they must with every option on', () => {
+  assert.deepEqual(run({ TANREI_HARSH: '1', ...OPTIONS }), wanted('options'));
 });
