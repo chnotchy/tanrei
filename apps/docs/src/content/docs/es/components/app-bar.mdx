@@ -29,7 +29,7 @@ Los ejemplos de Web y React muestran la especificación actual, en la que los el
 
 Una barra de la aplicación es una región del diseño de página, no una superposición. Ocupa su altura en la parte superior de la pantalla, el contenido empieza debajo de ella y la barra en sí nunca recibe el foco.
 
-Contiene dos tipos de elemento: un elemento `navigation` al inicio (atrás, menú o cerrar) y hasta tres elementos `action` al final. Ambos son tus propios [botones](/es/components/button/) de solo icono, cada uno con su etiqueta y su clic o, cuando lleva a algún sitio, su `href`. La barra los dispone y nunca les cambia el estilo. Cada plataforma los recibe en sus propios slots: hijos con `slot="navigation"` y `slot="actions"` en la web, los constructores de vistas `navigation` y `actions` en SwiftUI, las lambdas `navigationIcon` y `actions` en Compose, `leading` y `actions:` en Flutter, y los nodos `navigation` y `actions` en React Native.
+Contiene dos tipos de elemento: un elemento `navigation` al inicio (atrás, menú o cerrar) y cualquier número de elementos `action` al final. Ambos son tus propios [botones](/es/components/button/) de solo icono, cada uno con su etiqueta y su clic o, cuando lleva a algún sitio, su `href`. La barra los dispone y nunca les cambia el estilo. Cada plataforma los recibe en sus propios slots: hijos con `slot="navigation"` y `slot="actions"` en la web, los constructores de vistas `navigation` y `actions` en SwiftUI, las lambdas `navigationIcon` y `actions` en Compose, `leading` y `actions:` en Flutter, y los nodos `navigation` y `actions` en React Native.
 
 El título es el nombre de la pantalla y su encabezado. En la web es `headline`, porque el atributo global `title` de HTML pondría un tooltip sobre toda la barra.
 
@@ -247,7 +247,8 @@ Un sistema de diseño puede añadir tamaños. En SwiftUI, Compose, Flutter y Rea
 ### Elementos
 
 - Dale a la barra un solo botón de navegación como máximo: atrás en una pantalla a la que se llegó desde otra, menú en una pantalla de nivel superior, cerrar en una tarea a pantalla completa.
-- No pases de tres acciones. Pon el resto en un menú de desbordamiento: un botón de icono «Más opciones» que abre un menú de Tanrei. Las compilaciones de depuración avisan de una cuarta acción y de un segundo botón de navegación, y aun así los dibujan.
+- Pon en la barra tantas acciones como necesite la pantalla. Dibuja todas las que caben, y las que no caben salen por el final. Con `overflow` en `menu` (el valor predeterminado) pasan a un menú que abre un botón «Más acciones» al final, cada una con su etiqueta: dale nombre a ese botón con `overflow-label`, o una sola vez para todo el producto con `setWords({ toolbarOverflowLabel: … })`. Con `overflow` en `hide` simplemente salen de la barra: úsalo solo para acciones a las que la persona también llega desde otro sitio a ese ancho, como el panel de navegación o el pie de la página.
+- Marca la acción que debe quedarse, como Listo, con `app-bar-overflow="never"`: en su lugar salen las acciones que tiene delante. El título conserva todo su ancho antes de que salga una acción, y solo se recorta cuando ya no puede salir nada más.
 - Los botones se ven como en cualquier otro lugar. La barra los dispone y nunca les cambia el color.
 - Un botón que lleva a algún sitio es un enlace: dale un `href`. Un botón para volver que lleva a la página superior, o una acción de ayuda que abre una página, es entonces un enlace real, dibujado como el mismo botón. Un botón para volver que retrocede por el historial sigue siendo un botón.
 - En la web, una [búsqueda](/es/components/search/) puede ser una de las acciones en forma de activador de icono (`bar` en `icon`): un botón de solo icono que abre el diálogo o la vista a pantalla completa de la búsqueda.
@@ -291,10 +292,12 @@ La cabecera de este sitio muestra solo el logotipo de Tanrei, en todos los ancho
 - Un texto más grande hace crecer las filas de la barra, cuyas alturas son mínimas. El título y el subtítulo se mantienen en una línea y se truncan en lugar de saltar de línea, incluso al 200%, de modo que la barra nunca empuja el contenido. El título completo sigue disponible para la tecnología de apoyo. Los botones de icono no se escalan.
 - La barra toma su dirección del lugar donde se usa. En un diseño de derecha a izquierda se refleja: el botón de navegación queda a la derecha y las acciones, a la izquierda. Un glifo que el conjunto de iconos marca como reflejado, como una flecha de retroceso, lo refleja su propio botón, no la barra.
 - El título y el subtítulo se componen como texto con su propia dirección, aislado del texto que lo rodea. Un nombre de izquierda a derecha en un diseño de derecha a izquierda conserva su orden, y se corta por su propio final, nunca por su principio.
-- Las compilaciones de depuración avisan de más de tres acciones, de más de un botón de navegación y de un tamaño que el sistema de diseño no tiene.
+- El botón de más acciones se expone como un botón que abre un menú, y dice si el menú está abierto. Cada fila del menú hace exactamente lo que hace su acción. Una acción que sale de la barra sale también del orden de tabulación: el foco que tenía pasa al botón de más acciones o, con `hide`, a la acción más cercana que sigue dibujada.
+- Las compilaciones de depuración avisan de más de un botón de navegación, de un valor de `overflow` que la barra no tiene, de un botón de más acciones sin nombre y de un tamaño que el sistema de diseño no tiene.
 
 Carencias conocidas por plataforma:
 
+- SwiftUI, Compose, Flutter y React Native: `overflow`, `overflowLabel` y el overflow propio de cada acción esperan a que esas plataformas se pongan al día. Dibujan todas las acciones, haya o no sitio.
 - SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Dibujan el borde inferior solo cuando hay contenido debajo de la barra, como hace `scroll`.
 - SwiftUI, Compose, Flutter y React Native: las reglas de derecha a izquierda (un glifo reflejado donde el conjunto de iconos lo marca, un título compuesto en su propia dirección) esperan a que esas plataformas se pongan al día, igual que un botón con `href`.
 - Web: todos los tamaños siguen a `rem`, así que un tamaño de texto mayor en el navegador hace crecer los botones de icono junto con el texto. Ampliar solo la tipografía de Tanrei no lo hace.
