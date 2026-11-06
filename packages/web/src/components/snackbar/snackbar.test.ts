@@ -3,9 +3,11 @@
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { type Turn, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing } from '../../../test/appear.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { motionEnded } from '../../../test/motions.js';
+import { type Frame, type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -248,8 +250,8 @@ const log = (page: P) => page.evaluate(() => (window as any).log as string[]);
 // ── A host ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** A page with some content, a button before the host, and the host last; short timeouts so timing is observable. */
-async function mountHost(page: P, timeouts = { short: '600ms', long: '1200ms' }) {
-  await mountFixtures(page, spec, { icons: true, fixtures: [] });
+async function mountHost(page: P, timeouts = { short: '600ms', long: '1200ms' }, options: { system?: string; reducedMotion?: boolean } = {}) {
+  await mountFixtures(page, spec, { icons: true, ...options, fixtures: [] });
   await override(page, { [T('timeout-short')]: timeouts.short, [T('timeout-long')]: timeouts.long });
   await page.evaluate(() => {
     const main = document.querySelector('main')!;
@@ -575,52 +577,6 @@ test.describe('host', () => {
     expect((await bounds(shown(page).locator('.bar'))).width).toBeCloseTo(300 - 2 * margin, 0);
   });
 
-  test('SNK-17: it rises in from below by its height plus its margin while fading in, fades out in place, and the next shows after; only the fade where motion is reduced', async ({ page }) => {
-    await mountHost(page);
-    // Both motions at 40 s, the exit ended by hand: the entrance's keyframes are read from the running animation four
-    // answers after the show, and One is found 'still fading out' three answers and 300 ms after it is dismissed — at
-    // 1 s each, a runner that takes 250 ms an answer found the entrance over and Two in One's place.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
-    await show(page, { message: 'One', action: 'Undo' });
-    await show(page, { message: 'Two', action: 'Undo' });
-    await expect.poll(() => showing(page)).toEqual(['One']);
-    const s = shown(page).first();
-    expect(await css(s, 'animation-name')).toBe('snackbar-in');
-    expect(await css(s, 'animation-duration')).toBe('40s');
-    const [translate] = await s.evaluate((el) => (el.getAnimations()[0].effect as KeyframeEffect).getKeyframes().map((k) => k.translate));
-    // Its own height (100% of the element) plus its margin, below where it rests.
-    expect(translate).toMatch(/^0px calc\(100% \+ /);
-    expect(await s.evaluate((el) => getComputedStyle(el).getPropertyValue('--tanrei-comp-snackbar-container-margin').trim())).not.toBe('');
-    await host(page).evaluate((h: any) => h.dismissCurrent());
-    expect(await css(s, 'animation-name')).toBe('snackbar-out');
-    await page.waitForTimeout(300);
-    expect(await showing(page)).toEqual(['One']); // still fading out, Two waits
-    expect(await css(s, 'animation-duration')).toBe('40s');
-    await s.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
-    await expect.poll(() => showing(page)).toEqual(['Two']);
-    await override(page, { [T('motion-enter-duration')]: '1s', [T('motion-exit-duration')]: '1s' });
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    // Three shows once Two has faded out (1 s), and its own entrance lasts 1 s: read it when it starts, in the page. A
-    // command sent after the poll below sees it can arrive after the entrance has ended (the poll's intervals alone put
-    // its last look some 850 ms into it, and a loaded runner adds the rest).
-    await host(page).evaluate((h) => {
-      (window as any).entered = new Promise((resolve) =>
-        h.addEventListener('animationstart', (e) => {
-          const s = e.target as HTMLElement & { message?: string };
-          if (s.localName !== 'tanrei-snackbar' || s.message !== 'Three') return;
-          const style = getComputedStyle(s);
-          resolve({ name: style.animationName, duration: style.animationDuration });
-        }),
-      );
-    });
-    await host(page).evaluate((h: any) => h.dismissCurrent());
-    await show(page, { message: 'Three', action: 'Undo' });
-    await expect.poll(() => showing(page)).toEqual(['Three']);
-    const entered = await page.evaluate(() => (window as any).entered as Promise<{ name: string; duration: string }>);
-    expect(entered.name).toBe('snackbar-fade-in');
-    expect(Number.parseFloat(entered.duration) * 1000).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
-  });
-
   test('SNK-19: drawn outside a host it is in place and at rest — centred across its width, no popover, timeout, entrance or announcement — and still emits', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     await override(page, { [T('timeout-short')]: '100ms' });
@@ -635,6 +591,11 @@ test.describe('host', () => {
       expect(drawn.x + drawn.width / 2).toBeCloseTo(given.x + given.width / 2, 0);
     }
     expect(await css(s, 'animation-name')).toBe('none');
+    // SNK-17: the bar has no appearance in place: it is no surface that appears, and takes no transition (WebKit would
+    // otherwise play an entrance on a bar first drawn in an already painted page).
+    expect(await part(page, 'message', 'bar').getAttribute('data-tanrei-appear')).toBeNull();
+    expect(await css(part(page, 'message', 'bar'), 'transition-duration')).toBe('0s');
+    expect(await css(part(page, 'message', 'bar'), 'opacity')).toBe('1');
     await page.waitForTimeout(400);
     await expect(s).toBeVisible();
     expect(await page.evaluate(() => document.querySelectorAll('[aria-live], [role="status"]').length)).toBe(0);
@@ -665,29 +626,6 @@ const shownBar = (page: P) =>
     const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
     return { x: box.x, y: box.y, width: box.width, height: box.height, right: box.right, bottom: box.bottom };
   });
-/**
- * SNK-36: the showing snackbar's entrance read frame by frame — paused and set to each fraction of its time in the task
- * that reads it, so nothing depends on how fast the machine runs it — then let go to its end, where the bar rests.
- */
-const entranceFrames = (page: P, fractions: number[]) =>
-  shown(page).evaluate((el, at) => {
-    // Its entrance, which the host begins with the show (the snackbar runs no other motion of its own).
-    const motion = el.getAnimations().find((each) => (each as CSSAnimation).animationName?.startsWith('snackbar-'));
-    if (!motion) throw new Error('the snackbar is not entering');
-    const duration = Number(motion.effect!.getComputedTiming().duration);
-    motion.pause();
-    const read = () => {
-      const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
-      return { y: box.y, x: box.x, height: box.height, opacity: Number(getComputedStyle(el).opacity) };
-    };
-    const frames = at.map((fraction) => {
-      motion.currentTime = duration * fraction;
-      return read();
-    });
-    motion.finish();
-    return { name: (motion as CSSAnimation).animationName, frames, rest: read() };
-  }, fractions);
-
 test.describe('at the top end', () => {
   test('SNK-35: at the top end of a wide window — the margin below the top edge and from the end edge — above the content; the host’s placement for a snackbar that names none, its own where it names one; an unknown placement is bottom', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
@@ -805,54 +743,6 @@ test.describe('at the top end', () => {
     expect(await page.evaluate(() => document.querySelectorAll('tanrei-snackbar-host tanrei-snackbar').length)).toBe(1);
   });
 
-  test('SNK-36: it descends from above the top edge by its height plus its margin while fading in, fades out in place, and only fades where motion is reduced', async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 600 });
-    await mountHost(page);
-    // The entrance at 40 s, so that it is still running when it is read; it is read frame by frame wherever it is.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
-    const margin = await resolveToken(page, T('container-margin'));
-    await show(page, { message: 'Report exported', action: 'Open', placement: 'top-end' });
-    await expect.poll(() => showing(page)).toEqual(['Report exported']);
-    const { name, frames, rest } = await entranceFrames(page, [0, 0.5]);
-    expect(name).toBe('snackbar-in-top');
-    // The first frame: its own height plus its margin above where it rests — wholly above the top edge — and unseen.
-    expect(frames[0].y).toBeCloseTo(rest.y - rest.height - margin, 0);
-    expect(frames[0].y + frames[0].height).toBeLessThanOrEqual(0.5);
-    expect(frames[0].opacity).toBe(0);
-    // Half way: between, coming down, and fading in; straight down, at the end edge all the way.
-    expect(frames[1].y).toBeGreaterThan(frames[0].y + 1);
-    expect(frames[1].y).toBeLessThan(rest.y - 1);
-    expect(frames[1].opacity).toBeGreaterThan(0);
-    expect(frames[1].opacity).toBeLessThan(1);
-    for (const frame of frames) expect(frame.x).toBeCloseTo(rest.x, 0);
-    expect(rest.y).toBeCloseTo(margin, 0);
-    expect(rest.opacity).toBe(1);
-    // Out: it fades in place, at the top end.
-    await host(page).evaluate((h: any) => h.dismissCurrent());
-    const leaving = await page.locator('tanrei-snackbar-host tanrei-snackbar').evaluate((el) => {
-      const [motion] = el.getAnimations();
-      motion.pause();
-      motion.currentTime = Number(motion.effect!.getComputedTiming().duration) / 2;
-      const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
-      const read = { name: (motion as CSSAnimation).animationName, y: box.y, x: box.x, opacity: Number(getComputedStyle(el).opacity) };
-      motion.finish();
-      return read;
-    });
-    expect(leaving.name).toBe('snackbar-out');
-    expect(leaving.y).toBeCloseTo(rest.y, 0);
-    expect(leaving.x).toBeCloseTo(rest.x, 0);
-    expect(leaving.opacity).toBeLessThan(1);
-    await expect.poll(() => showing(page)).toEqual([]);
-    // Where motion is reduced: a fade, without moving.
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await show(page, { message: 'Reduced', placement: 'top-end', duration: 'indefinite' });
-    await expect.poll(() => showing(page)).toEqual(['Reduced']);
-    const reduced = await entranceFrames(page, [0]);
-    expect(reduced.name).toBe('snackbar-fade-in');
-    expect(reduced.frames[0].y).toBeCloseTo(reduced.rest.y, 0);
-    expect(reduced.frames[0].opacity).toBe(0);
-  });
-
   test('SNK-37: at the top end the bar grows downward and shrinks back, its top edge in place; expanded, it is at most as tall as the area below a sticky header', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 240 });
     await mountHost(page);
@@ -917,6 +807,348 @@ test.describe('at the top end', () => {
     // In place it is static and at rest, whatever its placement.
     expect(await css(bar(page, 'top-end'), 'position')).toBe('static');
     expect(await css(bar(page, 'top-end'), 'animation-name')).toBe('none');
+  });
+});
+
+// ── The appearance ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * SNK-17, SNK-36: what the host draws of its snackbar in a frame. The bar's opacity, scale on each axis, translation
+ * and transform origin (`opacity`, `sx`, `sy`, `tx`, `ty`, `origin`, as test/appear.ts reads a surface); the box of
+ * the snackbar element, which the host places and which never moves (`top`, `bottom`, `left`, `right`); the bar's size
+ * as laid out (`width`, `height`) and as drawn (`drawnTop`, `drawnBottom`, `drawnLeft`, `drawnRight`); whether it is
+ * laid out with the action on its own row and the expand button drawn (`stacked`, `expandable`, SNK-16, SNK-23); its
+ * message, how many snackbars the host holds (`count`) and what its live regions say (`said`, SNK-10). Only `said` and
+ * `count` while none is shown. Self-contained: it is sent as its source.
+ */
+const shownProbe: Probe = (root) => {
+  const said = Array.from(root.shadowRoot?.querySelectorAll('.announce') ?? [])
+    .map((region) => region.textContent ?? '')
+    .join('|');
+  const all = Array.from(root.querySelectorAll('tanrei-snackbar'));
+  const snackbar = all[0] as (HTMLElement & { message: string }) | undefined;
+  const barEl = snackbar?.shadowRoot?.querySelector<HTMLElement>('.bar');
+  if (!snackbar || !barEl || !snackbar.matches(':popover-open')) return { said, count: all.length };
+  const style = getComputedStyle(barEl);
+  const [sx = '1', sy = sx] = style.scale === 'none' ? [] : style.scale.split(' ');
+  const [tx = '0px', ty = '0px'] = style.translate === 'none' ? [] : style.translate.split(' ');
+  const laid = snackbar.getBoundingClientRect();
+  const drawn = barEl.getBoundingClientRect();
+  return {
+    said,
+    count: all.length,
+    message: snackbar.message,
+    opacity: Number(style.opacity),
+    sx: Number(sx),
+    sy: Number(sy),
+    tx: Number.parseFloat(tx),
+    ty: Number.parseFloat(ty),
+    origin: style.transformOrigin,
+    top: laid.top,
+    bottom: laid.bottom,
+    left: laid.left,
+    right: laid.right,
+    width: barEl.offsetWidth,
+    height: barEl.offsetHeight,
+    drawnTop: drawn.top,
+    drawnBottom: drawn.bottom,
+    drawnLeft: drawn.left,
+    drawnRight: drawn.right,
+    stacked: barEl.classList.contains('stacked'),
+    expandable: !!barEl.querySelector('.expand'),
+  };
+};
+/** The frames in which the host shows a snackbar (its bar read). */
+const drawnFrames = (seen: Frames) => seen.frames.filter((frame) => typeof frame.probe.opacity === 'number');
+const num = (frame: Frame, name: string) => frame.probe[name] as number;
+/** How many times `name` changes from one drawn frame to the next. */
+const stepsOf = (frames: Frame[], name: string) => frames.filter((frame, i) => i > 0 && frame.probe[name] !== frames[i - 1]!.probe[name]).length;
+/** The transform origin a frame read, in px from the bar's left and top edges. */
+const originOf = (frame: Frame) => String(frame.probe.origin).split(' ').map(Number.parseFloat) as [number, number];
+/** The bar's appearance transitions (of `properties`) the sampler held, as `<property> <duration> <easing>`. */
+const barMotions = (seen: Frames, properties: readonly string[] = ['opacity', 'scale']) => seen.motions.filter((motion) => /^div\.bar\b/.test(motion.on) && motion.kind === 'transition' && properties.includes(motion.name));
+/** An exit's frames, the snackbar gone at rest read as the end of its fade: the host takes it away once its exit has played. */
+const endedAtNothing = (seen: Frames): Frames => (typeof seen.rest.probe.opacity === 'number' ? seen : { ...seen, rest: { ...seen.rest, probe: { ...seen.rest.probe, opacity: 0 } } });
+/** SNK-12: the host closes its snackbar (the reason host). */
+const dismissShown = (page: P) => host(page).evaluate((h) => (h as unknown as { dismissCurrent(): void }).dismissCurrent());
+
+/**
+ * SNK-17: the bar of the shown snackbar held half way through its appearance, then the snackbar closed, read in the
+ * same task before a frame has passed (as `turnHeld()` of test/appear.ts reads a surface turned round): where it was
+ * held, where it goes on from, the appearance's transitions it carries then (left paused), and those of them that were
+ * there before the turn.
+ */
+const closedMidway = (page: P): Promise<Turn> =>
+  host(page).evaluate(async (h) => {
+    const s = h.querySelector('tanrei-snackbar') as unknown as HTMLElement & { updateComplete: Promise<unknown> };
+    const motion = s.shadowRoot!.querySelector<HTMLElement>('.bar')!;
+    const APPEAR = ['opacity', 'scale', 'translate', 'filter', 'transform'];
+    const read = () => {
+      const style = getComputedStyle(motion);
+      const [sx = '1', sy = sx] = style.scale === 'none' ? [] : style.scale.split(' ');
+      return { opacity: Number(style.opacity), sx: Number(sx), sy: Number(sy) };
+    };
+    const own = () => motion.getAnimations().filter((animation) => APPEAR.includes((animation as CSSTransition).transitionProperty));
+    const describe = (animation: Animation) => `${(animation as CSSTransition).transitionProperty ?? animation.id} ${animation.playState}`;
+    const before = own();
+    for (const animation of before) {
+      animation.pause();
+      animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
+    }
+    const held = read();
+    (h as unknown as { dismissCurrent(): void }).dismissCurrent();
+    await s.updateComplete;
+    const turned = own();
+    for (const animation of turned) animation.pause();
+    return {
+      held,
+      turned: read(),
+      moving: turned.map((animation) => (animation as CSSTransition).transitionProperty).sort(),
+      kept: turned.filter((animation) => before.includes(animation)).map(describe),
+      listed: motion.getAnimations().map(describe).join('; '),
+    };
+  });
+
+test.describe('the appearance', () => {
+  test('SNK-17: shown, the bar appears from where the appearance starts it — under the default system opacity 0 and sys.motion.appear.scale on both axes — grown from the middle of its bottom edge over the enter motion on its curve, laid out where it rests from its first frame; closed, it goes back the same way over the exit motion, the last frame leaving no more than its curve does, and is taken away; nothing flickers, and the announcement does not wait for it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('fade-scale');
+    const scale = Number(await token(page, '--tanrei-sys-motion-appear-scale'));
+    expect(scale).toBeLessThan(1);
+    const [enter, exit] = await Promise.all([resolveToken(page, T('motion-enter-duration'), 'duration'), resolveToken(page, T('motion-exit-duration'), 'duration')]);
+    const [enterEasing, exitEasing] = await Promise.all([resolveEasing(page, T('motion-enter-easing')), resolveEasing(page, T('motion-exit-easing'))]);
+
+    const appearing = await sampleFrames(host(page), () => show(page, { message: 'Conversation archived', action: 'Undo' }), { probe: shownProbe });
+    const drawn = drawnFrames(appearing);
+    const rest = appearing.rest.probe;
+    expect(rest).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, count: 1 });
+    expectAppearStart(drawn[0]!, { opacity: 0, scale });
+    // Grown from the middle of its bottom edge, against its box as laid out.
+    const [ox, oy] = originOf(drawn[0]!);
+    expect(ox).toBeCloseTo((rest.width as number) / 2, 0);
+    expect(oy).toBeCloseTo(rest.height as number, 0);
+    // SNK-13's place is the one at rest from its first frame: only its drawing moves, its bottom edge on the edge it
+    // grows from, and SNK-13's margin below it.
+    for (const frame of drawn) {
+      expect([num(frame, 'top'), num(frame, 'left'), num(frame, 'width'), num(frame, 'height')], `frame ${frame.index} laid out`).toEqual([rest.top, rest.left, rest.width, rest.height]);
+      expect(num(frame, 'drawnBottom'), `frame ${frame.index} bottom edge`).toBeCloseTo(rest.drawnBottom as number, 0);
+    }
+    expect(stepsOf(drawn, 'opacity'), 'it fades in over frames').toBeGreaterThanOrEqual(4);
+    expect(stepsOf(drawn, 'sx'), 'it grows over frames').toBeGreaterThanOrEqual(4);
+    expectNoFlicker(appearing);
+    const entering = barMotions(appearing);
+    expect(entering.map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    for (const motion of entering) expect([motion.duration, motion.easing], motion.name).toEqual([enter, enterEasing]);
+    // SNK-10: announced while the bar is still appearing: the announcement does not wait for the motion.
+    const told = drawn.find((frame) => String(frame.probe.said).includes('Conversation archived. Undo'));
+    expect(told, 'announced while it appears').toBeDefined();
+    expect(num(told!, 'opacity')).toBeLessThan(1);
+
+    const leaving = await sampleFrames(host(page), () => dismissShown(page), { probe: shownProbe });
+    const gone = drawnFrames(leaving);
+    const exiting = barMotions(leaving);
+    expect(exiting.map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    for (const motion of exiting) expect([motion.duration, motion.easing, motion.frame], motion.name).toEqual([exit, exitEasing, exiting[0]!.frame]);
+    // The same way back, toward the scale it started from, its bottom edge in place; then it is taken away.
+    for (const frame of gone) {
+      expect(num(frame, 'sx'), `frame ${frame.index}`).toBe(num(frame, 'sy'));
+      expect(num(frame, 'sx'), `frame ${frame.index}`).toBeGreaterThanOrEqual(scale - 1e-6);
+      expect(num(frame, 'drawnBottom'), `frame ${frame.index} bottom edge`).toBeCloseTo(rest.drawnBottom as number, 0);
+    }
+    expect(num(gone.at(-1)!, 'sx'), 'it shrinks on its way out').toBeLessThan(1);
+    expect(stepsOf(gone, 'opacity'), 'it fades out over frames').toBeGreaterThanOrEqual(4);
+    expectExitEnd(endedAtNothing(leaving), { duration: exit, easing: bezierOf(exitEasing) });
+    expect(leaving.rest.probe.count, 'taken away once its exit has played').toBe(0);
+    expectNoFlicker(leaving);
+  });
+
+  test('SNK-17, SNK-36: the bar travels sys.motion.appear.distance toward the edge it stands at — up into place at the bottom, down into place at the top end, grown from the middle of its top edge there — and back the same way', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    // The values fade-slide gives: a short way, unscaled.
+    await override(page, { '--tanrei-sys-motion-appear-distance': 'var(--tanrei-sys-space-space100)', '--tanrei-sys-motion-appear-scale': '1' });
+    const distance = await resolveToken(page, '--tanrei-sys-space-space100');
+    expect(distance).toBeGreaterThan(0);
+    for (const [placement, toward] of [['bottom', 1], ['top-end', -1]] as const) {
+      const appearing = await sampleFrames(host(page), () => show(page, { message: placement, placement, duration: 'indefinite' }), { probe: shownProbe });
+      const drawn = drawnFrames(appearing);
+      const rest = appearing.rest.probe;
+      expect(rest, placement).toMatchObject({ opacity: 1, tx: 0, ty: 0 });
+      // Its first frame: that far toward its edge — below where it rests at the bottom, above it at the top end.
+      expect(num(drawn[0]!, 'ty'), `${placement}: first frame`).toBeCloseTo(toward * distance, 1);
+      expect(num(drawn[0]!, 'tx'), `${placement}: first frame`).toBe(0);
+      expect(originOf(drawn[0]!)[1], `${placement}: grown from its ${toward > 0 ? 'bottom' : 'top'} edge`).toBeCloseTo(toward > 0 ? (rest.height as number) : 0, 0);
+      // On its way into place, the box laid out where it rests; the drawing alone travels.
+      for (const frame of drawn) {
+        expect([num(frame, 'top'), num(frame, 'left')], `${placement}: frame ${frame.index} laid out`).toEqual([rest.top, rest.left]);
+        expect(toward * num(frame, 'ty'), `${placement}: frame ${frame.index}`).toBeGreaterThanOrEqual(-1e-6);
+        expect(num(frame, 'drawnTop') - (rest.drawnTop as number), `${placement}: frame ${frame.index} drawn where it travels`).toBeCloseTo(num(frame, 'ty'), 0);
+      }
+      expect(stepsOf(drawn, 'ty'), `${placement}: it travels over frames`).toBeGreaterThanOrEqual(4);
+      expectNoFlicker(appearing);
+      // Back the same way: toward its edge again.
+      const leaving = await sampleFrames(host(page), () => dismissShown(page), { probe: shownProbe });
+      const gone = drawnFrames(leaving);
+      expect(toward * num(gone.at(-1)!, 'ty'), `${placement}: it travels back toward its edge`).toBeGreaterThan(0);
+      for (const frame of gone) expect(toward * num(frame, 'ty'), `${placement}: frame ${frame.index}`).toBeGreaterThanOrEqual(-1e-6);
+      expect(leaving.rest.probe.count).toBe(0);
+      expectNoFlicker(leaving);
+    }
+  });
+
+  test('SNK-17, SNK-36: under unfold (m3-like) the bar unfolds from the edge it stands at, at its full width — scaled from sys.motion.appear.scale along its height only, from the middle of its bottom edge, or its top edge at the top end — over the snackbar’s own times and curves, and folds back the same way', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page, undefined, { system: 'm3-like' });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const scale = Number(await token(page, '--tanrei-sys-motion-appear-scale'));
+    const [enter, exit] = await Promise.all([resolveToken(page, T('motion-enter-duration'), 'duration'), resolveToken(page, T('motion-exit-duration'), 'duration')]);
+    const [enterEasing, exitEasing] = await Promise.all([resolveEasing(page, T('motion-enter-easing')), resolveEasing(page, T('motion-exit-easing'))]);
+    for (const [placement, edge] of [['bottom', 'drawnBottom'], ['top-end', 'drawnTop']] as const) {
+      const appearing = await sampleFrames(host(page), () => show(page, { message: 'Report exported', action: 'Open', placement }), { probe: shownProbe });
+      const drawn = drawnFrames(appearing);
+      const rest = appearing.rest.probe;
+      expect(rest, placement).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+      expectAppearStart(drawn[0]!, { opacity: 0, scale, axis: 'y' });
+      const [ox, oy] = originOf(drawn[0]!);
+      expect(ox, placement).toBeCloseTo((rest.width as number) / 2, 0);
+      expect(oy, placement).toBeCloseTo(placement === 'bottom' ? (rest.height as number) : 0, 0);
+      // At its full width in every frame, its edge on the window's edge it unfolds from.
+      for (const frame of drawn) {
+        expect(num(frame, 'drawnLeft'), `${placement}: frame ${frame.index} left edge`).toBeCloseTo(rest.drawnLeft as number, 1);
+        expect(num(frame, 'drawnRight'), `${placement}: frame ${frame.index} right edge`).toBeCloseTo(rest.drawnRight as number, 1);
+        expect(num(frame, edge), `${placement}: frame ${frame.index} edge`).toBeCloseTo(rest[edge] as number, 0);
+      }
+      expect(stepsOf(drawn, 'sy'), `${placement}: it unfolds over frames`).toBeGreaterThanOrEqual(4);
+      expectNoFlicker(appearing);
+      for (const motion of barMotions(appearing)) expect([motion.duration, motion.easing], `${placement} ${motion.name}`).toEqual([enter, enterEasing]);
+      const leaving = await sampleFrames(host(page), () => dismissShown(page), { probe: shownProbe });
+      const exiting = barMotions(leaving);
+      expect(exiting.map((motion) => motion.name).sort(), placement).toEqual(['opacity', 'scale']);
+      for (const motion of exiting) expect([motion.duration, motion.easing], `${placement} ${motion.name}`).toEqual([exit, exitEasing]);
+      for (const frame of drawnFrames(leaving)) expect(num(frame, 'sx'), `${placement}: frame ${frame.index} width`).toBe(1);
+      expectExitEnd(endedAtNothing(leaving), { duration: exit, easing: bezierOf(exitEasing) });
+      expectNoFlicker(leaving);
+    }
+  });
+
+  test('SNK-17, SNK-16, SNK-23, SNK-24: the layout is measured as it is laid out, not as it is drawn — under unfold the action stands on its own row and the expand button is drawn from the first frame of the entrance, and the bar expanded while it unfolds grows from its height as laid out', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await mountHost(page, undefined, { system: 'm3-like' });
+    const options = { title: TITLE, message: LONG, action: 'Undo', expandLabel: 'Show full message', duration: 'indefinite' };
+    const appearing = await sampleFrames(host(page), () => show(page, options), { probe: shownProbe });
+    const drawn = drawnFrames(appearing);
+    expect(appearing.rest.probe).toMatchObject({ stacked: true, expandable: true });
+    for (const frame of drawn) expect([frame.probe.stacked, frame.probe.expandable], `frame ${frame.index}`).toEqual([true, true]);
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+
+    // Expanded a quarter of the way into its entrance (held there), where it is drawn a quarter of its height.
+    await override(page, { [T('motion-enter-duration')]: '6s' });
+    await show(page, options);
+    await expect.poll(() => showing(page)).toEqual([LONG]);
+    await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
+    const grown = await shown(page).evaluate(async (el) => {
+      const s = el as HTMLElement & { expanded: boolean; updateComplete: Promise<unknown> };
+      const barEl = s.shadowRoot!.querySelector<HTMLElement>('.bar')!;
+      const appear = barEl.getAnimations().filter((animation) => ['opacity', 'scale'].includes((animation as CSSTransition).transitionProperty));
+      for (const animation of appear) {
+        animation.pause();
+        animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 4;
+      }
+      const laid = barEl.offsetHeight;
+      const drawnHeight = barEl.getBoundingClientRect().height;
+      s.expanded = true;
+      await s.updateComplete;
+      const size = barEl.getAnimations().find((animation) => !(animation as CSSTransition).transitionProperty);
+      const keyframes = (size?.effect as KeyframeEffect | undefined)?.getKeyframes().map((keyframe) => Number.parseFloat(String(keyframe.blockSize))) ?? [];
+      for (const animation of [...appear, ...(size ? [size] : [])]) animation.finish();
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { laid, drawnHeight, keyframes, expanded: barEl.offsetHeight };
+    });
+    expect(grown.drawnHeight, 'drawn shorter than it is laid out').toBeLessThan(grown.laid - 4);
+    expect(grown.keyframes).toHaveLength(2);
+    expect(grown.keyframes[0], 'it grows from its height as laid out').toBeCloseTo(grown.laid, 0);
+    expect(grown.keyframes[1], 'to its expanded height').toBeCloseTo(grown.expanded, 0);
+    expect(grown.expanded).toBeGreaterThan(grown.laid + 1);
+  });
+
+  test('SNK-17: where motion is reduced the bar only fades in and out, over sys.motion.role.reduced — no scale, no distance, no blur — and the announcement does not wait for it', async ({ page }) => {
+    await mountHost(page, undefined, { reducedMotion: true });
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const [enterEasing, exitEasing] = await Promise.all([resolveEasing(page, T('motion-enter-easing')), resolveEasing(page, T('motion-exit-easing'))]);
+    const moved = (seen: Frames) => barMotions(seen, ['opacity', 'scale', 'translate', 'filter', 'transform']).map((motion) => `${motion.name} ${motion.duration} ${motion.easing}`);
+    for (const placement of ['bottom', 'top-end'] as const) {
+      const appearing = await sampleFrames(host(page), () => show(page, { message: 'Archived', action: 'Undo', placement }), { probe: shownProbe });
+      expect(moved(appearing), placement).toEqual([`opacity ${reduced} ${enterEasing}`]);
+      const drawn = drawnFrames(appearing);
+      expectAppearStart(drawn[0]!, { opacity: 0, scale: 1 });
+      for (const frame of drawn) expect([num(frame, 'sx'), num(frame, 'sy'), num(frame, 'tx'), num(frame, 'ty')], `${placement}: frame ${frame.index}`).toEqual([1, 1, 0, 0]);
+      expect(stepsOf(drawn, 'opacity'), `${placement}: it fades in over frames`).toBeGreaterThanOrEqual(3);
+      expect(appearing.rest.probe, placement).toMatchObject({ opacity: 1 });
+      const told = drawn.find((frame) => String(frame.probe.said).includes('Archived. Undo'));
+      expect(told, `${placement}: announced while it fades in`).toBeDefined();
+      expect(num(told!, 'opacity'), placement).toBeLessThan(1);
+      expectNoFlicker(appearing);
+      const leaving = await sampleFrames(host(page), () => dismissShown(page), { probe: shownProbe });
+      expect(moved(leaving), placement).toEqual([`opacity ${reduced} ${exitEasing}`]);
+      for (const frame of drawnFrames(leaving)) expect([num(frame, 'sx'), num(frame, 'sy'), num(frame, 'tx'), num(frame, 'ty')], `${placement}: frame ${frame.index}`).toEqual([1, 1, 0, 0]);
+      expect(leaving.rest.probe.count, placement).toBe(0);
+      expectNoFlicker(leaving);
+    }
+  });
+
+  test('SNK-17: closed while it appears, the bar turns round from the opacity and the scale it has reached, carrying the exit and none of the entrance; it stays in the top layer until the exit has played, and the next waits for that', async ({ page }) => {
+    await mountHost(page);
+    // Long enough that neither motion ends between two answers on a slow machine; the turn is read where it is held.
+    await override(page, { [T('motion-enter-duration')]: '6s', [T('motion-exit-duration')]: '6s' });
+    await show(page, { message: 'One', action: 'Undo' });
+    await show(page, { message: 'Two', action: 'Undo' });
+    await expect.poll(() => showing(page)).toEqual(['One']);
+    const turn = await closedMidway(page);
+    expect(turn.held.opacity).toBeGreaterThan(0.05);
+    expect(turn.held.opacity).toBeLessThan(0.999);
+    expectTurnedAlone(turn);
+    expect(turn.turned.opacity).toBeCloseTo(turn.held.opacity, 2);
+    expect(turn.turned.sx).toBeCloseTo(turn.held.sx, 3);
+    expect(turn.turned.sy).toBeCloseTo(turn.held.sy, 3);
+    // Closed (its request resolved), it is still drawn while its exit is held; Two waits.
+    expect(await results(page)).toEqual([{ message: 'One', result: 'dismiss', reason: 'host' }]);
+    expect(await showing(page)).toEqual(['One']);
+    // Its exit played to its end: it is taken away, and Two shows.
+    await shown(page).first().evaluate((el) => el.shadowRoot!.querySelector('.bar')!.getAnimations().forEach((animation) => animation.finish()));
+    await expect.poll(() => showing(page)).toEqual(['Two']);
+    expect(await page.evaluate(() => document.querySelectorAll('tanrei-snackbar-host tanrei-snackbar').length)).toBe(1);
+  });
+
+  test('SNK-17: a snackbar shown before the document is first painted is there at once — its bar plays no entrance — and is announced; one shown after the first paint appears with its motion (MOT-4)', async ({ page }) => {
+    // Every animation and transition that starts in a shadow root, counted from before the first element is made.
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); const note = (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + (event.animationName || event.propertyName)); root.addEventListener('animationstart', note); root.addEventListener('transitionrun', note); return root; };</script>`;
+    const written = await fixturesDocument(spec, { icons: true, fixtures: [], lead: count });
+    // The host, and a module that asks it for a snackbar as the page is read: it runs after the bundle, before the
+    // document is first painted.
+    const at = written.lastIndexOf('</body>');
+    const markup = `${written.slice(0, at)}<tanrei-snackbar-host></tanrei-snackbar-host><script type="module">document.querySelector('tanrei-snackbar-host').show({ message: 'Loaded', duration: 'indefinite' });</script>${written.slice(at)}`;
+    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
+    await page.route('http://snackbar.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://snackbar.test/');
+    await expect.poll(() => showing(page)).toEqual(['Loaded']);
+    await motionEnded(page);
+    expect(await css(shown(page).locator('.bar'), 'opacity')).toBe('1');
+    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => /^tanrei-snackbar \S*\bbar\b/.test(run));
+    expect(runs, 'the bar plays no entrance').toEqual([]);
+    await expect(host(page).locator('.announce[role="status"]')).toHaveText('Loaded');
+    // After the first paint: the next one appears with its motion (40 s: read while it runs).
+    await override(page, { [T('motion-enter-duration')]: '40s' });
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+    await page.evaluate(() => {
+      void document.querySelector<HTMLElement & { show(options: object): Promise<unknown> }>('tanrei-snackbar-host')!.show({ message: 'Later', duration: 'indefinite' });
+    });
+    await expect.poll(() => showing(page)).toEqual(['Later']);
+    const later = shown(page).locator('.bar');
+    await expect.poll(() => later.evaluate((el) => el.classList.contains('open') && Number(getComputedStyle(el).opacity) < 1)).toBe(true);
+    expect(await motionCount(later)).toBeGreaterThan(0);
   });
 });
 
@@ -1562,7 +1794,8 @@ test.describe('aligned to the top', () => {
       await show(page, { ...options });
       await expect.poll(() => showing(page)).toEqual([LONG]);
       await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
-      await expect(shown(page)).not.toHaveClass(/entering/);
+      // Measured at rest: while the bar appears it is drawn scaled (SNK-17).
+      await motionEnded(shown(page));
       const collapsed = await firstRow(shown(page));
       for (const direction of ['expand', 'collapse'] as const) {
         const samples = await throughMotion(shown(page));
@@ -2110,7 +2343,7 @@ test.describe('inverse', () => {
     expect(await drawn()).toBe(surface);
     await expect(shown(page)).toHaveJSProperty('inverse', null);
     // Focus on the close button, then the form changes under it: by the prop, both ways, then by the system's choice.
-    await expect(shown(page)).not.toHaveClass(/entering/);
+    await motionEnded(shown(page));
     await tabTo(page, shown(page).locator('.close'));
     await rootTokensInPage(page);
     const frame = (change: string) =>
