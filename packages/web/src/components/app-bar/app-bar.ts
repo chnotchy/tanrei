@@ -8,8 +8,13 @@ import {
   SystemWatchController,
   isDividerVisibility,
   report,
+  deepActive,
   syncDividerVisibility,
 } from '../../primitives/index.js';
+import { WordsController } from '../../primitives/words.js';
+import '../button/button.js';
+import '../menu/menu.js';
+import type { TanreiMenu } from '../menu/menu.js';
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -27,7 +32,32 @@ export type TanreiAppBarDividerVisibility = DividerVisibilityProp;
 /** How a brand's symbol and wordmark stand when both are given (APB-21): side by side, or by turns with the window's width. */
 export type TanreiAppBarBrandLayout = 'lockup' | 'responsive';
 
+/** What becomes of the actions that do not fit (APB-26): into a Menu opened from a more button, or left out of the bar. */
+export type TanreiAppBarOverflow = 'menu' | 'hide';
+
 const BRAND_LAYOUTS: readonly string[] = ['lockup', 'responsive'];
+const OVERFLOWS: readonly string[] = ['menu', 'hide'];
+/** APB-28: the more button's glyph. */
+const OVERFLOW_GLYPH = 'more_horiz';
+/** APB-26: the attribute the bar writes on an action that is out of the top row; the bar's styles draw it as nothing. */
+const OUT = 'app-bar-out';
+/** APB-26: the product's attribute that keeps an action in the top row. */
+const KEEP = 'app-bar-overflow';
+const BUTTON = 'tanrei-button';
+/** APB-29: the menu's rows a Menu anchored to an action holds, which its submenu in the overflow menu repeats. */
+const MENU_ROWS = 'tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu, tanrei-menu-group';
+
+/** An action as the bar reads it: a Tanrei Button's own members. */
+type Action = HTMLElement & { label?: string; disabled?: boolean; toggle?: boolean; selected?: boolean; href?: string; target?: string; targetLabel?: string; updateComplete?: Promise<unknown> };
+
+/** A computed length in px (0 where there is none). */
+const px = (style: CSSStyleDeclaration, property: string) => Number.parseFloat(style.getPropertyValue(property)) || 0;
+
+/** Whether focus is on `element`, or inside it or its shadow root. */
+function holdsFocus(element: Element) {
+  const active = deepActive();
+  return !!active && (active === element || element.contains(active) || !!element.shadowRoot?.contains(active));
+}
 const BRAND_SLOTS = ['brand', 'brand-symbol', 'brand-wordmark'] as const;
 type BrandSlot = (typeof BRAND_SLOTS)[number];
 
@@ -67,6 +97,14 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * at rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow
  * `scrolled` under either.
  *
+ * The actions (APB-26 to APB-33): every action that fits is drawn, with no limit on their number. The start items and the
+ * title (its whole width, in the top row's text roles) keep their room first; the actions that do not fit leave from the
+ * end, one at a time, skipping one with `app-bar-overflow="never"`, and come back as soon as they fit. `overflow` says
+ * where they go: `menu` (the default) into a Tanrei Menu opened from a more button at the end, named by `overflow-label`
+ * or the product's word `toolbarOverflowLabel`; `hide` out of the bar, for actions the product also gives elsewhere. An
+ * action that is out carries `app-bar-out` and is drawn as nothing; it stays in the page with its listeners and state.
+ * What is out is decided before the frame, from widths measured while each action is drawn.
+ *
  * Every visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and
  * the side insets; the content stays inside them (APB-10).
  *
@@ -76,7 +114,7 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @slot brand-symbol - The brand's symbol, drawn `comp.app-bar.brand.symbol.size` high.
  * @slot brand-wordmark - The brand's wordmark, drawn `comp.app-bar.brand.wordmark.height` high.
  * @slot context - One control of the product's context after the brand (a `<tanrei-button>` that opens a menu of workspaces, projects or design systems), laid out and never restyled.
- * @slot actions - The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
+ * @slot actions - The action items: icon-only `<tanrei-button>`s at the end, in reading order, as many as fit (APB-26); one with `app-bar-overflow="never"` is never taken out.
  * @csspart container - The bar: its color, elevation, and the system insets it reaches under.
  * @csspart top-row - The row of the navigation item, the brand, the title block and the actions.
  * @csspart brand - The brand: its link (or, without `brand-href`, its image) around the images it shows.
@@ -84,6 +122,8 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @csspart subtitle - The line under the title.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
  * @csspart outline - The bar's bottom edge.
+ * @csspart overflow-button - The icon-only Button after the actions shown that opens the menu of the actions that are out (APB-28).
+ * @csspart overflow-menu - The Tanrei Menu of the actions that are out (APB-29).
  */
 export class TanreiAppBar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'app-bar');
@@ -99,6 +139,8 @@ export class TanreiAppBar extends TanreiElement {
     brandLayout: { type: String, attribute: 'brand-layout', reflect: true },
     scrolled: { type: Boolean, reflect: true },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
+    overflow: { type: String, reflect: true },
+    overflowLabel: { type: String, attribute: 'overflow-label' },
     scrollTarget: { type: String, attribute: 'scroll-target' },
     headingLevel: { type: Number, attribute: 'heading-level' },
     hasNavigation: { state: true },
@@ -110,6 +152,8 @@ export class TanreiAppBar extends TanreiElement {
     collapse: { state: true },
     covered: { state: true },
     connected: { state: true },
+    moreWanted: { state: true },
+    outCount: { state: true },
   };
 
   /** Small puts the title in the one row; large gives it a larger row of its own that collapses as the content scrolls. Reflected. */
@@ -156,6 +200,31 @@ export class TanreiAppBar extends TanreiElement {
   /** The title's heading level (web only), 1 to 6. */
   headingLevel = 1;
 
+  /**
+   * What becomes of the actions that do not fit (APB-26): `menu` (the default) moves them, from the end, into a Menu
+   * opened from a more button at the end; `hide` leaves them out of the bar, for actions the product also gives
+   * elsewhere (APB-30). Anything else is `menu`. Reflected.
+   */
+  overflow: TanreiAppBarOverflow = 'menu';
+
+  /** The more button's accessible name ("More actions"). Never drawn. Empty takes the product's word `toolbarOverflowLabel`. */
+  overflowLabel = '';
+
+  /** APB-28: the more button is drawn from the first time an action had to go out under overflow menu. */
+  private moreWanted = false;
+  /** APB-26: how many actions are out now. */
+  private outCount = 0;
+  /** The elements of the actions slot, in reading order. */
+  private actionItems: Action[] = [];
+  /** APB-32: each action's width, measured while it is drawn and kept while it is out. */
+  private readonly actionWidths = new Map<Element, number>();
+  /** APB-26: the actions out of the top row now. */
+  private out = new Set<Element>();
+  /** APB-28: the product's words, read where the instance gives no overflow label. */
+  private readonly words = new WordsController(this);
+  /** APB-27: an action's own `app-bar-overflow` changes what may go out. */
+  private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => void this.settle());
+
   private hasNavigation = false;
   /** APB-25: whether the context slot holds a control. */
   private hasContext = false;
@@ -184,11 +253,14 @@ export class TanreiAppBar extends TanreiElement {
   private source: { target: EventTarget; read: () => number } | null = null;
   private retry = 0;
   private offset = 0;
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.onResize());
+  /** Between a decision made in the observer's callback and the next frame, nothing is observed (see `onResize`). */
+  private resting = false;
 
   override connectedCallback() {
     super.connectedCallback();
     this.watchWindow();
+    this.mutations?.observe(this, { attributes: true, subtree: true, attributeFilter: [KEEP] });
     if (!this.hasUpdated) return;
     this.observe();
     this.connectScroll();
@@ -199,6 +271,7 @@ export class TanreiAppBar extends TanreiElement {
     this.unwatchWindow();
     this.disconnectScroll();
     this.resize$?.disconnect();
+    this.mutations?.disconnect();
   }
 
   // ---- APB-21: the window class a responsive brand follows ----
@@ -339,6 +412,297 @@ export class TanreiAppBar extends TanreiElement {
   }
 
   /**
+   * A box the bar watches changed size: the centred title's balance, the collapse and which actions are out are decided
+   * again, before the frame (APB-32). Showing or hiding an action resizes boxes the observer may already have reported in
+   * this frame, which it would report only in the next one, with a loop error; so after a decision that changed what is
+   * shown, the observation is laid down and taken up again in the next frame, where its first report decides once more
+   * and finds nothing to change.
+   */
+  private onResize() {
+    this.measure();
+    if (!this.fit() || !this.resize$) return;
+    this.resize$.disconnect();
+    this.resting = true;
+    requestAnimationFrame(() => {
+      this.resting = false;
+      if (!this.isConnected) return;
+      this.observe();
+      this.fit();
+    });
+  }
+
+  // ---- APB-26 to APB-33: as many actions as fit ----
+
+  private get menuMode(): boolean {
+    return this.overflow !== 'hide';
+  }
+
+  private get moreButton(): Action | null {
+    return this.find<Action>('.more');
+  }
+
+  private get overflowMenu(): TanreiMenu | null {
+    return this.find<TanreiMenu>('.overflow-menu');
+  }
+
+  /** APB-26: an action the bar may take out — a Tanrei Button whose own overflow is not never. */
+  private mayLeave(item: Element) {
+    return item.localName === BUTTON && item.getAttribute(KEEP) !== 'never';
+  }
+
+  /**
+   * APB-32: what is out is decided once every action and the more button have drawn themselves — still before the frame,
+   * since every element renders in a microtask.
+   */
+  private settling = false;
+  private again = false;
+  private async settle() {
+    if (this.settling) {
+      this.again = true;
+      return;
+    }
+    this.settling = true;
+    try {
+      do {
+        this.again = false;
+        await this.updateComplete;
+        await Promise.all([...this.actionItems, this.moreButton].map((element) => element?.updateComplete));
+        if (this.isConnected) this.fit();
+      } while (this.again);
+    } finally {
+      this.settling = false;
+    }
+  }
+
+  /**
+   * APB-26: the length the top row needs to hold the start items, the title block at its whole width, the actions that
+   * are not in `out` and, under overflow menu with an action out, the more button — with the row's paddings and gaps.
+   */
+  private needs(out: ReadonlySet<Element>, room: { start: number; lead: number; title: number; gap: number; actionsGap: number; endActions: number; endNone: number; more: number }) {
+    const shown = this.actionItems.filter((item) => !out.has(item)).map((item) => this.actionWidths.get(item) ?? 0).filter((width) => width > 0);
+    if (this.menuMode && out.size) shown.push(room.more);
+    const actions = shown.reduce((sum, width) => sum + width, 0) + Math.max(0, shown.length - 1) * room.actionsGap;
+    const end = shown.length ? room.gap + actions + room.endActions : room.endNone;
+    const start = room.start + room.lead + (room.lead > 0 ? room.gap : 0);
+    // APB-6: a centred title is centred on the bar's full width, so it needs the larger side on both.
+    if (this.center && room.title > 0) return room.title + 2 * Math.max(start, end);
+    return start + room.title + end;
+  }
+
+  /** APB-26: the title block's whole width, one line each, in the top row's text roles (measured on the bar's probe). */
+  private titleRoom() {
+    if (this.headline.trim() === '') return 0;
+    const probes = this.renderRoot?.querySelectorAll<HTMLElement>('.metrics > span') ?? [];
+    return Math.max(0, ...[...probes].map((probe) => probe.getBoundingClientRect().width));
+  }
+
+  /**
+   * APB-26, APB-32: decides which actions are out, at once — every action shown; then, while the row cannot hold them,
+   * actions taken out from the end, one at a time, skipping those that may not leave. Returns whether what is shown
+   * changed.
+   */
+  private fitting = false;
+  private fit(): boolean {
+    const row = this.find<HTMLElement>('.row');
+    const metrics = this.find<HTMLElement>('.metrics');
+    if (!row || !metrics || this.fitting || !this.isConnected) return false;
+    this.fitting = true;
+    try {
+      // APB-32: each action's width while it is drawn; an action that is out keeps the width it had.
+      for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.actionWidths.set(item, item.getBoundingClientRect().width);
+      for (const item of [...this.actionWidths.keys()]) if (!this.actionItems.includes(item as Action)) this.actionWidths.delete(item);
+      const rowStyle = getComputedStyle(row);
+      const metricsStyle = getComputedStyle(metrics);
+      const lead = this.find<HTMLElement>('.lead');
+      const more = this.moreButton;
+      const room = {
+        start: px(rowStyle, 'padding-inline-start'),
+        lead: lead ? lead.getBoundingClientRect().width : 0,
+        title: this.titleRoom(),
+        gap: px(rowStyle, 'column-gap'),
+        actionsGap: px(getComputedStyle(this.find<HTMLElement>('.actions') ?? row), 'column-gap'),
+        // APB-4: the row ends padding-inline from the end edge after an action, title.inset where there is none.
+        endActions: px(metricsStyle, 'padding-inline-start'),
+        endNone: px(metricsStyle, 'padding-inline-end'),
+        more: more ? more.getBoundingClientRect().width : 0,
+      };
+      const has = row.getBoundingClientRect().width;
+      const fits = (out: ReadonlySet<Element>) => has <= 0 || this.needs(out, room) <= has + 0.5;
+      const out = new Set<Element>();
+      for (const item of this.actionItems.filter((each) => this.mayLeave(each)).reverse()) {
+        if (fits(out)) break;
+        out.add(item);
+      }
+      // APB-28: the more button's width is needed before the decision is drawn: it is drawn (unseen), and the decision
+      // is made again once it is — before the frame (APB-32).
+      if (out.size && this.menuMode && !more) {
+        this.moreWanted = true;
+        void this.settle();
+        return false;
+      }
+      return this.apply(out);
+    } finally {
+      this.fitting = false;
+    }
+  }
+
+  /** APB-26, APB-30, APB-31: draws the decision — an action out as nothing — and hands on the focus an action had. */
+  private apply(out: Set<Element>): boolean {
+    const before = this.out;
+    const changed = before.size !== out.size || [...out].some((item) => !before.has(item));
+    const shownAction = this.actionItems.some((item) => !out.has(item) && (this.actionWidths.get(item) ?? 0) > 0);
+    const hasActions = shownAction || (this.menuMode && out.size > 0);
+    if (this.hasActions !== hasActions) this.hasActions = hasActions;
+    if (!changed) return false;
+    const focused = [...out].find((item) => !before.has(item) && holdsFocus(item)) ?? null;
+    this.out = out;
+    this.outCount = out.size;
+    for (const item of this.actionItems) {
+      const isOut = out.has(item);
+      if (item.hasAttribute(OUT) === isOut) continue;
+      // An action that goes out is no longer watched (it is drawn as nothing); one that comes back is watched again from
+      // the next frame, so that its first report is not one the observer must defer (see `onResize`).
+      if (isOut) this.resize$?.unobserve(item);
+      item.toggleAttribute(OUT, isOut);
+      if (!isOut) requestAnimationFrame(() => {
+        if (this.isConnected && !this.resting && !item.hasAttribute(OUT)) this.resize$?.observe(item);
+      });
+    }
+    if (focused) void this.handOnFocus(focused);
+    // APB-29: a menu open while what it holds changes is closed.
+    const menu = this.overflowMenu;
+    if (menu?.open) menu.open = false;
+    if (out.size && this.menuMode && !this.words.get('toolbarOverflowLabel', this.overflowLabel)) {
+      this.words.missing('toolbarOverflowLabel', { prop: 'overflowLabel', id: 'APB-33', effect: 'the more button is drawn and opens its menu, and has no accessible name' });
+    }
+    return true;
+  }
+
+  /**
+   * APB-31: focus on an action that went out moves, without scrolling, to the more button (overflow menu); or to the
+   * nearest action still shown before it, else after it, else the last of the start items that takes focus (hide).
+   */
+  private async handOnFocus(from: Element) {
+    if (this.menuMode) {
+      await this.updateComplete;
+      this.moreButton?.focus({ preventScroll: true });
+      return;
+    }
+    const index = this.actionItems.indexOf(from as Action);
+    const shown = (item: Element) => !this.out.has(item) && (this.actionWidths.get(item) ?? 0) > 0;
+    const near = [...this.actionItems.slice(0, index).reverse(), ...this.actionItems.slice(index + 1)].filter(shown);
+    // The start items in reading order are navigation, brand, context: the last of them first.
+    const starts = [this.querySelector<HTMLElement>(':scope > [slot="context"]'), this.find<HTMLElement>('a.brand'), this.querySelector<HTMLElement>(':scope > [slot="navigation"]')];
+    for (const item of [...near, ...starts]) {
+      if (!item || item.getClientRects().length === 0) continue;
+      item.focus({ preventScroll: true });
+      if (holdsFocus(item)) return;
+    }
+  }
+
+  // ---- APB-29: the overflow menu ----
+
+  private readonly onMoreClick = () => {
+    const menu = this.overflowMenu;
+    if (!menu) return;
+    if (menu.open) {
+      menu.open = false;
+      return;
+    }
+    this.buildOverflowMenu(menu);
+    menu.open = true;
+  };
+
+  private readonly onMenuClose = () => {
+    const menu = this.overflowMenu;
+    if (menu) menu.open = false;
+  };
+
+  /** What the overflow menu's rows fire stays in the bar: what a row does is the action's own event (APB-29). */
+  private readonly onMenuEvent = (event: Event) => {
+    event.stopPropagation();
+  };
+
+  /** APB-29: the actions that are out, in reading order, a row (or a submenu) each. */
+  private buildOverflowMenu(menu: TanreiMenu) {
+    menu.replaceChildren(...this.actionItems.filter((item) => this.out.has(item)).flatMap((item) => this.rowsFor(item)));
+  }
+
+  /** The glyph an action shows in its icon slot, by the icon set's name; empty for a drawing of the product's own. */
+  private glyphOf(item: Element) {
+    const icon = item.querySelector(':scope > [slot="icon"]');
+    if (!icon || icon.children.length) return '';
+    return (icon.textContent ?? '').trim();
+  }
+
+  /** An action's label: its `label`, else its text without its icon. */
+  private labelOf(item: Action) {
+    if (item.label) return item.label;
+    return [...item.childNodes]
+      .filter((node) => !(node instanceof Element && node.hasAttribute('slot')))
+      .map((node) => node.textContent ?? '')
+      .join('')
+      .trim();
+  }
+
+  /** APB-29: a Menu the product anchored to an action, in the bar's document or shadow root. */
+  private menuOf(item: Element): Element | null {
+    if (!item.id) return null;
+    const root = this.getRootNode() as Document | ShadowRoot;
+    return root.querySelector?.(`tanrei-menu[anchor="${CSS.escape(item.id)}"]`) ?? null;
+  }
+
+  /** APB-29: the rows of the overflow menu that stand for one action. */
+  private rowsFor(item: Action): Element[] {
+    const disabled = !!item.disabled;
+    const glyph = this.glyphOf(item);
+    const label = this.labelOf(item);
+    const own = this.menuOf(item);
+    if (own) {
+      const sub = document.createElement('tanrei-submenu');
+      sub.setAttribute('label', label);
+      if (glyph) sub.setAttribute('leading-icon', glyph);
+      sub.toggleAttribute('disabled', disabled);
+      sub.append(...this.copies([...own.children].filter((child) => child.matches(MENU_ROWS))));
+      return [sub];
+    }
+    const row = document.createElement(item.toggle ? 'tanrei-menu-checkbox-item' : 'tanrei-menu-item');
+    row.setAttribute('label', label);
+    if (glyph) row.setAttribute('leading-icon', glyph);
+    if (item.toggle) row.toggleAttribute('checked', !!item.selected);
+    row.toggleAttribute('disabled', disabled);
+    if (item.href && !item.toggle) {
+      // A link goes where the action goes, in the same target: the row is a link item (MNU-53).
+      row.setAttribute('href', item.href);
+      if (item.target) row.setAttribute('target', item.target);
+      if (item.targetLabel) row.setAttribute('target-label', item.targetLabel);
+      return [row];
+    }
+    // The action is activated as a person would: its own button, so that it fires its own click (and change).
+    row.addEventListener('click', () => (item.shadowRoot?.querySelector('[part~="container"]') as HTMLElement | null)?.click());
+    return [row];
+  }
+
+  /** APB-29: a Menu's rows repeated in the overflow menu; activating a copy activates the row it repeats. */
+  private copies(rows: Element[]): Element[] {
+    return rows.map((row) => {
+      const copy = row.cloneNode(true) as Element;
+      const originals = [row, ...row.querySelectorAll(MENU_ROWS)];
+      const copied = [copy, ...copy.querySelectorAll(MENU_ROWS)];
+      copied.forEach((element, i) => {
+        element.removeAttribute('slot');
+        element.removeAttribute('id');
+        const original = originals[i] as HTMLElement;
+        if (element.localName === 'tanrei-submenu' || element.localName === 'tanrei-menu-group' || element.hasAttribute('href')) return;
+        element.addEventListener('click', (event) => {
+          if (event.target === element) original.click();
+        });
+      });
+      return copy;
+    });
+  }
+
+  /**
    * APB-6: a centred title block is centred on the bar's full width — narrowed on the side that has less beside it by
    * the difference, so that it never runs under either slot.
    */
@@ -360,7 +724,7 @@ export class TanreiAppBar extends TanreiElement {
     area.style.setProperty('--_balance-end', `${Math.max(0, start - end)}px`);
   }
 
-  /** APB-4, APB-13: which slots hold items; more than one navigation item or three actions still render, and are reported. */
+  /** APB-4, APB-13, APB-26: which slots hold items; more than one navigation item still renders, and is reported. */
   #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const items = slot.assignedElements();
@@ -376,8 +740,14 @@ export class TanreiAppBar extends TanreiElement {
       this.hasNavigation = items.length > 0;
       if (items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
     } else {
+      this.actionItems = items as Action[];
+      // An element that left the slot is no longer the bar's to hide.
+      for (const item of this.out) if (!items.includes(item)) item.removeAttribute(OUT);
+      this.out = new Set([...this.out].filter((item) => items.includes(item)));
+      this.outCount = this.out.size;
       this.hasActions = items.length > 0;
-      if (items.length > 3) report(this, 'APB-13', `the bar holds ${items.length} action items; more than three belong in an overflow menu`);
+      this.observe();
+      void this.settle();
     }
   }
 
@@ -390,15 +760,18 @@ export class TanreiAppBar extends TanreiElement {
 
   /** The boxes whose size moves the centred title's balance and the collapse's range. */
   private observe() {
-    for (const selector of ['.row', '.lead', '.actions', '.block']) {
-      const element = this.find(selector);
-      if (element) this.resize$?.observe(element);
+    if (this.resting) return;
+    for (const selector of ['.row', '.lead', '.actions', '.block', '.metrics > span', '.more']) {
+      for (const element of this.renderRoot?.querySelectorAll(selector) ?? []) this.resize$?.observe(element);
     }
+    // APB-27: each action drawn; one that is out is drawn as nothing.
+    for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.resize$?.observe(item);
   }
 
   protected override firstUpdated() {
     this.observe();
     this.connectScroll();
+    void this.settle();
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -411,6 +784,10 @@ export class TanreiAppBar extends TanreiElement {
       report(this, 'APB-23', `brand-layout "${this.brandLayout}" is not a value of the app bar; it is drawn as "lockup"`);
     }
     if (changed.has('brandLabel') && this.hasUpdated) this.reportBrand();
+    // APB-33: an overflow the bar does not define is menu.
+    if (changed.has('overflow') && !OVERFLOWS.includes(this.overflow)) {
+      report(this, 'APB-33', `overflow "${this.overflow}" is not a value of the app bar; it is drawn as "menu"`);
+    }
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -426,6 +803,12 @@ export class TanreiAppBar extends TanreiElement {
     const block = this.find('.block');
     if (block) this.resize$?.observe(block);
     if (changed.has('size') || changed.has('layerExpands' as keyof TanreiAppBar) || changed.has('headline') || changed.has('subtitle')) this.follow();
+    // APB-27: the room the actions have follows the title, the start items, the alignment and the overflow; the probe and
+    // the more button drawn now are watched.
+    if (['headline', 'subtitle', 'size', 'titleAlignment', 'overflow', 'hasNavigation', 'hasContext', 'brands', 'compact', 'brandLayout', 'moreWanted'].some((name) => changed.has(name as keyof TanreiAppBar))) {
+      this.observe();
+      void this.settle();
+    }
     if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasContext' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar) || changed.has('brands' as keyof TanreiAppBar) || changed.has('compact' as keyof TanreiAppBar)) this.balance();
   }
 
@@ -462,6 +845,26 @@ export class TanreiAppBar extends TanreiElement {
       : this.brandHref
         ? html`<a part="brand" class="brand" href=${this.brandHref} aria-label=${label}>${images}</a>`
         : html`<span part="brand" class="brand" role="img" aria-label=${label}>${images}</span>`;
+    // APB-28, APB-29: the more button and its menu, from the first time an action had to go out under overflow menu;
+    // while none is out the button is laid out unseen, so that its width is known.
+    const moreShown = this.menuMode && this.moreWanted;
+    const more = moreShown
+      ? html`<tanrei-button
+          part="overflow-button"
+          class=${classMap({ more: true, idle: this.outCount === 0 })}
+          id="overflow"
+          variant="text"
+          size="medium"
+          label=${this.words.get('toolbarOverflowLabel', this.overflowLabel)}
+          @click=${this.onMoreClick}
+          ><span slot="icon">${OVERFLOW_GLYPH}</span></tanrei-button
+        >`
+      : nothing;
+    const menu = moreShown
+      ? html`<span class="menus"
+          ><tanrei-menu part="overflow-menu" class="overflow-menu" anchor="overflow" placement="bottom-end" @close=${this.onMenuClose} @click=${this.onMenuEvent} @change=${this.onMenuEvent} @toggle=${this.onMenuEvent}></tanrei-menu
+        ></span>`
+      : nothing;
     return html`
       <div part="container" class="container">
         <div
@@ -476,7 +879,7 @@ export class TanreiAppBar extends TanreiElement {
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}
           </div>
-          <div class="actions"><slot name="actions" @slotchange=${this.#onSlotChange}></slot></div>
+          <div class="actions"><slot name="actions" @slotchange=${this.#onSlotChange}></slot>${more}</div>
         </div>
         ${showsExpanded
           ? html`<div part="expanded" class="expanded" aria-hidden=${covered >= 1 ? 'true' : nothing}>
@@ -486,6 +889,8 @@ export class TanreiAppBar extends TanreiElement {
             </div>`
           : nothing}
         <div part="outline" class="outline" aria-hidden="true"></div>
+        <div class="metrics" aria-hidden="true">${titled ? html`<span class="probe-title">${this.headline}</span>${this.subtitle ? html`<span class="probe-subtitle">${this.subtitle}</span>` : nothing}` : nothing}</div>
+        ${menu}
       </div>
     `;
   }

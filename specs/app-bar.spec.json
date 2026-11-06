@@ -2,12 +2,13 @@
   "$schema": "./component.schema.json",
   "name": "app-bar",
   "title": "App bar",
-  "summary": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge drawn as the edge of a region that stays (or, where the design system chooses, only once content scrolls under it).",
+  "summary": "Names the current screen at its top edge and holds the way back and the screen's actions — as many as its row has room for, the rest in an overflow menu or left out, as the product chooses — its bottom edge drawn as the edge of a region that stays (or, where the design system chooses, only once content scrolls under it).",
   "category": "navigation",
   "level": "base",
   "listing": "default",
   "uses": [
-    "button"
+    "button",
+    "menu"
   ],
   "anatomy": [
     {
@@ -40,7 +41,12 @@
     },
     {
       "id": "actions",
-      "description": "The action items: up to three icon-only Buttons at the end. The product's icon-only Buttons, not restyled by the bar.",
+      "description": "The action items: icon-only Buttons at the end, as many as the top row has room for (APB-26). The product's icon-only Buttons, not restyled by the bar.",
+      "optional": true
+    },
+    {
+      "id": "overflow-button",
+      "description": "The more button: the bar's own icon-only Button after the actions still shown, which opens a Menu of the actions that did not fit. Drawn only while overflow is menu and some action did not fit.",
       "optional": true
     },
     {
@@ -120,6 +126,23 @@
       ],
       "default": "auto",
       "description": "When the bar's bottom edge is drawn. always: at rest and while content is under the bar, so that the edge of the screen's header stands still (an app shell's header, a screen whose content starts right under the bar). scroll: only while content lies under the bar, so that the line itself says the content has moved (the scrolled condition's edge alone). auto takes comp.app-bar.outline.visibility, the design system's answer (always in the default system). The bar's color and elevation follow scrolled under either choice."
+    },
+    {
+      "name": "overflow",
+      "type": "enum",
+      "values": [
+        "menu",
+        "hide"
+      ],
+      "default": "menu",
+      "description": "What becomes of the action items that do not fit in the top row (APB-26): menu moves them, from the end, into a Menu opened from a more button at the end (APB-28, APB-29); hide leaves them out of the bar, for actions the product also gives somewhere else (APB-30). The bar sets no limit on the number of actions either way: every action that fits is drawn."
+    },
+    {
+      "name": "overflowLabel",
+      "type": "string",
+      "default": "",
+      "description": "The more button's accessible name (\"More actions\"), in the product's language. Never drawn. Empty takes the product's words. Needed whenever overflow is menu and the bar may be narrower than its actions.",
+      "words": "toolbarOverflowLabel"
     }
   ],
   "items": [
@@ -150,7 +173,7 @@
     },
     {
       "name": "action",
-      "summary": "An icon-only Button at the end of the top row, up to three in reading order: a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, placed in the actions slot, which the bar lays out and does not restyle.",
+      "summary": "An icon-only Button at the end of the top row, in reading order, as many as the row has room for: a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, placed in the actions slot, which the bar lays out and does not restyle.",
       "component": "button",
       "props": [
         {
@@ -158,6 +181,16 @@
           "type": "string",
           "default": "",
           "description": "Its accessible name (\"Search\"), as the Button's label. Required."
+        },
+        {
+          "name": "overflow",
+          "type": "enum",
+          "values": [
+            "auto",
+            "never"
+          ],
+          "default": "auto",
+          "description": "Whether the bar may take this action out of the top row when there is no room for it (APB-26): never keeps it, and the actions before it leave instead. Read by the bar to place the item."
         }
       ],
       "slots": [
@@ -200,7 +233,7 @@
     },
     {
       "name": "actions",
-      "description": "Holds the action items, up to three icon-only Buttons at the end, in reading order; more belong in an overflow menu the product provides."
+      "description": "Holds the action items: icon-only Buttons at the end, in reading order, with no limit on their number. Those that do not fit leave from the end, into the overflow menu or out of the bar as overflow says (APB-26)."
     }
   ],
   "states": [
@@ -249,7 +282,7 @@
     },
     {
       "id": "APB-11",
-      "text": "THE app bar SHALL NOT restyle its navigation and action items: each SHALL render as the icon-only Button it is, from its own tokens, and keep its own semantics, and the app bar SHALL NOT be focusable itself, so that focus moves from the navigation item to the action items in reading order. A glyph of an item that the system's icon set marks as mirrored (a navigation item's arrow_back) SHALL be mirrored in a right-to-left layout by the item's own icon helper (BTN-19): that is the icon's own behaviour, not a restyling by the app bar."
+      "text": "THE app bar SHALL NOT restyle its navigation and action items: each SHALL render as the icon-only Button it is, from its own tokens, and keep its own semantics, and the app bar SHALL NOT be focusable itself, so that focus moves from the navigation item to the action items in reading order, and then to the more button where it is drawn (APB-28). A glyph of an item that the system's icon set marks as mirrored (a navigation item's arrow_back) SHALL be mirrored in a right-to-left layout by the item's own icon helper (BTN-19): that is the icon's own behaviour, not a restyling by the app bar."
     },
     {
       "id": "APB-12",
@@ -257,7 +290,7 @@
     },
     {
       "id": "APB-13",
-      "text": "WHILE title is empty THE app bar SHALL draw no title block (an expanded large bar then has an empty title row) and SHALL expose no heading; IF the app bar holds more than three action items or more than one navigation item THE app bar SHALL still render them, and in debug builds report that the extra actions belong in an overflow menu or that a bar has one navigation button."
+      "text": "WHILE title is empty THE app bar SHALL draw no title block (an expanded large bar then has an empty title row) and SHALL expose no heading; IF the app bar holds more than one navigation item THE app bar SHALL still render them, and in debug builds report that a bar has one navigation button."
     },
     {
       "id": "APB-14",
@@ -315,6 +348,39 @@
       "id": "APB-25",
       "text": "WHERE the product puts a control in context THE app bar SHALL place it at the start of the top row after the brand, at comp.app-bar.actions.gap from the brand's cell (from the navigation item WHILE no brand is drawn, and comp.app-bar.container.padding-inline from the start edge WHILE neither is), vertically centred in the row, with the title block after it at comp.app-bar.container.gap; SHALL NOT restyle it, as APB-11 says of the navigation and action items; and SHALL keep it in reading order after the brand and before the title block and the action items. Right-to-left layouts SHALL mirror the order.",
       "verify": "Test on the web: a bar with a navigation button, a wordmark and a Button in context draws the Button actions.gap after the brand's cell, centred on the row's centre line, and the actions still at the end; Tab goes navigation, brand, context, actions; without a brand the Button stands actions.gap after the navigation button, and without either container.padding-inline from the start edge; in rtl the order mirrors."
+    },
+    {
+      "id": "APB-26",
+      "text": "THE app bar SHALL draw every action item that fits in the top row, and SHALL set no limit on their number. The actions fit WHILE the row holds, beside them and at their own sizes, the navigation item, the brand's cell and the control in context, and the title block as wide as its title and its subtitle need on one line in the top row's text roles (APB-5) — for a large bar whether or not the top row draws its title now (APB-8), so that no action moves as the bar collapses — with the paddings and gaps APB-4 names, the title block centred on the bar WHILE titleAlignment is center (APB-6), and the more button WHILE overflow is menu and an action is out (APB-28). WHEN the actions do not fit THE app bar SHALL take them out from the end, in reverse reading order and one at a time, skipping every action whose overflow is never and every element of the actions slot that is not a Button, until what remains fits; WHEN what remains still does not fit THE app bar SHALL truncate the title as APB-5 and APB-6 say, and SHALL NOT shrink or take out the navigation item, the brand or the control in context. Right-to-left layouts SHALL mirror the order (APB-4): the actions leave from the end of the reading order, at the left.",
+      "verify": "small-overflow-menu: at 360 the first actions are drawn and the rest are in the menu; widened to 1280 every action is drawn and the more button is not; narrowed again the same actions leave, from the end. An action whose overflow is never stays, and the one before it leaves. A long title takes room first: with it the same bar shows fewer actions. A large bar shows the same actions expanded and collapsed. small-overflow-rtl mirrors small-overflow-menu."
+    },
+    {
+      "id": "APB-27",
+      "text": "WHEN the room the top row has, the size of one of its items, its title or subtitle, or the action items change THE app bar SHALL decide again which actions fit, as APB-26 says, bringing actions back in reading order as soon as they fit, so that which actions are shown depends only on the room and the items, never on the widths the bar had before."
+    },
+    {
+      "id": "APB-28",
+      "text": "WHILE overflow is menu and at least one action is out (APB-26) THE app bar SHALL draw the more button after the last action still shown, comp.app-bar.actions.gap from it: an icon-only Tanrei Button of the text variant and the medium size showing the glyph more_horiz, named by overflowLabel or the product's words, exposed as a button that opens a menu, with its expanded state while the menu is open; WHILE every action is shown, or overflow is hide, THE app bar SHALL draw no more button. The more button SHALL be a stop in the tab order after the actions shown."
+    },
+    {
+      "id": "APB-29",
+      "text": "WHEN the more button is activated by pointer, touch, Enter or Space THE app bar SHALL open a Tanrei Menu anchored to it, placed bottom-end, holding the actions that are out, in reading order: each action as a menu item with its label and its glyph as the leading icon, disabled while it is; a toggle as a checkbox item with its selected state; an action that is a link (it has an href) as a link item to the same destination and target; and an action that opens a Menu as a submenu item named by its label, holding that Menu's items. Activating a row SHALL do exactly what activating the action does — the same click (and change), once, from that action — and close the menu, which returns focus to the more button; WHEN the actions that are out change while the menu is open THE app bar SHALL close it."
+    },
+    {
+      "id": "APB-30",
+      "text": "WHILE overflow is hide THE app bar SHALL draw nothing in place of an action that is out: neither drawn nor focusable nor exposed to assistive technology, it SHALL stay in the page with its state and its listeners, and come back as APB-27 says. Reaching what a hidden action does is the product's responsibility: hide is for an action the product also gives somewhere the person can reach at that width (a drawer, a page's footer, a settings page), and the app bar SHALL NOT report one that is not."
+    },
+    {
+      "id": "APB-31",
+      "text": "WHEN an action that has keyboard focus goes out (APB-26) THE app bar SHALL move focus, without scrolling the page, to the more button WHILE overflow is menu; and WHILE overflow is hide to the nearest action still shown before it in reading order, else the nearest after it, else the control in context, the brand's link or the navigation item, the last of them that takes focus, so that focus never falls to the page."
+    },
+    {
+      "id": "APB-32",
+      "text": "THE app bar SHALL decide which actions are shown before the first frame that draws them, and after a change APB-27 names before the next frame, from sizes measured then — each action's while it is drawn, kept while it is out — so that no frame draws an action that then leaves or a more button that then goes away; it SHALL show and hide them at once, without a motion of its own, and deciding SHALL NOT change the room it decides from, so that it never measures again because of its own decision."
+    },
+    {
+      "id": "APB-33",
+      "text": "WHEN overflow names a value the app bar does not define THE app bar SHALL treat it as menu and in debug builds report the unknown value; WHEN an action's overflow names a value other than never THE app bar SHALL treat it as auto. IF overflow is menu, an action is out and the more button has no name (overflowLabel is empty and the product's words have none) THE app bar SHALL still draw the more button and open its menu, and in debug builds report the missing word."
     }
   ],
   "accessibility": {
@@ -322,15 +388,20 @@
     "keyboard": [
       {
         "keys": "Tab",
-        "action": "Moves focus to the navigation item, then to the brand's link, then to the control in context, then through the action items; the bar itself is not a tab stop."
+        "action": "Moves focus to the navigation item, then to the brand's link, then to the control in context, then through the action items shown and to the more button where it is drawn; the bar itself is not a tab stop. An action that is out is not a stop."
+      },
+      {
+        "keys": "Enter or Space (on the more button)",
+        "action": "Opens the Menu of the actions that are out, with focus on its first item; the Menu's own keys move through it, and Escape closes it and returns focus to the more button."
       }
     ],
-    "labeling": "The title is the screen's heading (a level 1 heading on the web unless the product sets another level). The subtitle is read after it. The navigation and action items, and the control in context, are named by their own labels. The brand is one link to the product's first page named by brandLabel (the product's name), whichever of its images is shown; its images are hidden from assistive technology.",
+    "labeling": "The title is the screen's heading (a level 1 heading on the web unless the product sets another level). The subtitle is read after it. The navigation and action items, and the control in context, are named by their own labels. The brand is one link to the product's first page named by brandLabel (the product's name), whichever of its images is shown; its images are hidden from assistive technology. The more button is named by overflowLabel or the product's words (\"More actions\"), and exposed as a button that opens a menu, with its expanded state.",
     "minimumTarget": true,
     "notes": [
       "The app bar has no role of its own and takes no input: its buttons are the product's icon-only Buttons, which meet the minimum target themselves (BTN-5). The bar is not a landmark, because only the product knows whether it is its page's banner; a product that wants one wraps the bar in its own header element.",
       "The title is truncated rather than wrapped even at 200% text size: the bar's rows grow with the text, but a bar of several lines would push the screen's content away. The full title stays available to assistive technology.",
-      "Where both titles of a large bar are partly visible, only the expanded one is exposed, so the heading is never read twice."
+      "Where both titles of a large bar are partly visible, only the expanded one is exposed, so the heading is never read twice.",
+      "The bar sets no limit on the number of actions: as many as fit are drawn, and the rest are in the more button's menu, each with its label, or, under overflow hide, left out of the bar. A hidden action is out of the tab order and of the accessibility tree, so what it does must be reachable elsewhere at that width (APB-30)."
     ]
   },
   "tokens": "comp.app-bar",
@@ -678,6 +749,181 @@
           "content": "search"
         }
       ]
+    },
+    {
+      "id": "small-overflow-menu",
+      "props": {
+        "title": "Inbox",
+        "overflowLabel": "More actions"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Share"
+          },
+          "content": "share"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Edit"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Print"
+          },
+          "content": "print"
+        }
+      ]
+    },
+    {
+      "id": "small-overflow-hide",
+      "props": {
+        "title": "Inbox",
+        "overflow": "hide"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Share"
+          },
+          "content": "share"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Edit"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Print"
+          },
+          "content": "print"
+        }
+      ]
+    },
+    {
+      "id": "small-overflow-rtl",
+      "direction": "rtl",
+      "props": {
+        "title": "Inbox",
+        "overflowLabel": "More actions"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Share"
+          },
+          "content": "share"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Edit"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Print"
+          },
+          "content": "print"
+        }
+      ]
     }
   ],
   "platforms": {
@@ -693,9 +939,11 @@
         "dividerVisibility": "dividerVisibility",
         "brandHref": "brandHref",
         "brandLabel": "brandLabel",
-        "brandLayout": "brandLayout"
+        "brandLayout": "brandLayout",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel"
       },
-      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation`, `context` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders. The brand: `brand-href`, `brand-label` and `brand-layout` (`lockup` | `responsive`); its images are children with `slot=\"brand\"`, `slot=\"brand-symbol\"` or `slot=\"brand-wordmark\"` (an `<img>` or an inline `<svg>`), which the bar sizes from its tokens, marks `aria-hidden` and draws inside its own link (`part=\"brand\"`). The link is the bar's: a router that follows links by their clicks reads it from the click's composed path. The window class is the enclosing `<tanrei-app-shell>`'s, else `matchMedia` against `sys.breakpoint.medium`.",
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation`, `context` and `actions`. `overflow` is the `overflow` attribute (`menu` | `hide`) and `overflowLabel` the `overflow-label` attribute; an action's own overflow is its `app-bar-overflow` attribute (`auto` | `never`). The bar watches its top row, its start items, its title and each action drawn with one ResizeObserver, and decides from the widths measured then, before the frame: an action that is out carries the bar's `app-bar-out` attribute, which draws it as nothing (it stays in the page, with its listeners and its state). The more button (`part=\"overflow-button\"`) and its Menu (`part=\"overflow-menu\"`) are elements of the bar's shadow root; the Menu's rows are made from the actions when it opens. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders. The brand: `brand-href`, `brand-label` and `brand-layout` (`lockup` | `responsive`); its images are children with `slot=\"brand\"`, `slot=\"brand-symbol\"` or `slot=\"brand-wordmark\"` (an `<img>` or an inline `<svg>`), which the bar sizes from its tokens, marks `aria-hidden` and draws inside its own link (`part=\"brand\"`). The link is the bar's: a router that follows links by their clicks reads it from the click's composed path. The window class is the enclosing `<tanrei-app-shell>`'s, else `matchMedia` against `sys.breakpoint.medium`.",
       "items": {
         "navigation": {
           "name": "tanrei-button",
@@ -710,7 +958,8 @@
         "action": {
           "name": "tanrei-button",
           "props": {
-            "label": "label"
+            "label": "label",
+            "overflow": "app-bar-overflow"
           },
           "events": {
             "click": "click"
@@ -731,9 +980,11 @@
         "dividerVisibility": "dividerVisibility",
         "brandHref": "brandHref",
         "brandLabel": "brandLabel",
-        "brandLayout": "brandLayout"
+        "brandLayout": "brandLayout",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel"
       },
-      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25). Not built on this platform yet: the overflow (`overflow`, `overflowLabel` and the action's own overflow; APB-26 to APB-33) — every action is drawn, whatever the room.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -748,7 +999,8 @@
         "action": {
           "name": "TanreiButton",
           "props": {
-            "label": "label"
+            "label": "label",
+            "overflow": "appBarOverflow"
           },
           "events": {
             "click": "action"
@@ -769,9 +1021,11 @@
         "dividerVisibility": "dividerVisibility",
         "brandHref": "brandHref",
         "brandLabel": "brandLabel",
-        "brandLayout": "brandLayout"
+        "brandLayout": "brandLayout",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel"
       },
-      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25). Not built on this platform yet: the overflow (`overflow`, `overflowLabel` and the action's own overflow; APB-26 to APB-33) — every action is drawn, whatever the room.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -786,7 +1040,8 @@
         "action": {
           "name": "TanreiButton",
           "props": {
-            "label": "contentDescription"
+            "label": "contentDescription",
+            "overflow": "Modifier.appBarOverflow"
           },
           "events": {
             "click": "onClick"
@@ -807,9 +1062,11 @@
         "dividerVisibility": "dividerVisibility",
         "brandHref": "brandHref",
         "brandLabel": "brandLabel",
-        "brandLayout": "brandLayout"
+        "brandLayout": "brandLayout",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel"
       },
-      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25). Not built on this platform yet: the overflow (`overflow`, `overflowLabel` and the action's own overflow; APB-26 to APB-33) — every action is drawn, whatever the room.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -824,7 +1081,8 @@
         "action": {
           "name": "TanreiButton",
           "props": {
-            "label": "semanticLabel"
+            "label": "semanticLabel",
+            "overflow": "appBarOverflow"
           },
           "events": {
             "click": "onPressed"
@@ -845,9 +1103,11 @@
         "dividerVisibility": "dividerVisibility",
         "brandHref": "brandHref",
         "brandLabel": "brandLabel",
-        "brandLayout": "brandLayout"
+        "brandLayout": "brandLayout",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel"
       },
-      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of the actions). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25). Not built on this platform yet: the overflow (`overflow`, `overflowLabel` and the action's own overflow; APB-26 to APB-33) — every action is drawn, whatever the room.",
       "items": {
         "navigation": {
           "name": "Button",
@@ -862,7 +1122,8 @@
         "action": {
           "name": "Button",
           "props": {
-            "label": "accessibilityLabel"
+            "label": "accessibilityLabel",
+            "overflow": "appBarOverflow"
           },
           "events": {
             "click": "onPress"
