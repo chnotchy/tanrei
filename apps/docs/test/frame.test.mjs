@@ -57,9 +57,9 @@ describe('the first page of the page’s language', () => {
 describe('the header’s controls', () => {
   const header = read('components/frame/Header.astro');
   const panel = read('components/frame/Appearance.astro');
-  test('every word of the menu button, the appearance’s button and panel, the mode’s toggle and the language’s button is in the six languages', async () => {
+  test('every word of the menu button, the appearance’s button and panel, the mode’s toggle, the language’s button and the repository’s link is in the six languages', async () => {
     const { strings } = await import('../src/lib/i18n.ts');
-    const keys = ['menu', 'appearance', 'appearanceOf', 'mode', 'modeAuto', 'darkMode', 'lookDefault', 'showcase', 'showcaseNote', 'copyLink', 'linkCopied', 'copyFailed', 'shared', 'keepShared', 'close', 'editTheme', 'language'];
+    const keys = ['menu', 'appearance', 'appearanceOf', 'mode', 'modeAuto', 'darkMode', 'lookDefault', 'showcase', 'showcaseNote', 'copyLink', 'linkCopied', 'copyFailed', 'shared', 'keepShared', 'close', 'editTheme', 'language', 'repository'];
     const english = strings(source.lang).frame;
     for (const { lang } of [source, ...translations]) {
       const words = strings(lang).frame;
@@ -71,8 +71,10 @@ describe('the header’s controls', () => {
     }
   });
   test('the icon-only buttons are named from the dictionary; the language’s opens its menu, the appearance’s its panel', () => {
-    assert.match(header, /<tanrei-button slot="actions" id="docs-mode" variant="text" toggle label=\{words\.darkMode\}>/);
-    assert.match(header, /<tanrei-button slot="actions" id="docs-language" variant="text" label=\{words\.language\}>/);
+    assert.match(header, /<tanrei-button slot="actions" id="docs-mode" variant="text" toggle label=\{words\.darkMode\} app-bar-overflow="never">/);
+    assert.match(header, /<tanrei-button slot="actions" id="docs-language" variant="text" label=\{words\.language\} app-bar-overflow="never">/);
+    // The repository's link: the one action the bar may hide (overflow="hide"), to the configured repository, said to leave the site.
+    assert.match(header, /<tanrei-button slot="actions" id="docs-repository" variant="text" href=\{repositoryHref\} label=\{words\.repository\} aria-description=\{externalLink\}>/);
     assert.match(header, /id="docs-drawer-toggle"[^>]*label=\{words\.menu\} aria-controls="docs-sidebar" aria-expanded="true">/);
     assert.match(header, /data-app-shell-menu variant="text" label=\{words\.menu\}>/);
     assert.match(header, /<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">/);
