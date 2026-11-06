@@ -9,6 +9,7 @@ import {
   GlyphMirrorController,
   OpenAxesController,
   PressController,
+  pressGivesFocus,
   report,
   syncFocusStyle,
 } from '../../primitives/index.js';
@@ -345,7 +346,8 @@ export class TanreiPagination extends TanreiElement {
     }
     const control = (item.dataset.control as Control | undefined) ?? null;
     // A click with a detail of 0 came from a key (or from script): the browser decides the ring, as for any focus moved
-    // by script after a key. A pointer's click moves focus without it.
+    // by script after a key. A pointer's click moves focus without it (where focus() cannot be told so, the press gave
+    // the focus itself first: onMouseDown).
     const ring = event.detail === 0 ? undefined : false;
     const take = () => {
       if (!this.isConnected) return;
@@ -376,6 +378,11 @@ export class TanreiPagination extends TanreiElement {
   }
 
   private readonly onPointerDown = (event: PointerEvent) => this.pressOf(event.currentTarget as HTMLElement).onPointerDown(event);
+  /**
+   * PGN-14, PGN-19: a press on the item that has keyboard focus gives that focus again, as a pointer's, where focus()
+   * cannot be told to draw no ring (`pressGivesFocus`): the focus moved after the page changed then draws none there too.
+   */
+  private readonly onMouseDown = (event: MouseEvent) => pressGivesFocus(event, event.currentTarget as HTMLElement);
   private readonly onRelease = (event: Event) => this.presses.get(event.currentTarget as HTMLElement)?.release(event);
   private readonly onKeyDown = (event: KeyboardEvent) => this.pressOf(event.currentTarget as HTMLElement).onKeyDown(event);
   private readonly onKeyUp = (event: KeyboardEvent) => this.presses.get(event.currentTarget as HTMLElement)?.onKeyUp(event);
@@ -542,6 +549,7 @@ export class TanreiPagination extends TanreiElement {
         aria-label=${name || nothing}
         @click=${this.onItemClick}
         @pointerdown=${this.onPointerDown}
+        @mousedown=${this.onMouseDown}
         @pointerup=${this.onRelease}
         @pointercancel=${this.onRelease}
         @pointerleave=${this.onRelease}
@@ -564,6 +572,7 @@ export class TanreiPagination extends TanreiElement {
       aria-label=${name || nothing}
       @click=${this.onItemClick}
       @pointerdown=${this.onPointerDown}
+      @mousedown=${this.onMouseDown}
       @pointerup=${this.onRelease}
       @pointercancel=${this.onRelease}
       @pointerleave=${this.onRelease}

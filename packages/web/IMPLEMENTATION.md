@@ -9682,7 +9682,13 @@ after the browser has read the address, so a link to the same document (`#page={
 a link to another page leaves this one as usual. Once a page has been activated, focus is on the page now current, or
 stays on the control that was activated while that control is enabled. When a control becomes disabled (next on the
 last page), focus moves to the current page; in the compact form, which draws no pages, it moves to the nearest
-enabled control. The element takes no arrow key: each enabled item is one Tab stop.
+enabled control. The element takes no arrow key: each enabled item is one Tab stop. Focus moved after a pointer's press
+shows no ring (`focusVisible: false`). Chromium before 145 and Safari before 18.4 (`hasFocusVisibleOption()`) do not read
+that option and draw a script's focus as the last focus the engine counted was drawn, so a press on the control that has
+keyboard focus — which gives no focus, the control having it — would hand the ring on: there the press lets that focus
+go (`pressGivesFocus()`) and gives it again as a pointer's first. Safari draws a script's focus after any press on a link
+with the ring (a link takes no focus from a press there), so a pagination with `href` still shows it in Safari before
+18.4.
 
 **The compact form and the narrow fallback (PGN-11).** `variant="compact"` draws the controls and the sentence (`Page
 3 of 10`). The sentence is text: not a control and not a live region, so tell the reader of the change where the
