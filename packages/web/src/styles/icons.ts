@@ -69,7 +69,7 @@ const mirrorRules = (on: string) => `
  * Every declaration is inherited, so text slotted into the element that carries them — `favorite`, a ligature — is
  * drawn by them too.
  */
-const glyph = (o: { size: string; fill: string; family: string; weight?: string; duration?: string; easing?: string }) => `
+const glyph = (o: { size: string; fill: string; family: string; weight?: string; duration?: string; easing?: string; fade?: string }) => `
     overflow: hidden;
     font-family: ${o.family};
     font-size: ${o.size};
@@ -86,7 +86,7 @@ const glyph = (o: { size: string; fill: string; family: string; weight?: string;
     font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
     font-optical-sizing: auto;
-    font-variation-settings: ${axes(o)};${o.duration && o.easing ? `\n    transition: font-variation-settings ${o.duration} ${o.easing};` : ''}`;
+    font-variation-settings: ${axes(o)};${o.duration && o.easing ? `\n    transition: font-variation-settings ${o.duration} ${o.easing}${o.fade ? `, opacity ${o.fade} ${o.easing}, visibility ${o.fade} ${o.easing}` : ''};` : ''}`;
 
 /** The glyph's axes: fill and weight (sys.icon.weight unless the caller names another), and — with `opticalSize` — the box's optical size, clamped to sys.icon.optical-size. */
 const axes = (o: { size: string; fill: string; weight?: string }, opticalSize = false) =>
@@ -136,6 +136,10 @@ export function writeGlyphAxes(css: string): string {
  * over the component's state duration and easing; a component whose icon never stands for a selection and that has no
  * motion of its own (a tag, TAG-12) leaves `duration` and `easing` out, and the glyph is drawn without a transition.
  *
+ * `fade` is the duration over which the box's own opacity and visibility change, on the same easing, for a component that
+ * stops drawing its icon in place and draws it again (a busy Button's, BTN-36); left out, they change at once. Like the
+ * fill's change, it is at once where motion is reduced.
+ *
  * `weight` is the token of the glyph's weight, as `size` is of its box. Left out, the glyph is drawn at
  * `sys.icon.weight`, as every icon is; a control's own mark — the check of a checkbox, the glyph on a
  * switch's handle — names its component token. The weight is the stroke only: the box stays `size`.
@@ -146,7 +150,7 @@ export function writeGlyphAxes(css: string): string {
  * In a right-to-left layout it draws mirrored the glyph that carries `data-tanrei-mirrored`: `on` itself,
  * or the element in a slot inside `on`. The component's `GlyphMirrorController` writes that mark, by the glyph's name.
  */
-export function iconGlyph(on: string, tokens: { size: Property; selected: string; weight?: Property; duration?: Property; easing?: Property }): CSSResult {
+export function iconGlyph(on: string, tokens: { size: Property; selected: string; weight?: Property; duration?: Property; easing?: Property; fade?: Property }): CSSResult {
   const moves = !!tokens.duration && !!tokens.easing;
   return unsafeCSS(`
   ${on} {
@@ -156,7 +160,7 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
     display: inline-block;
     flex: none;
     inline-size: var(--tanrei-icon-size);
-    block-size: var(--tanrei-icon-size);${glyph({ size: 'var(--tanrei-icon-size)', fill: 'var(--tanrei-icon-fill)', family: 'var(--tanrei-icon-family)', ...(tokens.weight ? { weight: `var(${tokens.weight})` } : {}), ...(moves ? { duration: `var(${tokens.duration})`, easing: `var(${tokens.easing})` } : {}) })}
+    block-size: var(--tanrei-icon-size);${glyph({ size: 'var(--tanrei-icon-size)', fill: 'var(--tanrei-icon-fill)', family: 'var(--tanrei-icon-family)', ...(tokens.weight ? { weight: `var(${tokens.weight})` } : {}), ...(moves ? { duration: `var(${tokens.duration})`, easing: `var(${tokens.easing})`, ...(tokens.fade ? { fade: `var(${tokens.fade})` } : {}) } : {}) })}
   }${opticalSize(on, { size: 'var(--tanrei-icon-size)', fill: 'var(--tanrei-icon-fill)', ...(tokens.weight ? { weight: `var(${tokens.weight})` } : {}) })}
   ${tokens.selected} ${on} {
     --tanrei-icon-fill: var(--tanrei-sys-icon-fill-selected);

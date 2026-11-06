@@ -1968,6 +1968,7 @@ public data class TanreiButtonTokens(
     public val busyIndicatorThickness: Dp,
     public val containerShape: Dp,
     public val motionBusyCycleDuration: Int,
+    public val motionBusyFadeDuration: Int,
     public val motionFeedbackDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val toneContainerOpacity: Float,

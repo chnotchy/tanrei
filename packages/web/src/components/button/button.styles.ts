@@ -337,8 +337,9 @@ const buttonStyles = css`
     min-inline-size: calc(max(var(--_width), var(--tanrei-group-min-width, 0px)) + var(--_add-start) + var(--_add-end));
   }
 
-  /* BTN-8: the label carries press-hold for PressController. */
-  ${pressHold('.label')}
+  /* BTN-8: the label's slot carries press-hold for PressController (the label itself fades, BTN-36, and a transition of
+     its own would take the carrier's delay). */
+  ${pressHold('.label > slot')}
 
   /* BTN-20: the label is text of its own direction — its first strong character's — isolated from what is around it, and
      still placed by the layout direction (the flex row) and centred where it wraps (BGR-7). */
@@ -362,6 +363,7 @@ const buttonStyles = css`
     selected: "button[aria-pressed='true']",
     duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
+    fade: '--tanrei-comp-button-motion-busy-fade-duration',
   })}
   .icon {
     display: inline-flex;
@@ -394,20 +396,29 @@ const buttonStyles = css`
     selected: "button[aria-pressed='true']",
     duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
+    fade: '--tanrei-comp-button-motion-busy-fade-duration',
   })}
 
   /* BTN-36: busy — the label and the icon keep their place and are not drawn, and the loading indicator's arc turns at
      the centre of the container, in the icon's box (beside a label, or alone), in the color its label (or its glyph)
-     has, comp.button.busy.indicator.thickness thick, once per comp.button.motion.busy-cycle-duration. */
+     has, comp.button.busy.indicator.thickness thick, once per comp.button.motion.busy-cycle-duration. The label and the
+     icon fade out as busy begins and back in as it ends, over comp.button.motion.busy-fade-duration on state-easing
+     (the icon's and the mark's transition is iconGlyph()'s fade, above; a transition turned round goes on from the
+     opacity it shows); the arc appears and goes at once, and so do the label and the icon under reduced motion. */
   button.busy {
     cursor: default;
   }
-  /* (The label is transparent, not hidden: it is still the button's name.) */
+  .label {
+    transition: opacity var(--tanrei-comp-button-motion-busy-fade-duration) var(--tanrei-comp-button-motion-state-easing);
+  }
+  /* (The label is transparent, not hidden: it is still the button's name. The icon is hidden too once it has faded, and
+     drawn again from the start of its way back, its visibility being a transition of its own.) */
   button.busy .label {
     opacity: 0;
   }
   button.busy .icon,
   button.busy .mark {
+    opacity: 0;
     visibility: hidden;
   }
   .busy-arc {
@@ -475,7 +486,8 @@ const buttonStyles = css`
   }
 
   @media (prefers-reduced-motion: reduce) {
-    button {
+    button,
+    .label {
       transition: none;
     }
     /* BTN-36: LDG-4's form — the whole circle, its opacity easing once per cycle, not turning. */

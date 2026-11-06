@@ -315,7 +315,7 @@ export class TanreiButton extends TanreiElement {
    */
   private readonly press = new PressController(this, {
     container: () => this.container,
-    holdCarrier: () => this.container?.querySelector(this.hasLabel ? '.label' : 'slot[name="icon"]') ?? null,
+    holdCarrier: () => this.container?.querySelector(this.hasLabel ? '.label > slot' : 'slot[name="icon"]') ?? null,
     disabled: () => this.refuses,
     keys: () => this.link.pressKeys,
   });

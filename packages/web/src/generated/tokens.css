@@ -1044,6 +1044,7 @@
     --tanrei-comp-button-label-typescale-small-line-height: var(--tanrei-sys-typescale-label-line-height);
     --tanrei-comp-button-label-typescale-small-font: var(--tanrei-sys-typescale-label-font);
     --tanrei-comp-button-motion-busy-cycle-duration: var(--tanrei-comp-loading-indicator-motion-cycle-duration);
+    --tanrei-comp-button-motion-busy-fade-duration: var(--tanrei-sys-motion-role-state-compact);
     --tanrei-comp-button-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-motion-state-duration-large: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-button-motion-state-duration-medium: var(--tanrei-sys-motion-role-state-default);

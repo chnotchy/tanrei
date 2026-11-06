@@ -4740,6 +4740,7 @@ class TanreiButtonTokens {
     required this.busyIndicatorThickness,
     required this.containerShape,
     required this.motionBusyCycleDuration,
+    required this.motionBusyFadeDuration,
     required this.motionFeedbackDuration,
     required this.motionStateEasing,
     required this.toneContainerOpacity,
@@ -4757,6 +4758,8 @@ class TanreiButtonTokens {
   final double containerShape;
   /// `comp.button.motion-busy-cycle-duration`
   final int motionBusyCycleDuration;
+  /// `comp.button.motion-busy-fade-duration`
+  final int motionBusyFadeDuration;
   /// `comp.button.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.button.motion-state-easing`
@@ -4781,6 +4784,7 @@ class TanreiButtonTokens {
     double? busyIndicatorThickness,
     double? containerShape,
     int? motionBusyCycleDuration,
+    int? motionBusyFadeDuration,
     int? motionFeedbackDuration,
     TanreiCubicBezier? motionStateEasing,
     double? toneContainerOpacity,
@@ -4794,6 +4798,7 @@ class TanreiButtonTokens {
         busyIndicatorThickness: busyIndicatorThickness ?? this.busyIndicatorThickness,
         containerShape: containerShape ?? this.containerShape,
         motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
+        motionBusyFadeDuration: motionBusyFadeDuration ?? this.motionBusyFadeDuration,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         toneContainerOpacity: toneContainerOpacity ?? this.toneContainerOpacity,
