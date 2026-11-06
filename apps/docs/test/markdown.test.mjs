@@ -463,6 +463,28 @@ describe('the content column (MarkdownContent)', () => {
     assert.equal(html, '<div class="tanrei-prose-heading"><h2 id="the-quoted-title">The “quoted” title</h2><a class="tanrei-prose-anchor" href="#the-quoted-title" aria-label="Section titled “The “quoted” title”" data-pagefind-ignore><span class="tanrei-icon" aria-hidden="true">link</span></a></div>\n');
   });
 
+  test('given the words, the anchor carries the name it takes where script makes it copy the section’s address, with the heading’s text, escaped', async () => {
+    const html = tanreiContent(await site.md('## The "quoted" `code` & more\n'), { ...words, headingLink: { copy: 'Copy the link to "{heading}"' } });
+    const [anchor] = elements(html, 'a');
+    assert.equal(anchor.get('href'), '#the-quoted-code--more');
+    assert.equal(anchor.get('aria-label'), 'Section titled “The “quoted” code & more”', 'without script, Starlight’s name');
+    assert.equal(anchor.get('data-copy-label'), 'Copy the link to "The “quoted” code & more"');
+    assert.match(html, /^<div class="tanrei-prose-heading"><h2 id="the-quoted-code--more">/);
+  });
+
+  test('every language words the copying anchor, its name holding the heading once, and what is said of the copy', async () => {
+    // The dictionary is TypeScript, which Node reads through the shim the site's other tests register.
+    (await import('node:module')).register('./vite-shim.mjs', import.meta.url);
+    const { strings } = await import('../src/lib/i18n.ts');
+    const { translations } = await import('../i18n/locales.mjs');
+    for (const lang of ['en', ...translations.map(({ lang }) => lang)]) {
+      const { copy, copied, copyFailed } = strings(lang).headingLink;
+      assert.equal(copy.split('{heading}').length, 2, `${lang}: headingLink.copy`);
+      assert.ok(copied.trim() && copyFailed.trim(), `${lang}: headingLink.copied, headingLink.copyFailed`);
+      if (lang !== 'en') assert.notEqual(copied, strings('en').headingLink.copied, `${lang}: its own words`);
+    }
+  });
+
   test("what Starlight and the docs mark as not content is marked as not prose, once", () => {
     const html = tanreiContent('<div class="not-content x"><p class="card">a</p><a class="sl-link-card" href="/a">b</a><ul class="card-grid"></ul><p class="cardinal">c</p></div>', words);
     assert.equal(html, '<div class="not-content x tanrei-not-prose"><p class="card tanrei-not-prose">a</p><a class="sl-link-card tanrei-not-prose" href="/a">b</a><ul class="card-grid tanrei-not-prose"></ul><p class="cardinal">c</p></div>');

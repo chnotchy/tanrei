@@ -12,6 +12,11 @@
 //   inline SVG and a visually hidden label; prose places `div.tanrei-prose-heading > hN + a.tanrei-prose-anchor`
 //   (PRS-21 to PRS-23). The anchor shows the glyph `link` of the icon set and is named by Starlight's own translated
 //   label ("Section titled …"). It is the Link that is a glyph alone (LNK-16), drawn by the rules prose carries.
+//   Where script runs it also copies the address of its section (lib/heading-links.ts): a press still goes to the
+//   section, as the link does without script, and puts the section's whole address on the clipboard; a Snackbar says
+//   so, or that it could not (the words on this column, `data-heading-*`). Its name then says it copies, with the
+//   heading's text in it (`data-copy-label`, lib/i18n.ts `headingLink`). It stays a link to its heading, which prose's
+//   anchor is (PRS-21): a button would go nowhere where no script runs.
 // - What is not prose. Starlight and the docs mark such parts `not-content`; prose's word is `tanrei-not-prose`
 //   (PRS-16). Starlight's cards and link cards carry no mark and lay their own content out, so they get it too.
 // - A notice's kind, in words. The Markdown pipeline writes a callout with its kind and its title's text
@@ -39,12 +44,14 @@ import { tanreiContent } from '../lib/markdown-content.mjs';
 
 const html = await Astro.slots.render('default');
 const dictionary = strings(contentLang(Astro));
-const content = tanreiContent(html, { kind: (name) => Astro.locals.t(`aside.${name}`), code: dictionary.code, externalLink: dictionary.externalLink });
+const content = tanreiContent(html, { kind: (name) => Astro.locals.t(`aside.${name}`), code: dictionary.code, externalLink: dictionary.externalLink, headingLink: dictionary.headingLink });
 ---
 
-<div class="sl-markdown-content tanrei-prose" data-size="large" set:html={content} />
+<div class="sl-markdown-content tanrei-prose" data-size="large" data-heading-copied={dictionary.headingLink.copied} data-heading-copy-failed={dictionary.headingLink.copyFailed} data-heading-error={dictionary.pageActions.error} set:html={content} />
 
 <script>
   // A page's tables, notices and code blocks, and whatever else its content draws: defined where the page has them.
   import '../lib/define-on-demand';
+  // A heading's anchor copies the address of its section, and says so.
+  import '../lib/heading-links';
 </script>
