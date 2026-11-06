@@ -32,7 +32,8 @@
 // made the commit (a merge on GitHub and a commit on a laptop in Tokyo give two).
 //
 // The pages read the same dates through a virtual module, `virtual:tanrei-docs/last-updated` (declared in
-// src/env.d.ts): its `lastUpdated(url)` is what the sitemap writes for that address.
+// src/env.d.ts): its `lastUpdated(url)` is what the sitemap writes for that address, and its `sourcesOf(url)` the
+// files that date is read from, which the foot of a page links to (components/frame/Footer.astro).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -142,8 +143,8 @@ const newest = (dates, files) => {
 export const LAST_UPDATED_MODULE = 'virtual:tanrei-docs/last-updated';
 
 /**
- * The source of the virtual module: the dates as they were read, where the pages are, and `lastUpdated(url)`, which
- * answers what the sitemap's `of(url)` answers.
+ * The source of the virtual module: the dates as they were read, where the pages are, `lastUpdated(url)`, which
+ * answers what the sitemap's `of(url)` answers, and `sourcesOf(url)`, the files a page is made of (`pageSources`).
  *
  * @param {Map<string, string>} dates
  * @param {{ repoRoot: string, contentDir: string, languages: string[] }} where
@@ -151,11 +152,13 @@ export const LAST_UPDATED_MODULE = 'virtual:tanrei-docs/last-updated';
  */
 export function lastUpdatedModule(dates, where) {
   return [
-    `import { pageDate } from ${JSON.stringify(fileURLToPath(import.meta.url))};`,
+    `import { pageDate, pageSources } from ${JSON.stringify(fileURLToPath(import.meta.url))};`,
     `const dates = new Map(${JSON.stringify([...dates])});`,
     `const where = ${JSON.stringify(where)};`,
     '/** When the page at `url` last changed: what the sitemap writes for it (ISO 8601, UTC), or none. */',
     'export const lastUpdated = (url) => pageDate(dates, url, where);',
+    '/** The files the page at `url` is made of, relative to the repository\'s root: its source first. */',
+    'export const sourcesOf = (url) => pageSources(url, where);',
   ].join('\n');
 }
 

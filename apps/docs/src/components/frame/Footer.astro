@@ -1,25 +1,58 @@
 ---
-// The foot of every page: the framework's footer (its previous and next links are the docs' own, PreviousNextLinks.astro), then a link to
-// the source repository, where the code is and where issues are opened. This component replaces Starlight's `Footer`
-// (astro.config.mjs). The address comes from tanrei.config.json (`repository.public`); the words are the page's
-// language's (lib/i18n.ts, `sourceLink`). The header has no room for the link: the app bar holds three actions. The
-// line is the same on every page, so the search index does not read it.
+// The foot of every page: the framework's footer (its previous and next links are the docs' own, PreviousNextLinks.astro), then
+// the page's links into the source repository (lib/repository.ts, from tanrei.config.json's `repository.public`):
+//
+//   the page's source  the file the page is written in, in its language (the English page where a translation does
+//                      not exist yet, which is what the site shows), as GitHub shows it: the files the page is made
+//                      of are lastmod.mjs's `pageSources`, the ones its date is read from, through the virtual module;
+//   the spec           on a component's page, the spec its tables, facts and fixtures are drawn from;
+//   a problem          a new issue in the repository's bug form, its title and its first field holding the page's
+//                      address, its platform the docs (and on a component's page, the component);
+//   the repository     where the code is and where issues are opened.
+//
+// No link to edit the page: the repository takes no pull requests from outside (CONTRIBUTING.md). This component
+// replaces Starlight's `Footer` (astro.config.mjs). The words are the page's language's (lib/i18n.ts, `pageFoot`,
+// `sourceLink`); each link leaves the site, and says so as a Markdown link that leaves it does (LNK-34). The header has
+// no room for them: the app bar holds three actions. The lines are no text of the page, so the search index does not
+// read them.
 import Default from '@astrojs/starlight/components/Footer.astro';
-import { config } from '../../lib/repo';
+import { sourcesOf } from 'virtual:tanrei-docs/last-updated';
+import { pageSourceLinks, reportProblemHref, repositoryHref } from '../../lib/repository';
 import { strings } from '../../lib/i18n';
 
-const t = strings(Astro.locals.starlightRoute.lang);
-const href = `https://github.com/${config.repository.public}`;
+const route = Astro.locals.starlightRoute;
+const t = strings(route.lang);
+const sources = sourcesOf(Astro.url.pathname);
+const { source, spec } = pageSourceLinks(sources);
+const component = sources.map((file) => /^specs\/([a-z0-9-]+)\.spec\.json$/.exec(file)?.[1]).find(Boolean);
+const pageUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+const links = [
+  ...(source ? [{ href: source, text: t.pageFoot.pageSource, id: 'source' }] : []),
+  ...(spec ? [{ href: spec, text: t.pageFoot.spec, id: 'spec' }] : []),
+  ...(source ? [{ href: reportProblemHref(pageUrl, component), text: t.pageFoot.report, id: 'report' }] : []),
+  { href: repositoryHref, text: t.sourceLink, id: 'repository' },
+];
 ---
 
 <Default />
-<p class="docs-source-link print:hidden" data-pagefind-ignore>
-  <a class="tanrei-link" data-standalone href={href}>{t.sourceLink}</a>
-</p>
+<ul class="docs-page-foot print:hidden" data-pagefind-ignore>
+  {/* A space between two items, drawn nowhere, so that the index and a copy of the text read two links (the build removes it between tags). */}
+  {links.map(({ href, text, id }) => (
+    <><li><a class="tanrei-link" data-standalone data-external="true" aria-description={t.externalLink} data-docs-foot={id} href={href}>{text}</a></li>{' '}</>
+  ))}
+</ul>
 
 <style>
-  .docs-source-link {
+  .docs-page-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space400);
     margin-block: var(--tanrei-sys-space-space400) 0;
+    padding: 0;
+    list-style: none;
     font: var(--tanrei-sys-typescale-body-small-font);
+  }
+  .docs-page-foot > li {
+    margin: 0;
   }
 </style>

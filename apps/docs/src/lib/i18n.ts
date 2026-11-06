@@ -193,6 +193,9 @@ const en = {
   },
   // The link to the source repository at the foot of every page (components/frame/Footer.astro).
   sourceLink: 'Source code and issues on GitHub',
+  // The foot of a page's links into the repository (components/frame/Footer.astro, lib/repository.ts): the page's own
+  // source, a component page's spec, and a new issue about the page in the bug form.
+  pageFoot: { pageSource: 'Source of this page', spec: 'Spec of this component', report: 'Report a problem with this page' },
   // A frame pinned to a shipped preset (components/visuals/Example.astro): `{system}` is the system's id, set as code.
   demoUnder: 'Under {system}',
   // The name of the ground the elevation levels are shown on, a figure with no title and no caption
@@ -487,6 +490,7 @@ const ja: typeof en = {
     unpublishedAll: 'まだ公開していないもの：{platforms}。プラットフォームは現在の仕様に追従してから公開し、それまで CI は止めてあります。そのあいだ、各ガイドはソースから加える方法を示しています。',
   },
   sourceLink: 'ソースコードと Issue（GitHub）',
+  pageFoot: { pageSource: 'このページのソース', spec: 'このコンポーネントの仕様', report: 'このページの問題を報告' },
   demoUnder: '{system} で表示',
   elevationLevels: 'エレベーションのレベル',
   noPalettes: 'なし',
@@ -748,6 +752,7 @@ const zh: typeof en = {
     unpublishedAll: '尚未发布：{platforms}。一个平台在跟上当前的规格之后才会发布，在此之前它的 CI 处于暂停状态；这期间，它的指南展示如何从源码添加它。',
   },
   sourceLink: 'GitHub 上的源码与 Issue',
+  pageFoot: { pageSource: '本页源文件', spec: '本组件的规格', report: '报告本页的问题' },
   demoUnder: '以 {system} 显示',
   elevationLevels: '层级的各个级别',
   noPalettes: '无',
@@ -1008,6 +1013,7 @@ const es: typeof en = {
     unpublishedAll: 'Aún sin publicar: {platforms}. Una plataforma se publica cuando se ha puesto al día con las especificaciones actuales, y hasta entonces su CI está en pausa; mientras tanto, su guía muestra cómo se añade desde el código fuente.',
   },
   sourceLink: 'Código fuente e incidencias en GitHub',
+  pageFoot: { pageSource: 'Código fuente de esta página', spec: 'Especificación de este componente', report: 'Informar de un problema en esta página' },
   demoUnder: 'Con {system}',
   elevationLevels: 'Niveles de elevación',
   noPalettes: 'Ninguna',
@@ -1268,6 +1274,7 @@ const hi: typeof en = {
     unpublishedAll: 'अभी प्रकाशित नहीं: {platforms}। कोई प्लैटफ़ॉर्म मौजूदा स्पेक की बराबरी पर आने के बाद ही प्रकाशित होता है, और तब तक उसका CI रुका हुआ है; इस बीच उसकी गाइड बताती है कि उसे सोर्स से कैसे जोड़ा जाता है।',
   },
   sourceLink: 'GitHub पर सोर्स कोड और इश्यू',
+  pageFoot: { pageSource: 'इस पेज का सोर्स', spec: 'इस कंपोनेंट का स्पेक', report: 'इस पेज में कोई समस्या बताएँ' },
   demoUnder: '{system} के साथ',
   elevationLevels: 'एलिवेशन के स्तर',
   noPalettes: 'कोई नहीं',
@@ -1528,6 +1535,7 @@ const ar: typeof en = {
     unpublishedAll: 'لم يُنشر بعد: {platforms}. تُنشر المنصة حين تلحق بالمواصفات الحالية، والتكامل المستمر (CI) الخاص بها متوقف حتى ذلك الحين؛ وفي الأثناء يبيّن دليلها كيف تُضاف من الشيفرة المصدرية.',
   },
   sourceLink: 'الشيفرة المصدرية والمشكلات على GitHub',
+  pageFoot: { pageSource: 'مصدر هذه الصفحة', spec: 'مواصفة هذا المكوّن', report: 'الإبلاغ عن مشكلة في هذه الصفحة' },
   demoUnder: 'مع {system}',
   elevationLevels: 'مستويات الارتفاع',
   noPalettes: 'لا توجد',
