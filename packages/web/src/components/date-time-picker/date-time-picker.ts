@@ -1522,9 +1522,12 @@ export class TanreiDateTimePicker extends TanreiElement {
       input.focus({ preventScroll: true });
       return;
     }
-    const from = deepActive();
-    const ring = from instanceof HTMLElement && from.matches(':focus-visible');
-    this.renderRoot.querySelector<HTMLElement>(".selector[data-unit='minute']")?.focus({ focusVisible: ring } as FocusOptions);
+    // DTM-22, DTM-28: the same for the minute selector — its ring, whether or not the hour selector showed one. Not
+    // the hour's own `:focus-visible`: whether a key pressed after a pointer's press makes it match is each engine's
+    // guess (Chromium and WebKit say yes, Firefox no), and the minute selector would show a ring in two engines and
+    // none in the third. An engine that does not read the option draws this script's focus by its own rule, which
+    // counts a focus moved within a key press as the keyboard's.
+    this.renderRoot.querySelector<HTMLElement>(".selector[data-unit='minute']")?.focus({ focusVisible: true } as FocusOptions);
   }
 
   /** DTM-44: reads `text` as typed on `unit`, character by character, each on the unit the one before left the entry at. */
