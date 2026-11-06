@@ -1482,6 +1482,26 @@ test.describe('drawing', () => {
     expect(await page.evaluate(() => (window as any).pressed)).toBe(0);
   });
 
+  test('TIP-14, TIP-27: a tooltip inserted whole as markup after its elements are defined (a view a product draws with innerHTML) gives its anchor the shortcut as its keyboard shortcut and the text as its description, as a mounted one does — the anchor, upgraded after the tooltip and drawn after its first update, states none itself', async ({ page }) => {
+    await mount(page, [f('mounted', {})]);
+    // The stages as a page that is already there is given them; the browser upgrades the tooltip, and runs its first
+    // update, before the button inside it has drawn its native button.
+    const written = await fixturesDocument(spec, { icons: true, fixtures: [f('a', { shortcut: ['mod+backspace'] }), f('open', { shortcut: ['mod+k'], open: true }), f('quiet', { describes: false, shortcut: ['mod+b'] })] });
+    const stages = /<main>([\s\S]*)<\/main>/.exec(written)![1]!;
+    await page.evaluate((html) => document.querySelector('main')!.insertAdjacentHTML('beforeend', html), stages);
+    await expect(button(page, 'a')).toHaveAttribute('aria-keyshortcuts', 'Control+Backspace');
+    await expect(button(page, 'a')).toHaveAttribute('aria-description', 'Move to trash');
+    await expect(button(page, 'open')).toHaveAttribute('aria-keyshortcuts', 'Control+K');
+    await expect(button(page, 'open')).toHaveAttribute('aria-description', 'Move to trash');
+    await expect(button(page, 'quiet')).toHaveAttribute('aria-keyshortcuts', 'Control+B');
+    await expect(button(page, 'quiet')).not.toHaveAttribute('aria-description');
+    // The host is not a control, and carries none of it (KBS-12 on the native button the Tanrei button draws).
+    for (const id of ['a', 'open', 'quiet']) {
+      await expect(anchor(page, id)).not.toHaveAttribute('aria-keyshortcuts');
+      await expect(anchor(page, id)).not.toHaveAttribute('data-aria-keyshortcuts');
+    }
+  });
+
   test('web: the rich title is the headline attribute and property; a title attribute is the browser’s own — it stays on the element and draws nothing', async ({ page }) => {
     await mount(page, [f('r', { variant: 'rich', title: 'Storage', text: 'Trash still counts toward storage.', open: true }, 'info')]);
     // The spec's title is the attribute headline.
