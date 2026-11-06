@@ -3013,16 +3013,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /**
    * NVD-19: the cell focus goes to as a modal drawer opens, where it is the selected destination's (or the group row's
-   * that shows it) — not where its filter field is owed focus (NVD-88). `focusInside()` gives it.
+   * that shows it), `shower` — not where its filter field is owed focus (NVD-88). `focusInside()` gives it.
    */
-  private openingFocus(): HTMLElement | null {
+  private openingFocus(shower: DrawerCell | null): HTMLElement | null {
     if (this.filterFocusOwed && this.fieldShown) return null;
-    const { shower } = this.takeSnapshot();
     return shower && !shower.disabled ? shower.cell : null;
   }
 
-  /** NVD-19, NVD-28: focus to the selected destination (or the group row that shows it), or else the first focusable element. */
-  private focusInside() {
+  /**
+   * NVD-19, NVD-28: focus to the selected destination (or the group row that shows it), or else the first focusable
+   * element. `shown`: the cell that shows the selection, where the caller has just read it (`takeSnapshot()`); read here
+   * otherwise.
+   */
+  private focusInside(shown?: DrawerCell | null) {
     // NVD-88: asked to focus its filter while it was closed: the field, in place of the selected destination.
     if (this.filterFocusOwed) {
       this.filterFocusOwed = false;
@@ -3031,7 +3034,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         if (this.hasFocus()) return;
       }
     }
-    const { shower } = this.takeSnapshot();
+    const shower = shown === undefined ? this.takeSnapshot().shower : shown;
     if (shower && !shower.disabled) {
       shower.cell?.focus();
       if (this.hasFocus()) {
@@ -3099,8 +3102,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // given to the menu button or the dialog first and back, which in Chromium began a motion of each for a focus it held
     // for no frame (openModal). Focus that comes from elsewhere moves once the dialog is drawn (focusInside, below): WebKit
     // draws a destination shown in the top layer as it is first styled there, so a focus given before would be at once.
+    // What shows the selection is read once, for both: nothing on the way changes the selection, the form or the filter.
+    const { shower } = this.takeSnapshot();
     const active = this.hasFocus() ? deepActive() : null;
-    const focus = active && active === this.openingFocus() ? (active as HTMLElement) : null;
+    const focus = active && active === this.openingFocus(shower) ? (active as HTMLElement) : null;
     if (this.collapses) {
       // NVD-40: a collapsible drawer widens from its column with more than the surface's own motion (WIDENING) — or,
       // still narrowing back to it, turns back from where it is (MOT-2). A dialog still sliding out (it was not
@@ -3120,7 +3125,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.carryOffset();
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
-    this.focusInside();
+    this.focusInside(shower);
   }
 
   /**
