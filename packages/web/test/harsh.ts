@@ -18,6 +18,13 @@
 //   default, because a motion the engine lists no animation for cannot be slowed from the page while one that runs
 //   with it is (below).
 // - Chromium: on request, the page's CPU slowed (`Emulation.setCPUThrottlingRate`).
+// - Firefox: on request (TANREI_HARSH_FRAME=<ms>), a frame only every that many milliseconds (its `layout.frame_rate`),
+//   so a test that takes a frame to have come soon after an event — a state a component writes in its next frame, read
+//   a moment later — reads before it. The engine's own frame: its frame callbacks, style, layout, observers and paint
+//   all come late together, as on a loaded machine. Chromium and WebKit have no such setting Playwright can reach
+//   (Chromium's switches can turn the frame rate's limit off, not lower it), and a delay of the page's frame callbacks
+//   alone would not be faithful: the frame they belong to would still be drawn on time, its resize observers would
+//   still report in it (the waits in test/motions.ts count frames by them), and its transitions would start in it.
 //   The page clock (`page.clock`) is untouched: a test that holds it counts time as before.
 // - every engine: a test gets 4 times its time and an `expect` 3 times its own (15 s), for waits on slowed motion — a
 //   time the test or its describe block sets itself (`test.setTimeout()`, `test.describe.configure({ timeout })`) is
@@ -32,11 +39,14 @@
 //
 // Each setting can be changed: TANREI_HARSH=1 takes the defaults below; TANREI_HARSH_BEFORE and TANREI_HARSH_AFTER
 // (ms), TANREI_HARSH_CPU (the throttling rate, 1 = off) and TANREI_HARSH_MOTION (the playback rate, 1 = off) override
-// one each; TANREI_HARSH_PAGE_MOTION=1 slows Firefox's and WebKit's motion as well.
+// one each; TANREI_HARSH_PAGE_MOTION=1 slows Firefox's and WebKit's motion as well, and TANREI_HARSH_FRAME (ms, 0 =
+// off) makes Firefox's frames late.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Project } from '@playwright/test';
+import type { PlaywrightTestOptions, PlaywrightWorkerOptions, Project as AnyProject } from '@playwright/test';
+
+type Project = AnyProject<PlaywrightTestOptions, PlaywrightWorkerOptions>;
 
 export interface Harsh {
   /** Milliseconds waited before each input action, in every engine. */
@@ -49,6 +59,8 @@ export interface Harsh {
   motion: number;
   /** Firefox and WebKit play their pages' own animations at `motion` too (test/harsh/slow-motion.ts). */
   pageMotion: boolean;
+  /** Firefox draws a frame only every this many milliseconds (`layout.frame_rate`); 0 is off (its own rate). */
+  frame: number;
 }
 
 /**
@@ -79,7 +91,7 @@ export interface Harsh {
  *   though the first frame without a listed motion showed the height short in 7 of 10 runs at TANREI_HARSH_CPU=6.
  *   Read such a box with `boxAtRest` (test/at-rest.ts).
  */
-export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2, pageMotion: false };
+export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2, pageMotion: false, frame: 0 };
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -100,6 +112,7 @@ export const harsh: Harsh | undefined =
         cpu: Math.max(1, number('TANREI_HARSH_CPU', HARSH_DEFAULTS.cpu)),
         motion: number('TANREI_HARSH_MOTION', HARSH_DEFAULTS.motion) || 1,
         pageMotion: process.env.TANREI_HARSH_PAGE_MOTION ? process.env.TANREI_HARSH_PAGE_MOTION !== '0' : HARSH_DEFAULTS.pageMotion,
+        frame: number('TANREI_HARSH_FRAME', HARSH_DEFAULTS.frame),
       }
     : undefined;
 
@@ -113,9 +126,31 @@ export const HARSH_OPT_OUTS: readonly { title: RegExp; reason: string }[] = [];
 /** The opt-outs as one pattern for a project's `grepInvert`. */
 export const harshOptOuts = (): RegExp => (HARSH_OPT_OUTS.length ? new RegExp(HARSH_OPT_OUTS.map(({ title }) => `(?:${title.source})`).join('|')) : /(?!)/);
 
-/** A Playwright project as harsh mode runs it (as it is when harsh mode is off): without the tests it opts out of. */
-export const harshProject = (project: Project): Project =>
-  harsh ? { ...project, grepInvert: [...[project.grepInvert ?? []].flat(), harshOptOuts()] } : project;
+/**
+ * A Playwright project as harsh mode runs it (as it is when harsh mode is off): without the tests it opts out of, and,
+ * in Firefox with late frames asked for, at that frame rate. A test that sets its own launch options (a fixture's
+ * `launchOptions`) sets them in place of these.
+ */
+export const harshProject = (project: Project): Project => {
+  if (!harsh) return project;
+  const use = project.use ?? {};
+  const firefox = (use.browserName ?? use.defaultBrowserType) === 'firefox';
+  return {
+    ...project,
+    grepInvert: [...[project.grepInvert ?? []].flat(), harshOptOuts()],
+    ...(firefox && harsh.frame > 0
+      ? {
+          use: {
+            ...use,
+            launchOptions: {
+              ...use.launchOptions,
+              firefoxUserPrefs: { ...use.launchOptions?.firefoxUserPrefs, 'layout.frame_rate': Math.max(1, Math.round(1000 / harsh.frame)) },
+            },
+          },
+        }
+      : {}),
+  };
+};
 
 /**
  * What a Playwright config takes from harsh mode (nothing when it is off): the tsconfig that puts test/harsh/ in place

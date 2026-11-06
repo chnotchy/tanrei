@@ -34,6 +34,10 @@ const EXPECTED = {
   'sound: a fade waited for until it ends': { plain: 'passed', harsh: 'passed' },
   'sound: a page reads and sets its animations’ playback rates as it knows them': { plain: 'passed', harsh: 'passed' },
   'check: the self-check refuses a motion rate it was not given': { plain: 'skipped', harsh: { chromium: 'passed', firefox: 'skipped', webkit: 'skipped' }, options: 'passed' },
+  // Only Firefox's frames can be made late (TANREI_HARSH_FRAME); by default they are not, and the race passes.
+  'race: a state written in the next frame, read 80 ms after the click': { plain: 'passed', harsh: 'passed', options: { chromium: 'passed', firefox: 'failed', webkit: 'passed' } },
+  'sound: a state written in the next frame, read two frames after the click': { plain: 'passed', harsh: 'passed' },
+  'check: the self-check refuses frames that come sooner than it was told to expect': { plain: 'skipped', harsh: 'skipped', options: { chromium: 'skipped', firefox: 'passed', webkit: 'skipped' } },
   'check: a test that sets no time gets the config’s, multiplied': { plain: 'passed', harsh: 'passed' },
   'check: test.setTimeout() in a test is multiplied': { plain: 'passed', harsh: 'passed' },
   'check: test.setTimeout(0) stays no timeout': { plain: 'passed', harsh: 'passed' },
@@ -77,7 +81,7 @@ function run(env) {
 }
 
 /** Harsh mode's options, all on, for the `options` run. */
-const OPTIONS = { TANREI_HARSH_PAGE_MOTION: '1' };
+const OPTIONS = { TANREI_HARSH_PAGE_MOTION: '1', TANREI_HARSH_FRAME: '250' };
 
 /** @param {'plain' | 'harsh' | 'options'} mode */
 const wanted = (mode) =>

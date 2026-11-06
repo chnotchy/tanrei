@@ -34,7 +34,7 @@ test('sound: a press-hold read while the pointer holds it', async ({ page }) => 
 test('check: the self-check refuses gaps shorter than it was told to expect', async ({ browser }) => {
   test.skip(!harsh, 'harsh mode only: with it off, nothing is slowed and nothing checks');
   await expect(checkHarsh(browser, { ...harsh!, before: harsh!.before + 500, after: harsh!.after + 500 })).rejects.toThrow(
-    /locator\.click reached the page \d+ ms after it was asked for, not \d+ ms[\s\S]*mouse\.click returned \d+ ms after its last event/,
+    /reached the page \d+ ms after it was asked for, not \d+ ms \(the gap before it\)[\s\S]*returned \d+ ms after its last event, not \d+ ms \(the gap after it\)/,
   );
 });
 

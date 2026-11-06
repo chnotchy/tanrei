@@ -180,7 +180,9 @@ const MOTION_SLACK = 0.5;
  * - a motion in a shadow root moves at `expected.motion` times the time that passes (a CSS transition, a CSS animation,
  *   a script's `animate()`, an `Animation` made and played), not at its own speed, and the page reads its playback
  *   rate as 1 — in Chromium by the engine's rate, in Firefox and WebKit, when `expected.pageMotion` asks, by
- *   test/harsh/slow-motion.ts.
+ *   test/harsh/slow-motion.ts;
+ * - in Firefox, when `expected.frame` asks for late frames, frames come no sooner than that many ms apart (four fifths
+ *   of it: the engine's timer is not exact).
  * The fixture below calls it with the run's settings; harsh mode's own tests (test/harsh/self/) call it with more than
  * the run gives, to see it refuse.
  */
@@ -266,6 +268,15 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
           problems.push(`a ${kind} moved ${rate.toFixed(2)} of the time that passed, not ${expected.motion} (the motion rate)`);
       }
       if (reported.some((rate) => rate !== 1)) problems.push(`the page reads its animations' playback rates as ${reported.join(', ')}, not 1: the rate shows`);
+    }
+    if (expected.frame > 0 && engine === 'firefox') {
+      // Six frames, each counted from the page's clock in its callback.
+      const apart = await page.evaluate(async () => {
+        const at: number[] = [];
+        while (at.length < 7) await new Promise((resolve) => requestAnimationFrame(() => resolve(at.push(performance.now()))));
+        return (at[6]! - at[0]!) / 6;
+      });
+      if (apart < expected.frame * 0.8) problems.push(`frames came ${Math.round(apart)} ms apart, not ${expected.frame} ms (the frame interval)`);
     }
     if (problems.length) throw new Error(`harsh mode did not take effect in ${engine}:\n- ${problems.join('\n- ')}`);
   } finally {
