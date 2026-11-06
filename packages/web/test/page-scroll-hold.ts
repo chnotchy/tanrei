@@ -23,25 +23,29 @@ const FIXTURE = 'basic';
 
 type Dialog = HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
 
+/** The window the pages here start in. */
+export const WINDOW = { width: 640, height: 480 };
+
 /**
- * The dialog, closed, on a page taller than its window, with a scroll bar styled as `bar` asks (or the engine's own), and
- * two bars fixed across the top of the window: `#fixed` at insets of 0, `#fixed-held` at the hold's insets.
+ * The dialog, closed, on a page with a block `height` tall (by default far taller than its window), with a scroll bar
+ * styled as `bar` asks (or the engine's own; `bar` is a style sheet, which may style the root too), and two bars fixed
+ * across the top of the window: `#fixed` at insets of 0, `#fixed-held` at the hold's insets.
  */
-export async function mount(page: Page, bar: string): Promise<Locator> {
-  await page.setViewportSize({ width: 640, height: 480 });
+export async function mount(page: Page, bar: string, { height = 3000, viewport = WINDOW }: { height?: number; viewport?: { width: number; height: number } } = {}): Promise<Locator> {
+  await page.setViewportSize(viewport);
   const fixture = SPEC.fixtures.find((f) => f.id === FIXTURE)!;
   await mountFixtures(page, SPEC, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, open: false } }] });
   await page.evaluate(
-    ({ bar, inset }) => {
+    ({ bar, inset, height }) => {
       if (bar) document.head.insertAdjacentHTML('beforeend', `<style>${bar}</style>`);
       document.body.insertAdjacentHTML(
         'beforeend',
-        '<div id="tall" style="block-size: 3000px"></div>' +
+        `<div id="tall" style="block-size: ${height}px"></div>` +
           '<div id="fixed" style="position: fixed; left: 0; right: 0; top: 0; block-size: 8px"></div>' +
           `<div id="fixed-held" style="position: fixed; left: var(${inset.left}, 0px); right: var(${inset.right}, 0px); top: 8px; block-size: 8px"></div>`,
       );
     },
-    { bar, inset: SCROLL_HOLD_INSET },
+    { bar, inset: SCROLL_HOLD_INSET, height },
   );
   return fixtureHost(page, SPEC, FIXTURE);
 }
@@ -86,6 +90,27 @@ export async function holdAndRelease<T = undefined>(page: Page, host: Locator, r
   return { before, held, after };
 }
 
+/**
+ * Opens the dialog, resizes the window to `size` while it holds the page's scroll, and closes it there: where things
+ * stood once the window had been resized (its `resize` event dispatched), and after the dialog closed in that window.
+ */
+export async function resizeWhileHeld(page: Page, host: Locator, size: { width: number; height: number }) {
+  await toggle(host, true);
+  await expect.poll(() => host.evaluate((el) => !!el.shadowRoot!.querySelector('dialog')?.matches(':modal'))).toBe(true);
+  await motionEnded(host);
+  // The listener goes in before the window is resized, after the hold's own (added as it began), so it runs after it.
+  await page.evaluate(() => {
+    (window as unknown as { resized: Promise<void> }).resized = new Promise((resolve) => addEventListener('resize', () => resolve(), { once: true }));
+  });
+  await page.setViewportSize(size);
+  await page.evaluate(() => (window as unknown as { resized: Promise<void> }).resized);
+  const held = await place(page);
+  await toggle(host, false);
+  await motionEnded(host);
+  const after = await place(page);
+  return { held, after };
+}
+
 const px = (length: string) => (length ? Number.parseFloat(length) : 0);
 
 /**
@@ -104,4 +129,21 @@ export function expectNothingMoved({ before, held, after }: Awaited<ReturnType<t
   // for a bar that is not drawn, and move the page.
   if (before.bar === 0) expect(held.style, 'no bar took room: nothing is written but the overflow').toBe('overflow: hidden;');
   expect(after, 'closed, the root is as it was').toEqual(before);
+}
+
+/**
+ * In a window resized while the scroll was held, the hold measured that window again: the room the window gained on
+ * each side is what the hold wrote (`inset`, `''` for none) for that window's bar, and nothing behind moves sideways as
+ * the hold lets go there — the page's content, and the bar fixed at the hold's insets; the bar at insets of 0 by that
+ * room and no more.
+ */
+export function expectNothingMovesOnRelease({ held, after }: Awaited<ReturnType<typeof resizeWhileHeld>>, inset: { left: string; right: string }) {
+  expect(held.style, 'the root’s scroll is still held').toContain('overflow: hidden');
+  expect(held.inset, `the room the window gained on each side, for the resized window’s bar (${after.bar} px wide once released; the root: ${held.style})`).toEqual(inset);
+  expect({ x: held.x, width: held.width }, `nothing behind moves sideways as the hold lets go in the resized window (a bar ${after.bar} px wide there; the root while held: ${held.style})`).toEqual({ x: after.x, width: after.width });
+  const left = px(held.inset.left);
+  const right = px(held.inset.right);
+  expect(held.fixed, `a bar fixed across the window at insets of 0 stands that room away from where it is once released (the root: ${held.style})`).toEqual({ x: after.fixed.x - left, width: after.fixed.width + left + right });
+  expect(held.held, `a bar fixed across the window at the hold’s insets does not move as the hold lets go (the root: ${held.style})`).toEqual(after.held);
+  if (after.bar === 0) expect(held.style, 'no bar takes room in the resized window: nothing is written but the overflow').toBe('overflow: hidden;');
 }

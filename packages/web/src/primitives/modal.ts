@@ -160,16 +160,73 @@ function windowBox(root: HTMLElement) {
 }
 
 /**
+ * Keeps the room the root's scroll bar took, as `overflow: hidden` takes the bar away (`holdPageScroll()`): measured from
+ * the root as it stands with its own styles and the bar drawn, and written on it with what each property was.
+ */
+function keepRoom(root: HTMLElement) {
+  const write = (property: string, value: string) => {
+    heldRoom.push([property, root.style.getPropertyValue(property)]);
+    root.style.setProperty(property, value);
+  };
+  const style = getComputedStyle(root);
+  // The room is read from the root's own box, which a kept gutter narrows as the bar did — not from its clientWidth,
+  // which leaves out only a scroll bar that is drawn: Chromium keeps the gutter and reports it as no room taken, and
+  // padding over it would narrow the page by the bar's width again. It is read first: it lays the page out whole, and
+  // Chromium's root clientWidth, read first after the root's overflow changed (as it does when the room is measured
+  // again), still leaves out a bar that layout has just brought back (Linux, over overlay scroll bars, a styled bar).
+  const width = root.getBoundingClientRect().width;
+  const room = window.innerWidth - root.clientWidth > 0;
+  // A root that keeps a stable gutter of its own keeps it (`both-edges` too); it is measured all the same, since an
+  // engine that keeps no gutter for the bar keeps none for the root's either (WebKit, and Chromium over overlay scroll
+  // bars, under a styled bar).
+  const gutter = /stable/.test(style.getPropertyValue('scrollbar-gutter'));
+  const side = root.clientLeft > 0 ? 'padding-left' : 'padding-right';
+  const padding = style.getPropertyValue(side);
+  const edges = room ? windowBox(root) : null;
+  root.style.overflow = 'hidden';
+  if (!edges) return;
+  if (!gutter) write('scrollbar-gutter', 'stable');
+  const lost = root.getBoundingClientRect().width - width;
+  if (lost > 0) write(side, `calc(${padding} + ${lost}px)`);
+  const held = windowBox(root);
+  if (edges.left - held.left > 0) write(SCROLL_HOLD_INSET.left, `${edges.left - held.left}px`);
+  if (held.right - edges.right > 0) write(SCROLL_HOLD_INSET.right, `${held.right - edges.right}px`);
+}
+
+/** Gives the root back what `keepRoom()` wrote on it, and its own overflow. */
+function giveBackRoom(root: HTMLElement, overflow: string) {
+  root.style.overflow = overflow;
+  for (const [property, value] of heldRoom.reverse()) {
+    if (value) root.style.setProperty(property, value);
+    else root.style.removeProperty(property);
+  }
+  heldRoom = [];
+}
+
+/**
+ * The window resized while the scroll is held — made shorter or taller, so that the bar would come back or would not;
+ * zoomed, so that a bar's width in CSS pixels changes — has the room measured again, as it would be had the hold begun in
+ * that window: given back and kept again within the `resize` event, so that no frame is drawn in between.
+ */
+function measureRoomAgain() {
+  const root = document.documentElement;
+  if (!root || heldOverflow === null) return;
+  giveBackRoom(root, heldOverflow);
+  keepRoom(root);
+}
+
+/**
  * The page's scroll, held while any modal overlay is open (DLG-1, NVD-19, MDL-2): `overflow: hidden` on the root from the
  * first holder until the last lets go, then the root's own value back. A root whose scroll bar takes room (a classic
  * scroll bar, not an overlay one) keeps that room while it is held, so that nothing behind moves sideways as the bar
- * goes and comes back: `scrollbar-gutter: stable`, and — where the engine keeps no gutter for the bar (WebKit, and
- * Chromium on macOS, for a bar styled with `::-webkit-scrollbar`) — as much padding on the bar's side. Padding keeps the
- * page's content in place but not the window's own box, which widens by the bar's width: an element in `position:
- * fixed` across the window would move. The room the window gained on each side is written on the root as
- * `SCROLL_HOLD_INSET`, measured, for such elements to add to their insets (a product's own; a snackbar's). A root with no
- * bar, or one that keeps its gutter already, is given nothing: a stable gutter where no bar is drawn would make room for
- * one, and move the page.
+ * goes and comes back: `scrollbar-gutter: stable` (unless the root keeps a stable gutter of its own), and — where the
+ * engine keeps no gutter for the bar (WebKit, and Chromium over overlay scroll bars, the macOS default, for a bar styled
+ * with `::-webkit-scrollbar`) — as much padding on the bar's side as the root's box grew. Padding keeps the page's
+ * content in place but not the window's own box, which widens by the bar's width: an element in `position: fixed` across
+ * the window would move. The room the window gained on each side is written on the root as `SCROLL_HOLD_INSET`,
+ * measured, for such elements to add to their insets (a product's own; a snackbar's). The room is measured when the hold
+ * begins and again each time the window is resized while it lasts. A root with no bar is given nothing: a stable gutter
+ * where no bar is drawn would make room for one, and move the page.
  */
 export function holdPageScroll(holder: Element, hold: boolean) {
   if (hold) holders.add(holder);
@@ -179,39 +236,16 @@ export function holdPageScroll(holder: Element, hold: boolean) {
   if (!root) {
     heldOverflow = null;
     heldRoom = [];
+    window.removeEventListener('resize', measureRoomAgain);
     return;
   }
-  const write = (property: string, value: string) => {
-    heldRoom.push([property, root.style.getPropertyValue(property)]);
-    root.style.setProperty(property, value);
-  };
   if (holders.size > 0 && heldOverflow === null) {
     heldOverflow = root.style.overflow;
-    const style = getComputedStyle(root);
-    const room = window.innerWidth - root.clientWidth > 0 && !/stable/.test(style.getPropertyValue('scrollbar-gutter'));
-    const side = root.clientLeft > 0 ? 'padding-left' : 'padding-right';
-    const padding = style.getPropertyValue(side);
-    // The room is read from the root's own box, which a kept gutter narrows as the bar did — not from its clientWidth,
-    // which leaves out only a scroll bar that is drawn: Chromium keeps the gutter and reports it as no room taken, and
-    // padding over it would narrow the page by the bar's width again.
-    const width = root.getBoundingClientRect().width;
-    const edges = room ? windowBox(root) : null;
-    root.style.overflow = 'hidden';
-    if (edges) {
-      write('scrollbar-gutter', 'stable');
-      const lost = root.getBoundingClientRect().width - width;
-      if (lost > 0) write(side, `calc(${padding} + ${lost}px)`);
-      const held = windowBox(root);
-      if (edges.left - held.left > 0) write(SCROLL_HOLD_INSET.left, `${edges.left - held.left}px`);
-      if (held.right - edges.right > 0) write(SCROLL_HOLD_INSET.right, `${held.right - edges.right}px`);
-    }
+    keepRoom(root);
+    window.addEventListener('resize', measureRoomAgain);
   } else if (holders.size === 0 && heldOverflow !== null) {
-    root.style.overflow = heldOverflow;
+    window.removeEventListener('resize', measureRoomAgain);
+    giveBackRoom(root, heldOverflow);
     heldOverflow = null;
-    for (const [property, value] of heldRoom.reverse()) {
-      if (value) root.style.setProperty(property, value);
-      else root.style.removeProperty(property);
-    }
-    heldRoom = [];
   }
 }

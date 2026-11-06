@@ -26,7 +26,7 @@
 //   is held to "nothing written but the overflow" here; page-scroll-hold-firefox-headed.test.ts runs it headed on Linux,
 //   where it draws its classic bar.
 import { expect, test } from '@playwright/test';
-import { DRAWN_BARS, NONE, STYLED_BAR, expectNothingMoved, holdAndRelease, mount } from '../../test/page-scroll-hold.js';
+import { DRAWN_BARS, NONE, STYLED_BAR, WINDOW, expectNothingMoved, expectNothingMovesOnRelease, holdAndRelease, mount, resizeWhileHeld } from '../../test/page-scroll-hold.js';
 
 // A worker-scoped option: the whole file.
 test.use({ launchOptions: DRAWN_BARS });
@@ -51,3 +51,42 @@ test('MDL-2: holding the page’s scroll moves nothing behind sideways — under
   const gutter = browserName === 'chromium' && process.platform !== 'darwin';
   expectNothingMoved(seen, gutter ? NONE : { left: '', right: '10px' });
 });
+
+test('MDL-2: a root that keeps a stable gutter of its own moves nothing behind sideways either — under a bar styled with ::-webkit-scrollbar; what is fixed to the window stays where it reads the hold’s insets', async ({ page, browserName }) => {
+  test.skip(browserName === 'firefox', 'Firefox has no ::-webkit-scrollbar, and draws no scroll bar headless (see the head of this file)');
+  const host = await mount(page, `:root { scrollbar-gutter: stable; } ${STYLED_BAR}`);
+  const seen = await holdAndRelease(page, host);
+  expect(seen.before.bar, 'the styled bar takes its width').toBe(10);
+  const gutter = browserName === 'chromium' && process.platform !== 'darwin';
+  expectNothingMoved(seen, gutter ? NONE : { left: '', right: '10px' });
+});
+
+// The window resized while the scroll is held: the hold measures the room again in the new window, as it would have had
+// the dialog opened there, so that nothing moves as it lets go. A page 700 px tall in a window 480 px tall draws a bar;
+// in one 1000 px tall it draws none — so the bar comes back once released where the window was made shorter, and goes
+// where it was made taller.
+const SHORT = WINDOW;
+const TALL = { width: WINDOW.width, height: 1000 };
+const RESIZES = [
+  { way: 'shorter, so that a bar comes back once released', from: TALL, to: SHORT, bar: true },
+  { way: 'taller, so that no bar comes back once released', from: SHORT, to: TALL, bar: false },
+];
+
+for (const { way, from, to, bar } of RESIZES) {
+  test(`MDL-2: the window made ${way}, while the scroll is held, under the engine’s own scroll bar: the hold measures the room again, and nothing behind moves as it lets go`, async ({ page, browserName }) => {
+    const host = await mount(page, '', { height: 700, viewport: from });
+    const seen = await resizeWhileHeld(page, host, to);
+    const classic = browserName === 'chromium' && process.platform !== 'darwin';
+    expect(seen.after.bar > 0, `the engine’s bar takes room in the resized window: ${classic && bar} (it takes ${seen.after.bar} px)`).toBe(classic && bar);
+    expectNothingMovesOnRelease(seen, NONE);
+  });
+
+  test(`MDL-2: the window made ${way}, while the scroll is held, under a bar styled with ::-webkit-scrollbar: the hold measures the room again, and nothing behind moves as it lets go`, async ({ page, browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox has no ::-webkit-scrollbar, and draws no scroll bar headless (see the head of this file)');
+    const host = await mount(page, STYLED_BAR, { height: 700, viewport: from });
+    const seen = await resizeWhileHeld(page, host, to);
+    expect(seen.after.bar, 'the styled bar takes its width in the resized window, or no bar is drawn').toBe(bar ? 10 : 0);
+    const gutter = browserName === 'chromium' && process.platform !== 'darwin';
+    expectNothingMovesOnRelease(seen, gutter || !bar ? NONE : { left: '', right: '10px' });
+  });
+}
