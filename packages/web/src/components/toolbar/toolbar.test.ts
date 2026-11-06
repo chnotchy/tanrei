@@ -7,6 +7,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
+import { motionEnded } from '../../../test/motions.js';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 
 const spec = loadSpec('toolbar');
@@ -1075,7 +1076,9 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const menu = overflowMenu(page, id);
     await expect(menu).toHaveAttribute('open', '');
     await expect(overflowButton(page, id).locator('button')).toHaveAttribute('aria-expanded', 'true');
-    // Bottom-end: below the button, the end edges aligned.
+    // Bottom-end: below the button, the end edges aligned — read where it rests: while it appears it is drawn scaled
+    // toward its origin (MNU-4).
+    await motionEnded(menu.locator('.surface').first());
     const [button, surface] = [await bounds(overflowButton(page, id)), await bounds(menu.locator('.surface').first())];
     expect(surface.y).toBeGreaterThanOrEqual(button.y + button.height - 0.5);
     expect(surface.x + surface.width).toBeCloseTo(button.x + button.width, 0);

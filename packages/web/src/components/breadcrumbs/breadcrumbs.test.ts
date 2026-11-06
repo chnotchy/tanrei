@@ -506,6 +506,8 @@ test.describe('one line, and what is folded away', () => {
       ['Design tokens', null, null, true],
       ['State tokens', '#states', null, false],
     ]);
+    // Read where it rests: while it appears it is drawn scaled toward its origin (MNU-4).
+    await motionEnded(surface);
     const [at, anchor] = [await edges(surface), await edges(button)];
     expect(at.top).toBeGreaterThanOrEqual(anchor.bottom);
     near(at.left, anchor.left, 1);
@@ -1402,6 +1404,8 @@ test.describe('forced colors, text size, direction, unknown values', () => {
     await button.click();
     const surface = menu(page, 'long-trail-rtl').locator('.surface');
     await expect(surface).toBeVisible();
+    // Read where it rests: while it appears it is drawn scaled toward its origin (MNU-4).
+    await motionEnded(surface);
     near((await edges(surface)).right, (await edges(button)).right, 1);
     await page.keyboard.press('Escape');
     // Focus: from the top of the hierarchy to the page.

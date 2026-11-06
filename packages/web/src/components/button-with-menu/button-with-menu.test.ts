@@ -792,6 +792,8 @@ test.describe('behavior', () => {
     await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
     await expect.poll(() => focused(page)).toBe('tanrei-menu-item[Save as…]');
     await expect(host(page, 'menu').getByRole('menuitem')).toHaveCount(2);
+    // Read where it rests: while it appears it is drawn scaled toward its origin (MNU-4).
+    await motionEnded(surface(page, 'menu'));
     const row = await bounds(host(page, 'menu').locator('div.row:not(.p)'));
     const s = await bounds(surface(page, 'menu'));
     const offset = await resolveToken(page, '--tanrei-comp-menu-surface-offset');
@@ -807,6 +809,7 @@ test.describe('behavior', () => {
     await page.evaluate(() => (document.body.style.paddingTop = `${window.innerHeight - 110}px`));
     await trailing(page, 'menu').click();
     await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
+    await motionEnded(surface(page, 'menu'));
     const [row2, above] = [await bounds(host(page, 'menu').locator('div.row:not(.p)')), await bounds(surface(page, 'menu'))];
     expect(above.y + above.height).toBeLessThanOrEqual(row2.y + 0.5);
     await trailing(page, 'menu').click();
