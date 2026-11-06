@@ -56,7 +56,9 @@ describe('the sitemap', () => {
     for (const { loc, lastmod } of urls) {
       const pathname = new URL(loc).pathname;
       const html = fs.readFileSync(path.join(dist, pathname, pathname.endsWith('/') ? 'index.html' : ''), 'utf8');
-      const head = /<tanrei-page-header class="docs-page-header"[^>]*>([\s\S]*?)<\/tanrei-page-header>/.exec(html)?.[1];
+      // The head's class list may hold more than its own: a component with a scoped style gives every element it renders
+      // the style's class too.
+      const head = /<tanrei-page-header class="docs-page-header(?: [^"]*)?"[^>]*>([\s\S]*?)<\/tanrei-page-header>/.exec(html)?.[1];
       // Every page has a head but each language's first page, whose hero stands in its place, and Theme Studio's page,
       // whose bar does; neither prints a date.
       if (!head) {

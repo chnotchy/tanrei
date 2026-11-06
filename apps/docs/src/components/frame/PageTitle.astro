@@ -30,6 +30,12 @@
 // description list (specs/description-list.spec.json), stacked in columns: a layout its stylesheet draws alone, so
 // the facts are in their final place before the element is defined.
 //
+// Under the facts stand the component's links out of the site — its spec on GitHub and, where the web package defines
+// its element, the module that defines it (the path its custom elements manifest names) and the package on npm
+// (lib/repository.ts, `componentLinks`) — as a row of links in a navigation landmark named for what it holds, as
+// component libraries' docs place them at the head of a component's page. Each says it leaves the site (LNK-34). They
+// are no text of the page: the search does not index them.
+//
 // A component that others are built from says where ("Used in": every component whose `builtFrom` names it), and one
 // a list shows only on request (`listing`) leads with one line — Tanrei's Callout, between the head and
 // the facts — that says so and links to what most products place in its stead.
@@ -46,6 +52,8 @@ import { updatedParts } from '../../lib/dated';
 import { readerDayScript } from '../../lib/reader-day.mjs';
 import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 import { aroundPlace, isNotFoundPage, levelFacts, listingFacts, specOfPage } from '../../lib/page-head';
+import { componentLinks } from '../../lib/repository';
+import { webModuleOf } from '../../lib/repo';
 import Callout from '../Callout.astro';
 import PageActions from './PageActions.astro';
 
@@ -59,6 +67,14 @@ const [beforeDate, afterDate] = aroundPlace(t.updated, 'date');
 const spec = specOfPage(route.id);
 const levelOf = spec && levelFacts(spec, route.lang, localeBase(Astro));
 const listingOf = spec && listingFacts(spec, localeBase(Astro));
+const linksOf = spec && componentLinks(spec.name, webModuleOf(spec.platforms.web.name));
+const links = linksOf
+  ? [
+      { id: 'spec', href: linksOf.spec, text: t.componentLinks.spec },
+      ...(linksOf.webSource ? [{ id: 'web-source', href: linksOf.webSource, text: t.componentLinks.webSource }] : []),
+      ...(linksOf.npm ? [{ id: 'npm', href: linksOf.npm, text: t.componentLinks.npm }] : []),
+    ]
+  : [];
 const [beforeInstead, afterInstead] = aroundPlace(t.listing.placedInstead, 'components');
 // What the search index keeps of the page beside its words: the level, and the mark of a component shown on request.
 // One fact to an element: the index reads everything after a key's colon as its value.
@@ -123,9 +139,34 @@ const actions = head && route.entry.data.pagefind !== false;
     </dl>
   </tanrei-description-list>
 )}
+{links.length > 0 && (
+  <nav class="docs-component-links" aria-label={t.componentLinks.label} data-pagefind-ignore>
+    <ul>
+      {/* A space between two items, drawn nowhere, so that a copy of the text reads two links (the build removes it between tags). */}
+      {links.map(({ id, href, text }) => (
+        <><li><a class="tanrei-link" data-standalone data-external="true" aria-description={t.externalLink} data-docs-link={id} href={href}>{text}</a></li>{' '}</>
+      ))}
+    </ul>
+  </nav>
+)}
 
 <script>
   import '@tanrei/web/components/page-header';
   import '@tanrei/web/components/breadcrumbs';
   import '@tanrei/web/components/description-list';
 </script>
+
+<style>
+  .docs-component-links > ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space400);
+    margin: var(--tanrei-sys-space-space200) 0 0;
+    padding: 0;
+    list-style: none;
+    font: var(--tanrei-sys-typescale-body-small-font);
+  }
+  .docs-component-links li {
+    margin: 0;
+  }
+</style>

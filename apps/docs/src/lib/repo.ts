@@ -175,6 +175,14 @@ export const definedTags: Set<string> = new Set(
   (customElements.modules ?? []).flatMap((m: any) => (m.declarations ?? []).map((d: any) => d.tagName).filter(Boolean)),
 );
 
+/**
+ * The module of the installed @tanrei/web build that defines an element, as its manifest names it: a path from the web
+ * package's root (`src/components/button/button.ts`); nothing for a tag the build does not define.
+ */
+export function webModuleOf(tag: string): string | undefined {
+  return (customElements.modules ?? []).find((m: any) => (m.declarations ?? []).some((d: any) => d.tagName === tag))?.path;
+}
+
 /** An attribute of an element of the installed @tanrei/web build, as its manifest declares it. */
 export interface WebAttribute {
   /** The attribute's name as HTML writes it (`readonly`, `supporting-text`, `flush`). */
