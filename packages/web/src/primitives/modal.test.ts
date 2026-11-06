@@ -79,3 +79,26 @@ test.describe('trapFocus()', () => {
     expect(await active(), 'Shift+Tab from the container').toBe('c');
   });
 });
+
+test.describe('hasFocusVisibleOption()', () => {
+  test('NVD-22: true where focus() reads `focusVisible` (every engine the tests run in), false where it does not; asking moves no focus and sends no focus event', async ({ page }) => {
+    await open(page, '<button id="a">a</button>');
+    const asked = await page.evaluate(async () => {
+      const { hasFocusVisibleOption } = (await import('/modal.js' as string)) as { hasFocusVisibleOption(): boolean };
+      const a = document.querySelector<HTMLElement>('#a')!;
+      a.focus();
+      const events: string[] = [];
+      for (const type of ['focus', 'blur', 'focusin', 'focusout']) document.addEventListener(type, (event) => events.push(`${type} ${(event.target as Element).localName}`), true);
+      const here = hasFocusVisibleOption();
+      // An engine that does not know the option never reads it.
+      const focus = HTMLElement.prototype.focus;
+      HTMLElement.prototype.focus = function (this: HTMLElement) {
+        focus.call(this);
+      };
+      const without = hasFocusVisibleOption();
+      HTMLElement.prototype.focus = focus;
+      return { here, without, events, active: document.activeElement?.id };
+    });
+    expect(asked).toEqual({ here: true, without: false, events: [], active: 'a' });
+  });
+});

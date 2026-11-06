@@ -15,6 +15,7 @@ import {
   PressController,
   badgeDescription,
   deepActive,
+  hasFocusVisibleOption,
   delegatedAria, namedByProduct,
   delegatesAria,
   findInteractive,
@@ -3052,7 +3053,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-22, NVD-28: focus back where it was when the drawer opened — or dropped, where that element is gone. Closed by a
    * pointer's press on the menu button, which moved no focus (onMouseDown), it is given as that press would have given
-   * it: with no focus indicator (`focusVisible: false`; where an engine lacks the option, as a script's focus).
+   * it: with no focus indicator (`focusVisible: false`; an engine without the option let the press give focus itself).
    */
   private restoreFocus() {
     const opener = this.opener as HTMLElement | null;
@@ -3250,10 +3251,15 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * itself, which takes focus from script (WebKit) — and the focused destination left its focused color over the state
    * motion before the drawer began to narrow, out of step with the width that the change of form recolors it with
    * (NVD-35, NVD-40).
+   *
+   * Only where the engine can give focus back as a pointer's (`focusVisible: false`, `hasFocusVisibleOption()`): where it
+   * cannot (Chromium before 145, Safari before 18.4) a script's focus after a drawer opened from the keyboard draws the
+   * focus indicator, so there the press is left to give focus as it does, and what it gave focus to draws none.
    */
   private readonly onMouseDown = (event: MouseEvent) => {
     const menu = this.headerButtons[0];
-    if (this.collapsible && this.modal && this.open && menu && event.button === 0 && event.composedPath().includes(menu)) event.preventDefault();
+    if (!this.collapsible || !this.modal || !this.open || !menu || event.button !== 0 || !event.composedPath().includes(menu)) return;
+    if (hasFocusVisibleOption()) event.preventDefault();
   };
 
   /** The distance dragged toward the start edge (positive), whatever the direction of the text. */
