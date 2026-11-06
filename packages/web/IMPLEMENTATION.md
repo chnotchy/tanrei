@@ -4718,8 +4718,13 @@ on the surface's twin — an element beside it with the same part name, never dr
 so the read never touches the surface — (`surfaceCap()`; a percentage counts against the window), the surface is placed
 by the capped height, and the `max-block-size` the placement writes on it, important so that your `::part` rule does
 not win over the room, is the smaller of your cap and the room. A cap changed while the menu is open is seen at
-the next thing the menu follows (an attribute changed on it or an ancestor, a scroll, a resize). It fades in and grows from the edge facing the anchor over `motion.open-duration` / `-easing`, and fades out
-over `motion.close-duration` / `-easing` (at once under reduced motion). Opening focuses the first enabled item; closing
+the next thing the menu follows (an attribute changed on it or an ancestor, a scroll, a resize). It appears as every
+anchored surface does (`appearStyles()` and `AppearController`, role anchored, MNU-4): from `sys.motion.appear.*`,
+grown from the middle of the edge that faces the anchor (`data-side`, which the placement writes; unfolding along that
+axis under `unfold`), over `motion.open-duration` / `-easing`, and leaves the same way back over `motion.close-duration` /
+`-easing`, each turned round from what it shows; where motion is reduced it only fades, over `sys.motion.role.reduced`.
+A submenu's surface does the same from the edge that faces its item (MNU-50). The surface itself is what moves, so it
+is placed by its laid-out size (`layoutSize()`), which no scale touches. Opening focuses the first enabled item; closing
 returns focus to the anchor when it was inside the menu. Where that item is not drawn yet — a menu mounted open, or
 opened in the task that gives it new groups, renders before its groups draw their slots, and Chromium and Firefox focus
 nothing that is not drawn (WebKit does) — the menu waits for itself, its groups and its rows to finish rendering (their

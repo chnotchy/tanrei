@@ -933,6 +933,8 @@ export class TanreiMenubar extends TanreiElement {
   private readonly sizes = new Map<Element, number>();
   private resize: ResizeObserver | null = null;
   private readonly children$ = new MutationObserver(() => this.readChildren());
+  /** The children are read again in a microtask: some were not upgraded yet when they were read (`readChildren`). */
+  private rereading = false;
   private settled = false;
 
   /** What the bar tells the overflow item's menu (src/components/menu/menu.ts): as each menu's own channel, and that its own level is the fold's (MBR-22). */
@@ -1081,9 +1083,21 @@ export class TanreiMenubar extends TanreiElement {
 
   // ── The menus the bar holds (MBR-20, MBR-30) ──
 
-  private readChildren() {
+  private readChildren(again = true) {
     const before = this.items;
     const now = [...this.children].filter(isRow);
+    // Markup inserted whole (`innerHTML`, `insertAdjacentHTML`) upgrades the bar and runs its `connectedCallback`
+    // before its children are upgraded, and no child is added after: the entries are read again once they are, in a
+    // microtask, which runs before their first update — so each draws its first frame where the bar places it (an open
+    // menu of a bar drawn in place is in place from its first frame, MOT-3), and a bar so inserted holds its entries.
+    // Once: a child whose upgrade failed (its constructor threw) is never upgraded, and is no entry.
+    if (again && !this.rereading && [...this.children].some(awaitsUpgrade)) {
+      this.rereading = true;
+      queueMicrotask(() => {
+        this.rereading = false;
+        if (this.isConnected) this.readChildren(false);
+      });
+    }
     if (this.settled) this.checkContent();
     if (now.length === before.length && now.every((menu, i) => menu === before[i])) return;
     const removed = before.filter((menu) => !now.includes(menu));
@@ -1704,6 +1718,12 @@ export class TanreiMenubar extends TanreiElement {
 /** MBR-32: whether a child of the bar is one of its entries. */
 function isRow(child: Element): child is Row {
   return child instanceof TanreiMenubarMenu || child instanceof TanreiMenubarItem;
+}
+
+/** An entry the browser has defined and not upgraded yet: its element is not its class's instance until it is. */
+function awaitsUpgrade(child: Element): boolean {
+  const defined = customElements.get(child.localName);
+  return (defined === TanreiMenubarMenu || defined === TanreiMenubarItem) && !isRow(child);
 }
 
 if (!customElements.get('tanrei-menubar-menu')) customElements.define('tanrei-menubar-menu', TanreiMenubarMenu);
