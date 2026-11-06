@@ -502,13 +502,18 @@ test.describe('choosing', () => {
       c.addEventListener('change', () => ((window as any).shownAtChange = c.shadowRoot.querySelector('.day-view').getAttribute('aria-label')));
     });
     await day(page, 'a', '2026-09-17').focus();
+    // (The travel at 40 s and ended by hand: it is read several answers after the click, and at the token's length it
+    // had ended by then on a runner that answers slowly.)
+    await override(page, { [T('motion-page-duration')]: '40s' });
     await day(page, 'a', '2026-10-01').click();
     expect(await log(page)).toEqual(['{"value":"2026-10-01","start":"","end":""}:2026-10-01||']);
     expect(await page.evaluate(() => (window as any).shownAtChange)).toBe('September 2026');
     await expect.poll(() => shown(page, 'a')).toBe('October 2026');
     // With the motion of CAL-14: the days travel there.
     expect(await moving(page, 'a')).toBe('vertical');
+    expect(await travelling(page, 'a')).toBe(40_000);
     await land(page, 'a');
+    await override(page, { [T('motion-page-duration')]: '' });
     // One of the month's own now, the active day, and — focus was in the grid — focused, without a ring.
     await expect(day(page, 'a', '2026-10-01')).toHaveClass(/selected/);
     await expect(day(page, 'a', '2026-10-01')).not.toHaveAttribute('data-adjacent');
