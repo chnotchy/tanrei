@@ -68,18 +68,22 @@ export function shard(env) {
  * file that keeps the machine busy for its whole run slows every file beside it (the docs' fixture gallery, about two
  * thirds of a job, made the pages of the files run with it take more than 30 s to load in WebKit), which a split by
  * time alone cannot see. A file of `$alone` that is not among the files is skipped.
+ *
+ * `start` is the seconds each shard has before any file (the first web Chromium shard's Node tests, which run after
+ * its Playwright tests): the dealing counts them, and each shard's `seconds` includes them.
  * @param {string[]} files
  * @param {Record<string, number | string | string[]>} weights seconds by file, and `$alone`
  * @param {number} total
+ * @param {number[]} [start] seconds by shard, from the first; a shard not named starts at 0
  * @returns {{ files: string[], seconds: number, guessed: string[] }[]}
  */
-export function balance(files, weights, total) {
+export function balance(files, weights, total, start = []) {
   const alone = (Array.isArray(weights.$alone) ? weights.$alone : []).filter((file) => files.includes(file)).sort();
   if (alone.length >= total) throw new Error(`the weights put ${alone.length} files in shards of their own (${alone.join(', ')}), and there are ${total} shards: the others need at least one`);
   const known = Object.values(weights).filter((value) => typeof value === 'number').sort((a, b) => a - b);
   const median = known.length === 0 ? 1 : known.length % 2 ? known[(known.length - 1) / 2] : (known[known.length / 2 - 1] + known[known.length / 2]) / 2;
   const weightOf = (file) => (typeof weights[file] === 'number' ? weights[file] : median);
-  const shards = Array.from({ length: total }, () => ({ files: [], seconds: 0, guessed: [] }));
+  const shards = Array.from({ length: total }, (_, k) => ({ files: [], seconds: start[k] ?? 0, guessed: [] }));
   alone.forEach((file, k) => {
     shards[k].files.push(file);
     shards[k].seconds += weightOf(file);
