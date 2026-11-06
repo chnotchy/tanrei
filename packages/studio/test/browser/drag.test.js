@@ -36,9 +36,11 @@ const take = (page) => page.evaluate(() => window.__drag.take());
  * A drag: `values.length / perFrame` frames, `perFrame` moves in each, as the browser reports them — for a colour
  * field, a pick in its picker (the well's value, and its `input`), with focus on the button that opened it; for a
  * slider, its value and `input`. Then a frame more, for what the Studio shows at the next frame. Resolves with the
- * number of frames, the page's time of each frame's moves (`moved`), and — read in that last frame — the custom
- * property `property` as the preview's scope sets it on itself (`set`: what a value drawn without computing the layer
- * sets) and as it is computed there (`drawn`); for each of `also`, the same pair under its name.
+ * number of frames and — read in that last frame — what `watch` counted from the drag's first frame to it
+ * (`during`), the custom property `property` as the preview's scope sets it on itself (`set`: what a value drawn
+ * without computing the layer sets) and as it is computed there (`drawn`); for each of `also`, the same pair under its
+ * name. (Counted in that frame, not a round trip later: by then a pointer that stopped may have rested, and the Studio
+ * rightly computes the layer — that computation is not the drag's.)
  */
 const drag = (page, { field, slider, values, perFrame, property = '--none', also = [] }) =>
   page.evaluate(
@@ -48,16 +50,14 @@ const drag = (page, { field, slider, values, perFrame, property = '--none', also
         const target = field ? input.querySelector('.native-picker') : document.querySelector(slider);
         if (field) input.querySelector('.picker-button').focus();
         const left = [...values];
-        const moved = [];
         let frames = 0;
         const frame = () => {
           frames += 1;
           if (!left.length) {
             const scope = document.querySelector('[data-scope]');
             const read = (name) => ({ set: scope.style.getPropertyValue(name), drawn: getComputedStyle(scope).getPropertyValue(name).trim() });
-            return resolve({ frames, moved, ...read(property), also: Object.fromEntries(also.map((name) => [name, read(name)])) });
+            return resolve({ frames, during: window.__drag?.take(), ...read(property), also: Object.fromEntries(also.map((name) => [name, read(name)])) });
           }
-          moved.push(performance.now());
           for (const value of left.splice(0, perFrame)) {
             target.value = value;
             target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
@@ -75,41 +75,10 @@ const release = (page, { field, slider }) =>
     target.dispatchEvent(new Event('change', { bubbles: true }));
   }, { field, slider });
 
-/** Colors along a path across the picker: each one another. Another `from` is another path, ending at another color. */
-const path = (n, from = 0) => Array.from({ length: n }, (_, i) => `#${[40 + i * 7 + from * 23, 200 - i * 5, 90 + i * 11].map((c) => (((c % 256) + 256) % 256).toString(16).padStart(2, '0')).join('')}`);
+/** Colors along a path across the picker: each one another. */
+const path = (n) => Array.from({ length: n }, (_, i) => `#${[40 + i * 7, 200 - i * 5, 90 + i * 11].map((c) => (((c % 256) + 256) % 256).toString(16).padStart(2, '0')).join('')}`);
 const settled = (page) => page.evaluate(() => document.fonts.ready.then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
 
-/**
- * A drag across a palette's picker by a pointer that never rests (`drag`, 3 moves a frame), after `watch`. The Studio
- * computes the layer once the pointer has rested 150 ms; a busy runner can bring a frame that late, and the Studio then
- * computes the layer during the drag, as it should for a pointer that rested — and the frame after it is drawn by that
- * layer, with nothing set on the scope. Such a drag is not the one this file is about: it is released, and the pointer
- * drags again along another path, three times at most. Resolves with `drag`'s result, the tone drawn before it
- * (`before`), what was counted during it (`during`), its values and how many drags it took.
- */
-async function dragWithoutRest(page, { field, property, moves, saved, last }) {
-  for (let attempt = 1; ; attempt += 1) {
-    const before = await page.evaluate((name) => getComputedStyle(document.querySelector('[data-scope]')).getPropertyValue(name).trim(), property);
-    await take(page); // what came before this drag is not counted
-    const values = path(moves, attempt - 1);
-    const result = await drag(page, { field, values, perFrame: 3, property });
-    const during = await take(page);
-    if (!during.computes || attempt === 3) return { ...result, before, during, values, attempts: attempt };
-    await release(page, { field });
-    await saved((layer) => last(layer) === values.at(-1), `the drag a late frame made a rest (${attempt}), written when the picker closes`);
-    await settled(page);
-  }
-}
-/**
- * The computations of a drag that did not wait for the pointer to rest: each one started less than the Studio's rest
- * (150 ms) after the frame of moves before it. A frame that comes later than that — a page held up by something else
- * — lets the Studio catch up at rest, as it should, and that computation is not the drag's.
- */
-const REST = 150;
-const beforeRest = ({ at }, { moved }) => at.filter((time) => {
-  const last = moved.filter((move) => move <= time).at(-1);
-  return last === undefined || time - last < REST;
-});
 /**
  * When the press ends or the picker closes the layer is computed, once — unless the Studio caught up while the pointer
  * rested (a page held up between the last frame and the release), and the release has nothing left to compute.
@@ -133,10 +102,12 @@ studioTest('a drag across the brand color’s picker is drawn at every frame fro
   await watch(page);
 
   const last = (layer) => layer.palettes.primary.source.seed;
-  const { frames, set, drawn: live, before, during, values, attempts } = await dragWithoutRest(page, { field, property: tone, moves: 60, saved, last });
-  assert.equal(during.computes, 0, `a drag that never rests is drawn from the palette alone, the layer not computed: ${during.computes} times in ${frames} frames, for ${values.length} moves (${attempts} drags, each with a frame 150 ms late)`);
+  const before = await css(scope, tone);
+  const values = path(60);
+  const { frames, set, drawn: live, during } = await drag(page, { field, values, perFrame: 3, property: tone });
+  assert.equal(during.computes, 0, `a drag is drawn from the palette alone, the layer not computed: ${during.computes} times in ${frames} frames, for ${values.length} moves`);
   assert.equal(during.writes, 0, `and the sheet is not written: ${during.writes} times in ${frames} frames`);
-  assert.notEqual(live, before, 'the preview follows the color while it moves');
+  assert.notEqual(live, before.trim(), 'the preview follows the color while it moves');
   assert.equal(set, live, 'drawn from the palette alone: the tone is set on the scope');
 
   await release(page, { field });
@@ -161,8 +132,9 @@ studioTest('a drag across a fixed tone’s picker is drawn from the palette alon
 
   const field = '[data-palette="accent"] [data-tone-row="40"] tanrei-color-field';
   const last = (layer) => layer.palettes.accent.source.tones['40'];
-  const { frames, set, drawn, during, values, attempts } = await dragWithoutRest(page, { field, property: tone, moves: 45, saved, last });
-  assert.equal(during.computes, 0, `a drag that never rests is drawn from the palette alone, the layer not computed: ${during.computes} times in ${frames} frames, for ${values.length} moves (${attempts} drags, each with a frame 150 ms late)`);
+  const values = path(45);
+  const { frames, set, drawn, during } = await drag(page, { field, values, perFrame: 3, property: tone });
+  assert.equal(during.computes, 0, `a drag is drawn from the palette alone, the layer not computed: ${during.computes} times in ${frames} frames, for ${values.length} moves`);
   assert.equal(during.writes, 0, `and the sheet is not written: ${during.writes} times in ${frames} frames`);
   assert.equal(drawn, values.at(-1), 'the fixed tone is drawn as it moves');
   assert.equal(set, values.at(-1), 'drawn from the palette alone');
@@ -184,9 +156,9 @@ studioTest('a drag along a dial’s slider is drawn at every frame without compu
   const steps = Array.from({ length: 17 }, (_, i) => i / 2);
   const values = [...steps.slice(1), ...steps.slice(0, -1).reverse(), ...steps.slice(1, 8)];
   const moves = await drag(page, { slider, values, perFrame: 3, property });
-  const during = await take(page);
-  assert.deepEqual(beforeRest(during, moves), [], `the layer is not computed while the slider moves: ${during.computes} times in ${moves.frames} frames, for ${values.length} moves`);
-  assert.ok(during.writes <= during.computes, `the sheet is written only with a computed layer: ${during.writes} writes, ${during.computes} computations`);
+  const { during } = moves;
+  assert.equal(during.computes, 0, `the layer is not computed while the slider moves: ${during.computes} times in ${moves.frames} frames, for ${values.length} moves`);
+  assert.equal(during.writes, 0, `and the sheet is not written: ${during.writes} times in ${moves.frames} frames`);
   assert.equal(moves.drawn, `${values.at(-1)}px`, 'the preview shows the last value at the next frame');
   assert.equal(moves.set, moves.drawn, 'drawn without computing the layer: the dial is set on the scope');
 
