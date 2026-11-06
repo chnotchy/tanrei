@@ -10,6 +10,7 @@ import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pic
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
+import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -398,6 +399,59 @@ test.describe('presentation, focus and closing', () => {
       await page.keyboard.press('Escape');
       await expect.poll(() => isOpen(page, id)).toBe(false);
     }
+  });
+
+  /**
+   * DTM-3, DTM-20, DTM-28: opens each picker of `kinds` twice — from the keyboard (Tab to its button, Enter) and
+   * by a press on its button — and says, for each, whether the focus it moved in shows its ring: a wheel's around its
+   * selection container (the picker's own, DTM-20), a day's, a year's or a selector's as the engine draws it.
+   */
+  const openedRings = async (page: P, simulate: boolean) => {
+    const kinds: [string, Fixture['props']][] = [
+      ['date', { value: '2026-09-17' }],
+      ['year', { value: '2026-09-17', startView: 'year' }],
+      ['wheels', { mode: 'time', value: '07:30' }],
+      ['dial', { mode: 'time', value: '07:30', entryMode: 'dial' }],
+    ];
+    const fixtures = kinds.flatMap(([kind, props]) => ['key', 'press'].flatMap((how) => [modal(`m-${kind}-${how}`, props), docked(`d-${kind}-${how}`, props)]));
+    await mount(page, fixtures);
+    if (simulate) await withoutFocusVisibleOption(page);
+    const rings: Record<string, boolean> = {};
+    for (const { id } of fixtures) {
+      if (id.endsWith('-key')) {
+        await tabTo(page, opener(page, id));
+        await page.keyboard.press('Enter');
+      } else await opener(page, id).click();
+      await expect.poll(() => isOpen(page, id), id).toBe(true);
+      await settle(page, id);
+      rings[id] = await page.evaluate(() => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        const wheel = active?.closest('.wheel');
+        if (wheel) return getComputedStyle(wheel.querySelector('.ring')!).outlineStyle !== 'none';
+        return !!active?.matches(':focus-visible');
+      });
+      await page.keyboard.press('Escape');
+      await expect.poll(() => isOpen(page, id), id).toBe(false);
+    }
+    return rings;
+  };
+  const expectedRings = (except: (id: string) => boolean = () => false) =>
+    Object.fromEntries(
+      ['date', 'year', 'wheels', 'dial'].flatMap((kind) => ['key', 'press'].flatMap((how) => ['m', 'd'].map((form) => [`${form}-${kind}-${how}`, how === 'key' || except(`${form}-${kind}-${how}`)]))),
+    );
+
+  test('DTM-3, DTM-20, DTM-28: the focus that moves in as the picker opens shows its ring when it was opened from the keyboard and none when it was opened by a press — modal and docked, on the calendar’s day, its year, the hour wheel and the selector', async ({ page }) => {
+    // The ring is read from the element that had focus as it opened, before a modal picker's dialog takes focus from it.
+    expect(await openedRings(page, false)).toEqual(expectedRings());
+  });
+
+  test('DTM-3, DTM-20, DTM-28: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), the focus that moves in shows its ring when the picker was opened from the keyboard and none when it was opened by a press', async ({ page, browserName }) => {
+    // There the focus a modal picker's dialog gives as it opens is kept: given again, it would be a script's focus, drawn
+    // with the ring after the dialog's. WebKit draws the dialog's own focus with the ring after a press too, as it does
+    // for any modal dialog: the calendar's and the selector's are left to it there. The wheels draw their own ring.
+    const webkitDialog = (id: string) => browserName === 'webkit' && id.startsWith('m-') && !id.includes('wheels');
+    expect(await openedRings(page, true)).toEqual(expectedRings(webkitDialog));
   });
 
   test('DTM-4: closing returns focus to where it was when the picker opened', async ({ page }) => {
@@ -1577,6 +1631,29 @@ test.describe('states, press, corners and focus style', () => {
     await tab(page, { back: true });
     await expect.poll(() => css(selector(page, 'a', 'hour'), 'outline-style')).toBe('solid');
     expect(await css(selector(page, 'a', 'hour'), 'transition-property')).not.toContain('outline');
+  });
+
+  test('DTM-25, DTM-28, DTM-47: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a press on the hour dial hands the minute selector the hour selector’s ring — the ring after Tab, none after a press — and a press on the period wheel shows no ring', async ({ page }) => {
+    await mount(page, [inline('k', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('p', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('w', { mode: 'time', value: '07:30', hourCycle: 'h12' })], { window: { width: 480, height: 2400 } });
+    await withoutFocusVisibleOption(page);
+    const ring = (locator: Locator) => locator.evaluate((el) => el.matches(':focus-visible'));
+    const pressDial = async (id: string) => {
+      const d = await bounds(host(page, id).locator('.dial'));
+      await page.mouse.click(d.x + d.width - 20, d.y + d.height / 2);
+      await expect.poll(() => focused(page), id).toBe('selector:minute');
+    };
+    await tabTo(page, selector(page, 'k', 'hour'));
+    await pressDial('k');
+    expect(await ring(selector(page, 'k', 'minute')), 'after Tab').toBe(true);
+    await selector(page, 'p', 'hour').click();
+    await pressDial('p');
+    expect(await ring(selector(page, 'p', 'minute')), 'after a press').toBe(false);
+    // The period wheel's ring is the picker's own (DTM-20, DTM-47), whatever the engine says of its control.
+    await tabTo(page, wheel(page, 'w', 'minute'));
+    const box = await bounds(periodBox(page, 'w'));
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect.poll(() => focused(page)).toBe('wheel:period');
+    expect(await css(periodBox(page, 'w').locator('.ring'), 'outline-style')).toBe('none');
   });
 
   test('DTM-29: a selector’s press — a click, Enter, Space — shows at once and for at least press-hold', async ({ page }) => {

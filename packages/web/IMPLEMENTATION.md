@@ -6380,7 +6380,15 @@ grows from the edge that faces the anchor and fades out (at once where motion is
 it asks to close (`tab`) and focus goes on from its anchor; focus moving elsewhere asks to close (`focus-out`); a press
 outside it and its anchor asks to close (`outside`) **and also reaches the element under it**, as the menu's does. Both
 move focus in when they open — to the calendar's active day (or year), the hour wheel, or the selector of `unit` — with
-the ring only when the picker was opened from the keyboard, and give it back when they close.
+the ring only when the picker was opened from the keyboard, and give it back when they close. Whether it was is read from
+the element that had focus as the picker opened, before a modal picker's dialog takes focus from it. Focus that the
+dialog's focusing steps gave the element already is given again with `focusVisible`, so that the ring is the picker's
+call — where `focus()` reads the option. Chromium before 145 and Safari before 18.4, inside the package's floor
+(`hasFocusVisibleOption()`), do not: given again, it would be a script's focus, which they draw with the ring after any
+focus that was not a pointer's, the dialog's among them, so there the dialog's focus is kept as the engine drew it (a
+wheel, which draws its own ring, is still given focus again). Safari before 18.4 draws the focus a modal dialog gives
+with the ring after a press too, as it does for any modal dialog, so there a modal picker opened by a press shows the
+ring on the calendar's day, its year or the selector.
 
 **Choosing (DTM-6…8, DTM-11, DTM-33).** Every picker but a docked one for a date only holds a pending choice from opening
 to OK — a `value` you set meanwhile does not move it — and OK is disabled while it is incomplete or a date-time range's
