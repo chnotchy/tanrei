@@ -1057,45 +1057,46 @@ test.describe('separation', () => {
     fixture('filled-toggles', [b('One', { variant: 'filled', toggle: true, selected: true }), b('Two', { variant: 'filled', toggle: true }), b('Three', { variant: 'filled', toggle: true })], { separation: 'divider' }),
   ];
 
-  test('BGR-24: a line that a switched toggle brings, takes away or recolors fades over comp.button-group.motion.state-duration on comp.button-group.motion.state-easing — over more than one frame, in every fixture under divider that holds a toggle, its opacity alone moving', async ({ page }) => {
-    const all = fadeFixtures();
-    expect(all.map((f) => f.id)).toEqual(['connected-toggles', 'connected-outlined-toggles', 'tonal-pair', 'filled-toggles']);
-    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: all });
-    await page.mouse.move(0, 0);
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
-    expect(duration, 'the state role, at the pace of a medium Button').toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
-    const easing = await resolveEasing(page, T('motion-state-easing'));
-    expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-state'));
-    let faded = 0;
-    const changes: [string, number[]][] = [
-      ...all.filter((f) => f.id !== 'tonal-pair').flatMap((f) => f.items!.map((_, n) => [f.id, [n]] as [string, number[]])),
-      // One change of both: the line fades into the on-fill line, and back.
-      ['tonal-pair', [0, 1]],
-      ['tonal-pair', [0, 1]],
-    ];
-    for (const [id, n] of changes) {
-      const seen = await sampleFrames(stage(page, id), () => flip(page, id, ...n), { elements: false, probe: lineFrame });
-      const name = `${id}, item ${n.join(' and ')}`;
-      const lines = Object.keys(seen.rest.probe).filter((key) => key.startsWith('line'));
-      for (const key of lines) {
-        const at = key.slice('line'.length);
-        // Decided at once, and drawn as decided once the motion has ended.
-        expect(seen.frames[0]!.probe[`decided${at}`], `${name}: ${key} decided in the first frame`).toBe(seen.rest.probe[`decided${at}`]);
-        expect(seen.rest.probe[key], `${name}: ${key} at rest`).toBe(LINE_OF[seen.rest.probe[`decided${at}`] as string]);
-        if (seen.before.probe[key] === seen.rest.probe[key]) continue;
-        // Not one frame: the line comes, goes or changes color over several.
-        expectAnimated(seen, key);
-        faded++;
-      }
-      expectNoFlicker(seen);
-      // Its opacity alone moves, on the tokens' duration and curve.
-      const own = seen.motions.filter((motion) => motion.on.startsWith('span.divider'));
-      for (const motion of own) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, 'opacity', duration, easing]);
-      await motionEnded(group(page, id));
-    }
-    // Every kind of change was seen: a line that comes, one that goes, and one that changes color.
-    expect(faded).toBeGreaterThanOrEqual(8);
+  // One test per fixture, so each stays a few samplings long on a slow runner.
+  const fades = fadeFixtures();
+  test('BGR-24: the fixtures the fade is sampled in — every fixture under divider that holds a toggle, and the test’s own pairs', () => {
+    expect(fades.map((f) => f.id)).toEqual(['connected-toggles', 'connected-outlined-toggles', 'tonal-pair', 'filled-toggles']);
   });
+  for (const f of fades) {
+    test(`BGR-24: a line that a switched toggle brings, takes away or recolors fades over comp.button-group.motion.state-duration on comp.button-group.motion.state-easing — over more than one frame, its opacity alone moving — ${f.id}`, async ({ page }) => {
+      const id = f.id;
+      await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [f] });
+      await page.mouse.move(0, 0);
+      const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+      expect(duration, 'the state role, at the pace of a medium Button').toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+      const easing = await resolveEasing(page, T('motion-state-easing'));
+      expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-state'));
+      // Each item switched in turn; the pair both at once, so its line fades into the on-fill line, and back.
+      const changes = id === 'tonal-pair' ? [[0, 1], [0, 1]] : f.items!.map((_, n) => [n]);
+      for (const n of changes) {
+        const seen = await sampleFrames(stage(page, id), () => flip(page, id, ...n), { elements: false, probe: lineFrame });
+        const name = `${id}, item ${n.join(' and ')}`;
+        let faded = 0;
+        for (const key of Object.keys(seen.rest.probe).filter((each) => each.startsWith('line'))) {
+          const at = key.slice('line'.length);
+          // Decided at once, and drawn as decided once the motion has ended.
+          expect(seen.frames[0]!.probe[`decided${at}`], `${name}: ${key} decided in the first frame`).toBe(seen.rest.probe[`decided${at}`]);
+          expect(seen.rest.probe[key], `${name}: ${key} at rest`).toBe(LINE_OF[seen.rest.probe[`decided${at}`] as string]);
+          if (seen.before.probe[key] === seen.rest.probe[key]) continue;
+          // Not one frame: the line comes, goes or changes color over several.
+          expectAnimated(seen, key);
+          faded++;
+        }
+        // A switched toggle changes its fill, so every seam beside it changes.
+        expect(faded, `${name}: lines that changed`).toBeGreaterThan(0);
+        expectNoFlicker(seen);
+        // Its opacity alone moves, on the tokens' duration and curve.
+        const own = seen.motions.filter((motion) => motion.on.startsWith('span.divider'));
+        for (const motion of own) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, 'opacity', duration, easing]);
+        await motionEnded(group(page, id));
+      }
+    });
+  }
 
   test('BGR-24: what a switched toggle exposes changes at once, not at the end of the lines’ fade — in its first frame the item’s selected and aria-pressed and the group’s decision are new, the lines where they were', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: only('connected-outlined-toggles') });

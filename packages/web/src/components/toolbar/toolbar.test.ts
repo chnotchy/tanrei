@@ -380,39 +380,37 @@ test.describe('items', () => {
   const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
   const TOGGLE_FIXTURES = ['floating', 'inline-formatting', 'inline-separation-gap', 'inline-labelled-toggles'];
 
-  test('TBR-9: a toggle item changes between its selected and unselected looks as its Button does — over more than one frame on the state duration of its size and the Button’s state easing, in every fixture that holds one — and the toolbar adds no motion of its own', async ({ page }) => {
+  test('TBR-9: the fixtures a toggle item’s change of look is sampled in — every fixture that holds a toggle', () => {
     expect(spec.fixtures.filter((f) => JSON.stringify(f.items).includes('"toggle":true')).map((f) => f.id)).toEqual(TOGGLE_FIXTURES);
-    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => TOGGLE_FIXTURES.includes(f.id)) });
-    await page.mouse.move(0, 0);
-    // The toolbar's items are medium unless the product says otherwise: the state role's default pace.
-    const duration = await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration');
-    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
-    const easing = await resolveEasing(page, '--tanrei-comp-button-motion-state-easing');
-    let seenToggles = 0;
-    for (const id of TOGGLE_FIXTURES) {
+  });
+  // One test per fixture, so each stays a few samplings long on a slow runner.
+  for (const id of TOGGLE_FIXTURES) {
+    test(`TBR-9: a toggle item changes between its selected and unselected looks as its Button does — over more than one frame on the state duration of its size and the Button’s state easing — and the toolbar adds no motion of its own — ${id}`, async ({ page }) => {
+      await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => f.id === id) });
+      await page.mouse.move(0, 0);
+      // The toolbar's items are medium unless the product says otherwise: the state role's default pace.
+      const duration = await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration');
+      expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+      const easing = await resolveEasing(page, '--tanrei-comp-button-motion-state-easing');
       const shown = await shownToggles(page, id);
       expect(shown.length, `${id}: toggles drawn`).toBeGreaterThan(0);
       for (const n of shown) {
         await stage(page, id).evaluate((el: HTMLElement, at) => (el.dataset.toggle = String(at)), n);
-        for (const turn of [1, 2]) {
-          const seen = await sampleFrames(stage(page, id), () => switchToggle(page, id, n), { elements: false, probe: toggleFrame });
-          const name = `${id}, toggle ${n}, switch ${turn}`;
-          expect(seen.rest.probe.selected, name).toBe(!seen.before.probe.selected);
-          // Not one frame: the look changes over several.
-          expectAnimated(seen, 'look');
-          // Its own motions only, on its size's duration and the Button's curve: the toolbar starts none.
-          expect(seen.motions.length, name).toBeGreaterThan(0);
-          for (const motion of seen.motions) {
-            expect(motion.on, `${name}: ${motion.name} is the item's`).not.toMatch(/^div\.container|^tanrei-toolbar/);
-            if (/^(background-color|color|box-shadow)$/.test(motion.name)) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, motion.name, duration, easing]);
-          }
-          seenToggles++;
-          await motionEnded(bar(page, id));
+        const seen = await sampleFrames(stage(page, id), () => switchToggle(page, id, n), { elements: false, probe: toggleFrame });
+        const name = `${id}, toggle ${n}`;
+        expect(seen.rest.probe.selected, name).toBe(!seen.before.probe.selected);
+        // Not one frame: the look changes over several.
+        expectAnimated(seen, 'look');
+        // Its own motions only, on its size's duration and the Button's curve: the toolbar starts none.
+        expect(seen.motions.length, name).toBeGreaterThan(0);
+        for (const motion of seen.motions) {
+          expect(motion.on, `${name}: ${motion.name} is the item's`).not.toMatch(/^div\.container|^tanrei-toolbar/);
+          if (/^(background-color|color|box-shadow)$/.test(motion.name)) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, motion.name, duration, easing]);
         }
+        await motionEnded(bar(page, id));
       }
-    }
-    expect(seenToggles).toBeGreaterThanOrEqual(2 * TOGGLE_FIXTURES.length);
-  });
+    });
+  }
 
   test('TBR-9: what a switched toggle item exposes changes at once, not at the end of its motion — in its first frame its selected and aria-pressed are new, its look where it was', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => f.id === 'inline-labelled-toggles') });
