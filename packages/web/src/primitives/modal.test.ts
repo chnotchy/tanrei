@@ -1,10 +1,13 @@
 // tabbables() and trapFocus() (src/primitives/modal.ts): the Tab stops inside a root, as the flat tree orders them,
 // and the trap a modal overlay makes of them. Every overlay that calls them gives its `<dialog>` `tabindex="-1"`, so
-// their own tests never meet a root that is a stop itself; this asks the primitive.
+// their own tests never meet a root that is a stop itself; this asks the primitive. And hasFocusVisibleOption() and
+// pressGivesFocus(): whether focus() reads `focusVisible`, and a press that gives focus as a pointer's where it does not.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
+import { tab } from '../../test/harness.js';
+import { withoutFocusVisibleOption } from '../../test/focus-visible-option.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 /** The module as it is built: it imports nothing, so a page can load it alone. */
@@ -100,5 +103,66 @@ test.describe('hasFocusVisibleOption()', () => {
       return { here, without, events, active: document.activeElement?.id };
     });
     expect(asked).toEqual({ here: true, without: false, events: [], active: 'a' });
+  });
+});
+
+test.describe('pressGivesFocus()', () => {
+  /**
+   * A press on `a` whose `mousedown` calls pressGivesFocus(), and then a script's focus on `b` with `focusVisible: false`,
+   * as a component moves focus for a press: whether the call let focus go, and whether `b` then shows its ring.
+   */
+  const pressThenMove = (page: Page) =>
+    page.evaluate(async () => {
+      const { pressGivesFocus } = (await import('/modal.js' as string)) as { pressGivesFocus(event: MouseEvent, element: HTMLElement): void };
+      const [a, b] = ['#a', '#b'].map((id) => document.querySelector<HTMLElement>(id)!);
+      let letGo = false;
+      a.addEventListener(
+        'mousedown',
+        (event) => {
+          pressGivesFocus(event, a);
+          letGo = document.activeElement !== a;
+        },
+        { once: true },
+      );
+      return new Promise<{ letGo: boolean; ring: boolean }>((resolve) =>
+        a.addEventListener(
+          'click',
+          () => {
+            b.focus({ focusVisible: false } as FocusOptions);
+            resolve({ letGo, ring: b.matches(':focus-visible') });
+          },
+          { once: true },
+        ),
+      );
+    });
+
+  test('NVD-22, PGN-19: where focus() reads `focusVisible` it does nothing; where it does not, a press on the element that has keyboard focus lets it go, so that the focus moved after the press shows no ring — and a press on one focused by a pointer keeps it', async ({ page }) => {
+    const body = '<button id="a">a</button><div id="b" tabindex="-1">b</div>';
+    await open(page, body);
+    await tab(page);
+    const moved = pressThenMove(page);
+    await page.click('#a');
+    expect(await moved, 'an engine that reads the option').toEqual({ letGo: false, ring: false });
+
+    // An engine that does not read it: focus is let go at the press, which gives it back (or, where a press on a button
+    // gives none, leaves it with the document).
+    await open(page, body);
+    await withoutFocusVisibleOption(page);
+    await tab(page);
+    expect(await page.evaluate(() => document.querySelector('#a')!.matches(':focus-visible'))).toBe(true);
+    const without = pressThenMove(page);
+    await page.click('#a');
+    expect(await without, 'an engine that does not').toEqual({ letGo: true, ring: false });
+
+    // Focused with no ring (a pointer's focus, here a script's after a press), it is kept.
+    const kept = await page.evaluate(async () => {
+      const { pressGivesFocus } = (await import('/modal.js' as string)) as { pressGivesFocus(event: MouseEvent, element: HTMLElement): void };
+      const a = document.querySelector<HTMLElement>('#a')!;
+      a.focus();
+      const ring = a.matches(':focus-visible');
+      pressGivesFocus(new MouseEvent('mousedown', { button: 0 }), a);
+      return { ring, active: document.activeElement?.id };
+    });
+    expect(kept).toEqual({ ring: false, active: 'a' });
   });
 });
