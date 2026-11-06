@@ -10,8 +10,15 @@ export const EXTERNAL_WORDS = 'data-docs-words';
 const attribute = (/** @type {string} */ value) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
 
 const HEADING = /<div class="sl-heading-wrapper level-h[1-6]">(<h([1-6])\b[\s\S]*?<\/h\2>)<a class="sl-anchor-link" href="([^"]*)">[\s\S]*?<span class="sr-only"[^>]*>([\s\S]*?)<\/span><\/a><\/div>/g;
-const anchor = (/** @type {string} */ _, /** @type {string} */ heading, /** @type {string} */ _level, /** @type {string} */ href, /** @type {string} */ label) =>
-  `<div class="tanrei-prose-heading">${heading}<a class="tanrei-prose-anchor" href="${href}" aria-label="${label.replaceAll('"', '&quot;')}" data-pagefind-ignore><span class="tanrei-icon" aria-hidden="true">link</span></a></div>`;
+/** A heading's text, as it stands in its markup (its entities kept): what is between its tags. */
+const headingText = (/** @type {string} */ heading) => heading.replace(/<[^>]*>/g, '').trim();
+/**
+ * @param {string | undefined} copyName The anchor's name where script makes it copy the section's address, with `{heading}` for the heading's text.
+ */
+const anchorOf = (copyName) => (/** @type {string} */ _, /** @type {string} */ heading, /** @type {string} */ _level, /** @type {string} */ href, /** @type {string} */ label) => {
+  const copy = copyName ? ` data-copy-label="${copyName.split('{heading}').map(attribute).join(headingText(heading).replaceAll('"', '&quot;'))}"` : '';
+  return `<div class="tanrei-prose-heading">${heading}<a class="tanrei-prose-anchor" href="${href}" aria-label="${label.replaceAll('"', '&quot;')}"${copy} data-pagefind-ignore><span class="tanrei-icon" aria-hidden="true">link</span></a></div>`;
+};
 
 const ISLANDS = new Set(['not-content', 'card', 'card-grid', 'sl-link-card']);
 const CLASS = /(<[a-z][a-z0-9-]*)(\s(?:[^<>"]|"[^"]*")*?)class="([^"]*)"/g;
@@ -51,6 +58,7 @@ const inlineCode = (/** @type {string} */ match, /** @type {string | undefined} 
  * @property {(kind: NoticeKind) => string} kind A notice's kind, by name (Starlight's `aside.<kind>`).
  * @property {{ copy: string, copied: string, copyFailed: string, highlighted: string, added: string, removed: string }} code A code block's words (lib/i18n.ts, `code`).
  * @property {string} externalLink What is said of a link that leaves the site (lib/i18n.ts, `externalLink`).
+ * @property {{ copy: string }} [headingLink] A heading's anchor's name where script makes it copy the address of its section, `{heading}` its text (lib/i18n.ts, `headingLink`); without it the anchor names none.
  */
 
 /**
@@ -80,5 +88,5 @@ export function tanreiContent(html, words) {
 
   const externalLink = (/** @type {string} */ _, /** @type {string} */ before) => `${before} aria-description="${attribute(words.externalLink)}"`;
 
-  return html.replace(HEADING, anchor).replace(KIND, kind).replace(CODE_BLOCK, codeWords).replace(EXTERNAL_LINK, externalLink).replace(INLINE_CODE, inlineCode).replace(CLASS, island);
+  return html.replace(HEADING, anchorOf(words.headingLink?.copy)).replace(KIND, kind).replace(CODE_BLOCK, codeWords).replace(EXTERNAL_LINK, externalLink).replace(INLINE_CODE, inlineCode).replace(CLASS, island);
 }
