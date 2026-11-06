@@ -615,10 +615,15 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // shown at the next frame, the latest one only. A palette's color and a dial are drawn without computing the layer,
   // into the sheet that is there (core.liveProperties, preview.patch); the layer is computed when the value is
   // committed, or once the pointer has rested a moment — and every other value is computed at that frame.
+  // A move puts the rest off at once, and the count starts again at the frame that draws it: a move that arrives after
+  // a frame has started the count (later in that frame, or before the next one comes) would otherwise not stop it, and
+  // a page slow to bring its next frame took a pointer that was still moving for one at rest.
   let frame = 0;
   let resting: number | undefined;
   const REST = 150;
   function follow() {
+    window.clearTimeout(resting);
+    window.clearTimeout(wording);
     frame ||= requestAnimationFrame(() => {
       frame = 0;
       const properties = last ? (studio.liveProperties(last, layer) as Record<string, string> | null) : null;
