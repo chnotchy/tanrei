@@ -1425,6 +1425,7 @@ private object AcmeSystemSource {
             busyIndicatorThickness = 2.dp,
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
+            motionBusyFadeDuration = 200,
             motionFeedbackDuration = 450,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             toneContainerOpacity = 0.16f,

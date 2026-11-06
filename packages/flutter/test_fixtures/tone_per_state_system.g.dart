@@ -1356,6 +1356,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     busyIndicatorThickness: 2.0,
     containerShape: 9999.0,
     motionBusyCycleDuration: 1000,
+    motionBusyFadeDuration: 200,
     motionFeedbackDuration: 450,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     toneContainerOpacity: 0.16,

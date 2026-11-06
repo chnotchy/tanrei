@@ -1819,6 +1819,7 @@ export const tonePerState = {
       hoveredContainerShape: 9999,
       hoveredOpacity: 1,
       motionBusyCycleDuration: 1000,
+      motionBusyFadeDuration: 200,
       motionFeedbackDuration: 450,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 9999,

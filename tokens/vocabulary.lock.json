@@ -839,6 +839,7 @@
     "tanrei.comp.button.label.typescale.medium": "typography",
     "tanrei.comp.button.label.typescale.small": "typography",
     "tanrei.comp.button.motion.busy-cycle-duration": "duration",
+    "tanrei.comp.button.motion.busy-fade-duration": "duration",
     "tanrei.comp.button.motion.feedback-duration": "duration",
     "tanrei.comp.button.motion.state-duration.large": "duration",
     "tanrei.comp.button.motion.state-duration.medium": "duration",

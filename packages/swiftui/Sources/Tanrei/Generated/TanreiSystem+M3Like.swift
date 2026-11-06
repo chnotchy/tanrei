@@ -1303,6 +1303,7 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
   busyIndicatorThickness: 4,
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
+  motionBusyFadeDuration: 150,
   motionFeedbackDuration: 450,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   toneContainerOpacity: 0.16,
