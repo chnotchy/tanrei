@@ -183,12 +183,18 @@ export function appearStyles(options: AppearOptions): CSSResult {
   // The blur is a filter only where there is one to draw: closed with no blur, the surface has no filter, as it has none
   // open, so no transition of `filter` runs. WebKit (Playwright's build on Linux) crashes or stalls the page while one
   // runs — blur(0px) to none included, which draws nothing — and every shipped system starts from no blur.
+  // The distance is a translate only where there is one to move by, in the same way: closed with no distance, the
+  // surface has no translate, as it has none open, so no transition of `translate` runs (from `0px 0px` to `none`,
+  // which moves nothing, a transition WebKit still runs beside the fade and the scale) — and every shipped system
+  // starts from no distance. Both are style container queries: a browser without them keeps the
+  // filter `blur(0px)` and the translate `0px 0px` closed, and runs those two transitions, which draw nothing.
+  const offset = 'calc(var(--_appear-dx) * var(--_appear-distance)) calc(var(--_appear-dy) * var(--_appear-distance))';
   const start = sheet
-    ? `--_appear-opacity: 1; --_appear-scale: 1; --_appear-distance: 100%; --_appear-blur: 0px; --_appear-filter: none;`
-    : `--_appear-opacity: var(${from}-opacity); --_appear-scale: var(${from}-scale); --_appear-distance: var(${from}-distance); --_appear-blur: var(${from}-blur); --_appear-filter: blur(var(--_appear-blur));`;
+    ? `--_appear-opacity: 1; --_appear-scale: 1; --_appear-distance: 100%; --_appear-translate: ${offset}; --_appear-blur: 0px; --_appear-filter: none;`
+    : `--_appear-opacity: var(${from}-opacity); --_appear-scale: var(${from}-scale); --_appear-distance: var(${from}-distance); --_appear-translate: ${offset}; --_appear-blur: var(${from}-blur); --_appear-filter: blur(var(--_appear-blur));`;
   const closed = `opacity: var(--_appear-opacity);
     scale: var(--_appear-sx) var(--_appear-sy);
-    translate: calc(var(--_appear-dx) * var(--_appear-distance)) calc(var(--_appear-dy) * var(--_appear-distance));
+    translate: var(--_appear-translate);
     filter: var(--_appear-filter);`;
   const whole = 'opacity: 1; scale: none; translate: none; filter: none;';
   const timing = (t: AppearTiming, properties = MOVED) => `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing};`;
@@ -206,6 +212,7 @@ export function appearStyles(options: AppearOptions): CSSResult {
   }
   ${centred.length ? `@container style(${from}-origin: center) {\n    ${centred.join('\n    ')}\n  }` : ''}
   ${sheet ? '' : `@container style(${from}-blur: 0px) {\n    :is(${motion}) { --_appear-filter: none; }\n  }`}
+  ${sheet ? '' : `@container style(${from}-distance: 0px) {\n    :is(${motion}) { --_appear-translate: none; }\n  }`}
   ${open} {
     ${whole}
     ${timing(enter)}

@@ -340,6 +340,34 @@ test.describe('appearStyles and AppearController', () => {
     await expect(page.locator('#b .motion')).toHaveCSS('filter', 'blur(4px)');
   });
 
+  test('appear.distance of 0 (every shipped system) is no translate at all: the surface has none closed or open, and no transition of translate runs, in and out; a distance a layer sets is moved', async ({ page }) => {
+    // From `0px 0px` to `none`, which moves nothing, WebKit still runs a transition of `translate` beside the fade and
+    // the scale. A browser without style container queries keeps `0px 0px` closed, and runs it.
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear><x-anchored id="b" style="--x-appear-distance: 0px"></x-anchored><x-anchored id="c"></x-anchored></div>');
+    await painted(page);
+    for (const id of ['a', 'b']) {
+      const host = page.locator(`#${id}`);
+      await expect(host.locator('.motion'), `#${id} closed`).toHaveCSS('translate', 'none');
+      await host.evaluate((el) => void ((el as HTMLElement & { open: boolean }).open = true));
+      await expect(host.locator('.motion')).toHaveCSS('opacity', '1');
+      await expect(host.locator('.motion'), `#${id} open`).toHaveCSS('translate', 'none');
+      await host.evaluate((el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+        el.open = false;
+        return el.updateComplete;
+      });
+      expect(await host.evaluate(async (el: HTMLElement & { left: Promise<boolean> }) => el.left), `#${id}: the exit played to its end`).toBe(true);
+      const seen = await runs(host);
+      expect(seen, `#${id}: the entrance and the exit fade and scale`).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
+      expect(seen, `#${id}: no translate in or out`).not.toContain('motion:translate');
+    }
+    // 8 px toward the anchor (the layer's own distance): moved closed, and moved in.
+    const moved = page.locator('#c');
+    await expect(moved.locator('.motion')).toHaveCSS('translate', '0px -8px');
+    await moved.evaluate((el) => void ((el as HTMLElement & { open: boolean }).open = true));
+    await expect(moved.locator('.motion')).toHaveCSS('translate', 'none');
+    expect(await runs(moved)).toContain('motion:translate');
+  });
+
   test('MOT-2: an entrance turned round goes on from the value shown, and back again; the exit that was turned round resolves false', async ({ page, browserName }) => {
     // Firefox starts a transition that replaces one a script holds (paused and set to a time) from the held one's value
     // at the timeline's time, not at the time it was held at: held at 40 % of a linear fade drawn at 0.4, the fade that
