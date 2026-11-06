@@ -206,6 +206,19 @@ const changeHeldAt = (host: Locator, props: Record<string, unknown>, fraction: n
         animation.pause();
         animation.currentTime = Number(animation.effect!.getTiming().duration) * (at as number);
       }
+      // Then two frames drawn with the motions standing still, so that what the test turns round is a held motion the
+      // engine has drawn and sent the events of. Turned round before its first frame, in WebKit the entrance that
+      // replaced a held exit was now and then missed by the sampling ("a motion began and ended between two frames":
+      // 2 runs in 64 on a loaded machine, none in 64 with these frames). Held, the motions do not move meanwhile. A
+      // frame is a resize observer's first report of the root, which every drawn frame gives and no page clock holds.
+      for (let frame = 0; frame < 2; frame++)
+        await new Promise<void>((resolve) => {
+          const observer = new ResizeObserver(() => {
+            observer.disconnect();
+            resolve();
+          });
+          observer.observe(document.documentElement);
+        });
     },
     [EVERY_ANIMATION, props, fraction] as const,
   );
