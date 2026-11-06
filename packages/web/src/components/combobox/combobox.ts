@@ -1131,7 +1131,9 @@ export class TanreiCombobox extends TanreiElement {
     if (this.frame.required && this.value === '' && !this.inert_ && !this.readOnly) {
       this.says.validity({ valueMissing: true }, missingValueMessage('text', { errorText: '', requiredText: this.frame.state?.requiredText ?? '', label: this.name_ }), this.input ?? undefined);
     } else this.says.validity();
-    whenParsed(() => this.reports(changed));
+    // CMB-57, CMB-43: the options' checks judge them once their own updates have written what the product gave them
+    // (`settled()`): a wrapper sets an option's value as a property after the combobox has read it.
+    whenParsed(() => void this.options$.settled().then(() => this.reports(changed)));
   }
 
   private reportedOptions = '';

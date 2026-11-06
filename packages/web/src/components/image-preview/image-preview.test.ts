@@ -1838,6 +1838,32 @@ test.describe('the caption and what is exposed', () => {
     expect(seen.some((text) => text.includes('IMP-27') && text.includes('no alt'))).toBe(true);
   });
 
+  test('IMP-27: images given their alt as properties once an open preview is in the document — the images first, as a React wrapper gives them — are judged as given: an alt given is not reported missing, an empty one still is', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, fx({ open: false }));
+    const given = (alt: string) =>
+      page.evaluate(
+        async ([text, words]) => {
+          type Lit = HTMLElement & { updateComplete: Promise<unknown> };
+          document.querySelector('tanrei-image-preview')?.remove();
+          // The tree is built with no props, put in the document, then given its props: the image's, then the preview's.
+          const preview = document.createElement('tanrei-image-preview') as Lit;
+          const item = preview.appendChild(document.createElement('tanrei-image-preview-item')) as Lit;
+          document.querySelector('main')!.append(preview);
+          Object.assign(item, { src: 'fixtures/image-preview-landscape.png', alt: text, width: 1600, height: 1000 });
+          Object.assign(preview, { ...(words as object), open: true });
+          for (let round = 0; round < 3; round++) await Promise.all([preview.updateComplete, item.updateComplete]);
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        },
+        [alt, WORDS] as const,
+      );
+    await given('A bedroom with a window onto a garden');
+    await expect(part(page, '.stage')).toHaveAttribute('aria-label', 'A bedroom with a window onto a garden');
+    expect(seen.filter((text) => text.includes('IMP-27')), 'the alt was given: nothing is missing').toEqual([]);
+    await given('');
+    await expect.poll(() => seen.filter((text) => text.includes('IMP-27') && text.includes('no alt')).length).toBe(1);
+  });
+
   test('IMP-28: when the image shown changes assistive technology is told, politely and once, the count’s sentence and then the new image’s alt, and focus stays where it is — unless the control that has focus becomes disabled by the change: then focus is on the stage', async ({ page }) => {
     await mount(page, fx({ index: 0 }));
     expect(await part(page, '.said').getAttribute('aria-live')).toBe('polite');
