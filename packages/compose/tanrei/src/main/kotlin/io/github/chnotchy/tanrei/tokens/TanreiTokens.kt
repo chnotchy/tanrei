@@ -6175,6 +6175,8 @@ public data class TanreiListTokens(
     public val motionFeedbackDuration: Int,
     public val motionReorderDuration: Int,
     public val motionReorderEasing: TanreiCubicBezier,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val hovered: TanreiListStateTokens,

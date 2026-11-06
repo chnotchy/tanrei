@@ -5007,6 +5007,8 @@ private object TonePerStateSystemSource {
             motionFeedbackDuration = 450,
             motionReorderDuration = 250,
             motionReorderEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionResizeDuration = 400,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             hovered = TanreiListStateTokens(containerShape = 0.dp, opacity = 1f),

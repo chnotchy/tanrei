@@ -5094,6 +5094,8 @@ private object M3LikeSystemSource {
             motionFeedbackDuration = 450,
             motionReorderDuration = 300,
             motionReorderEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionResizeDuration = 500,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             hovered = TanreiListStateTokens(containerShape = 0.dp, opacity = 1f),
