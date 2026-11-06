@@ -31,6 +31,7 @@ import {
   containedWheel,
   deepActive,
   deviceTime,
+  hasFocusVisibleOption,
   headerDateText,
   holdPageScroll,
   hostAria,
@@ -585,6 +586,11 @@ export class TanreiDateTimePicker extends TanreiElement {
   private openedWith: Record<End, string> = { value: '', start: '', end: '' };
   /** DTM-4: where focus was when it opened. */
   private returnTo: Element | null = null;
+  /**
+   * DTM-3: whether that element showed its keyboard focus when it opened — read then, before a modal picker's dialog
+   * takes the focus from it, after which it matches `:focus-visible` no more.
+   */
+  private openedRing = false;
   private lastLayout = '';
   private listening = false;
   private pressedScrim = false;
@@ -2224,6 +2230,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       return;
     }
     this.returnTo = deepActive();
+    this.openedRing = !!this.returnTo && this.returnTo !== document.body && this.returnTo.matches(':focus-visible');
     this.shown = true;
     surface.inert = false;
     this.presenting = true;
@@ -2263,8 +2270,7 @@ export class TanreiDateTimePicker extends TanreiElement {
    * when it was opened by a press or with the page.
    */
   private async focusInitial() {
-    const from = this.returnTo;
-    const options = { focusVisible: !!from && from !== document.body && from.matches(':focus-visible') } as FocusOptions;
+    const options = { focusVisible: this.openedRing } as FocusOptions;
     this.presenting = true;
     try {
       if (this.hasDate) {
@@ -2275,8 +2281,8 @@ export class TanreiDateTimePicker extends TanreiElement {
         }
       } else if (this.shownEntry === 'wheels') {
         // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up.
-        this.nextRing = !!(options as { focusVisible?: boolean }).focusVisible;
-        focusAgain(this.spin('hour'), options);
+        this.nextRing = this.openedRing;
+        focusAgain(this.spin('hour'), options, { ownRing: true });
       }
       else focusAgain(this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${this.shownUnit}']`), options);
     } finally {
@@ -2985,11 +2991,18 @@ export class TanreiDateTimePicker extends TanreiElement {
 
 /**
  * Focus to `element` with `options`. `showModal()` may have focused it already (the dialog's focusing steps): it is
- * focused again, so that whether its ring shows is the options' call, not the first focus's.
+ * focused again, so that whether its ring shows is the options' call, not the first focus's — where the engine reads
+ * them, or where the picker draws the element's ring itself (`ownRing`: a wheel, DTM-20). Where it does not (Chromium
+ * before 145, Safari before 18.4) focusing again would be a script's focus, which such an engine draws with the ring
+ * after any focus that was not a pointer's — the dialog's among them; the focus the element has was drawn as the press
+ * or the key that opened the picker, and is kept.
  */
-function focusAgain(element: HTMLElement | null, options: FocusOptions) {
+function focusAgain(element: HTMLElement | null, options: FocusOptions, { ownRing = false } = {}) {
   if (!element) return;
-  if (deepActive() === element) element.blur();
+  if (deepActive() === element) {
+    if (!ownRing && !hasFocusVisibleOption()) return;
+    element.blur();
+  }
   element.focus(options);
 }
 

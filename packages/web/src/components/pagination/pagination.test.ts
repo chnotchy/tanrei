@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { settledCss } from '../../../test/motions.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
@@ -346,6 +347,23 @@ test.describe('activation', () => {
     await tabTo(page, control(page, 'compact', 'next'));
     await page.keyboard.press('Enter');
     await expect.poll(() => focused(page, 'compact')).toBe('previous');
+  });
+
+  test('PGN-14, PGN-19: in an engine without the focusVisible focus option (Chromium before 145, Safari before 18.4), a pointer’s press on the control that has keyboard focus — next, on page 9 of 10, a button or a link — moves focus to page 10 with no ring', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fx('nine', { page: 9 }), fx('linked', { page: 9, href: '#results-{page}' })] });
+    // There a script's focus after a press that gave no focus (the control had it already) is drawn as the keyboard's
+    // was: the press itself gives focus, as a pointer's, before focus moves on.
+    await withoutFocusVisibleOption(page);
+    // WebKit draws a script's focus after any press on a link with the ring, the press taking no focus there: a link's
+    // is left to it.
+    for (const id of browserName === 'webkit' ? ['nine'] : ['nine', 'linked']) {
+      await tabTo(page, control(page, id, 'next'));
+      expect(await control(page, id, 'next').evaluate((el) => el.matches(':focus-visible')), id).toBe(true);
+      await control(page, id, 'next').click();
+      await expect.poll(() => focused(page, id), id).toBe('10');
+      expect(await pageItem(page, id, 10).evaluate((el) => el.matches(':focus-visible')), `${id}: the page now current has focus with no ring`).toBe(false);
+      expect(await css(pageItem(page, id, 10), 'outline-style'), id).toBe('none');
+    }
   });
 });
 
