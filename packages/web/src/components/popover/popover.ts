@@ -459,7 +459,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   /** POP-21, POP-23, POP-24: Escape, a press outside and focus leaving (src/primitives/dismiss.ts); POP-20: Tab at its ends. */
   private readonly dismiss = new DismissController(this, {
     related: () => [this.anchorNode, this.openerNode],
-    request: (reason: DismissReason) => this.onDismiss(reason),
+    request: (reason: DismissReason) => this.answerDismiss(reason),
     tab: (event) => {
       const surface = this.container;
       if (surface) tabThroughOverlay(event, { surface, host: this, opener: this.openerNode });
@@ -532,7 +532,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private readonly onCloseClick = () => this.requestClose('close');
 
   /** POP-21, POP-48, POP-50: what the dismissal asks, as the popover is open now. */
-  private onDismiss(reason: DismissReason) {
+  private answerDismiss(reason: DismissReason) {
     // POP-48: open by hover or focus, focus leaving is one of the things that held it; another may hold it still.
     if (this.byHover && reason === 'focus-out') this.settle();
     else this.requestClose(reason);
