@@ -927,7 +927,7 @@ export class TanreiChipField extends ComposedElement {
                   .label=${entry}
                   .removeLabel=${this.removeName(sentence, entry)}
                   .disabled=${inert}
-                  .removable=${!this.readOnly}
+                  .notRemovable=${this.readOnly}
                   @keydown=${this.#onEntryKey}
                   @click=${this.#onEntryClick}
                   @remove=${this.#onEntryRemove}

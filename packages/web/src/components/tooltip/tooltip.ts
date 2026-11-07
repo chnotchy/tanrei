@@ -120,7 +120,7 @@ function warmFor(duration: number) {
  * `-rich-container-inverse` (off). `shortcut` writes the keys of the anchor's command after a plain tooltip's text and
  * gives them to the anchor as `aria-keyshortcuts`.
  *
- * While `describes` is true (the default; the attribute `no-describe` turns it off) the text — after the title, for a
+ * Unless `noDescribe` (the attribute `no-describe`), the text — after the title, for a
  * rich tooltip — is the anchor's `aria-description`, set on the first focusable element slotted in (a Tanrei component
  * forwards it from its host to its native element), whether or not the tooltip is open.
  *
@@ -149,12 +149,9 @@ export class TanreiTooltip extends TanreiElement {
     crossOffset: { attribute: 'cross-offset', converter: crossNumeric },
     arrow: { reflect: true, converter: choiceConverter },
     inverse: { reflect: true, converter: choiceConverter },
-    describes: {
-      type: Boolean,
-      attribute: 'no-describe',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `describes`, which defaults to true, is its inverse here, `noDescribe`: an HTML boolean attribute cannot
+    // default to true, and the property has the attribute's name (the spec's web notes).
+    noDescribe: { type: Boolean, attribute: 'no-describe', reflect: true },
     open: { type: Boolean, reflect: true },
     showDelay: { attribute: 'show-delay', converter: numeric },
     hideDelay: { attribute: 'hide-delay', converter: numeric },
@@ -209,8 +206,8 @@ export class TanreiTooltip extends TanreiElement {
    */
   inverse: boolean | null = null;
 
-  /** Whether the text is the anchor's accessible description. Set `no-describe` when the text repeats the anchor's name. */
-  describes = true;
+  /** Keeps the text from being the anchor's accessible description: set it when the text repeats the anchor's name. False (the default): the text describes the anchor. */
+  noDescribe = false;
 
   /** Whether the tooltip is showing. It opens and closes itself and fires `toggle`; set it to show a tooltip on your own. */
   open = false;
@@ -863,7 +860,7 @@ export class TanreiTooltip extends TanreiElement {
     const stated = [element, target].some((each) => !!each && ariaAttribute(each, 'aria-keyshortcuts') !== null && !ours(each));
     this.key(stated ? null : target, stated ? null : keys);
     const spoken = stated && drawn ? drawn.spokenKeys : '';
-    this.describe(this.describes && this.hasText ? [this.description(), spoken].filter(Boolean).join(', ') : null);
+    this.describe(!this.noDescribe && this.hasText ? [this.description(), spoken].filter(Boolean).join(', ') : null);
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -926,7 +923,7 @@ export class TanreiTooltip extends TanreiElement {
         class="surface"
         popover="manual"
         role="tooltip"
-        aria-hidden=${(this.describes && this.hasText) || this.confirming ? 'true' : nothing}
+        aria-hidden=${(!this.noDescribe && this.hasText) || this.confirming ? 'true' : nothing}
         @pointerenter=${() => clearTimeout(this.hideTimer)}
         @click=${this.swallow}
         @mousedown=${this.swallow}

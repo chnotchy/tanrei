@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, inverseBoolean, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -259,7 +259,7 @@ type Motion = 'scroll' | 'autoplay';
  * Contract: specs/carousel.spec.json. The items are `<tanrei-carousel-item>` children, in order. The carousel is a native
  * horizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the
  * scroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll
- * ends while `snap` is true (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and
+ * ends unless `freeScroll` (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and
  * bring the focused one into place (CRL-17, CRL-18). Over the ends of the row, a previous and a next control move it one
  * resting position (CRL-41 – CRL-43). Below the items, a controls row holds the page indicator (one
  * slider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`
@@ -290,19 +290,20 @@ export class TanreiCarousel extends TanreiElement {
   static override properties: PropertyDeclarations = {
     heroAlignment: { type: String, attribute: 'hero-alignment', reflect: true },
     itemWidth: { attribute: 'item-width', converter: numberConverter },
-    // An HTML boolean attribute cannot default to true: the attributes are the inverses, `fixed-width`, `free-scroll` and
-    // `no-playback-control`.
-    fluidWidth: { attribute: 'fixed-width', reflect: true, converter: inverseBoolean },
+    // The spec's `fluidWidth`, `snap` and `playbackControl`, which default to true, are their inverses here, `fixedWidth`,
+    // `freeScroll` and `noPlaybackControl`: an HTML boolean attribute cannot default to true, and each property has its
+    // attribute's name (the spec's web notes).
+    fixedWidth: { type: Boolean, attribute: 'fixed-width', reflect: true },
     contentAlignment: { type: String, attribute: 'content-alignment', reflect: true },
     scaleOthers: { type: Boolean, attribute: 'scale-others', reflect: true },
-    snap: { attribute: 'free-scroll', reflect: true, converter: inverseBoolean },
+    freeScroll: { type: Boolean, attribute: 'free-scroll', reflect: true },
     loop: { type: Boolean, reflect: true },
     navigation: { type: String, reflect: true },
     indicator: { type: Boolean, reflect: true },
     autoplay: { type: Boolean, reflect: true },
     autoplayInterval: { attribute: 'autoplay-interval', converter: numberConverter },
     paused: { type: Boolean, reflect: true },
-    playbackControl: { attribute: 'no-playback-control', reflect: true, converter: inverseBoolean },
+    noPlaybackControl: { type: Boolean, attribute: 'no-playback-control', reflect: true },
     autoplayProgress: { type: Boolean, attribute: 'autoplay-progress', reflect: true },
     playLabel: { type: String, attribute: 'play-label' },
     pauseLabel: { type: String, attribute: 'pause-label' },
@@ -329,8 +330,8 @@ export class TanreiCarousel extends TanreiElement {
    */
   itemWidth: number | null = null;
 
-  /** Whether item widths change fluidly (CRL-10). False (the `fixed-width` attribute) makes every item the hero's width. */
-  fluidWidth = true;
+  /** Makes every item the hero's width. False (the default): item widths change fluidly (CRL-10). */
+  fixedWidth = false;
 
   /** With fluid widths, where a narrowed item's content is anchored: `center` or `toward-hero` (CRL-15). An unknown value is `center`, reported (CRL-24). Reflected. */
   contentAlignment: TanreiCarouselContentAlignment = 'center';
@@ -338,8 +339,8 @@ export class TanreiCarousel extends TanreiElement {
   /** Draws the items other than the hero smaller, down to `comp.carousel.container.min-scale`, following the scroll (CRL-26). */
   scaleOthers = false;
 
-  /** Whether the row settles at a resting position when a scroll ends (CRL-14). False (the `free-scroll` attribute) lets it rest wherever it ends. */
-  snap = true;
+  /** Lets the row rest wherever a scroll ends. False (the default): it settles at a resting position (CRL-14). */
+  freeScroll = false;
 
   /** Whether the row is endless (CRL-27). Takes effect only with two or more items. */
   loop = false;
@@ -364,8 +365,8 @@ export class TanreiCarousel extends TanreiElement {
   /** Whether autoplay is paused, by the person (the playback control, which fires `pausedchange`) or by the product (which fires nothing). Reflected. */
   paused = false;
 
-  /** Draws the playback control while autoplay is on (CRL-35). False (the `no-playback-control` attribute) hides it: keep it wherever you can (WCAG 2.2.2). */
-  playbackControl = true;
+  /** Hides the playback control that is drawn while autoplay is on (CRL-35): keep it wherever you can (WCAG 2.2.2). False (the default) draws it. */
+  noPlaybackControl = false;
 
   /** Fills the current dot to show the time until autoplay moves on (CRL-36). Needs `indicator`. */
   autoplayProgress = false;
@@ -542,7 +543,7 @@ export class TanreiCarousel extends TanreiElement {
 
   /** CRL-35: whether the playback control is drawn. */
   private get playbackDrawn(): boolean {
-    return this.autoplay && this.playbackControl && this.restingCount >= 2 && !this.reducedMotion;
+    return this.autoplay && !this.noPlaybackControl && this.restingCount >= 2 && !this.reducedMotion;
   }
 
   /** CRL-36: whether the current dot shows the time until autoplay moves on. */
@@ -621,9 +622,9 @@ export class TanreiCarousel extends TanreiElement {
     const next = new CarouselGeometry({
       ...metrics,
       heroAlignment: this.drawnHero,
-      fluid: this.fluidWidth !== false,
+      fluid: !this.fixedWidth,
       scaleOthers: this.scaleOthers === true,
-      snap: this.snap !== false,
+      snap: !this.freeScroll,
       loop: this.loop,
       count: items.length,
     });
@@ -862,7 +863,7 @@ export class TanreiCarousel extends TanreiElement {
     // the finger had come to rest before it lifted (so no scroll event follows either), once no scroll has come for a
     // moment.
     if (!this.scrolledSinceTouch) this.settle();
-    else if (this.snap === false) {
+    else if (this.freeScroll) {
       clearTimeout(this.idleTimer);
       this.idleTimer = setTimeout(() => this.onScrollEnd(), SCROLL_IDLE);
     } else {
@@ -915,7 +916,7 @@ export class TanreiCarousel extends TanreiElement {
     const geometry = this.geometry;
     const direction = this.fling;
     this.fling = 0;
-    if (!geometry || this.snap === false) {
+    if (!geometry || this.freeScroll) {
       this.atRest();
       return;
     }
@@ -1439,7 +1440,7 @@ export class TanreiCarousel extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     // CRL-20: a list and an indicator without a name; a playback control without its names.
     if (changed.has('label') && !this.label.trim()) report(this, 'CRL-20', 'label is empty, so the carousel’s list and its indicator have no accessible name; give it a label ("Recently played")');
-    if ((changed.has('autoplay') || changed.has('playbackControl') || changed.has('playLabel') || changed.has('pauseLabel')) && this.autoplay && this.playbackControl) {
+    if ((changed.has('autoplay') || changed.has('noPlaybackControl') || changed.has('playLabel') || changed.has('pauseLabel')) && this.autoplay && !this.noPlaybackControl) {
       const missing = [this.words.lacks('playLabel', this.playLabel) && 'play-label', this.words.lacks('pauseLabel', this.pauseLabel) && 'pause-label'].filter(Boolean).join(' and ');
       if (missing) this.reportOnce('labels', missing, 'CRL-20', `autoplay is on and the playback control is drawn, but ${missing} is empty, so the control has no accessible name in that state; give it both labels ("Pause the slideshow", "Play the slideshow")`);
       else this.reported.delete('labels');
@@ -1466,7 +1467,7 @@ export class TanreiCarousel extends TanreiElement {
     if (changed.has('autoplayInterval') && this.autoplayInterval !== null && this.autoplayInterval !== undefined && positive(this.autoplayInterval) === null) {
       this.reportOnce('autoplayInterval', this.autoplayInterval, 'CRL-24', `autoplayInterval ${String(this.autoplayInterval)} is not a positive number of milliseconds; comp.carousel.autoplay.interval is used instead`);
     }
-    const geometryChanged = ['heroAlignment', 'itemWidth', 'fluidWidth', 'scaleOthers', 'snap', 'loop', 'indicator'].some((name) => changed.has(name as keyof TanreiCarousel));
+    const geometryChanged = ['heroAlignment', 'itemWidth', 'fixedWidth', 'scaleOthers', 'freeScroll', 'loop', 'indicator'].some((name) => changed.has(name as keyof TanreiCarousel));
     if (this.hasUpdated && geometryChanged) this.arrange();
     else if (['contentAlignment', 'restingCount', 'indicatorFits', 'autoplayProgress', 'paused', 'reducedMotion'].some((name) => changed.has(name as keyof TanreiCarousel))) {
       this.place(this.offset);

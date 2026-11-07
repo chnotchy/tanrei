@@ -1693,13 +1693,13 @@
             },
             {
               "kind": "field",
-              "name": "handle",
+              "name": "noHandle",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the drag handle. False (the `no-handle` attribute) draws none; the sheet can still be dragged by its content.",
+              "default": "false",
+              "description": "Draws no drag handle; the sheet can still be dragged by its content. False (the default) draws it.",
               "attribute": "no-handle",
               "reflects": true
             },
@@ -1716,13 +1716,13 @@
             },
             {
               "kind": "field",
-              "name": "inset",
+              "name": "flush",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by `container.padding`. False (the `flush` attribute) lets it reach the edges (a list with its own padding).",
+              "default": "false",
+              "description": "Lets the content reach the edges (a list with its own padding). False (the default) insets it by `container.padding`.",
               "attribute": "flush",
               "reflects": true
             },
@@ -1842,9 +1842,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the drag handle. False (the `no-handle` attribute) draws none; the sheet can still be dragged by its content.",
-              "fieldName": "handle"
+              "default": "false",
+              "description": "Draws no drag handle; the sheet can still be dragged by its content. False (the default) draws it.",
+              "fieldName": "noHandle"
             },
             {
               "name": "handle-label",
@@ -1860,9 +1860,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by `container.padding`. False (the `flush` attribute) lets it reach the edges (a list with its own padding).",
-              "fieldName": "inset"
+              "default": "false",
+              "description": "Lets the content reach the edges (a list with its own padding). False (the default) insets it by `container.padding`.",
+              "fieldName": "flush"
             },
             {
               "name": "label",
@@ -4496,13 +4496,13 @@
             },
             {
               "kind": "field",
-              "name": "inset",
+              "name": "flush",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by the card's padding. False (the `flush` attribute) lets content reach the card's edges — a\nphoto on top — and that content pads its own text (`--tanrei-comp-card-container-padding`).",
+              "default": "false",
+              "description": "Lets content reach the card's edges — a photo on top — and that content pads its own text\n(`--tanrei-comp-card-container-padding`). False (the default) insets the content by the card's padding.",
               "attribute": "flush",
               "reflects": true
             },
@@ -4617,9 +4617,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by the card's padding. False (the `flush` attribute) lets content reach the card's edges — a\nphoto on top — and that content pads its own text (`--tanrei-comp-card-container-padding`).",
-              "fieldName": "inset"
+              "default": "false",
+              "description": "Lets content reach the card's edges — a photo on top — and that content pads its own text\n(`--tanrei-comp-card-container-padding`). False (the default) insets the content by the card's padding.",
+              "fieldName": "flush"
             },
             {
               "name": "label",
@@ -5395,7 +5395,7 @@
         },
         {
           "kind": "class",
-          "description": "Lets people browse a row of visual items that scrolls sideways around one item in focus — the hero, in the centre (the\ndefault) or at the start, the others narrower (fluid widths) or smaller (scaleOthers) as they move away, every two\nneighbours one gap apart at every scroll position (CRL-40) — each item opening what it shows. A featured row may loop, show its position in dots and advance by itself, with a control to stop it.\n\nContract: specs/carousel.spec.json. The items are `<tanrei-carousel-item>` children, in order. The carousel is a native\nhorizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the\nscroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll\nends while `snap` is true (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and\nbring the focused one into place (CRL-17, CRL-18). Over the ends of the row, a previous and a next control move it one\nresting position (CRL-41 – CRL-43). Below the items, a controls row holds the page indicator (one\nslider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`\ntokens.",
+          "description": "Lets people browse a row of visual items that scrolls sideways around one item in focus — the hero, in the centre (the\ndefault) or at the start, the others narrower (fluid widths) or smaller (scaleOthers) as they move away, every two\nneighbours one gap apart at every scroll position (CRL-40) — each item opening what it shows. A featured row may loop, show its position in dots and advance by itself, with a control to stop it.\n\nContract: specs/carousel.spec.json. The items are `<tanrei-carousel-item>` children, in order. The carousel is a native\nhorizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the\nscroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll\nends unless `freeScroll` (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and\nbring the focused one into place (CRL-17, CRL-18). Over the ends of the row, a previous and a next control move it one\nresting position (CRL-41 – CRL-43). Below the items, a controls row holds the page indicator (one\nslider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`\ntokens.",
           "name": "TanreiCarousel",
           "cssParts": [
             {
@@ -5487,13 +5487,13 @@
             },
             {
               "kind": "field",
-              "name": "fluidWidth",
+              "name": "fixedWidth",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether item widths change fluidly (CRL-10). False (the `fixed-width` attribute) makes every item the hero's width.",
+              "default": "false",
+              "description": "Makes every item the hero's width. False (the default): item widths change fluidly (CRL-10).",
               "attribute": "fixed-width",
               "reflects": true
             },
@@ -5523,13 +5523,13 @@
             },
             {
               "kind": "field",
-              "name": "snap",
+              "name": "freeScroll",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the row settles at a resting position when a scroll ends (CRL-14). False (the `free-scroll` attribute) lets it rest wherever it ends.",
+              "default": "false",
+              "description": "Lets the row rest wherever a scroll ends. False (the default): it settles at a resting position (CRL-14).",
               "attribute": "free-scroll",
               "reflects": true
             },
@@ -5606,13 +5606,13 @@
             },
             {
               "kind": "field",
-              "name": "playbackControl",
+              "name": "noPlaybackControl",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the playback control while autoplay is on (CRL-35). False (the `no-playback-control` attribute) hides it: keep it wherever you can (WCAG 2.2.2).",
+              "default": "false",
+              "description": "Hides the playback control that is drawn while autoplay is on (CRL-35): keep it wherever you can (WCAG 2.2.2). False (the default) draws it.",
               "attribute": "no-playback-control",
               "reflects": true
             },
@@ -5726,9 +5726,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether item widths change fluidly (CRL-10). False (the `fixed-width` attribute) makes every item the hero's width.",
-              "fieldName": "fluidWidth"
+              "default": "false",
+              "description": "Makes every item the hero's width. False (the default): item widths change fluidly (CRL-10).",
+              "fieldName": "fixedWidth"
             },
             {
               "name": "content-alignment",
@@ -5753,9 +5753,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the row settles at a resting position when a scroll ends (CRL-14). False (the `free-scroll` attribute) lets it rest wherever it ends.",
-              "fieldName": "snap"
+              "default": "false",
+              "description": "Lets the row rest wherever a scroll ends. False (the default): it settles at a resting position (CRL-14).",
+              "fieldName": "freeScroll"
             },
             {
               "name": "loop",
@@ -5816,9 +5816,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the playback control while autoplay is on (CRL-35). False (the `no-playback-control` attribute) hides it: keep it wherever you can (WCAG 2.2.2).",
-              "fieldName": "playbackControl"
+              "default": "false",
+              "description": "Hides the playback control that is drawn while autoplay is on (CRL-35): keep it wherever you can (WCAG 2.2.2). False (the default) draws it.",
+              "fieldName": "noPlaybackControl"
             },
             {
               "name": "autoplay-progress",
@@ -9083,13 +9083,13 @@
             },
             {
               "kind": "field",
-              "name": "removable",
+              "name": "notRemovable",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether an input chip draws its remove action. Set `not-removable` for an entry that cannot be taken away now (a\nread-only field's): no remove action is drawn, so none stands there doing nothing, none is a stop, Backspace and\nDelete ask for nothing, and the chip is padded as one without a remove action (CHP-38). Ignored unless `kind` is input.",
+              "default": "false",
+              "description": "Draws no remove action on an input chip, for an entry that cannot be taken away now (a read-only field's): none\nstands there doing nothing, none is a stop, Backspace and Delete ask for nothing, and the chip is padded as one\nwithout a remove action (CHP-38). False (the default) draws it. Ignored unless `kind` is input.",
               "attribute": "not-removable",
               "reflects": true
             },
@@ -9261,9 +9261,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether an input chip draws its remove action. Set `not-removable` for an entry that cannot be taken away now (a\nread-only field's): no remove action is drawn, so none stands there doing nothing, none is a stop, Backspace and\nDelete ask for nothing, and the chip is padded as one without a remove action (CHP-38). Ignored unless `kind` is input.",
-              "fieldName": "removable"
+              "default": "false",
+              "description": "Draws no remove action on an input chip, for an entry that cannot be taken away now (a read-only field's): none\nstands there doing nothing, none is a stop, Backspace and Delete ask for nothing, and the chip is padded as one\nwithout a remove action (CHP-38). False (the default) draws it. Ignored unless `kind` is input.",
+              "fieldName": "notRemovable"
             },
             {
               "name": "href",
@@ -12238,15 +12238,15 @@
             },
             {
               "kind": "field",
-              "name": "wrap",
+              "name": "noWrap",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
+              "default": "false",
               "attribute": "no-wrap",
               "reflects": true,
-              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected."
+              "description": "Stops the arrow keys at the ends of the list. False (the default): they go round — Down Arrow on the last option to\nthe first, Up Arrow on the first to the last — with `allowCustomValue`, through the text itself, where no option is\nactive. Reflected."
             },
             {
               "kind": "field",
@@ -12746,9 +12746,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "fieldName": "wrap",
-              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected."
+              "default": "false",
+              "fieldName": "noWrap",
+              "description": "Stops the arrow keys at the ends of the list. False (the default): they go round — Down Arrow on the last option to\nthe first, Up Arrow on the first to the last — with `allowCustomValue`, through the text itself, where no option is\nactive. Reflected."
             },
             {
               "name": "no-chevron",
@@ -13341,13 +13341,13 @@
             },
             {
               "kind": "field",
-              "name": "wrap",
+              "name": "noWrap",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.",
+              "default": "false",
+              "description": "Stops the arrow keys at the ends of the list. False (the default): they go round — Down Arrow on the last option to\nthe first, Up Arrow on the first to the last — with `allowCustomValue`, through the text itself, where no option is\nactive. Reflected.",
               "attribute": "no-wrap",
               "reflects": true
             },
@@ -13730,9 +13730,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.",
-              "fieldName": "wrap"
+              "default": "false",
+              "description": "Stops the arrow keys at the ends of the list. False (the default): they go round — Down Arrow on the last option to\nthe first, Up Arrow on the first to the last — with `allowCustomValue`, through the text itself, where no option is\nactive. Reflected.",
+              "fieldName": "noWrap"
             },
             {
               "name": "no-chevron",
@@ -18387,13 +18387,13 @@
             },
             {
               "kind": "field",
-              "name": "inset",
+              "name": "flush",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the stage is padded inside the frame. False (the `flush` attribute) lets a picture, a chart or a map reach the frame's edges, clipped by its corners. The plain look is never padded.",
+              "default": "false",
+              "description": "Lets a picture, a chart or a map reach the frame's edges, clipped by its corners. False (the default) pads the stage inside the frame; the plain look is never padded.",
               "attribute": "flush",
               "reflects": true
             },
@@ -18464,9 +18464,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the stage is padded inside the frame. False (the `flush` attribute) lets a picture, a chart or a map reach the frame's edges, clipped by its corners. The plain look is never padded.",
-              "fieldName": "inset"
+              "default": "false",
+              "description": "Lets a picture, a chart or a map reach the frame's edges, clipped by its corners. False (the default) pads the stage inside the frame; the plain look is never padded.",
+              "fieldName": "flush"
             },
             {
               "name": "separation",
@@ -23831,7 +23831,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Performs the single most important action of a screen on a raised container that floats above the content, showing\nits icon and its written name (extended), or collapsing to its icon alone.\n\nContract: specs/main-action-button.spec.json. Every visual value comes from `--tanrei-comp-main-action-button-*`\ntokens, one set per variant and state — the container color, the label color (the icon's too) and the elevation: how\na state looks is the active design system's decision, not this component's. How a press is answered and how keyboard\nfocus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`), and how far its corners ease is\nthe system's amount (`--tanrei-sys-shape-corner-smoothing`); all are read from the cascade, so they follow\n`data-tanrei-system`.\n\n`label` is the visible text while extended and the accessible name in either form. The icon is the `icon` slot: a\nglyph of the system's icon set, given as its ligature text (`<span slot=\"icon\">edit</span>`), drawn in the label color\nat the size's icon size, on the side `iconPosition` names. `extended = false` (the `collapsed` attribute) collapses the\nbutton to a square holding only the icon, over the resize motion. Without an icon it stays extended; without a label\nit never extends (both reported in debug builds). It is an action, never a toggle: it has no pressed, selected or\nexpanded state, and collapsing changes no role, name or focus.\n\nThe element does not position itself (MAB-18): it is inline, at its own size, and the page places it; which edge stays\nput while it collapses is the layout's decision too (an element anchored at the inline end collapses toward it).",
+          "description": "Performs the single most important action of a screen on a raised container that floats above the content, showing\nits icon and its written name (extended), or collapsing to its icon alone.\n\nContract: specs/main-action-button.spec.json. Every visual value comes from `--tanrei-comp-main-action-button-*`\ntokens, one set per variant and state — the container color, the label color (the icon's too) and the elevation: how\na state looks is the active design system's decision, not this component's. How a press is answered and how keyboard\nfocus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`), and how far its corners ease is\nthe system's amount (`--tanrei-sys-shape-corner-smoothing`); all are read from the cascade, so they follow\n`data-tanrei-system`.\n\n`label` is the visible text while extended and the accessible name in either form. The icon is the `icon` slot: a\nglyph of the system's icon set, given as its ligature text (`<span slot=\"icon\">edit</span>`), drawn in the label color\nat the size's icon size, on the side `iconPosition` names. `collapsed` collapses the\nbutton to a square holding only the icon, over the resize motion. Without an icon it stays extended; without a label\nit never extends (both reported in debug builds). It is an action, never a toggle: it has no pressed, selected or\nexpanded state, and collapsing changes no role, name or focus.\n\nThe element does not position itself (MAB-18): it is inline, at its own size, and the page places it; which edge stays\nput while it collapses is the layout's decision too (an element anchored at the inline end collapses toward it).",
           "name": "TanreiMainActionButton",
           "cssParts": [
             {
@@ -23889,13 +23889,13 @@
             },
             {
               "kind": "field",
-              "name": "extended",
+              "name": "collapsed",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Shows the label beside the icon. False (the `collapsed` attribute) collapses the button to its icon; the label stays the accessible name. Not a toggle.",
+              "default": "false",
+              "description": "Collapses the button to its icon; the label stays the accessible name. False (the default) shows the label beside the icon. Not a toggle.",
               "attribute": "collapsed",
               "reflects": true
             },
@@ -23907,7 +23907,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the\none action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so\n`extended` is ignored while it is set (reported in debug builds).",
+              "description": "Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the\none action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so\n`collapsed` is ignored while it is set (reported in debug builds).",
               "attribute": "full-width",
               "reflects": true
             },
@@ -23982,9 +23982,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Shows the label beside the icon. False (the `collapsed` attribute) collapses the button to its icon; the label stays the accessible name. Not a toggle.",
-              "fieldName": "extended"
+              "default": "false",
+              "description": "Collapses the button to its icon; the label stays the accessible name. False (the default) shows the label beside the icon. Not a toggle.",
+              "fieldName": "collapsed"
             },
             {
               "name": "icon-position",
@@ -24001,7 +24001,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the\none action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so\n`extended` is ignored while it is set (reported in debug builds).",
+              "description": "Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the\none action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so\n`collapsed` is ignored while it is set (reported in debug builds).",
               "fieldName": "fullWidth"
             },
             {
@@ -27648,13 +27648,13 @@
             },
             {
               "kind": "field",
-              "name": "scrim",
+              "name": "noScrim",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the layer dims what lies behind it. False for content that covers the whole window with a fill of its own; the layer still blocks everything behind.",
+              "default": "false",
+              "description": "Leaves what lies behind the layer undimmed, for content that covers the whole window with a fill of its own; the layer still blocks everything behind. False (the default) dims it.",
               "attribute": "no-scrim",
               "reflects": true
             },
@@ -27703,9 +27703,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the layer dims what lies behind it. False for content that covers the whole window with a fill of its own; the layer still blocks everything behind.",
-              "fieldName": "scrim"
+              "default": "false",
+              "description": "Leaves what lies behind the layer undimmed, for content that covers the whole window with a fill of its own; the layer still blocks everything behind. False (the default) dims it.",
+              "fieldName": "noScrim"
             },
             {
               "name": "label",
@@ -29519,7 +29519,7 @@
         },
         {
           "kind": "class",
-          "description": "A panel of destinations at the start edge, in two variants — `standard`, a layout region beside the content,\nand `modal`, a modal overlay over a scrim that closes itself after a destination is chosen — and, while `collapsible`,\nin two forms: expanded, and collapsed to a column of icons, which is the expanded drawer with its labels gone: every\nrow is the same row cut after its icon, at the same height and with the same corners, and every icon exactly in place\nwhile the drawer moves between the two. A collapsed cell shows its name in a plain tooltip on hover and keyboard focus;\n`collapsed-labels` draws short labels under the icons instead, for a product or a system whose column is labelled.\n\nContract: specs/navigation-drawer.spec.json. `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and\n`<tanrei-navigation-drawer-section>` children, in order; header buttons (icon-only `<tanrei-button>`s) with\n`slot=\"header-button\"`, the main action (`<tanrei-main-action-button>`) with `slot=\"main-action\"`, and the `header`\nslot. The drawer's `value` is the selected destination's value; the drawer sets it when a button destination is\nactivated and fires `change`, or `reselect` for the selected one.\n\nA site's sidebar (NVD-57…64): a destination with `href` is a link, and the selected destination is the current page\n(`aria-current=\"page\"`) — one state, which in a site of separate pages the page says, through `value` (a link without\na `value` takes its `href`). The drawer never writes `value` for a link: a plain activation fires `change` or\n`reselect` with `detail.href`, cancelable, before the browser follows the link (a router cancels it and goes to\n`detail.href` itself), and then closes a modal drawer; a modified or a middle click, a link whose `target` is `new`\nand a download fire nothing and close nothing. The row that shows the selection is brought into view when the drawer\nfirst appears and whenever `value` changes — centred if it was not wholly in view, untouched if it was, without motion\nand without moving focus — and `reveal-selected` opens the groups that hold it (each fires `toggle`). `scrollOffset`\nreads and writes how far the items are scrolled; the scroll does not chain to the page. Nothing is stored: a site keeps\neach group's `open` (from `toggle`) and `scrollOffset` (read on `pagehide`) itself and gives them back as attributes.\n\nForms (NVD-30): not collapsible, always expanded. Collapsible and standard: `expanded` chooses. Collapsible and modal:\ncollapsed — its column in the layout, drawn as a standard drawer's — while closed, and expanded over the content while\nopen. The first header button is then the menu button: the drawer sets `aria-expanded` and `aria-controls` on its\nnative button (`ariaExpanded`, `ariaControlsElements`), and its activation asks for the other form: the drawer sets\n`expanded` (or `open`) and fires `expandedchange`. The main action's `extended` follows the form. The read-only\n`collapsed` attribute reflects the form.\n\nStandard: a `<nav>` named by `label`, taking its form's width in the layout while `open` and none while closed (sliding\nwhile the content beside it resizes). Opening it moves focus in; closing it with focus inside returns focus to where it\nwas; Tab leaves it without closing it.\n\nModal: a native `<dialog>` in the shadow root, opened with `showModal()` while `open` — in the top layer over its\n`::backdrop` (the scrim), everything else inert, the page held from scrolling, focus kept inside. Escape, the platform's\nback, a press on the scrim, a drag toward the start edge past half its width (or a fling), the menu button and a\ndestination's activation close it: the drawer sets `open` to false itself and fires `close`. Focus returns to where it\nwas.\n\nResponsive (NVD-53…55): with `responsive`, the window's width chooses what the drawer is, and `variant` is ignored —\na standard drawer, shown whatever `open` says, from `comp.navigation-drawer.breakpoint.expanded` (1024 px at the\ndefault text size); its column, widening over the content while `open`, from `breakpoint.collapsed` (600 px) while\n`collapsible`; a modal drawer below that. The read-only `presentation` says which (and the `presentation` attribute, for\nstyling); `presentationchange` fires when it is first decided and whenever the width changes it. A change of\npresentation is drawn at once, is entered closed (an open overlay closes: `open` is false and `close` fires once), and\nkeeps `expanded`, `value` and every group's `open`. The presentation is derived from the width alone: it is never\nwritten to `variant`, `open` or `expanded`, and the element stores nothing — a product that wants the user's choice of\nform remembered keeps what `expandedchange` carries and sets `expanded` from it.\n\nEvery visual value comes from `--tanrei-comp-navigation-drawer-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the start, top and bottom.",
+          "description": "A panel of destinations at the start edge, in two variants — `standard`, a layout region beside the content,\nand `modal`, a modal overlay over a scrim that closes itself after a destination is chosen — and, while `collapsible`,\nin two forms: expanded, and collapsed to a column of icons, which is the expanded drawer with its labels gone: every\nrow is the same row cut after its icon, at the same height and with the same corners, and every icon exactly in place\nwhile the drawer moves between the two. A collapsed cell shows its name in a plain tooltip on hover and keyboard focus;\n`collapsed-labels` draws short labels under the icons instead, for a product or a system whose column is labelled.\n\nContract: specs/navigation-drawer.spec.json. `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and\n`<tanrei-navigation-drawer-section>` children, in order; header buttons (icon-only `<tanrei-button>`s) with\n`slot=\"header-button\"`, the main action (`<tanrei-main-action-button>`) with `slot=\"main-action\"`, and the `header`\nslot. The drawer's `value` is the selected destination's value; the drawer sets it when a button destination is\nactivated and fires `change`, or `reselect` for the selected one.\n\nA site's sidebar (NVD-57…64): a destination with `href` is a link, and the selected destination is the current page\n(`aria-current=\"page\"`) — one state, which in a site of separate pages the page says, through `value` (a link without\na `value` takes its `href`). The drawer never writes `value` for a link: a plain activation fires `change` or\n`reselect` with `detail.href`, cancelable, before the browser follows the link (a router cancels it and goes to\n`detail.href` itself), and then closes a modal drawer; a modified or a middle click, a link whose `target` is `new`\nand a download fire nothing and close nothing. The row that shows the selection is brought into view when the drawer\nfirst appears and whenever `value` changes — centred if it was not wholly in view, untouched if it was, without motion\nand without moving focus — and `reveal-selected` opens the groups that hold it (each fires `toggle`). `scrollOffset`\nreads and writes how far the items are scrolled; the scroll does not chain to the page. Nothing is stored: a site keeps\neach group's `open` (from `toggle`) and `scrollOffset` (read on `pagehide`) itself and gives them back as attributes.\n\nForms (NVD-30): not collapsible, always expanded. Collapsible and standard: `expanded` chooses. Collapsible and modal:\ncollapsed — its column in the layout, drawn as a standard drawer's — while closed, and expanded over the content while\nopen. The first header button is then the menu button: the drawer sets `aria-expanded` and `aria-controls` on its\nnative button (`ariaExpanded`, `ariaControlsElements`), and its activation asks for the other form: the drawer sets\n`expanded` (or `open`) and fires `expandedchange`. The main action's `collapsed` follows the form. The read-only\n`collapsed` attribute reflects the form.\n\nStandard: a `<nav>` named by `label`, taking its form's width in the layout while `open` and none while closed (sliding\nwhile the content beside it resizes). Opening it moves focus in; closing it with focus inside returns focus to where it\nwas; Tab leaves it without closing it.\n\nModal: a native `<dialog>` in the shadow root, opened with `showModal()` while `open` — in the top layer over its\n`::backdrop` (the scrim), everything else inert, the page held from scrolling, focus kept inside. Escape, the platform's\nback, a press on the scrim, a drag toward the start edge past half its width (or a fling), the menu button and a\ndestination's activation close it: the drawer sets `open` to false itself and fires `close`. Focus returns to where it\nwas.\n\nResponsive (NVD-53…55): with `responsive`, the window's width chooses what the drawer is, and `variant` is ignored —\na standard drawer, shown whatever `open` says, from `comp.navigation-drawer.breakpoint.expanded` (1024 px at the\ndefault text size); its column, widening over the content while `open`, from `breakpoint.collapsed` (600 px) while\n`collapsible`; a modal drawer below that. The read-only `presentation` says which (and the `presentation` attribute, for\nstyling); `presentationchange` fires when it is first decided and whenever the width changes it. A change of\npresentation is drawn at once, is entered closed (an open overlay closes: `open` is false and `close` fires once), and\nkeeps `expanded`, `value` and every group's `open`. The presentation is derived from the width alone: it is never\nwritten to `variant`, `open` or `expanded`, and the element stores nothing — a product that wants the user's choice of\nform remembered keeps what `expandedchange` carries and sets `expanded` from it.\n\nEvery visual value comes from `--tanrei-comp-navigation-drawer-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the start, top and bottom.",
           "name": "TanreiNavigationDrawer",
           "cssParts": [
             {
@@ -35843,13 +35843,13 @@
             },
             {
               "kind": "field",
-              "name": "inset",
+              "name": "noInset",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by the container's paddings. False — the attribute `no-inset` — lets content that pads itself reach the edges.",
+              "default": "false",
+              "description": "Lets content that pads itself reach the edges (the attribute `no-inset`). False (the default) insets the content by the container's paddings.",
               "attribute": "no-inset",
               "reflects": true
             },
@@ -36054,9 +36054,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Insets the content by the container's paddings. False — the attribute `no-inset` — lets content that pads itself reach the edges.",
-              "fieldName": "inset"
+              "default": "false",
+              "description": "Lets content that pads itself reach the edges (the attribute `no-inset`). False (the default) insets the content by the container's paddings.",
+              "fieldName": "noInset"
             },
             {
               "name": "initial-focus",
@@ -39300,13 +39300,13 @@
             },
             {
               "kind": "field",
-              "name": "wrap",
+              "name": "noWrap",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the\nfirst to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49). The attribute is the\ninverse, `no-wrap`, which stops them at the ends.",
+              "default": "false",
+              "description": "Stops the arrow keys at the ends of the view's rows. False (the default): they go round — Down Arrow on the last to\nthe first, Up Arrow on the first to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49).",
               "attribute": "no-wrap",
               "reflects": true
             },
@@ -39597,9 +39597,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the\nfirst to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49). The attribute is the\ninverse, `no-wrap`, which stops them at the ends.",
-              "fieldName": "wrap"
+              "default": "false",
+              "description": "Stops the arrow keys at the ends of the view's rows. False (the default): they go round — Down Arrow on the last to\nthe first, Up Arrow on the first to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49).",
+              "fieldName": "noWrap"
             },
             {
               "name": "icon-space",
@@ -41999,7 +41999,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and\nactions: `standard`, beside the content in the layout (a layout region), where actions are optional, or\n`modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one\naction (SSH-16).\n\nContract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's\naccessible name, a heading) and, while `closable` (the default; the attribute `not-closable` turns it off), an\nicon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant\n`comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed below a\ndivider as a full-width Button group places them: dismissive at the start and confirming at the end of a row the\nactions share equally, confirming on top of a column when a label does not fit its share (or, where the system's\n`actions.arrangement` is `start`, at their own widths from the start edge). Focus and assistive technology follow that\norder. A Button without a `variant` attribute takes the sheet's (`comp.side-sheet.actions.variant`, tonal in the\ndefault system). Actions never close the sheet: close it from their handlers.\n\nControlled: the sheet never closes itself. It fires `close` with a reason — its close button in either variant, and for\na modal sheet a press on the scrim, Escape, the platform's back or a drag toward its end edge — and you set `open` to\nfalse. A product that does not close it after a drag sees it slide back.\n\nStandard: an `<aside>` (a complementary landmark) named by the headline; place it as the last item of a flex row (the\nfull height of that row). Its width animates while open changes, the content beside it resizing. Opening it moves focus\nin, closing it with focus inside gives focus back, Tab leaves it open, and Escape and drags do nothing.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`, at the window's end edge in the top layer over\n`::backdrop` (the scrim), everything else inert, the page held from scrolling and focus kept inside. Focus goes to the\nslotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was when it\ncloses.\n\nThe content scrolls between the header and the actions. The divider below the header is drawn whenever the header is\nwhile `divider-visibility` is `always` (the default system's), as the one above the actions is, and only while the\ncontent is scrolled from its top while it is `scroll`; `auto` takes `comp.side-sheet.divider.visibility` (SSH-19,\nSSH-23). While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the\n`visualViewport`).\n\nEvery visual value comes from `--tanrei-comp-side-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the end, top and bottom.",
+          "description": "Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and\nactions: `standard`, beside the content in the layout (a layout region), where actions are optional, or\n`modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one\naction (SSH-16).\n\nContract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's\naccessible name, a heading) and, unless `notClosable` (the attribute `not-closable`), an\nicon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant\n`comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed below a\ndivider as a full-width Button group places them: dismissive at the start and confirming at the end of a row the\nactions share equally, confirming on top of a column when a label does not fit its share (or, where the system's\n`actions.arrangement` is `start`, at their own widths from the start edge). Focus and assistive technology follow that\norder. A Button without a `variant` attribute takes the sheet's (`comp.side-sheet.actions.variant`, tonal in the\ndefault system). Actions never close the sheet: close it from their handlers.\n\nControlled: the sheet never closes itself. It fires `close` with a reason — its close button in either variant, and for\na modal sheet a press on the scrim, Escape, the platform's back or a drag toward its end edge — and you set `open` to\nfalse. A product that does not close it after a drag sees it slide back.\n\nStandard: an `<aside>` (a complementary landmark) named by the headline; place it as the last item of a flex row (the\nfull height of that row). Its width animates while open changes, the content beside it resizing. Opening it moves focus\nin, closing it with focus inside gives focus back, Tab leaves it open, and Escape and drags do nothing.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`, at the window's end edge in the top layer over\n`::backdrop` (the scrim), everything else inert, the page held from scrolling and focus kept inside. Focus goes to the\nslotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was when it\ncloses.\n\nThe content scrolls between the header and the actions. The divider below the header is drawn whenever the header is\nwhile `divider-visibility` is `always` (the default system's), as the one above the actions is, and only while the\ncontent is scrolled from its top while it is `scroll`; `auto` takes `comp.side-sheet.divider.visibility` (SSH-19,\nSSH-23). While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the\n`visualViewport`).\n\nEvery visual value comes from `--tanrei-comp-side-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the end, top and bottom.",
           "name": "TanreiSideSheet",
           "cssParts": [
             {
@@ -42092,13 +42092,13 @@
             },
             {
               "kind": "field",
-              "name": "closable",
+              "name": "notClosable",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected.",
+              "default": "false",
+              "description": "Draws no close button at the end of the header (SSH-5): only where your own control or one of the sheet's actions closes it. False (the default) draws it. Reflected.",
               "attribute": "not-closable",
               "reflects": true
             },
@@ -42110,7 +42110,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The close button's accessible name (\"Close filters\"). Required while `closable`, the default (SSH-5).",
+              "description": "The close button's accessible name (\"Close filters\"). Required unless `notClosable` (SSH-5).",
               "attribute": "close-label"
             },
             {
@@ -42168,9 +42168,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected.",
-              "fieldName": "closable"
+              "default": "false",
+              "description": "Draws no close button at the end of the header (SSH-5): only where your own control or one of the sheet's actions closes it. False (the default) draws it. Reflected.",
+              "fieldName": "notClosable"
             },
             {
               "name": "close-label",
@@ -42178,7 +42178,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The close button's accessible name (\"Close filters\"). Required while `closable`, the default (SSH-5).",
+              "description": "The close button's accessible name (\"Close filters\"). Required unless `notClosable` (SSH-5).",
               "fieldName": "closeLabel"
             },
             {
@@ -51703,7 +51703,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it,\nwithout taking focus or blocking anything.\n\nContract: specs/tooltip.spec.json. Wraps its anchor (the default slot). The drawn tooltip is a `popover=\"manual\"`\nelement in the shadow root, in the top layer — above an open modal `<dialog>` — placed against the anchor by script:\non the side and with the alignment `placement` names, `offset` away and moved along the side by `crossOffset`, flipped\nto the opposite side, shifted along it and, in a window smaller than itself, held inside it; it keeps the side it is on\nwhile that side has room, follows the anchor while open and closes when nothing of the anchor can be seen. It is a\nread overlay: it never takes focus and holds nothing focusable.\n\nIt opens after a fine pointer rests on the anchor for the show delay (at once while tooltips are warm: another is open\nor fading, or one closed a moment ago), at once on keyboard focus, and on a touch long-press; it stays while the pointer\nis over the anchor, the gap between the anchor and the tooltip, or the tooltip, or the anchor has keyboard focus, and\ncloses on Escape, an activation of the anchor, a press on it, the hide delay after the pointer left, or the touch\ntimeout after the finger lifted. The show delay, hide delay and touch timeout are `showDelay`, `hideDelay` and\n`touchTimeout` in milliseconds (0 is at once), or the tokens `motion.show-delay`, `motion.hide-delay` and\n`timeout.touch` while unset. Opening and closing by itself fires `toggle`; setting `open` does not.\n\nIt comes out of the anchor's side as every surface appears (`sys.motion.appear.*`: a fade and a growth from 0.96\nunder the default system), grown from the middle of the edge that faces the anchor, over `motion.enter-duration` and\n`-easing`, and goes back the same way over `motion.exit-duration` and `-easing`; a motion that is interrupted turns\nround from where it is, a warm tooltip appears whole at once, one mounted open before the page's first paint is there\nwithout its motion, and where motion is reduced it cross-fades over `sys.motion.role.reduced`. Its place is never\nanimated.\n\n`arrow` draws a triangle that points at the anchor, one shape with the container; `inverse` draws it in the opposite\nscheme's colors (true) or on a surface of the scheme (false). Left unset, each takes the system's choice:\n`--tanrei-comp-tooltip-arrow-visible` (off in the default system) and its form's `-plain-container-inverse` (on) or\n`-rich-container-inverse` (off). `shortcut` writes the keys of the anchor's command after a plain tooltip's text and\ngives them to the anchor as `aria-keyshortcuts`.\n\nWhile `describes` is true (the default; the attribute `no-describe` turns it off) the text — after the title, for a\nrich tooltip — is the anchor's `aria-description`, set on the first focusable element slotted in (a Tanrei component\nforwards it from its host to its native element), whether or not the tooltip is open.\n\nEvery visual value comes from `--tanrei-comp-tooltip-*` tokens.",
+          "description": "Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it,\nwithout taking focus or blocking anything.\n\nContract: specs/tooltip.spec.json. Wraps its anchor (the default slot). The drawn tooltip is a `popover=\"manual\"`\nelement in the shadow root, in the top layer — above an open modal `<dialog>` — placed against the anchor by script:\non the side and with the alignment `placement` names, `offset` away and moved along the side by `crossOffset`, flipped\nto the opposite side, shifted along it and, in a window smaller than itself, held inside it; it keeps the side it is on\nwhile that side has room, follows the anchor while open and closes when nothing of the anchor can be seen. It is a\nread overlay: it never takes focus and holds nothing focusable.\n\nIt opens after a fine pointer rests on the anchor for the show delay (at once while tooltips are warm: another is open\nor fading, or one closed a moment ago), at once on keyboard focus, and on a touch long-press; it stays while the pointer\nis over the anchor, the gap between the anchor and the tooltip, or the tooltip, or the anchor has keyboard focus, and\ncloses on Escape, an activation of the anchor, a press on it, the hide delay after the pointer left, or the touch\ntimeout after the finger lifted. The show delay, hide delay and touch timeout are `showDelay`, `hideDelay` and\n`touchTimeout` in milliseconds (0 is at once), or the tokens `motion.show-delay`, `motion.hide-delay` and\n`timeout.touch` while unset. Opening and closing by itself fires `toggle`; setting `open` does not.\n\nIt comes out of the anchor's side as every surface appears (`sys.motion.appear.*`: a fade and a growth from 0.96\nunder the default system), grown from the middle of the edge that faces the anchor, over `motion.enter-duration` and\n`-easing`, and goes back the same way over `motion.exit-duration` and `-easing`; a motion that is interrupted turns\nround from where it is, a warm tooltip appears whole at once, one mounted open before the page's first paint is there\nwithout its motion, and where motion is reduced it cross-fades over `sys.motion.role.reduced`. Its place is never\nanimated.\n\n`arrow` draws a triangle that points at the anchor, one shape with the container; `inverse` draws it in the opposite\nscheme's colors (true) or on a surface of the scheme (false). Left unset, each takes the system's choice:\n`--tanrei-comp-tooltip-arrow-visible` (off in the default system) and its form's `-plain-container-inverse` (on) or\n`-rich-container-inverse` (off). `shortcut` writes the keys of the anchor's command after a plain tooltip's text and\ngives them to the anchor as `aria-keyshortcuts`.\n\nUnless `noDescribe` (the attribute `no-describe`), the text — after the title, for a\nrich tooltip — is the anchor's `aria-description`, set on the first focusable element slotted in (a Tanrei component\nforwards it from its host to its native element), whether or not the tooltip is open.\n\nEvery visual value comes from `--tanrei-comp-tooltip-*` tokens.",
           "name": "TanreiTooltip",
           "cssParts": [
             {
@@ -51839,13 +51839,13 @@
             },
             {
               "kind": "field",
-              "name": "describes",
+              "name": "noDescribe",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the text is the anchor's accessible description. Set `no-describe` when the text repeats the anchor's name.",
+              "default": "false",
+              "description": "Keeps the text from being the anchor's accessible description: set it when the text repeats the anchor's name. False (the default): the text describes the anchor.",
               "attribute": "no-describe",
               "reflects": true
             },
@@ -51991,9 +51991,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether the text is the anchor's accessible description. Set `no-describe` when the text repeats the anchor's name.",
-              "fieldName": "describes"
+              "default": "false",
+              "description": "Keeps the text from being the anchor's accessible description: set it when the text repeats the anchor's name. False (the default): the text describes the anchor.",
+              "fieldName": "noDescribe"
             },
             {
               "name": "open",

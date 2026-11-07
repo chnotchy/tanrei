@@ -63,7 +63,7 @@ export function controlsAndGaps(name: string): { controls: Control[]; unwritable
     const values = prop.type === 'enum' ? (prop.values ?? []).filter((value) => prop.name !== 'variant' || !lacking.includes(value)) : [];
     const kind = kindOf(prop, values)!;
     let negated = false;
-    if (kind === 'switch' && prop.default === true && !attribute.inverse) {
+    if (kind === 'switch' && prop.default === true) {
       // On by default: the element's property is the prop's opposite (`noWrap` for `wrap`), or no attribute turns it off.
       negated = property !== prop.name && webPropertyDefault(tag!, property) === 'false';
       if (!negated) {
@@ -71,7 +71,7 @@ export function controlsAndGaps(name: string): { controls: Control[]; unwritable
         continue;
       }
     }
-    controls.push({ prop: prop.name, kind, values, default: prop.default, ...(prop.from ? { from: prop.from } : {}), attribute: attribute.name, property, inverse: attribute.inverse, negated });
+    controls.push({ prop: prop.name, kind, values, default: prop.default, ...(prop.from ? { from: prop.from } : {}), attribute: attribute.name, property, negated });
   }
   return { controls, unwritable };
 }

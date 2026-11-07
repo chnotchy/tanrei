@@ -1211,10 +1211,10 @@ test.describe('the collapsed form', () => {
     await mount(page, [fixture('d', [MENU, MAIN, { ...MAIN, props: { label: 'Other' } }, ...MAIL], { collapsible: true })], { reducedMotion: true });
     const column = await px(page, T('collapsed-container-width-regular'));
     const main = drawer(page, 'd').locator('tanrei-main-action-button').first();
-    expect(await main.evaluate((el: any) => el.extended)).toBe(true);
+    expect(await main.evaluate((el: any) => el.collapsed)).toBe(false);
     const expanded = await bounds(main);
     await setProps(page, 'd', { expanded: false });
-    await expect.poll(() => main.evaluate((el: any) => el.extended)).toBe(false);
+    await expect.poll(() => main.evaluate((el: any) => el.collapsed)).toBe(true);
     await expect(main).toHaveAttribute('collapsed', '');
     await expect.poll(async () => Math.round((await bounds(main)).width)).toBe(Math.round((await bounds(main)).height));
     const collapsed = await bounds(main);
@@ -1245,7 +1245,7 @@ test.describe('the collapsed form', () => {
           if (form === 'collapsed') for (const f of fixtures) await setProps(page, f.id, { expanded: false });
           for (const f of fixtures) {
             const main = drawer(page, f.id).locator('tanrei-main-action-button');
-            await expect.poll(() => main.evaluate((el: any) => el.extended)).toBe(form === 'expanded');
+            await expect.poll(() => main.evaluate((el: any) => el.collapsed)).toBe(form !== 'expanded');
             const where = `${system ?? 'tanrei'} ${direction} ${f.id} ${form}`;
             const [g, i] = [await glyph(f.id), await icon(f.id)];
             measured.push(`${where}: ${(g - i).toFixed(2)}`);
@@ -3690,7 +3690,7 @@ test.describe('the row model shared with the tree view', () => {
     await page.addStyleTag({ content: '* { margin: 0; padding: 0; }' });
     for (const expanded of [true, false]) {
       await setProps(page, 'reset', { expanded });
-      await expect.poll(() => drawer(page, 'reset').locator('tanrei-main-action-button').evaluate((el: any) => el.extended)).toBe(expanded);
+      await expect.poll(() => drawer(page, 'reset').locator('tanrei-main-action-button').evaluate((el: any) => el.collapsed)).toBe(!expanded);
       const glyph = centre(await bounds(drawer(page, 'reset').locator('tanrei-main-action-button').locator('.icon-box'))).x;
       const icon = centre(await bounds(item(page, 'reset', 0).locator('.icon'))).x;
       expect(Math.abs(glyph - icon), String(expanded)).toBeLessThanOrEqual(0.5);

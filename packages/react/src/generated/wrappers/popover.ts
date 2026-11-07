@@ -14,7 +14,7 @@ const PopoverElement = /* @__PURE__ */ createComponent({
     onClose: 'close' as EventName<TanreiEvent<TanreiPopoverElement, CustomEvent<TanreiPopoverCloseDetail>>>,
   },
 });
-const PopoverAttributes = { open: ['open', false], placement: ['placement', 'bottom-start'], offset: ['offset', null], crossOffset: ['cross-offset', 0], arrow: ['arrow', null], width: ['width', 'content'], compactPresentation: ['compact-presentation', 'sheet'], inset: ['no-inset', true], initialFocus: ['initial-focus', 'popover'], headline: ['headline', ''], label: ['label', ''], closable: ['closable', false], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'], anchor: ['anchor', ''], opener: ['opener', ''], inline: ['inline', false] } as const;
+const PopoverAttributes = { open: ['open', false], placement: ['placement', 'bottom-start'], offset: ['offset', null], crossOffset: ['cross-offset', 0], arrow: ['arrow', null], width: ['width', 'content'], compactPresentation: ['compact-presentation', 'sheet'], noInset: ['no-inset', false], initialFocus: ['initial-focus', 'popover'], headline: ['headline', ''], label: ['label', ''], closable: ['closable', false], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'], anchor: ['anchor', ''], opener: ['opener', ''], inline: ['inline', false] } as const;
 /**
  * Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page.
  *

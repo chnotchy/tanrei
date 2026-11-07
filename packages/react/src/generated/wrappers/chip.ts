@@ -15,7 +15,7 @@ const ChipElement = /* @__PURE__ */ createComponent({
     onRemove: 'remove' as EventName<TanreiEvent<TanreiChipElement>>,
   },
 });
-const ChipAttributes = { kind: ['kind', 'action'], variant: ['variant', 'outlined'], size: ['size', 'medium'], selected: ['selected', false], value: ['value', ''], disabled: ['disabled', false], label: ['label', ''], removeLabel: ['remove-label', ''], destructiveRemove: ['destructive-remove', false], removable: ['not-removable', true], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
+const ChipAttributes = { kind: ['kind', 'action'], variant: ['variant', 'outlined'], size: ['size', 'medium'], selected: ['selected', false], value: ['value', ''], disabled: ['disabled', false], label: ['label', ''], removeLabel: ['remove-label', ''], destructiveRemove: ['destructive-remove', false], notRemovable: ['not-removable', false], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
 /**
  * Shows a compact choice, a suggested action or an item the user entered as a small labelled control.
  *

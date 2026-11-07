@@ -1313,7 +1313,7 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'stop')).active, 'stops at the last').toBe('Toronto');
     for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowUp');
     expect((await read(page, 'stop')).active, 'stops at the first').toBe('Kyoto');
-    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as HTMLElement & { wrap: boolean }).wrap]), 'the attribute is the inverse').toEqual([true, false]);
+    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as HTMLElement & { noWrap: boolean }).noWrap]), 'the attribute and the property agree').toEqual([true, true]);
     await page.keyboard.press('Escape');
     await focusInput(page, 'custom-stop');
     await type(page, 'o');
@@ -2238,7 +2238,7 @@ test.describe('behavior: the list', () => {
     await expect(part(page, id, '.group-title')).toHaveCount(2);
     // Never active, and not matched by the filter: "asia" finds no option although a title is that word. (The arrow keys
     // stop at the ends here, so that Up Arrow pressed past the first stays there, CMB-26.)
-    await set(page, id, { inline: false, open: false, wrap: false });
+    await set(page, id, { inline: false, open: false, noWrap: true });
     await focusInput(page, id);
     await page.keyboard.press('ArrowDown');
     await shownList(page, id).toBe(true);

@@ -14,7 +14,7 @@ const TooltipElement = /* @__PURE__ */ createComponent({
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiTooltipElement, CustomEvent<TanreiTooltipToggleDetail>>>,
   },
 });
-const TooltipAttributes = { variant: ['variant', 'plain'], text: ['text', ''], headline: ['headline', ''], shortcut: ['shortcut'], placement: ['placement', 'top'], offset: ['offset', null], crossOffset: ['cross-offset', 0], arrow: ['arrow', null], inverse: ['inverse', null], describes: ['no-describe', true], open: ['open', false], showDelay: ['show-delay', null], hideDelay: ['hide-delay', null], touchTimeout: ['touch-timeout', null] } as const;
+const TooltipAttributes = { variant: ['variant', 'plain'], text: ['text', ''], headline: ['headline', ''], shortcut: ['shortcut'], placement: ['placement', 'top'], offset: ['offset', null], crossOffset: ['cross-offset', 0], arrow: ['arrow', null], inverse: ['inverse', null], noDescribe: ['no-describe', false], open: ['open', false], showDelay: ['show-delay', null], hideDelay: ['hide-delay', null], touchTimeout: ['touch-timeout', null] } as const;
 /**
  * Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it, without taking focus or blocking anything.
  *

@@ -29,8 +29,6 @@ export interface Control {
   attribute: string;
   /** The element's property behind it (`fullWidth`, `noWrap`). */
   property: string;
-  /** A switch whose attribute says the opposite of its property: the property defaults to true, and the attribute turns it off (`flush` for `inset`). */
-  inverse: boolean;
   /** A switch whose property says the opposite of the spec's prop: the spec's `wrap`, the element's `noWrap`. */
   negated: boolean;
 }
@@ -56,7 +54,7 @@ export function isDefault(control: Control, value: Value): boolean {
 export function attributeOf(control: Control, value: Value): string | null {
   if (control.kind === 'switch') {
     const property = control.negated ? !value : Boolean(value);
-    return (control.inverse ? !property : property) ? '' : null;
+    return property ? '' : null;
   }
   if (isDefault(control, value) || value === null || value === '') return null;
   return String(value);
@@ -75,8 +73,7 @@ export function propertyOf(control: Control, value: Value): Value {
 export function fromAttribute(control: Control, written: string | null): Value {
   if (control.kind === 'switch') {
     if (written === null) return Boolean(control.default);
-    const property = !control.inverse;
-    return control.negated ? !property : property;
+    return !control.negated;
   }
   if (written === null) return control.default;
   if (control.kind === 'number') return written.trim() === '' || !Number.isFinite(Number(written)) ? control.default : Number(written);

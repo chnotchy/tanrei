@@ -296,6 +296,35 @@ export const required = (
   </>
 );
 
+// A prop is spelt as its element's attribute, a boolean one too: a boolean that switches something off is named for
+// what it does, false by default, as an HTML boolean attribute is (`flush`, `noHandle`). The spec's names that are on
+// by default (`inset`, `handle`) are no props.
+export const switchedOff = (
+  <>
+    <all.Card flush />
+    <all.Figure flush />
+    <all.BottomSheet noHandle flush />
+    <all.Popover noInset />
+    <all.Carousel fixedWidth freeScroll noPlaybackControl />
+    <all.Chip kind="input" notRemovable />
+    <all.Combobox noWrap />
+    <all.ComboboxField noWrap />
+    <all.Search noWrap />
+    <all.MainActionButton label="Compose" collapsed />
+    <all.ModalLayer label="Photos" noScrim />
+    <all.SideSheet notClosable />
+    <all.Tooltip text="Bold" noDescribe />
+    {/* @ts-expect-error the spec's inset is the card's flush */}
+    <all.Card inset={false} />
+    {/* @ts-expect-error the spec's handle is the bottom sheet's noHandle */}
+    <all.BottomSheet handle={false} />
+    {/* @ts-expect-error the spec's describes is the tooltip's noDescribe */}
+    <all.Tooltip text="Bold" describes={false} />
+    {/* @ts-expect-error the spec's extended is the main action button's collapsed */}
+    <all.MainActionButton label="Compose" extended={false} />
+  </>
+);
+
 // The product's words are given through the same package: Tanrei ships none.
 const words: TanreiWords = {};
 setWords(words);

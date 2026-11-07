@@ -16,7 +16,6 @@ import {
   type TanreiComboboxVariant,
 } from '../combobox/combobox.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
-import { inverseBoolean } from '../../primitives/values.js';
 
 // The members' own types are the combobox field's: it has no detail type and no type for a prop of its own.
 export type {
@@ -50,7 +49,7 @@ const COMBOBOX = [
   'open',
   'allowCustomValue',
   'filter',
-  'wrap',
+  'noWrap',
   'noChevron',
   'clearable',
   'clearLabel',
@@ -178,7 +177,7 @@ export class TanreiComboboxField extends ComposedControl<string> {
     open: { type: Boolean, reflect: true },
     allowCustomValue: { type: Boolean, attribute: 'allow-custom-value', reflect: true },
     filter: { type: String, reflect: true },
-    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
+    noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     noChevron: { type: Boolean, attribute: 'no-chevron', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
@@ -276,8 +275,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
   /** @from tanrei-combobox.filter */
   filter: TanreiComboboxFilter = 'contains';
 
-  /** @from tanrei-combobox.wrap */
-  wrap = true;
+  /** @from tanrei-combobox.noWrap */
+  noWrap = false;
 
   /** @from tanrei-combobox.noChevron */
   noChevron = false;

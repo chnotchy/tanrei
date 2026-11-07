@@ -942,7 +942,7 @@ test.describe('size and layout', () => {
     expect(b.content.x - b.box.x).toBeCloseTo(padInline, 1);
     expect(right(b.box) - right(b.content)).toBeCloseTo(padInline, 1);
     // inset false: to the start and end edges; the header and the actions keep their insets, and the gaps stay.
-    await set(page, { inset: false });
+    await set(page, { noInset: true });
     await expect.poll(async () => (await boxes()).content.x - (await boxes()).box.x).toBeCloseTo(0, 1);
     b = await boxes();
     expect(right(b.box) - right(b.content)).toBeCloseTo(0, 1);
@@ -958,7 +958,7 @@ test.describe('size and layout', () => {
     expect(bottom((await alone()).box) - bottom((await alone()).content)).toBeCloseTo(0, 1);
     expect(await part(page, '.clip').evaluate((el) => getComputedStyle(el).overflowX)).toBe('hidden');
     // …and with the inset back, the block padding at both.
-    await set(page, { inset: true });
+    await set(page, { noInset: false });
     await expect.poll(async () => (await alone()).content.y - (await alone()).box.y).toBeCloseTo(padBlock, 1);
     expect(bottom((await alone()).box) - bottom((await alone()).content)).toBeCloseTo(padBlock, 1);
     // No content: the actions come actions.margin-block-start below the header.

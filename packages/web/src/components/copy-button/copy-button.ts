@@ -354,7 +354,7 @@ export class TanreiCopyButton extends TanreiElement {
       <tanrei-tooltip
         part="confirmation"
         .confirming=${true}
-        .describes=${false}
+        .noDescribe=${true}
         .text=${this.form === 'failed' ? this.words.get('copyFailedLabel', this.failedLabel) : this.words.get('copiedLabel', this.copiedLabel)}
       ><tanrei-button
         part="button"
