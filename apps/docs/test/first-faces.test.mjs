@@ -59,6 +59,28 @@ describe('what the head preloads', () => {
       assert.match(face[0], /font-display: swap;/, family);
     }
   });
+  test('until it arrives, the family’s text is drawn in its fallback face, named right after it in every stack', () => {
+    // The platform's own face, at the family's average width and line height (packages/tools/src/font-metrics.js):
+    // what is laid out before the file arrives takes the room it takes after.
+    for (const family of [...families, ...stacks.plain.filter((name) => name === 'Noto Sans JP')]) {
+      const face = faces.match(new RegExp(`@font-face \\{\\n  font-family: '${family} Fallback';[^}]*\\}`))?.[0];
+      assert.ok(face, `${family}: no fallback face`);
+      assert.match(face, /src: local\('[^']+'\)(, local\('[^']+'\))*;/, family);
+      for (const descriptor of ['size-adjust', 'ascent-override', 'descent-override', 'line-gap-override']) assert.match(face, new RegExp(`${descriptor}: \\d+(\\.\\d+)?%;`), `${family}: ${descriptor}`);
+      assert.match(face, /unicode-range: U\+/, family);
+    }
+    const rules = [...faces.matchAll(/^(:root[^{]*) \{\n((?: {2}--[^\n]+\n)+)\}/gm)];
+    assert.ok(rules.some(([, selector]) => selector === ':root:not([data-tanrei-system])'), 'the stacks are set on the root');
+    for (const [, selector, body] of rules) {
+      for (const [, property, value] of body.matchAll(/ {2}(--[\w-]+): ([^;]+);/g)) {
+        const named = value.split(', ').map((name) => name.replace(/^'|'$/g, ''));
+        for (const family of named.filter((name) => named.includes(`${name} Fallback`))) {
+          assert.equal(named[named.indexOf(family) + 1], `${family} Fallback`, `${selector} ${property}: ${value}`);
+        }
+        assert.ok(named.includes(`${named[0]} Fallback`), `${selector} ${property}: the first family has its fallback (${value})`);
+      }
+    }
+  });
   test('is written as a font preload a browser will use: with the type, and fetched as a font is', () => {
     assert.match(head, /\{files\.map\(\(href\) => <link rel="preload" as="font" type="font\/woff2" href=\{href\} crossorigin \/>\)\}/);
     assert.match(head, /import Default from '@astrojs\/starlight\/components\/Head\.astro';/);
