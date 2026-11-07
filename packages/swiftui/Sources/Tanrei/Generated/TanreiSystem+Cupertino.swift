@@ -836,6 +836,8 @@ private let cupertinoButtonGroupTokens = TanreiButtonGroupTokens(
   connectedInnerShape: 8,
   connectedSeparation: 0,
   connectedVerticalOuterShape: 14,
+  motionStateDuration: 250,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   standardGap: 8
 )
 
@@ -2060,6 +2062,8 @@ private let cupertinoCalloutTokens = TanreiCalloutTokens(
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,
@@ -2378,6 +2382,9 @@ private let cupertinoChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: cupertinoTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  motionGlyphFadeDuration: 200,
+  motionResizeDuration: 400,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
@@ -4900,6 +4907,10 @@ private let cupertinoLinkCardTokens = TanreiLinkCardTokens(
   mediaContainerColor: .role(.surfaceContainerHigh),
   mediaWidth: 192,
   motionFeedbackDuration: 450,
+  motionPictureDuration: 250,
+  motionPictureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 400,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
@@ -5178,6 +5189,8 @@ private let cupertinoListTokens = TanreiListTokens(
   motionFeedbackDuration: 450,
   motionReorderDuration: 250,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 400,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiListConditions(

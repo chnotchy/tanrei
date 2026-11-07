@@ -8,7 +8,7 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a button group reads: the space between standard items; and for connected items whether they are joined by a divider or by a gap, the divider's color (and its color between two emphasis fills), thickness and inset, the gap, the inner corners, the outer corners of a row and of a column, and the padding added at a row's rounded outer ends. The Buttons inside keep their own tokens.",
+            "usage": "Everything a button group reads: the space between standard items; and for connected items whether they are joined by a divider or by a gap, the divider's color (and its color between two emphasis fills), thickness and inset, the gap, the inner corners, the outer corners of a row and of a column, the padding added at a row's rounded outer ends, and how long a line takes to fade in, out or from one color to the other when an item's look changes. The Buttons inside keep their own tokens.",
             "rules": [
               "A button group lays out actions; each Button is its own Tab stop. Use a segmented button for one choice among options and a toolbar for a row with one Tab stop.",
               "Give every Button of a group the same size.",
@@ -17,7 +17,8 @@
               "connected.separation follows sys.behavior.separation; set it here only to join button groups differently from the rest of the system, and use the separation prop for one group.",
               "Under divider the items touch and the inner corners are square; connected.gap and connected.inner-shape are read under gap only.",
               "connected.divider.color is the hairline of the default system, the color of an outlined Button's outline and of the divider component: change it only to draw the rules of a group apart from them.",
-              "A seam between two items whose fills differ carries no line (BGR-24); connected.divider.on-fill.color is read only between two items that both rest on an emphasis fill, where the hairline cannot be seen."
+              "A seam between two items whose fills differ carries no line (BGR-24); connected.divider.on-fill.color is read only between two items that both rest on an emphasis fill, where the hairline cannot be seen.",
+              "motion.state-duration and motion.state-easing time only the lines that a change of an item's selection, toggle or variant brings, takes away or recolors (BGR-24); lines that a change of the group's placement or form moves are drawn at once, and so is every line under reduced motion."
             ]
           }
         },
@@ -120,6 +121,17 @@
               "$value": "{tanrei.sys.shape.corner.large}",
               "$description": "The radius of the outer ends of a joined column: the top corners of the first item and the bottom corners of the last (BGR-16). Two steps above the inner corner and short of full, so the column reads as one rounded panel with seams rather than a capsule."
             }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.default}",
+            "$description": "How long a line on a seam takes to fade in, to fade out or to fade from one color to the other when an item's selected, toggle or variant changes (BGR-24), with state-easing: the pace of a change of state, the one at which a medium Button changes between its looks."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

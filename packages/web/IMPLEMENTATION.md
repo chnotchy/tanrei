@@ -4171,6 +4171,8 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
 | Stopped at the shadow root (W5) | The embedded text input's `action`, `change` and `rowschange`; the file picker's `select` and `reject`; `remove`, `retry` and `click` of a file item it drew. The typing area's `input` leaves as it is |
 | Parts (W4) | `embedded-text-input`, `file-picker`, `file-item`, `button` (each Button it brings; also `attach-button`, `send-button`, `stop-button`); every member's part under the member's name: `input-input`, `picker-…`, `item-…`, `attach-…`, `send-…` |
+| The strip's motion (CCM-35) | The strip stands in a `.strip-box` whose height follows its items through `AnimatedSize`, anchored at its start, over `--tanrei-comp-chat-composer-motion-resize-duration` and `-resize-easing` (`role.resize.large`, `easing.spatial`): the items that stay keep their place against the capsule's top edge and the row of the typing area follows the box's end, so it keeps its place against the bottom edge (and, where the capsule's bottom edge is fixed, does not move). What was drawn is read before the change is drawn — in `willUpdate` for its own items, and for the product's in the mutation observer's callback, in one task: each item the product took away is put back where it stood and each one it added is set `data-tanrei-away` (`display: none !important`), every item's box and opacity is read, and the two are undone — then, once the new items have rendered, an item that leaves stands `position: absolute` in the strip at the box it was drawn in and fades out (`inert`, `aria-hidden`, `data-leaving`; the product's element is then removed and given back its `inert`, `aria-hidden` and `style`), an item that arrives fades in, and one whose place changed moves there (`translate`), all by `animate()` on the same tokens, their times read through the inert `.timing` carrier. A strip that holds only leaving items is `data-empty`: no padding and no margin, so the box closes to nothing. A change while it moves goes on from what is drawn |
+| The glyph between send and stop (CCM-35) | The Button it brings is the same element for both; when its glyph's text changes, a copy of the glyph that goes out is put after it in the icon slot (`data-leaving`, `position: absolute`, centred by the Button's icon box) and fades out while the new one fades in, over `--tanrei-comp-chat-composer-motion-glyph-fade-duration` (`role.state.compact`) with `motion-state-easing`. The part, the name, the action and `disabled` change at once; the send button's colours move by the Button's own state transition (its medium `state-duration`). Under reduced motion and while it settles (MOT-3), every one of these changes is at once |
 
 A file chosen in the file picker fires the browser's own composed `input` on the picker's native file input: the picker
 stops it where it bubbles, and a capturing listener on an ancestor still hears an `input` whose target is the chat
@@ -4320,9 +4322,16 @@ is a raised container at least `item.height` and the minimum target tall and as 
 label `item.gap` apart, padded by `item.padding-inline-start` / `-end` (logical, so right-to-left mirrors them), its corners
 `item.shape` eased by the smoothing, the label in `item.label.typescale`, wrapping rather than truncating. Each item has
 its own hover, focus ring, press and ripple from the item parts of the variant, which it inherits from the FAB menu (so a
-variant a layer adds colors its items too). Opening grows the items in from their end edge, the one nearest the toggle
-first, each next `motion.stagger` later, over `motion.open-duration`; closing fades them out together over
-`motion.close-duration`; at once under reduced motion.
+variant a layer adds colors its items too). Each item appears as a surface does (`appearStyles()` and `AppearController`,
+FBM-19): from `sys.motion.appear.*` — under m3-like opacity 0 and scale 0 — grown from the middle of its end edge on both
+axes under every appearance (`unfold: false`: an item grows beside the toggle, not away from it), over
+`motion.open-duration` / `-easing`, the one nearest the toggle first and each next `motion.stagger` later (a
+`transition-delay` on the entrance only); closing takes them all back together the same way over
+`motion.close-duration` / `-easing`, and the list leaves the top layer once every item's exit has played. Turned round
+mid-motion an item goes on from what it shows, with no stagger. What moves is a box of the item's own around its
+container (`.appear`), so the container keeps its state opacity and transitions; the list itself never moves or scales,
+so it is placed by what it measures. Drawn in place (`inline`) the items are whole and take no transition. Where motion
+is reduced the items only fade, together, over `sys.motion.role.reduced`.
 
 **Focus and dismissal (FBM-13…17).** An operated overlay that is not modal: opening moves focus to the first
 item (to the last, the one nearest the toggle, when Up Arrow opened it), closing returns it to the toggle if it was in
@@ -4556,6 +4565,16 @@ put it in your own scroll container. A line wider than the list goes past its en
   other items slide aside by transforms over `motion.reorder-duration`; dropped, it settles into its place; any later
   change of the order is animated from where each item was drawn (FLIP, the Web Animations API). Under
   `prefers-reduced-motion` every motion is at once; a dragged item still follows the pointer.
+- **Items you add or take away (LST-41).** An item you add grows along the list — its height in a column, its width in
+  a line — from nothing to its own over `--tanrei-comp-list-motion-resize-duration` (`sys.motion.role.resize.large`)
+  and fades in over `motion.state-duration`; the items after it follow by the layout in every frame. An item you take
+  away fades out and closes the same way back. In a wrapping list an item fades in or out at its place while the others
+  move. What the list exposes changes at once: while an item leaves, the list puts **your own element back where it
+  stood** until its motion ends — `inert`, `aria-hidden="true"`, `data-leaving` (`data-leaving="placed"` in a wrapping
+  list, outside the flow) — counts it in nothing, then removes it and gives back the `inert` and `aria-hidden` you had
+  on it. Read your items as `tanrei-list-item:not([data-leaving])` while one leaves. Putting that element back gives it
+  back to the list, which grows it from where it is drawn. The list's first frames, the moment it becomes reorderable,
+  a lift, and reduced motion add and take away at once.
 - **The live region** is one visually hidden `role="status"` element in the list's shadow root; while the list is
   reorderable its `list` role is carried by the `items` box around the slot. The name is put in as a `<bdi>`; the numbers
   are `Intl.NumberFormat`'s for the nearest `lang`.
@@ -5498,7 +5517,9 @@ An item's own attribute `toolbar-overflow="never"` keeps it when space runs out 
 before it instead.
 
 It fires no event of its own: the items keep their own `click`, `change` and `toggle`, props, states, target and
-semantics, and are never restyled (TBR-9). Parts: `container` (the surface), `separator` (each line), `overflow-button`
+semantics, and are never restyled (TBR-9): a toggle item changes between its selected and unselected looks over its own
+Button's state motion (`comp.button.motion.state-duration` of its size, `sys.motion.role.state.default` at medium),
+with its `aria-pressed` changed at once, and the toolbar adds no motion of its own. Parts: `container` (the surface), `separator` (each line), `overflow-button`
 and `overflow-menu`. The item kinds: `action` (an icon-only `<tanrei-button>`; a toggle is one with `toggle`), `button`
 (a labelled one, which may be a toggle), `menu-button` (a `<tanrei-button id>` with a `<tanrei-menu anchor="<id>">`
 beside it, in the toolbar or the same group: the menu is held out of the line and not counted, TBR-24),
@@ -5905,7 +5926,22 @@ the variant `--tanrei-comp-callout-close-button-variant` names (`giveVariant()`)
 tone of its form (`giveTone()`, BTN-45): `var(--tanrei-comp-callout-[<status>-]body-color-<variant>)`, so that the Button
 draws its container as that color made translucent and its glyph in it. Its states, press answer, focus ring and
 minimum target are the Button's; the callout adds no style to it. A callout connected again asks for an update, because
-a Button that reconnects lets go of what its host gave it. No Escape, no timeout, no motion.
+a Button that reconnects lets go of what its host gave it. No Escape, no timeout.
+
+**Opening and closing (CLO-13).** The container stands in a `.box` of the shadow root whose height follows `open` through
+`AnimatedSize` (`src/primitives/motion.ts`), anchored at its start, over `--tanrei-comp-callout-motion-disclosure-duration`
+with `-disclosure-easing` (`role.disclosure`, `easing.spatial`), in the layout, clipped with `overflow: clip` only while it
+moves; the container's opacity moves on the same tokens (closed, `.box.gone` is 0 tall and its container transparent; a
+callout that was not drawn starts transparent for one style pass, `data-arriving`). Closing, the host stays drawn — the
+custom state `leaving` over `open="false"` — until its motions have ended, and is then `display: none`. The space its
+container keeps beside it goes with it: from rest the callout measures, in one task and before it renders the change, where
+what follows stands with the callout drawn 0 tall and with it not laid out (the custom states `measure` and `away`, set and
+taken away in that task), and moves its own `margin-block-end` by the difference on the box's clock (`animate()`, its
+duration and curve read from the box's transition), so that a flex column's gap or the margin prose puts before the next
+block closes with it and what follows never steps. A change while it moves goes on from the height, the opacity and the
+margin drawn. From the moment `open` is false the host has no role and no name, the box is `inert` and `aria-hidden`, and
+the live regions are emptied; from the moment it is true the role, the name and the announcement are given as before. At
+once under reduced motion, while the element settles (MOT-3), and while it is `hidden` or empty.
 
 **Glyphs (CLO-5, CLO-6, CLO-27, CLO-29).** A status draws `info`, `warning`, `error` or `check_circle` unless the `icon`
 slot holds a glyph; without a status and without one there is no glyph and no room for one. The glyph's opacity is a mix
@@ -6032,8 +6068,8 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 
 | `<tanrei-snackbar-host>` | |
 |---|---|
-| `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its fade-out follows) |
-| `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its fade-out |
+| `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its exit follows) |
+| `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its exit |
 | `clear()` | also drops every waiting one, each resolved with reason `host` |
 | `snackbar` | the `<tanrei-snackbar>` being shown, or `null` (set its `expanded` to expand it from the product) |
 
@@ -6048,8 +6084,14 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 child and shows it in the top layer, fixed at the bottom of the window, centred, `container.margin` above the bottom edge
 (plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard, measured from `visualViewport`) and at
 least that far from the sides; a dialog opened later is above it, and while it holds the page's scroll the snackbar's
-sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. It rises in from below by its own height plus its
-margin while fading in (`motion.enter-*`), fades out in place (`motion.exit-*`), and only fades where motion is reduced.
+sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. Its bar appears as every surface does
+(`appearStyles()` and `AppearController`, `src/primitives/motion.ts`, role `toast`): from `sys.motion.appear.*`, grown from
+the middle of the window's edge it stands at — the bottom one, or the top one at the top end (SNK-36) — and that far toward
+it, over `motion.enter-*`; closed, it goes back the same way over `motion.exit-*`, turned round from where it is, and stays
+in the top layer until then. Under `unfold` it unfolds from that edge at its full width; where motion is reduced it
+cross-fades over `sys.motion.role.reduced`; shown before the document's first paint it is there at once (MOT-4). The bar
+is the motion element (`data-edge`, `.open`), so a measure of it while it moves reads its layout (`laidHeight()`), never its
+drawn box. The announcement does not wait for the motion.
 The timeout runs only while the snackbar is not hovered, holds no focus, is not expanded, the page is visible and focused
 (`visibilityState`, `document.hasFocus()`) and no Tanrei modal dialog is open; each time those hold again it starts from its
 whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither
@@ -6974,7 +7016,7 @@ action), not on a system switch alone.
 
 Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
 drawn as the edge of a region that stays — or, under `divider-visibility="scroll"`, only once content scrolls under it
-(`specs/app-bar.spec.json`, APB-1…18).
+(`specs/app-bar.spec.json`, APB-1…33).
 
 ```html
 <tanrei-app-bar headline="Inbox">
@@ -7002,9 +7044,28 @@ drawn as the edge of a region that stays — or, under `divider-visibility="scro
 | `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the bottom edge is drawn: `always` at rest and while content is under the bar, in `scrolled.outline.color`; `scroll` in each condition's own outline color (none at rest in the default system); `auto` takes `comp.app-bar.outline.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (APB-18); reflected |
 | `scrollTarget` / `scroll-target` | string | `""` | web only: the scrolling element the bar follows — empty for the document's scrolling element, an id (looked up in the bar's own document or shadow root, once more on the next frame if it is not there yet; reported if it never is), or `none` |
 | `headingLevel` / `heading-level` | number | `1` | web only: the title's heading level, 1–6 |
+| `overflow` | `menu` \| `hide` | `menu` | what becomes of the actions that do not fit: `menu` moves them, from the end, into a Tanrei Menu opened from a more button at the end; `hide` leaves them out of the bar, for actions you also give elsewhere. Anything else is `menu`, reported (APB-33); reflected |
+| `overflowLabel` / `overflow-label` | string | `""` | the more button's accessible name ("More actions"); empty takes the product's word `toolbarOverflowLabel` (reported where neither is given and the button is drawn) |
 
-Slots: `navigation` (one icon-only `<tanrei-button>`, the spec's `navigation` item), `actions` (up to three
-icon-only `<tanrei-button>`s, its `action` items, in reading order). The bar has no events: the buttons are yours.
+Slots: `navigation` (one icon-only `<tanrei-button>`, the spec's `navigation` item), `actions` (icon-only
+`<tanrei-button>`s, its `action` items, in reading order, as many as fit; `app-bar-overflow="never"` keeps one in the
+row). The bar has no events: the buttons are yours.
+
+**Actions that do not fit (APB-26…33).** No count is capped. The bar measures its top row, its start items, its title
+(a probe in its shadow root, in the top row's text roles: a large bar keeps the room its collapsed title will need) and
+each action drawn, with one `ResizeObserver`, and decides what is out from those widths: every action while they fit,
+else actions taken out from the end one at a time, skipping one with `app-bar-overflow="never"` and anything in the
+slot that is not a `<tanrei-button>`, until the rest — with the more button under `overflow="menu"` — fits. The start
+items and the title's whole width keep their room first; where nothing more can leave, the title is cut as before. An
+action that is out carries `app-bar-out` and is `display: none !important` (a page's rule for the element cannot draw
+it); it keeps its listeners and its state, and comes back as soon as it fits. The decision is made in the microtasks
+after the bar and its Buttons render, before the first frame; after a decision made in the observer's callback the
+observer is laid down until the next frame, so it never reports its own change (no loop error). The more button
+(`part="overflow-button"`, an icon-only text Button showing `more_horiz`) is drawn from the first time an action has to
+go out, laid out unseen while none is, so its width is known; its Menu (`part="overflow-menu"`, `bottom-end`) is filled
+when it opens: a menu item per action with its label and glyph, a checkbox item for a toggle, a link item for an action
+with `href`, a submenu for an action with a `<tanrei-menu anchor>` of its own. A row clicks the action's own button. Focus
+on an action that goes out moves to the more button, or under `hide` to the nearest action still drawn (APB-31).
 
 **Scrolling (APB-8, APB-9).** The bar listens (passively) to its scrolling element's `scroll` events. A small bar is
 `scrolled` while that element's `scrollTop` is above 0. A large bar shrinks by the distance scrolled, one for one, until
@@ -7037,9 +7098,8 @@ motion is reduced; a forced-colors bar draws its scrolled edge in `CanvasText`.
 **Semantics (APB-11…13).** No role, never focusable; Tab moves from the navigation item through the actions, which keep
 their own names and roles. The title is `role="heading"` with `aria-level` (`heading-level`), the subtitle is text read
 after it. A large bar exposes one title: the expanded one while any of it is visible (the top row's copy is
-`aria-hidden`), the top row's once collapsed. More than one navigation item or three actions still render, and are
-reported. The bar is not a landmark: wrap it in your own `<header>` if it is the page's banner. Parts: `container`,
-`top-row`, `title`, `subtitle`, `expanded`, `outline`.
+`aria-hidden`), the top row's once collapsed. More than one navigation item still renders, and is reported. The bar is not a landmark: wrap it in your own `<header>` if it is the page's banner. Parts: `container`,
+`top-row`, `title`, `subtitle`, `expanded`, `outline`, `overflow-button`, `overflow-menu`.
 
 ## `<tanrei-navigation-bar>`
 
@@ -7675,7 +7735,9 @@ or the column, and lets an icon-only item fill a column's or a share's width.
 
 **The divider (BGR-22, BGR-24).** Under divider the group draws the line of a seam itself: an empty `::part(divider)`
 element between two slots — it takes no space, no press (`pointer-events: none`) and is `aria-hidden` — whose `::before`
-is `connected.divider.thickness` thick, centred on the seam and `connected.divider.inset` short of each end. A seam
+and `::after` are the line, each `connected.divider.thickness` thick, centred on the seam and `connected.divider.inset`
+short of each end: `::before` in `connected.divider.color`, `::after` in `connected.divider.on-fill.color`, the seam
+showing one of them or neither by its opacity. A seam
 carries a line only while the two items it joins **rest on the same fill**: the group reads the color each item renders
 its container from at rest (`comp.button.<variant>.container.color`, and a toggle's `selected.` or `unselected.` part)
 from the cascade, resolves it in a hidden probe and compares — two containers without a fill count as the same — and
@@ -7684,8 +7746,14 @@ an outlined one, there is no line: the edge of the fill already marks the seam. 
 the hairline in the default system, the color of an outlined Button's edge — and `connected.divider.on-fill.color`
 between two emphasis fills (filled Buttons that are no toggles; selected toggles of the filled, tonal, elevated or
 outlined variant). The comparison is of resting, enabled looks, so hover, focus, press and disabling move no line; a
-changed `selected`, `toggle` or `variant` is followed in the same frame (a MutationObserver), and a system or theme
-switched on the root when the group renders again. A hairline centred on a whole-pixel seam is drawn on the pixel after it. **No outline and no ring
+changed `selected`, `toggle` or `variant` is decided in the same frame (a MutationObserver), and a system or theme
+switched on the root when the group renders again. A line that a changed `selected`, `toggle` or `variant` brings, takes
+away or recolors fades: a transition of the two layers' opacity over `comp.button-group.motion.state-duration`
+(`sys.motion.role.state.default`) on `comp.button-group.motion.state-easing`, so a line that fades in between two
+emphasis fills is drawn in its own color all the way, and the item's `selected` and `aria-pressed` have changed before
+the first frame of it. A divider whose seam the group's placement or form changed (an item that came, went or moved,
+BGR-11; another separation, BGR-21; a system switched) stands still for that change (`.still`, two frames) and is drawn
+at once, as every line is under reduced motion and while the group settles in its first frames. A hairline centred on a whole-pixel seam is drawn on the pixel after it. **No outline and no ring
 along a seam:** Button's outline and its elevation's ring are rings around its whole box, and a ring cannot leave one
 side out — so under a divider the item's container does not draw them. Its box ends at the seam and paints the fill alone:
 two fills that touch are two neighbouring boxes, which an engine snaps to the same device pixel, so no fill is painted
@@ -8389,7 +8457,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `DismissController`, `registerOverlay()`, `logicalAncestors()`, `overlayDepth()` (`dismiss.ts`) | Escape (the topmost surface alone, at the surface's edge, after everything inside heard the key), a press outside and focus leaving ask the host to close, once for one act; an overlay knows what opened it, so that "inside" follows the opener and not the document (POP-21, POP-23, POP-24) | the anchor and opener (`related`), `request(reason)`, `tab(event)`; each overlay's `openers`, `open`, `close` |
 | `focusOverlay()`, `tabThroughOverlay()`, `returnOverlayFocus()`, `keepOverlayFocusAfterPress()`, `quietFocus()`, `watchInput()` (`overlay-focus.ts`) | focus into an operated overlay that is not modal, through it as if it stood directly after its opener, and back to the opener when it closes; no indicator of its own when it was opened by a press (POP-19, POP-20, POP-22) | the focusable box, the host, the opener |
 | `FollowController` (`follow.ts`) | an overlay placed by script follows what it is placed against without asking in every frame: it checks on a scroll (captured, any scroller), a resize of the window or the visual viewport, a size (`ResizeObserver` on what is followed, what is sized and the root), a place that changed with no event (an `IntersectionObserver` cut down to the followed element's box, set again after each move), a transition or animation beginning on an ancestor, an attribute changed on an ancestor (`dir`, a theme), the colour scheme, and the host's own render — and then in every frame for as long as a check finds a change (and three frames more). At rest it asks for no frame and runs no check (`src/primitives/follow.test.ts`): a size is compared only with one the `ResizeObserver` reported — never with `getBoundingClientRect()`, which gives the box after its transform and, in Firefox, at another precision — and a followed element that did not move keeps its place observer. Given `anchor()` and `undrawn()`, it tells the overlay once each time its anchor is no longer drawn (`anchorUndrawn()`: out of the page — the one last found, when its id finds nothing — no box, `visibility: hidden`, skipped by `content-visibility`), and places nothing against it meanwhile (MNU-65, DTM-51). Not seen until the next of those: a move of less than a pixel with no event, a move while wholly outside the viewport or without area, an inherited value changed by a replaced style sheet alone, the anchor moved to another parent | `followed()` (the anchor; a submenu's item), `sized()` (the surface, what scrolls in it), and `check()`: read what the placement depends on, place again if it differs, return whether it did; `start()` when shown and placed, `stop()` when hidden, `request()` after a change of its own it cannot see |
-| `appearStyles({ motion, open, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens and its `appear` prefix. `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
+| `appearStyles({ motion, open, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens, its `appear` prefix and `unfold: false` (both axes under `unfold` too, for a surface that grows beside what opened it: a FAB menu's item). `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
 | `AnimatedSize` (`motion.ts`) | MOT-5: a box whose size follows its content as one motion, in its layout, clipped with `overflow: clip` (never `hidden`: a box that is a scroll container is scrolled by a caret), its content fixed to the start, the end or — `auto` — the edge that stays; it moves from the size the last frame drew (a resize observer of the box: by the time it is told, a box at rest already stands at its new size), and a change mid-motion goes on from the size shown; the end of a motion is its own transitions' `finished`, matched to its run, so a replaced transition's late `transitioncancel` ends nothing; at once for `fit(false)`, `still()`, reduced motion, a role of zero. The successor of the text inputs' `AutoHeight` box, whose users have not moved to it | the box, the content element (for the end anchor and the inline axis), the axis, the anchor, the role's duration and curve as CSS values (by default `role.resize.default` and `easing.spatial`); `fit(true)` after the content changed. It writes the box's inline size, `overflow`, transition and `data-resizing` only while it moves |
 | `TanreiElement`, `TanreiLightElement` (`element.ts`) | the base of every element: `TanreiElement` for one with a shadow root, `TanreiLightElement` for one that draws in the light DOM (a tree view, a table). Each settles (`Settle`, below) from each connection; `TanreiElement` composes `settleStyles` after the element's own styles, and the build writes `settleRule('<tag>')` at the end of a light-DOM element's stylesheet (`scripts/build.js`). `test/settling.test.mjs` refuses a class that extends `LitElement` or `ReactiveElement` itself, and a light-DOM stylesheet without the rule | nothing: extend the base |
 | `Settle` (`motion.ts`), `settleStyles`, `settleRule(host)` (`src/styles/motion.ts`) | MOT-3: `data-tanrei-settling` on the host from each connection until the second frame after its first update, and no transition in it meanwhile — `transition-property: none`, so a delayed transition does not start either and the press-hold carrier keeps its delay — except on the element that appears (`data-tanrei-appear`: an overlay's surface, so an overlay mounted open, or opened, right after it was connected still enters) | nothing beyond the base class; `data-tanrei-appear` on the element a surface's entrance moves, until `AppearController` writes it. It makes a late state arrive without a motion, not on time: the first state is still written where the element renders. `src/first-frame-all.test.ts` holds every fixture of every spec to its first frame at rest |
@@ -10615,9 +10683,34 @@ Every part but the title is optional. Nobody writes this by hand: `linkCardToNod
 - `aria-labelledby` (the title) and `aria-describedby` (the description, the picture's alternative text once the picture has loaded, the site's name, the host, the words) on the anchor, with ids it writes (LKC-25). Before that the anchor is named by all of its text in reading order;
 - `rel="noopener"` for `target="_blank"`; `alt=""`, `referrerpolicy="no-referrer"`, `loading="lazy"` and `decoding="async"` on a picture whose markup left them out (a missing referrer policy is reported: the first request may have left before the script ran);
 - a picture that fails is removed, and is not asked for again until the product gives its address anew (LKC-10, LKC-13);
+- the picture's motion (LKC-13), below;
 - `data-pressed` through the shared press primitive, and `data-focus-style` where the browser has no style queries;
 - `inert` on an interactive element found inside the card (LKC-35);
 - the debug reports.
+
+**The picture's motion (LKC-13).** Both are the element's own `animate()`, so they leave nothing at rest and a change
+goes on from what is drawn; both are at once while the element settles (MOT-3) and under reduced motion. Their timing
+is read from the body, which carries the tokens on properties that move nothing: the fold's on its
+`transition-duration` and `transition-timing-function` (`comp.link-card.motion.resize-*`, `role.resize.large` and
+`easing.spatial`), the fade's on its `animation-duration` and `animation-timing-function`
+(`comp.link-card.motion.picture-*`, `role.state.large` and `easing.state`).
+
+- *A picture that arrives* — a media picture that was not already whole when the element first saw it (one the browser
+  held is drawn at once) and loads after the card has settled — fades in: its opacity from 0 to 1, nothing changing
+  place or size. While it fades the element carries `data-tanrei-arriving` and the stylesheet draws the box's fill on
+  the anchor beneath it (above the text, across the top and `100cqi / media.aspect-ratio` tall; beside it, the room at
+  the end edge), so the picture's own fill, which fades with it, is never missed.
+- *A picture that fails* while its box is laid out folds the box away: the element reads the box as drawn, removes the
+  picture, and animates the room the anchor keeps for it — `padding-inline-end` beside the text, `padding-block-start`
+  above it — from that size to none, and the anchor's `block-size` from the height drawn to its height without the
+  picture, together, so the card and what follows it move in every frame even where the text, widening, takes fewer
+  lines. While it moves the element carries `data-tanrei-folding`: the anchor clips (`overflow: clip`) and draws the
+  room in the box's fill and the text's box in the container's (above the text the text's box is the anchor's bottom,
+  `--_lc-text-block` tall, which the element measures; beside it, the anchor's content box).
+- *A new image while the box folds* turns it round: the new picture's box opens from the size drawn — beside the text
+  its `inline-size` and the anchor's end padding, above it its `block-size` — and the anchor's height with it. A card
+  whose own width crosses `layout.beside-min-width` while its box moves ends the motion at once (LKC-12); one taken
+  out of the page is at rest.
 
 **Layout.** The element is the query container (`container-type: inline-size`): the picture stands beside the text from `comp.link-card.layout.beside-min-width` of the card's own width, written into the `@container` condition by the build in rem (`scripts/conditions.js`), so the boundary grows with the text size. A system that changes that token gets `dist/systems/<id>.link-card.css`. Because the element is a size container it has no width of its own: in a flex row or a grid cell, give it one.
 

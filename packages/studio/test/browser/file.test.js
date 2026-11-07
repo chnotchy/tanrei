@@ -62,7 +62,8 @@ studioTest('409: the file changed underneath an unsaved edit — nothing is over
   await banner.locator('[data-keep-mine]').click();
   await until(() => onDisk().tokens?.['tanrei.dial.space.unit']?.$value.value === 10, 'mine is written, knowingly');
   await page.waitForSelector('[data-save-state="saved"]');
-  assert.ok(await banner.isHidden());
+  // The banner is a Callout, which closes in a motion and stays drawn until the motion has ended.
+  await banner.waitFor({ state: 'hidden' });
   assert.equal(onDisk().name, undefined);
 
   // Again, and this time theirs is taken: the controls and the preview show the file.

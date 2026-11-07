@@ -15,6 +15,8 @@ import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('button-group');
 type P = Page;
@@ -57,15 +59,20 @@ const dividers = (page: P, id: string) => group(page, id).evaluate((el) => [...e
 
 /**
  * BGR-24: what each seam of a group carries, in the placed order — `none` where no line is drawn, else the color its
- * line is drawn in (the computed background of the divider's line).
+ * line is drawn in. A divider draws its line in each of its two colors (`::before` the divider color, `::after` the
+ * on-fill one) and shows one of them, or neither, by its opacity: the color is the computed background of the layer it
+ * shows (both, joined by ` + `, while one fades into the other).
  */
 const seams = (page: P, id: string) =>
   group(page, id).evaluate((el) =>
     [...el.shadowRoot!.querySelectorAll('.divider')].map((divider) => {
-      const line = getComputedStyle(divider, '::before');
-      return getComputedStyle(divider).display === 'none' || line.display === 'none' || line.content === 'none' ? 'none' : line.backgroundColor;
+      if (getComputedStyle(divider).display === 'none') return 'none';
+      const shown = (['::before', '::after'] as const).map((pseudo) => getComputedStyle(divider, pseudo)).filter((line) => line.content !== 'none' && line.display !== 'none' && Number(line.opacity) > 0);
+      return shown.length ? shown.map((line) => line.backgroundColor).join(' + ') : 'none';
     }),
   );
+/** BGR-24: what each seam of a group has been decided to carry — the `data-line` the group writes: `none`, `line` or `on-fill`. */
+const decided = (page: P, id: string) => group(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll<HTMLElement>('.divider')].map((divider) => divider.dataset.line ?? ''));
 
 // Items, as a fixture lists them: a labelled Button, and an icon-only one (its glyph in the icon slot, named by label).
 const b = (content: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'button', props: { variant: 'outlined', ...props }, content });
@@ -769,7 +776,10 @@ test.describe('separation', () => {
       group(page, id).evaluate((el) =>
         [...el.shadowRoot!.querySelectorAll('.divider')].map((divider) => {
           const box = divider.getBoundingClientRect();
-          const line = getComputedStyle(divider, '::before');
+          // The layer the seam shows (BGR-24: ::before in the divider color, ::after in the on-fill color); both have
+          // the same box.
+          const after = getComputedStyle(divider, '::after');
+          const line = Number(after.opacity) > 0 ? after : getComputedStyle(divider, '::before');
           return {
             x: box.left + Number.parseFloat(line.left),
             y: box.top + Number.parseFloat(line.top),
@@ -777,7 +787,7 @@ test.describe('separation', () => {
             height: Number.parseFloat(line.height),
             space: [box.width, box.height],
             color: line.backgroundColor,
-            drawn: line.display !== 'none',
+            drawn: line.display !== 'none' && Number(line.opacity) > 0,
             hidden: divider.getAttribute('aria-hidden'),
             press: getComputedStyle(divider).pointerEvents,
           };
@@ -946,15 +956,18 @@ test.describe('separation', () => {
     expect([...seen]).toEqual([surface]);
   });
 
-  test('BGR-24, BGR-11: switching a toggle adds, removes or recolors the lines beside it in the same frame, without animation; hover, focus, press and disabling move no line and change no color; a changed variant or toggle is followed at once', async ({ page }) => {
+  test('BGR-24, BGR-11: switching a toggle decides the lines beside it in the same frame, and they come to rest in the colors the rule names; hover, focus, press and disabling move no line and change no color; a changed variant or toggle is followed too', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: only('connected-toggles', 'connected-outlined-toggles') });
     const line = await resolveColor(page, T('connected-divider-color'));
     const onFill = await resolveColor(page, T('connected-divider-on-fill-color'));
     const id = 'connected-outlined-toggles';
     expect(await seams(page, id)).toEqual(['none', onFill]);
-    /** Changes an item and reads the seams before the next frame is drawn: one task, with no frame in between. */
-    const change = (n: number, props: Record<string, unknown>) =>
-      group(page, id).evaluate(
+    /**
+     * Changes an item and reads what the group decided before the next frame is drawn: one task, with no frame in
+     * between. The lines then fade (the next test follows them); `drawn` is what they rest in once they have.
+     */
+    const change = async (n: number, props: Record<string, unknown>) => {
+      const now = await group(page, id).evaluate(
         async (el, [index, values]) => {
           let frames = 0;
           const count = () => { frames++; };
@@ -962,48 +975,222 @@ test.describe('separation', () => {
           Object.assign(el.children[index as number], values);
           // The item reflects its property and the group's observer answers, each in a microtask.
           for (let turn = 0; turn < 8; turn++) await Promise.resolve();
-          const dividers = [...el.shadowRoot!.querySelectorAll('.divider')];
-          return {
-            frames,
-            seams: dividers.map((divider) => { const drawn = getComputedStyle(divider, '::before'); return drawn.display === 'none' ? 'none' : drawn.backgroundColor; }),
-            moving: dividers.flatMap((divider) => divider.getAnimations({ subtree: true })).length,
-          };
+          return { frames, lines: [...el.shadowRoot!.querySelectorAll<HTMLElement>('.divider')].map((divider) => divider.dataset.line ?? '') };
         },
         [n, props] as const,
       );
-    // Bold on: three selected outlined toggles — two lines in the on-fill color, before a frame was drawn.
-    expect(await change(0, { selected: true })).toEqual({ frames: 0, seams: [onFill, onFill], moving: 0 });
+      await motionEnded(group(page, id));
+      return { ...now, drawn: await seams(page, id) };
+    };
+    // Bold on: three selected outlined toggles — two lines in the on-fill color, decided before a frame was drawn.
+    expect(await change(0, { selected: true })).toEqual({ frames: 0, lines: ['on-fill', 'on-fill'], drawn: [onFill, onFill] });
     // Italic off: no line on either side of it.
-    expect(await change(1, { selected: false })).toEqual({ frames: 0, seams: ['none', 'none'], moving: 0 });
+    expect(await change(1, { selected: false })).toEqual({ frames: 0, lines: ['none', 'none'], drawn: ['none', 'none'] });
     // Bold and Underline off too: three unselected outlined toggles, no fill — the divider color.
     await change(0, { selected: false });
-    expect(await change(2, { selected: false })).toEqual({ frames: 0, seams: [line, line], moving: 0 });
+    expect(await change(2, { selected: false })).toEqual({ frames: 0, lines: ['line', 'line'], drawn: [line, line] });
     // The person does it: a click on Italic.
     await inner(page, id, 1).click();
-    await expect.poll(() => seams(page, id)).toEqual(['none', 'none']);
+    await expect.poll(() => decided(page, id)).toEqual(['none', 'none']);
+    await motionEnded(group(page, id));
+    expect(await seams(page, id)).toEqual(['none', 'none']);
     // Hover, press and focus on the selected Italic: nothing changes.
     const box = await bounds(item(page, id, 1));
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    expect(await seams(page, id)).toEqual(['none', 'none']);
+    expect(await decided(page, id)).toEqual(['none', 'none']);
     await page.mouse.down();
-    expect(await seams(page, id)).toEqual(['none', 'none']);
+    expect(await decided(page, id)).toEqual(['none', 'none']);
     await page.mouse.move(0, 0);
     await page.mouse.up();
     await inner(page, id, 1).focus();
     expect(await seams(page, id)).toEqual(['none', 'none']);
     // Disabling compares the look the item has when enabled: a disabled selected Italic still has no line beside it, and
     // two disabled toggles, one on and one off, have none between them.
-    expect(await change(1, { disabled: true })).toMatchObject({ seams: ['none', 'none'] });
-    expect(await change(0, { disabled: true })).toMatchObject({ seams: ['none', 'none'] });
-    expect(await change(0, { disabled: false })).toMatchObject({ seams: ['none', 'none'] });
-    expect(await change(1, { disabled: false, selected: false })).toMatchObject({ frames: 0, seams: [line, line] });
+    expect(await change(1, { disabled: true })).toMatchObject({ lines: ['none', 'none'], drawn: ['none', 'none'] });
+    expect(await change(0, { disabled: true })).toMatchObject({ lines: ['none', 'none'], drawn: ['none', 'none'] });
+    expect(await change(0, { disabled: false })).toMatchObject({ lines: ['none', 'none'], drawn: ['none', 'none'] });
+    expect(await change(1, { disabled: false, selected: false })).toMatchObject({ frames: 0, lines: ['line', 'line'], drawn: [line, line] });
     // The variant and toggle are followed too: a filled Button that is not a toggle beside an unselected outlined one.
-    expect(await change(0, { variant: 'filled', toggle: false })).toMatchObject({ frames: 0, seams: ['none', line] });
-    expect(await change(1, { variant: 'filled', toggle: false })).toMatchObject({ frames: 0, seams: [onFill, 'none'] });
+    expect(await change(0, { variant: 'filled', toggle: false })).toMatchObject({ frames: 0, lines: ['none', 'line'], drawn: ['none', line] });
+    expect(await change(1, { variant: 'filled', toggle: false })).toMatchObject({ frames: 0, lines: ['on-fill', 'none'], drawn: [onFill, 'none'] });
     // The tonal fixture: hovering the unselected Italic, whose hovered fill is another color, keeps its line to Underline.
     expect(await seams(page, 'connected-toggles')).toEqual(['none', line]);
     await item(page, 'connected-toggles', 1).hover();
+    expect(await decided(page, 'connected-toggles')).toEqual(['none', 'line']);
     expect(await seams(page, 'connected-toggles')).toEqual(['none', line]);
+  });
+
+  /**
+   * BGR-24: what a group's stage draws and exposes in one frame — each divider's line as one number (the divider
+   * color's layer counts 1 and the on-fill color's 2, so 0 is no line, 1 the line, 2 the on-fill line, and a fade between
+   * two of them runs from the one number to the other), what the group decided for it, and each item's selected and
+   * aria-pressed.
+   */
+  const lineFrame: Probe = (root) => {
+    const el = root.querySelector('tanrei-button-group')!;
+    const seen: Record<string, number | string | boolean> = {};
+    el.shadowRoot!.querySelectorAll<HTMLElement>('.divider').forEach((divider, n) => {
+      seen[`line${n}`] = Number(getComputedStyle(divider, '::before').opacity) + 2 * Number(getComputedStyle(divider, '::after').opacity);
+      seen[`decided${n}`] = divider.dataset.line ?? '';
+    });
+    [...el.children].forEach((child, n) => {
+      seen[`selected${n}`] = !!(child as HTMLElement & { selected?: boolean }).selected;
+      seen[`pressed${n}`] = child.shadowRoot?.querySelector('button')?.getAttribute('aria-pressed') ?? '';
+    });
+    return seen;
+  };
+  /** What `lineFrame` reads for a decided line. */
+  const LINE_OF = { none: 0, line: 1, 'on-fill': 2 } as Record<string, number>;
+  /** Switches the selected of the items named (one change, in one task) and waits for the item to render. */
+  const flip = (page: P, id: string, ...n: number[]) =>
+    group(page, id).evaluate(async (el, indexes) => {
+      const items = indexes.map((index) => el.children[index] as HTMLElement & { selected: boolean; updateComplete: Promise<unknown> });
+      for (const it of items) it.selected = !it.selected;
+      await Promise.all(items.map((it) => it.updateComplete));
+    }, n);
+  /** The fixtures under divider that hold a toggle, and pairs of the test's own for the changes they cannot show. */
+  const fadeFixtures = (): Fixture[] => [
+    ...spec.fixtures.filter((f) => f.props.variant === 'connected' && f.props.separation !== 'gap' && f.items?.some((it) => it.props?.toggle)),
+    // Two unselected tonal toggles rest on one quiet fill (the line); both selected, on an emphasis fill (the on-fill line).
+    fixture('tonal-pair', [b('Left', { variant: 'tonal', toggle: true }), b('Right', { variant: 'tonal', toggle: true })], { separation: 'divider' }),
+    // Filled toggles: unselected beside selected none, two selected the on-fill line.
+    fixture('filled-toggles', [b('One', { variant: 'filled', toggle: true, selected: true }), b('Two', { variant: 'filled', toggle: true }), b('Three', { variant: 'filled', toggle: true })], { separation: 'divider' }),
+  ];
+
+  // One test per fixture, so each stays a few samplings long on a slow runner.
+  const fades = fadeFixtures();
+  test('BGR-24: the fixtures the fade is sampled in — every fixture under divider that holds a toggle, and the test’s own pairs', () => {
+    expect(fades.map((f) => f.id)).toEqual(['connected-toggles', 'connected-outlined-toggles', 'tonal-pair', 'filled-toggles']);
+  });
+  for (const f of fades) {
+    test(`BGR-24: a line that a switched toggle brings, takes away or recolors fades over comp.button-group.motion.state-duration on comp.button-group.motion.state-easing — over more than one frame, its opacity alone moving — ${f.id}`, async ({ page }) => {
+      const id = f.id;
+      await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [f] });
+      await page.mouse.move(0, 0);
+      const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+      expect(duration, 'the state role, at the pace of a medium Button').toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+      const easing = await resolveEasing(page, T('motion-state-easing'));
+      expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-state'));
+      // Each item switched in turn; the pair both at once, so its line fades into the on-fill line, and back.
+      const changes = id === 'tonal-pair' ? [[0, 1], [0, 1]] : f.items!.map((_, n) => [n]);
+      for (const n of changes) {
+        const seen = await sampleFrames(stage(page, id), () => flip(page, id, ...n), { elements: false, probe: lineFrame });
+        const name = `${id}, item ${n.join(' and ')}`;
+        let faded = 0;
+        for (const key of Object.keys(seen.rest.probe).filter((each) => each.startsWith('line'))) {
+          const at = key.slice('line'.length);
+          // Decided at once, and drawn as decided once the motion has ended.
+          expect(seen.frames[0]!.probe[`decided${at}`], `${name}: ${key} decided in the first frame`).toBe(seen.rest.probe[`decided${at}`]);
+          expect(seen.rest.probe[key], `${name}: ${key} at rest`).toBe(LINE_OF[seen.rest.probe[`decided${at}`] as string]);
+          if (seen.before.probe[key] === seen.rest.probe[key]) continue;
+          // Not one frame: the line comes, goes or changes color over several.
+          expectAnimated(seen, key);
+          faded++;
+        }
+        // A switched toggle changes its fill, so every seam beside it changes.
+        expect(faded, `${name}: lines that changed`).toBeGreaterThan(0);
+        expectNoFlicker(seen);
+        // Its opacity alone moves, on the tokens' duration and curve.
+        const own = seen.motions.filter((motion) => motion.on.startsWith('span.divider'));
+        for (const motion of own) expect([name, motion.name, motion.duration, motion.easing]).toEqual([name, 'opacity', duration, easing]);
+        await motionEnded(group(page, id));
+      }
+    });
+  }
+
+  test('BGR-24: what a switched toggle exposes changes at once, not at the end of the lines’ fade — in its first frame the item’s selected and aria-pressed and the group’s decision are new, the lines where they were', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: only('connected-outlined-toggles') });
+    const id = 'connected-outlined-toggles';
+    for (const to of [true, false]) {
+      // Bold on (two on-fill lines), then off again (no line beside it).
+      const frozen = await freezeFirstFrame(stage(page, id), () => flip(page, id, 0), { probe: lineFrame });
+      try {
+        expect(frozen.frame.probe, `Bold ${to ? 'on' : 'off'}`).toMatchObject({ selected0: to, pressed0: String(to), decided0: to ? 'on-fill' : 'none', line0: to ? 0 : 2 });
+        await expect(inner(page, id, 0)).toHaveAttribute('aria-pressed', String(to));
+        // What assistive technology is told: the button named Bold, pressed or not.
+        await expect(group(page, id).getByRole('button', { name: 'Bold', pressed: to })).toHaveCount(1);
+      } finally {
+        await frozen.release();
+      }
+      await motionEnded(group(page, id));
+    }
+  });
+
+  test('BGR-24: under reduced motion a switched toggle’s lines are drawn as they rest from the first frame', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: fadeFixtures() });
+    for (const [id, n] of [['connected-outlined-toggles', [0]], ['connected-outlined-toggles', [1]], ['connected-toggles', [0]], ['tonal-pair', [0, 1]]] as [string, number[]][]) {
+      const seen = await sampleFrames(stage(page, id), () => flip(page, id, ...n), { probe: lineFrame });
+      expectFirstFrameAtRest(seen);
+      expect(seen.before.probe, `${id} ${n}: something changed`).not.toEqual(seen.rest.probe);
+      expect(seen.motions.filter((motion) => motion.on.startsWith('span.divider')), `${id} ${n}`).toEqual([]);
+    }
+  });
+
+  test('BGR-24, BGR-11: the lines of a group that is first drawn, and of one whose items are placed again, are drawn at once — no fade, even where a switched toggle changes them in the same frames', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: only('connected-outlined-toggles') });
+    const id = 'connected-outlined-toggles';
+    // Placed again: a selected outlined toggle put first moves every seam on — the divider that stood between Italic and
+    // Underline (the on-fill line) now stands between Bold and Italic (none). Drawn at once.
+    const seen = await sampleFrames(stage(page, id), () =>
+      group(page, id).evaluate(async (el) => {
+        const next = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
+        for (const [name, value] of [['variant', 'outlined'], ['toggle', ''], ['selected', ''], ['label', 'New']]) next.setAttribute(name, value);
+        next.textContent = 'New';
+        el.prepend(next);
+        await next.updateComplete;
+        await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      }),
+      { probe: lineFrame },
+    );
+    expect(seen.before.probe.line1, 'the divider between Italic and Underline').toBe(2);
+    expect(seen.rest.probe.line1, 'the same divider, now between Bold and Italic').toBe(0);
+    expect(seen.frames[0]!.probe.line1, 'drawn at once').toBe(0);
+    expect(seen.motions.filter((motion) => motion.on.startsWith('span.divider'))).toEqual([]);
+    // Added at the end: an unselected toggle after the selected Underline — a new divider, with no line, from its first
+    // frame.
+    const added = await sampleFrames(stage(page, id), () =>
+      group(page, id).evaluate(async (el) => {
+        const next = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
+        for (const [name, value] of [['variant', 'outlined'], ['toggle', ''], ['label', 'Last']]) next.setAttribute(name, value);
+        next.textContent = 'Last';
+        el.append(next);
+        await next.updateComplete;
+        await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      }),
+      { probe: lineFrame },
+    );
+    expect(added.rest.probe).toMatchObject({ decided3: 'none', line3: 0 });
+    for (const frame of added.frames.filter((f) => 'line3' in f.probe)) expect(frame.probe.line3, `frame ${frame.index}: the new divider`).toBe(0);
+    expect(added.motions.filter((motion) => motion.on.startsWith('span.divider'))).toEqual([]);
+    // First drawn: a group put in the page with a toggle switched while it settles has its lines at rest from its first
+    // frame.
+    const first = await sampleFrames(stage(page, id), () =>
+      stage(page, id).evaluate(async (box) => {
+        box.insertAdjacentHTML(
+          'beforeend',
+          '<tanrei-button-group variant="connected" separation="divider" label="Late" id="late"><tanrei-button variant="outlined" toggle>A</tanrei-button><tanrei-button variant="outlined" toggle selected>B</tanrei-button><tanrei-button variant="outlined" toggle selected>C</tanrei-button></tanrei-button-group>',
+        );
+        const late = box.querySelector('#late') as HTMLElement & { updateComplete: Promise<unknown> };
+        await late.updateComplete;
+        const a = late.children[0] as HTMLElement & { selected: boolean; updateComplete: Promise<unknown> };
+        a.selected = true;
+        await a.updateComplete;
+      }),
+      { probe: (root) => {
+        const late = root.querySelector('#late');
+        if (!late?.shadowRoot) return {};
+        const seen: Record<string, number> = {};
+        late.shadowRoot.querySelectorAll('.divider').forEach((divider, n) => {
+          seen[`late${n}`] = Number(getComputedStyle(divider, '::before').opacity) + 2 * Number(getComputedStyle(divider, '::after').opacity);
+        });
+        return seen;
+      } },
+    );
+    expect(first.rest.probe).toEqual({ late0: 2, late1: 2 });
+    const drawn = first.frames.filter((frame) => 'late0' in frame.probe);
+    expect(drawn.length, 'the late group is drawn').toBeGreaterThan(0);
+    for (const frame of drawn) expect(frame.probe, `frame ${frame.index}`).toEqual({ late0: 2, late1: 2 });
+    expect(first.motions.filter((motion) => motion.on.startsWith('span.divider'))).toEqual([]);
   });
 
   test('BGR-24: the fills are compared as the active scheme and system draw them — the dark scheme and a preset keep the rule, and a layer that gives two looks one color gets its line back', async ({ page }) => {

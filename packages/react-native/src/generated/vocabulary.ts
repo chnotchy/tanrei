@@ -839,6 +839,8 @@ export interface TanreiButtonGroupTokens {
   readonly connectedInnerShape: number;
   readonly connectedSeparation: number;
   readonly connectedVerticalOuterShape: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
   readonly standardGap: number;
 }
 
@@ -1193,6 +1195,8 @@ export interface TanreiCalloutTokens {
   readonly iconGap: number;
   readonly iconOpacity: number;
   readonly iconSize: number;
+  readonly motionDisclosureDuration: number;
+  readonly motionDisclosureEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
   readonly titleGap: number;
@@ -1372,6 +1376,9 @@ export interface TanreiChatComposerTokens {
   readonly hoveredOutlineWidth: number;
   readonly inputPaddingBlock: number;
   readonly layoutInlineMinWidth: number;
+  readonly motionGlyphFadeDuration: number;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
@@ -2878,6 +2885,10 @@ export interface TanreiLinkCardTokens {
   readonly mediaContainerColor: TanreiPaint;
   readonly mediaWidth: number;
   readonly motionFeedbackDuration: number;
+  readonly motionPictureDuration: number;
+  readonly motionPictureEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
@@ -3077,6 +3088,8 @@ export interface TanreiListTokens {
   readonly motionFeedbackDuration: number;
   readonly motionReorderDuration: number;
   readonly motionReorderEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;

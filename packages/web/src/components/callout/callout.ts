@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
+  AnimatedSize,
   AvailabilityController,
   BUTTON_VARIANTS,
   GROUP_ITEM,
@@ -19,6 +20,7 @@ import {
   hostAria,
   report,
   returnFocus,
+  SETTLING,
   WordsController,
 } from '../../primitives/index.js';
 import type { TanreiCalloutSizeRegistry, TanreiCalloutVariantRegistry } from '../../registry.js';
@@ -70,6 +72,21 @@ const openConverter = {
   toAttribute: (value: unknown): string | null => (value === false ? 'false' : null),
 };
 
+/**
+ * CLO-13: where what follows the callout stands on the block axis — the start edge of the next element laid out after
+ * it, or the end edge of its parent where none is — read to tell how much of its container's space (a gap, a margin)
+ * comes and goes with it.
+ */
+const followerEdge = (host: HTMLElement): number => {
+  for (let next = host.nextElementSibling; next; next = next.nextElementSibling) {
+    if (next.getClientRects().length && !/^(absolute|fixed)$/.test(getComputedStyle(next).position)) return next.getBoundingClientRect().top;
+  }
+  const parent = host.parentElement ?? (host.parentNode instanceof ShadowRoot ? host.parentNode.host : null);
+  return parent ? parent.getBoundingClientRect().bottom : 0;
+};
+
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /** Text as it is read: one run, its white space collapsed. */
 const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/gu, ' ').trim();
 
@@ -97,7 +114,10 @@ let titles = 0;
  * `statusLabel` adds it in words for assistive technology ("Warning, …") without drawing it.
  *
  * `title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the block.
- * `open` defaults to true; `open="false"` is how markup starts a callout closed.
+ * `open` defaults to true; `open="false"` is how markup starts a callout closed. When `open` changes the callout opens
+ * or closes in one motion, in the page's layout: its height and its opacity together, its content fixed to its top,
+ * what follows moving with it, the space its container keeps beside it included. What assistive technology and focus
+ * are given changes at once; under reduced motion all of it does.
  *
  * @tag tanrei-callout
  * @slot - The body: text, or the product's own blocks (paragraphs, lists, a table, a code block, any component). Text placed directly takes the callout's text style and color; long-form blocks go in a `<div class="tanrei-prose" data-measure="false">` (with `data-size="large"` in a large callout).
@@ -204,6 +224,31 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
   private pending = 0;
   /** CLO-21: hears the title and the body change while it is live. */
   private content$: MutationObserver | null = null;
+
+  /**
+   * CLO-13, MOT-5: the box whose height opens and closes, in the layout, its content fixed to its top edge, over the
+   * callout's disclosure tokens; at once under reduced motion and while the callout settles (MOT-3, MOT-6).
+   */
+  private readonly disclosure = new AnimatedSize(this, {
+    box: () => this.renderRoot?.querySelector<HTMLElement>('.box') ?? null,
+    anchor: () => 'start',
+    duration: `var(${PREFIX}-motion-disclosure-duration)`,
+    easing: `var(${PREFIX}-motion-disclosure-easing)`,
+  });
+  /** CLO-13: at rest, or opening or closing in its motion. */
+  private phase: 'rest' | 'opening' | 'closing' = 'rest';
+  /** CLO-13: the change of `open` this update draws as a motion, decided before it renders. */
+  private motion: 'open' | 'close' | null = null;
+  private moves = 0;
+  /**
+   * CLO-13: the space beside the callout that its container keeps while it is laid out and takes away with it (a flex
+   * column's gap, a margin of what follows that collapses with nothing once it is gone), as two margins at its end:
+   * the one it has at rest (`rest`, the product's), and the one that puts what follows, with the callout 0 tall, where
+   * it stands without the callout (`closed`). Measured when a motion starts from rest; null where nothing comes or goes.
+   */
+  private space: { rest: number; closed: number } | null = null;
+  /** CLO-13: that margin moving between the two, on the box's own clock. */
+  private spaceMotion: Animation | null = null;
 
   constructor() {
     super();
@@ -371,6 +416,9 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    // CLO-13: taken out of the page, it is at rest where it was going (AnimatedSize stops the box's own motion).
+    this.moves++;
+    this.settle();
     cancelAnimationFrame(this.pending);
     this.content$?.disconnect();
     this.content$ = null;
@@ -384,6 +432,11 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
       returnFocus(this.cameFrom, this);
       this.cameFrom = null;
     }
+    // CLO-13: whether this change of `open` is drawn as a motion, and the space that moves with it — read before the
+    // callout renders the change, while it is drawn as it was.
+    this.motion = null;
+    const was = changed.get('open') as boolean | undefined;
+    if (this.hasUpdated && changed.has('open') && was !== undefined && was !== this.open) this.motion = this.prepareMotion();
     // CLO-31: neither a title nor a body, no callout.
     try {
       if (this.empty) this.internals?.states.add('empty');
@@ -393,8 +446,121 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     }
   }
 
+  /**
+   * CLO-13: whether a change of `open` moves — not under reduced motion, while the callout settles, or while it is
+   * hidden or empty. From rest it measures the space its container keeps beside it: the callout drawn as it is (open,
+   * or closed with its box 0 tall), then not laid out at all — `measure` and `away` are custom states that only this
+   * sets, and takes away in the same task. A change while it moves goes on from where it is, with the space measured.
+   */
+  private prepareMotion(): 'open' | 'close' | null {
+    const states = this.internals?.states;
+    if (!states || !this.isConnected || this.empty || this.hidden || reducedMotion() || this.hasAttribute(SETTLING)) return null;
+    const motion = this.open ? 'open' : 'close';
+    try {
+      // Closing, it stays drawn while it moves (callout.styles.ts) — before anything reads a style: an `open="false"`
+      // the product wrote has already taken it out of the layout for the next style.
+      if (motion === 'close') states.add('leaving');
+    } catch {
+      // A browser that has no custom states draws the change at once.
+      return null;
+    }
+    if (this.phase !== 'rest') return motion;
+    this.space = null;
+    try {
+      states.add('measure');
+      const shown = followerEdge(this);
+      const height = this.getBoundingClientRect().height;
+      const rest = Number.parseFloat(getComputedStyle(this).marginBlockEnd) || 0;
+      states.delete('measure');
+      states.add('away');
+      const none = followerEdge(this);
+      states.delete('away');
+      // Laid out again as it was, so that every part has its style again before the change starts its transitions.
+      void this.getBoundingClientRect();
+      const extra = shown - height - none;
+      if (extra > 0.5) this.space = { rest, closed: rest - extra };
+    } catch {
+      states.delete('measure');
+      states.delete('away');
+    }
+    return motion;
+  }
+
+  /**
+   * CLO-13: the motion of a change of `open`, once it is rendered: the box's height from the one drawn (none, for a
+   * callout that was not drawn) to its new one, the container's opacity with it, and the space beside it on the box's
+   * own clock. Closing, it stays drawn (`leaving`) until all of it has ended, and is then taken out of the layout.
+   */
+  private startMotion(motion: 'open' | 'close') {
+    const fromRest = this.phase === 'rest';
+    const box = this.renderRoot.querySelector<HTMLElement>('.box');
+    const container = this.renderRoot.querySelector<HTMLElement>('.container');
+    const run = ++this.moves;
+    // The margin drawn now, where one is moving: the space goes on from it.
+    const spaceShown = this.spaceMotion ? Number.parseFloat(getComputedStyle(this).marginBlockEnd) : null;
+    this.spaceMotion?.cancel();
+    this.spaceMotion = null;
+    // From the height the last frame drew: a callout that was not laid out was reported 0 tall by the box's resize
+    // observer, in every engine (one that has not been reported yet, in its first frames, opens at once: MOT-3).
+    this.disclosure.fit(true);
+    const height = box?.getAnimations().find((animation) => /^(block-size|height)$/.test((animation as CSSTransition).transitionProperty ?? ''));
+    if (motion === 'open') {
+      try {
+        this.internals?.states.delete('leaving');
+      } catch {
+        // No custom states: it was never kept drawn.
+      }
+      // A callout that was not drawn fades in from transparent (callout.styles.ts); one turned round goes on from the
+      // opacity drawn, by its own transition.
+      if (fromRest && height && container) {
+        container.setAttribute('data-arriving', '');
+        void getComputedStyle(container).opacity;
+        container.removeAttribute('data-arriving');
+      }
+    }
+    if (!height) {
+      this.settle();
+      return;
+    }
+    this.phase = motion === 'open' ? 'opening' : 'closing';
+    if (this.space) {
+      const effect = height.effect as KeyframeEffect;
+      const timing = effect.getTiming();
+      // A transition's curve is its effect's, or — where an engine puts it there — its first keyframe's.
+      const easing = timing.easing && timing.easing !== 'linear' ? timing.easing : String(effect.getKeyframes()[0]?.easing ?? 'linear');
+      const [from, to] = motion === 'open' ? [this.space.closed, this.space.rest] : [this.space.rest, this.space.closed];
+      // Held at its end while closing, until the callout is taken out of the layout in the same frame.
+      this.spaceMotion = this.animate([{ marginBlockEnd: `${spaceShown ?? from}px` }, { marginBlockEnd: `${to}px` }], { duration: timing.duration, easing, fill: motion === 'close' ? 'forwards' : 'none' });
+    }
+    const opacity = container?.getAnimations().filter((animation) => (animation as CSSTransition).transitionProperty === 'opacity') ?? [];
+    void Promise.allSettled([height, ...opacity, ...(this.spaceMotion ? [this.spaceMotion] : [])].map((animation) => animation.finished)).then(() => {
+      if (run === this.moves) this.settle();
+    });
+  }
+
+  /** CLO-13: at rest — shown, or closed and out of the layout. */
+  private settle() {
+    this.phase = 'rest';
+    this.spaceMotion?.cancel();
+    this.spaceMotion = null;
+    try {
+      this.internals?.states.delete('leaving');
+    } catch {
+      // No custom states: nothing was kept drawn.
+    }
+  }
+
   protected override updated(changed: PropertyValues) {
     const has = (name: string) => changed.has(name);
+    // CLO-13: the change of `open` moves, or — drawn at once (reduced motion, hidden, empty, settling) — ends a motion
+    // under way where it was going.
+    if (this.motion) this.startMotion(this.motion);
+    else if (has('open') && this.phase !== 'rest') {
+      this.moves++;
+      this.disclosure.fit(false);
+      this.settle();
+    }
+    this.motion = null;
     const shown = this.open && !this.empty;
     const title = this.hasTitle ? this.slottedTitle : null;
     // CLO-7, CLO-20: the product's title names the callout from where it is; it needs an id to be named by.
@@ -458,7 +624,11 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     const own = form !== 'default' && !this.hasIcon ? GLYPHS[form] : '';
     // CLO-20: the status in words, then the title and the body — phrases of one text ("Warning, …"). Not while status is default.
     const statusLabel = form !== 'default' ? this.statusLabel.trim() : '';
+    // CLO-13: the box whose height opens and closes. Closed, its content is inert and hidden from assistive technology
+    // while it still moves: nothing in it takes focus or is read.
+    const gone = !this.open;
     return html`
+      <div class="box ${classMap({ gone })}" ?inert=${gone} aria-hidden=${gone ? 'true' : nothing}>
       <div
         part="container"
         class="container ${classMap({ 'has-lead': !!own || this.hasIcon, titled: this.titled, 'has-body': this.hasBody, 'has-actions': this.hasActions, closable: this.closable })}"
@@ -482,6 +652,7 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
               ></span
             >`
           : nothing}
+      </div>
       </div>
       <div class="announce" aria-live="polite" aria-atomic="true"></div>
       <div class="announce" aria-live="assertive" aria-atomic="true"></div>

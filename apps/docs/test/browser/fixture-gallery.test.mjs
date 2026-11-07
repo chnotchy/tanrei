@@ -292,18 +292,33 @@ async function measure() {
   // scrolled to), and the page draws each stage it comes near. A stage passed by, as the stages above it grew when they
   // were drawn, is then brought into view on its own. (Half a window at a time, two frames at each, was four times the
   // frames, for nothing more drawn.)
+  // A stage drawn with a step in script is left only once its step has ended (the canvas carries `data-staging` until
+  // then, lib/fixture-stages.ts), as a reader who comes to it stays near it: what the step does may wait for the stage
+  // to be near the view — a file item asks for its picture only then, and draws its name in the picture's place until it
+  // has one. Scrolled on at once, a step that ended a few frames late was a stage far from the view, drawn otherwise
+  // than its baseline (the chat composer's `own-image-tiles`, 28 px taller with its tiles' names, in 5 runs of 8 with
+  // each step put off by up to 150 ms).
+  const staging = () => [...gallery.querySelectorAll('.docs-stage-canvas[data-staging]')];
+  const staged = async () => {
+    const wait = (async () => {
+      while (staging().length) await frame();
+    })();
+    await within(10_000, () => `the step in script of ${staging().map((canvas) => canvas.closest('.docs-stage')?.dataset.fixtureId).join(', ')} did not end`, wait);
+  };
   const start = document.scrollingElement.scrollHeight;
   for (let y = 0; y < document.scrollingElement.scrollHeight; y += innerHeight) {
     if (y > 4 * start) throw new Error(`the page kept growing as it was scrolled through: ${start} tall at first, ${document.scrollingElement.scrollHeight} at ${y}`);
     step(`scrolling through, at ${y} of ${document.scrollingElement.scrollHeight}`);
     scrollTo(0, y);
     await frame();
+    await staged();
   }
   for (const canvas of gallery.querySelectorAll('.docs-stage-canvas[data-pending]')) {
     step(`bringing ${canvas.closest('.docs-stage')?.dataset.fixtureId} into view`);
     canvas.scrollIntoView({ block: 'center' });
     await frame();
     await frame();
+    await staged();
   }
   scrollTo(0, 0);
   step('defining the elements');

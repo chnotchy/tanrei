@@ -951,6 +951,8 @@ private let m3ExpressiveLikeButtonGroupTokens = TanreiButtonGroupTokens(
   connectedInnerShape: 8,
   connectedSeparation: 1,
   connectedVerticalOuterShape: 16,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   standardGap: 8
 )
 
@@ -2209,6 +2211,8 @@ private let m3ExpressiveLikeCalloutTokens = TanreiCalloutTokens(
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
+  motionDisclosureDuration: 350,
+  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,
@@ -2527,6 +2531,9 @@ private let m3ExpressiveLikeChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: m3ExpressiveLikeTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  motionGlyphFadeDuration: 150,
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
@@ -5049,6 +5056,10 @@ private let m3ExpressiveLikeLinkCardTokens = TanreiLinkCardTokens(
   mediaContainerColor: .role(.surfaceContainerHigh),
   mediaWidth: 192,
   motionFeedbackDuration: 450,
+  motionPictureDuration: 150,
+  motionPictureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
@@ -5327,6 +5338,8 @@ private let m3ExpressiveLikeListTokens = TanreiListTokens(
   motionFeedbackDuration: 450,
   motionReorderDuration: 300,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiListConditions(
