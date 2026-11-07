@@ -122,9 +122,10 @@ export const listStyles = css`
     display: block;
     block-size: 0;
   }
-  /* LST-38, LST-41, LST-43: it also carries the time and the curve of the reorder motion as the cascade computes them, for
-     the script that moves the items and waits for the product's order (a duration token is an expression: it is
-     computed through a real property, here one that moves nothing). */
+  /* LST-38, LST-41, LST-43: it also carries the times and the curves of the list's motions as the cascade computes them,
+     for the script that moves the items and waits for the product's order (a duration token is an expression: it is
+     computed through a real property, here one that moves nothing) — in this order: the reorder motion, the length of
+     an item that arrives or leaves, and its fade (LST-41). */
   .announcer {
     position: absolute;
     inline-size: 1px;
@@ -136,8 +137,8 @@ export const listStyles = css`
     white-space: nowrap;
     border: 0;
     transition-property: none;
-    transition-duration: ${unsafeCSS(T('motion-reorder-duration'))};
-    transition-timing-function: ${unsafeCSS(T('motion-reorder-easing'))};
+    transition-duration: ${unsafeCSS(T('motion-reorder-duration'))}, ${unsafeCSS(T('motion-resize-duration'))}, ${unsafeCSS(T('motion-state-duration'))};
+    transition-timing-function: ${unsafeCSS(T('motion-reorder-easing'))}, ${unsafeCSS(T('motion-resize-easing'))}, ${unsafeCSS(T('motion-state-easing'))};
   }
 `;
 
@@ -152,6 +153,20 @@ export const itemStyles = css`
   /* LST-37: a dragged item is drawn above the other items of the list. */
   :host([data-dragged]) {
     z-index: 1;
+  }
+  /* LST-41: an item the product took away is drawn while it leaves, and takes no press (it is inert as well). In a
+     wrapping list it stands outside the flow, at the box it was drawn in, while the items after it move into their
+     new places; the list writes that box. */
+  :host([data-leaving]) {
+    pointer-events: none;
+  }
+  :host([data-leaving='placed']) {
+    position: absolute;
+    left: var(--_lst-leave-x);
+    top: var(--_lst-leave-y);
+    inline-size: var(--_lst-leave-inline);
+    block-size: var(--_lst-leave-block);
+    margin: 0;
   }
 
   /* LST-8, LST-9, LST-13, LST-15, LST-16, LST-25: the conditions, the states and their precedence, the paints, the ripple

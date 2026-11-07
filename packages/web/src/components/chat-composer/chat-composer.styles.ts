@@ -141,8 +141,16 @@ export const styles = css`
 
   /* ── The strip (CCM-43) ── the attachments at the top of the capsule, from the start edge, strip.gap apart: a tile
      at its own size beside its neighbours, aligned to the top of its line; a row across a whole line. A full line wraps;
-     nothing scrolls sideways, and no item is cut, shrunk or hidden. Only a File item is drawn in it. */
+     nothing scrolls sideways, and no item is cut, shrunk or hidden. Only a File item is drawn in it.
+     CCM-35, MOT-5: the strip stands in a box of its own whose height opens and closes when an item is added or removed
+     (AnimatedSize, anchored at its start: the items that stay keep their place against the capsule's top edge, and the
+     row of the typing area follows the box's end, so it keeps its place against the capsule's bottom edge). The box
+     is 0 tall while the strip is not drawn, and clipped only while it moves. */
+  .strip-box {
+    min-inline-size: 0;
+  }
   .strip {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -168,6 +176,22 @@ export const styles = css`
   }
   .strip ::slotted(:not(tanrei-file-item)) {
     display: none;
+  }
+  /* CCM-35: while it holds only items that are leaving, the strip is drawn for them and takes no room — they stand
+     outside its flow, where they were drawn (the element places them), so the box closes to nothing. */
+  .strip[data-empty] {
+    padding-block-start: 0;
+    margin-block-end: 0;
+  }
+  /* CCM-35: an item that leaves takes no press (it is inert as well). */
+  .strip > tanrei-file-item[data-leaving],
+  .strip ::slotted([data-leaving]) {
+    pointer-events: none;
+  }
+  /* CCM-35: what the element measures in one task and never draws — the strip as it was drawn, without the items the
+     product has just added. Important, so that no style of the page's lays them out in that task. */
+  .strip ::slotted([data-tanrei-away]) {
+    display: none !important;
   }
 
   /* ── The line being written (CCM-2, CCM-3) ── the typing area takes the room the others leave, with
@@ -236,6 +260,12 @@ export const styles = css`
   ::slotted([slot='attach']) {
     flex: none;
   }
+  /* CCM-35: the glyph that goes out while the send and the stop button change places, drawn in place over the one that
+     comes in (the Button centres both in its icon box) until its fade has ended. */
+  .send > tanrei-button > [data-leaving] {
+    position: absolute;
+    pointer-events: none;
+  }
 
   /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width. */
   .counter {
@@ -267,6 +297,15 @@ export const styles = css`
     inset-inline-start: 0;
     inline-size: ${t('layout-inline-min-width')};
     block-size: 0;
+  }
+  /* CCM-35: the times and the curves of the motions the element runs itself — the items' fades and moves, then the
+     glyph's cross-fade — as the cascade computes them (a duration token is an expression: it is computed through a
+     real property, here one that moves nothing). */
+  .timing {
+    position: absolute;
+    transition-property: none;
+    transition-duration: ${t('motion-resize-duration')}, ${t('motion-glyph-fade-duration')};
+    transition-timing-function: ${t('motion-resize-easing')}, ${t('motion-state-easing')};
   }
 
   /* CCM-30: the one live region is drawn nowhere and still read. */

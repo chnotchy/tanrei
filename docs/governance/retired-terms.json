@@ -1340,6 +1340,7 @@
     },
     {
       "term": "comp.callout.motion",
+      "notFollowedBy": "[.-]disclosure-(duration|easing)",
       "since": "2026-10-18",
       "reason": "the close button's state and press motion is the Button's",
       "replacedBy": "comp.button.motion",
@@ -1350,6 +1351,7 @@
     },
     {
       "term": "comp-callout-motion",
+      "notFollowedBy": "-disclosure-(duration|easing)",
       "since": "2026-10-18",
       "reason": "the close button's state and press motion is the Button's",
       "replacedBy": "--tanrei-comp-button-motion-*",

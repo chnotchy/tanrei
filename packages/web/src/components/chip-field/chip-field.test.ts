@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { boxAtRest } from '../../../test/at-rest.js';
 import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
 
 const spec = loadSpec('chip-field');
@@ -799,11 +800,12 @@ test.describe('behavior', () => {
       const inner = f(page).locator('tanrei-text-input .field');
       await expect(inner, variant).not.toHaveAttribute('data-has-value', /.*/);
       await expect(f(page).locator('tanrei-field .label-row'), `${variant}: no label row of the Field's`).toHaveCount(0);
-      const resting = await bounds(f(page).locator('tanrei-text-input label.label'));
+      // Where the label rests: the variant just changed, and the label may still be on its way from where it floated.
+      const resting = await boxAtRest(f(page).locator('tanrei-text-input label.label'));
       await set(page, { value: ['a@example.com'] });
       await settle(page);
       await expect(inner, variant).toHaveAttribute('data-has-value', '');
-      await expect.poll(async () => (await bounds(f(page).locator('tanrei-text-input label.label'))).y, `${variant}: the label floats`).toBeLessThan(resting.y);
+      await expect.poll(async () => (await bounds(f(page).locator('tanrei-text-input label.label'))).y, `${variant}: the label floats`).toBeLessThan(resting.top);
     }
   });
 

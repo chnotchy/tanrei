@@ -102,6 +102,13 @@ customElements.define('x-anchored', class extends Appearing {
     appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'anchor', appear: '--x-appear' }),
   ];
 });
+// Grown from its inline-end edge: under unfold along the one axis that leaves it, or on both (unfold: false).
+customElements.define('x-edge', class extends Appearing {
+  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'inline-end' })];
+});
+customElements.define('x-edge-whole', class extends Appearing {
+  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'inline-end', unfold: false })];
+});
 customElements.define('x-size', class extends kept(LitElement) {
   static properties = { lines: { type: Number }, anchor: {}, axis: {}, text: {} };
   static styles = css\`
@@ -185,21 +192,42 @@ const frames = (page: Page) => page.evaluate(() => new Promise<void>((resolve) =
 const runs = (host: Locator) => host.evaluate((el: HTMLElement & { runs: string[] }) => [...el.runs]);
 
 /**
- * Holds every motion in `host`'s shadow root at `fraction` of its duration (paused there, so it stays where it is
- * however long the test takes), after a frame has started it. A motion the page holds is the page's: test/frames.ts
- * leaves it where it is, and what the next change starts is sampled from there.
+ * Sets `props` on `host` and, in the same task — once the update that draws them is done, before any frame has moved
+ * what it started — holds every motion in `host`'s shadow root at `fraction` of its duration (paused there, so it
+ * stays where it is however long the test takes). The motion is held from its start, never caught where the machine
+ * has let it get to: a hold made a frame and a round trip later found a 300 ms motion over on a loaded machine, held
+ * nothing, and the test read the surface at rest. A motion the page holds is the page's: test/frames.ts leaves it where
+ * it is, and what the next change starts is sampled from there. Fails where the change started no motion to hold.
  */
-const holdAt = (host: Locator, fraction: number, { frame = true }: { frame?: boolean } = {}) =>
+const changeHeldAt = (host: Locator, props: Record<string, unknown>, fraction: number) =>
   host.evaluate(
-    async (el, [source, at, wait]) => {
-      if (wait) await new Promise((resolve) => requestAnimationFrame(resolve));
+    async (el, [source, change, at]) => {
+      Object.assign(el, change);
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      // Asking flushes style: what the update started exists now (an appearance's, held at its start until the next
+      // frame by the controller, which leaves one it finds held elsewhere alone).
       const every = (0, eval)(source as string) as (root: ShadowRoot) => Animation[];
-      for (const animation of every(el.shadowRoot!)) {
+      const held = every(el.shadowRoot!);
+      if (!held.length) throw new Error(`${JSON.stringify(change)} started no motion to hold`);
+      for (const animation of held) {
         animation.pause();
         animation.currentTime = Number(animation.effect!.getTiming().duration) * (at as number);
       }
+      // Then two frames drawn with the motions standing still, so that what the test turns round is a held motion the
+      // engine has drawn and sent the events of. Turned round before its first frame, in WebKit the entrance that
+      // replaced a held exit was now and then missed by the sampling ("a motion began and ended between two frames":
+      // 2 runs in 64 on a loaded machine, none in 64 with these frames). Held, the motions do not move meanwhile. A
+      // frame is a resize observer's first report of the root, which every drawn frame gives and no page clock holds.
+      for (let frame = 0; frame < 2; frame++)
+        await new Promise<void>((resolve) => {
+          const observer = new ResizeObserver(() => {
+            observer.disconnect();
+            resolve();
+          });
+          observer.observe(document.documentElement);
+        });
     },
-    [EVERY_ANIMATION, fraction, frame] as const,
+    [EVERY_ANIMATION, props, fraction] as const,
   );
 
 /** Every motion in `host`'s shadow root played to its end at once — but those of the property `except`. */
@@ -340,6 +368,34 @@ test.describe('appearStyles and AppearController', () => {
     await expect(page.locator('#b .motion')).toHaveCSS('filter', 'blur(4px)');
   });
 
+  test('appear.distance of 0 (every shipped system) is no translate at all: the surface has none closed or open, and no transition of translate runs, in and out; a distance a layer sets is moved', async ({ page }) => {
+    // From `0px 0px` to `none`, which moves nothing, WebKit still runs a transition of `translate` beside the fade and
+    // the scale. A browser without style container queries keeps `0px 0px` closed, and runs it.
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear><x-anchored id="b" style="--x-appear-distance: 0px"></x-anchored><x-anchored id="c"></x-anchored></div>');
+    await painted(page);
+    for (const id of ['a', 'b']) {
+      const host = page.locator(`#${id}`);
+      await expect(host.locator('.motion'), `#${id} closed`).toHaveCSS('translate', 'none');
+      await host.evaluate((el) => void ((el as HTMLElement & { open: boolean }).open = true));
+      await expect(host.locator('.motion')).toHaveCSS('opacity', '1');
+      await expect(host.locator('.motion'), `#${id} open`).toHaveCSS('translate', 'none');
+      await host.evaluate((el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+        el.open = false;
+        return el.updateComplete;
+      });
+      expect(await host.evaluate(async (el: HTMLElement & { left: Promise<boolean> }) => el.left), `#${id}: the exit played to its end`).toBe(true);
+      const seen = await runs(host);
+      expect(seen, `#${id}: the entrance and the exit fade and scale`).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
+      expect(seen, `#${id}: no translate in or out`).not.toContain('motion:translate');
+    }
+    // 8 px toward the anchor (the layer's own distance): moved closed, and moved in.
+    const moved = page.locator('#c');
+    await expect(moved.locator('.motion')).toHaveCSS('translate', '0px -8px');
+    await moved.evaluate((el) => void ((el as HTMLElement & { open: boolean }).open = true));
+    await expect(moved.locator('.motion')).toHaveCSS('translate', 'none');
+    expect(await runs(moved)).toContain('motion:translate');
+  });
+
   test('MOT-2: an entrance turned round goes on from the value shown, and back again; the exit that was turned round resolves false', async ({ page, browserName }) => {
     // Firefox starts a transition that replaces one a script holds (paused and set to a time) from the held one's value
     // at the timeline's time, not at the time it was held at: held at 40 % of a linear fade drawn at 0.4, the fade that
@@ -353,8 +409,7 @@ test.describe('appearStyles and AppearController', () => {
     const stage = page.locator('#stage');
     const host = page.locator('#a');
     // Opened, and held 40 % of the way in.
-    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = true));
-    await holdAt(host, 0.4);
+    await changeHeldAt(host, { open: true }, 0.4);
     const out = await sampleFrames(stage, () => host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = false)), { probe: surfaceProbe });
     const shown = Number(out.before.probe.opacity);
     expect(shown, 'held part of the way in').toBeGreaterThan(0.2);
@@ -370,8 +425,7 @@ test.describe('appearStyles and AppearController', () => {
     // Open again, closed, held 40 % of the way out, and opened: back up from where it is.
     await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = true));
     await finishAll(host);
-    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = false));
-    await holdAt(host, 0.4);
+    await changeHeldAt(host, { open: false }, 0.4);
     const back = await sampleFrames(stage, () => host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = true)), { probe: surfaceProbe });
     const left = Number(back.before.probe.opacity);
     expect(left).toBeGreaterThan(0.02);
@@ -388,12 +442,9 @@ test.describe('appearStyles and AppearController', () => {
     await painted(page);
     const host = page.locator('#a');
     await holdClock(page);
-    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean; updateComplete: Promise<unknown> }) => {
-      el.open = false;
-      void el.updateComplete.then(() => el.left.then((left) => (el.settledAs = left)));
-    });
     // Held half way out: the exit has not finished, and nothing has resolved it.
-    await holdAt(host, 0.5, { frame: false });
+    await changeHeldAt(host, { open: false }, 0.5);
+    await host.evaluate((el: HTMLElement & { left: Promise<boolean>; settledAs?: boolean }) => void el.left.then((left) => (el.settledAs = left)));
     await host.evaluate(() => new Promise((resolve) => queueMicrotask(() => resolve(null))));
     expect(await host.evaluate((el: HTMLElement & { settledAs?: boolean }) => el.settledAs), 'still leaving').toBeUndefined();
     await finishAll(host);
@@ -404,19 +455,12 @@ test.describe('appearStyles and AppearController', () => {
     await open(page, '<div id="stage"><x-anchored id="a" open></x-anchored></div>');
     await painted(page);
     const host = page.locator('#a');
-    await host.evaluate((el: HTMLElement & { open: boolean; left: Promise<boolean>; settledAs?: boolean; updateComplete: Promise<unknown> }) => {
-      el.open = false;
-      void el.updateComplete.then(() => el.left.then((left) => (el.settledAs = left)));
-    });
-    await holdAt(host, 0.5);
+    await changeHeldAt(host, { open: false }, 0.5);
+    await host.evaluate((el: HTMLElement & { left: Promise<boolean>; settledAs?: boolean }) => void el.left.then((left) => (el.settledAs = left)));
     // Moved to the other side: the translation it leaves along is replaced (from where it is, toward the new side)…
-    await host.evaluate(async (el: HTMLElement & { side: string; updateComplete: Promise<unknown> }) => {
-      el.side = 'top';
-      await el.updateComplete;
-    });
+    await changeHeldAt(host, { side: 'top' }, 0.5);
     await expect(host.locator('.motion')).not.toHaveCSS('translate', 'none');
     // …and while that one still runs (held), the others finish: the exit has not.
-    await holdAt(host, 0.5);
     await finishAll(host, 'translate');
     await frames(page);
     expect(await host.evaluate((el: HTMLElement & { settledAs?: boolean }) => el.settledAs), 'still leaving while the new translation runs').toBeUndefined();
@@ -451,6 +495,27 @@ test.describe('appearStyles and AppearController', () => {
     });
     // From the centre both axes unfold; below an anchor the width is whole and the height unfolds from 0.
     expect(unfolded.frames[0]!.probe).toEqual({ centre: '0 0', anchored: '1 0' });
+  });
+
+  test('a surface grown from an edge unfolds under unfold along the one axis that leaves it, and on both axes from that edge where it asks for no unfolding (unfold: false, a FAB menu’s item)', async ({ page }) => {
+    await open(page, '<div id="stage"></div>', { head: `<style>${read('dist/systems/m3-like.css')}</style>`, html: 'data-tanrei-system="m3-like"' });
+    await painted(page);
+    const stage = page.locator('#stage');
+    const seen = await sampleFrames(stage, () => stage.evaluate((el) => el.insertAdjacentHTML('beforeend', '<x-edge open></x-edge><x-edge-whole open></x-edge-whole>')), {
+      probe: (root) => {
+        const read = (tag: string) => {
+          const motion = root.querySelector(tag)?.shadowRoot?.querySelector('.motion');
+          if (!motion) return '';
+          const style = getComputedStyle(motion);
+          const [x = '1', y = x] = style.scale.replace('none', '').split(' ').filter(Boolean);
+          return `${Number(x)} ${Number(y)} at ${style.transformOrigin}`;
+        };
+        return { unfolding: read('x-edge'), whole: read('x-edge-whole') };
+      },
+    });
+    // m3-like starts a surface from scale 0: along the inline axis only, or on both; from the middle of the end edge.
+    expect(seen.frames[0]!.probe).toEqual({ unfolding: '0 1 at 120px 40px', whole: '0 0 at 120px 40px' });
+    expect(seen.rest.probe).toEqual({ unfolding: '1 1 at 120px 40px', whole: '1 1 at 120px 40px' });
   });
 
   test('enter(true) and exit(true) are made at once: no transition runs, and exit(true) resolves in the task that asks for it', async ({ page }) => {
@@ -510,8 +575,7 @@ test.describe('appearStyles and AppearController', () => {
     await painted(page);
     const stage = page.locator('#stage');
     const host = page.locator('#a');
-    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = false));
-    await holdAt(host, 0.5);
+    await changeHeldAt(host, { open: false }, 0.5);
     const shown = Number(await host.locator('.motion').evaluate((el) => getComputedStyle(el).opacity));
     expect(shown).toBeGreaterThan(0.2);
     expect(shown).toBeLessThan(0.98);
@@ -627,8 +691,7 @@ test.describe('AnimatedSize', () => {
     const stage = page.locator('#stage');
     const host = page.locator('#s');
     // 2 → 4 lines, held a third of the way.
-    await setLines(host, 4);
-    await holdAt(host, 1 / 3);
+    await changeHeldAt(host, { lines: 4 }, 1 / 3);
     const seen = await sampleFrames(stage, () => setLines(host, 6), { probe: sizeProbe });
     const heights = [Number(seen.before.probe.height), ...series(seen, 'height')];
     expect(heights[0], 'held part of the way').toBeGreaterThan(40);
@@ -646,8 +709,7 @@ test.describe('AnimatedSize', () => {
     await open(page, '<div id="stage"><x-size id="s"></x-size></div>');
     await painted(page);
     const host = page.locator('#s');
-    await setLines(host, 4);
-    await holdAt(host, 1 / 3);
+    await changeHeldAt(host, { lines: 4 }, 1 / 3);
     await host.evaluate(async (el) => {
       // The element's own `animate` switch shadows Element's animate() method, so it is not typed as an HTMLElement.
       const size = el as unknown as { animate: boolean; lines: number; updateComplete: Promise<unknown> };

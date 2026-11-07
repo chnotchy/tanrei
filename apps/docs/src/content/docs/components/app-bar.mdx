@@ -27,7 +27,7 @@ The Web and React samples show the current spec, in which the bar's items are ic
 
 An app bar is a layout region, not an overlay. It takes its height at the top of the screen, the content starts below it, and the bar itself never takes focus.
 
-It holds two kinds of item: one `navigation` item at the start (back, menu or close) and up to three `action` items at the end. Both are your own icon-only [Buttons](/components/button/), each with its own label and its own click or, where it leads somewhere, its own `href`. The bar lays them out and never restyles them. Each platform takes them in its own slots: children with `slot="navigation"` and `slot="actions"` on the web, the `navigation` and `actions` view builders on SwiftUI, the `navigationIcon` and `actions` lambdas on Compose, `leading` and `actions:` on Flutter, and the `navigation` and `actions` nodes on React Native.
+It holds two kinds of item: one `navigation` item at the start (back, menu or close) and any number of `action` items at the end. Both are your own icon-only [Buttons](/components/button/), each with its own label and its own click or, where it leads somewhere, its own `href`. The bar lays them out and never restyles them. Each platform takes them in its own slots: children with `slot="navigation"` and `slot="actions"` on the web, the `navigation` and `actions` view builders on SwiftUI, the `navigationIcon` and `actions` lambdas on Compose, `leading` and `actions:` on Flutter, and the `navigation` and `actions` nodes on React Native.
 
 The title is the screen's name and its heading. On the web it is `headline`, because HTML's global `title` attribute would put a tooltip on the whole bar.
 
@@ -245,7 +245,8 @@ A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a 
 ### Items
 
 - Give the bar one navigation button at most: back on a screen a person reached from another, menu on a top-level screen, close on a full-screen task.
-- Keep to three actions. Put the rest in an overflow menu: a "More options" icon button that opens a Tanrei menu. Debug builds report a fourth action and a second navigation button, and still draw them.
+- Give the bar as many actions as the screen needs. It draws every one that fits, and the ones that do not leave from the end. With `overflow` set to `menu` (the default) they go into a menu that a "More actions" button at the end opens, each with its label: name that button with `overflow-label`, or once for the product with `setWords({ toolbarOverflowLabel: … })`. With `overflow` set to `hide` they are left out of the bar: use it only for actions the person can also reach somewhere else at that width, such as the drawer or the page's footer.
+- Mark an action that must stay, such as Done, with `app-bar-overflow="never"`: the actions before it leave instead. The title keeps its whole width before an action leaves, and is cut only when nothing more can leave.
 - The buttons look as they do anywhere else. The bar lays them out and never recolors them.
 - A button that goes somewhere is a link: give it an `href`. A back button that leads to the parent page, or a help action that opens a page, is then a real link, drawn as the same button. A back button that returns through history stays a button.
 - On the web, a [search](/components/search/) can be one of the actions as its icon trigger (`bar` set to `icon`): an icon-only button that opens the search's dialog or full-screen view.
@@ -289,10 +290,12 @@ This site's header shows Tanrei's wordmark alone, at every width.
 - Larger text grows the bar's rows, which are minimum heights. The title and subtitle stay on one line and are truncated rather than wrapped, even at 200%, so the bar never pushes the content away. The full title stays available to assistive technology. The icon buttons are not scaled.
 - The bar takes its direction from where it is used. In a right-to-left layout it mirrors: the navigation button is at the right and the actions are at the left. A glyph that the icon set marks as mirrored, such as a back arrow, is mirrored by its own button, not by the bar.
 - The title and the subtitle are laid out as text of their own direction, isolated from the text around them. A left-to-right name in a right-to-left layout keeps its order, and is cut at its own end, never at its beginning.
-- Debug builds report more than three actions, more than one navigation button, and a size the design system does not have.
+- The more button is a button that opens a menu, and says whether the menu is open. A row of the menu does exactly what its action does. An action that is out of the bar is out of the tab order too: focus on it moves to the more button, or under `hide` to the nearest action still drawn.
+- Debug builds report more than one navigation button, an `overflow` value the bar does not have, a more button without a name, and a size the design system does not have.
 
 Known platform gaps:
 
+- SwiftUI, Compose, Flutter and React Native: `overflow`, `overflowLabel` and the action's own overflow wait for those platforms to catch up. They draw every action, whatever the room.
 - SwiftUI, Compose, Flutter and React Native: `dividerVisibility` waits for those platforms to catch up. They draw the bottom edge only once content lies under the bar, as `scroll` does.
 - SwiftUI, Compose, Flutter and React Native: the right-to-left rules (a glyph mirrored where the icon set marks it, a title laid out in its own direction) wait for those platforms to catch up, as does a button with an `href`.
 - Web: every size follows `rem`, so a larger browser text size grows the icon buttons with the text. Enlarging Tanrei's type alone does not.

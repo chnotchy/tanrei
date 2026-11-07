@@ -3761,6 +3761,8 @@ class TanreiButtonGroupTokens {
     required this.connectedInnerShape,
     required this.connectedSeparation,
     required this.connectedVerticalOuterShape,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
     required this.standardGap,
   });
 
@@ -3784,6 +3786,10 @@ class TanreiButtonGroupTokens {
   final double connectedSeparation;
   /// `comp.button-group.connected-vertical-outer-shape`
   final double connectedVerticalOuterShape;
+  /// `comp.button-group.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.button-group.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
   /// `comp.button-group.standard-gap`
   final double standardGap;
 
@@ -3799,6 +3805,8 @@ class TanreiButtonGroupTokens {
     double? connectedInnerShape,
     double? connectedSeparation,
     double? connectedVerticalOuterShape,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
     double? standardGap,
   }) => TanreiButtonGroupTokens(
         connectedDividerColor: connectedDividerColor ?? this.connectedDividerColor,
@@ -3811,6 +3819,8 @@ class TanreiButtonGroupTokens {
         connectedInnerShape: connectedInnerShape ?? this.connectedInnerShape,
         connectedSeparation: connectedSeparation ?? this.connectedSeparation,
         connectedVerticalOuterShape: connectedVerticalOuterShape ?? this.connectedVerticalOuterShape,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         standardGap: standardGap ?? this.standardGap,
       );
 }
@@ -5459,6 +5469,8 @@ class TanreiCalloutTokens {
     required this.iconGap,
     required this.iconOpacity,
     required this.iconSize,
+    required this.motionDisclosureDuration,
+    required this.motionDisclosureEasing,
     required this.outlineColor,
     required this.outlineWidth,
     required this.titleGap,
@@ -5488,6 +5500,10 @@ class TanreiCalloutTokens {
   final double iconOpacity;
   /// `comp.callout.icon-size`
   final double iconSize;
+  /// `comp.callout.motion-disclosure-duration`
+  final int motionDisclosureDuration;
+  /// `comp.callout.motion-disclosure-easing`
+  final TanreiCubicBezier motionDisclosureEasing;
   /// `comp.callout.outline-color`
   final TanreiPaint outlineColor;
   /// `comp.callout.outline-width`
@@ -5512,6 +5528,8 @@ class TanreiCalloutTokens {
     double? iconGap,
     double? iconOpacity,
     double? iconSize,
+    int? motionDisclosureDuration,
+    TanreiCubicBezier? motionDisclosureEasing,
     TanreiPaint? outlineColor,
     double? outlineWidth,
     double? titleGap,
@@ -5529,6 +5547,8 @@ class TanreiCalloutTokens {
         iconGap: iconGap ?? this.iconGap,
         iconOpacity: iconOpacity ?? this.iconOpacity,
         iconSize: iconSize ?? this.iconSize,
+        motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
+        motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,
         titleGap: titleGap ?? this.titleGap,
@@ -6307,6 +6327,9 @@ class TanreiChatComposerTokens {
     required this.counterTypescale,
     required this.inputPaddingBlock,
     required this.layoutInlineMinWidth,
+    required this.motionGlyphFadeDuration,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
@@ -6349,6 +6372,12 @@ class TanreiChatComposerTokens {
   final double inputPaddingBlock;
   /// `comp.chat-composer.layout-inline-min-width`
   final double layoutInlineMinWidth;
+  /// `comp.chat-composer.motion-glyph-fade-duration`
+  final int motionGlyphFadeDuration;
+  /// `comp.chat-composer.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.chat-composer.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.chat-composer.motion-state-duration`
   final int motionStateDuration;
   /// `comp.chat-composer.motion-state-easing`
@@ -6393,6 +6422,9 @@ class TanreiChatComposerTokens {
     TanreiTextStyle? counterTypescale,
     double? inputPaddingBlock,
     double? layoutInlineMinWidth,
+    int? motionGlyphFadeDuration,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
@@ -6421,6 +6453,9 @@ class TanreiChatComposerTokens {
         counterTypescale: counterTypescale ?? this.counterTypescale,
         inputPaddingBlock: inputPaddingBlock ?? this.inputPaddingBlock,
         layoutInlineMinWidth: layoutInlineMinWidth ?? this.layoutInlineMinWidth,
+        motionGlyphFadeDuration: motionGlyphFadeDuration ?? this.motionGlyphFadeDuration,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
@@ -13368,6 +13403,10 @@ class TanreiLinkCardTokens {
     required this.mediaContainerColor,
     required this.mediaWidth,
     required this.motionFeedbackDuration,
+    required this.motionPictureDuration,
+    required this.motionPictureEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
@@ -13403,6 +13442,14 @@ class TanreiLinkCardTokens {
   final double mediaWidth;
   /// `comp.link-card.motion-feedback-duration`
   final int motionFeedbackDuration;
+  /// `comp.link-card.motion-picture-duration`
+  final int motionPictureDuration;
+  /// `comp.link-card.motion-picture-easing`
+  final TanreiCubicBezier motionPictureEasing;
+  /// `comp.link-card.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.link-card.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.link-card.motion-state-duration`
   final int motionStateDuration;
   /// `comp.link-card.motion-state-easing`
@@ -13445,6 +13492,10 @@ class TanreiLinkCardTokens {
     TanreiPaint? mediaContainerColor,
     double? mediaWidth,
     int? motionFeedbackDuration,
+    int? motionPictureDuration,
+    TanreiCubicBezier? motionPictureEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
@@ -13470,6 +13521,10 @@ class TanreiLinkCardTokens {
         mediaContainerColor: mediaContainerColor ?? this.mediaContainerColor,
         mediaWidth: mediaWidth ?? this.mediaWidth,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionPictureDuration: motionPictureDuration ?? this.motionPictureDuration,
+        motionPictureEasing: motionPictureEasing ?? this.motionPictureEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
@@ -14261,6 +14316,8 @@ class TanreiListTokens {
     required this.motionFeedbackDuration,
     required this.motionReorderDuration,
     required this.motionReorderEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.conditions,
@@ -14305,6 +14362,10 @@ class TanreiListTokens {
   final int motionReorderDuration;
   /// `comp.list.motion-reorder-easing`
   final TanreiCubicBezier motionReorderEasing;
+  /// `comp.list.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.list.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.list.motion-state-duration`
   final int motionStateDuration;
   /// `comp.list.motion-state-easing`
@@ -14341,6 +14402,8 @@ class TanreiListTokens {
     int? motionFeedbackDuration,
     int? motionReorderDuration,
     TanreiCubicBezier? motionReorderEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     TanreiListConditions? conditions,
@@ -14367,6 +14430,8 @@ class TanreiListTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionReorderDuration: motionReorderDuration ?? this.motionReorderDuration,
         motionReorderEasing: motionReorderEasing ?? this.motionReorderEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         conditions: conditions ?? this.conditions,

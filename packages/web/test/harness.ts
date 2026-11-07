@@ -196,6 +196,14 @@ const fixtureTag = (spec: Spec, id: string): string => {
  * markup alone draws it without them, so what its markup draws when it appears again is not the fixture.
  */
 export const itemsStagedInScript = (spec: Spec, fixture: Fixture): boolean => !!STAGING[spec.name]?.itemsInScript?.(fixture);
+/**
+ * Whether a step in script changes what a fixture draws after it is mounted (`Staging.after`, `Staging.drawsAfter`):
+ * the fixture as mounted is then more than its markup draws when it appears again.
+ */
+export const drawnAfterMount = (spec: Spec, fixture: Fixture): boolean => {
+  const staging = STAGING[spec.name];
+  return !!staging?.after && (staging.drawsAfter?.(fixture) ?? true);
+};
 
 /** The chip's `input-avatar` fixture image: one neutral grey pixel (React Native's is the same one). */
 const FIXTURE_AVATAR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOYN28eAAO4AdvqohIbAAAAAElFTkSuQmCC';
@@ -658,6 +666,11 @@ interface Staging {
    * (the review gallery) is staged by the same script.
    */
   after?: (element: HTMLElement, fixture: Fixture) => void | Promise<void>;
+  /**
+   * The fixtures whose drawing `after` changes (it scrolls them, hands them files, drags over them): what their markup
+   * alone draws is not the fixture as mounted. Left out, every fixture of a staging with `after`.
+   */
+  drawsAfter?: (fixture: Fixture) => boolean;
 }
 
 /** What a file upload drew of a file it keeps or refused (FUP-44, FUP-45), read from the file item it made: what a twin writes by hand. */
@@ -1975,6 +1988,7 @@ const STAGING: Record<string, Staging> = {
     // A row's `readOnly` keeps HTML's attribute name on the web (`readonly`), as the file item's own fixtures write it.
     itemProps: ({ readOnly, ...props }) => ({ ...props, ...(readOnly !== undefined ? { readonly: readOnly } : {}) }),
     itemsInScript: (fixture) => (fixture.props.rows ?? 'own') !== 'given' && (fixture.items ?? []).some((item) => item.kind === 'file'),
+    drawsAfter: (fixture) => (fixture.props.rows ?? 'own') !== 'given' && (fixture.items ?? []).some((item) => item.kind === 'file'),
     after: async (element, fixture) => {
       const items = (fixture.items ?? []).filter((item) => item.kind === 'file');
       if ((fixture.props.rows ?? 'own') === 'given' || !items.length) return;
@@ -2011,6 +2025,7 @@ const STAGING: Record<string, Staging> = {
       .drop-zone-sample > p { margin: 0; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
     content: (content) => `<div class="drop-zone-sample"><p>${content}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`,
+    drawsAfter: (fixture) => fixture.id.startsWith('dragged'),
     after: async (element, fixture) => {
       if (!fixture.id.startsWith('dragged')) return;
       const data = new DataTransfer();
@@ -2209,6 +2224,7 @@ const STAGING: Record<string, Staging> = {
       const staged = f.props.attachments === 'own' && (f.items ?? []).some((item) => /\.(png|jpe?g)$/i.test(String(item.props.name ?? '')));
       return staged ? pictured.replace('<tanrei-chat-composer ', `<tanrei-chat-composer data-stage-pictures="${[1, 2, 3].map((n) => fixturePicture(`fixtures/chat-composer-photo-${n}.png`)).join(' ')}" `) : pictured;
     },
+    drawsAfter: (fixture) => fixture.props.attachments === 'own' && (fixture.items ?? []).some((item) => item.kind === 'file'),
     after: async (element, fixture) => {
       const items = (fixture.items ?? []).filter((item) => item.kind === 'file');
       if (fixture.props.attachments !== 'own' || !items.length) return;
@@ -2245,6 +2261,8 @@ const STAGING: Record<string, Staging> = {
       const staged = framedLanguage(element, f, 'tanrei-embedded-text-input');
       return f.id.startsWith('held-') ? `<div class="capsule">${staged}</div>` : staged;
     },
+    // It listens, and draws nothing.
+    drawsAfter: () => false,
     after: (element) => {
       const capsule = element.closest('.capsule');
       capsule?.addEventListener('mousedown', (event) => {

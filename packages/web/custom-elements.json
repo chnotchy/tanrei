@@ -228,7 +228,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge\ndrawn as the edge of a region that stays (or, under `divider-visibility=\"scroll\"`, only once content scrolls under it).\n\nContract: specs/app-bar.spec.json. A layout region: no role of its own, never focusable, no events of its\nown. Its items are the product's icon-only `<tanrei-button>`s — the spec's `navigation` kind with `slot=\"navigation\"` and\nits `action` kind with `slot=\"actions\"` — which it lays out and never restyles (APB-11). The title is `headline`,\nbecause HTML's global `title` attribute would put a tooltip over the whole bar; it is the screen's heading, of\n`heading-level` (1 by default).\n\nScrolled: the bar connects to a scrolling element and sets `scrolled` from it — the document's scrolling element by\ndefault, the element whose id `scroll-target` names, or nothing with `scroll-target=\"none\"` (then set `scrolled`\nyourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).\n\nThe brand (APB-19 to APB-23): one link to the product's first page (`brand-href`), named by the product's name\n(`brand-label`), drawn by the bar around the images the product gives it — an `<img>` or an inline `<svg>`, which the\nbar sizes from its tokens and hides from assistive technology: one image (`slot=\"brand\"`, a single logo file), the\nsymbol (`slot=\"brand-symbol\"`), the wordmark (`slot=\"brand-wordmark\"`), or both. One image, a symbol alone or a\nwordmark alone is shown at every width. Given both, `brand-layout` sets them side by side (`lockup`, the default:\n`comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says) or by turns\n(`responsive`: the wordmark while the window is medium or wider, the symbol while it is compact — the enclosing\n`<tanrei-app-shell>`'s window class, or the window's width against `--tanrei-sys-breakpoint-medium` outside one). The\nbrand stands after the navigation item in an icon button's cell, in `comp.app-bar.brand.color`, which an image drawn\nin `currentColor` takes. The link is the bar's: a router that follows links by their clicks reads it from the\nclick's composed path. Without `brand-href` the brand is one image named by `brand-label`.\n\nThe bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it\nat rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none\nat rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow\n`scrolled` under either.\n\nEvery visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and\nthe side insets; the content stays inside them (APB-10).",
+          "description": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge\ndrawn as the edge of a region that stays (or, under `divider-visibility=\"scroll\"`, only once content scrolls under it).\n\nContract: specs/app-bar.spec.json. A layout region: no role of its own, never focusable, no events of its\nown. Its items are the product's icon-only `<tanrei-button>`s — the spec's `navigation` kind with `slot=\"navigation\"` and\nits `action` kind with `slot=\"actions\"` — which it lays out and never restyles (APB-11). The title is `headline`,\nbecause HTML's global `title` attribute would put a tooltip over the whole bar; it is the screen's heading, of\n`heading-level` (1 by default).\n\nScrolled: the bar connects to a scrolling element and sets `scrolled` from it — the document's scrolling element by\ndefault, the element whose id `scroll-target` names, or nothing with `scroll-target=\"none\"` (then set `scrolled`\nyourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).\n\nThe brand (APB-19 to APB-23): one link to the product's first page (`brand-href`), named by the product's name\n(`brand-label`), drawn by the bar around the images the product gives it — an `<img>` or an inline `<svg>`, which the\nbar sizes from its tokens and hides from assistive technology: one image (`slot=\"brand\"`, a single logo file), the\nsymbol (`slot=\"brand-symbol\"`), the wordmark (`slot=\"brand-wordmark\"`), or both. One image, a symbol alone or a\nwordmark alone is shown at every width. Given both, `brand-layout` sets them side by side (`lockup`, the default:\n`comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says) or by turns\n(`responsive`: the wordmark while the window is medium or wider, the symbol while it is compact — the enclosing\n`<tanrei-app-shell>`'s window class, or the window's width against `--tanrei-sys-breakpoint-medium` outside one). The\nbrand stands after the navigation item in an icon button's cell, in `comp.app-bar.brand.color`, which an image drawn\nin `currentColor` takes. The link is the bar's: a router that follows links by their clicks reads it from the\nclick's composed path. Without `brand-href` the brand is one image named by `brand-label`.\n\nThe bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it\nat rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none\nat rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow\n`scrolled` under either.\n\nThe actions (APB-26 to APB-33): every action that fits is drawn, with no limit on their number. The start items and the\ntitle (its whole width, in the top row's text roles) keep their room first; the actions that do not fit leave from the\nend, one at a time, skipping one with `app-bar-overflow=\"never\"`, and come back as soon as they fit. `overflow` says\nwhere they go: `menu` (the default) into a Tanrei Menu opened from a more button at the end, named by `overflow-label`\nor the product's word `toolbarOverflowLabel`; `hide` out of the bar, for actions the product also gives elsewhere. An\naction that is out carries `app-bar-out` and is drawn as nothing; it stays in the page with its listeners and state.\nWhat is out is decided before the frame, from widths measured while each action is drawn.\n\nEvery visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and\nthe side insets; the content stays inside them (APB-10).",
           "name": "TanreiAppBar",
           "cssParts": [
             {
@@ -258,6 +258,14 @@
             {
               "description": "The bar's bottom edge.",
               "name": "outline"
+            },
+            {
+              "description": "The icon-only Button after the actions shown that opens the menu of the actions that are out (APB-28).",
+              "name": "overflow-button"
+            },
+            {
+              "description": "The Tanrei Menu of the actions that are out (APB-29).",
+              "name": "overflow-menu"
             }
           ],
           "slots": [
@@ -282,7 +290,7 @@
               "name": "context"
             },
             {
-              "description": "The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.",
+              "description": "The action items: icon-only `<tanrei-button>`s at the end, in reading order, as many as fit (APB-26); one with `app-bar-overflow=\"never\"` is never taken out.",
               "name": "actions"
             }
           ],
@@ -412,6 +420,29 @@
               "default": "1",
               "description": "The title's heading level (web only), 1 to 6.",
               "attribute": "heading-level"
+            },
+            {
+              "kind": "field",
+              "name": "overflow",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiAppBarOverflow"
+              },
+              "default": "'menu'",
+              "description": "What becomes of the actions that do not fit (APB-26): `menu` (the default) moves them, from the end, into a Menu\nopened from a more button at the end; `hide` leaves them out of the bar, for actions the product also gives\nelsewhere (APB-30). Anything else is `menu`. Reflected.",
+              "attribute": "overflow",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "overflowLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The more button's accessible name (\"More actions\"). Never drawn. Empty takes the product's word `toolbarOverflowLabel`.",
+              "attribute": "overflow-label"
             }
           ],
           "attributes": [
@@ -495,6 +526,24 @@
               "default": "'auto'",
               "description": "When the bottom edge is drawn: `always` at rest and while content is under the bar, `scroll` only while content is\nunder it; `auto` takes `comp.app-bar.outline.visibility`, the design system's answer (always in the default system).\nReflected as `divider-visibility`.",
               "fieldName": "dividerVisibility"
+            },
+            {
+              "name": "overflow",
+              "type": {
+                "text": "TanreiAppBarOverflow"
+              },
+              "default": "'menu'",
+              "description": "What becomes of the actions that do not fit (APB-26): `menu` (the default) moves them, from the end, into a Menu\nopened from a more button at the end; `hide` leaves them out of the bar, for actions the product also gives\nelsewhere (APB-30). Anything else is `menu`. Reflected.",
+              "fieldName": "overflow"
+            },
+            {
+              "name": "overflow-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The more button's accessible name (\"More actions\"). Never drawn. Empty takes the product's word `toolbarOverflowLabel`.",
+              "fieldName": "overflowLabel"
             },
             {
               "name": "scroll-target",
@@ -4048,7 +4097,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A notice that is part of the content and stays there, as a quiet fill or an outline, in a status's colors with its glyph.\nA note, a caution, the reason for something or a summary of what is wrong, in the flow of the page, with an optional\ntitle, actions and a close button.\n\nContract: specs/callout.spec.json. `<tanrei-callout status=\"warning\">…</tanrei-callout>`: the body is the element's\nown content (text, or the product's blocks — long-form blocks in a `<div class=\"tanrei-prose\" data-measure=\"false\">`),\nthe title is the `headline` attribute or the `title` slot, a glyph of the icon set goes in the `icon` slot, and the\nproduct's Buttons or links in the `actions` slot. Every visual value is a `--tanrei-comp-callout-*` token, one set per\nvariant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`). Its close\nbutton is a small icon-only `<tanrei-button>` in the variant `--tanrei-comp-callout-close-button-variant` names, drawn\non a filled look in the body color of the callout's form (a tone): its container that color made translucent, its\nglyph that color, its states the Button's own.\n\nIt is a note (`role=\"note\"`), read where it stands and never announced. With `live` it is a live region instead: it\nis announced once when it is shown after the page was presented and when its title, body or status changes — politely\n(`role=\"status\"`), or assertively for warning and error (`role=\"alert\"`). It never takes focus.\n\nA status is never told by color alone: a status form draws the status's glyph, and the title says it or\n`statusLabel` adds it in words for assistive technology (\"Warning, …\") without drawing it.\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the block.\n`open` defaults to true; `open=\"false\"` is how markup starts a callout closed.",
+          "description": "A notice that is part of the content and stays there, as a quiet fill or an outline, in a status's colors with its glyph.\nA note, a caution, the reason for something or a summary of what is wrong, in the flow of the page, with an optional\ntitle, actions and a close button.\n\nContract: specs/callout.spec.json. `<tanrei-callout status=\"warning\">…</tanrei-callout>`: the body is the element's\nown content (text, or the product's blocks — long-form blocks in a `<div class=\"tanrei-prose\" data-measure=\"false\">`),\nthe title is the `headline` attribute or the `title` slot, a glyph of the icon set goes in the `icon` slot, and the\nproduct's Buttons or links in the `actions` slot. Every visual value is a `--tanrei-comp-callout-*` token, one set per\nvariant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`). Its close\nbutton is a small icon-only `<tanrei-button>` in the variant `--tanrei-comp-callout-close-button-variant` names, drawn\non a filled look in the body color of the callout's form (a tone): its container that color made translucent, its\nglyph that color, its states the Button's own.\n\nIt is a note (`role=\"note\"`), read where it stands and never announced. With `live` it is a live region instead: it\nis announced once when it is shown after the page was presented and when its title, body or status changes — politely\n(`role=\"status\"`), or assertively for warning and error (`role=\"alert\"`). It never takes focus.\n\nA status is never told by color alone: a status form draws the status's glyph, and the title says it or\n`statusLabel` adds it in words for assistive technology (\"Warning, …\") without drawing it.\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the block.\n`open` defaults to true; `open=\"false\"` is how markup starts a callout closed. When `open` changes the callout opens\nor closes in one motion, in the page's layout: its height and its opacity together, its content fixed to its top,\nwhat follows moving with it, the space its container keeps beside it included. What assistive technology and focus\nare given changes at once; under reduced motion all of it does.",
           "name": "TanreiCallout",
           "cssParts": [
             {
@@ -5929,7 +5978,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets a person write a message and send it, in one capsule that holds everything. Built from an Embedded text input\n(`<tanrei-embedded-text-input>`) — the typing, which grows with what is written — a File picker\n(`<tanrei-file-picker>`) and File items (`<tanrei-file-item>`) — the attachments, as a strip at the top of the\ncapsule — and Buttons (`<tanrei-button>`): the send button, the stop button in its place, the attach button, and the\nproduct's own in its slots. It adds what ties them: the capsule, which is its own part and shows the typing area's\nfocus on its edge; whether what it holds can be sent, and why not; the files it keeps; the counter; one live\nregion; and the form's value. **It never sends**: `send` hands the text and the attachments to the product.\n\nContract: specs/chat-composer.spec.json.\n\n```html\n<tanrei-chat-composer label=\"Message\" placeholder=\"Write a message\" send-label=\"Send\"\n  attachments=\"own\" attach-label=\"Attach files\" remove-label=\"Remove\">\n  <tanrei-button slot=\"leading\" variant=\"text\" label=\"Mention someone\"><span slot=\"icon\">alternate_email</span></tanrei-button>\n</tanrei-chat-composer>\n```\n\n`layout=\"inline\"` (the default) puts every action on the line being written; `layout=\"stacked\"` keeps the send\nbutton on that line and puts everything else in a row beneath it, inside the capsule. A capsule narrower than\n`comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says; a stacked composer with\nnothing for the row beneath is drawn as an inline one. Tab moves through it in the order it is drawn.\n\nEnter sends and Shift+Enter begins a new line; with `send-key=\"modifier\"` Enter begins a new line. Ctrl+Enter and\nCommand+Enter send under both. An input method's Enter never sends, and neither does the return key of an on-screen\nkeyboard: both are the embedded text input's to tell. A request by the keyboard while the message cannot be sent\nemits `sendblocked` with the reasons, unless there is simply nothing to send.\n\n`attachments=\"own\"`: the composer keeps the files a person attaches — chosen, dropped on the capsule or pasted — and\ndraws a File item for each (`attachment-form`: a tile with its picture for an image, a row for anything else); a\nrefused file is a failed row with the product's sentence for its reason. `files` reads the kept files,\n`addFiles(files)` hands files over and answers with the refused, `clear()` empties the text and the files.\n`attachments=\"given\"`: the File items are `<tanrei-file-item>` children the product adds on `select` and removes on\nan item's `remove`, each with its status and progress; nothing can be sent while one is uploading, or has failed and\ncan be tried again.\n\nForm-associated: it submits the text under `name` and, while `attachments` is `own`, each kept file under\n`files-name`; after `send` — unless that was cancelled — it asks its form to submit, and then does not empty itself.\nInside a `<tanrei-field>` it takes the field's label, help, error and `disabled`.\n\nWithout script, and until the element is defined, a `<textarea>` and a submit `<button>` the product wrote as its\nchildren are the form; when it is defined it takes the text area's text and hides and disables both.",
+          "description": "Lets a person write a message and send it, in one capsule that holds everything. Built from an Embedded text input\n(`<tanrei-embedded-text-input>`) — the typing, which grows with what is written — a File picker\n(`<tanrei-file-picker>`) and File items (`<tanrei-file-item>`) — the attachments, as a strip at the top of the\ncapsule — and Buttons (`<tanrei-button>`): the send button, the stop button in its place, the attach button, and the\nproduct's own in its slots. It adds what ties them: the capsule, which is its own part and shows the typing area's\nfocus on its edge; whether what it holds can be sent, and why not; the files it keeps; the counter; one live\nregion; and the form's value. **It never sends**: `send` hands the text and the attachments to the product.\n\nContract: specs/chat-composer.spec.json.\n\n```html\n<tanrei-chat-composer label=\"Message\" placeholder=\"Write a message\" send-label=\"Send\"\n  attachments=\"own\" attach-label=\"Attach files\" remove-label=\"Remove\">\n  <tanrei-button slot=\"leading\" variant=\"text\" label=\"Mention someone\"><span slot=\"icon\">alternate_email</span></tanrei-button>\n</tanrei-chat-composer>\n```\n\n`layout=\"inline\"` (the default) puts every action on the line being written; `layout=\"stacked\"` keeps the send\nbutton on that line and puts everything else in a row beneath it, inside the capsule. A capsule narrower than\n`comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says; a stacked composer with\nnothing for the row beneath is drawn as an inline one. Tab moves through it in the order it is drawn.\n\nEnter sends and Shift+Enter begins a new line; with `send-key=\"modifier\"` Enter begins a new line. Ctrl+Enter and\nCommand+Enter send under both. An input method's Enter never sends, and neither does the return key of an on-screen\nkeyboard: both are the embedded text input's to tell. A request by the keyboard while the message cannot be sent\nemits `sendblocked` with the reasons, unless there is simply nothing to send.\n\n`attachments=\"own\"`: the composer keeps the files a person attaches — chosen, dropped on the capsule or pasted — and\ndraws a File item for each (`attachment-form`: a tile with its picture for an image, a row for anything else); a\nrefused file is a failed row with the product's sentence for its reason. `files` reads the kept files,\n`addFiles(files)` hands files over and answers with the refused, `clear()` empties the text and the files.\n`attachments=\"given\"`: the File items are `<tanrei-file-item>` children the product adds on `select` and removes on\nan item's `remove`, each with its status and progress; nothing can be sent while one is uploading, or has failed and\ncan be tried again.\n\nA File item that is added or removed changes the capsule's height in one motion, the row being written keeping its\nplace against the capsule's bottom edge: the item fades in at its place or out where it was drawn, and the items that\nstay move to their new places. What assistive technology, focus and `sendable` get changes at once. While one of the\nproduct's items leaves, the chat composer puts the product's own `<tanrei-file-item>` element back where it stood,\nas its child, for the length of the motion — `inert`, `aria-hidden=\"true\"` and `data-leaving` — then removes it and\ngives back what it had: read the items as `tanrei-file-item:not([data-leaving])` meanwhile. When the send and the\nstop button change places, only the glyph of the Button it brings cross-fades. Under reduced motion all of it is at\nonce.\n\nForm-associated: it submits the text under `name` and, while `attachments` is `own`, each kept file under\n`files-name`; after `send` — unless that was cancelled — it asks its form to submit, and then does not empty itself.\nInside a `<tanrei-field>` it takes the field's label, help, error and `disabled`.\n\nWithout script, and until the element is defined, a `<textarea>` and a submit `<button>` the product wrote as its\nchildren are the form; when it is defined it takes the text area's text and hides and disables both.",
           "name": "TanreiChatComposer",
           "cssParts": [
             {
@@ -17086,7 +17135,7 @@
         {
           "kind": "variable",
           "name": "itemStyles",
-          "description": "An item (FBM-3…5, FBM-9, FBM-10, FBM-18, FBM-19, FBM-22): a raised container at least item.height tall and as wide as\nits content, the icon and then the label, each state from the item parts of the menu's variant (inherited from the\nmenu), its own press, ring and corners; it grows in from its end edge when the menu opens."
+          "description": "An item (FBM-3…5, FBM-9, FBM-10, FBM-18, FBM-19, FBM-22): a raised container at least item.height tall and as wide as\nits content, the icon and then the label, each state from the item parts of the menu's variant (inherited from the\nmenu), its own press, ring and corners; it appears from its end edge when the menu opens."
         }
       ],
       "exports": [
@@ -22975,6 +23024,14 @@
           "customElement": true
         },
         {
+          "kind": "variable",
+          "name": "from"
+        },
+        {
+          "kind": "variable",
+          "name": "to"
+        },
+        {
           "kind": "class",
           "description": "Holds a set of your own items in one column, one line, or lines that wrap into a grid; people read them, open them\none by one, choose from them, or drag them into another order.\n\nContract: specs/list.spec.json. The list draws nothing and adds no space around its `<tanrei-list-item>` children\n(LST-1): `orientation` lays them out as a column or a line, `wrap` lets them run onto further lines (a grid, LST-2),\n`gap` sets the space between them and `dividers` a hairline between them (LST-3). It carries the semantics — a\n`list`, or a `listbox` named by `label` while `selection` is `single` or `multiple` — and moves keyboard focus among\nthe items that are actions, links or options: one tab stop (a roving tabindex), the arrow keys of the arrangement\nwithout wrapping, Home, End and typeahead (LST-17). Moving focus never changes the selection; Space or Enter chooses.\n\nThe selection is the list's: `value` names the selected option of a single-select list, `values` those of a\nmultiple-select list, each by the options' `value`. The list sets them before firing `change`, as a native control\ndoes; set them yourself to select from script (a new array for `values`).\n\nWith `reorderable` (and `selection` none) people can put the items in another order (LST-31): every item is static\nand draws a handle. The whole item can be dragged — a mouse after a few pixels of movement, a touch or a pen after a\nlong press or at once from the handle — while the other items slide aside; the handle opens a menu of four moves\n(start, before, after, end), and with the keyboard Space on the handle lifts the item, the arrow keys carry it, Space\nor Enter drop it and Escape puts it back, each step announced. Every way fires `move` with `from` and `to` and changes\nnothing: the order is your data. Reorder your items in answer (move the elements, or let your framework render the new\norder) and the list draws them changing place, keeps focus on the moved item's handle and says `moved-text` through\nits one polite live region. A move you have not made within `--tanrei-comp-list-motion-reorder-duration` is taken as\nrefused. The words are yours (attributes, or once with `setWords()`).",
           "name": "TanreiList",
@@ -23424,14 +23481,6 @@
           },
           "tagName": "tanrei-list",
           "customElement": true
-        },
-        {
-          "kind": "variable",
-          "name": "from"
-        },
-        {
-          "kind": "variable",
-          "name": "to"
         },
         {
           "kind": "variable",
