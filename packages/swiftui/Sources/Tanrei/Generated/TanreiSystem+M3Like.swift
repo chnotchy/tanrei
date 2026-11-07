@@ -2175,6 +2175,8 @@ private let m3LikeCalloutTokens = TanreiCalloutTokens(
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
+  motionDisclosureDuration: 350,
+  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,

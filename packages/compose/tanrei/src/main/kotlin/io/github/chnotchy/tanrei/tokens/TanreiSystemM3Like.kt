@@ -2292,6 +2292,8 @@ private object M3LikeSystemSource {
             iconGap = 12.dp,
             iconOpacity = 0.85f,
             iconSize = 20.dp,
+            motionDisclosureDuration = 350,
+            motionDisclosureEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             outlineWidth = 1.dp,
             titleGap = 4.dp,

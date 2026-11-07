@@ -5905,7 +5905,22 @@ the variant `--tanrei-comp-callout-close-button-variant` names (`giveVariant()`)
 tone of its form (`giveTone()`, BTN-45): `var(--tanrei-comp-callout-[<status>-]body-color-<variant>)`, so that the Button
 draws its container as that color made translucent and its glyph in it. Its states, press answer, focus ring and
 minimum target are the Button's; the callout adds no style to it. A callout connected again asks for an update, because
-a Button that reconnects lets go of what its host gave it. No Escape, no timeout, no motion.
+a Button that reconnects lets go of what its host gave it. No Escape, no timeout.
+
+**Opening and closing (CLO-13).** The container stands in a `.box` of the shadow root whose height follows `open` through
+`AnimatedSize` (`src/primitives/motion.ts`), anchored at its start, over `--tanrei-comp-callout-motion-disclosure-duration`
+with `-disclosure-easing` (`role.disclosure`, `easing.spatial`), in the layout, clipped with `overflow: clip` only while it
+moves; the container's opacity moves on the same tokens (closed, `.box.gone` is 0 tall and its container transparent; a
+callout that was not drawn starts transparent for one style pass, `data-arriving`). Closing, the host stays drawn — the
+custom state `leaving` over `open="false"` — until its motions have ended, and is then `display: none`. The space its
+container keeps beside it goes with it: from rest the callout measures, in one task and before it renders the change, where
+what follows stands with the callout drawn 0 tall and with it not laid out (the custom states `measure` and `away`, set and
+taken away in that task), and moves its own `margin-block-end` by the difference on the box's clock (`animate()`, its
+duration and curve read from the box's transition), so that a flex column's gap or the margin prose puts before the next
+block closes with it and what follows never steps. A change while it moves goes on from the height, the opacity and the
+margin drawn. From the moment `open` is false the host has no role and no name, the box is `inert` and `aria-hidden`, and
+the live regions are emptied; from the moment it is true the role, the name and the announcement are given as before. At
+once under reduced motion, while the element settles (MOT-3), and while it is `hidden` or empty.
 
 **Glyphs (CLO-5, CLO-6, CLO-27, CLO-29).** A status draws `info`, `warning`, `error` or `check_circle` unless the `icon`
 slot holds a glyph; without a status and without one there is no glyph and no room for one. The glyph's opacity is a mix

@@ -5459,6 +5459,8 @@ class TanreiCalloutTokens {
     required this.iconGap,
     required this.iconOpacity,
     required this.iconSize,
+    required this.motionDisclosureDuration,
+    required this.motionDisclosureEasing,
     required this.outlineColor,
     required this.outlineWidth,
     required this.titleGap,
@@ -5488,6 +5490,10 @@ class TanreiCalloutTokens {
   final double iconOpacity;
   /// `comp.callout.icon-size`
   final double iconSize;
+  /// `comp.callout.motion-disclosure-duration`
+  final int motionDisclosureDuration;
+  /// `comp.callout.motion-disclosure-easing`
+  final TanreiCubicBezier motionDisclosureEasing;
   /// `comp.callout.outline-color`
   final TanreiPaint outlineColor;
   /// `comp.callout.outline-width`
@@ -5512,6 +5518,8 @@ class TanreiCalloutTokens {
     double? iconGap,
     double? iconOpacity,
     double? iconSize,
+    int? motionDisclosureDuration,
+    TanreiCubicBezier? motionDisclosureEasing,
     TanreiPaint? outlineColor,
     double? outlineWidth,
     double? titleGap,
@@ -5529,6 +5537,8 @@ class TanreiCalloutTokens {
         iconGap: iconGap ?? this.iconGap,
         iconOpacity: iconOpacity ?? this.iconOpacity,
         iconSize: iconSize ?? this.iconSize,
+        motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
+        motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,
         titleGap: titleGap ?? this.titleGap,
