@@ -404,6 +404,7 @@
     block-size: 1em;
     vertical-align: middle;
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: 1em;
     font-style: normal;
     font-weight: normal;
