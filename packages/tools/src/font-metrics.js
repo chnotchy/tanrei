@@ -13,7 +13,8 @@
 // The overrides are fractions of the size the fallback is drawn at after `size-adjust`, so they depend on the
 // fallback's widths only: two fallbacks with the same advances (Arial and Liberation Sans, which is drawn to Arial's
 // metrics; Courier New and Liberation Mono; every Japanese face's full-width characters) take one face, with one
-// `src` list.
+// `src` list. (Chromium on Linux draws such a face hinted, at a whole pixel size — 16 px × 107.35% at 17 px — so there
+// its text comes out about 1% narrower than the formula asks: apps/docs/test/browser/fallback-faces.test.mjs.)
 //
 // The web font's metrics are read here from the files our sites register (a small reader of the SFNT tables below):
 // `head` for the em, `hhea` (or `OS/2`'s typographic metrics, where the font asks for them with USE_TYPO_METRICS, as
