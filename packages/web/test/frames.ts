@@ -39,8 +39,9 @@
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
 // `performance.now()`, a smooth scroll — and a timer is the page's own: hold the page clock for it (test/page-clock.ts;
 // this helper uses neither timers nor `requestAnimationFrame`, so it runs on a held clock). An endless motion (a
-// spinner) is held where it was caught and left out of the comparisons. A motion's time is set back to its start when
-// it is held, but what the page did while it moved stays (a scroll clamped as a box grew).
+// spinner) is held where it was caught (by `frameAtRest`, at its start) and left out of the comparisons. A motion's
+// time is set back to its start when it is held, but what the page did while it moved stays (a scroll clamped as a box
+// grew).
 //
 // The engine's own pause (CDP `Animation.setPlaybackRate(0)`) would do the same in Chromium only, and harsh mode
 // already sets that rate; holding each animation works in every engine.
@@ -160,6 +161,8 @@ interface InPage {
   /** Frames in a row that must be the same for rest (and, frozen, for the first frame to be complete). */
   settleFrames: number;
   freeze: boolean;
+  /** An endless motion that already runs is held at its start, not where it is (`frameAtRest`). */
+  endlessAtStart: boolean;
 }
 
 /**
@@ -311,7 +314,7 @@ function install(root: Element, o: InPage): void {
       // One the page paused (a scrubbed timeline) is the page's; one that is over is no motion.
       if (held.has(a) || ours(a) || !a.effect || a.playState !== 'running') continue;
       const endless = a.effect.getComputedTiming().endTime === Number.POSITIVE_INFINITY || a.playbackRate === 0;
-      const set = initial ? Number(a.currentTime ?? 0) : 0;
+      const set = initial && !(endless && o.endlessAtStart) ? Number(a.currentTime ?? 0) : 0;
       a.pause();
       a.currentTime = set;
       held.set(a, { set, at, endless });
@@ -523,7 +526,7 @@ function install(root: Element, o: InPage): void {
 
 const rootOf = (target: Locator | Page): Locator => ('keyboard' in target ? target.locator(':root') : target);
 
-async function run(target: Locator | Page, act: () => Promise<unknown>, options: SampleOptions, freeze: boolean) {
+async function run(target: Locator | Page, act: () => Promise<unknown>, options: SampleOptions, freeze: boolean, endlessAtStart = false) {
   const root = rootOf(target);
   await root.evaluate(install, {
     every: EVERY_ANIMATION,
@@ -535,6 +538,7 @@ async function run(target: Locator | Page, act: () => Promise<unknown>, options:
     maxFrames: options.maxFrames ?? 600,
     settleFrames: 3,
     freeze,
+    endlessAtStart,
   });
   try {
     await act();
@@ -558,9 +562,14 @@ export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, 
  * The root as it rests now, read as a frame of `sampleFrames` is: every motion in it finished, then read once nothing
  * has changed for three frames. For a page that is not changing (a document just mounted), to tell a later change's
  * rest apart from it.
+ *
+ * An endless motion has no end to finish at: it is held at its start, where `sampleFrames` holds one that a change
+ * begins, and runs on from there when the frame has been read. Held where it is, it would be read wherever the time
+ * the page took to get here left it — a marquee that waits its start pause and then moves, read once a slow mount has
+ * outlasted the pause, has its slotted text (which no key of the motion's element is above) somewhere along its pass.
  */
 export async function frameAtRest(root: Locator | Page, options: Pick<SampleOptions, 'probe' | 'elements' | 'properties'> = {}): Promise<Frame> {
-  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false);
+  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false, true);
   return seen.rest;
 }
 
