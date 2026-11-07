@@ -11,6 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
+import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
@@ -810,6 +811,31 @@ test.describe('the stage and the zoom', () => {
     expect(await disabled()).toEqual([true, true]);
     await mount(page, fixtureOf('error'));
     expect(await disabled()).toEqual([true, true]);
+  });
+
+  test('IMP-13: a step down from the greatest zoom of a captioned image moves the picture in every frame of the zoom motion, never by a third of the way at once', async ({ page }) => {
+    // The step that once read as a jump from 2372 to 1186 px in one frame: the picture at 4 times its fit stepping down
+    // to 2 below a caption that scrolls. Read on the motion's own clock (test/frames.ts), whatever the machine.
+    await mount(page, fixtureOf('long-caption'));
+    await set(page, { zoom: 4 });
+    await rest(page);
+    expect(await control(page, 'zoom-in').evaluate((el: HTMLElement & { disabled: boolean }) => el.disabled), 'zoom in is disabled: 4 is the greatest zoom').toBe(true);
+    const seen = await sampleFrames(host(page), () => control(page, 'zoom-out').click(), {
+      elements: false,
+      probe: (root) => {
+        const image = root.shadowRoot!.querySelector('.page[style="--_at: 0"] .image')!.getBoundingClientRect();
+        return { width: image.width, x: image.x, y: image.y };
+      },
+    });
+    const width = (frame: { probe: Record<string, unknown> }) => frame.probe.width as number;
+    near(width(seen.rest), width(seen.before) / 2, 'half the width at rest');
+    expect((await look(page)).zoom).toBe(2);
+    // A 250 ms motion is 15 frames: the width and the place change in most of them.
+    for (const followed of ['width', 'x', 'y']) expectAnimated(seen, followed, { minSteps: 8 });
+    const series = [seen.before, ...seen.frames, seen.rest].map(width);
+    const total = Math.abs(series.at(-1)! - series[0]!);
+    const largest = Math.max(...series.slice(1).map((value, i) => Math.abs(value - series[i]!)));
+    expect(largest / total, `the largest change of the width in one frame, of ${total.toFixed(1)} px in all: ${series.map((value) => value.toFixed(1)).join(' → ')}`).toBeLessThan(0.35);
   });
 
   test('IMP-14: two presses of a mouse on the stage within the interval enlarge the image from fit to its first step with the point under the pointer kept under it, and from any zoom return it to fit, over the zoom motion; the two presses are not also single presses', async ({ page }) => {
