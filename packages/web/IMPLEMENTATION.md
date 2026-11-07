@@ -6032,8 +6032,8 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 
 | `<tanrei-snackbar-host>` | |
 |---|---|
-| `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its fade-out follows) |
-| `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its fade-out |
+| `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its exit follows) |
+| `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its exit |
 | `clear()` | also drops every waiting one, each resolved with reason `host` |
 | `snackbar` | the `<tanrei-snackbar>` being shown, or `null` (set its `expanded` to expand it from the product) |
 
@@ -6048,8 +6048,14 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 child and shows it in the top layer, fixed at the bottom of the window, centred, `container.margin` above the bottom edge
 (plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard, measured from `visualViewport`) and at
 least that far from the sides; a dialog opened later is above it, and while it holds the page's scroll the snackbar's
-sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. It rises in from below by its own height plus its
-margin while fading in (`motion.enter-*`), fades out in place (`motion.exit-*`), and only fades where motion is reduced.
+sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. Its bar appears as every surface does
+(`appearStyles()` and `AppearController`, `src/primitives/motion.ts`, role `toast`): from `sys.motion.appear.*`, grown from
+the middle of the window's edge it stands at — the bottom one, or the top one at the top end (SNK-36) — and that far toward
+it, over `motion.enter-*`; closed, it goes back the same way over `motion.exit-*`, turned round from where it is, and stays
+in the top layer until then. Under `unfold` it unfolds from that edge at its full width; where motion is reduced it
+cross-fades over `sys.motion.role.reduced`; shown before the document's first paint it is there at once (MOT-4). The bar
+is the motion element (`data-edge`, `.open`), so a measure of it while it moves reads its layout (`laidHeight()`), never its
+drawn box. The announcement does not wait for the motion.
 The timeout runs only while the snackbar is not hovered, holds no focus, is not expanded, the page is visible and focused
 (`visibilityState`, `document.hasFocus()`) and no Tanrei modal dialog is open; each time those hold again it starts from its
 whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither

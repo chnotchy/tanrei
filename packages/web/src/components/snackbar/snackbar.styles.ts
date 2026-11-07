@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
+import { appearStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -28,6 +28,10 @@ const held = (side: keyof typeof SCROLL_HOLD_INSET) => unsafeCSS(`var(${SCROLL_H
  * indicator, a ripple, a child, the bar. At 1 it is the color; at 0 it draws nothing.
  */
 const faded = (color: string, opacity: string) => unsafeCSS(`color-mix(in srgb, ${color} calc(${T(opacity)} * 100%), transparent)`);
+
+/** SNK-17: the bar's entrance and exit, on the snackbar's own tokens (each aliases the toast role, or a curve's role). */
+const ENTER = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
+const EXIT = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 
 export const STATUSES = ['info', 'warning', 'error', 'success'] as const;
 const STATES = { '': '-r', hovered: '-h', focused: '-f', pressed: '-p' } as const;
@@ -509,45 +513,15 @@ export const styles = css`
     overflow-y: hidden;
   }
 
-  /* SNK-17: in, it rises from below the bottom edge by its own height plus its margin while fading in; out, it fades in
-     place, at either placement. Where motion is reduced it only fades. */
-  :host(.entering) {
-    animation: snackbar-in ${t('motion-enter-duration')} ${t('motion-enter-easing')} both;
-  }
-  /* SNK-36: at the top end it descends from above the top edge instead, by the same distance — the mirror of the rise. */
-  :host(.entering[placement='top-end']) {
-    animation-name: snackbar-in-top;
-  }
-  :host(.leaving) {
-    animation: snackbar-out ${t('motion-exit-duration')} ${t('motion-exit-easing')} both;
-  }
-  @keyframes snackbar-in {
-    from {
-      opacity: 0;
-      translate: 0 calc(100% + ${t('container-margin')});
-    }
-  }
-  @keyframes snackbar-in-top {
-    from {
-      opacity: 0;
-      translate: 0 calc(-100% - ${t('container-margin')});
-    }
-  }
-  @keyframes snackbar-out {
-    to {
-      opacity: 0;
-    }
-  }
-  @keyframes snackbar-fade-in {
-    from {
-      opacity: 0;
-    }
-  }
+  /* SNK-17, SNK-36: shown by its host, the bar appears as every surface does (src/primitives/motion.ts, role toast).
+     Closed it stands where sys.motion.appear.* start it — grown from the middle of the window's edge it stands at (the
+     bottom one, or the top one at the top end) and that far toward it — and open it is whole. It moves between the two
+     over the snackbar's own enter and exit times and curves, turned round from where it is, and cross-fades over
+     sys.motion.role.reduced where motion is reduced. Under unfold it unfolds from that edge at its full width. A bar
+     drawn in place (SNK-19) carries no edge, so none of this applies to it: it is at rest and takes no transition. */
+  ${appearStyles({ motion: ".bar[data-edge='block-end']", open: '.bar.open', role: 'toast', origin: 'block-end', enter: ENTER, exit: EXIT })}
+  ${appearStyles({ motion: ".bar[data-edge='block-start']", open: '.bar.open', role: 'toast', origin: 'block-start', enter: ENTER, exit: EXIT })}
   @media (prefers-reduced-motion: reduce) {
-    :host(.entering),
-    :host(.entering[placement='top-end']) {
-      animation-name: snackbar-fade-in;
-    }
     .control {
       transition: none;
     }
