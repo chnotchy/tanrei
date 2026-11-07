@@ -67,7 +67,7 @@ pnpm drift        # parity + generated files up to date
 pnpm build && pnpm test
 ```
 
-`pnpm test` runs every package's `test` script after its build. The web package has two suites: `test` is Playwright, and `test:node` is Node's own runner for what has no page to run in (the links build helper, the manifest against the built elements); `pnpm test` runs `test:node` before it (`turbo.json`). The docs app has two as well: its `test` builds the site, and first runs `test:node` — Node's own runner over the Markdown passes and over every spec fixture's live markup — neither of which needs the site built.
+`pnpm test` runs every package's `test` script after its build. The web package has two suites: `test` is Playwright, and `test:node` is Node's own runner for what has no page to run in (the links build helper, the manifest against the built elements, each component's bundle against its budget in bytes in `packages/web/perf-budgets.json`); `pnpm test` runs `test:node` before it (`turbo.json`). The docs app has two as well: its `test` builds the site, and first runs `test:node` — Node's own runner over the Markdown passes and over every spec fixture's live markup — neither of which needs the site built.
 
 Baselines change only when the visual change is the intended outcome of a spec/token change. Say why in the changeset.
 

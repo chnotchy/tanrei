@@ -1,0 +1,648 @@
+{
+  "$comment": "Budgets for @tanrei/web, held by test/bundle-budget.test.mjs (bundles: bytes, gzip -9). Each budget is the value measured when it was set and 5 %, rounded up to the next 100 bytes. A byte size is the same on every machine, so the margin absorbs growth that is worth its cost, never noise; the date and the load are recorded so a later measurement can be compared with this one. Over a budget is a finding: make the component cheaper, or raise its budget in the same change and say why in the changeset. bundles[*].measured is rewritten by TANREI_MEASURE_BUDGETS=1 node --test test/bundle-budget.test.mjs; a budget only by hand.",
+  "bundlesMeasured": {
+    "date": "2026-11-07",
+    "machine": "darwin arm64, 11 CPUs (Apple M3 Pro)",
+    "load": "load average 3.33 (byte sizes do not depend on it)"
+  },
+  "bundles": {
+    "accordion": {
+      "budget": 21900,
+      "measured": 20773,
+      "allowedComponents": []
+    },
+    "app-bar": {
+      "budget": 17300,
+      "measured": 16435,
+      "allowedComponents": []
+    },
+    "app-shell": {
+      "budget": 17100,
+      "measured": 16228,
+      "allowedComponents": []
+    },
+    "avatar": {
+      "budget": 28800,
+      "measured": 27352,
+      "allowedComponents": []
+    },
+    "badge": {
+      "budget": 14100,
+      "measured": 13412,
+      "allowedComponents": []
+    },
+    "bottom-sheet": {
+      "budget": 54200,
+      "measured": 51530,
+      "allowedComponents": [
+        "button",
+        "handle"
+      ]
+    },
+    "breadcrumbs": {
+      "budget": 68700,
+      "measured": 65348,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "button": {
+      "budget": 37800,
+      "measured": 35966,
+      "allowedComponents": []
+    },
+    "button-group": {
+      "budget": 18500,
+      "measured": 17560,
+      "allowedComponents": []
+    },
+    "button-with-menu": {
+      "budget": 70000,
+      "measured": 66635,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "calendar": {
+      "budget": 55800,
+      "measured": 53134,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "callout": {
+      "budget": 46300,
+      "measured": 44042,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "card": {
+      "budget": 22300,
+      "measured": 21197,
+      "allowedComponents": []
+    },
+    "carousel": {
+      "budget": 56900,
+      "measured": 54168,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "chat-composer": {
+      "budget": 87500,
+      "measured": 83270,
+      "allowedComponents": [
+        "button",
+        "embedded-text-input",
+        "file-item",
+        "file-picker",
+        "progress-indicator"
+      ]
+    },
+    "checkbox": {
+      "budget": 27600,
+      "measured": 26236,
+      "allowedComponents": []
+    },
+    "checkbox-group": {
+      "budget": 46500,
+      "measured": 44224,
+      "allowedComponents": [
+        "checkbox",
+        "field-group",
+        "tag"
+      ]
+    },
+    "chip": {
+      "budget": 32600,
+      "measured": 31007,
+      "allowedComponents": []
+    },
+    "chip-field": {
+      "budget": 102600,
+      "measured": 97650,
+      "allowedComponents": [
+        "button",
+        "chip",
+        "field",
+        "handle",
+        "tag",
+        "text-input"
+      ]
+    },
+    "code-block": {
+      "budget": 79600,
+      "measured": 75751,
+      "allowedComponents": [
+        "button",
+        "copy-button",
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "color-field": {
+      "budget": 67200,
+      "measured": 63963,
+      "allowedComponents": [
+        "button",
+        "color-input",
+        "field",
+        "tag"
+      ]
+    },
+    "color-input": {
+      "budget": 51600,
+      "measured": 49086,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "combobox": {
+      "budget": 79200,
+      "measured": 75360,
+      "allowedComponents": [
+        "button",
+        "loading-indicator",
+        "option"
+      ]
+    },
+    "combobox-field": {
+      "budget": 94700,
+      "measured": 90117,
+      "allowedComponents": [
+        "button",
+        "combobox",
+        "field",
+        "loading-indicator",
+        "option",
+        "tag"
+      ]
+    },
+    "copy-button": {
+      "budget": 59900,
+      "measured": 57005,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "date-time-picker": {
+      "budget": 127500,
+      "measured": 121401,
+      "allowedComponents": [
+        "button",
+        "calendar",
+        "keyboard-shortcut",
+        "tabs",
+        "tooltip"
+      ]
+    },
+    "description-list": {
+      "budget": 13100,
+      "measured": 12402,
+      "allowedComponents": []
+    },
+    "dialog": {
+      "budget": 34000,
+      "measured": 32331,
+      "allowedComponents": []
+    },
+    "divider": {
+      "budget": 15500,
+      "measured": 14739,
+      "allowedComponents": []
+    },
+    "drop-zone": {
+      "budget": 23100,
+      "measured": 21944,
+      "allowedComponents": []
+    },
+    "embedded-text-input": {
+      "budget": 19600,
+      "measured": 18652,
+      "allowedComponents": []
+    },
+    "empty-state": {
+      "budget": 21500,
+      "measured": 20468,
+      "allowedComponents": []
+    },
+    "fab-menu": {
+      "budget": 33600,
+      "measured": 31921,
+      "allowedComponents": []
+    },
+    "field": {
+      "budget": 35700,
+      "measured": 33925,
+      "allowedComponents": [
+        "tag"
+      ]
+    },
+    "field-group": {
+      "budget": 33000,
+      "measured": 31390,
+      "allowedComponents": [
+        "tag"
+      ]
+    },
+    "figure": {
+      "budget": 14100,
+      "measured": 13391,
+      "allowedComponents": []
+    },
+    "file-item": {
+      "budget": 45400,
+      "measured": 43226,
+      "allowedComponents": [
+        "progress-indicator"
+      ]
+    },
+    "file-picker": {
+      "budget": 30900,
+      "measured": 29337,
+      "allowedComponents": []
+    },
+    "file-upload": {
+      "budget": 123300,
+      "measured": 117343,
+      "allowedComponents": [
+        "button",
+        "file-item",
+        "file-picker",
+        "keyboard-shortcut",
+        "list",
+        "menu",
+        "progress-indicator"
+      ]
+    },
+    "handle": {
+      "budget": 20900,
+      "measured": 19846,
+      "allowedComponents": []
+    },
+    "image-preview": {
+      "budget": 66600,
+      "measured": 63335,
+      "allowedComponents": [
+        "button",
+        "skeleton"
+      ]
+    },
+    "keyboard-shortcut": {
+      "budget": 16200,
+      "measured": 15370,
+      "allowedComponents": []
+    },
+    "link-card": {
+      "budget": 22700,
+      "measured": 21538,
+      "allowedComponents": []
+    },
+    "list": {
+      "budget": 87900,
+      "measured": 83654,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "list-row": {
+      "budget": 42500,
+      "measured": 40440,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "loading-indicator": {
+      "budget": 16300,
+      "measured": 15453,
+      "allowedComponents": []
+    },
+    "main-action-button": {
+      "budget": 27100,
+      "measured": 25783,
+      "allowedComponents": []
+    },
+    "marquee-text": {
+      "budget": 44500,
+      "measured": 42352,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "menu": {
+      "budget": 58300,
+      "measured": 55513,
+      "allowedComponents": [
+        "keyboard-shortcut"
+      ]
+    },
+    "menubar": {
+      "budget": 70500,
+      "measured": 67071,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "meter": {
+      "budget": 18800,
+      "measured": 17814,
+      "allowedComponents": []
+    },
+    "modal-layer": {
+      "budget": 17400,
+      "measured": 16479,
+      "allowedComponents": []
+    },
+    "navigation-bar": {
+      "budget": 39000,
+      "measured": 37058,
+      "allowedComponents": [
+        "badge"
+      ]
+    },
+    "navigation-drawer": {
+      "budget": 141300,
+      "measured": 134557,
+      "allowedComponents": [
+        "badge",
+        "button",
+        "divider",
+        "handle",
+        "keyboard-shortcut",
+        "loading-indicator",
+        "text-input",
+        "tooltip"
+      ]
+    },
+    "number-field": {
+      "budget": 73300,
+      "measured": 69786,
+      "allowedComponents": [
+        "button",
+        "field",
+        "number-input",
+        "tag"
+      ]
+    },
+    "number-input": {
+      "budget": 57600,
+      "measured": 54807,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "number-ticker": {
+      "budget": 16700,
+      "measured": 15827,
+      "allowedComponents": []
+    },
+    "one-time-code-field": {
+      "budget": 46800,
+      "measured": 44549,
+      "allowedComponents": [
+        "field",
+        "one-time-code-input",
+        "tag"
+      ]
+    },
+    "one-time-code-input": {
+      "budget": 23600,
+      "measured": 22393,
+      "allowedComponents": []
+    },
+    "option": {
+      "budget": 8500,
+      "measured": 8069,
+      "allowedComponents": []
+    },
+    "page-header": {
+      "budget": 12400,
+      "measured": 11746,
+      "allowedComponents": []
+    },
+    "pagination": {
+      "budget": 33400,
+      "measured": 31799,
+      "allowedComponents": []
+    },
+    "popover": {
+      "budget": 62200,
+      "measured": 59166,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "progress-indicator": {
+      "budget": 18800,
+      "measured": 17881,
+      "allowedComponents": []
+    },
+    "radio-button": {
+      "budget": 23900,
+      "measured": 22697,
+      "allowedComponents": []
+    },
+    "radio-group": {
+      "budget": 45600,
+      "measured": 43420,
+      "allowedComponents": [
+        "field-group",
+        "radio-button",
+        "tag"
+      ]
+    },
+    "resizable-frame": {
+      "budget": 28300,
+      "measured": 26914,
+      "allowedComponents": [
+        "handle"
+      ]
+    },
+    "scroll-area": {
+      "budget": 19200,
+      "measured": 18275,
+      "allowedComponents": []
+    },
+    "search": {
+      "budget": 77200,
+      "measured": 73461,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "loading-indicator"
+      ]
+    },
+    "segmented-button": {
+      "budget": 31900,
+      "measured": 30302,
+      "allowedComponents": []
+    },
+    "select": {
+      "budget": 76200,
+      "measured": 72563,
+      "allowedComponents": [
+        "button",
+        "loading-indicator",
+        "option"
+      ]
+    },
+    "select-field": {
+      "budget": 92000,
+      "measured": 87538,
+      "allowedComponents": [
+        "button",
+        "field",
+        "loading-indicator",
+        "option",
+        "select",
+        "tag"
+      ]
+    },
+    "side-sheet": {
+      "budget": 49800,
+      "measured": 47427,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "skeleton": {
+      "budget": 15500,
+      "measured": 14758,
+      "allowedComponents": []
+    },
+    "slider": {
+      "budget": 28300,
+      "measured": 26912,
+      "allowedComponents": []
+    },
+    "slider-field": {
+      "budget": 51600,
+      "measured": 49122,
+      "allowedComponents": [
+        "field",
+        "slider",
+        "tag"
+      ]
+    },
+    "snackbar": {
+      "budget": 51600,
+      "measured": 49069,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "stepper": {
+      "budget": 28600,
+      "measured": 27231,
+      "allowedComponents": []
+    },
+    "swatch": {
+      "budget": 15900,
+      "measured": 15128,
+      "allowedComponents": []
+    },
+    "switch": {
+      "budget": 33300,
+      "measured": 31680,
+      "allowedComponents": []
+    },
+    "tab-view": {
+      "budget": 69300,
+      "measured": 65998,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tabs",
+        "tooltip"
+      ]
+    },
+    "table": {
+      "budget": 27000,
+      "measured": 25707,
+      "allowedComponents": []
+    },
+    "table-of-contents": {
+      "budget": 31700,
+      "measured": 30156,
+      "allowedComponents": []
+    },
+    "tabs": {
+      "budget": 64500,
+      "measured": 61373,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "tag": {
+      "budget": 19400,
+      "measured": 18421,
+      "allowedComponents": []
+    },
+    "tag-group": {
+      "budget": 17900,
+      "measured": 17010,
+      "allowedComponents": []
+    },
+    "text-field": {
+      "budget": 91600,
+      "measured": 87164,
+      "allowedComponents": [
+        "button",
+        "field",
+        "handle",
+        "tag",
+        "text-input"
+      ]
+    },
+    "text-input": {
+      "budget": 75300,
+      "measured": 71630,
+      "allowedComponents": [
+        "button",
+        "handle"
+      ]
+    },
+    "toolbar": {
+      "budget": 79800,
+      "measured": 75917,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "tooltip": {
+      "budget": 31100,
+      "measured": 29534,
+      "allowedComponents": [
+        "keyboard-shortcut"
+      ]
+    },
+    "tree-view": {
+      "budget": 127400,
+      "measured": 121316,
+      "allowedComponents": [
+        "button",
+        "embedded-text-input",
+        "handle",
+        "keyboard-shortcut",
+        "loading-indicator",
+        "text-input",
+        "tooltip"
+      ]
+    },
+    "all": {
+      "budget": 799600,
+      "measured": 761446
+    }
+  }
+}
