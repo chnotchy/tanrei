@@ -386,7 +386,7 @@
     {
       "id": "TBR-4",
       "text": "WHILE variant is floating THE toolbar SHALL fill its container with comp.toolbar.container.color.floating, raise it by comp.toolbar.container.elevation.floating, round it by comp.toolbar.container.shape.floating eased by sys.shape.corner-smoothing, draw an edge comp.toolbar.outline.width thick in comp.toolbar.outline.color.floating around its whole shape, be as long along its axis as its items need — comp.toolbar.container.padding-inline.floating at each end and comp.toolbar.container.gap.floating between neighbours, or as much more as TBR-16 keeps for their targets — and at least comp.toolbar.container.size.floating across it, with every item centered across the axis.",
-      "verify": "Horizontal floating fixtures are drawn centered in a 360 × 96 stage, so that the elevation's shadow shows on every side."
+      "verify": "Horizontal floating fixtures are drawn centered in a 360 × 96 stage, so that the elevation's shadow shows on every side: where the system's elevation reaches further past the toolbar than the room the stage leaves, the stage is taller by as much, above and below, and the shadow shows whole."
     },
     {
       "id": "TBR-5",
@@ -395,7 +395,7 @@
     {
       "id": "TBR-6",
       "text": "WHILE orientation is vertical and variant is floating or inline THE toolbar SHALL stack its items from top to bottom in the order given, with its variant's paddings and gap along the vertical axis and at least its variant's container size as its width; WHILE orientation is vertical and variant is docked THE toolbar SHALL lay out as a horizontal docked toolbar and in debug builds report that a docked toolbar is horizontal.",
-      "verify": "The vertical fixture is drawn centered in a 96 × 240 stage."
+      "verify": "The vertical fixture is drawn centered in a 96 × 240 stage, taller in the same way where the elevation's shadow would not show whole."
     },
     {
       "id": "TBR-7",
