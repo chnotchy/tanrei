@@ -28,7 +28,10 @@ test('keeps one space where whitespace separates tokens', () => {
   assert.equal(one('a  b,\n  c > d ~ e + f { x: 1px\n  2px; }'), 'a b,c > d ~ e + f{x:1px 2px;}');
   assert.equal(one(':host(:hover)  .a {}'), ':host(:hover) .a{}');
   assert.equal(one('.a :is(.b) {}'), '.a :is(.b){}');
-  assert.equal(one('@media screen and  (min-width: 600px) {}'), '@media screen and (min-width:600px){}');
+  assert.equal(one('@media screen and  (min-width:  600px) {}'), '@media screen and (min-width: 600px){}');
+  // A colon in parentheses keeps its space: a feature reads as written, not as a pseudo-class (`forced-colors:active`).
+  assert.equal(one('@media (forced-colors: active) { x { y: z; } }'), '@media (forced-colors: active){x{y:z;}}');
+  assert.equal(one('@supports (corner-shape: round) and (x: url(a.svg)) { a:hover { b: c; } }'), '@supports (corner-shape: round) and (x: url(a.svg)){a:hover{b:c;}}');
   assert.equal(one('x { y: z  !important; }'), 'x{y:z !important;}');
 });
 

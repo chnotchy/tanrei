@@ -6,7 +6,7 @@
 // - a comment, unless it starts with `/*!` (a notice that has to stay), or unless taking it out would join two tokens
 //   (`a/**/b` is two identifiers, `ab` one), when it is kept as `/**/`;
 // - a run of whitespace (comments in it included) becomes one space, and none at all next to `{`, `}`, `;` and `,`, after
-//   `:` and `(`, and before `)`. A space is kept wherever it may separate tokens: around `+`, `-`, `>` and `~`, around an
+//   `(` and after `:` (but not in parentheses: `(forced-colors: active)` keeps its space), and before `)`. A space is kept wherever it may separate tokens: around `+`, `-`, `>` and `~`, around an
 //   interpolation, before `(` (`and (` is not `and(`), after an escape (`\31 0`), at either end of the template.
 // - In the value of a custom property (`--name: …`, read back as text by script and by `@property`), a run of whitespace
 //   only becomes one space: the value stays the same tokens with the same spaces between them.
@@ -35,6 +35,7 @@ export function minifyCssParts(parts) {
   let inUrl = false;
   let custom = false;
   let depth = 0;
+  let parens = 0;
   let out = '';
   const flush = (next) => {
     const gap = ws;
@@ -43,7 +44,9 @@ export function minifyCssParts(parts) {
     comment = false;
     if (gap) {
       if (custom) out += ' ';
-      else if (DROP_AFTER.has(prev) || DROP_BEFORE.has(next)) return;
+      // After a colon in parentheses — a media or container feature, an @supports or style() test — the space stays:
+      // `(forced-colors: active)` reads as it is written, not as a pseudo-class.
+      else if ((DROP_AFTER.has(prev) && !(prev === ':' && parens > 0)) || DROP_BEFORE.has(next)) return;
       else out += ' ';
       return;
     }
@@ -70,6 +73,7 @@ export function minifyCssParts(parts) {
         } else if (inUrl && c === ')') {
           inUrl = false;
           prev = ')';
+          parens--;
         }
         continue;
       }
@@ -107,6 +111,8 @@ export function minifyCssParts(parts) {
         continue;
       }
       prev = c;
+      if (c === '(') parens++;
+      else if (c === ')' && parens > 0) parens--;
       if (c === '(' && /url\($/i.test(out)) {
         let j = i + 1;
         while (j < part.length && WS.has(part[j])) j++;
