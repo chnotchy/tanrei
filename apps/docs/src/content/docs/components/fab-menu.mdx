@@ -204,8 +204,8 @@ The variant colors the toggle and the items alike. While open, the toggle takes 
 
 The FAB menu is an operated overlay that is not modal, like the menu. People act inside it, so it takes focus and gives it back, but nothing else on the screen is blocked: there is no scrim and no focus trap.
 
-- **Opening.** The toggle asks to open with `toggle`. The items appear above it, end-aligned with it, one after another from the nearest, and focus moves to the first item at the top. Opened with Up Arrow, focus goes to the last item instead, the one next to the toggle.
-- **Closing.** Escape, the platform's back, a press outside the items and the toggle, Tab, or focus leaving all ask to close with `close` and the reason. Activating an item emits its click first, then `close` with the reason `item`. A press on the toggle while open is a toggle, not a press outside.
+- **Opening.** The toggle asks to open with `toggle`. The items appear above it, end-aligned with it, one after another from the nearest. Each appears as every surface of the design system does: in the default system it fades in while it grows a little from the middle of its end edge. Focus moves to the first item at the top. Opened with Up Arrow, focus goes to the last item instead, the one next to the toggle.
+- **Closing.** Escape, the platform's back, a press outside the items and the toggle, Tab, or focus leaving all ask to close with `close` and the reason. Activating an item emits its click first, then `close` with the reason `item`. A press on the toggle while open is a toggle, not a press outside. The items leave together, back the way they came. Asked to close while still opening, or to open while still closing, each item turns round from where it is.
 - **Focus back.** When the items close and focus was among them, focus returns to the toggle. Tab from an item closes them and moves on from the toggle, as it would have from it.
 - **Who closes.** On the web, Compose and React Native you set `open` (`expanded`, `visible`) from `toggle` and back to false from `close`. On SwiftUI and Flutter the FAB menu opens and closes itself through its binding or controller.
 
@@ -235,7 +235,7 @@ The FAB menu is an operated overlay that is not modal, like the menu. People act
 - The menu is not modal: it does not trap focus, does not make the rest of the screen inert and draws no scrim. Tab from an item closes it.
 - The toggle's hit area reaches the minimum target at every size. Each item is at least a target tall, and its whole container is its hit area.
 - The toggle does not grow with the text size, because an icon is not text. The items grow and wrap their labels.
-- Where motion is reduced, the toggle changes and the items appear and leave at once.
+- Where motion is reduced, the toggle changes at once, and the items only fade in and out, all together.
 - Debug builds report a missing toggle label, an item without a label or an icon, and fewer than two or more than six items.
 
 Known platform gaps:
