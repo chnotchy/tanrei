@@ -199,6 +199,7 @@
     block-size: var(--tanrei-comp-previous-next-links-icon-size);
     color: var(--_pnl-now-icon);
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-comp-previous-next-links-icon-size);
     font-style: normal;
     font-weight: normal;

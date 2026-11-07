@@ -230,6 +230,7 @@
       margin-inline-end: var(--tanrei-comp-breadcrumbs-container-gap);
       vertical-align: top;
       font-family: var(--tanrei-sys-icon-family-unselected);
+      visibility: var(--tanrei-icon-visibility, inherit);
       font-size: var(--tanrei-comp-breadcrumbs-icon-size);
       font-style: normal;
       font-weight: normal;
@@ -457,6 +458,7 @@
     block-size: var(--tanrei-comp-breadcrumbs-separator-size);
     color: var(--tanrei-comp-breadcrumbs-separator-color);
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-comp-breadcrumbs-separator-size);
     font-style: normal;
     font-weight: normal;
