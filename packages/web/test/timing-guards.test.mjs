@@ -167,7 +167,7 @@ export const RULES = {
       'src/components/side-sheet/side-sheet.test.ts': 5,
       'src/components/skeleton/skeleton.test.ts': 2,
       'src/components/slider/slider.test.ts': 2,
-      'src/components/snackbar/snackbar.test.ts': 2,
+      'src/components/snackbar/snackbar.test.ts': 1,
       'src/components/switch/switch.test.ts': 2,
       'src/components/table-of-contents/table-of-contents.test.ts': 4,
       'src/components/table/table.test.ts': 1,

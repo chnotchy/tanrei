@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   GlyphDrawnController,
@@ -71,11 +72,17 @@ const inverseConverter = {
   toAttribute: (value: unknown): string | null => (value === true ? '' : value === false ? 'false' : null),
 };
 
-/** How many lines an element of text takes. */
+/**
+ * An element's height as it is laid out, in CSS pixels: what its computed block size resolves to. A bar that appears
+ * is drawn scaled (SNK-17), and its drawn box (`getBoundingClientRect()`) is that much shorter — under `unfold` none
+ * at its first frame — while its layout is the one at rest.
+ */
+const laidHeight = (el: HTMLElement) => Number.parseFloat(getComputedStyle(el).blockSize) || 0;
+/** How many lines an element of text takes, as it is laid out. */
 const lines = (el: HTMLElement | null | undefined) => {
   if (!el) return 0;
   const line = Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
-  return line ? Math.round(el.getBoundingClientRect().height / line) : 1;
+  return line ? Math.round(laidHeight(el) / line) : 1;
 };
 /** Whether a clamped element of text is cut. */
 const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el.clientHeight + 0.5;
@@ -138,6 +145,7 @@ export class TanreiSnackbar extends TanreiElement {
     stacked: { state: true },
     expandable: { state: true },
     scrolls: { state: true },
+    shown: { state: true },
   };
 
   /** What happened; with a title, the description. Required. Plain text: the whole message is announced. */
@@ -191,6 +199,15 @@ export class TanreiSnackbar extends TanreiElement {
   private expandable = false;
   /** SNK-25: the expanded text scrolls inside the bar, so it is a focus stop. */
   private scrolls = false;
+  /** SNK-17: its host shows it (`appearIn()`) and has not closed it yet (`leave()`): the bar is open. */
+  private shown = false;
+  /**
+   * SNK-17, SNK-36: the bar's appearance, while a host shows it. A bar drawn in place (SNK-19) has none: it is at rest,
+   * and carries no edge, which is what its appearance's rules are written for.
+   */
+  private readonly appear = new AppearController(this, { motion: () => (this.hosted ? (this.renderRoot?.querySelector<HTMLElement>('.bar') ?? null) : null) });
+  /** SNK-24: the bar's own motion of its height, while it grows or shrinks. */
+  private sizing: Animation | null = null;
 
   private readonly actionPress = this.press('.action');
 
@@ -271,6 +288,24 @@ export class TanreiSnackbar extends TanreiElement {
       .reduce((said, part) => (said ? `${said}${/[.!?。！？]$/u.test(said) ? ' ' : '. '}${part}` : part), '');
   }
 
+  /**
+   * @internal SNK-17: its host has shown it (in the top layer): the bar appears — at once before the document's first
+   * paint (MOT-4), else from where the appearance starts it.
+   */
+  appearIn() {
+    this.shown = true;
+    this.appear.enter();
+  }
+
+  /**
+   * @internal SNK-17: its host closes it: the bar goes back the way it came, from where it is. Resolves once that has
+   * played (at once where it is not drawn), when the host takes it away.
+   */
+  leave(): Promise<boolean> {
+    this.shown = false;
+    return this.appear.exit(!this.isConnected);
+  }
+
   /** @internal The host closed it (dismissCurrent, clear): `dismiss` with the reason host. */
   dismissByHost() {
     this.settle('dismiss', 'host');
@@ -347,17 +382,22 @@ export class TanreiSnackbar extends TanreiElement {
     const bar = this.renderRoot.querySelector<HTMLElement>('.bar');
     const probe = this.renderRoot.querySelector('.expand-timing');
     if (!bar || !probe || typeof bar.animate !== 'function') return;
-    for (const running of bar.getAnimations()) running.cancel();
-    const to = bar.getBoundingClientRect().height;
+    // Its own motion only: the bar's appearance (SNK-17) may be running too, and goes on.
+    this.sizing?.cancel();
+    this.sizing = null;
+    const to = laidHeight(bar);
     if (Math.abs(to - from) < 0.5 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const style = getComputedStyle(probe);
     const duration = (Number.parseFloat(style.transitionDuration) || 0) * 1000;
     if (!duration) return;
     bar.classList.add('resizing');
     const motion = bar.animate([{ blockSize: `${from}px` }, { blockSize: `${to}px` }], { duration, easing: style.transitionTimingFunction });
+    this.sizing = motion;
     const done = () => {
-      // Only the motion still running may end it: one cancelled by the next toggle leaves `resizing` to that one.
-      if (bar.getAnimations().some((other) => other !== motion && other.playState === 'running')) return;
+      // Only the motion still running may end it: one cancelled by the next toggle leaves `resizing` to the motion that
+      // toggle began, if it began one.
+      if (this.sizing && this.sizing !== motion) return;
+      this.sizing = null;
       bar.classList.remove('resizing');
       this.layout();
     };
@@ -385,7 +425,11 @@ export class TanreiSnackbar extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SNK-24: only a change of `expanded` moves (the expand button appearing on the first layout does not).
-    if (changed.has('expanded') && this.hasUpdated && this.expandable) this.resizeFrom = this.renderRoot.querySelector('.bar')?.getBoundingClientRect().height ?? null;
+    // Its height as laid out (or as its own motion has got it to), not as drawn: a bar that appears is drawn scaled.
+    if (changed.has('expanded') && this.hasUpdated && this.expandable) {
+      const bar = this.renderRoot.querySelector<HTMLElement>('.bar');
+      this.resizeFrom = bar ? laidHeight(bar) : null;
+    }
     // SNK-30: where a browser has no style queries, the form the cascade names now is written for the same rules —
     // read here, before the bar is rendered, and rendered with it: a bar that is first drawn in the default form and
     // told its form afterwards would move its controls' colors there (motion.state-duration) each time it appears.
@@ -487,7 +531,8 @@ export class TanreiSnackbar extends TanreiElement {
     return html`
       <div
         part="container"
-        class=${classMap({ bar: true, titled: !!headline, controls: !!action || this.closable || this.expandable, stacked: this.stacked && !!action, expanded, cut: this.expandable && !expanded })}
+        class=${classMap({ bar: true, open: this.shown, titled: !!headline, controls: !!action || this.closable || this.expandable, stacked: this.stacked && !!action, expanded, cut: this.expandable && !expanded })}
+        data-edge=${this.hosted ? (this.placement === 'top-end' ? 'block-start' : 'block-end') : nothing}
         data-status=${form}
         data-inverse=${this.writtenInverse ?? nothing}
         data-tanrei-shape
@@ -554,7 +599,7 @@ export class TanreiSnackbarHost extends TanreiElement {
 
   private readonly queue: Request[] = [];
   private current: { request: Request; snackbar: TanreiSnackbar } | null = null;
-  /** A snackbar fading out: the next waits for it (SNK-17). */
+  /** A snackbar leaving: the next waits for it (SNK-17). */
   private closing: Promise<void> | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private hovered = false;
@@ -631,10 +676,8 @@ export class TanreiSnackbarHost extends TanreiElement {
     await snackbar.updateComplete;
     if (this.current?.snackbar !== snackbar) return;
     snackbar.showPopover();
-    // SNK-17, SNK-36: it rises in from below, or descends from above at the top end, while fading in (only fades where
-    // motion is reduced).
-    snackbar.classList.add('entering');
-    void Promise.allSettled(snackbar.getAnimations().map((a) => a.finished)).then(() => snackbar.classList.remove('entering'));
+    // SNK-17, SNK-36: the bar appears from the window's edge it stands at. The announcement does not wait for it.
+    snackbar.appearIn();
     this.announce(snackbar.announcement, snackbar.assertive);
     this.onConditions();
   }
@@ -700,7 +743,7 @@ export class TanreiSnackbarHost extends TanreiElement {
     this.onConditions();
   };
 
-  /** SNK-1, SNK-12: the snackbar closed; its request resolves, it fades out, then the next shows. */
+  /** SNK-1, SNK-12: the snackbar closed; its request resolves, it leaves the way it came, then the next shows. */
   private readonly onSettled = (event: Event) => {
     const current = this.current;
     if (!current || event.target !== current.snackbar) return;
@@ -726,10 +769,8 @@ export class TanreiSnackbarHost extends TanreiElement {
     this.returnFocus = null;
     this.clearAnnouncements();
     request.resolve(result);
-    // SNK-17: it fades out in place; the next one shows only after that.
-    snackbar.classList.remove('entering');
-    snackbar.classList.add('leaving');
-    this.closing = Promise.allSettled(snackbar.getAnimations().map((a) => a.finished)).then(() => {
+    // SNK-17: it goes back the way it came, in the top layer until then; the next one shows only after that.
+    this.closing = snackbar.leave().then(() => {
       if (snackbar.matches(':popover-open')) snackbar.hidePopover();
       snackbar.remove();
       this.closing = null;
