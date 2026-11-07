@@ -13,6 +13,7 @@ import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/fra
 import { type Fixture, type FixtureItem, avatarPicture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('avatar');
 type P = Page;
@@ -1593,7 +1594,7 @@ test.describe('fixtures', () => {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
       for (const picture of await page.locator('[data-fixture] tanrei-avatar[src^="data:"]').all()) await pictured(picture);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

@@ -11,6 +11,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, tableNameSuffix, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('table');
 type P = Page;
@@ -3646,7 +3647,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

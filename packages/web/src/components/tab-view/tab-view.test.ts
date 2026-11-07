@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -1612,7 +1613,7 @@ test.describe('fixtures', () => {
 
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });
@@ -1625,7 +1626,7 @@ test.describe('test frames', () => {
     test(`snapshot: ${name}`, async ({ page }) => {
       await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'default'), reducedMotion });
       await gesture(page, 'default', slow(-(await width(page, 'default')) / 2), { up: null });
-      await expect(page.locator('[data-fixture="default"]')).toHaveScreenshot([spec.name, `${name}.png`]);
+      await expectBaseline(page.locator('[data-fixture="default"]'), [spec.name, `${name}.png`]);
     });
   }
 });

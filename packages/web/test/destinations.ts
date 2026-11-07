@@ -7,6 +7,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from './harness.js';
 import { opticalSize } from './icons.js';
 import { motionEnded } from './motions.js';
+import { expectBaseline } from './baseline.js';
 
 type P = Page;
 
@@ -659,7 +660,7 @@ export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = 
       test(`snapshot: ${f.id}`, async ({ page }) => {
         await mount(page);
         await page.mouse.move(0, 0);
-        await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+        await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
       });
     }
   });

@@ -12,6 +12,7 @@ import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js
 import { motionEnded } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('calendar');
 type P = Page;
@@ -1872,7 +1873,7 @@ test.describe('fixtures', () => {
   for (const fixture of spec.fixtures) {
     test(`snapshot: ${fixture.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });
-      await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
 });

@@ -11,6 +11,7 @@ import { type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, fr
 import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('button');
 const button = (id: string) => `[data-fixture="${id}"] tanrei-button`;
@@ -1253,7 +1254,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   for (const fixture of spec.fixtures) {
     test(`snapshot: ${fixture.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
 });

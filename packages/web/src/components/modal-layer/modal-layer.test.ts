@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('modal-layer');
 type P = Page;
@@ -383,7 +384,7 @@ test.describe('fixtures', () => {
       await mountFixtures(page, spec, { fixtures: [fixture] });
       await expect.poll(() => isOpen(page, fixture.id)).toBe(true);
       await container(page, fixture.id).evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
-      await expect(page).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
 });

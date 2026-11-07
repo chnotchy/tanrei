@@ -16,6 +16,7 @@ import { decodePng } from '../../../test/png.js';
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { resolveEasing } from '../../../test/appear.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('chat-composer');
 const fieldSpec = loadSpec('field');
@@ -2136,7 +2137,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, reducedMotion: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

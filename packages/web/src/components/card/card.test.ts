@@ -13,6 +13,7 @@ import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('card');
 type P = Page;
@@ -832,7 +833,7 @@ test.describe('fixtures', () => {
 
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

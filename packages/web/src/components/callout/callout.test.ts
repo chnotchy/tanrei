@@ -12,6 +12,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { axTree } from '../../../test/ax-tree.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('callout');
 type P = Page;
@@ -1869,7 +1870,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

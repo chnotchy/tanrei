@@ -11,6 +11,7 @@ import { expectPressShownAndHeld, watchPress, watchedPress } from '../../../test
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('table-of-contents');
 type P = Page;
@@ -1652,7 +1653,7 @@ test.describe('baselines', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

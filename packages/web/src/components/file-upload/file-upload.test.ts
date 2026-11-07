@@ -21,6 +21,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('file-upload');
 type P = Page;
@@ -2681,7 +2682,7 @@ test.describe('fixtures', () => {
         const all = (root: Document | ShadowRoot): Element[] => [...root.querySelectorAll('*')].flatMap((el) => [el, ...(el.shadowRoot ? all(el.shadowRoot) : [])]);
         return all(document).every((el) => !(el instanceof HTMLImageElement) || el.complete);
       });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

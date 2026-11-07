@@ -11,6 +11,7 @@ import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, 
 import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { fixturePicture } from '../../test/pictures.js';
 import { decodePng } from '../../test/png.js';
+import { expectBaseline } from '../../test/baseline.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../..');
@@ -1459,7 +1460,7 @@ test.describe('fixtures', () => {
       // A site's picture is asked for lazily: it has arrived, or failed, before the stage is compared. One that is not
       // drawn (the mark is off, or a glyph leads: LNK-32) is never asked for, so it is not waited for.
       await expect.poll(() => page.evaluate(() => [...document.images].every((image) => image.complete || image.getClientRects().length === 0))).toBe(true);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

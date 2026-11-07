@@ -10,6 +10,7 @@ import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixt
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('side-sheet');
 type P = Page;
@@ -1094,7 +1095,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mount(page, [f]);
-      await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
 });

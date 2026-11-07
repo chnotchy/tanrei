@@ -11,6 +11,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('snackbar');
 type P = Page;
@@ -2782,7 +2783,7 @@ test.describe('fixtures', () => {
   });
   for (const fixture of spec.fixtures) {
     test(`snapshot: ${fixture.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
 });

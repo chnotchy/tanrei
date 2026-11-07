@@ -6,6 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('swatch');
 type P = Page;
@@ -457,7 +458,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtureAsInAll(page, spec, f);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

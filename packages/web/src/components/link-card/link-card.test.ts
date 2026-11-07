@@ -16,6 +16,7 @@ import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAt
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../../..');
@@ -1942,7 +1943,7 @@ test.describe('baselines', () => {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountSpec(page);
       await card(page, f.id).scrollIntoViewIfNeeded();
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

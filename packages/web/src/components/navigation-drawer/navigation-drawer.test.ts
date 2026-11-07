@@ -16,6 +16,7 @@ import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -4294,19 +4295,19 @@ test.describe('fixtures', () => {
       if (presented(f)) {
         await modalWindow(page, f, { reducedMotion: true });
         await page.waitForTimeout(100);
-        await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
+        await expectBaseline(page, [spec.name, `${f.id}.png`]);
         return;
       }
       if (windowed(f)) {
         await page.setViewportSize(drawerWindow(f.id));
         await mount(page, [f], { reducedMotion: true });
         await page.mouse.move(drawerWindow(f.id).width - 20, 5);
-        await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
+        await expectBaseline(page, [spec.name, `${f.id}.png`]);
         return;
       }
       await mount(page, spec.fixtures.filter((each) => !presented(each) && !windowed(each)), { reducedMotion: true });
       await page.mouse.move(700, 5);
-      await expect(page.locator(`[data-fixture="${f.id}"]`) as Locator).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`) as Locator, [spec.name, `${f.id}.png`]);
     });
   }
 });

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('number-field');
 type P = Page;
@@ -491,7 +492,7 @@ test.describe('fixtures', () => {
 
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

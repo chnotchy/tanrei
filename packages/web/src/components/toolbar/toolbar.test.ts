@@ -11,6 +11,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { type Probe, expectAnimated, expectFirstFrameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('toolbar');
 type P = Page;
@@ -1418,7 +1419,7 @@ test.describe('fixtures', () => {
 
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

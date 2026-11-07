@@ -15,6 +15,7 @@ import { fixturePicture } from '../../../test/pictures.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('image-preview');
 type P = Page;
@@ -2674,13 +2675,13 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mount(page, f, { reducedMotion: true, loaded: !f.id.startsWith('loading') });
-      await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
   for (const id of ['several', 'caption']) {
     test(`snapshot: compact-${id}`, async ({ page }) => {
       await mount(page, fixtureOf(id), { window: COMPACT, reducedMotion: true });
-      await expect(page).toHaveScreenshot([spec.name, `compact-${id}.png`]);
+      await expectBaseline(page, [spec.name, `compact-${id}.png`]);
     });
   }
 });

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type Spec, fixtureHost, mountFixtures, resolveColor, resolveToken, subject } from '../test/harness.js';
+import { expectBaseline } from '../test/baseline.js';
 
 /** One line per component: its spec, and the fixtures baselined under each preset: one representative each. */
 const SUBJECTS = [
@@ -532,8 +533,8 @@ for (const system of presets) {
           if (window) await page.setViewportSize(window);
           await mountFixtures(page, spec, { system, icons, ...(reducedMotion ? { reducedMotion } : {}), ...(window || alone ? { fixtures: [fixture] } : {}) });
           const shot = ['systems', system, spec.name, `${fixture.id}.png`];
-          if (wholeWindow) await expect(page).toHaveScreenshot(shot);
-          else await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot(shot);
+          if (wholeWindow) await expectBaseline(page, shot);
+          else await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), shot);
         });
       }
     }

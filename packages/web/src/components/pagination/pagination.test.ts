@@ -12,6 +12,7 @@ import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-l
 import { settledCss } from '../../../test/motions.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('pagination');
 type P = Page;
@@ -977,7 +978,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtureAsInAll(page, spec, f, { icons: true });
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

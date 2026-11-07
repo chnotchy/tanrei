@@ -14,6 +14,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('breadcrumbs');
 type P = Page;
@@ -1602,7 +1603,7 @@ test.describe('baselines', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });
