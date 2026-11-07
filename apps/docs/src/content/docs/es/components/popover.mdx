@@ -1,8 +1,8 @@
 ---
 title: Popover
-description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página; en una ventana compacta, en una superficie modal con el aspecto de la hoja inferior.
+description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto a un control (cuando se pulsa, o cuando el puntero o el foco del teclado se detienen en él) y se queda con él, sin oscurecer ni bloquear el resto de la página; en una ventana compacta, en una superficie modal con el aspecto de la hoja inferior.
 translationOf: components/popover.mdx
-sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
+sourceHash: 423dcc9ccf4410ebef8292c5c8e5ad7a43f5a874
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,15 +16,22 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="popover" />
 
 <Example label="Pulsa un botón: una nota con un enlace y un formulario breve con acciones">
-  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">Almacenamiento</tanrei-button>
-  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Almacenamiento" closable close-label="Cerrar almacenamiento" arrow placement="bottom" onclose="this.open = false">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined">Almacenamiento</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Almacenamiento" closable close-label="Cerrar almacenamiento" arrow placement="bottom" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     Los archivos de la papelera siguen ocupando espacio de almacenamiento hasta que se eliminan. <a class="tanrei-link" href="#pautas">Cómo se calcula el almacenamiento</a>
   </tanrei-popover>
-  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">Cambiar nombre</tanrei-button>
-  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="Cambiar el nombre de la carpeta" onclose="this.open = false">
+  <tanrei-button id="popover-demo-form-opener" variant="outlined">Cambiar nombre</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="Cambiar el nombre de la carpeta" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <tanrei-text-field label="Nombre" value="Informes" autofocus></tanrei-text-field>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">Cambiar nombre</tanrei-button>
+  </tanrei-popover>
+</Example>
+
+<Example label="Detén el puntero sobre un nombre, o llega a él con Tab: una vista previa de la persona">
+  <p>Compartido por <a class="tanrei-link" id="popover-demo-person" href="#pautas">Lucía Martín</a> el lunes.</p>
+  <tanrei-popover id="popover-demo-preview" anchor="popover-demo-person" label="Lucía Martín" trigger="hover focus" placement="bottom-start" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    Lucía Martín, equipo de motores analíticos. Gestiona 12 carpetas compartidas. <a class="tanrei-link" href="#pautas">Abrir el perfil</a>
   </tanrei-popover>
 </Example>
 
@@ -34,9 +41,32 @@ Usa un popover para el contenido con el que una persona trabaja junto al control
 
 El control es tuyo. En la web lo indicas con `anchor`, el id del elemento junto al que se sitúa el popover. Ese elemento es también el activador: el popover comunica a la tecnología de apoyo que ese elemento abre un diálogo y si el diálogo está abierto, y le devuelve el foco. Donde un campo sirve de ancla a la superficie y la abre un botón situado dentro del campo, indica el botón con `opener`.
 
-Un popover es un componente controlado, como el menú. Defines `open` cuando se pulsa el activador y lo vuelves a poner en false cuando el popover emite `close`. Nunca se abre solo: ni al pasar el cursor, ni con el foco, ni al cabo de un tiempo. `close` lleva un motivo: `escape`, `outside`, `focus-out`, `close` (su botón de cierre) o `anchor-hidden`. Una acción nunca cierra el popover; lo cierra tu controlador. Como hoja en una ventana compacta, envía `outside` cuando se pulsa su velo, y nunca `focus-out` ni `anchor-hidden`.
+Un popover es un componente controlado, como el menú. Pide abrirse o cerrarse con `toggle`, cuyo `detail.open` es el valor que pide, y tú le das ese valor a `open`. De forma predeterminada, una pulsación en el activador pide abrirlo y una segunda pide cerrarlo, así que no escribes ningún controlador en el activador. Para todo lo demás pide cerrarse con `close`, y tú vuelves a poner `open` en false. `close` lleva un motivo: `escape`, `outside`, `focus-out`, `close` (su botón de cierre) o `anchor-hidden`. Como hoja en una ventana compacta envía `outside` por una pulsación en su velo, y nunca `focus-out` ni `anchor-hidden`. Una acción nunca cierra el popover; lo cierra tu controlador.
 
 Dale un nombre: `headline` donde dibuja un titular, `label` donde no lo dibuja.
+
+### Qué lo abre
+
+`trigger` indica qué abre el popover: uno o más de `press`, `hover` y `focus`, combinados como quieras. En la web, el atributo los separa con espacios, como en `trigger="hover focus"`.
+
+| Valor | Abre el popover cuando | A dónde va el foco |
+| --- | --- | --- |
+| `press` (el predeterminado) | Se pulsa el activador, o se pulsa Enter o Espacio sobre él. Una segunda pulsación pide cerrarlo | Al popover |
+| `hover` | Un ratón, un trackpad o un lápiz que pasa por encima se detiene sobre el ancla durante `showDelay`. Nunca con el tacto | A ningún sitio: se queda donde estaba |
+| `focus` | El foco del teclado se queda en el ancla durante `showDelay`. El foco que llega con una pulsación o un toque no cuenta | A ningún sitio: se queda en el ancla, y el siguiente Tab entra en el popover |
+
+`toggle` indica en `detail.reason` qué lo pidió. Un popover abierto por el puntero o por el foco:
+
+- espera antes de abrirse, para que un puntero que pasa por encima del ancla, o Tab recorriendo una fila de anclas, no abra nada. `showDelay` toma `comp.popover.motion.show-delay` (700 ms en el sistema predeterminado) cuando no lo indicas.
+- sigue abierto mientras el puntero está sobre el ancla, sobre el hueco entre el ancla y el popover o sobre el popover, y mientras el foco está dentro. El foco del teclado en el ancla también lo mantiene abierto cuando `focus` está entre los valores. El puntero puede cruzar el hueco con cualquier `hideDelay`.
+- pide cerrarse con `toggle`, motivo `leave`, cuando nada de eso se ha cumplido durante `hideDelay`, que toma `comp.popover.motion.hide-delay` (300 ms en el sistema predeterminado) cuando no lo indicas. Nunca se cierra por tiempo mientras algo de eso se cumpla.
+- se cierra con Escape esté donde esté el foco, y deja el foco donde está. Tras Escape no vuelve a abrirse hasta que el puntero o el foco salen del ancla y vuelven.
+- se queda junto a su ancla en cualquier ventana, también en una compacta, porque una hoja tomaría el foco cuando la persona solo ha señalado el ancla.
+- aparece con el mismo movimiento que cualquier popover.
+
+Con `press` entre los valores, una pulsación en el activador de un popover abierto por el puntero lo deja abierto como si la pulsación lo hubiera abierto: el foco entra y el puntero ya no lo cierra al irse. Sin `press`, se ejecuta la acción propia del activador, como ir al destino de un enlace, y el activador no indica que abre un diálogo.
+
+Las esperas son tiempos, no movimiento: no cambian donde se reduce el movimiento.
 
 SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
 
@@ -56,13 +86,16 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <tanrei-text-field id="city" label="Ciudad"></tanrei-text-field>
     <tanrei-popover anchor="city" label="Sugerencias" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
 
+    <!-- La vista previa de un enlace: se abre con el puntero o con el foco del teclado, no con una pulsación. -->
+    <a id="author" href="/people/ada">Lucía Martín</a>
+    <tanrei-popover id="author-preview" anchor="author" label="Lucía Martín" trigger="hover focus">…</tanrei-popover>
+
     <script type="module">
       import '@tanrei/web/components/popover';
 
-      const opener = document.querySelector('#share');
       const panel = document.querySelector('#share-panel');
-      // El activador lo abre y lo cierra. Una pulsación en el activador nunca es "outside", así que una sola pulsación nunca lo cierra y lo vuelve a abrir.
-      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // Una pulsación en el activador pide abrirlo, y una segunda pide cerrarlo.
+      panel.addEventListener('toggle', (e) => (panel.open = e.detail.open));
       // Escape, una pulsación fuera, el foco que sale, el botón de cierre, el ancla fuera de la vista.
       panel.addEventListener('close', (e) => {
         console.log(e.detail.reason);
@@ -83,8 +116,8 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
     const [open, setOpen] = useState(false);
 
-    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>Compartir</Button>
-    <Popover anchor="share" open={open} headline="Compartir esta página" closable closeLabel="Cerrar el panel para compartir" onClose={() => setOpen(false)}>
+    <Button id="share" variant="outlined">Compartir</Button>
+    <Popover anchor="share" open={open} headline="Compartir esta página" closable closeLabel="Cerrar el panel para compartir" onToggle={(e) => setOpen(e.detail.open)} onClose={() => setOpen(false)}>
       Cualquier persona que tenga el enlace puede leerla.
       <Button slot="actions" dismissive onClick={stopSharing}>Dejar de compartir</Button>
       <Button slot="actions" confirming onClick={copyLink}>Copiar enlace</Button>
@@ -96,12 +129,12 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 ## Especificaciones
 
 <Example label="La colocación, una flecha y un popover tan ancho como su ancla">
-  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">Encima, centrado</tanrei-button>
-  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Almacenamiento" placement="top" arrow onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
-  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">Al lado, al final</tanrei-button>
-  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Almacenamiento" placement="end-top" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
-  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">Tan ancho como este botón</tanrei-button>
-  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Almacenamiento" width="anchor" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined">Encima, centrado</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Almacenamiento" placement="top" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined">Al lado, al final</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Almacenamiento" placement="end-top" ontoggle="this.open = event.detail.open" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem">Tan ancho como este botón</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Almacenamiento" width="anchor" ontoggle="this.open = event.detail.open" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
 </Example>
 
 ### Dónde se sitúa
@@ -175,6 +208,9 @@ Aquí los menús no son popovers: un menú, la lista de un select o de un combob
 - La web no tiene un gesto de retroceso propio, así que `close` nunca lleva el motivo `back`.
 - `anchorElement` y `openerElement` son propiedades para un elemento al que un id no puede llegar, como uno que está en otro shadow root.
 - `arrow` no está definido, es true o es false: el atributo falta, es `arrow` o es `arrow="false"`.
+- `trigger` es una propiedad de lista. Su atributo son los valores separados por espacios. `showDelay` y `hideDelay` son los atributos `show-delay` y `hide-delay`, en milisegundos.
+- `toggle` es un `CustomEvent` con `detail.open` y `detail.reason`. En el marcado, `ontoggle="this.open = event.detail.open"` le responde.
+- El paso del puntero se oye de un puntero cuyo `pointerType` es `mouse` o `pen`, y el foco del teclado es el foco que coincide con `:focus-visible`.
 - Marca con `autofocus` el elemento que recibe el foco al abrirse.
 - Con colores forzados, el contenedor y su flecha toman un contorno del color del texto.
 
@@ -184,9 +220,9 @@ Aquí los menús no son popovers: un menú, la lista de un select o de un combob
 
 | Aspecto | Tooltip | Popover | Menú | Diálogo |
 | --- | --- | --- | --- | --- |
-| Lo abre | El paso del cursor, el foco del teclado, una pulsación larga | Una pulsación en su activador | Una pulsación en su ancla | El producto |
+| Lo abre | El paso del cursor, el foco del teclado, una pulsación larga | Una pulsación en su activador, o el puntero o el foco del teclado donde su `trigger` lo diga | Una pulsación en su ancla | El producto |
 | Contiene | Una descripción de su ancla | Contenido que una persona maneja | Solo elementos | Una decisión |
-| Recibe el foco | Nunca | Sí, y lo devuelve | Sí, y lo devuelve | Sí, y lo retiene |
+| Recibe el foco | Nunca | Si se abre con una pulsación, y lo devuelve | Sí, y lo devuelve | Sí, y lo retiene |
 | Bloquea la página | No | No (sí, como hoja en una ventana compacta) | No | Sí |
 
 1. Si solo dice qué es el control y nada de lo que contiene se puede pulsar, es un tooltip.
@@ -203,13 +239,15 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 - **No en lugar de la página.** Lo que hay que leer antes de seguir va en el texto de ayuda del campo o en la propia página, donde nadie tenga que pedirlo.
 
 <Example label="Un toggletip: pulsa el botón de información">
-  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="Sobre el almacenamiento" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
-  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="Sobre el almacenamiento" arrow onclose="this.open = false">Los archivos de la papelera cuentan en tu almacenamiento hasta que se eliminan. <a class="tanrei-link" href="#guidelines">Cómo se cuenta el almacenamiento</a></tanrei-popover>
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="Sobre el almacenamiento"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="Sobre el almacenamiento" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">Los archivos de la papelera cuentan en tu almacenamiento hasta que se eliminan. <a class="tanrei-link" href="#guidelines">Cómo se cuenta el almacenamiento</a></tanrei-popover>
 </Example>
 
 ### Recomendado
 
-- Ábrelo con una pulsación en un control, y ciérralo cuando ese control se vuelva a pulsar.
+- De forma predeterminada, ábrelo con una pulsación en un control. El popover pide cerrarse cuando ese control se vuelve a pulsar.
+- Usa `trigger="hover focus"` para una vista previa de adónde lleva un enlace, como una persona o un documento, a la que la persona también llega siguiendo el enlace.
+- Añade `press` a un popover que se abre con el puntero cuando su contenido tenga algo que manejar, para que quien usa el teclado o el tacto pueda abrirlo a propósito y entrar en él.
 - Mantén breve el contenido. Una sola tarea y, como mucho, unos pocos campos.
 - Añade `closable` cuando el popover sea lo bastante grande para tapar lo que una persona pulsaría fuera de él, y para el tacto, donde no hay Escape.
 - Usa `width="anchor"` e `initialFocus="anchor"` para una superficie situada bajo un campo en el que la persona está escribiendo.
@@ -218,7 +256,8 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 
 ### Evita
 
-- No abras un popover al pasar el cursor ni con el foco. Así no se puede llegar a él con el tacto, y una superficie que toma el foco porque el puntero pasó por encima es una trampa.
+- No pongas nada que una persona necesite solo en un popover que se abre con el puntero. En una pantalla táctil no hay puntero que pase por encima: da la misma información de otra manera, con el destino del enlace o con `press` entre los valores.
+- No acortes `showDelay` para que un popover de puntero parezca rápido. Un popover es mayor que un tooltip y taparía la página cada vez que pasa el puntero.
 - No pongas en un popover lo que una persona perdería con una sola pulsación fuera por descuido. Un formulario largo va en un diálogo o en una hoja.
 - No anides más de un popover dentro de un popover. Cada nivel es una pulsación más de Escape.
 - No uses un popover para algo que la persona debe responder antes de continuar. Eso es un diálogo.
@@ -231,7 +270,8 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 
 - El contenedor es un diálogo no modal que recibe su nombre de `headline` o de `label`. Nada de lo que queda fuera se oculta ni se deja inerte.
 - Como hoja en una ventana compacta, el contenedor es un diálogo modal: todo lo que queda fuera se vuelve inerte, y Tab y Mayús+Tab dan la vuelta dentro de él. Al cerrarse, el foco vuelve al activador.
-- El activador expone que abre un diálogo y si ese diálogo está abierto. Su nombre y su rol no cambian.
+- El activador expone que abre un diálogo y si ese diálogo está abierto, cuando `press` está entre los valores de `trigger`. Un ancla que solo lo abre con el puntero o con el foco no expone ninguna de las dos cosas. Su nombre y su rol no cambian.
+- Un popover abierto por el puntero o por el foco cumple WCAG 1.4.13 (contenido con hover o foco): Escape lo descarta sin mover el puntero ni el foco, el puntero puede cruzar el hueco hasta él, y sigue visible hasta que el puntero y el foco se van.
 - Al abrirse, el foco pasa al elemento que marcaste, o al contenedor, de modo que lo primero que se lee es el nombre del popover. El indicador de foco se muestra en el contenedor solo cuando el popover se abrió con el teclado.
 - El popover va justo después de su activador en el orden de tabulación, esté donde esté en el documento. Tab desde su último elemento sigue hacia lo que viene después del activador, y eso lo cierra. El foco nunca queda retenido dentro.
 - Escape cierra solo la superposición que está más arriba y no va más allá: un diálogo en el que está el popover sigue abierto.
@@ -242,6 +282,7 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 ### Qué debes hacer tú
 
 - Da al popover un `headline` o un `label`, y un `closeLabel` mientras sea `closable`.
-- Define `open` cuando se pulse el activador y ponlo en false al recibir `close`.
+- Da a `open` el valor que pide `toggle`, y ponlo en false al recibir `close`.
+- Con `hover` solo, asegúrate de que lo que muestra el popover se puede alcanzar de otra manera, porque quien usa una pantalla táctil nunca lo ve.
 - En la web, pon el elemento del popover justo después de su activador en el documento siempre que puedas, para que el orden de lectura de un lector de pantalla siga el orden de tabulación.
 - Marca el primer campo de un formulario breve para que reciba el foco inicial. Deja sin marca un popover de texto.
