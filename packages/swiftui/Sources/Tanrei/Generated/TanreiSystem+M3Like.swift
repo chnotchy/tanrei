@@ -5293,6 +5293,8 @@ private let m3LikeListTokens = TanreiListTokens(
   motionFeedbackDuration: 450,
   motionReorderDuration: 300,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiListConditions(

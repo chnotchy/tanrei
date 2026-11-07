@@ -3429,6 +3429,8 @@
     "tanrei.comp.list.motion.feedback-duration": "duration",
     "tanrei.comp.list.motion.reorder-duration": "duration",
     "tanrei.comp.list.motion.reorder-easing": "cubicBezier",
+    "tanrei.comp.list.motion.resize-duration": "duration",
+    "tanrei.comp.list.motion.resize-easing": "cubicBezier",
     "tanrei.comp.list.motion.state-duration": "duration",
     "tanrei.comp.list.motion.state-easing": "cubicBezier",
     "tanrei.comp.list.pressed.container.shape": "dimension",

@@ -9809,6 +9809,8 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionReorderDuration: Double
   public var motionReorderEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var conditions: TanreiListConditions
@@ -9840,6 +9842,8 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionReorderDuration: Double,
     motionReorderEasing: TanreiCubicBezier,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     conditions: TanreiListConditions,
@@ -9866,6 +9870,8 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionReorderDuration = motionReorderDuration
     self.motionReorderEasing = motionReorderEasing
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.conditions = conditions

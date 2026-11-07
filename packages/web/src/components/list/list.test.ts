@@ -6,7 +6,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { bezierOf, resolveEasing } from '../../../test/appear.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 
@@ -14,7 +16,9 @@ const spec = loadSpec('list');
 type P = Page;
 type Props = Record<string, unknown>;
 const list = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-list`);
-const item = (page: P, id: string, n: number) => list(page, id).locator('tanrei-list-item').nth(n);
+/** The items of the list — not one the product took away that is still drawn leaving (LST-41). */
+const ITEMS = 'tanrei-list-item:not([data-leaving])';
+const item = (page: P, id: string, n: number) => list(page, id).locator(ITEMS).nth(n);
 const row = (page: P, id: string, n: number) => item(page, id, n).locator('.row').first();
 const handle = (page: P, id: string, n: number) => item(page, id, n).locator('.handle');
 const css = (locator: Locator, property: string, pseudo?: string) =>
@@ -621,7 +625,7 @@ test.describe('link form', () => {
 // The test is the product: it gives the words, answers `move` by reordering its own items, and removes one.
 const WORDS = byId('reorderable').props;
 const NAMES = ['Inter', 'Noto Sans JP', 'Helvetica Neue'];
-const order = (page: P, id: string) => list(page, id).evaluate((el) => [...el.querySelectorAll('tanrei-list-item')].map((each) => (each as any).name as string));
+const order = (page: P, id: string) => list(page, id).evaluate((el) => [...el.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')].map((each) => (each as any).name as string));
 const announced = (page: P, id: string) => list(page, id).evaluate((el) => el.shadowRoot!.querySelector('.announcer')?.textContent ?? null);
 const moves = (page: P) => page.evaluate(() => ((window as any).moves ?? []) as { from: number; to: number }[]);
 /** The product's answer to `move`: it moves the element it has — at once, after `delay` ms, or never. */
@@ -634,7 +638,7 @@ const product = (page: P, id: string, delay: number | 'ignore' | 'replace' = 0) 
         log.push({ from, to });
         if (delay === 'ignore') return;
         const apply = () => {
-          const items = [...el.querySelectorAll('tanrei-list-item')];
+          const items = [...el.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
           if (delay === 'replace') {
             const html = items.map((each) => each.outerHTML);
             html.splice(to, 0, html.splice(from, 1)[0]);
@@ -961,7 +965,7 @@ test.describe('reordering', () => {
     expect(await moves(page)).toEqual([]);
   });
 
-  test('LST-41: an order the product changes is drawn from the old places to the new over the reorder motion, in both directions in a wrapping list; a new item appears at once', async ({ page }) => {
+  test('LST-41: an order the product changes is drawn from the old places to the new over the reorder motion, in both directions in a wrapping list', async ({ page }) => {
     const duration = await reorderWindow(page);
     await page.waitForTimeout(100);
     const before = await bounds(item(page, 'reorderable-wrap', 0));
@@ -973,8 +977,6 @@ test.describe('reordering', () => {
     expect(startFrame).not.toBe('translate(0px, 0px)');
     await page.waitForTimeout(duration + 50);
     expect((await bounds(item(page, 'reorderable-wrap', 4))).y).toBeGreaterThan(before.y);
-    await list(page, 'reorderable').evaluate((el) => el.prepend(Object.assign(document.createElement('tanrei-list-item'), { textContent: 'New' })));
-    expect(await item(page, 'reorderable', 0).evaluate((el) => el.getAnimations().length)).toBe(0);
   });
 
   test('LST-42: where motion is reduced, the dragged look, the neighbours, the drop and a new order are drawn at once — the item still follows the pointer', async ({ page }) => {
@@ -1328,6 +1330,401 @@ test.describe('accessibility', () => {
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
+  });
+});
+
+// ── Items that arrive and leave: LST-41 ──────────────────────────────────────────────────────────────────────────────
+// The test is the product: it adds an item of its own and takes one away. Every motion is read with its clock held
+// (test/frames.ts), so that each frame is the same moment on any machine and in any engine.
+
+/**
+ * What an arrival or a leave is read by in every frame: the edges of each item the test named (`data-name`), the
+ * height, width and opacity of the item marked `.marked` — the one that arrives or leaves — and whether it is drawn,
+ * the list's edges, and how many items the list holds.
+ */
+const presence: Probe = (root) => {
+  const list = root.querySelector('tanrei-list')!;
+  const box = (el: Element) => el.getBoundingClientRect();
+  const l = box(list);
+  const out: Record<string, number | boolean> = { listTop: l.top, listBottom: l.bottom, listLeft: l.left, listRight: l.right };
+  for (const each of list.querySelectorAll<HTMLElement>(':scope > tanrei-list-item[data-name]')) {
+    const r = box(each);
+    const name = each.dataset.name!;
+    Object.assign(out, { [`${name}Top`]: r.top, [`${name}Bottom`]: r.bottom, [`${name}Left`]: r.left, [`${name}Right`]: r.right });
+  }
+  const marked = list.querySelector<HTMLElement>(':scope > .marked');
+  const m = marked ? box(marked) : null;
+  Object.assign(out, {
+    drawn: !!marked,
+    height: m ? m.height : 0,
+    width: m ? m.width : 0,
+    markedTop: m ? m.top : 0,
+    markedBottom: m ? m.bottom : 0,
+    markedLeft: m ? m.left : 0,
+    markedRight: m ? m.right : 0,
+    opacity: marked ? Number(getComputedStyle(marked).opacity) : 0,
+    count: list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])').length,
+  });
+  // LST-3: the divider before the second item drawn — its top and its opacity.
+  const second = list.querySelectorAll(':scope > tanrei-list-item')[1];
+  const divider = second?.shadowRoot?.querySelector('.divider');
+  if (divider) Object.assign(out, { dividerTop: box(divider).top, dividerOpacity: Number(getComputedStyle(divider).opacity) });
+  return out;
+};
+/** Names the list's items a, b, c… for the probe. */
+const nameItems = (page: P, id: string) =>
+  list(page, id).evaluate((el) => [...el.querySelectorAll<HTMLElement>(':scope > tanrei-list-item')].forEach((each, n) => (each.dataset.name = 'abcdefgh'[n])));
+/** The product adds an item of its own before the item at `at` (at the end past the last), marked for the probe. */
+const addAt = (page: P, id: string, at: number) =>
+  list(page, id).evaluate((el, at) => {
+    const added = Object.assign(document.createElement('tanrei-list-item'), { textContent: 'Source Serif' });
+    added.className = 'marked';
+    el.insertBefore(added, el.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')[at] ?? null);
+  }, at);
+/** The product takes away the item at `at`, marked for the probe (and keeps the element: `window.taken`). */
+const takeAway = (page: P, id: string, at: number) =>
+  list(page, id).evaluate((el, at) => {
+    const gone = el.querySelectorAll<HTMLElement>(':scope > tanrei-list-item:not([data-leaving])')[at]!;
+    for (const marked of el.querySelectorAll('.marked')) marked.classList.remove('marked');
+    gone.classList.add('marked');
+    gone.removeAttribute('data-name');
+    (window as unknown as { taken: Element }).taken = gone;
+    gone.remove();
+  }, at);
+const num = (frame: Frame, name: string) => Number(frame.probe[name]);
+/** LST-41: the motions of an item's presence, as the sampler held them: [id, the element, duration, curve]. */
+const presenceMotions = (seen: Frames) =>
+  seen.motions
+    .filter((motion) => motion.name.startsWith('list-'))
+    .map((motion) => [motion.name, motion.on.split('.')[0], motion.duration, bezierOf(motion.easing).join(' ')] as const)
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+test.describe('items that arrive and leave', () => {
+  test.beforeEach(async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id.startsWith('reorderable')) });
+  });
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+
+  test('LST-41: WHEN the product adds an item to a reorderable column THE list grows it from nothing to its own height over comp.list.motion.resize-duration with resize-easing, the gap below it opening with it, and fades it in over the state motion; the item before it stays, the items after it follow its edge in every frame, the list’s bottom with them', async ({ page }) => {
+    const id = 'reorderable-gap';
+    await nameItems(page, id);
+    const gap = await resolveToken(page, T('gap-small'));
+    expect(gap, 'the fixture has a gap').toBeGreaterThan(0);
+    const seen = await sampleFrames(stage(page, id), () => addAt(page, id, 1), { probe: presence });
+    const [before, rest] = [seen.before, seen.rest];
+    const height = num(rest, 'height');
+    expect(height, 'an item as tall as its handle').toBeGreaterThanOrEqual((await bounds(handle(page, id, 0))).height - 0.5);
+    // It is drawn from the first frame, and grows: its height never falls, and never leaves the way from 0 to its own.
+    expect(seen.frames[0]!.probe.drawn).toBe(true);
+    expect(num(seen.frames[0]!, 'height')).toBeLessThan(height / 2);
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    const heights = seen.frames.map((frame) => num(frame, 'height'));
+    for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i}: it does not shrink`).toBeGreaterThanOrEqual(heights[i - 1]! - 0.01);
+    // It fades in from transparent.
+    expect(num(seen.frames[0]!, 'opacity')).toBeLessThan(0.5);
+    expect(rest.probe.opacity).toBe(1);
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    // The item before it stays. The one after it stands below its edge in every frame — never over it, never more than
+    // the gap below it — and moves down with it; the item after that and the list's bottom go with it.
+    for (const frame of seen.frames) {
+      expect(num(frame, 'aTop'), `frame ${frame.index}: the item before it`).toBeCloseTo(num(before, 'aTop'), 1);
+      const below = num(frame, 'bTop') - num(frame, 'markedBottom');
+      expect(below, `frame ${frame.index}: the next item below its edge`).toBeGreaterThanOrEqual(-0.5);
+      expect(below, `frame ${frame.index}: the next item at most the gap below it`).toBeLessThanOrEqual(gap + 0.5);
+    }
+    expectAnimated(seen, 'bTop', { minSteps: 4 });
+    expectAnchored(seen, 'cTop', 'bTop');
+    expectAnchored(seen, 'listBottom', 'cBottom');
+    expect(num(rest, 'bTop') - num(rest, 'markedBottom'), 'at rest the gap below it').toBeCloseTo(gap, 1);
+    expect(num(rest, 'bTop') - num(before, 'bTop'), 'the next item has moved by its height and the gap').toBeCloseTo(height + gap, 1);
+    expectNoFlicker(seen);
+    // On the tokens: the length on the resize role and the spatial curve, the fade on the state role and curve.
+    const [resize, resizeEasing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await resolveEasing(page, T('motion-resize-easing'))];
+    expect(resize).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-large', 'duration'));
+    expect(resizeEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    const [state, stateEasing] = [await resolveToken(page, T('motion-state-duration'), 'duration'), await resolveEasing(page, T('motion-state-easing'))];
+    expect(state).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-large', 'duration'));
+    const curve = (easing: string) => bezierOf(easing).join(' ');
+    expect(presenceMotions(seen)).toEqual([
+      ['list-item-content', 'div', resize, curve(resizeEasing)],
+      ['list-item-fade', 'tanrei-list-item', state, curve(stateEasing)],
+      ['list-item-length', 'tanrei-list-item', resize, curve(resizeEasing)],
+    ]);
+    // At rest nothing of the motion is left on it.
+    expect(await motionCount(list(page, id).locator(':scope > .marked'))).toBe(0);
+    const leftOver = await list(page, id).evaluate((el) => {
+      const added = el.querySelector<HTMLElement>(':scope > .marked')!;
+      return [getComputedStyle(added.shadowRoot!.querySelector('.row')!).clipPath, added.hasAttribute('data-leaving'), added.getAttribute('style')];
+    });
+    expect(leftOver).toEqual(['none', false, null]);
+  });
+
+  test('LST-41: WHEN the product takes an item away from a reorderable column THE list fades it out where it was drawn and closes it to nothing over the same motions, the items after it following its edge in every frame, and takes it away at rest, giving back what it set on it', async ({ page }) => {
+    const id = 'reorderable-gap';
+    await nameItems(page, id);
+    const gap = await resolveToken(page, T('gap-small'));
+    const height = (await bounds(item(page, id, 1))).height;
+    const seen = await sampleFrames(stage(page, id), () => takeAway(page, id, 1), { probe: presence });
+    const [before, rest] = [seen.before, seen.rest];
+    // Drawn whole in the first frame, where it stood, then closing: its height never rises.
+    const drawnFrames = seen.frames.filter((frame) => frame.probe.drawn);
+    expect(drawnFrames.length, 'it is drawn while it leaves').toBeGreaterThanOrEqual(4);
+    expect(num(seen.frames[0]!, 'height')).toBeGreaterThan(height / 2);
+    expect(num(seen.frames[0]!, 'markedTop')).toBeCloseTo(num(before, 'aBottom') + gap, 1);
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    const heights = drawnFrames.map((frame) => num(frame, 'height'));
+    for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i}: it does not grow`).toBeLessThanOrEqual(heights[i - 1]! + 0.01);
+    expect(num(seen.frames[0]!, 'opacity')).toBeGreaterThan(0.5);
+    // The item before it stays; the one after it follows its edge up, never over it and never more than the gap below it.
+    for (const frame of drawnFrames) {
+      expect(num(frame, 'aTop'), `frame ${frame.index}: the item before it`).toBeCloseTo(num(before, 'aTop'), 1);
+      const below = num(frame, 'cTop') - num(frame, 'markedBottom');
+      expect(below, `frame ${frame.index}: the next item below its edge`).toBeGreaterThanOrEqual(-0.5);
+      expect(below, `frame ${frame.index}: the next item at most the gap below it`).toBeLessThanOrEqual(gap + 0.5);
+    }
+    expectAnimated(seen, 'cTop', { minSteps: 4 });
+    expectAnchored(seen, 'listBottom', 'cBottom');
+    // At rest it has gone, the next item stands where it stood, and the element is the product's as it was.
+    expect(rest.probe.drawn).toBe(false);
+    expect(num(rest, 'cTop')).toBeCloseTo(num(before, 'aBottom') + gap, 1);
+    const returned = await page.evaluate(() => {
+      const taken = (window as unknown as { taken: HTMLElement }).taken;
+      const motions = taken.getAnimations().map((motion) => motion.playState);
+      return [taken.isConnected, taken.inert, taken.getAttribute('aria-hidden'), taken.hasAttribute('data-leaving'), taken.getAttribute('style'), motions];
+    });
+    expect(returned).toEqual([false, false, null, false, null, []]);
+  });
+
+  test('LST-41: THE list changes what it exposes at once — an item that arrives is in the list, counted, from the change; one that leaves is hidden, inert and out of the count while it is drawn; focus on a handle taken away goes to the handle in its place (LST-46) — and the list has no axe violations mid-motion', async ({ page }) => {
+    const id = 'reorderable';
+    /** Holds every motion of the list's items halfway, so that what is read is read mid-motion. */
+    const hold = () =>
+      list(page, id).evaluate((el) => {
+        for (const each of el.querySelectorAll('tanrei-list-item'))
+          for (const animation of [...each.getAnimations(), ...(each.shadowRoot?.querySelector('.row')?.getAnimations() ?? [])]) {
+            animation.pause();
+            animation.currentTime = Number(animation.effect!.getComputedTiming().activeDuration) / 2;
+          }
+      });
+    /** The height of the item at `n` among those drawn, and that of the first. */
+    const heights = (n: number) => list(page, id).evaluate((el, n) => [...el.querySelectorAll(':scope > tanrei-list-item')].map((each) => each.getBoundingClientRect().height).filter((_, at) => at === 0 || at === n), n);
+    const release = () =>
+      list(page, id).evaluate((el) => {
+        for (const each of el.querySelectorAll('tanrei-list-item')) for (const animation of [...each.getAnimations(), ...(each.shadowRoot?.querySelector('.row')?.getAnimations() ?? [])]) animation.play();
+      });
+    // Arrives: in the tree, counted and placed in the task of the change.
+    const now = await list(page, id).evaluate(async (el) => {
+      const added = Object.assign(document.createElement('tanrei-list-item'), { textContent: 'Source Serif' });
+      el.insertBefore(added, el.children[1]!);
+      // The first frame drawn after the change: its motion has begun, and what the list exposes is already the new.
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+      const items = [...el.querySelectorAll(':scope > tanrei-list-item')];
+      return { places: items.map((each) => `${each.getAttribute('aria-posinset')}/${each.getAttribute('aria-setsize')}`), role: added.getAttribute('role') };
+    });
+    expect(now).toEqual({ places: ['1/4', '2/4', '3/4', '4/4'], role: 'listitem' });
+    await hold();
+    const [whole, growing] = await heights(1);
+    expect(growing, 'it is partway in').toBeGreaterThan(0.5);
+    expect(growing, 'it is partway in').toBeLessThan(whole! - 0.5);
+    await expect(list(page, id).getByRole('listitem')).toHaveCount(4);
+    await expect(list(page, id).getByRole('button', { name: 'Reorder Source Serif' })).toHaveCount(1);
+    await release();
+    await motionEnded(list(page, id));
+    // Leaves: with focus on its handle. Focus goes to the handle in its place, and the item that leaves is drawn,
+    // hidden from assistive technology, inert and out of the count.
+    await tabTo(page, handle(page, id, 1));
+    const gone = await list(page, id).evaluate(async (el) => {
+      const leaving = el.querySelectorAll(':scope > tanrei-list-item')[1] as HTMLElement & { updateComplete: Promise<unknown> };
+      leaving.remove();
+      await new Promise((resolve) => queueMicrotask(() => resolve(null)));
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      const items = [...el.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
+      return {
+        drawn: leaving.isConnected && leaving.getBoundingClientRect().height > 0,
+        marks: [leaving.getAttribute('data-leaving'), leaving.inert, leaving.getAttribute('aria-hidden')],
+        places: items.map((each) => `${each.getAttribute('aria-posinset')}/${each.getAttribute('aria-setsize')}`),
+      };
+    });
+    expect(gone).toEqual({ drawn: true, marks: ['', true, 'true'], places: ['1/3', '2/3', '3/3'] });
+    await expect.poll(() => focused(page)).toBe('Noto Sans JP:handle');
+    await hold();
+    const [full, closing] = await heights(1);
+    expect(closing, 'it is partway out').toBeGreaterThan(0.5);
+    expect(closing, 'it is partway out').toBeLessThan(full! - 0.5);
+    await expect(list(page, id).getByRole('listitem')).toHaveCount(3);
+    await expect(list(page, id).getByRole('button', { name: 'Reorder Source Serif' })).toHaveCount(0);
+    expect(await list(page, id).evaluate((el) => el.querySelectorAll(':scope > tanrei-list-item').length), 'the item that leaves is still drawn').toBe(4);
+    const results = await new AxeBuilder({ page }).include(`[data-fixture="${id}"]`).analyze();
+    expect(results.violations.map((violation) => violation.id)).toEqual([]);
+    await release();
+    await motionEnded(list(page, id));
+    expect(await list(page, id).evaluate((el) => el.querySelectorAll(':scope > tanrei-list-item').length), 'and gone at rest').toBe(3);
+    expect(await focused(page)).toBe('Noto Sans JP:handle');
+    expect(await announced(page, id)).toBe('');
+  });
+
+  test('LST-41: a change that comes while an item arrives or leaves takes it on from what is drawn — taken away halfway in, it leaves from the height then drawn; given back halfway out, it grows back from it and is an item again at once', async ({ page }) => {
+    const id = 'reorderable';
+    const [whole, midway, from, leaving] = await list(page, id).evaluate(async (el) => {
+      const added = Object.assign(document.createElement('tanrei-list-item'), { textContent: 'Source Serif' }) as HTMLElement & { updateComplete: Promise<unknown> };
+      const full = (el.querySelector(':scope > tanrei-list-item') as HTMLElement).getBoundingClientRect().height;
+      el.insertBefore(added, el.children[1]!);
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+      const motions = [...added.getAnimations(), ...added.shadowRoot!.querySelector('.row')!.getAnimations()];
+      for (const motion of motions) {
+        motion.pause();
+        motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+      }
+      const half = added.getBoundingClientRect().height;
+      added.remove();
+      await new Promise((resolve) => queueMicrotask(() => resolve(null)));
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      return [full, half, added.getBoundingClientRect().height, added.getAttribute('data-leaving')] as const;
+    });
+    expect(midway, 'the item is partway in').toBeGreaterThan(0.5);
+    expect(midway).toBeLessThan(whole - 0.5);
+    expect(from, 'it leaves from the height drawn').toBeCloseTo(midway, 1);
+    expect(leaving).toBe('');
+    await motionEnded(list(page, id));
+    expect(await order(page, id)).toEqual(NAMES);
+    // Given back while it leaves.
+    const back = await list(page, id).evaluate(async (el) => {
+      const taken = el.querySelectorAll<HTMLElement>(':scope > tanrei-list-item')[1]!;
+      const next = taken.nextElementSibling;
+      taken.remove();
+      await new Promise((resolve) => queueMicrotask(() => resolve(null)));
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      const motions = [...taken.getAnimations(), ...taken.shadowRoot!.querySelector('.row')!.getAnimations()];
+      for (const motion of motions) {
+        motion.pause();
+        motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+      }
+      const half = taken.getBoundingClientRect().height;
+      el.insertBefore(taken, next);
+      await new Promise((resolve) => queueMicrotask(() => resolve(null)));
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      return {
+        half,
+        again: taken.getBoundingClientRect().height,
+        marks: [taken.getAttribute('data-leaving'), taken.inert, taken.getAttribute('aria-hidden')],
+        count: el.querySelectorAll(':scope > tanrei-list-item').length,
+        size: el.querySelector(':scope > tanrei-list-item')!.getAttribute('aria-setsize'),
+      };
+    });
+    expect(back.half).toBeGreaterThan(0.5);
+    expect(back.again, 'it grows back from the height drawn').toBeCloseTo(back.half, 1);
+    expect(back).toMatchObject({ marks: [null, false, null], count: 3, size: '3' });
+    await motionEnded(list(page, id));
+    expect(await order(page, id)).toEqual(NAMES);
+    expect((await bounds(item(page, id, 1))).height).toBeCloseTo((await bounds(item(page, id, 0))).height, 1);
+  });
+
+  test('LST-41: in a line the item grows along the line — its width — and the items after it follow; in a wrapping list an item fades in and out at its place while the items after it move to their new places', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('line', { ...WORDS, orientation: 'horizontal', gap: 'small' }, [['One'], ['Two'], ['Three']]), byId('reorderable-wrap')] });
+    await nameItems(page, 'line');
+    const line = await sampleFrames(stage(page, 'line'), () => addAt(page, 'line', 1), { probe: presence });
+    expectAnimated(line, 'width', { minSteps: 4 });
+    expect(num(line.frames[0]!, 'width')).toBeLessThan(num(line.rest, 'width') / 2);
+    for (const frame of line.frames) {
+      expect(num(frame, 'aLeft'), `frame ${frame.index}: the item before it`).toBeCloseTo(num(line.before, 'aLeft'), 1);
+      expect(num(frame, 'height'), `frame ${frame.index}: as tall as the line`).toBeCloseTo(num(line.rest, 'height'), 1);
+      expect(num(frame, 'bLeft') - num(frame, 'markedRight'), `frame ${frame.index}: the next item beyond its edge`).toBeGreaterThanOrEqual(-0.5);
+    }
+    expectAnimated(line, 'bLeft', { minSteps: 4 });
+    expectAnchored(line, 'cLeft', 'bLeft');
+    expectNoFlicker(line);
+    // A wrapping list: the new item is whole at its place from the first frame and fades in; the items after it move.
+    const id = 'reorderable-wrap';
+    await list(page, id).evaluate((el) => (el.style.inlineSize = '300px'));
+    await nameItems(page, id);
+    const wrap = await sampleFrames(stage(page, id), () => addAt(page, id, 1), { probe: presence });
+    for (const frame of wrap.frames) {
+      expect(num(frame, 'width'), `frame ${frame.index}: whole`).toBeCloseTo(num(wrap.rest, 'width'), 1);
+      expect(num(frame, 'markedLeft'), `frame ${frame.index}: at its place`).toBeCloseTo(num(wrap.rest, 'markedLeft'), 1);
+    }
+    expect(num(wrap.frames[0]!, 'opacity')).toBeLessThan(0.5);
+    expectAnimated(wrap, 'opacity', { minSteps: 4 });
+    expectAnimated(wrap, 'bLeft', { minSteps: 4 });
+    expect(presenceMotions(wrap).map(([name]) => name)).toEqual(['list-item-fade']);
+    // Taken away: it fades out at the box it was drawn in, outside the flow, while the items after it move into place.
+    const placed = await bounds(item(page, id, 2));
+    const out = await sampleFrames(stage(page, id), () => takeAway(page, id, 2), { probe: presence });
+    const drawnFrames = out.frames.filter((frame) => frame.probe.drawn);
+    expect(drawnFrames.length).toBeGreaterThanOrEqual(4);
+    for (const frame of drawnFrames) {
+      expect(num(frame, 'markedLeft'), `frame ${frame.index}: where it was drawn`).toBeCloseTo(placed.x, 0);
+      expect(num(frame, 'markedTop'), `frame ${frame.index}: where it was drawn`).toBeCloseTo(placed.y, 0);
+    }
+    expectAnimated(out, 'opacity', { minSteps: 4 });
+    expectAnimated(out, 'cLeft', { minSteps: 4 });
+    expect(out.rest.probe.drawn).toBe(false);
+    expect(num(out.rest, 'cLeft'), 'the next item takes its place').toBeCloseTo(placed.x, 0);
+    expect(num(out.rest, 'cTop')).toBeCloseTo(placed.y, 0);
+  });
+
+  test('LST-41, LST-3: a divider that comes or goes with the first item fades with it, and is never drawn outside the list', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('lined', { ...WORDS, dividers: true }, [['One'], ['Two'], ['Three']])] });
+    const outside = (seen: Frames) => seen.frames.filter((frame) => frame.probe.dividerTop !== undefined && num(frame, 'dividerOpacity') > 0.05 && num(frame, 'dividerTop') < num(frame, 'listTop') - 0.5).map((frame) => frame.index);
+    const arriving = await sampleFrames(stage(page, 'lined'), () => addAt(page, 'lined', 0), { probe: presence });
+    expect(num(arriving.frames[0]!, 'dividerOpacity')).toBeLessThan(0.5);
+    expectAnimated(arriving, 'dividerOpacity', { minSteps: 4 });
+    expect(outside(arriving), 'frames with a divider drawn above the list').toEqual([]);
+    const leaving = await sampleFrames(stage(page, 'lined'), () => takeAway(page, 'lined', 0), { probe: presence });
+    expect(num(leaving.frames[0]!, 'dividerOpacity')).toBeGreaterThan(0.5);
+    expectAnimated(leaving, 'dividerOpacity', { minSteps: 4 });
+    expect(outside(leaving), 'frames with a divider drawn above the list').toEqual([]);
+    await motionEnded(list(page, 'lined'));
+    await expect(item(page, 'lined', 0).locator('.divider')).toHaveCount(0);
+    await expect(item(page, 'lined', 1).locator('.divider')).toHaveCount(1);
+  });
+
+  test('LST-41, LST-42: WHERE motion is reduced, while the list draws its first frames, when it becomes reorderable and when an item is lifted THE list adds or takes away an item at once', async ({ page }) => {
+    const id = 'reorderable';
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const added = await sampleFrames(stage(page, id), () => addAt(page, id, 1), { probe: presence });
+    expectFirstFrameAtRest(added);
+    expect(presenceMotions(added)).toEqual([]);
+    const taken = await sampleFrames(stage(page, id), () => takeAway(page, id, 1), { probe: presence });
+    expectFirstFrameAtRest(taken);
+    expect(taken.frames[0]!.probe.drawn).toBe(false);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    // A list that becomes reorderable, and is given an item before it has drawn itself so; and a list drawn for the
+    // first time, given an item in its first frames.
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('plain', { label: 'Typefaces' }, [['Inter'], ['Noto Sans JP']])] });
+    const atOnce = await list(page, 'plain').evaluate(async (el) => {
+      const give = async (to: Element) => {
+        const added = Object.assign(document.createElement('tanrei-list-item'), { textContent: 'Source Serif' });
+        to.append(added);
+        await new Promise((resolve) => queueMicrotask(() => resolve(null)));
+        await (added as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+        // The motions of its arrival, by name: none.
+        return added.getAnimations().map((motion) => motion.id);
+      };
+      Object.assign(el, { reorderable: true });
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      const becoming = await give(el);
+      const fresh = document.createElement('tanrei-list');
+      Object.assign(fresh, { reorderable: true, label: 'More' });
+      fresh.append(Object.assign(document.createElement('tanrei-list-item'), { textContent: 'Inter' }));
+      el.after(fresh);
+      await (fresh as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      const first = await give(fresh);
+      return [becoming, first];
+    });
+    expect(atOnce, 'no motion of its arrival').toEqual([[], []]);
+    // An item lifted while another arrives: every place is read at rest.
+    await mountFixtures(page, spec, { icons: true, fixtures: [byId(id)] });
+    await addAt(page, id, 3);
+    await tabTo(page, handle(page, id, 0));
+    await page.keyboard.press('Space');
+    // Its arrival is over at once: no motion of it is left, and it is drawn whole.
+    const arrival = await list(page, id).evaluate((el) => {
+      const marked = el.querySelector<HTMLElement>(':scope > .marked')!;
+      return { motions: marked.getAnimations().map((motion) => motion.id), opacity: getComputedStyle(marked).opacity };
+    });
+    expect(arrival, 'drawn whole at once').toEqual({ motions: [], opacity: '1' });
+    await page.keyboard.press('Escape');
   });
 });
 

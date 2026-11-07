@@ -8842,6 +8842,8 @@ export const acme = {
       motionFeedbackDuration: 450,
       motionReorderDuration: 250,
       motionReorderEasing: [0.2, 0, 0, 1],
+      motionResizeDuration: 400,
+      motionResizeEasing: [0.2, 0, 0, 1],
       motionStateDuration: 250,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 0,

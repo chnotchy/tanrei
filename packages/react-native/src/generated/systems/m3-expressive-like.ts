@@ -8046,6 +8046,8 @@ export const m3ExpressiveLike = {
       motionFeedbackDuration: 450,
       motionReorderDuration: 300,
       motionReorderEasing: [0.2, 0, 0, 1],
+      motionResizeDuration: 500,
+      motionResizeEasing: [0.27, 1.06, 0.18, 1],
       motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 0,

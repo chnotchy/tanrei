@@ -53334,6 +53334,24 @@
               1
             ]
           },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long an item the product adds to a reorderable list takes to grow from nothing to its own length along the list, and one it takes away to close to nothing, the items after it following (LST-41): a row added to or taken out of a list. The item fades in or out over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of that change of length: a box that resizes in place."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
