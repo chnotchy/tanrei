@@ -2,7 +2,7 @@
 title: Barra de herramientas
 description: Reúne un conjunto de controles relacionados en una sola parada de tabulación, en línea donde su contenido la necesita, acoplada a lo largo del borde inferior o flotando sobre el contenido. Las teclas de flecha mueven el foco entre sus controles, y lo que no cabe pasa a un menú de desbordamiento.
 translationOf: components/toolbar.mdx
-sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
+sourceHash: 47f2d9d77e39ee388b0e8d2497527dfa0bcc8442
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -371,6 +371,7 @@ Lo que se oculta se decide antes de dibujar la barra de herramientas, y de nuevo
 - Un grupo con `label` se expone como un grupo con ese nombre. Las líneas entre grupos se exponen como separadores.
 - El botón de desbordamiento se expone como un botón que abre un menú, con su estado expandido, y su menú contiene cada elemento oculto con su propio nombre y estado.
 - Cada elemento conserva su propio nombre, rol, estado y objetivo. La barra de herramientas no les añade nada y nunca les cambia el estilo.
+- Cuando se cambia un conmutador, su aspecto cambia como el de su botón en cualquier otro sitio, con el movimiento de estado del tamaño del botón. Su estado seleccionado cambia de inmediato para la tecnología de apoyo, no al terminar el movimiento. Cuando el movimiento está reducido, y en los fotogramas en los que la barra de herramientas se dibuja por primera vez, el aspecto también cambia de inmediato. La barra de herramientas no añade ningún movimiento propio.
 - Entre dos elementos, las áreas de pulsación nunca se solapan. En una barra de herramientas acoplada se encuentran en la mitad de la separación, y la separación del sistema predeterminado (16) es lo bastante ancha para que cada elemento conserve también allí su objetivo táctil completo de 48; un sistema de diseño con una separación más estrecha estrecha los objetivos entre elementos. En una barra de herramientas en línea o flotante, los elementos se separan justo lo necesario para que cada uno conserve a lo largo de la fila la longitud de un objetivo táctil propio, sea cual sea el puntero, de modo que sus vecinos nunca aprietan un botón estrecho o pequeño. En un lado sin vecino, un elemento conserva su objetivo completo.
 - Cuando `overflow` es `scroll` y un elemento que recibe el foco del teclado está fuera de la vista por el desplazamiento, la barra de herramientas lo desplaza hasta dejarlo completamente a la vista.
 - Con tamaños de texto mayores, la barra de herramientas crece en perpendicular a su eje para contener sus elementos. No los escala.
