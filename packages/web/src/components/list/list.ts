@@ -1,3 +1,4 @@
+import { LIST_PRESENCE } from '../../primitives/list-presence.js';
 import { type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { html, literal } from 'lit/static-html.js';
@@ -1024,6 +1025,8 @@ export class TanreiList extends TanreiElement {
   private readonly motions = new Map<TanreiListItem, Animation>();
   /** LST-41: whether the list has drawn its items while reorderable since it was connected: an item the product adds or takes away after that arrives or leaves. */
   private drawnOnce = false;
+  /** LST-41: a component that arranges its own items here asked for their arrivals and leaves while not reorderable too (`LIST_PRESENCE`). */
+  private presence = false;
   /** LST-41: the items that arrive, and the items that leave — each the product's element, put back where it stood until it has gone, with what the list set on it. */
   private readonly arriving = new Map<TanreiListItem, Animation[]>();
   private readonly leaving = new Map<TanreiListItem, Departure>();
@@ -1092,6 +1095,18 @@ export class TanreiList extends TanreiElement {
   /** LST-31: reorderable while nothing is chosen from it. */
   private get isReorderable(): boolean {
     return this.mode === 'none' && this.reorderable;
+  }
+
+  /** LST-41: where each item is drawn is followed, and an item that arrives or leaves is shown so: while reorderable, or while a component that arranges its own items here asked for it. */
+  private get tracks(): boolean {
+    return this.mode === 'none' && (this.reorderable || this.presence);
+  }
+
+  /** @internal LST-41: see `LIST_PRESENCE` (src/primitives/list-presence.ts). */
+  [LIST_PRESENCE](on: boolean) {
+    if (this.presence === on) return;
+    this.presence = on;
+    this.requestUpdate();
   }
 
   /** LST-44: the one live region. */
@@ -1322,7 +1337,7 @@ export class TanreiList extends TanreiElement {
 
   /** LST-41: where every item is laid out now. Read when a box changes and after every change of order, never during a drag. */
   private recordPlaces(items = this.items) {
-    if (!this.isReorderable || !this.isConnected || this.carry || this.holding) return;
+    if (!this.tracks || !this.isConnected || this.carry || this.holding) return;
     const origin = this.getBoundingClientRect();
     this.places = new Map(items.map((item) => [item, { ...this.laidOut(item, origin), name: item.name }]));
     this.drawnOnce = true;
@@ -1353,7 +1368,7 @@ export class TanreiList extends TanreiElement {
       await Promise.all(unfinished.map((item) => item.updateComplete));
       items = this.items;
     }
-    if (!this.isReorderable || !this.isConnected) return;
+    if (!this.tracks || !this.isConnected) return;
     const origin = this.getBoundingClientRect();
     const held = this.holding;
     // Where each item is drawn before anything is let go: its laid-out box then, plus what its transform adds now.
@@ -2012,7 +2027,7 @@ export class TanreiList extends TanreiElement {
       this.cancel(keyboard && carry.item.isConnected);
     }
     this.syncs.now();
-    if (!this.isReorderable) return;
+    if (!this.tracks) return;
     this.observeItems();
     void this.placesChanged();
     this.keepFocus();
@@ -2197,7 +2212,7 @@ export class TanreiList extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    if (this.hasUpdated && this.isReorderable) this.observeItems();
+    if (this.hasUpdated && this.tracks) this.observeItems();
   }
 
   override disconnectedCallback() {
@@ -2263,14 +2278,14 @@ export class TanreiList extends TanreiElement {
     if ((changed.has('dividers') || changed.has('wrap')) && this.dividers && this.wrap) {
       report(this, 'LST-3', 'dividers is ignored while wrap is true: the lines of a grid are told apart by their gap');
     }
-    if (reorder) {
+    if (!reorder) this.heldFocus = null;
+    if (this.tracks) {
       if (!this.resize && typeof ResizeObserver !== 'undefined') this.resize = new ResizeObserver(() => this.scheduleRecord());
       this.observeItems();
       this.scheduleRecord();
     } else {
       this.resize?.disconnect();
       this.places.clear();
-      this.heldFocus = null;
       this.endPresence();
       this.drawnOnce = false;
     }
@@ -2281,14 +2296,16 @@ export class TanreiList extends TanreiElement {
     const reorder = this.isReorderable;
     // LST-1, LST-2: the box that lays the items out. LST-44: while reorderable it carries the list role (the host has
     // none), and the live region stands beside it — a status: polite, announced whole, empty at rest, drawn nowhere. It
-    // also carries the reorder motion's time and curve for the script to read (a duration token is an expression).
+    // also carries the motions' times and curves for the script to read (a duration token is an expression): while the
+    // list follows its items' arrivals and leaves without being reorderable (LIST_PRESENCE) it is that carrier alone,
+    // with no role.
     return html`<div
         part="items"
         class="items"
         role=${reorder ? 'list' : 'presentation'}
         ${delegatedAria(this, { 'aria-label': reorder ? this.label : '' })}
       ><slot @slotchange=${this.onSlotChange}></slot></div
-      >${reorder ? html`<span class="quiet"><span class="announcer" role="status" aria-live="polite"></span></span>` : nothing}`;
+      >${this.tracks ? html`<span class="quiet"><span class="announcer" role=${reorder ? 'status' : nothing} aria-live=${reorder ? 'polite' : nothing}></span></span>` : nothing}`;
   }
 }
 
