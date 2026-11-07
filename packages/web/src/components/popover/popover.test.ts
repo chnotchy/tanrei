@@ -2656,9 +2656,12 @@ test.describe('triggers', () => {
     await page.mouse.up();
     await settle(page);
     expect([await requests(page), await log(page), await isShown(page), await active(page)]).toEqual([['p:hover'], [], true, 'div.container']);
+    // Off it, for a second of page time: nothing asks to close it, the press has adopted it.
+    await holdClock(page);
     await away(page);
-    await page.waitForTimeout(200);
+    await page.clock.runFor(1000);
     expect([await log(page), await isShown(page)]).toEqual([[], true]);
+    await releaseClock(page);
     await page.locator('#a').click();
     await expect.poll(() => log(page)).toEqual(['p:press']);
     await expect.poll(() => isOpen(page)).toBe(false);
@@ -2673,8 +2676,11 @@ test.describe('triggers', () => {
     await page.keyboard.press('Escape');
     await expect.poll(() => isOpen(page)).toBe(false);
     expect([await log(page), await active(page)]).toEqual([['p:escape'], '#field']);
-    await page.waitForTimeout(300);
+    // The pointer still on the anchor, for a second of page time: nothing asks to open it again.
+    await holdClock(page);
+    await page.clock.runFor(1000);
     expect(await requests(page)).toEqual(['p:hover']);
+    await releaseClock(page);
     await away(page);
     await onAnchor(page);
     await expect.poll(() => requests(page)).toEqual(['p:hover', 'p:hover']);
