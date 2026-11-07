@@ -94,7 +94,7 @@ En un servidor, donde no hay `document`, un componente genera la etiqueta de su 
 // <tanrei-text-field label="Correo electrónico" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
 ```
 
-Una prop con su valor por defecto no escribe nada, así que un `false` nunca se escribe como presente. Un booleano que está activado por defecto y se desactiva escribe el atributo que el elemento lee como desactivado: `<CopyButton iconOnly={false} />` escribe `icon-only="false"` y `<BottomSheet handle={false} />` escribe `no-handle`. Los manejadores, los objetos y los arrays se asignan en el navegador, cuando el componente se monta. La raíz de sombra no se genera en el servidor: el elemento se dibuja cuando se carga su definición, y React hidrata la etiqueta sin discrepancias.
+Una prop con su valor por defecto no escribe nada, así que un `false` nunca se escribe como presente. Un booleano que está activado por defecto y se desactiva escribe el atributo que el elemento lee como desactivado: `<CopyButton iconOnly={false} />` escribe `icon-only="false"`. Los manejadores, los objetos y los arrays se asignan en el navegador, cuando el componente se monta. La raíz de sombra no se genera en el servidor: el elemento se dibuja cuando se carga su definición, y React hidrata la etiqueta sin discrepancias.
 
 ### Next.js (App Router)
 

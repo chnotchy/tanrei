@@ -56,8 +56,8 @@ La etiqueta es una propiedad, no contenido, porque hace falta en ambas formas: s
       import '@tanrei/web/components/main-action-button';
       const compose = document.querySelector('tanrei-main-action-button.primary-action');
       compose.addEventListener('click', newMessage);
-      // extended es una propiedad cuyo valor predeterminado es true; contráelo desde fuera, por ejemplo mientras la página está desplazada.
-      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+      // Contráelo desde fuera, por ejemplo mientras la página está desplazada.
+      addEventListener('scroll', () => (compose.collapsed = scrollY > 0), { passive: true });
     </script>
     ```
   </TabItem>
@@ -65,7 +65,7 @@ La etiqueta es una propiedad, no contenido, porque hace falta en ambas formas: s
     ```tsx
     import { MainActionButton } from '@tanrei/react';
 
-    <MainActionButton className="primary-action" label="Redactar" extended={atTop} onClick={newMessage}>
+    <MainActionButton className="primary-action" label="Redactar" collapsed={!atTop} onClick={newMessage}>
       <span slot="icon">edit</span>
     </MainActionButton>
 

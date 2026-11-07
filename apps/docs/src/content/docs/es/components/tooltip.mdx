@@ -76,11 +76,11 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="Mover a la papelera" describes={false}>
+    <Tooltip text="Mover a la papelera" noDescribe>
       <Button variant="text" label="Mover a la papelera" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* Las teclas del comando después de su nombre: una combinación por cadena. */}
-    <Tooltip text="Negrita" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="Negrita" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="Negrita" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* Debajo del control, alineado con su borde de inicio, con una flecha, sobre una superficie en lugar de inverso. */}
@@ -171,7 +171,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // El ancla es UN hijo que acepta las propiedades de un Pressable. El tooltip añade sus controladores y llama primero a los del ancla.
-    <Tooltip text="Mover a la papelera" describes={false}>
+    <Tooltip text="Mover a la papelera" noDescribe>
       <IconButton accessibilityLabel="Mover a la papelera" onPress={trash}>delete</IconButton>
     </Tooltip>
 
