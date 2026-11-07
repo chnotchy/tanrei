@@ -531,7 +531,8 @@
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "menu"
       ],
       "hasSpec": true,
       "docs": "/components/app-bar/",

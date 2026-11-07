@@ -230,6 +230,64 @@ export const styles = css`
   .actions {
     gap: ${t('actions-gap')};
   }
+  /* APB-26, APB-30: an action out of the top row is drawn as nothing — neither drawn, focusable nor exposed — and stays in
+     the page. Important, so that a page's own rule for its element (which beats a shadow root's) cannot draw it. */
+  slot[name='actions']::slotted([app-bar-out]) {
+    display: none !important;
+  }
+  /* APB-28: the more button — the bar's own icon-only Button, in a cell of the minimum target as an action's (APB-11),
+     after the actions shown. While no action is out it is laid out unseen and out of the row, so that its width is
+     known before it is needed (APB-32). */
+  .more {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--tanrei-sys-target-pointer);
+    min-block-size: var(--tanrei-sys-target-pointer);
+  }
+  @media (pointer: coarse) {
+    .more {
+      min-inline-size: var(--tanrei-sys-target-touch);
+      min-block-size: var(--tanrei-sys-target-touch);
+    }
+  }
+  .more.idle,
+  .metrics {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  /* APB-26: what the bar measures and never draws — the title block's whole width in the top row's text roles, and the
+     row's end padding after an action (padding-inline) and without one (title.inset). */
+  .metrics {
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
+    padding-inline-start: ${t('container-padding-inline')};
+    padding-inline-end: ${t('title-inset')};
+  }
+  .metrics > span {
+    display: block;
+    inline-size: max-content;
+    white-space: nowrap;
+  }
+  .probe-title {
+    font: ${t('title-typescale-small-font')};
+    letter-spacing: ${t('title-typescale-small-letter-spacing')};
+  }
+  .probe-subtitle {
+    font: ${t('subtitle-typescale-small-font')};
+    letter-spacing: ${t('subtitle-typescale-small-letter-spacing')};
+  }
+  /* APB-29: the overflow menu's host stands out of the row; its surface is in the top layer. */
+  .menus {
+    position: absolute;
+    inline-size: 0;
+    block-size: 0;
+  }
   /* APB-11: the items are laid out, never restyled — each keeps its own box, centred in a cell as large as the minimum
      target it answers to (BTN-5), so a neighbour's target never overlaps it and the row is at least that high. */
   :is(slot[name='navigation'], slot[name='context'], slot[name='actions'])::slotted(*) {

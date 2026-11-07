@@ -202,7 +202,7 @@ export interface TanreiWords {
   targetLabel?: string;
   /** Read by `calendar.todayLabel`, `date-time-picker.todayLabel`. */
   todayLabel?: string;
-  /** Read by `toolbar.overflowLabel`. */
+  /** Read by `app-bar.overflowLabel`, `toolbar.overflowLabel`. */
   toolbarOverflowLabel?: string;
   /** Read by `date-time-picker.wheelsLabel`. */
   wheelsLabel?: string;
@@ -321,7 +321,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   stopLabel: ['chat-composer.stopLabel'],
   targetLabel: ['button.targetLabel', 'card.targetLabel', 'chip.targetLabel', 'link.targetLabel', 'link-card.targetLabel', 'list/list-item.targetLabel', 'menu/item.targetLabel', 'menubar/item.targetLabel', 'navigation-bar/destination.targetLabel', 'navigation-drawer/destination.targetLabel', 'search/result.targetLabel', 'search/result-group.targetLabel'],
   todayLabel: ['calendar.todayLabel', 'date-time-picker.todayLabel'],
-  toolbarOverflowLabel: ['toolbar.overflowLabel'],
+  toolbarOverflowLabel: ['app-bar.overflowLabel', 'toolbar.overflowLabel'],
   wheelsLabel: ['date-time-picker.wheelsLabel'],
   yearViewLabel: ['calendar.yearViewLabel', 'date-time-picker.yearViewLabel'],
   zoomInLabel: ['image-preview.zoomInLabel'],
