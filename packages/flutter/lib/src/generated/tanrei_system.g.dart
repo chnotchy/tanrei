@@ -5310,6 +5310,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionReorderDuration: 250,
     motionReorderEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionResizeDuration: 400,
+    motionResizeEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionStateDuration: 250,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     conditions: TanreiListConditions(

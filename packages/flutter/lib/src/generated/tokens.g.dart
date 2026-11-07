@@ -14271,6 +14271,8 @@ class TanreiListTokens {
     required this.motionFeedbackDuration,
     required this.motionReorderDuration,
     required this.motionReorderEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.conditions,
@@ -14315,6 +14317,10 @@ class TanreiListTokens {
   final int motionReorderDuration;
   /// `comp.list.motion-reorder-easing`
   final TanreiCubicBezier motionReorderEasing;
+  /// `comp.list.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.list.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
   /// `comp.list.motion-state-duration`
   final int motionStateDuration;
   /// `comp.list.motion-state-easing`
@@ -14351,6 +14357,8 @@ class TanreiListTokens {
     int? motionFeedbackDuration,
     int? motionReorderDuration,
     TanreiCubicBezier? motionReorderEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     TanreiListConditions? conditions,
@@ -14377,6 +14385,8 @@ class TanreiListTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionReorderDuration: motionReorderDuration ?? this.motionReorderDuration,
         motionReorderEasing: motionReorderEasing ?? this.motionReorderEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         conditions: conditions ?? this.conditions,

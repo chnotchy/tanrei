@@ -92,7 +92,7 @@ export const RULES = {
       'src/components/field/field.test.ts': 1,
       'src/components/file-upload/file-upload.test.ts': 1,
       'src/components/image-preview/image-preview.test.ts': 4,
-      'src/components/list/list.test.ts': 3,
+      'src/components/list/list.test.ts': 2,
       'src/components/main-action-button/main-action-button.test.ts': 1,
       'src/components/menubar/menubar.test.ts': 4,
       // Two more since the list was made: the open helper that waits on the layer's own fade, merged just before.

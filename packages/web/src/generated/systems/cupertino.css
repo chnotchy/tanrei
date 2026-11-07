@@ -4224,6 +4224,8 @@
     --tanrei-comp-list-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-list-motion-reorder-duration: var(--tanrei-sys-motion-role-selection-travel);
     --tanrei-comp-list-motion-reorder-easing: var(--tanrei-sys-motion-easing-spatial);
+    --tanrei-comp-list-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-list-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-list-motion-state-duration: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-list-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-list-pressed-container-shape: var(--tanrei-comp-list-container-shape);
