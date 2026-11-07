@@ -1962,7 +1962,7 @@
       "builtFrom": [],
       "uses": [],
       "hasSpec": true,
-      "docs": null,
+      "docs": "/components/rating/",
       "platforms": {
         "web": "planned",
         "swiftui": "planned",
