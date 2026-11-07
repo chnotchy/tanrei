@@ -1372,6 +1372,9 @@ export interface TanreiChatComposerTokens {
   readonly hoveredOutlineWidth: number;
   readonly inputPaddingBlock: number;
   readonly layoutInlineMinWidth: number;
+  readonly motionGlyphFadeDuration: number;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;

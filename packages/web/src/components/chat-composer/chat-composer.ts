@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import {
+  AnimatedSize,
   BUTTON_VARIANTS,
   CoalescedSync,
   FieldControlController,
@@ -16,6 +17,7 @@ import {
   giveAttributes,
   giveVariant,
   report,
+  SETTLING,
   syncFocusStyle,
   takeBack,
 } from '../../primitives/index.js';
@@ -145,6 +147,62 @@ const sameFile = (a: File, b: File) => a === b || (a.name === b.name && a.size =
 /** CCM-22, CCM-31: each reason's key of the product's words. */
 const REASON_WORDS = { type: 'fileTypeErrorText', size: 'fileSizeErrorText', count: 'fileCountErrorText' } as const;
 
+/** CCM-35: what marks a File item that leaves, and the glyph that goes out — drawn until its motion ends, and counted in nothing. */
+const LEAVING = 'data-leaving';
+/** CCM-35: what takes a File item the product has just added out of the layout, for one measure in one task. */
+const AWAY = 'data-tanrei-away';
+
+/** CCM-35: the names of the element's own motions, as a test or a product's tools see them. */
+const FADE = 'chat-composer-item-fade';
+const MOVE = 'chat-composer-item-move';
+const GLYPH_FADE = 'chat-composer-glyph-fade';
+
+/** Whether motion is reduced for this person (MOT-6). */
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** CCM-35: how long one of the element's own motions takes, in milliseconds, and its curve, as the cascade computes them. */
+interface Timing {
+  duration: number;
+  easing: string;
+}
+/** CCM-35: what is drawn of a File item: its box, and its opacity. */
+interface Drawn {
+  rect: DOMRect;
+  opacity: number;
+}
+/**
+ * CCM-35: the strip as it was drawn before a change of its items, for the motion the update that draws the change
+ * starts — each item's box and opacity, the items that arrive and those that leave (elements, or the kept files whose
+ * File items are drawn by the update).
+ */
+interface StripPlan {
+  first: Map<Element, Drawn>;
+  arriving: Set<Element | Own>;
+  leaving: Set<Element | Own>;
+}
+/** CCM-35: a product's File item that leaves, put back where it stood, with what was set on it to give back. */
+interface Departure {
+  inert: boolean;
+  hidden: string | null;
+  style: string | null;
+}
+
+/** A time the cascade computed (`0.4s`, `400ms`), in milliseconds. */
+const millis = (time: string | undefined) => {
+  const value = Number.parseFloat(time ?? '');
+  if (!Number.isFinite(value)) return 0;
+  return time?.trim().endsWith('ms') ? value : value * 1000;
+};
+
+/** `element.animate()`, with the standard curve where the engine cannot read the one the cascade gave. */
+function animateSafely(element: Element, frames: Keyframe[], options: KeyframeAnimationOptions): Animation {
+  try {
+    return element.animate(frames, options);
+  } catch {
+    return element.animate(frames, { ...options, easing: 'ease' });
+  }
+}
+
 /** `multiple` is true unless it is said to be false: an attribute that is there says true, and `multiple="false"` false. */
 const DEFAULT_TRUE = { fromAttribute: (value: string | null) => value !== 'false' };
 
@@ -183,6 +241,15 @@ const DEFAULT_TRUE = { fromAttribute: (value: string | null) => value !== 'false
  * `attachments="given"`: the File items are `<tanrei-file-item>` children the product adds on `select` and removes on
  * an item's `remove`, each with its status and progress; nothing can be sent while one is uploading, or has failed and
  * can be tried again.
+ *
+ * A File item that is added or removed changes the capsule's height in one motion, the row being written keeping its
+ * place against the capsule's bottom edge: the item fades in at its place or out where it was drawn, and the items that
+ * stay move to their new places. What assistive technology, focus and `sendable` get changes at once. While one of the
+ * product's items leaves, the chat composer puts the product's own `<tanrei-file-item>` element back where it stood,
+ * as its child, for the length of the motion — `inert`, `aria-hidden="true"` and `data-leaving` — then removes it and
+ * gives back what it had: read the items as `tanrei-file-item:not([data-leaving])` meanwhile. When the send and the
+ * stop button change places, only the glyph of the Button it brings cross-fades. Under reduced motion all of it is at
+ * once.
  *
  * Form-associated: it submits the text under `name` and, while `attachments` is `own`, each kept file under
  * `files-name`; after `send` — unless that was cancelled — it asks its form to submit, and then does not empty itself.
@@ -485,6 +552,36 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /** CCM-43, CCM-25, CCM-3: a child that comes or goes — a File item, a Button in a slot — is drawn at once. */
   private readonly children$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.childrenChanged(records));
 
+  /**
+   * CCM-35, MOT-5: the box of the strip, whose height opens and closes when an item is added or removed — in the layout,
+   * anchored at its start (the items that stay keep their place against the capsule's top edge, the row of the typing
+   * area follows the box's end) — over the chat composer's resize tokens; at once under reduced motion (MOT-6).
+   */
+  private readonly stripSize = new AnimatedSize(this, {
+    box: () => this.renderRoot?.querySelector<HTMLElement>('.strip-box') ?? null,
+    anchor: () => 'start',
+    duration: `var(${PREFIX}-motion-resize-duration)`,
+    easing: `var(${PREFIX}-motion-resize-easing)`,
+  });
+  /** CCM-35: the kept and refused files whose File items are drawn, in the order drawn, those that leave included. */
+  private shownOwn: Own[] = [];
+  /** CCM-35: the files whose File items leave, drawn until their fade has ended. */
+  private readonly leavingOwn = new Set<Own>();
+  /** CCM-35: the product's File items that leave — put back where they stood until their fade has ended — with what was set on them. */
+  private readonly leavingGiven = new Map<Element, Departure>();
+  /** CCM-35: the product's File items the chat composer took away itself at the end of their leave: no change of the product's. */
+  private readonly takenAway = new WeakSet<Node>();
+  /** CCM-35: each File item's motions under way — its move to a new place, its fade. */
+  private readonly itemMotions = new Map<Element, Animation[]>();
+  /** CCM-35: the strip as it was drawn before a change of its items, for the update that draws the change. */
+  private stripPlan: StripPlan | null = null;
+  /** CCM-35: the strip's motion is waiting for File items that have just arrived to draw themselves. */
+  private stripStarting = false;
+  /** CCM-35: the glyph of the Button it brings in the send button's place, as it was drawn when the update began. */
+  private glyphWas: { span: HTMLElement; text: string; opacity: number } | null = null;
+  /** CCM-35: the glyph that goes out, drawn over the one that comes in until its fade has ended. */
+  private ghost: HTMLElement | null = null;
+
   constructor() {
     super();
     this.addEventListener(FILE_ITEM_UPDATE, this.onItemUpdate);
@@ -571,14 +668,14 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     return this.attaches === 'given' ? this.itemChildren : [];
   }
 
-  /** The `tanrei-file-item` children the product wrote, whatever `attachments` says. */
+  /** The `tanrei-file-item` children the product wrote, whatever `attachments` says — but those that leave (CCM-35). */
   private get itemChildren(): Item[] {
-    return [...this.children].filter((child) => child.localName === ITEM && !child.slot);
+    return [...this.children].filter((child) => child.localName === ITEM && !child.slot && !this.leavingGiven.has(child));
   }
 
-  /** The File items it drew itself, in the order they are drawn. */
+  /** The File items it drew itself, in the order they are drawn — but those that leave (CCM-35). */
   private get ownItems(): Item[] {
-    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.strip > ${ITEM}`) ?? [])];
+    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.strip > ${ITEM}:not([${LEAVING}])`) ?? [])];
   }
 
   /** CCM-7: the attach button is drawn. */
@@ -1005,11 +1102,91 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   private childrenChanged(records: MutationRecord[]) {
     this.adopt();
-    for (const record of records) for (const node of record.removedNodes) if (node instanceof Element && node.localName === ITEM) giveFileItem(node, null);
+    const isItem = (node: Node): node is Element => node instanceof Element && node.localName === ITEM;
+    // The product's File items this change took away and added — not those the chat composer took away itself at the
+    // end of their leave, and not one moved within it.
+    const removed = new Set<Element>();
+    const added = new Set<Element>();
+    for (const record of records) {
+      for (const node of record.removedNodes) if (isItem(node) && !this.takenAway.has(node)) removed.add(node);
+      for (const node of record.addedNodes) if (isItem(node)) added.add(node);
+    }
+    for (const node of removed) if (node.parentNode === this) removed.delete(node);
+    for (const node of added) if (node.parentNode !== this) added.delete(node);
+    // One that leaves and that the product takes away again is gone at once.
+    for (const node of removed) {
+      if (!this.leavingGiven.has(node)) continue;
+      removed.delete(node);
+      this.depart(node);
+    }
+    const stood = new Set(this.stood);
+    // CCM-35: an item that leaves and that the product gives back arrives again, from what is drawn of it.
+    const arriving = [...added].filter((node) => !stood.has(node) && !node.slot);
+    if (this.attaches === 'given' && this.moves && (removed.size || arriving.length)) this.planGiven(records, removed, arriving);
+    else {
+      for (const node of removed) giveFileItem(node, null);
+      for (const node of arriving) if (this.leavingGiven.has(node)) this.giveBack(node);
+    }
     const before = this.stood;
     this.itemSyncs.now();
     this.stood = this.givenItems;
     this.afterLeave(before, records);
+  }
+
+  /**
+   * CCM-35: the product added File items or took them away, and the strip moves. The layout as it was drawn is read in
+   * this one task, before anything is drawn: each item taken away is put back where it stood and each one added is
+   * taken out of the layout, every item's box and opacity is read, and then the added ones are laid out again and the
+   * ones taken away leave — `inert`, `aria-hidden` and `data-leaving`, out of the strip's flow at the box they were drawn
+   * in (placed by the update's motion), until their fade has ended. The chat composer's own changes are not heard.
+   */
+  private planGiven(records: MutationRecord[], removed: Set<Element>, arriving: Element[]) {
+    const back = [...removed].filter((node) => !node.parentNode);
+    for (const record of [...records].reverse()) {
+      const nodes = [...record.removedNodes].filter((node): node is Element => node instanceof Element && back.includes(node) && !node.parentNode);
+      if (!nodes.length) continue;
+      const next = record.nextSibling?.parentNode === this ? record.nextSibling : null;
+      let after = !next && record.previousSibling?.parentNode === this ? (record.previousSibling as ChildNode) : null;
+      for (const node of nodes) {
+        if (next) this.insertBefore(node, next);
+        else if (after) after.after(node);
+        else this.append(node);
+        after = next ? null : node;
+      }
+    }
+    const fresh = arriving.filter((node) => !this.leavingGiven.has(node));
+    for (const node of fresh) node.setAttribute(AWAY, '');
+    const first = this.drawnItems();
+    for (const node of fresh) node.removeAttribute(AWAY);
+    for (const node of arriving) if (this.leavingGiven.has(node)) this.giveBack(node);
+    for (const node of back) {
+      this.leavingGiven.set(node, { inert: (node as HTMLElement).inert, hidden: node.getAttribute('aria-hidden'), style: node.getAttribute('style') });
+      (node as HTMLElement).inert = true;
+      node.setAttribute('aria-hidden', 'true');
+      node.setAttribute(LEAVING, '');
+    }
+    // What was put back here is the chat composer's, not the product's: it is not heard as a change.
+    this.children$?.takeRecords();
+    this.addPlan({ first, arriving: new Set(arriving), leaving: new Set(back) });
+    for (const node of removed) if (!back.includes(node)) giveFileItem(node, null);
+  }
+
+  /** CCM-35: a File item of the product's that was leaving is the product's again, as it was before it left. */
+  private giveBack(node: Element) {
+    const was = this.leavingGiven.get(node);
+    if (!was) return;
+    this.leavingGiven.delete(node);
+    this.restore(node, was);
+  }
+
+  /** CCM-35: what the chat composer set on a File item of the product's while it left, given back. */
+  private restore(node: Element, was: Departure) {
+    (node as HTMLElement).inert = was.inert;
+    if (was.hidden === null) node.removeAttribute('aria-hidden');
+    else node.setAttribute('aria-hidden', was.hidden);
+    if (was.style === null) node.removeAttribute('style');
+    else node.setAttribute('style', was.style);
+    node.removeAttribute(LEAVING);
   }
 
   private itemOf(target: EventTarget | null): Element | null {
@@ -1024,7 +1201,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const item = this.itemOf(event.target);
     if (!item) return;
     queueMicrotask(() => {
-      if (this.held === item && item.parentNode === this && !holdsFocus(item)) this.held = null;
+      if (this.held === item && item.parentNode === this && !this.leavingGiven.has(item) && !holdsFocus(item)) this.held = null;
     });
   };
 
@@ -1038,12 +1215,13 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (!held || !records.some((record) => [...record.removedNodes].includes(held))) return;
     const active = this.ownerDocument.activeElement;
     const nowhere = !active || active === this.ownerDocument.body || active === this.ownerDocument.documentElement;
-    if (!nowhere || held.parentNode === this) {
+    // An item that leaves (CCM-35) is drawn here until its fade has ended, and is gone all the same.
+    const here = (node: Element) => node.parentNode === this && !this.leavingGiven.has(node);
+    if (!nowhere || here(held)) {
       if (!holdsFocus(held)) this.held = null;
       return;
     }
     this.held = null;
-    const here = (node: Element) => node.parentNode === this;
     const at = before.indexOf(held);
     const now = this.givenItems;
     const order = before.some(here) ? [...before.slice(at + 1), ...before.slice(0, Math.max(0, at)).reverse()] : [...now.slice(Math.max(0, at)), ...now.slice(0, Math.max(0, at)).reverse()];
@@ -1118,6 +1296,250 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /** @internal FPK-22: where a child is placed, for the Button that asks its parent when it connects: the file picker says it of its trigger. */
   [GROUP_PLACE](child: Element): GroupPlace | null {
     return (this.picker as (TanreiFilePicker & Partial<PlacingGroup>) | null)?.[GROUP_PLACE]?.(child) ?? null;
+  }
+
+  // ─── The strip's motion and the glyph's (CCM-35) ──────────────────────────────────────────────────────────────
+
+  /** CCM-35: a change of the strip or of the glyph moves — not under reduced motion (MOT-6), and not while the chat composer settles (MOT-3). */
+  private get moves(): boolean {
+    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+  }
+
+  /** CCM-35: the times and the curves of its own motions, read through a real property: the items' (resize) and the glyph's. */
+  private timing(): { resize: Timing; glyph: Timing } | null {
+    const carrier = this.renderRoot?.querySelector('.timing');
+    if (!carrier) return null;
+    const style = getComputedStyle(carrier);
+    const durations = style.transitionDuration.split(',');
+    const easings = style.transitionTimingFunction.split(/,(?![^(]*\))/);
+    const at = (index: number): Timing => ({ duration: millis(durations[index] ?? durations[0]), easing: (easings[index] ?? easings[0] ?? '').trim() || 'ease' });
+    return { resize: at(0), glyph: at(1) };
+  }
+
+  /** CCM-35: every File item in the strip — the product's and its own, those that leave included — with its box and opacity as drawn now. */
+  private drawnItems(): Map<Element, Drawn> {
+    const drawn = new Map<Element, Drawn>();
+    const items = [...(this.renderRoot?.querySelectorAll(`.strip > ${ITEM}`) ?? []), ...[...this.children].filter((child) => child.localName === ITEM && !child.slot)];
+    for (const item of items) {
+      if (!item.getClientRects().length) continue;
+      drawn.set(item, { rect: item.getBoundingClientRect(), opacity: Number(getComputedStyle(item).opacity) });
+    }
+    return drawn;
+  }
+
+  /** CCM-35: a change of the strip to draw as a motion; two in one update are one, from what was drawn before the first. */
+  private addPlan(plan: StripPlan) {
+    const was = this.stripPlan;
+    if (!was) {
+      this.stripPlan = plan;
+      return;
+    }
+    for (const [item, drawn] of plan.first) if (!was.first.has(item)) was.first.set(item, drawn);
+    for (const item of plan.arriving) was.arriving.add(item);
+    for (const item of plan.leaving) was.leaving.add(item);
+  }
+
+  /**
+   * CCM-35: before an update draws the files it keeps (own): the File items that are added and those that leave. With
+   * motion, what is drawn is read now — the items as the last frame drew them — and an item that leaves is drawn until
+   * its fade has ended, at its place among the others (so that no item's element is moved, which would draw it anew).
+   */
+  private planOwn(reset: boolean) {
+    const next = this.attaches === 'own' ? [...this.kept, ...this.refused] : [];
+    if (reset) this.endStrip();
+    if (reset || this.attaches !== 'own') {
+      this.leavingOwn.clear();
+      this.shownOwn = next;
+      return;
+    }
+    const before = this.shownOwn;
+    const gone = before.filter((own) => !next.includes(own) && !this.leavingOwn.has(own));
+    const added = next.filter((own) => !before.includes(own));
+    if (!gone.length && !added.length) return;
+    if (this.moves) {
+      this.addPlan({ first: this.drawnItems(), arriving: new Set(added), leaving: new Set(gone) });
+      for (const own of gone) this.leavingOwn.add(own);
+    }
+    const shown = [...next];
+    for (const [index, own] of before.entries()) {
+      if (!this.leavingOwn.has(own) || shown.includes(own)) continue;
+      let at = 0;
+      for (let earlier = index - 1; earlier >= 0; earlier--) {
+        const place = shown.indexOf(before[earlier]!);
+        if (place >= 0) {
+          at = place + 1;
+          break;
+        }
+      }
+      shown.splice(at, 0, own);
+    }
+    this.shownOwn = shown;
+  }
+
+  /** CCM-35: a File item's motions under way, stopped where they are. */
+  private stopItem(item: Element) {
+    for (const animation of this.itemMotions.get(item) ?? []) animation.cancel();
+    this.itemMotions.delete(item);
+  }
+
+  /**
+   * CCM-35: the change of the strip that this update drew, as one motion from what was drawn before it: each item that
+   * leaves stands outside the strip's flow at the box it was drawn in and fades out; the box of the strip moves from
+   * the height drawn to its new one (AnimatedSize); each item that arrives fades in at its place, and each one that
+   * stays and whose place changed moves there from where it was drawn — all over the resize tokens.
+   */
+  private async startStrip() {
+    // A File item that has just arrived is measured once it has drawn itself: its first render comes after this one,
+    // and before the next frame. A change made meanwhile is drawn in the same motion.
+    this.stripStarting = true;
+    for (;;) {
+      const items = [...this.renderRoot.querySelectorAll(`.strip > ${ITEM}`), ...this.givenItems] as (Item & { isUpdatePending?: boolean })[];
+      const waiting = items.filter((item) => item.isUpdatePending && item.updateComplete);
+      if (!waiting.length) break;
+      await Promise.all(waiting.map((item) => item.updateComplete));
+    }
+    this.stripStarting = false;
+    const plan = this.stripPlan;
+    this.stripPlan = null;
+    if (!plan) return;
+    const strip = this.renderRoot.querySelector<HTMLElement>('.strip');
+    const timing = this.timing()?.resize;
+    const own = this.attaches === 'own';
+    // Each kept file's File item, by the order the strip draws them in.
+    const elements = new Map<Own, Element>();
+    if (own) {
+      const drawn = [...this.renderRoot.querySelectorAll(`.strip > ${ITEM}`)];
+      this.shownOwn.forEach((each, index) => drawn[index] && elements.set(each, drawn[index]));
+    }
+    const element = (item: Element | Own) => (item instanceof Element ? item : (elements.get(item) ?? null));
+    const leaving = [...plan.leaving].flatMap((item) => {
+      const el = element(item);
+      return el ? [{ el, done: () => (item instanceof Element ? this.depart(item) : this.departOwn(item)) }] : [];
+    });
+    if (!strip || !timing || timing.duration <= 0 || !this.moves) {
+      for (const { done } of leaving) done();
+      this.stripSize.fit(false);
+      return;
+    }
+    // Out of the flow, where each was drawn: the strip is their box, at its own place (the box of the strip is
+    // anchored at its start).
+    const at = strip.getBoundingClientRect();
+    for (const { el } of leaving) {
+      this.stopItem(el);
+      const was = plan.first.get(el);
+      if (!was) continue;
+      const style = (el as HTMLElement).style;
+      style.setProperty('position', 'absolute');
+      style.setProperty('box-sizing', 'border-box');
+      style.setProperty('margin-block', '0px');
+      style.setProperty('margin-inline', '0px');
+      style.setProperty('left', `${was.rect.left - at.left - strip.clientLeft}px`);
+      style.setProperty('top', `${was.rect.top - at.top - strip.clientTop}px`);
+      style.setProperty('width', `${was.rect.width}px`);
+      style.setProperty('height', `${was.rect.height}px`);
+    }
+    this.stripSize.fit(true);
+    const options = (fill: FillMode, id: string): KeyframeAnimationOptions => ({ duration: timing.duration, easing: timing.easing, fill, id });
+    const arriving = new Set([...plan.arriving].map(element));
+    const present = own ? this.ownItems : this.givenItems;
+    for (const item of present) {
+      const was = plan.first.get(item);
+      this.stopItem(item);
+      const motions: Animation[] = [];
+      // From the opacity drawn — none for an item that was not there — to whole.
+      const from = arriving.has(item) ? (was?.opacity ?? 0) : (was?.opacity ?? 1);
+      if (from < 0.999) motions.push(animateSafely(item, [{ opacity: from }, { opacity: 1 }], options('none', FADE)));
+      // From where it was drawn to its new place.
+      if (was && !arriving.has(item)) {
+        const now = item.getBoundingClientRect();
+        const [x, y] = [was.rect.left - now.left, was.rect.top - now.top];
+        if (Math.abs(x) >= 0.5 || Math.abs(y) >= 0.5) motions.push(animateSafely(item, [{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }], options('none', MOVE)));
+      }
+      if (motions.length) this.itemMotions.set(item, motions);
+    }
+    for (const { el, done } of leaving) {
+      const fade = animateSafely(el, [{ opacity: plan.first.get(el)?.opacity ?? 1 }, { opacity: 0 }], options('forwards', FADE));
+      this.itemMotions.set(el, [fade]);
+      void fade.finished.then(done, () => {
+        // Cancelled: whoever cancelled it decides what becomes of the item.
+      });
+    }
+  }
+
+  /** CCM-35: a kept file's File item has left: it is drawn no more. */
+  private departOwn(own: Own) {
+    if (!this.leavingOwn.delete(own)) return;
+    const index = this.shownOwn.indexOf(own);
+    const el = index >= 0 ? this.renderRoot?.querySelectorAll(`.strip > ${ITEM}`)[index] : undefined;
+    if (el) this.stopItem(el);
+    this.shownOwn = this.shownOwn.filter((each) => each !== own);
+    this.requestUpdate();
+  }
+
+  /** CCM-35: a File item of the product's has left: taken out of the chat composer, as the product took it, and given back what it had. */
+  private depart(node: Element) {
+    const was = this.leavingGiven.get(node);
+    if (!was) return;
+    this.leavingGiven.delete(node);
+    this.stopItem(node);
+    if (node.parentNode === this) {
+      this.takenAway.add(node);
+      node.remove();
+    }
+    this.restore(node, was);
+    giveFileItem(node, null);
+    this.requestUpdate();
+  }
+
+  /** CCM-35: every motion of the strip ends where it was going, at once — the items that leave are gone. */
+  private endStrip() {
+    this.stripPlan = null;
+    for (const item of [...this.itemMotions.keys()]) this.stopItem(item);
+    for (const node of [...this.leavingGiven.keys()]) this.depart(node);
+    if (this.leavingOwn.size) {
+      this.leavingOwn.clear();
+      this.shownOwn = this.shownOwn.filter((own) => this.kept.includes(own) || this.refused.includes(own));
+      this.requestUpdate();
+    }
+  }
+
+  /** CCM-35: the glyph of the Button it brings in the send button's place, if it is drawn. */
+  private get glyph(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>(`.send > ${BUTTON} > [slot="icon"]:not([${LEAVING}])`) ?? null;
+  }
+
+  /**
+   * CCM-35: the send and the stop button changed places, and the Button it brings shows the other glyph: the one that
+   * goes out is drawn over the one that comes in, in place, and fades out as the other fades in, over the glyph's fade
+   * tokens. A change while they fade goes on from the opacities drawn (MOT-2).
+   */
+  private crossFade(span: HTMLElement, was: { text: string; opacity: number }) {
+    const prior = this.ghost;
+    // The glyph that comes in is the one that was going out, where the change turned round.
+    const from = prior && prior.textContent === span.textContent ? Number(getComputedStyle(prior).opacity) : 0;
+    prior?.remove();
+    this.ghost = null;
+    for (const animation of span.getAnimations()) animation.cancel();
+    const timing = this.timing()?.glyph;
+    if (!this.moves || !timing || timing.duration <= 0) return;
+    const ghost = span.cloneNode(false) as HTMLElement;
+    ghost.textContent = was.text;
+    ghost.setAttribute(LEAVING, '');
+    // After the glyph that comes in, so that the Button's own glyph keeps its place among its children.
+    span.after(ghost);
+    this.ghost = ghost;
+    const options = { duration: timing.duration, easing: timing.easing, id: GLYPH_FADE };
+    const out = animateSafely(ghost, [{ opacity: was.opacity }, { opacity: 0 }], { ...options, fill: 'forwards' });
+    animateSafely(span, [{ opacity: from }, { opacity: 1 }], options);
+    void out.finished.then(
+      () => {
+        ghost.remove();
+        if (this.ghost === ghost) this.ghost = null;
+      },
+      () => {
+        // Cancelled by a change that turned it round, which took the glyph away.
+      },
+    );
   }
 
   // ─── Form (CCM-36, CCM-40) ────────────────────────────────────────────────────────────────────────────────────
@@ -1243,12 +1665,19 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.endDrag();
     for (const element of this.lent) takeBack(element);
     this.lent.clear();
+    // CCM-35: taken out of the page, it is at rest where it was going (AnimatedSize stops the strip's box itself).
+    this.endStrip();
+    this.ghost?.remove();
+    this.ghost = null;
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // CCM-38: `attachments` changed while it is shown: every file it keeps is let go and every File item it drew
     // leaves, or the product's items are no longer drawn and it begins with no kept file. Nothing is emitted or said.
-    if (changed.has('attachments') && this.hasUpdated) {
+    const reset = changed.has('attachments') && this.hasUpdated;
+    if (reset) {
+      // CCM-35: at once — what leaves is gone, and nothing moves.
+      this.endStrip();
       this.kept = [];
       this.refused = [];
       this.arrived = [];
@@ -1270,7 +1699,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
       const active = this.shadowRoot?.activeElement ?? null;
       this.sendHeld = (!!active && active.matches('.send > *')) || [...this.slotted('send'), ...this.slotted('stop')].some(holdsFocus);
       this.startHeld = !!active && active.matches(`tanrei-file-picker > ${BUTTON}`);
+      // CCM-35: the glyph in the send button's place as it is drawn, before the update can change it.
+      const span = this.glyph;
+      this.glyphWas = span ? { span, text: span.textContent ?? '', opacity: span.getAnimations().length ? Number(getComputedStyle(span).opacity) : 1 } : null;
     }
+    // CCM-35: the File items of the files it keeps that this update adds or takes away, read as they are drawn.
+    this.planOwn(reset);
   }
 
   protected override firstUpdated() {
@@ -1294,6 +1728,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.watch();
     if (!this.line) void this.input?.updateComplete.then(() => this.measure());
     if (this.presented) this.reports(changed);
+    // CCM-35: what this update changed moves — the glyph in the send button's place, and the strip.
+    const was = this.glyphWas;
+    this.glyphWas = null;
+    const span = this.glyph;
+    if (was && span && span === was.span && (span.textContent ?? '') !== was.text) this.crossFade(span, was);
+    if (this.stripPlan && !this.stripStarting) void this.startStrip();
   }
 
   /**
@@ -1375,7 +1815,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    * with its picture and no drawn name for an image (auto, tile), a tile for any file (tile), a row otherwise; a
    * refused one a failed row with the product's sentence, given no handle and never retryable. Neither is pressable.
    */
-  private ownItem(own: Own) {
+  private ownItem(own: Own, leaving: boolean) {
     const image = fileKind(own.file.type, own.file.name) === 'image';
     const tile = !own.reason && (this.attachmentForm === 'tile' || (this.attachmentForm !== 'row' && image));
     const pictured = tile && image;
@@ -1390,6 +1830,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
       .form=${tile ? 'tile' : 'row'}
       .preview=${pictured}
       .nameHidden=${pictured}
+      ?data-leaving=${leaving}
+      ?inert=${leaving}
+      aria-hidden=${leaving ? 'true' : nothing}
       @remove=${(event: Event) => this.removeOwn(event, own)}
       @retry=${this.stop}
       @click=${this.stop}
@@ -1440,8 +1883,10 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const stacked = this.stacked;
     const name = this.groupName;
     const own = attaches === 'own';
-    const items = own ? [...this.kept, ...this.refused] : [];
-    const drawn = own ? items.length : attaches === 'given' ? this.count : 0;
+    const items = own ? this.shownOwn : [];
+    const drawn = own ? this.kept.length + this.refused.length : attaches === 'given' ? this.count : 0;
+    // CCM-35: the strip is drawn while an item leaves, and takes no room while only those are in it.
+    const leaving = own ? this.leavingOwn.size : attaches === 'given' ? this.leavingGiven.size : 0;
     const hasStart = this.attachShown || this.slotted('leading').length > 0;
     const hasEnd = this.counts || this.slotted('trailing').length > 0;
     // CCM-2, CCM-3: what stands before the typing area, or at the start of the row beneath — and what stands after it, or at that row's end.
@@ -1463,8 +1908,10 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
         @mousedown=${this.onGround}
       >
         <span class="outline"></span>
-        <div part="strip" class="strip" role=${drawn ? 'list' : nothing} aria-label=${drawn && name ? name : nothing} ?hidden=${!drawn}>
-          ${own ? repeat(items, (each) => each, (each) => this.ownItem(each)) : attaches === 'given' ? html`<slot></slot>` : nothing}
+        <div class="strip-box">
+          <div part="strip" class="strip" role=${drawn ? 'list' : nothing} aria-label=${drawn && name ? name : nothing} ?hidden=${!drawn && !leaving} ?data-empty=${!drawn}>
+            ${own ? repeat(items, (each) => each, (each) => this.ownItem(each, this.leavingOwn.has(each))) : attaches === 'given' ? html`<slot></slot>` : nothing}
+          </div>
         </div>
         <div class="line" ?data-start=${!stacked && hasStart}>
           ${!stacked && hasStart ? html`<div class="group start">${start}</div>` : nothing}
@@ -1495,7 +1942,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           <div class="group send">${this.sendPart(disabled, sendable)}</div>
         </div>
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
-        <div class="measures" aria-hidden="true"><span class="probe"></span></div>
+        <div class="measures" aria-hidden="true"><span class="probe"></span><span class="timing"></span></div>
         <div class="announce" aria-live="polite" aria-atomic="true"></div>
       </div>
     `;
