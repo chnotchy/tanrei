@@ -4305,6 +4305,10 @@
     --tanrei-comp-link-card-media-container-color: var(--tanrei-sys-color-surface-container-high);
     --tanrei-comp-link-card-media-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 48), 0.25px);
     --tanrei-comp-link-card-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
+    --tanrei-comp-link-card-motion-picture-duration: var(--tanrei-sys-motion-role-state-large);
+    --tanrei-comp-link-card-motion-picture-easing: var(--tanrei-sys-motion-easing-state);
+    --tanrei-comp-link-card-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-link-card-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-link-card-motion-state-duration: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-link-card-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-link-card-outline-width: var(--tanrei-sys-border-hairline);

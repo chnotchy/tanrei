@@ -1,6 +1,6 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { type TanreiLinkCardNode, displayHost, hostNodes, isExternal, pictureAddress, plainText, repeatsHost } from '../../links/index.js';
-import { AvailabilityController, LINK_KEYS, PressController, linkRel, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
+import { AvailabilityController, LINK_KEYS, PressController, SETTLING, linkRel, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
 import type { TanreiLinkCardVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
@@ -54,6 +54,21 @@ const AT_ONCE = 'data-tanrei-at-once';
 const REPAINTS: readonly string[] = ['variant', 'href'];
 /** What link-card.css transitions, read back to compute it while the transitions are off. */
 const MOVING_PARTS = ':scope > [data-part="body"] > :is([data-part="title"], [data-part="description"], [data-part="site"])';
+/** LKC-13: while a picture fades in, link-card.css draws the box's fill beneath it. */
+const ARRIVING = 'data-tanrei-arriving';
+/** LKC-13: while the picture's box folds away or opens again, link-card.css draws its room in the fill and clips. */
+const FOLDING = 'data-tanrei-folding';
+/** LKC-13: the height of the text's box while the box above it moves (a length the element measured, not a design value). */
+const TEXT_BLOCK = '--_lc-text-block';
+
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** LKC-13: the picture's box as the last frame drew it — beside the text or above it, its size on that axis, the card's height. */
+interface DrawnBox {
+  beside: boolean;
+  room: number;
+  height: number;
+}
 
 type Root = Document | ShadowRoot;
 
@@ -225,6 +240,17 @@ export class TanreiLinkCard extends TanreiLightElement {
   private ownHost: string | null = null;
   /** The addresses of pictures that could not be loaded: none is asked for again until the product gives it anew. */
   private readonly refused = new Set<string>();
+  /**
+   * LKC-13: the media pictures already seen, and those of them that were whole when the card first saw them — the
+   * platform already held them — which are drawn at once and never fade in. Only that moment says so: later, every
+   * loaded picture is complete.
+   */
+  private readonly seen = new WeakSet<HTMLImageElement>();
+  private readonly held = new WeakSet<HTMLImageElement>();
+  /** LKC-13: the fade of a picture that has arrived, while it runs. */
+  private arrival: Animation | null = null;
+  /** LKC-13: the motion of the picture's box folding away (no picture) or opening again (the new one), while it runs. */
+  private sizing: { motions: Animation[]; beside: boolean; picture: HTMLImageElement | null; watch: ResizeObserver | null } | null = null;
   /** The anchor the press primitive answers for. */
   private pressed: HTMLAnchorElement | null = null;
   private readonly press = new PressController(this, {
@@ -263,6 +289,9 @@ export class TanreiLinkCard extends TanreiLightElement {
     this.unwatchWords?.();
     this.unwatchWords = null;
     this.pressed = null;
+    // LKC-13: taken out of the page, the card is at rest where its motions were going.
+    this.endArrival();
+    this.endSizing();
   }
 
   protected override willUpdate(changed: PropertyValues) {
@@ -448,6 +477,9 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (!parent) return;
     let picture = parent.querySelector<HTMLImageElement>(`:scope > img[data-part="${id}"]`);
     if (!src) {
+      // LKC-34: a picture taken away is gone at once, and so is the motion of the one opening.
+      if (picture && picture === this.sizing?.picture) this.endSizing();
+      if (id === 'media') this.endArrival();
       picture?.remove();
       return;
     }
@@ -455,7 +487,11 @@ export class TanreiLinkCard extends TanreiLightElement {
     // LKC-10, LKC-13: a picture that could not be loaded is not asked for again by the card itself.
     if (this.refused.has(src)) return;
     if (picture && picture.getAttribute('src') === src && !renew) return;
+    // LKC-13: a new image while the box folds away (or opens) turns it round from the size drawn, read before the new
+    // picture changes the layout.
+    const turning = id === 'media' && this.sizing && parent === this.anchor() ? this.drawnBox(parent as HTMLElement) : null;
     // LKC-13: a new address is a new picture, so that its box — not the picture before it — is drawn until it loads.
+    if (id === 'media') this.endArrival();
     picture?.remove();
     picture = document.createElement('img');
     picture.setAttribute('data-part', id);
@@ -469,6 +505,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (later) later.before(picture);
     else if (id === 'site-icon') parent.prepend(picture);
     else parent.append(picture);
+    if (turning) this.resize(parent as HTMLElement, turning, picture);
   }
 
   /** What a document cannot hold (LKC-36), written on the product's own anchor and on one this element built alike. */
@@ -484,6 +521,8 @@ export class TanreiLinkCard extends TanreiLightElement {
     const href = anchor.getAttribute('href');
     if (href === null) {
       // Not a link and not drawn as a card: the title as text. It asks for nothing, so its pictures are taken away.
+      this.endArrival();
+      this.endSizing();
       for (const picture of anchor.querySelectorAll('img[data-part="media"], img[data-part="site-icon"]')) picture.remove();
       for (const attribute of ['aria-labelledby', 'aria-describedby', 'target', 'rel']) if (this.given.delete(attribute) || attribute === 'target') mark(anchor, attribute, null);
       if (this.wroteExternal !== null) mark(anchor, 'data-external', null);
@@ -680,15 +719,157 @@ export class TanreiLinkCard extends TanreiLightElement {
       this.failed(picture, prop, failure);
       return null;
     }
+    // LKC-13: a media picture whole when the card first sees it was already held by the browser: it is drawn at once.
+    if (prop === 'image' && !this.seen.has(picture)) {
+      this.seen.add(picture);
+      if (picture.complete && picture.naturalWidth > 0) this.held.add(picture);
+    }
     return picture;
   }
 
-  /** LKC-10, LKC-13: a picture that cannot be loaded is taken away — no mark, no text, no box — and not asked for again. */
+  /**
+   * LKC-10, LKC-13: a picture that cannot be loaded is taken away — no mark, no text, no box — and not asked for again.
+   * The media's box, where it was drawn, folds away from the size the last frame drew.
+   */
   private failed(picture: HTMLImageElement, prop: string, behavior: string) {
     const src = picture.getAttribute('src') ?? '';
     this.refused.add(src);
+    const anchor = this.anchor();
+    const drawn = prop === 'image' && anchor && picture.parentElement === anchor ? this.drawnBox(anchor, picture) : null;
+    if (picture === this.sizing?.picture) this.sizing.picture = null;
+    if (prop === 'image') this.endArrival();
     picture.remove();
+    if (anchor && drawn) this.resize(anchor, drawn, null);
     report(this, behavior, `its ${prop} "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: the card is drawn without it`);
+  }
+
+  /** LKC-13: whether a picture's arrival or its box's size moves now — not while the card settles (MOT-3), nor under reduced motion (MOT-6). */
+  private moves(): boolean {
+    return this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+  }
+
+  /**
+   * LKC-13: a motion's duration and curve, as link-card.css gives them to the body (whose transition and animation
+   * move nothing): the box's size on the transition's, a picture's fade on the animation's. None where it is zero.
+   */
+  private timing(of: 'resize' | 'picture'): { duration: number; easing: string } | null {
+    const body = this.anchor()?.querySelector(':scope > [data-part="body"]');
+    if (!body) return null;
+    const style = getComputedStyle(body);
+    const duration = Number.parseFloat(of === 'resize' ? style.transitionDuration : style.animationDuration) * 1000;
+    // The first curve of the list (one is given): a name, or a function with its arguments.
+    const easing = /^\s*[^,(]*(\([^)]*\))?/.exec(of === 'resize' ? style.transitionTimingFunction : style.animationTimingFunction)?.[0].trim() || 'linear';
+    return Number.isFinite(duration) && duration > 0 ? { duration, easing } : null;
+  }
+
+  /**
+   * LKC-13: the picture's box as the last frame drew it: the picture's own box (a picture opening is drawn at the size
+   * it has got to), or — while the box folds away with no picture — the room the anchor keeps for it. None where its
+   * size does not move: a card that settles, reduced motion, a box that is not laid out.
+   */
+  private drawnBox(anchor: HTMLElement, picture: HTMLImageElement | null = this.sizing?.picture ?? null): DrawnBox | null {
+    if (!this.moves() || !anchor.getClientRects().length) return null;
+    const style = getComputedStyle(anchor);
+    const beside = this.sizing?.beside ?? style.getPropertyValue('--_lc-beside').trim() === '1';
+    const height = anchor.getBoundingClientRect().height;
+    if (picture?.isConnected) {
+      const rect = picture.getBoundingClientRect();
+      const room = beside ? rect.width : rect.height;
+      return rect.width > 0 && rect.height > 0 ? { beside, room, height } : null;
+    }
+    if (!this.sizing) return null;
+    return { beside, room: Number.parseFloat(beside ? style.paddingInlineEnd : style.paddingBlockStart) || 0, height };
+  }
+
+  /**
+   * LKC-13, MOT-5: the picture's box moves from the size drawn to the one it now has — none, where its picture failed,
+   * or its whole size, where a new picture opens it again — as one motion, in the card's layout: the anchor's room for
+   * it (its end padding beside the text, its top padding above it), the new picture's own size, and the anchor's
+   * height, together, so the card and what follows it move at every frame. It is ended at once where the layout
+   * changes under it (LKC-12) and where the card is taken away.
+   */
+  private resize(anchor: HTMLElement, from: DrawnBox, picture: HTMLImageElement | null) {
+    this.endSizing();
+    const timing = this.timing('resize');
+    if (!timing || !anchor.isConnected) return;
+    // Where it ends, with nothing moving: the layout as it now stands.
+    const beside = getComputedStyle(anchor).getPropertyValue('--_lc-beside').trim() === '1';
+    if (beside !== from.beside) return;
+    const height = anchor.getBoundingClientRect().height;
+    const rect = picture?.getBoundingClientRect();
+    const room = rect ? (beside ? rect.width : rect.height) : 0;
+    const px = (value: number) => `${value}px`;
+    const motions: Animation[] = [];
+    // The room: beside the text the anchor's end padding (which a picture beside it fills); above it, with no picture,
+    // the anchor's top padding, and with one, the picture's own height.
+    if (beside || !picture) {
+      const side = beside ? 'paddingInlineEnd' : 'paddingBlockStart';
+      if (Math.abs(from.room - room) >= 0.5) motions.push(anchor.animate([{ [side]: px(from.room) }, { [side]: px(room) }], timing));
+    }
+    if (picture && Math.abs(from.room - room) >= 0.5) {
+      const side = beside ? 'inlineSize' : 'blockSize';
+      motions.push(picture.animate([{ [side]: px(from.room) }, { [side]: px(room) }], timing));
+    }
+    if (Math.abs(from.height - height) >= 0.5) motions.push(anchor.animate([{ blockSize: px(from.height) }, { blockSize: px(height) }], timing));
+    if (!motions.length) return;
+    const watch =
+      typeof ResizeObserver === 'function'
+        ? new ResizeObserver(() => {
+            // LKC-12: a card that crosses the boundary draws the other layout at once.
+            if (this.sizing?.watch === watch && (getComputedStyle(anchor).getPropertyValue('--_lc-beside').trim() === '1') !== beside) this.endSizing();
+          })
+        : null;
+    // (Each named: the manifest's analyzer reads a shorthand property in a method as a variable of the module.)
+    const sizing: NonNullable<typeof this.sizing> = { motions: motions, beside: beside, picture: picture, watch: watch };
+    this.sizing = sizing;
+    // Above the text, the text's box is the anchor's bottom: its height, which the motion does not change, tells
+    // link-card.css where the fill ends.
+    const body = anchor.querySelector(':scope > [data-part="body"]');
+    if (!beside && body) this.style.setProperty(TEXT_BLOCK, px(body.getBoundingClientRect().height));
+    this.setAttribute(FOLDING, '');
+    watch?.observe(this);
+    void Promise.allSettled(motions.map((motion) => motion.finished)).then(() => {
+      if (this.sizing === sizing) this.endSizing();
+    });
+  }
+
+  /** LKC-13: the box at rest, at the size it now has. */
+  private endSizing() {
+    const sizing = this.sizing;
+    this.sizing = null;
+    if (!sizing) return;
+    sizing.watch?.disconnect();
+    for (const motion of sizing.motions) motion.cancel();
+    this.removeAttribute(FOLDING);
+    this.style.removeProperty(TEXT_BLOCK);
+    if (this.getAttribute('style') === '') this.removeAttribute('style');
+  }
+
+  /**
+   * LKC-13: a media picture that has loaded fades in over its box's fill, unless the browser already held it when the
+   * card first saw it, the card is settling or motion is reduced: then it is drawn at once.
+   */
+  private arrive(picture: HTMLImageElement) {
+    if (this.held.has(picture) || !this.moves() || !picture.isConnected || !picture.getClientRects().length) return;
+    const timing = this.timing('picture');
+    if (!timing) return;
+    this.endArrival();
+    const motion = picture.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+    this.arrival = motion;
+    this.setAttribute(ARRIVING, '');
+    const done = () => {
+      if (this.arrival === motion) this.endArrival();
+    };
+    motion.finished.then(done, done);
+  }
+
+  /** LKC-13: the picture whole, and nothing drawn beneath it. */
+  private endArrival() {
+    const motion = this.arrival;
+    this.arrival = null;
+    if (!motion) return;
+    motion.cancel();
+    this.removeAttribute(ARRIVING);
   }
 
   private own(event: Event): HTMLAnchorElement | null {
@@ -702,7 +883,10 @@ export class TanreiLinkCard extends TanreiLightElement {
     const part = picture.getAttribute('data-part');
     if (part !== 'media' && part !== 'site-icon') return;
     if (event.type === 'error') this.failed(picture, part === 'media' ? 'image' : 'siteIcon', part === 'media' ? 'LKC-13' : 'LKC-10');
+    // LKC-13: read first — a picture the card first sees whole, as it loads, is one it cannot tell from a picture the
+    // browser held, and is drawn at once.
     this.read();
+    if (event.type === 'load' && part === 'media') this.arrive(picture);
   };
 
   private readonly release = (event?: Event) => {

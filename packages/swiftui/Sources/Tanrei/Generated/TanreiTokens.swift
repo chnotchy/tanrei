@@ -9168,6 +9168,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
   public var mediaContainerColor: TanreiPaint
   public var mediaWidth: CGFloat
   public var motionFeedbackDuration: Double
+  public var motionPictureDuration: Double
+  public var motionPictureEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
@@ -9197,6 +9201,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
     mediaContainerColor: TanreiPaint,
     mediaWidth: CGFloat,
     motionFeedbackDuration: Double,
+    motionPictureDuration: Double,
+    motionPictureEasing: TanreiCubicBezier,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
@@ -9222,6 +9230,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
     self.mediaContainerColor = mediaContainerColor
     self.mediaWidth = mediaWidth
     self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionPictureDuration = motionPictureDuration
+    self.motionPictureEasing = motionPictureEasing
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth
