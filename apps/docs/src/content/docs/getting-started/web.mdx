@@ -223,6 +223,14 @@ import '@tanrei/web/icons.css';
 
 The whole Material Symbols Rounded file holds every glyph at every weight, fill, grade and optical size: 5.4 MB, which a page on a slow line can wait half a minute for. Load only the glyphs your product draws. `tanrei build` prints the names Tanrei's components may draw themselves (a chevron, a check, the cross of a close button…) and the axis values your system draws icons at; add your own names to that list. From Google Fonts, pass the names, sorted, as `icon_names=` and the axes as ranges in `family=` (`Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0` for the default system). Serving the file yourself, cut it down with a subsetter that keeps the font's ligature features (`rlig`, `rclt`) and both fills; this site draws its icons from such a file. Either way, register the icon face with `font-display: block`: until the file is there an icon is invisible, never its name in letters.
 
+## Performance
+
+A component that holds items — a menu, a list, tabs, a stepper, the rows of a file upload, the attachments of a chat composer — is linear up to 1,000 items: each item costs as much at 1,000 as at 100, and the component never reads all its items again for each one that changes. The package's tests hold this by counting the work, not by timing it, so it holds on a slow machine as on a fast one.
+
+Past 1,000 items Tanrei promises nothing more. It does not virtualise — draw only the items in view and swap them as the view scrolls — and no component does it for you: that would be a component of its own, which Tanrei does not have yet. For a longer collection, page it with [Pagination](/components/pagination/), or load more as the reader asks.
+
+What a component adds to your bundle is held too: each element's own module, bundled alone for production with Lit and compressed, has a budget in bytes that the package's tests keep it under. Import the components you use (`@tanrei/web/components/<name>`) rather than `@tanrei/web/all`, and your bundle carries only those and what they are built from.
+
 ## Browser support
 
 Tanrei works in these versions and later:
