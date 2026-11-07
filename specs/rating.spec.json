@@ -323,7 +323,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-rating",
       "props": {
         "value": "value",
@@ -340,6 +340,11 @@
       "events": {
         "change": "change",
         "preview": "preview"
+      },
+      "parts": {
+        "container": "container",
+        "mark": "mark",
+        "focus-ring": "container@focus-ring"
       },
       "notes": "Form-associated. As a radio group, the shadow root holds one element with `role=\"radiogroup\"` and `aria-label`, and one `role=\"radio\"` element per mark with a roving `tabindex` — not `<input type=\"radio\">`, whose name group cannot span shadow roots; as a slider, one `role=\"slider\"` element with `aria-valuemin=\"0\"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` while an entry names the value; read-only, one `role=\"img\"` element with `aria-label` and `aria-description`. `optionLabels` is an array property whose attribute `option-labels` is read as a JSON array. `allow-half`, `read-only`, `value-text` are the attributes. A half mark is two glyphs in one box, each clipped with `clip-path: inset()` on its half, the halves swapped in right-to-left. `change` and `preview` are CustomEvents whose `detail.value` is the score (null for preview's leaving). Every mark carries the `container` part and its glyphs the `mark` part."
     },

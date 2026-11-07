@@ -1233,7 +1233,16 @@
       "title": "Rating",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-rating",
+        "import": "@tanrei/web/m3-expressive-like",
+        "module": "@tanrei/web/components/rating"
+      },
+      "react": {
+        "name": "Rating",
+        "import": "@tanrei/react/m3-expressive-like"
+      }
     },
     {
       "name": "resizable-frame",

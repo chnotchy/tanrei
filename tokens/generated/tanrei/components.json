@@ -1198,7 +1198,16 @@
       "title": "Rating",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-rating",
+        "import": "@tanrei/web",
+        "module": "@tanrei/web/components/rating"
+      },
+      "react": {
+        "name": "Rating",
+        "import": "@tanrei/react"
+      }
     },
     {
       "name": "resizable-frame",

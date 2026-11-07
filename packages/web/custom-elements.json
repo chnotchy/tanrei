@@ -37270,6 +37270,420 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/rating/rating.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium', 'large']"
+          },
+          "default": "['small', 'medium', 'large']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-size-${value}` }, ]",
+          "description": "RAT-18: sizes a design system adds get their block on demand; a size the active system lacks draws medium."
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/rating/rating.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Lets a person give a score out of a few marks — stars by default — or shows a score already given, a whole mark or,\nwhere the product allows it, a half mark at a time.\n\nContract: specs/rating.spec.json. Every visual value comes from `--tanrei-comp-rating-*` tokens: per size the mark's\nglyph box and the round container behind it, and per condition (unselected, selected) and state the container and\nmark colors. How a press is answered and how keyboard focus is drawn are the system's choices of kind\n(`--tanrei-sys-behavior-*`), read from the cascade.\n\nWhat it is to assistive technology follows the number of choices (WAI-ARIA APG): whole marks up to seven are a radio\ngroup, one radio per mark, with the radio group's keys (arrows check the next or previous mark and wrap, Space checks\nthe focused one); halves, or more than seven marks, are one slider (arrows by one step, Page Up and Page Down by a\nmark, Home and End); read-only, one image named by `label` and described by `value-text`. Enter submits its form. No\ninput takes a score back to 0: a press on the score already given changes nothing.\n\nForm-associated: it submits `value` under `name` while it is above 0, resets to the value it was first given,\nrestores it on navigation and follows a disabled `<fieldset>`.",
+          "name": "TanreiRating",
+          "cssParts": [
+            {
+              "description": "The row of marks: the radio group, the slider or the image; the slider's focus ring is drawn around it.",
+              "name": "row"
+            },
+            {
+              "description": "The round container behind each mark: the state layer, the ripple and a radio's focus ring.",
+              "name": "container"
+            },
+            {
+              "description": "The glyph box of each mark, holding its selected and unselected forms (hidden from assistive technology).",
+              "name": "mark"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The score: a number of marks from 0 to `max`, whole or — while `allowHalf` — in halves. 0 is no score yet.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "5",
+              "description": "How many marks are drawn: the highest score. A whole number from 1.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "allowHalf",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a person give a score that ends on a half mark: a press on a mark's inline-start half gives that mark less a half, and the keys move by a half (the `allow-half` attribute). A read-only rating shows halves whatever it says.",
+              "attribute": "allow-half",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiRatingSize"
+              },
+              "default": "'medium'",
+              "description": "The size of each mark (20 / 24 / 32) and of the round container behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "icon",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "attribute": "icon"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the rating for assistive technology (\"Your rating of this recipe\"). Required. Never drawn.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "optionLabels",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The name of each score a person can give, from the lowest (one mark, or a half while `allowHalf`): [\"Poor\", \"Fair\", …]. Empty names each score by its number in the element's language. The `option-labels` attribute is a JSON array.",
+              "attribute": "option-labels"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads a read-only rating's score (\"4.5 out of 5 stars\"), in the product's language (the `value-text` attribute).",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows a score that cannot be changed — an average, a review's score — as one image with a name: not focusable and not pressable (the `read-only` attribute).",
+              "attribute": "read-only",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the rating as unavailable: drawn in the disabled colors, not focusable, taking no input and left out of form submission.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name the score is submitted under with a form.",
+              "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form it belongs to, if any.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "focus",
+              "parameters": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "type": {
+                    "text": "FocusOptions"
+                  }
+                }
+              ],
+              "description": "`element.focus()` focuses the rating's stop: the checked mark, or the first, or the slider."
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "formStateRestoreCallback",
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "string | null"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "formDisabledCallback",
+              "parameters": [
+                {
+                  "name": "disabled",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiRatingChangeDetail>"
+              },
+              "description": "The person changed the score, by a press or a key; `detail.value` is the new score, which `value` already holds. Not fired when the product sets `value`."
+            },
+            {
+              "name": "preview",
+              "type": {
+                "text": "CustomEvent<TanreiRatingPreviewDetail>"
+              },
+              "description": "A fine pointer moved onto a mark (`detail.value` is the score it would give) or off the rating (`null`)."
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the form the rating belongs to, where it stands outside it: the platform's own attribute. The `form` property is read-only and returns the form element.",
+              "name": "form"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The score: a number of marks from 0 to `max`, whole or — while `allowHalf` — in halves. 0 is no score yet.",
+              "fieldName": "value"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "5",
+              "description": "How many marks are drawn: the highest score. A whole number from 1.",
+              "fieldName": "max"
+            },
+            {
+              "name": "allow-half",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a person give a score that ends on a half mark: a press on a mark's inline-start half gives that mark less a half, and the keys move by a half (the `allow-half` attribute). A read-only rating shows halves whatever it says.",
+              "fieldName": "allowHalf"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiRatingSize"
+              },
+              "default": "'medium'",
+              "description": "The size of each mark (20 / 24 / 32) and of the round container behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values.",
+              "fieldName": "size"
+            },
+            {
+              "name": "icon",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "fieldName": "icon"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the rating for assistive technology (\"Your rating of this recipe\"). Required. Never drawn.",
+              "fieldName": "label"
+            },
+            {
+              "name": "option-labels",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The name of each score a person can give, from the lowest (one mark, or a half while `allowHalf`): [\"Poor\", \"Fair\", …]. Empty names each score by its number in the element's language. The `option-labels` attribute is a JSON array.",
+              "fieldName": "optionLabels"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads a read-only rating's score (\"4.5 out of 5 stars\"), in the product's language (the `value-text` attribute).",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "read-only",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows a score that cannot be changed — an average, a review's score — as one image with a name: not focusable and not pressable (the `read-only` attribute).",
+              "fieldName": "readOnly"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the rating as unavailable: drawn in the disabled colors, not focusable, taking no input and left out of form submission.",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name the score is submitted under with a form.",
+              "fieldName": "name"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-rating",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiRating",
+          "declaration": {
+            "name": "TanreiRating",
+            "module": "src/components/rating/rating.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-rating",
+          "declaration": {
+            "name": "TanreiRating",
+            "module": "src/components/rating/rating.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/resizable-frame/resizable-frame.styles.ts",
       "declarations": [
         {

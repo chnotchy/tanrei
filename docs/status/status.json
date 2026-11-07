@@ -1964,7 +1964,7 @@
       "hasSpec": true,
       "docs": "/components/rating/",
       "platforms": {
-        "web": "planned",
+        "web": "lagging",
         "swiftui": "planned",
         "compose": "planned",
         "flutter": "planned",
@@ -1974,8 +1974,8 @@
   ],
   "totals": {
     "web": {
-      "planned": 1,
-      "lagging": 83,
+      "planned": 0,
+      "lagging": 84,
       "alpha": 13,
       "beta": 0,
       "stable": 0,
