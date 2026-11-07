@@ -871,6 +871,8 @@ private let acmeButtonGroupTokens = TanreiButtonGroupTokens(
   connectedInnerShape: 6,
   connectedSeparation: 0,
   connectedVerticalOuterShape: 12,
+  motionStateDuration: 250,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   standardGap: 16
 )
 

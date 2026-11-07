@@ -1182,6 +1182,8 @@ export const cupertino = {
       connectedInnerShape: 8,
       connectedSeparation: 0,
       connectedVerticalOuterShape: 14,
+      motionStateDuration: 250,
+      motionStateEasing: [0.2, 0, 0, 1],
       standardGap: 8,
     },
     buttonWithMenu: {

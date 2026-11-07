@@ -3910,6 +3910,25 @@
             }
           }
         },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long a line on a seam takes to fade in, to fade out or to fade from one color to the other when an item's selected, toggle or variant changes (BGR-24), with state-easing: the pace of a change of state, the one at which a medium Button changes between its looks."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
         "standard": {
           "gap": {
             "$type": "dimension",
