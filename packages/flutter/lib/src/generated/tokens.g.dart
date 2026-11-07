@@ -3761,6 +3761,8 @@ class TanreiButtonGroupTokens {
     required this.connectedInnerShape,
     required this.connectedSeparation,
     required this.connectedVerticalOuterShape,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
     required this.standardGap,
   });
 
@@ -3784,6 +3786,10 @@ class TanreiButtonGroupTokens {
   final double connectedSeparation;
   /// `comp.button-group.connected-vertical-outer-shape`
   final double connectedVerticalOuterShape;
+  /// `comp.button-group.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.button-group.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
   /// `comp.button-group.standard-gap`
   final double standardGap;
 
@@ -3799,6 +3805,8 @@ class TanreiButtonGroupTokens {
     double? connectedInnerShape,
     double? connectedSeparation,
     double? connectedVerticalOuterShape,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
     double? standardGap,
   }) => TanreiButtonGroupTokens(
         connectedDividerColor: connectedDividerColor ?? this.connectedDividerColor,
@@ -3811,6 +3819,8 @@ class TanreiButtonGroupTokens {
         connectedInnerShape: connectedInnerShape ?? this.connectedInnerShape,
         connectedSeparation: connectedSeparation ?? this.connectedSeparation,
         connectedVerticalOuterShape: connectedVerticalOuterShape ?? this.connectedVerticalOuterShape,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         standardGap: standardGap ?? this.standardGap,
       );
 }

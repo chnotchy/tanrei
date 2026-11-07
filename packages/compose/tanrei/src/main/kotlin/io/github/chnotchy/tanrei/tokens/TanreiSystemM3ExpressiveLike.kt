@@ -1159,6 +1159,8 @@ private object M3ExpressiveLikeSystemSource {
             connectedInnerShape = 8.dp,
             connectedSeparation = 1f,
             connectedVerticalOuterShape = 16.dp,
+            motionStateDuration = 150,
+            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             standardGap = 8.dp,
         )
 
