@@ -11,6 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
+import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -762,17 +763,12 @@ test.describe('the stage and the zoom', () => {
     await mount(page, fx({}, [LANDSCAPE]));
     const disabled = () => Promise.all(['zoom-out', 'zoom-in'].map((name) => control(page, name).evaluate((el: HTMLElement & { disabled: boolean }) => el.disabled)));
     expect(await disabled()).toEqual([true, false]);
-    await watchRuns(page);
-    await control(page, 'zoom-in').click();
-    await expect.poll(() => begun(page, SHOWN)).toEqual([{ property: 'transform', duration: await ms(page, T('motion-zoom-duration')) }]);
-    expect(await style(page, SHOWN, 'transition-timing-function')).toBe(await page.evaluate((name) => {
-      const probe = document.createElement('div');
-      probe.style.transitionTimingFunction = `var(${name})`;
-      document.body.append(probe);
-      const value = getComputedStyle(probe).transitionTimingFunction;
-      probe.remove();
-      return value;
-    }, T('motion-zoom-easing')));
+    // The step's own motion, held at its start and read from the motion itself: the image's live style would read the
+    // zoom motion only while it runs, and a step that has ended (on a loaded machine) has none.
+    const step = await sampleFrames(host(page), () => control(page, 'zoom-in').click(), { elements: false });
+    expect(step.motions.filter((motion) => motion.on.startsWith('img.image')).map(({ kind, name, duration, easing }) => ({ kind, name, duration, easing }))).toEqual([
+      { kind: 'transition', name: 'transform', duration: await ms(page, T('motion-zoom-duration')), easing: await resolveEasing(page, T('motion-zoom-easing')) },
+    ]);
     await rest(page);
     let seen = await look(page);
     expect(seen.zoom).toBe(2);
