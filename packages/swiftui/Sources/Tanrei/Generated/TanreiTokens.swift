@@ -2396,6 +2396,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
   public var connectedInnerShape: CGFloat
   public var connectedSeparation: Double
   public var connectedVerticalOuterShape: CGFloat
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
   public var standardGap: CGFloat
 
   public init(
@@ -2409,6 +2411,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
     connectedInnerShape: CGFloat,
     connectedSeparation: Double,
     connectedVerticalOuterShape: CGFloat,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
     standardGap: CGFloat
   ) {
     self.connectedDividerColor = connectedDividerColor
@@ -2421,6 +2425,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
     self.connectedInnerShape = connectedInnerShape
     self.connectedSeparation = connectedSeparation
     self.connectedVerticalOuterShape = connectedVerticalOuterShape
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
     self.standardGap = standardGap
   }
 }

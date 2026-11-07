@@ -1018,6 +1018,8 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     connectedInnerShape: 8.0,
     connectedSeparation: 1.0,
     connectedVerticalOuterShape: 16.0,
+    motionStateDuration: 150,
+    motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     standardGap: 8.0,
   ),
   buttonWithMenu: TanreiButtonWithMenuTokens(

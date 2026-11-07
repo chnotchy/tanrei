@@ -1013,6 +1013,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
     connectedInnerShape: 6.0,
     connectedSeparation: 0.0,
     connectedVerticalOuterShape: 12.0,
+    motionStateDuration: 250,
+    motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     standardGap: 16.0,
   ),
   buttonWithMenu: TanreiButtonWithMenuTokens(

@@ -987,6 +987,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     connectedInnerShape: 8.0,
     connectedSeparation: 0.0,
     connectedVerticalOuterShape: 14.0,
+    motionStateDuration: 250,
+    motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     standardGap: 8.0,
   ),
   buttonWithMenu: TanreiButtonWithMenuTokens(
