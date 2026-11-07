@@ -2,6 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { repeat } from 'lit/directives/repeat.js';
 import {
   AnimatedSize,
+  type AnimatedSizeOptions,
   AvailabilityController,
   FieldControlController,
   FieldProviderController,
@@ -24,7 +25,7 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
-import { LIST_PRESENCE } from '../../primitives/list-presence.js';
+import { LIST_MOTION, LIST_PRESENCE } from '../../primitives/list-presence.js';
 import type { TanreiList, TanreiListMoveDetail } from '../list/list.js';
 import '../list/list.js';
 import { styles } from './file-upload.styles.js';
@@ -81,8 +82,6 @@ const PICKER_PARTS = exported(TanreiFilePicker);
 const ITEM_PARTS = exported(TanreiFileItem, Object.fromEntries(TanreiFileItem.parts.map((part) => [part, { as: `item-${part}` }])));
 /** FIT-18: what lies between two rows of the file upload's column — its own distance, given to each file item through the internal channel. */
 const BETWEEN = 'var(--tanrei-comp-list-gap-small)';
-/** FUP-29: the rows arrive, leave and change their height as the List's items do (LST-41): on the List's resize motion. */
-const RESIZE = { duration: 'var(--tanrei-comp-list-motion-resize-duration)', easing: 'var(--tanrei-comp-list-motion-resize-easing)' };
 /** FUP-29: what marks a product's row that leaves — drawn until its motion ends, and counted in nothing. */
 const LEAVING = 'data-leaving';
 
@@ -472,12 +471,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   /** FUP-29: each of the product's rows' item of the List, whose height moves where a change of status changes it (MOT-5). */
   private readonly rowSizes = new Map<HTMLElement, AnimatedSize>();
   /** FUP-29: the strip of tiles, whose height moves where a tile that arrives or leaves adds or takes away a line (MOT-5). */
-  private readonly stripSize = new AnimatedSize(this, {
-    box: () => this.renderRoot?.querySelector<HTMLElement>('.list') ?? null,
-    anchor: () => 'start',
-    ...RESIZE,
-    still: () => this.hasAttribute(SETTLING),
-  });
+  private readonly stripSize = new AnimatedSize(this, this.resizing(() => this.renderRoot?.querySelector<HTMLElement>('.list') ?? null));
   /** FUP-29: the rows the last update drew, in order: a change of them moves the strip of tiles. */
   private drawnRows: readonly unknown[] | null = null;
   private stripFitting = false;
@@ -1193,25 +1187,43 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   }
 
   /**
+   * FUP-29: the rows arrive, leave and change their height as the List's items do (LST-41): on the List's resize motion,
+   * whose time and curve the List gives (`LIST_MOTION`) when a change moves — the token is the List's, and the file
+   * upload reads none of a member's. A box of its own that moves with them (MOT-5), anchored at its top.
+   */
+  private resizing(box: () => HTMLElement | null): AnimatedSizeOptions {
+    const motion = () => this.renderRoot?.querySelector<TanreiList>('.list')?.[LIST_MOTION]('resize') ?? { duration: 0, easing: 'ease' };
+    return {
+      box,
+      anchor: () => 'start',
+      still: () => this.hasAttribute(SETTLING),
+      get duration() {
+        return `${motion().duration}ms`;
+      },
+      get easing() {
+        return motion().easing;
+      },
+    };
+  }
+
+  /**
    * FUP-29: the room of list.gap above the list opens with the first row and closes with the last, over the List's
-   * resize motion, from the room drawn when the change came (MOT-2) — the time and the curve read through a real
-   * property of the list's, where the cascade computes them (a duration token is an expression). Started here, in the
+   * resize motion, from the room drawn when the change came (MOT-2) — the time and the curve the List gives, as its
+   * cascade computes them (`LIST_MOTION`: a duration token is an expression). Started here, in the
    * task of the change, and not by a transition, which WebKit does not start for a box whose children the same update
    * changes.
    */
   private moveRoom() {
-    const list = this.renderRoot?.querySelector<HTMLElement>('.list');
+    const list = this.renderRoot?.querySelector<TanreiList>('.list');
     const from = this.roomFrom;
     this.roomFrom = null;
     this.shownEmpty = this.rowCount === 0;
     if (!list || from === null) return;
     this.roomMotion?.cancel();
     this.roomMotion = null;
-    const style = getComputedStyle(list);
-    const to = style.marginBlockStart;
-    const duration = Number.parseFloat(style.transitionDuration) * 1000;
+    const to = getComputedStyle(list).marginBlockStart;
+    const { duration, easing } = list[LIST_MOTION]('resize');
     if (!(duration > 0) || from === to || !this.moves) return;
-    const easing = style.transitionTimingFunction.split(/,(?![^(]*\))/)[0]?.trim() || 'ease';
     const keyframes = [{ marginBlockStart: from }, { marginBlockStart: to }];
     let motion: Animation;
     try {
@@ -1237,7 +1249,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     }
     for (const item of items) {
       if (this.rowSizes.has(item)) continue;
-      const size = new AnimatedSize(this, { box: () => item, anchor: () => 'start', ...RESIZE, still: () => this.hasAttribute(SETTLING) });
+      const size = new AnimatedSize(this, this.resizing(() => item));
       size.hostUpdated();
       this.rowSizes.set(item, size);
     }

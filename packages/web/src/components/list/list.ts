@@ -1,4 +1,4 @@
-import { LIST_PRESENCE } from '../../primitives/list-presence.js';
+import { LIST_MOTION, LIST_PRESENCE } from '../../primitives/list-presence.js';
 import { type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { html, literal } from 'lit/static-html.js';
@@ -1107,6 +1107,11 @@ export class TanreiList extends TanreiElement {
     if (this.presence === on) return;
     this.presence = on;
     this.requestUpdate();
+  }
+
+  /** @internal LST-41: see `LIST_MOTION` (src/primitives/list-presence.ts). Known once the list follows its items. */
+  [LIST_MOTION](which: 'reorder' | 'resize' | 'state'): { duration: number; easing: string } {
+    return this.motion(which);
   }
 
   /** LST-44: the one live region. */
