@@ -3709,24 +3709,25 @@ test.describe('the row model shared with the tree view', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark (standard and collapsed, and modal)', async ({ page }) => {
-    test.setTimeout(120_000);
-    // A responsive fixture is what its window makes it: each alone, in its window (`drawerWindow`).
-    const responsive = spec.fixtures.filter((f) => f.props.responsive);
-    const inline = spec.fixtures.filter((f) => !f.props.responsive && (f.props.variant !== 'modal' || !f.props.open));
-    for (const theme of ['light', 'dark'] as const) {
-      for (const fixtures of [inline, only('modal'), only('modal-collapsible-open'), ...responsive.map((f) => [f])]) {
+  // A responsive fixture is what its window makes it: each alone, in its window (`drawerWindow`).
+  const responsive = spec.fixtures.filter((f) => f.props.responsive);
+  const inline = spec.fixtures.filter((f) => !f.props.responsive && (f.props.variant !== 'modal' || !f.props.open));
+  // A test per group of fixtures, in both themes: two mounts a page, not one page that mounts every group twice.
+  const groups: [string, Fixture[]][] = [['standard and collapsed', inline], ['modal', only('modal')], ['modal-collapsible-open', only('modal-collapsible-open')], ...responsive.map((f): [string, Fixture[]] => [f.id, [f]])];
+  for (const [label, fixtures] of groups) {
+    test(`no axe violations in light and dark: ${label}`, async ({ page }) => {
+      for (const theme of ['light', 'dark'] as const) {
         await page.setViewportSize(fixtures.length === 1 ? drawerWindow(fixtures[0].id) : { width: 1280, height: 720 });
         await mount(page, fixtures, { theme, reducedMotion: true });
-        // Every mount after the first writes its document into a window that was painted already, so an open modal
-        // drawer plays its entrance (MOT-4; under reduced motion, a cross-fade): axe reads it at rest, once every motion
-        // in the page has ended.
+        // The second mount writes its document into a window that was painted already, so an open modal drawer plays
+        // its entrance (MOT-4; under reduced motion, a cross-fade): axe reads it at rest, once every motion in the page
+        // has ended.
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
-        expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        expect(results.violations, `${label} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 });
 
 /**

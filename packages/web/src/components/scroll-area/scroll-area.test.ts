@@ -635,17 +635,18 @@ test.describe('behavior', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, in every fixture', async ({ page }) => {
-    // Each fixture alone: a box that is a focus stop is a region, and a page of every fixture would hold the spec's
-    // regions side by side — two named "Photos", five with no name — which landmark-unique rightly refuses on a page.
-    for (const theme of ['light', 'dark'] as const) {
-      for (const f of spec.fixtures) {
+  // Each fixture alone: a box that is a focus stop is a region, and a page of every fixture would hold the spec's
+  // regions side by side — two named "Photos", five with no name — which landmark-unique rightly refuses on a page.
+  // And a test per fixture: two mounts a page, not one page that mounts every fixture twice.
+  for (const f of spec.fixtures) {
+    test(`no axe violations in light and dark: ${f.id}`, async ({ page }) => {
+      for (const theme of ['light', 'dark'] as const) {
         await mountFixtures(page, spec, { theme, reducedMotion: true, fixtures: [f] });
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 
   test('the box that is a stop is a named region in the accessibility tree; the marks are not in it', async ({ page }) => {
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: spec.fixtures.filter((f) => f.id === 'sideways') });
