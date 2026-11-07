@@ -453,19 +453,29 @@ test.describe('presentation and focus', () => {
     expect(seen.filter((r) => r.text.includes('DLG-19')).length).toBe(3);
   });
 
-  test('DLG-2, DLG-19: a dialog written open in a document that is read after the element was defined counts the actions it was written with, and gives focus to the element marked in it', async ({ page }) => {
-    // The first mount defines the element; every later document is read with the definition there, so the dialog
-    // opens at its start tag. An engine that runs the element's first update before it has read the dialog's children
-    // (WebKit; SSH-16 was the side sheet's) would count no action and find no mark.
-    const seen = reports(page);
-    await mount(page, [f('first')]);
-    const written = spec.fixtures.filter((fx) => fx.props.open === true);
-    expect(written.length).toBeGreaterThan(0);
-    for (const fixture of written) {
+  // The first mount defines the element; every later document is read with the definition there, so the dialog opens at
+  // its start tag. An engine that runs the element's first update before it has read the dialog's children (WebKit;
+  // SSH-16 was the side sheet's) would count no action and find no mark. A test per fixture written open — two mounts a
+  // page, the first to define the element — not one page that mounts them all.
+  const writtenOpen = spec.fixtures.filter((fx) => fx.props.open === true);
+  test('DLG-2, DLG-19: the spec has fixtures written open', () => {
+    expect(writtenOpen.length).toBeGreaterThan(0);
+  });
+  for (const fixture of writtenOpen) {
+    test(`DLG-2, DLG-19: a dialog written open in a document that is read after the element was defined counts the actions it was written with: ${fixture.id}`, async ({ page }) => {
+      const seen = reports(page);
+      await mount(page, [f('first')]);
       await mount(page, [fixture], dialogWindow(fixture.id));
       await expect.poll(() => isOpen(page, fixture.id)).toBe(true);
       await expect(host(page, fixture.id).locator('.actions')).toBeVisible();
-    }
+      // Counted with its actions, so not reported as trapped.
+      expect(seen.filter((r) => r.text.includes('DLG-19'))).toEqual([]);
+    });
+  }
+
+  test('DLG-2, DLG-19: a dialog written open in a document that is read after the element was defined is reported while trapped by its markup and not once it has a way out, and gives focus to the element marked in it', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [f('first')]);
     // A dialog trapped by its markup is still reported, and one with a way out is not.
     await mount(page, [f('fine', { open: true, dismissible: false })]);
     await expect.poll(() => isOpen(page, 'fine')).toBe(true);
