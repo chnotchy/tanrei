@@ -82,6 +82,9 @@
           "$ref": "comp/radio-button.tokens.json"
         },
         {
+          "$ref": "comp/rating.tokens.json"
+        },
+        {
           "$ref": "comp/switch.tokens.json"
         },
         {

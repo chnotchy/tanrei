@@ -1229,6 +1229,13 @@
       }
     },
     {
+      "name": "rating",
+      "title": "Rating",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "resizable-frame",
       "title": "Resizable frame",
       "level": "composed",

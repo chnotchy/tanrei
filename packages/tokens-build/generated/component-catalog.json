@@ -1778,6 +1778,13 @@
       "react": {
         "name": "MarqueeText"
       }
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
     }
   ]
 }

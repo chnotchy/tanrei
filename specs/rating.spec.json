@@ -1,0 +1,431 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "rating",
+  "title": "Rating",
+  "summary": "Lets a person give a score out of a few marks — stars by default — or shows a score already given, a whole mark or, where the product allows it, a half mark at a time.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The round area behind each mark that carries hover, focus and press: the state layer is drawn on it. One per mark, side by side with no space between them."
+    },
+    {
+      "id": "mark",
+      "description": "The glyph of one step of the score (star by default), drawn filled while it is within the value and outlined while it is not; a half value draws its last mark filled on its start half only."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the focused mark's container (around every mark while the rating is a slider, RAT-4)."
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 0,
+      "description": "The score: a number of marks from 0 to max, in whole marks or, while allowHalf is true, in halves. 0 is no score yet."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 5,
+      "description": "How many marks are drawn: the highest score. A whole number from 1."
+    },
+    {
+      "name": "allowHalf",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets the score end on a half mark: a press on the start half of a mark gives that mark less a half, and the arrow keys move by a half."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "axis": "tanrei.comp.rating.size",
+      "description": "The size of each mark (20 / 24 / 32) and of the round area behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values."
+    },
+    {
+      "name": "icon",
+      "type": "string",
+      "default": "",
+      "description": "The name of the glyph of one mark in the system's icon set (favorite, thumb_up); empty draws star. One glyph for every mark; the filled and the outlined forms are the icon set's two fills."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the rating for assistive technology (\"Your rating of this recipe\"). Required. Never drawn: a visible question beside the rating is the product's, and uses the same words."
+    },
+    {
+      "name": "optionLabels",
+      "type": "strings",
+      "default": [],
+      "description": "The name of each score a person can give, in ascending order from the lowest (one mark, or a half mark while allowHalf is true): [\"Poor\", \"Fair\", \"Good\", \"Very good\", \"Excellent\"]. Empty names each score by its number, written as the platform writes a number in the language of the element."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "How assistive technology reads a read-only rating's score (\"4.5 out of 5 stars\"), in the product's language. Empty reads the score's name from optionLabels, or its number."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows a score that cannot be changed — an average, a review's score — as one image with a name: not focusable and not pressable."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the rating as unavailable: drawn in the disabled colors, not focusable, taking no input and left out of form submission."
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person changed the score: a press on a mark or a key. Carries the new value. Not emitted when the product sets value."
+    },
+    {
+      "name": "preview",
+      "description": "A fine pointer moved onto a mark, or off the rating: carries the score the pointer would give, or null when it leaves, so that the product can show that score's words while the person points (\"Very good\")."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "RAT-1",
+      "text": "THE rating SHALL draw max marks in a row from its inline-start edge, each the glyph icon names (star WHILE icon is empty) at comp.rating.mark.size.medium for size medium (and so on for each size), centred in a round container comp.rating.container.size.medium across (and so on), with the containers touching: the marks within value SHALL be drawn from the selected condition — sys.icon.family.selected, sys.icon.fill.selected and comp.rating.selected.mark.color — and the others from the unselected condition — sys.icon.family.unselected, sys.icon.fill.unselected and comp.rating.unselected.mark.color — with sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "RAT-2",
+      "text": "WHILE value ends on a half mark THE rating SHALL draw that mark twice in its place — from the selected condition clipped to its inline-start half and from the unselected condition clipped to its inline-end half, divided at the glyph's centre line — so that one mark reads as half filled, its filled half on the right WHERE the layout direction is right-to-left."
+    },
+    {
+      "id": "RAT-3",
+      "text": "WHILE readOnly is false, disabled is false, allowHalf is false and max is at most 7 THE rating SHALL be a radio group named by label, each mark a radio named by its entry in optionLabels or, WHILE optionLabels has no entry for it, by its score written as the platform writes a number in the language of the element, checked WHILE its score equals value, with one stop in the focus order: the checked mark, or the first mark WHILE value is 0; THE rating SHALL answer the keys as a radio group does (RGP-5, RGP-6) — Right Arrow and Down Arrow check the next mark, Left Arrow and Up Arrow the previous one, both wrapping, Left and Right exchanged WHERE the layout direction is right-to-left, Space checks the focused mark — and emit change once for each change of value."
+    },
+    {
+      "id": "RAT-4",
+      "text": "WHILE readOnly is false, disabled is false, and allowHalf is true or max is above 7 THE rating SHALL be one slider named by label, from 0 to max, with value as its current value and as its value text the entry of optionLabels for value or, WHILE there is none, nothing, so that the platform reads the number; it SHALL be one stop in the focus order and SHALL answer the keys as a slider does: Right Arrow and Up Arrow raise the value by one step — a half while allowHalf is true, a whole mark otherwise — and Left Arrow and Down Arrow lower it, never below one step and never above max (Right and Left exchanged WHERE the layout direction is right-to-left), Page Up and Page Down by one whole mark, Home to one step and End to max, and emit change once for each change of value."
+    },
+    {
+      "id": "RAT-5",
+      "text": "WHILE readOnly is true and disabled is false THE rating SHALL draw its value as RAT-1 and RAT-2 say, SHALL take no press, no key and no focus, and SHALL expose itself as one image named by label and described by valueText or, WHILE valueText is empty, by the entry of optionLabels for value or else value written as the platform writes a number in the language of the element; WHILE value is 0 it SHALL be described as such by valueText alone, and in debug builds SHALL report a read-only rating with neither valueText nor a value above 0."
+    },
+    {
+      "id": "RAT-6",
+      "text": "WHEN the user presses a mark by pointer or touch, or Space on a focused mark (RAT-3), WHILE readOnly and disabled are false THE rating SHALL set value to that mark's score — to that mark less a half WHILE allowHalf is true and the press lands on the mark's inline-start half — and WHEN that differs from value emit change once with the new value; a press on the mark of the score already given SHALL change nothing, so that no input takes a score back to 0."
+    },
+    {
+      "id": "RAT-7",
+      "text": "WHILE a fine pointer is over a mark and readOnly and disabled are false THE rating SHALL draw every mark as RAT-1 and RAT-2 would draw them for the score the pointer would give (RAT-6), with that mark's container in its hovered state, and emit preview with that score each time it changes; WHEN the pointer leaves the rating THE rating SHALL draw its value again and emit preview once with null."
+    },
+    {
+      "id": "RAT-8",
+      "text": "WHERE a mark's container is below the minimum target THE rating SHALL extend that mark's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch; WHERE the hit areas of neighbouring marks overlap, a point SHALL belong to the mark whose centre is nearer, so that the row is divided at the middle between marks."
+    },
+    {
+      "id": "RAT-9",
+      "text": "WHEN a mark is pressed by pointer, touch or Space THE rating SHALL show the pressed state on that mark's container without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "RAT-10",
+      "text": "WHILE pressed THE rating SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.rating.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "RAT-11",
+      "text": "THE rating SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow) — around the focused mark's container while it is a radio group, around the row of containers while it is a slider — at sys.focus.offset, never for focus gained by pointer; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "RAT-12",
+      "text": "WHEN value changes THE rating SHALL change each mark between its unselected and its selected form over comp.rating.motion.selection-duration with comp.rating.motion.selection-easing, as a fade between the two forms, going on from the form then shown WHEN it changes again during the motion (MOT-2), and SHALL change its containers' state colors over comp.rating.motion.state-duration with comp.rating.motion.state-easing; THE rating SHALL draw its first frame at its value without a motion (MOT-3), and WHERE motion is reduced the fades stay (MOT-6)."
+    },
+    {
+      "id": "RAT-13",
+      "text": "WHILE disabled is true THE rating SHALL render its containers and marks from the disabled tokens of each mark's condition, SHALL NOT be focusable or take any input, SHALL emit nothing, SHALL expose its disabled state and its value to assistive technology, and SHALL be left out of form submission."
+    },
+    {
+      "id": "RAT-14",
+      "text": "WHEN the product sets value THE rating SHALL draw the new value and SHALL NOT emit change; IF value is below 0 or above max THE rating SHALL draw and expose it clamped to that range, and IF it is not a whole number while allowHalf is false, or not a multiple of a half while it is true, SHALL draw and expose the nearest score it can show; IF max is not a whole number from 1 THE rating SHALL take the whole number below it and at least 1; in each case debug builds SHALL report the value."
+    },
+    {
+      "id": "RAT-15",
+      "text": "WHERE the platform has forms (the web) THE rating SHALL take part in them as a native control does: it takes name, submits value WHILE it is above 0 and nothing WHILE it is 0, restores it on navigation and resets to the value it was first given, and Enter while it has focus submits its form as Enter in a native radio does; WHILE readOnly is true it SHALL submit its value, and WHILE disabled is true nothing."
+    },
+    {
+      "id": "RAT-16",
+      "text": "WHERE the layout direction is right-to-left THE rating SHALL draw its first mark at the right, the score growing leftward, and SHALL draw the glyph mirrored exactly when the system's icon set marks that glyph's name as mirrored; it SHALL take its layout direction from where it is used and have no direction setting of its own."
+    },
+    {
+      "id": "RAT-17",
+      "text": "WHERE the platform draws with a person's own forced colors THE rating SHALL draw every mark in the platform's text color — the selected form filled and the unselected form outlined, so that the score is read from the shapes and not from a color — the hovered mark's container in the platform's highlight color, and a disabled rating in the platform's disabled text color."
+    },
+    {
+      "id": "RAT-18",
+      "text": "WHILE label is empty THE rating SHALL still render and in debug builds report that it has no accessible name; WHILE optionLabels is not empty and does not hold exactly one entry for each score a person can give THE rating SHALL use the entries it has, name the others by their numbers, and in debug builds report the count; WHEN size names a value the active design system does not have THE rating SHALL render with medium's tokens and in debug builds report the unknown value; WHILE icon names no glyph of the system's icon set THE rating SHALL draw star and in debug builds report the name."
+    }
+  ],
+  "accessibility": {
+    "role": "radiogroup of radios (whole marks, up to 7); slider (half marks, or more than 7 marks); img (read-only)",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the rating — to the checked mark, or to the first mark while there is no score — and out of it. One stop."
+      },
+      {
+        "keys": "Right Arrow / Down Arrow (radio group)",
+        "action": "Checks the next mark, wrapping from the last to the first; Left Arrow in a right-to-left layout."
+      },
+      {
+        "keys": "Left Arrow / Up Arrow (radio group)",
+        "action": "Checks the previous mark, wrapping from the first to the last; Right Arrow in a right-to-left layout."
+      },
+      {
+        "keys": "Space (radio group)",
+        "action": "Checks the focused mark when none is checked. A press on the checked mark changes nothing: a score is never taken back to none."
+      },
+      {
+        "keys": "Right Arrow / Up Arrow, Left Arrow / Down Arrow (slider)",
+        "action": "Raises or lowers the score by one step (a half where halves are allowed), between one step and max."
+      },
+      {
+        "keys": "Page Up / Page Down (slider)",
+        "action": "Raises or lowers the score by one whole mark."
+      },
+      {
+        "keys": "Home / End (slider)",
+        "action": "Sets the lowest score (one step) or the highest (max)."
+      },
+      {
+        "keys": "Enter",
+        "action": "Submits the form the rating stands in, as in a native radio; it sets no score."
+      }
+    ],
+    "labeling": "label names the radio group, the slider or the read-only image. Each radio is named by its entry in optionLabels or by its number; the slider's value text is the entry for its value, or the platform reads the number. A read-only rating is described by valueText. The marks' glyphs are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "WAI-ARIA APG: a radio group suits up to seven choices; with more, a slider's keys make choosing faster (the Rating Slider example). Five whole stars are five radios (the Rating Radio Group example); five stars in halves are ten choices, so the rating is a slider (RAT-3, RAT-4).",
+      "There is no way to take a score back to none once given, by any input, as there is none in a radio group. A product whose form needs it places a Button beside the rating that sets value to 0.",
+      "The unselected mark is drawn in comp.rating.unselected.mark.color, outline in the default system: a functional boundary of at least 3:1 against the surface, so that the marks not given can be counted (WCAG 1.4.11). The filled and outlined forms differ in shape as well as color (WCAG 1.4.1).",
+      "Neighbouring marks share their extended hit areas by distance (RAT-8): at size medium each mark has 32 of the row's width, above the 24 that WCAG 2.5.8 asks."
+    ]
+  },
+  "tokens": "comp.rating",
+  "fixtures": [
+    {
+      "id": "empty",
+      "props": {
+        "label": "Your rating"
+      }
+    },
+    {
+      "id": "value",
+      "props": {
+        "label": "Your rating",
+        "value": 3
+      }
+    },
+    {
+      "id": "full",
+      "props": {
+        "label": "Your rating",
+        "value": 5
+      }
+    },
+    {
+      "id": "half",
+      "props": {
+        "label": "Your rating",
+        "value": 3.5,
+        "allowHalf": true
+      }
+    },
+    {
+      "id": "small",
+      "props": {
+        "label": "Your rating",
+        "value": 3,
+        "size": "small"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "label": "Your rating",
+        "value": 3,
+        "size": "large"
+      }
+    },
+    {
+      "id": "ten",
+      "props": {
+        "label": "How likely are you to recommend us?",
+        "value": 7,
+        "max": 10
+      }
+    },
+    {
+      "id": "heart",
+      "props": {
+        "label": "How much did you enjoy it?",
+        "value": 4,
+        "icon": "favorite"
+      }
+    },
+    {
+      "id": "read-only",
+      "props": {
+        "label": "Average rating",
+        "value": 4.5,
+        "readOnly": true,
+        "valueText": "4.5 out of 5 stars"
+      }
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Your rating",
+        "value": 2,
+        "disabled": true
+      }
+    },
+    {
+      "id": "half-rtl",
+      "props": {
+        "label": "Your rating",
+        "value": 2.5,
+        "allowHalf": true
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "on-container-highest",
+      "props": {
+        "label": "Your rating",
+        "value": 3
+      },
+      "surface": "surface-container-highest"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-rating",
+      "props": {
+        "value": "value",
+        "max": "max",
+        "allowHalf": "allowHalf",
+        "size": "size",
+        "icon": "icon",
+        "label": "label",
+        "optionLabels": "optionLabels",
+        "valueText": "valueText",
+        "readOnly": "readOnly",
+        "disabled": "disabled"
+      },
+      "events": {
+        "change": "change",
+        "preview": "preview"
+      },
+      "notes": "Form-associated. As a radio group, the shadow root holds one element with `role=\"radiogroup\"` and `aria-label`, and one `role=\"radio\"` element per mark with a roving `tabindex` — not `<input type=\"radio\">`, whose name group cannot span shadow roots; as a slider, one `role=\"slider\"` element with `aria-valuemin=\"0\"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` while an entry names the value; read-only, one `role=\"img\"` element with `aria-label` and `aria-description`. `optionLabels` is an array property whose attribute `option-labels` is read as a JSON array. `allow-half`, `read-only`, `value-text` are the attributes. A half mark is two glyphs in one box, each clipped with `clip-path: inset()` on its half, the halves swapped in right-to-left. `change` and `preview` are CustomEvents whose `detail.value` is the score (null for preview's leaving). Every mark carries the `container` part and its glyphs the `mark` part."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiRating",
+      "props": {
+        "value": "value",
+        "max": "maximum",
+        "allowHalf": "allowsHalf",
+        "size": "size",
+        "icon": "systemImage",
+        "label": "label",
+        "optionLabels": "optionLabels",
+        "valueText": "valueText",
+        "readOnly": "isReadOnly",
+        "disabled": ".disabled(_:)"
+      },
+      "events": {
+        "change": "value (Binding)",
+        "preview": "onPreview"
+      },
+      "notes": "`TanreiRating(\"Your rating\", value: $score)`. Exposed as one adjustable element (accessibilityAdjustableAction) in every mode, because VoiceOver has no radio group: swipe up and down move by a step; the radio-group mode's semantics apply where a platform has them."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiRating",
+      "props": {
+        "value": "value",
+        "max": "max",
+        "allowHalf": "allowHalf",
+        "size": "size",
+        "icon": "icon",
+        "label": "label",
+        "optionLabels": "optionLabels",
+        "valueText": "valueText",
+        "readOnly": "readOnly",
+        "disabled": "enabled"
+      },
+      "events": {
+        "change": "onValueChange",
+        "preview": "onPreview"
+      },
+      "notes": "Radio-group mode: `Modifier.selectableGroup()` with each mark `selectable(role = Role.RadioButton)`; slider mode: `progressSemantics` with `setProgress`; read-only: `Role.Image` with the description. `enabled` is the inverse of disabled."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiRating",
+      "props": {
+        "value": "value",
+        "max": "max",
+        "allowHalf": "allowHalf",
+        "size": "size",
+        "icon": "icon",
+        "label": "label",
+        "optionLabels": "optionLabels",
+        "valueText": "valueText",
+        "readOnly": "readOnly",
+        "disabled": "enabled"
+      },
+      "events": {
+        "change": "onChanged",
+        "preview": "onPreview"
+      },
+      "notes": "Radio-group mode: each mark `Semantics(inMutuallyExclusiveGroup: true, checked:)`; slider mode: `Semantics(slider: true, value:, increasedValue:, decreasedValue:)`; read-only: `Semantics(image: true)`. A null `onChanged` is disabled."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Rating",
+      "props": {
+        "value": "value",
+        "max": "max",
+        "allowHalf": "allowHalf",
+        "size": "size",
+        "icon": "icon",
+        "label": "label",
+        "optionLabels": "optionLabels",
+        "valueText": "valueText",
+        "readOnly": "readOnly",
+        "disabled": "disabled"
+      },
+      "events": {
+        "change": "onValueChange",
+        "preview": "onPreview"
+      },
+      "notes": "Radio-group mode: `accessibilityRole=\"radiogroup\"` with each mark `role=\"radio\"` and `accessibilityState.checked`; slider mode: `accessibilityRole=\"adjustable\"` with `accessibilityActions` increment and decrement; read-only: `accessibilityRole=\"image\"`."
+    }
+  }
+}

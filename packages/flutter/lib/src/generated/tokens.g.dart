@@ -19343,6 +19343,349 @@ class TanreiRadioButtonTokens {
       };
 }
 
+/// The key of a size of rating (`comp.rating`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiRatingSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiRatingSize(String name) {
+  static const small = TanreiRatingSize('small');
+  static const medium = TanreiRatingSize('medium');
+  static const large = TanreiRatingSize('large');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiRatingSize> core = <TanreiRatingSize>[small, medium, large];
+}
+
+/// The tokens of one rating size.
+@immutable
+class TanreiRatingSizeTokens {
+  const TanreiRatingSizeTokens({
+    required this.markSize,
+    required this.containerSize,
+  });
+
+  /// `comp.rating.mark-size.<size>`
+  final double markSize;
+  /// `comp.rating.container-size.<size>`
+  final double containerSize;
+
+  /// A copy with the given tokens replaced.
+  TanreiRatingSizeTokens copyWith({
+    double? markSize,
+    double? containerSize,
+  }) => TanreiRatingSizeTokens(
+        markSize: markSize ?? this.markSize,
+        containerSize: containerSize ?? this.containerSize,
+      );
+}
+
+/// Every size of rating: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiRatingSizes {
+  const TanreiRatingSizes({
+    required this.small,
+    required this.medium,
+    required this.large,
+    this.extra = const <TanreiRatingSize, TanreiRatingSizeTokens>{},
+  });
+
+  /// `comp.rating` size `small`
+  final TanreiRatingSizeTokens small;
+  /// `comp.rating` size `medium`
+  final TanreiRatingSizeTokens medium;
+  /// `comp.rating` size `large`
+  final TanreiRatingSizeTokens large;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiRatingSize, TanreiRatingSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiRatingSizes copyWith({
+    TanreiRatingSizeTokens? small,
+    TanreiRatingSizeTokens? medium,
+    TanreiRatingSizeTokens? large,
+    Map<TanreiRatingSize, TanreiRatingSizeTokens>? extra,
+  }) => TanreiRatingSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        large: large ?? this.large,
+        extra: extra == null ? this.extra : <TanreiRatingSize, TanreiRatingSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiRatingSizeTokens operator [](TanreiRatingSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        'large' => large,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiRatingSize size) => TanreiRatingSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiRatingSize> get keys => <TanreiRatingSize>[...TanreiRatingSize.core, ...extra.keys];
+
+  TanreiRatingSizeTokens _fallback(TanreiRatingSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('rating size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
+/// The key of a condition of rating (`comp.rating`, axis `condition`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiRatingCondition('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [unselected].
+extension type const TanreiRatingCondition(String name) {
+  static const unselected = TanreiRatingCondition('unselected');
+  static const selected = TanreiRatingCondition('selected');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiRatingCondition> core = <TanreiRatingCondition>[unselected, selected];
+}
+
+/// What one condition of rating looks like in one interaction state.
+@immutable
+class TanreiRatingConditionStateTokens {
+  const TanreiRatingConditionStateTokens({
+    required this.containerColor,
+    required this.markColor,
+    required this.stateLayerColor,
+  });
+
+  /// `comp.rating.<condition>.<state>.container-color`
+  final TanreiPaint containerColor;
+  /// `comp.rating.<condition>.<state>.mark-color`
+  final TanreiPaint markColor;
+  /// `comp.rating.<condition>.<state>.state-layer-color`
+  final TanreiPaint stateLayerColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiRatingConditionStateTokens copyWith({
+    TanreiPaint? containerColor,
+    TanreiPaint? markColor,
+    TanreiPaint? stateLayerColor,
+  }) => TanreiRatingConditionStateTokens(
+        containerColor: containerColor ?? this.containerColor,
+        markColor: markColor ?? this.markColor,
+        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
+      );
+}
+
+/// The per-state tokens of one rating condition. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiRatingConditionTokens {
+  const TanreiRatingConditionTokens({
+    required this.enabled,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  final TanreiRatingConditionStateTokens enabled;
+  final TanreiRatingConditionStateTokens hovered;
+  final TanreiRatingConditionStateTokens focused;
+  final TanreiRatingConditionStateTokens pressed;
+  final TanreiRatingConditionStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiRatingConditionTokens copyWith({
+    TanreiRatingConditionStateTokens? enabled,
+    TanreiRatingConditionStateTokens? hovered,
+    TanreiRatingConditionStateTokens? focused,
+    TanreiRatingConditionStateTokens? pressed,
+    TanreiRatingConditionStateTokens? disabled,
+  }) => TanreiRatingConditionTokens(
+        enabled: enabled ?? this.enabled,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiRatingConditionStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
+/// Every condition of rating: the core values by name, the values a design system added in [extra].
+/// Look one up with `conditions[key]`; the lookup is total.
+@immutable
+class TanreiRatingConditions {
+  const TanreiRatingConditions({
+    required this.unselected,
+    required this.selected,
+    this.extra = const <TanreiRatingCondition, TanreiRatingConditionTokens>{},
+  });
+
+  /// `comp.rating` condition `unselected`
+  final TanreiRatingConditionTokens unselected;
+  /// `comp.rating` condition `selected`
+  final TanreiRatingConditionTokens selected;
+
+  /// The conditions a design system added to the core vocabulary.
+  final Map<TanreiRatingCondition, TanreiRatingConditionTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiRatingConditions copyWith({
+    TanreiRatingConditionTokens? unselected,
+    TanreiRatingConditionTokens? selected,
+    Map<TanreiRatingCondition, TanreiRatingConditionTokens>? extra,
+  }) => TanreiRatingConditions(
+        unselected: unselected ?? this.unselected,
+        selected: selected ?? this.selected,
+        extra: extra == null ? this.extra : <TanreiRatingCondition, TanreiRatingConditionTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [condition].
+  ///
+  /// A condition this design system does not have resolves to [unselected], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiRatingConditionTokens operator [](TanreiRatingCondition condition) => switch (condition.name) {
+        'unselected' => unselected,
+        'selected' => selected,
+        _ => extra[condition] ?? _fallback(condition),
+      };
+
+  /// Whether this design system has [condition].
+  bool has(TanreiRatingCondition condition) => TanreiRatingCondition.core.contains(condition) || extra.containsKey(condition);
+
+  /// Every condition this design system has: the core values, then the added ones.
+  List<TanreiRatingCondition> get keys => <TanreiRatingCondition>[...TanreiRatingCondition.core, ...extra.keys];
+
+  TanreiRatingConditionTokens _fallback(TanreiRatingCondition condition) {
+    assert(() {
+      debugTanreiReportUnknownValue('rating condition', condition.name, 'unselected');
+      return true;
+    }());
+    return unselected;
+  }
+}
+
+/// The tokens of rating that vary by interaction state but not by variant.
+@immutable
+class TanreiRatingStateTokens {
+  const TanreiRatingStateTokens({
+    required this.containerShape,
+    required this.opacity,
+  });
+
+  /// `comp.rating.<state>.container-shape`
+  final double containerShape;
+  /// `comp.rating.<state>.opacity`
+  final double opacity;
+
+  /// A copy with the given tokens replaced.
+  TanreiRatingStateTokens copyWith({
+    double? containerShape,
+    double? opacity,
+  }) => TanreiRatingStateTokens(
+        containerShape: containerShape ?? this.containerShape,
+        opacity: opacity ?? this.opacity,
+      );
+}
+
+/// `comp.rating.*`
+@immutable
+class TanreiRatingTokens {
+  const TanreiRatingTokens({
+    required this.containerShape,
+    required this.motionFeedbackDuration,
+    required this.motionSelectionDuration,
+    required this.motionSelectionEasing,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
+    required this.sizes,
+    required this.conditions,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  /// `comp.rating.container-shape`
+  final double containerShape;
+  /// `comp.rating.motion-feedback-duration`
+  final int motionFeedbackDuration;
+  /// `comp.rating.motion-selection-duration`
+  final int motionSelectionDuration;
+  /// `comp.rating.motion-selection-easing`
+  final TanreiCubicBezier motionSelectionEasing;
+  /// `comp.rating.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.rating.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiRatingSizes sizes;
+  /// The `condition` axis: `conditions[condition]`.
+  final TanreiRatingConditions conditions;
+  /// `comp.rating.hovered.*`
+  final TanreiRatingStateTokens hovered;
+  /// `comp.rating.focused.*`
+  final TanreiRatingStateTokens focused;
+  /// `comp.rating.pressed.*`
+  final TanreiRatingStateTokens pressed;
+  /// `comp.rating.disabled.*`
+  final TanreiRatingStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiRatingTokens copyWith({
+    double? containerShape,
+    int? motionFeedbackDuration,
+    int? motionSelectionDuration,
+    TanreiCubicBezier? motionSelectionEasing,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
+    TanreiRatingSizes? sizes,
+    TanreiRatingConditions? conditions,
+    TanreiRatingStateTokens? hovered,
+    TanreiRatingStateTokens? focused,
+    TanreiRatingStateTokens? pressed,
+    TanreiRatingStateTokens? disabled,
+  }) => TanreiRatingTokens(
+        containerShape: containerShape ?? this.containerShape,
+        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
+        motionSelectionEasing: motionSelectionEasing ?? this.motionSelectionEasing,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        sizes: sizes ?? this.sizes,
+        conditions: conditions ?? this.conditions,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
+  /// resting tokens of this class apply).
+  TanreiRatingStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => null,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
 /// `comp.resizable-frame.*`
 @immutable
 class TanreiResizableFrameTokens {
@@ -27035,6 +27378,7 @@ class TanreiSystem {
     required this.progressIndicator,
     required this.prose,
     required this.radioButton,
+    required this.rating,
     required this.resizableFrame,
     required this.scrollArea,
     required this.search,
@@ -27139,6 +27483,7 @@ class TanreiSystem {
   final TanreiProgressIndicatorTokens progressIndicator;
   final TanreiProseTokens prose;
   final TanreiRadioButtonTokens radioButton;
+  final TanreiRatingTokens rating;
   final TanreiResizableFrameTokens resizableFrame;
   final TanreiScrollAreaTokens scrollArea;
   final TanreiSearchTokens search;
@@ -27242,6 +27587,7 @@ class TanreiSystem {
     TanreiProgressIndicatorTokens? progressIndicator,
     TanreiProseTokens? prose,
     TanreiRadioButtonTokens? radioButton,
+    TanreiRatingTokens? rating,
     TanreiResizableFrameTokens? resizableFrame,
     TanreiScrollAreaTokens? scrollArea,
     TanreiSearchTokens? search,
@@ -27343,6 +27689,7 @@ class TanreiSystem {
         progressIndicator: progressIndicator ?? this.progressIndicator,
         prose: prose ?? this.prose,
         radioButton: radioButton ?? this.radioButton,
+        rating: rating ?? this.rating,
         resizableFrame: resizableFrame ?? this.resizableFrame,
         scrollArea: scrollArea ?? this.scrollArea,
         search: search ?? this.search,

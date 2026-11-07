@@ -673,6 +673,13 @@
       "category": "communication",
       "level": "base",
       "listing": "default"
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }
