@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('app-bar');
 type P = Page;
@@ -1101,7 +1102,8 @@ test.describe('overflow', () => {
     await more(page, id).click();
     const menu = overflowMenu(page, id);
     await expect(menu).toHaveAttribute('open', '');
-    // Bottom-end: below the more button, the end edges aligned.
+    // Bottom-end: below the more button, the end edges aligned — where the menu rests, once its appearance has ended.
+    await motionEnded(page);
     const [button, surface] = [await bounds(moreHost(page, id)), await bounds(menu.locator('.surface').first())];
     expect(surface.y).toBeGreaterThanOrEqual(button.y + button.height - 0.5);
     expect(surface.x + surface.width).toBeCloseTo(button.x + button.width, 0);
