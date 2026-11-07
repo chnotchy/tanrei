@@ -31,7 +31,7 @@ import { TanreiButton } from '../button/button.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
-import { LINE, styles } from './chat-composer.styles.js';
+import { measuredSheet, styles } from './chat-composer.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The members' own types are the chat composer's where an item's prop or an event's detail is the member's.
@@ -531,8 +531,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private sendHeld = false;
   /** CCM-4: focus was on a Button the layout is about to draw again. */
   private startHeld = false;
-  /** CCM-41: one line of the typing area's text, as its native element computes it. */
+  /** CCM-41: one line of the typing area's text, as its native element computes it, and the shared rules written from it. */
   private line = '';
+  private lineSheet: CSSStyleSheet | null = null;
   private sizes: ResizeObserver | undefined;
   private watched: Element[] = [];
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
@@ -1603,18 +1604,23 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   /**
    * CCM-41: one line of the typing area's text — the member's computed line height, never its token — from which the
-   * capsule's corners and the least height of its groups are drawn: written on the capsule as `--_ccm-line`, which the
-   * stylesheet's rules read, so that every instance shares that stylesheet. CCM-4: whether the capsule is narrower than
-   * `layout.inline-min-width`, by its own width.
+   * capsule's corners and the least height of its groups are drawn, by the stylesheet of that line, which every
+   * instance that measured it shares (`measuredSheet()`), adopted after the element's stylesheet and in no cascade
+   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width.
    */
   private measure() {
     const capsule = this.capsule;
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    if (/^[\d.]+px$/.test(line)) {
+    if (/^[\d.]+px$/.test(line) && line !== this.line) {
       this.line = line;
-      if (capsule.style.getPropertyValue(LINE) !== line) capsule.style.setProperty(LINE, line);
+      const root = this.renderRoot;
+      const sheet = measuredSheet(line);
+      if (sheet && root instanceof ShadowRoot && 'adoptedStyleSheets' in root) {
+        root.adoptedStyleSheets = [...root.adoptedStyleSheets.filter((adopted) => adopted !== this.lineSheet), sheet];
+        this.lineSheet = sheet;
+      }
     }
     const probe = capsule.querySelector('.probe');
     const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];

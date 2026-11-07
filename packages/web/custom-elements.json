@@ -5932,32 +5932,41 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "LINE",
-          "type": {
-            "text": "string"
-          },
-          "default": "'--_ccm-line'",
-          "description": "CCM-41: the custom property the element writes on the capsule: one line of the typing area's text, in px."
+          "name": "styles"
         },
         {
-          "kind": "variable",
-          "name": "styles"
+          "kind": "function",
+          "name": "measuredSheet",
+          "return": {
+            "type": {
+              "text": "CSSStyleSheet | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "line",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "CCM-41: the rules of `measured()` for a line of `line` (a length in px), as one constructed stylesheet that every\ncomposer whose typing area has that line adopts — so a page of a hundred composers holds the sheets one holds. Null\nwhere a browser cannot construct a stylesheet: the line of no height then stands."
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "LINE",
+          "name": "styles",
           "declaration": {
-            "name": "LINE",
+            "name": "styles",
             "module": "src/components/chat-composer/chat-composer.styles.ts"
           }
         },
         {
           "kind": "js",
-          "name": "styles",
+          "name": "measuredSheet",
           "declaration": {
-            "name": "styles",
+            "name": "measuredSheet",
             "module": "src/components/chat-composer/chat-composer.styles.ts"
           }
         }

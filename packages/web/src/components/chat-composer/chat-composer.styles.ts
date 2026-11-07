@@ -8,17 +8,14 @@ import { heldRadius, heldShape } from '../../styles/shape.js';
 // and every Button are drawn by their own elements from their own tokens.
 //
 // Nothing here writes a custom property or reads a token of a member: the capsule
-// holds its members, and a token written on it would be inherited by each of them. So every state is written out
-// from its own tokens. The one length the stylesheet cannot know — a line of the typing area's text, which is the
-// member's — is measured by the element and written on the capsule as `--_ccm-line` (LINE), a private name no member
-// reads; the rules that depend on it read it, so one stylesheet serves every instance.
+// holds its members, and a custom property on it would be inherited by each of them. So every state is written out
+// from its own tokens, and the one length the stylesheet cannot know — a line of the typing area's text, which is the
+// member's — is measured by the element and written as rules (`measured()`), never as a property: one constructed
+// stylesheet for each line measured, which every instance that measured that line shares (`measuredSheet()`).
 const PREFIX = '--tanrei-comp-chat-composer';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
 const MOTION = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
-
-/** CCM-41: the custom property the element writes on the capsule: one line of the typing area's text, in px. */
-export const LINE = '--_ccm-line';
 
 /** CCM-41: whether the capsule's shape token is the full step, which is drawn round whatever the smoothing. */
 const PILL = `var(${PREFIX}-container-shape-pill, 0)`;
@@ -39,8 +36,9 @@ const focusedCapsule = (focus: string) => (focus === ':focus-visible' ? '.capsul
  * What depends on one line of the typing area's text (CCM-2, CCM-3, CCM-41), for a line of `line` (a CSS length):
  * the capsule's corners and its glow, which follow the one-line height, and the least height of each group of
  * Buttons, which is the typing area's with one line — so that a Button is centred on a single line and, as lines
- * grow, stays at the bottom edge at the distance it had. Until the element has read the member's line, the line has no
- * height, which is `container.height` alone.
+ * grow, stays at the bottom edge at the distance it had. The stylesheet has it for a line of no height, which is
+ * `container.height` alone; the element adopts it again, for the line it has read from the member, after its
+ * stylesheet and in no cascade layer (`measuredSheet()`).
  */
 const measured = (line: string): string => `
   ${heldShape('.capsule', radius(line), PILL)}
@@ -141,7 +139,7 @@ export const styles = css`
   }
 
   /* CCM-41: the corners — one radius at every height — the glow of CCM-42 around them, and the groups' least height. */
-  ${unsafeCSS(measured(`var(${LINE}, 0px)`))}
+  ${unsafeCSS(measured('0px'))}
 
   /* ── The strip (CCM-43) ── the attachments at the top of the capsule, from the start edge, strip.gap apart: a tile
      at its own size beside its neighbours, aligned to the top of its line; a row across a whole line. A full line wraps;
@@ -357,3 +355,22 @@ export const styles = css`
     }
   }
 `;
+
+/** The stylesheet of each line measured, shared by every instance that measured it. */
+const measuredSheets = new Map<string, CSSStyleSheet>();
+
+/**
+ * CCM-41: the rules of `measured()` for a line of `line` (a length in px), as one constructed stylesheet that every
+ * composer whose typing area has that line adopts — so a page of a hundred composers holds the sheets one holds. Null
+ * where a browser cannot construct a stylesheet: the line of no height then stands.
+ */
+export const measuredSheet = (line: string): CSSStyleSheet | null => {
+  if (typeof CSSStyleSheet === 'undefined') return null;
+  let sheet = measuredSheets.get(line);
+  if (!sheet) {
+    sheet = new CSSStyleSheet();
+    sheet.replaceSync(measured(line));
+    measuredSheets.set(line, sheet);
+  }
+  return sheet;
+};
