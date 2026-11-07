@@ -9,6 +9,7 @@ import { fixturePicture } from './pictures.ts';
 import { linkCardToHtml } from '../src/links/index.ts';
 import { buildSync } from 'esbuild';
 import { specimenHtml, specimenInline, specimenMarkdown } from './specimen.ts';
+import { countMount } from './mounts-per-page.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
@@ -2585,6 +2586,7 @@ async function mountDocument(page: Page, spec: Spec, given: DocumentOptions & Mo
   const tag = spec.platforms.web.name;
   // Only when asked: a test that emulated reduced motion itself keeps it across mounts.
   if (options.reducedMotion !== undefined) await page.emulateMedia({ reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference' });
+  countMount(page);
   await page.setContent(await fixturesDocument(spec, options));
   // A spec that is a class on the web (prose) defines no element to wait for.
   if (!STAGING[spec.name]?.element) await page.waitForFunction((t) => !!customElements.get(t), tag);
