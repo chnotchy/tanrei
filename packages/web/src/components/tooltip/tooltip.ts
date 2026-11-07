@@ -58,6 +58,21 @@ function focusableOf(element: Element): Element {
   }
 }
 
+/**
+ * TIP-27: the element on the way from `element` to the control `focusableOf` finds that has not drawn its shadow tree
+ * yet — a Tanrei element before its first update, which draws its native control — or null when the way is drawn.
+ * Markup inserted whole (`innerHTML`) upgrades the tooltip and runs its first update before its anchor has drawn: the
+ * control is not there to be found until then.
+ */
+function undrawnOn(element: Element): (Element & { updateComplete: Promise<unknown> }) | null {
+  for (let current: Element | undefined = element; current; ) {
+    const drawn = current as Element & { hasUpdated?: boolean; updateComplete?: Promise<unknown> };
+    if (drawn.updateComplete && drawn.hasUpdated === false) return drawn as Element & { updateComplete: Promise<unknown> };
+    current = [...(current.shadowRoot?.children ?? [])].map((child) => findInteractive(child)).find((found) => found !== null) ?? undefined;
+  }
+  return null;
+}
+
 /** TIP-8: the tooltip showing in this window, if any — at most one. */
 let showing: TanreiTooltip | null = null;
 /** TIP-28: the tooltip still fading out after the pointer or the focus left its anchor, if any. */
@@ -250,6 +265,8 @@ export class TanreiTooltip extends TanreiElement {
   private systemWatch: SystemWatchController | undefined;
   /** The element this tooltip put `aria-description` on, and what it wrote. */
   private described: { element: Element; text: string } | null = null;
+  /** TIP-27: the anchor's element whose first update the tooltip waits for before it reads the anchor (`undrawnOn`). */
+  private awaitedAnchor: Element | null = null;
   /** TIP-27: the element this tooltip put `aria-keyshortcuts` on, and what it wrote. */
   private keyed: { element: Element; keys: string } | null = null;
   private unregister: (() => void) | null = null;
@@ -825,6 +842,21 @@ export class TanreiTooltip extends TanreiElement {
     const drawn = this.hasText ? this.renderRoot?.querySelector<TanreiKeyboardShortcut>('tanrei-keyboard-shortcut') : null;
     const keys = drawn?.ariaKeyShortcuts ?? null;
     const element = keys ? this.describedElement() : null;
+    // An anchor that has not drawn its control yet is read once it has: the keys written on its host before then would
+    // be taken, once the host had moved them onto its control, for a shortcut the anchor states itself.
+    const undrawn = element ? undrawnOn(element) : null;
+    if (undrawn) {
+      if (this.awaitedAnchor !== undrawn) {
+        this.awaitedAnchor = undrawn;
+        void undrawn.updateComplete.then(() => {
+          if (this.awaitedAnchor !== undrawn) return;
+          this.awaitedAnchor = null;
+          if (this.isConnected) this.sync();
+        });
+      }
+      return;
+    }
+    this.awaitedAnchor = null;
     const target = element ? focusableOf(element) : null;
     // An anchor that moves the product's ARIA holds it in data-aria-* (src/primitives/delegated-aria.ts).
     const ours = (each: Element) => this.keyed?.element === each && ariaAttribute(each, 'aria-keyshortcuts') === this.keyed.keys;
