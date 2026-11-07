@@ -4026,6 +4026,25 @@
             }
           }
         },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long a line on a seam takes to fade in, to fade out or to fade from one color to the other when an item's selected, toggle or variant changes (BGR-24), with state-easing: the pace of a change of state, the one at which a medium Button changes between its looks."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
         "standard": {
           "gap": {
             "$type": "dimension",
@@ -18857,6 +18876,26 @@
             }
           }
         },
+        "motion": {
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long the callout takes to open or close (CLO-13): its height and its opacity in one motion, what follows it moving with it. Content that opens and closes in place."
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that motion: a box that opens and closes in place."
+          }
+        },
         "outline": {
           "color": {
             "$type": "color",
@@ -21853,6 +21892,32 @@
           }
         },
         "motion": {
+          "glyph-fade-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the glyph of the Button the composer brings in the send button's place takes to cross-fade between send and stop (CCM-35), with state-easing: a change of what a small part draws in place. The button itself — its name, its action, whether it is enabled — changes at once."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long the capsule takes to change its height when a File item is added to the strip or removed from it (CCM-35) — the strip opening or closing between the items that stay and the row of the typing area — and the items to fade in or out and move to their new places with it."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that change of height, of the items' moves and of their fades."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
@@ -21869,7 +21934,7 @@
               0,
               1
             ],
-            "$description": "The curve of those changes."
+            "$description": "The curve of those changes, and of the glyph's cross-fade between send and stop (glyph-fade-duration)."
           }
         },
         "outline": {
@@ -36140,6 +36205,24 @@
           }
         },
         "motion": {
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the field takes to reach its new height when its error text appears, goes or changes its words and the supporting row grows or shrinks with it: a box that changes its size in place. The error text that comes fades in over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that change of height: a box that resizes in place."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
@@ -46039,6 +46122,42 @@
             },
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           },
+          "picture-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long a picture that has arrived takes to fade in over the fill of its box (LKC-13): a change of what a large box draws in place, in which nothing changes place or size. A picture the platform already holds, or one that arrives in the card's first frames, is drawn at once."
+          },
+          "picture-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that fade: a change of opacity in place."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long the picture's box takes to fold away when its picture cannot be loaded (LKC-13), and to open again when a new picture is given while it folds: beside the text its width goes to none while the text widens to the whole card, above the text its height goes to none; the card's height and what follows it move with it at every frame. A large change of size in place."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that motion: a box that changes its size in place."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
@@ -48603,6 +48722,24 @@
               0,
               1
             ]
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long an item the product adds to a reorderable list takes to grow from nothing to its own length along the list, and one it takes away to close to nothing, the items after it following (LST-41): a row added to or taken out of a list. The item fades in or out over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that change of length: a box that resizes in place."
           },
           "state-duration": {
             "$type": "duration",

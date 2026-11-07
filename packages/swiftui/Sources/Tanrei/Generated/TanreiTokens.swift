@@ -2396,6 +2396,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
   public var connectedInnerShape: CGFloat
   public var connectedSeparation: Double
   public var connectedVerticalOuterShape: CGFloat
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
   public var standardGap: CGFloat
 
   public init(
@@ -2409,6 +2411,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
     connectedInnerShape: CGFloat,
     connectedSeparation: Double,
     connectedVerticalOuterShape: CGFloat,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
     standardGap: CGFloat
   ) {
     self.connectedDividerColor = connectedDividerColor
@@ -2421,6 +2425,8 @@ public struct TanreiButtonGroupTokens: Sendable, Equatable {
     self.connectedInnerShape = connectedInnerShape
     self.connectedSeparation = connectedSeparation
     self.connectedVerticalOuterShape = connectedVerticalOuterShape
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
     self.standardGap = standardGap
   }
 }
@@ -3604,6 +3610,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
   public var iconGap: CGFloat
   public var iconOpacity: Double
   public var iconSize: CGFloat
+  public var motionDisclosureDuration: Double
+  public var motionDisclosureEasing: TanreiCubicBezier
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
   public var titleGap: CGFloat
@@ -3622,6 +3630,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
     iconGap: CGFloat,
     iconOpacity: Double,
     iconSize: CGFloat,
+    motionDisclosureDuration: Double,
+    motionDisclosureEasing: TanreiCubicBezier,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
     titleGap: CGFloat,
@@ -3639,6 +3649,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
     self.iconGap = iconGap
     self.iconOpacity = iconOpacity
     self.iconSize = iconSize
+    self.motionDisclosureDuration = motionDisclosureDuration
+    self.motionDisclosureEasing = motionDisclosureEasing
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
     self.titleGap = titleGap
@@ -4216,6 +4228,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
   public var counterTypescale: TanreiTextStyle
   public var inputPaddingBlock: CGFloat
   public var layoutInlineMinWidth: CGFloat
+  public var motionGlyphFadeDuration: Double
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
@@ -4248,6 +4263,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     counterTypescale: TanreiTextStyle,
     inputPaddingBlock: CGFloat,
     layoutInlineMinWidth: CGFloat,
+    motionGlyphFadeDuration: Double,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
@@ -4276,6 +4294,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     self.counterTypescale = counterTypescale
     self.inputPaddingBlock = inputPaddingBlock
     self.layoutInlineMinWidth = layoutInlineMinWidth
+    self.motionGlyphFadeDuration = motionGlyphFadeDuration
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth
@@ -7301,6 +7322,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   public var labelIconSize: CGFloat
   public var labelGap: CGFloat
   public var labelTypescale: TanreiTextStyle
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var requirementAsteriskGap: CGFloat
@@ -7320,6 +7343,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
     labelIconSize: CGFloat,
     labelGap: CGFloat,
     labelTypescale: TanreiTextStyle,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     requirementAsteriskGap: CGFloat,
@@ -7338,6 +7363,8 @@ public struct TanreiFieldTokens: Sendable, Equatable {
     self.labelIconSize = labelIconSize
     self.labelGap = labelGap
     self.labelTypescale = labelTypescale
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.requirementAsteriskGap = requirementAsteriskGap
@@ -9156,6 +9183,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
   public var mediaContainerColor: TanreiPaint
   public var mediaWidth: CGFloat
   public var motionFeedbackDuration: Double
+  public var motionPictureDuration: Double
+  public var motionPictureEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
@@ -9185,6 +9216,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
     mediaContainerColor: TanreiPaint,
     mediaWidth: CGFloat,
     motionFeedbackDuration: Double,
+    motionPictureDuration: Double,
+    motionPictureEasing: TanreiCubicBezier,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
@@ -9210,6 +9245,10 @@ public struct TanreiLinkCardTokens: Sendable, Equatable {
     self.mediaContainerColor = mediaContainerColor
     self.mediaWidth = mediaWidth
     self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionPictureDuration = motionPictureDuration
+    self.motionPictureEasing = motionPictureEasing
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth
@@ -9803,6 +9842,8 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionReorderDuration: Double
   public var motionReorderEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var conditions: TanreiListConditions
@@ -9834,6 +9875,8 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionReorderDuration: Double,
     motionReorderEasing: TanreiCubicBezier,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     conditions: TanreiListConditions,
@@ -9860,6 +9903,8 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionReorderDuration = motionReorderDuration
     self.motionReorderEasing = motionReorderEasing
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.conditions = conditions

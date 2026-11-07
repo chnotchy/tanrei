@@ -7,9 +7,11 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
+import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -59,6 +61,55 @@ const ITEMS = spec.fixtures[0].items!;
 /** A test's own FAB menu: the real overlay (not in place), the spec's three items, the add glyph. */
 const fixture = (id: string, props: Fixture['props'] = {}, items = ITEMS): Fixture => ({ id, props: { label: 'Create', inline: false, ...props }, slots: { icon: 'add' }, items });
 const labelled = (...labels: string[]) => labels.map((label) => ({ kind: 'item', props: { label, icon: 'star' } }));
+
+/**
+ * FBM-19: what each item draws in a frame and where it is laid out and placed — its `.appear` box's opacity, scale on
+ * each axis, translation and origin (`o0`, `sx0`, `sy0`, `tx0`, `ty0`, `origin0` for the first item, and so on), its
+ * host's box as laid out (`top0`, `left0`, `width0`, `height0`: the host is never scaled), the drawn box's left and right
+ * edges (`start0`, `end0`), and the insets the placement wrote on the list. Self-contained: it is sent as its source.
+ */
+const itemsProbe: Probe = (root) => {
+  const seen: Record<string, number | string> = {};
+  const list = root.shadowRoot!.querySelector('.list') as HTMLElement;
+  Object.assign(seen, { bottom: list.style.bottom, left: list.style.left, right: list.style.right });
+  Array.from(root.querySelectorAll('tanrei-fab-menu-item')).forEach((each, i) => {
+    const motion = each.shadowRoot!.querySelector('.appear') as HTMLElement;
+    const style = getComputedStyle(motion);
+    const [sx = '1', sy = sx] = style.scale === 'none' ? [] : style.scale.split(' ');
+    const [tx = '0px', ty = '0px'] = style.translate === 'none' ? [] : style.translate.split(' ');
+    const laid = each.getBoundingClientRect();
+    const drawn = motion.getBoundingClientRect();
+    Object.assign(seen, {
+      [`o${i}`]: Number(style.opacity),
+      [`sx${i}`]: Number(sx),
+      [`sy${i}`]: Number(sy),
+      [`tx${i}`]: Number.parseFloat(tx),
+      [`ty${i}`]: Number.parseFloat(ty),
+      [`origin${i}`]: style.transformOrigin,
+      [`top${i}`]: laid.top,
+      [`left${i}`]: laid.left,
+      [`width${i}`]: laid.width,
+      [`height${i}`]: laid.height,
+      [`start${i}`]: drawn.left,
+      [`end${i}`]: drawn.right,
+    });
+  });
+  return seen;
+};
+/**
+ * Two color fades run beside the items' appearance: the toggle's turn (FBM-19) and the first item's focused color,
+ * which comes as the menu opens (FBM-13) and goes as it closes (FBM-21). Chromium and WebKit draw their frames as
+ * `oklab()` and their ends as `rgb()` or `color(srgb …)`, and `expectNoFlicker` compares the channels of the two forms
+ * as if they were one space, which reads the fade as leaving its way or ending in a jump. Those findings — a background
+ * color of the toggle or of the first item's container, with an `oklab()` frame among its values — are left out.
+ */
+const focusFade = (flicker: Flicker) =>
+  flicker.property === 'background-color' &&
+  /^tanrei-fab-menu:0(>button#toggle:0|\/tanrei-fab-menu-item:0>div:0\/div:0)$/.test(flicker.key) &&
+  flicker.values.some((value) => String(value).startsWith('oklab('));
+/** One item's frame as test/appear.ts reads a surface's: its opacity and its scale on each axis. */
+const itemFrame = (frame: Frame, i: number): Frame => ({ ...frame, probe: { opacity: frame.probe[`o${i}`]!, sx: frame.probe[`sx${i}`]!, sy: frame.probe[`sy${i}`]! } });
+const itemFrames = (seen: Frames, i: number): Frames => ({ ...seen, before: itemFrame(seen.before, i), frames: seen.frames.map((frame) => itemFrame(frame, i)), rest: itemFrame(seen.rest, i) });
 
 /**
  * The product's side, as the docs write it: it sets open from toggle and to false from close. Everything the element
@@ -647,18 +698,16 @@ test.describe('behavior', () => {
     expect(await wrapped.locator('.label').evaluate((el) => el.scrollWidth <= el.clientWidth && getComputedStyle(el).textOverflow !== 'ellipsis')).toBe(true);
   });
 
-  test('FBM-19: opening turns the toggle and grows the items in one by one from the one nearest it; closing turns it back and fades them together; reduced motion changes everything at once', async ({ page }) => {
+  test('FBM-19: opening turns the toggle — its colors, elevation and corners, the glyph cross-fading to close — over the open motion; closing turns it back over the close motion; where motion is reduced it changes at once', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
     await wire(page);
     const open = await resolveToken(page, T('motion-open-duration'), 'duration');
     const close = await resolveToken(page, T('motion-close-duration'), 'duration');
-    const stagger = await resolveToken(page, T('motion-stagger'), 'duration');
-    expect(stagger).toBeGreaterThan(0);
     const ms = (value: string) => Number.parseFloat(value) * 1000;
     await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '0ms' });
     await toggle(page, 'menu').focus();
-    // The turn and the leaving last one motion each, which a loaded machine's round trips can outlast: they are read in
-    // the page as the update that `toggle` or `close` caused completes (after the product's listener set open).
+    // The turn lasts one motion, which a loaded machine's round trips can outlast: it is read in the page as the update
+    // that `toggle` or `close` caused completes (after the product's listener set open).
     const sampleAt = (event: 'toggle' | 'close') =>
       host(page, 'menu').evaluate((el, name) => {
         (window as any).sample = new Promise((resolve) =>
@@ -668,18 +717,14 @@ test.describe('behavior', () => {
               await (el as HTMLElement & { updateComplete: Promise<boolean> }).updateComplete;
               const button = el.shadowRoot!.querySelector('.toggle')!;
               const glyph = button.querySelector('.glyph')!;
-              const list = el.shadowRoot!.querySelector('.list')!;
-              const [b, g, l] = [getComputedStyle(button), getComputedStyle(glyph), getComputedStyle(list)];
-              resolve({
-                toggle: { classes: button.className, property: b.transitionProperty, duration: b.transitionDuration, easing: b.transitionTimingFunction, glyph: g.transitionDuration },
-                list: { name: l.animationName, duration: Number.parseFloat(l.animationDuration) * 1000, open: list.matches(':popover-open') },
-              });
+              const [b, g] = [getComputedStyle(button), getComputedStyle(glyph)];
+              resolve({ classes: button.className, property: b.transitionProperty, duration: b.transitionDuration, easing: b.transitionTimingFunction, glyph: g.transitionDuration });
             },
             { once: true },
           ),
         );
       }, event);
-    type Sample = { toggle: { classes: string; property: string; duration: string; easing: string; glyph: string }; list: { name: string; duration: number; open: boolean } };
+    type Sample = { classes: string; property: string; duration: string; easing: string; glyph: string };
     const sampled = () => page.evaluate(() => (window as any).sample as Promise<Sample>);
     await sampleAt('toggle');
     // The turn ends as the cross-fade finishes, never before it: neither the glyphs' nor the corners' motion is still
@@ -698,7 +743,7 @@ test.describe('behavior', () => {
       });
     });
     await page.keyboard.press('Enter');
-    const turn = (await sampled()).toggle;
+    const turn = await sampled();
     await expect.poll(() => shown(page, 'menu')).toBe(true);
     // The toggle: colors, elevation and corners over the open motion, the glyph cross-fading with them.
     expect(turn.classes).toContain('turning');
@@ -706,43 +751,203 @@ test.describe('behavior', () => {
     expect(ms(turn.duration)).toBe(open);
     expect(ms(turn.glyph)).toBe(open);
     expect(turn.easing).toBe(await easing(page, T('motion-open-easing')));
-    // The items: faded and grown in, the one nearest the toggle (the last) first, each next a stagger later.
-    const motion = await host(page, 'menu').evaluate((el) =>
-      [...el.querySelectorAll('tanrei-fab-menu-item')].map((it) => {
-        const s = getComputedStyle(it.shadowRoot!.querySelector('.container')!);
-        // The origin and the width it is compared with, read together: the layout width (a transform never changes it).
-        return { name: s.animationName, duration: Number.parseFloat(s.animationDuration) * 1000, delay: Number.parseFloat(s.animationDelay) * 1000, origin: s.transformOrigin, width: Number.parseFloat(s.width) };
-      }),
-    );
-    expect(motion.map((m) => m.name)).toEqual(['fab-menu-item-in', 'fab-menu-item-in', 'fab-menu-item-in']);
-    expect(motion.map((m) => m.duration)).toEqual([open, open, open]);
-    expect(motion.map((m) => Math.round(m.delay))).toEqual([2 * stagger, stagger, 0]);
-    // From the end edge: the right one, in left-to-right.
-    expect(motion[0].width).toBeGreaterThan(0);
-    expect(Number.parseFloat(motion[0].origin.split(' ')[0])).toBeCloseTo(motion[0].width, 0);
     await expect.poll(() => toggle(page, 'menu').evaluate((el) => el.classList.contains('turning')), { timeout: open + 2000 }).toBe(false);
     expect(await page.evaluate(() => (window as any).ended)).toEqual([]);
 
-    // Closing: the items leave together over the close motion, and the toggle turns back over it.
+    // Closing: the toggle turns back over the close motion.
     await sampleAt('close');
     await page.keyboard.press('Escape');
-    const leaving = await sampled();
-    expect(leaving.list).toEqual({ name: 'fab-menu-leave', duration: close, open: true });
-    expect(leaving.toggle.classes).toContain('turning');
-    expect(ms(leaving.toggle.duration)).toBe(close);
-    expect(ms(leaving.toggle.glyph)).toBe(close);
-    expect(leaving.toggle.easing).toBe(await easing(page, T('motion-close-easing')));
+    const back = await sampled();
+    expect(back.classes).toContain('turning');
+    expect(ms(back.duration)).toBe(close);
+    expect(ms(back.glyph)).toBe(close);
+    expect(back.easing).toBe(await easing(page, T('motion-close-easing')));
     await expect.poll(() => shown(page, 'menu')).toBe(false);
 
-    // Reduced motion: at once.
+    // Reduced motion: the toggle at once (the items' fade is a test of its own).
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.keyboard.press('Enter');
     await expect.poll(() => shown(page, 'menu')).toBe(true);
-    expect(await cssOf(box(page, 'menu', 'Document'), 'animation-name')).toBe('none');
     expect(await cssOf(toggle(page, 'menu'), 'transition-duration')).toBe('0s');
     expect(await toggle(page, 'menu').evaluate((el) => el.classList.contains('turning'))).toBe(false);
     await page.keyboard.press('Escape');
-    expect(await shown(page, 'menu')).toBe(false);
+    await expect.poll(() => shown(page, 'menu')).toBe(false);
+  });
+
+  test('FBM-19: opening, each item appears from where the appearance starts it — under m3-like (unfold), opacity 0 and scale 0 on both axes — grown from the middle of its end edge over the open motion on its curve, the one nearest the toggle first and each next a stagger later; closing, all leave together the same way back over the close motion, the last frame leaving no more than its curve does; nothing flickers, and every item stands where it rests from the first frame', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    // The FAB menu's own system: its appearance unfolds, and an item still grows on both axes (it grows beside the toggle).
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const menu = host(page, 'menu');
+    const open = await resolveToken(page, T('motion-open-duration'), 'duration');
+    const close = await resolveToken(page, T('motion-close-duration'), 'duration');
+    const stagger = await resolveToken(page, T('motion-stagger'), 'duration');
+    expect(stagger).toBeGreaterThan(0);
+    const [openEasing, closeEasing] = [await easing(page, T('motion-open-easing')), await easing(page, T('motion-close-easing'))];
+    const opening = await sampleFrames(menu, () => menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = true)), { probe: itemsProbe });
+    const square = await bounds(toggle(page, 'menu'));
+    for (let i = 0; i < ITEMS.length; i++) {
+      // Its first frame: where the m3-like appearance starts it, on both axes.
+      expectAppearStart(itemFrame(opening.frames[0]!, i), { opacity: 0, scale: 0 });
+      expect(opening.rest.probe, `item ${i} at rest`).toMatchObject({ [`o${i}`]: 1, [`sx${i}`]: 1, [`sy${i}`]: 1, [`tx${i}`]: 0, [`ty${i}`]: 0 });
+      // From the middle of its end edge (the right one, in left-to-right), against its box as laid out.
+      const [ox, oy] = String(opening.frames[0]!.probe[`origin${i}`]).split(' ').map(Number.parseFloat);
+      expect(ox, `item ${i} origin x`).toBeCloseTo(opening.rest.probe[`width${i}`] as number, 1);
+      expect(oy, `item ${i} origin y`).toBeCloseTo((opening.rest.probe[`height${i}`] as number) / 2, 1);
+      expectAnimated(opening, `o${i}`);
+    }
+    // FBM-13's place is the one at rest, from the first frame: the list placed once, each item laid out where it rests,
+    // and its drawn end edge on the toggle's however far it has grown.
+    for (const frame of opening.frames) {
+      for (const inset of ['bottom', 'left', 'right']) expect(frame.probe[inset], `frame ${frame.index} ${inset}`).toBe(opening.rest.probe[inset]);
+      for (let i = 0; i < ITEMS.length; i++) {
+        expect([frame.probe[`top${i}`], frame.probe[`left${i}`]], `frame ${frame.index} item ${i}`).toEqual([opening.rest.probe[`top${i}`], opening.rest.probe[`left${i}`]]);
+        expect(frame.probe[`end${i}`] as number, `frame ${frame.index} item ${i} end edge`).toBeCloseTo(square.x + square.width, 0);
+      }
+    }
+    expectNoFlicker(opening, { ignore: focusFade });
+    // The open motion on its curve, opacity and scale.
+    const own = (seen: Frames) => seen.motions.filter((motion) => /^div\.appear\b/.test(motion.on) && ['opacity', 'scale'].includes(motion.name));
+    expect(own(opening).length).toBe(2 * ITEMS.length);
+    for (const motion of own(opening)) expect([motion.name, motion.duration, motion.easing]).toEqual([motion.name, open, openEasing]);
+    // The one nearest the toggle (the last) first; each next one begins a stagger later, in the first frame after it.
+    const step = 1000 / 60;
+    for (let i = 0; i < ITEMS.length; i++) {
+      const wait = (ITEMS.length - 1 - i) * stagger;
+      const first = opening.frames.find((frame) => (frame.probe[`o${i}`] as number) > 0)!;
+      expect(first.time, `item ${i} begins after ${wait} ms`).toBeGreaterThan(wait - 0.5);
+      expect(first.time, `item ${i} begins in the first frame after ${wait} ms`).toBeLessThanOrEqual(wait + step + 0.5);
+    }
+
+    const closing = await sampleFrames(menu, () => menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = false)), { probe: itemsProbe });
+    // Together, from the same frame, over the close motion on its curve: no stagger on the way out.
+    const leaving = own(closing);
+    expect(leaving.length).toBe(2 * ITEMS.length);
+    for (const motion of leaving) expect([motion.name, motion.duration, motion.easing, motion.frame]).toEqual([motion.name, close, closeEasing, leaving[0]!.frame]);
+    for (let i = 0; i < ITEMS.length; i++) {
+      // The same way back, to where it started.
+      expect(closing.rest.probe, `item ${i} at rest`).toMatchObject({ [`o${i}`]: 0, [`sx${i}`]: 0, [`sy${i}`]: 0 });
+      expectExitEnd(itemFrames(closing, i), { duration: close, easing: bezierOf(closeEasing) });
+      expect(closing.frames.filter((frame) => frame.probe[`o${i}`] !== 0).length, `item ${i} fades over frames`).toBeGreaterThan(3);
+    }
+    expectNoFlicker(closing, { ignore: focusFade });
+    // Out of the top layer once the items have left.
+    await expect.poll(() => shown(page, 'menu')).toBe(false);
+  });
+
+  test('FBM-19: under another appearance the items start from its values — the default system’s fade-scale: opacity 0 and scale 0.96 on both axes — and in right-to-left they grow from the middle of their left edge, the end edge there', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, dir: 'rtl', ...(await includingSystem('tanrei', 'fab-menu', 'm3-like')), fixtures: [fixture('menu')] });
+    await wire(page);
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('fade-scale');
+    const menu = host(page, 'menu');
+    const opening = await sampleFrames(menu, () => menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = true)), { probe: itemsProbe });
+    const square = await bounds(toggle(page, 'menu'));
+    for (let i = 0; i < ITEMS.length; i++) {
+      expectAppearStart(itemFrame(opening.frames[0]!, i), { opacity: 0, scale: 0.96 });
+      const [ox, oy] = String(opening.frames[0]!.probe[`origin${i}`]).split(' ').map(Number.parseFloat);
+      expect(ox, `item ${i} origin x`).toBe(0);
+      expect(oy, `item ${i} origin y`).toBeCloseTo((opening.rest.probe[`height${i}`] as number) / 2, 1);
+      for (const frame of opening.frames) expect(frame.probe[`start${i}`] as number, `frame ${frame.index} item ${i} end edge`).toBeCloseTo(square.x, 0);
+    }
+    expectNoFlicker(opening, { ignore: focusFade });
+    const duration = await resolveToken(page, T('motion-open-duration'), 'duration');
+    for (const motion of opening.motions.filter((each) => /^div\.appear\b/.test(each.on) && each.name === 'opacity')) expect(motion.duration).toBe(duration);
+  });
+
+  test('FBM-19: where motion is reduced the items only fade in and out, all together, over sys.motion.role.reduced — no scale, no distance, no blur, no stagger — and nothing else moves', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    const menu = host(page, 'menu');
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const opening = await sampleFrames(menu, () => menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = true)), { probe: itemsProbe });
+    // Every motion of the change is an item's fade (the toggle changes at once), and they all begin in one frame.
+    const moved = (seen: Frames) => seen.motions.map((motion) => `${motion.on.split('.').slice(0, 2).join('.')} ${motion.name} ${motion.duration} ${motion.frame}`);
+    expect(moved(opening)).toEqual(ITEMS.map(() => `div.appear opacity ${reduced} ${opening.motions[0]!.frame}`));
+    for (let i = 0; i < ITEMS.length; i++) {
+      expectAppearStart(itemFrame(opening.frames[0]!, i), { opacity: 0, scale: 1 });
+      expect(opening.rest.probe).toMatchObject({ [`o${i}`]: 1 });
+    }
+    for (const frame of opening.frames) {
+      for (let i = 0; i < ITEMS.length; i++) expect([frame.probe[`sx${i}`], frame.probe[`sy${i}`], frame.probe[`tx${i}`], frame.probe[`ty${i}`]], `frame ${frame.index} item ${i}`).toEqual([1, 1, 0, 0]);
+      expect(new Set(ITEMS.map((_, i) => frame.probe[`o${i}`])).size, `frame ${frame.index}: one opacity for every item`).toBe(1);
+    }
+    expectAnimated(opening, 'o0');
+    const closing = await sampleFrames(menu, () => menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = false)), { probe: itemsProbe });
+    expect(moved(closing)).toEqual(ITEMS.map(() => `div.appear opacity ${reduced} ${closing.motions[0]!.frame}`));
+    for (let i = 0; i < ITEMS.length; i++) expect(closing.rest.probe).toMatchObject({ [`o${i}`]: 0, [`sx${i}`]: 1, [`sy${i}`]: 1 });
+    await expect.poll(() => shown(page, 'menu')).toBe(false);
+  });
+
+  test('FBM-19: turned round, each item goes on from where it is and carries the motions it turns to and none of those it turns from — closed while it appears, and opened again while it leaves, with no stagger then — and the close that follows ends', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    // Long enough that neither motion ends between two answers on a slow machine; each turn is read where it is held.
+    await rootTokens(page, { [T('motion-open-duration')]: '6s', [T('motion-close-duration')]: '6s' });
+    const menu = host(page, 'menu');
+    // turnHeld() holds the first item's motion: the one farthest from the toggle, two stagger steps behind.
+    const first = item(page, 'menu', 'Document').locator('.appear');
+    await menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = true));
+    const closedMidway = await turnHeld(menu, false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.999);
+    expectTurnedAlone(closedMidway);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.sx).toBeCloseTo(closedMidway.held.sx, 3);
+    expect(closedMidway.turned.sy).toBeCloseTo(closedMidway.held.sy, 3);
+    await first.evaluate((el) => el.getAnimations().forEach((animation) => animation.play()));
+    // Opened again while it leaves: still in the top layer, it goes on from where its exit has got to, at once.
+    const openedMidway = await turnHeld(menu, true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expectTurnedAlone(openedMidway);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.sx).toBeCloseTo(openedMidway.held.sx, 3);
+    expect(await cssOf(first, 'transition-delay'), 'no stagger when it turns round').toBe('0s');
+    expect(await shown(page, 'menu')).toBe(true);
+    const finish = () =>
+      menu.evaluate(async (el) => {
+        await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+        for (const each of el.querySelectorAll('tanrei-fab-menu-item')) {
+          await (each as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+          // Asking flushes style: the motion under way exists now, and is played to its end at once.
+          each.shadowRoot!.querySelector('.appear')!.getAnimations().forEach((animation) => animation.finish());
+        }
+      });
+    await finish();
+    expect(await cssOf(first, 'opacity')).toBe('1');
+    // Closed now, the items leave the top layer once their exits have played: no motion left behind holds them there.
+    await menu.evaluate((el) => ((el as HTMLElement & { open: boolean }).open = false));
+    await finish();
+    await expect.poll(() => shown(page, 'menu')).toBe(false);
+  });
+
+  test('FBM-19: a FAB menu in the page’s markup with open has its items whole in its first frame — none plays its entrance — and one mounted open after the first paint brings them in with it (MOT-4)', async ({ page }) => {
+    // Every animation and transition that starts in a shadow root, counted from before the first element is made.
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); const note = (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + (event.animationName || event.propertyName)); root.addEventListener('animationstart', note); root.addEventListener('transitionrun', note); return root; };</script>`;
+    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [fixture('files', { open: true })], lead: count });
+    await page.route('http://fab-menu.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://fab-menu.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-fab-menu'));
+    await motionEnded(page);
+    expect(await shown(page, 'files')).toBe(true);
+    for (const label of ['Document', 'Folder', 'Upload']) expect(await cssOf(item(page, 'files', label).locator('.appear'), 'opacity'), label).toBe('1');
+    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => /^tanrei-fab-menu-item /.test(run));
+    expect(runs.filter((run) => /appear/.test(run)), 'no item plays its entrance').toEqual([]);
+    // Mounted open after the document was painted: the items appear with their motion (40 s: read while it runs).
+    await override(page, { [T('motion-open-duration')]: '40s' });
+    await page.evaluate(() => {
+      const stage = document.querySelector('[data-fixture="files"]')!;
+      const again = stage.cloneNode(true) as HTMLElement;
+      again.dataset.fixture = 'late';
+      stage.replaceWith(again);
+    });
+    for (const label of ['Document', 'Folder', 'Upload']) {
+      const motion = item(page, 'late', label).locator('.appear');
+      await expect.poll(() => motion.evaluate((el) => el.classList.contains('open') && Number(getComputedStyle(el).opacity) < 1), label).toBe(true);
+      expect(await motionCount(motion), label).toBeGreaterThan(0);
+    }
   });
 
   test('FBM-20: the toggle is a button named by label that opens a menu and says whether it is open; open, the items are a menu named by label of menu items with their positions; the icons are hidden', async ({ page }) => {
@@ -847,7 +1052,8 @@ test.describe('behavior', () => {
     await wire(page);
     await toggle(page, 'menu').click();
     await expect.poll(() => shown(page, 'menu')).toBe(true);
-    await page.waitForTimeout(1000); // the items have grown in
+    // Read where they rest: while they appear they are drawn scaled toward their end edge (FBM-19).
+    await motionEnded(host(page, 'menu'));
     const square = await bounds(toggle(page, 'menu'));
     for (const label of ['Document', 'Folder', 'Upload']) expect((await bounds(box(page, 'menu', label))).x, label).toBeCloseTo(square.x, 0);
     const container = box(page, 'menu', 'Folder');

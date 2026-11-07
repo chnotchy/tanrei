@@ -183,22 +183,45 @@ export const styles = css`
     inline-size: 0;
     pointer-events: none;
   }
-  .divider::before {
+  /* BGR-24: the line is drawn twice, in each of its two colors — ::before in connected.divider.color, ::after in
+     connected.divider.on-fill.color — and the seam shows one of them or neither by its opacity. A line that comes, goes
+     or changes color is then a fade of opacity alone, each layer in its own color all the way: a line that fades in
+     between two emphasis fills is never drawn in the hairline on its way. */
+  .divider::before,
+  .divider::after {
     content: '';
     position: absolute;
     inset-block: ${unsafeCSS(T('connected-divider-inset'))};
     inset-inline-start: calc(${unsafeCSS(T('connected-divider-thickness'))} / -2);
     inline-size: ${unsafeCSS(T('connected-divider-thickness'))};
     background: ${unsafeCSS(T('connected-divider-color'))};
+    transition: opacity ${unsafeCSS(T('motion-state-duration'))} ${unsafeCSS(T('motion-state-easing'))};
+  }
+  .divider::after {
+    background: ${unsafeCSS(T('connected-divider-on-fill-color'))};
+    opacity: 0;
   }
   /* BGR-24: a seam carries the line only while its two items rest on the same fill (the element writes data-line): none
      where the fills differ, and between two emphasis fills — filled Buttons, selected toggles — the line a strong fill
-     can show, connected.divider.on-fill.color. Neither follows a state. */
-  .divider[data-line='none']::before {
-    display: none;
-  }
+     can show, connected.divider.on-fill.color. Neither follows a state. A change of an item's look fades them; a
+     divider whose seam the group's placement or form changed (BGR-11, BGR-21) is still for that change, and under
+     reduced motion every one is. */
+  .divider[data-line='none']::before,
   .divider[data-line='on-fill']::before {
-    background: ${unsafeCSS(T('connected-divider-on-fill-color'))};
+    opacity: 0;
+  }
+  .divider[data-line='on-fill']::after {
+    opacity: 1;
+  }
+  .divider.still::before,
+  .divider.still::after {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .divider::before,
+    .divider::after {
+      transition: none;
+    }
   }
   /* BGR-24: where a resting color is resolved; never drawn. */
   .probe {
@@ -208,7 +231,8 @@ export const styles = css`
     inline-size: auto;
     block-size: 0;
   }
-  :host([orientation='vertical']) .divider::before {
+  :host([orientation='vertical']) .divider::before,
+  :host([orientation='vertical']) .divider::after {
     inset-block: calc(${unsafeCSS(T('connected-divider-thickness'))} / -2) auto;
     inset-inline: ${unsafeCSS(T('connected-divider-inset'))};
     inline-size: auto;
@@ -219,7 +243,7 @@ export const styles = css`
 
   @media (forced-colors: active) {
     .divider::before,
-    .divider[data-line='on-fill']::before {
+    .divider::after {
       background: ButtonText;
     }
   }

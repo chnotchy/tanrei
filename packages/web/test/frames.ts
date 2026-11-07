@@ -53,6 +53,7 @@
 //   expectAnchored(grown, 'line', 'top');
 //   expectAnimated(grown, 'top', { minSteps: 4 });
 import { type Locator, type Page, expect } from '@playwright/test';
+import { premultiplied } from './colour.js';
 import { EVERY_ANIMATION } from './motions.js';
 
 /** The computed properties read on every element (and on its `::before` and `::after`) in each frame. */
@@ -553,6 +554,16 @@ async function run(target: Locator | Page, act: () => Promise<unknown>, options:
  */
 export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, options: SampleOptions = {}): Promise<Frames> => run(root, act, options, false);
 
+/**
+ * The root as it rests now, read as a frame of `sampleFrames` is: every motion in it finished, then read once nothing
+ * has changed for three frames. For a page that is not changing (a document just mounted), to tell a later change's
+ * rest apart from it.
+ */
+export async function frameAtRest(root: Locator | Page, options: Pick<SampleOptions, 'probe' | 'elements' | 'properties'> = {}): Promise<Frame> {
+  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false);
+  return seen.rest;
+}
+
 /** A first frame held still: every motion stands at its start until `release()`. */
 export interface FrozenFrame {
   /** The frame as it is held. */
@@ -633,22 +644,11 @@ export interface Flicker {
   values: (number | string)[];
 }
 
-/** A colour as premultiplied channels (r·a, g·a, b·a in 0–1, and a), or null for a form not read here (`oklch()`'s hue is an angle). */
-function premultiplied(value: string): number[] | null {
-  const rgb = value.match(/^rgba?\(([^)]+)\)$/);
-  const srgb = value.match(/^color\((?:srgb|srgb-linear|display-p3) ([^)]+)\)$/);
-  const lab = value.match(/^(?:ok)?lab\(([^)]+)\)$/);
-  const parts = (rgb ?? srgb ?? lab)?.[1]!.split(/[\s,/]+/).filter(Boolean).map((part) => (part.endsWith('%') ? Number.parseFloat(part) / 100 : Number(part)));
-  if (!parts || parts.length < 3 || parts.some(Number.isNaN)) return null;
-  const scale = rgb ? 255 : lab && !value.startsWith('ok') ? 100 : 1;
-  const alpha = parts[3] ?? 1;
-  return [...parts.slice(0, 3).map((channel) => (channel / scale) * alpha), alpha];
-}
-
 /**
  * Nothing flickers: no value leaves its way from start to end, no motion is finished in one jump, nothing blinks. A
- * colour is compared as premultiplied channels, as it is interpolated: a fade to `transparent` (whose channels are 0)
- * is continuous, and is no flicker. A box that stops being laid out at the end (a closed popup, `display: none`) is
+ * colour is compared as premultiplied sRGB channels (test/colour.js), as it is interpolated: a fade to `transparent`
+ * (whose channels are 0) is continuous, and is no flicker; a frame an engine writes in `oklab()` is on the way to an end
+ * value it writes in `rgb()`. A box that stops being laid out at the end (a closed popup, `display: none`) is
  * no end-jump, and its way ends where it was last laid out. Endless motions are left out; `ignore` leaves out a finding.
  */
 export function expectNoFlicker(seen: Frames, { ignore }: { ignore?: (flicker: Flicker) => boolean } = {}): void {

@@ -30,7 +30,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a list reads: the three gaps between its items and the divider between them; for an item that is an action, a link or an option, per density (regular, compact) its least height and its padding above and below; its paddings at the start and the end and its gap, the text style and the color it hands its content, the glyph box of the check (the icon set's check), and for each condition (unselected, selected) the colors of the box and its content in each state. For a reorderable list: the fill and the elevation of an item while it is dragged, and the motion of items changing place.",
+            "usage": "Everything a list reads: the three gaps between its items and the divider between them; for an item that is an action, a link or an option, per density (regular, compact) its least height and its padding above and below; its paddings at the start and the end and its gap, the text style and the color it hands its content, the glyph box of the check (the icon set's check), and for each condition (unselected, selected) the colors of the box and its content in each state. For a reorderable list: the fill and the elevation of an item while it is dragged, the motion of items changing place, and that of an item the product adds or takes away growing or closing along the list.",
             "rules": [
               "The list adds no space around its items and draws no background: place it on a surface, or in a card for a grouped look. Its items are the product's content; a static item draws nothing of its own.",
               "A selectable list is a listbox; a list whose items each open something has interactive items or link items; a list that only shows things has neither.",
@@ -289,6 +289,16 @@
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.standard}",
             "$extensions": {}
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
+            "$description": "How long an item the product adds to a reorderable list takes to grow from nothing to its own length along the list, and one it takes away to close to nothing, the items after it following (LST-41): a row added to or taken out of a list. The item fades in or out over the state duration meanwhile."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
+            "$description": "The curve of that change of length: a box that resizes in place."
           }
         },
         "dragged": {

@@ -484,7 +484,7 @@ test.describe('slider field', () => {
     expect(await values()).toEqual(before);
     // A press on the help: nothing.
     await page.locator('#one').evaluate((el: HTMLElement) => el.blur());
-    await press(page.locator('#one tanrei-field .frame > .supporting .supporting-text'));
+    await press(page.locator('#one tanrei-field .frame > .supporting-box > .supporting .supporting-text'));
     expect(await at()).toBe('body');
     // It handles no key: a key on the handle is the Slider's, and nothing on the element listens for one.
     await focus(page.locator('#one'));
@@ -500,7 +500,7 @@ test.describe('slider field', () => {
     expect(await css(valueText(page, 'off'), 'color')).toBe(await T('value-text'));
     expect(await css(field(page, 'off').locator('.frame .label-row > .label'), 'color')).toBe(await T('label'));
     expect(await css(field(page, 'off').locator('.frame .label-row .asterisk'), 'color')).toBe(await T('required-asterisk'));
-    expect(await css(field(page, 'off').locator('.frame > .supporting .supporting-text'), 'color')).toBe(await T('supporting-text'));
+    expect(await css(field(page, 'off').locator('.frame > .supporting-box > .supporting .supporting-text'), 'color')).toBe(await T('supporting-text'));
     expect(await handle(page, 'off').evaluate((el) => [el.getAttribute('aria-disabled'), el.hasAttribute('tabindex')])).toEqual(['true', false]);
     expect(await slider(page, 'off').evaluate((el) => [el.hasAttribute('disabled'), el.shadowRoot!.querySelector('.root')!.getAttribute('data-value-indicator')]), 'the Field disables it; its own disabled is not set').toEqual([false, 'none']);
     await expect(slider(page, 'off').locator('.value-indicator')).toBeHidden();
@@ -612,9 +612,9 @@ test.describe('slider field', () => {
     });
     expect(await css(valueText(page, 'error'), 'color')).toBe(canvasText);
     // While the field is in error its error text stands in the help's place (FLD-7, FLD-31), in the text color.
-    expect(await css(field(page, 'error').locator('.frame > .supporting .error-text'), 'color')).toBe(canvasText);
-    await expect(field(page, 'error').locator('.frame > .supporting .supporting-text')).toHaveCount(0);
-    await expect(field(page, 'error').locator('.frame > .supporting .error-text')).toHaveText('Choose a level above 0.');
+    expect(await css(field(page, 'error').locator('.frame > .supporting-box > .supporting .error-text'), 'color')).toBe(canvasText);
+    await expect(field(page, 'error').locator('.frame > .supporting-box > .supporting .supporting-text')).toHaveCount(0);
+    await expect(field(page, 'error').locator('.frame > .supporting-box > .supporting .error-text')).toHaveText('Choose a level above 0.');
     await expect(handle(page, 'error')).toHaveAttribute('aria-invalid', 'true');
   });
 
@@ -666,7 +666,7 @@ test.describe('slider field', () => {
     const width = (selector: string) => page.locator(selector).evaluate((el) => el.getBoundingClientRect().width);
     const edges = (selector: string) => page.locator(selector).evaluate((el) => [el.getBoundingClientRect().left, el.getBoundingClientRect().right]);
     expect(await css(page.locator('#a'), 'display')).toBe('block');
-    for (const selector of ['#a', '#a tanrei-field', '#a tanrei-slider', '#a tanrei-field .frame > .label-line', '#a tanrei-field .frame > .supporting']) near(await width(selector), 320, selector);
+    for (const selector of ['#a', '#a tanrei-field', '#a tanrei-slider', '#a tanrei-field .frame > .label-line', '#a tanrei-field .frame > .supporting-box > .supporting']) near(await width(selector), 320, selector);
     expect(await edges('#a tanrei-slider')).toEqual(await edges('#a'));
     expect(await page.locator('#a').evaluate((el) => [el.style.inlineSize, el.style.width, getComputedStyle(el).minInlineSize])).toEqual(['', '', '0px']);
     // In a flex row: the room the row gives it — 480 less the gap and the other item — and the track follows.

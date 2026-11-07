@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget, separationHost, whenGap } from '../../primitives/index.js';
+import { appearStyles, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget, separationHost, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -181,12 +181,6 @@ const surface = css`
     }
   }`,
   )}
-  @media (prefers-reduced-motion: reduce) {
-    .surface.entering,
-    .surface.leaving {
-      animation: none;
-    }
-  }
   @media (forced-colors: active) {
     .surface {
       border: 1px solid CanvasText;
@@ -194,6 +188,31 @@ const surface = css`
     .divider {
       background: CanvasText;
     }
+  }
+`;
+
+/**
+ * MNU-4, MNU-50: every surface of the menu appears as an anchored surface does (`appearStyles()`, src/primitives/motion.ts):
+ * closed it stands where `sys.motion.appear.*` start it, open (`.open`, which the surface keeps while it is drawn in
+ * place too) it is whole, and it moves between the two over the menu's open and close tokens, turned round from where
+ * it is, and as a cross-fade over `sys.motion.role.reduced` where motion is reduced. The surface is the element that
+ * moves; it is placed and measured through its layout (`layoutSize()`), which no scale touches, and draws nothing of
+ * its own with `opacity`, `scale`, `translate`, `filter` or `transform-origin` (its elevation is a `box-shadow`).
+ */
+const appearance = css`
+  ${appearStyles({
+    motion: '.surface',
+    open: '.surface.open',
+    role: 'anchored',
+    origin: 'anchor',
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+  })}
+  /* Drawn in place (a fixture's, MNU-19's verify) it is whole and never moves. Made whole at once by the controller, a
+     surface first drawn open in place in a document already painted still played its entrance in WebKit, from the
+     next frame on. */
+  .surface.inline {
+    transition-property: none !important;
   }
 `;
 
@@ -231,34 +250,9 @@ export const menuStyles = css`
     transition-delay: ${t('motion-submenu-delay')};
   }
 
-  /* MNU-4: in, it fades and grows from the edge that faces the anchor; out, it fades. At once where motion is reduced. */
-  .surface.entering {
-    transform-origin: top;
-    animation: menu-open ${t('motion-open-duration')} ${t('motion-open-easing')} both;
-  }
-  .surface.entering.side-top {
-    transform-origin: bottom;
-  }
-  .surface.leaving {
-    animation: menu-close ${t('motion-close-duration')} ${t('motion-close-easing')} both;
-  }
-  @keyframes menu-open {
-    from {
-      opacity: 0;
-      transform: scaleY(0);
-    }
-  }
-  @keyframes menu-close {
-    to {
-      opacity: 0;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .surface.entering,
-    .surface.leaving {
-      animation: none;
-    }
-  }
+  /* MNU-4: the one appearance of an anchored surface, grown from the middle of the edge that faces the anchor (the
+     data-side the placement writes). */
+  ${appearance}
 
   ${shape}
 `;
@@ -291,34 +285,9 @@ export const submenuStyles = css`
     inset-block-start: calc(${t('surface-padding-block')} * -1);
     inset-inline-start: calc(100% + ${t('surface-padding-inline')} + ${t('submenu-offset')});
   }
-  /* MNU-50: the open and close motion of MNU-4, growing from the edge that faces the submenu's item. */
-  .surface.entering {
-    transform-origin: left;
-    animation: submenu-open ${t('motion-open-duration')} ${t('motion-open-easing')} both;
-  }
-  .surface.entering.side-left {
-    transform-origin: right;
-  }
-  .surface.leaving {
-    animation: submenu-close ${t('motion-close-duration')} ${t('motion-close-easing')} both;
-  }
-  @keyframes submenu-open {
-    from {
-      opacity: 0;
-      transform: scaleX(0);
-    }
-  }
-  @keyframes submenu-close {
-    to {
-      opacity: 0;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .surface.entering,
-    .surface.leaving {
-      animation: none;
-    }
-  }
+  /* MNU-50: the appearance of MNU-4, grown from the middle of the edge that faces the submenu's item (data-side: the
+     side of the surface that holds the item it is placed on). */
+  ${appearance}
 `;
 
 /**

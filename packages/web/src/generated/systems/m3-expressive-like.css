@@ -434,6 +434,8 @@
     --tanrei-comp-button-group-connected-separation: var(--tanrei-sys-behavior-separation);
     --tanrei-comp-button-group-connected-vertical-outer-shape: var(--tanrei-sys-shape-corner-large);
     --tanrei-comp-button-group-connected-vertical-outer-shape-pill: 0;
+    --tanrei-comp-button-group-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
+    --tanrei-comp-button-group-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-button-group-standard-gap: var(--tanrei-sys-target-spacing);
     --tanrei-comp-button-with-menu-container-gap-large: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-medium: var(--tanrei-sys-space-space100);
@@ -1629,6 +1631,8 @@
     --tanrei-comp-callout-info-icon-color-tonal: var(--tanrei-sys-color-info);
     --tanrei-comp-callout-info-title-color-outlined: var(--tanrei-comp-callout-info-body-color-outlined);
     --tanrei-comp-callout-info-title-color-tonal: var(--tanrei-comp-callout-info-body-color-tonal);
+    --tanrei-comp-callout-motion-disclosure-duration: var(--tanrei-sys-motion-role-disclosure);
+    --tanrei-comp-callout-motion-disclosure-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-callout-outline-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-callout-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-callout-success-body-color-outlined: var(--tanrei-comp-callout-body-color-outlined);
@@ -1884,6 +1888,9 @@
     --tanrei-comp-chat-composer-hovered-outline-width: var(--tanrei-comp-chat-composer-outline-width);
     --tanrei-comp-chat-composer-input-padding-block: var(--tanrei-sys-space-space100);
     --tanrei-comp-chat-composer-layout-inline-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 90), 0.25px);
+    --tanrei-comp-chat-composer-motion-glyph-fade-duration: var(--tanrei-sys-motion-role-state-compact);
+    --tanrei-comp-chat-composer-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-chat-composer-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-chat-composer-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
     --tanrei-comp-chat-composer-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-chat-composer-outline-width: var(--tanrei-sys-border-hairline);
@@ -3421,6 +3428,8 @@
     --tanrei-comp-field-label-typescale-letter-spacing: var(--tanrei-sys-typescale-body-large-letter-spacing);
     --tanrei-comp-field-label-typescale-line-height: var(--tanrei-sys-typescale-body-large-line-height);
     --tanrei-comp-field-label-typescale-font: var(--tanrei-sys-typescale-body-large-font);
+    --tanrei-comp-field-motion-resize-duration: var(--tanrei-sys-motion-role-resize-default);
+    --tanrei-comp-field-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-field-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
     --tanrei-comp-field-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-field-requirement-asterisk-gap: var(--tanrei-sys-space-space0);
@@ -4301,6 +4310,10 @@
     --tanrei-comp-link-card-media-container-color: var(--tanrei-sys-color-surface-container-high);
     --tanrei-comp-link-card-media-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 48), 0.25px);
     --tanrei-comp-link-card-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
+    --tanrei-comp-link-card-motion-picture-duration: var(--tanrei-sys-motion-role-state-large);
+    --tanrei-comp-link-card-motion-picture-easing: var(--tanrei-sys-motion-easing-state);
+    --tanrei-comp-link-card-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-link-card-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-link-card-motion-state-duration: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-link-card-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-link-card-outline-width: var(--tanrei-sys-border-hairline);
@@ -4540,6 +4553,8 @@
     --tanrei-comp-list-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-list-motion-reorder-duration: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-list-motion-reorder-easing: var(--tanrei-sys-motion-easing-standard);
+    --tanrei-comp-list-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-list-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-list-motion-state-duration: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-list-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-list-pressed-container-shape: var(--tanrei-comp-list-container-shape);

@@ -82,10 +82,48 @@ export const styles = css`
   :host([hidden]) {
     display: none;
   }
+  /* CLO-13: closing, it stays drawn while its motion runs (the element sets the custom state, and takes it away when
+     the motion has ended). A browser without custom states drops this rule, and the callout closes at once. */
+  :host([open='false' i]:state(leaving):not([hidden])) {
+    display: block;
+  }
   /* CLO-31: a callout with no title and no body draws nothing and takes no space. Its own rule: a browser without
      custom states drops only this one, and the empty callout is then a block of no height (.container[hidden]). */
   :host(:state(empty)) {
     display: none;
+  }
+  /* CLO-13: what the element measures, in one task and never drawn — the space its container keeps beside it — with
+     the callout drawn (measure) and not laid out at all (away). */
+  :host(:state(measure)) {
+    display: block !important;
+  }
+  :host(:state(away)) {
+    display: none !important;
+  }
+
+  /* CLO-13, MOT-5: the box whose height opens and closes, in the layout, its content fixed to its top edge
+     (AnimatedSize, which clips it and sets its height and transition inline only while it moves). Closed it is 0 tall,
+     its content inert and hidden from assistive technology, and the container fades with it over the same tokens. */
+  .box.gone {
+    block-size: 0;
+  }
+  .container {
+    transition: opacity ${t('motion-disclosure-duration')} ${t('motion-disclosure-easing')};
+  }
+  .box.gone > .container {
+    opacity: 0;
+  }
+  /* A callout that was not drawn starts transparent, without a transition (the element takes the attribute away in
+     the same task, and the container eases to whole). */
+  .container[data-arriving] {
+    opacity: 0;
+    transition-property: none;
+  }
+  /* MOT-6: under reduced motion it appears and goes at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .container {
+      transition-property: none;
+    }
   }
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}
