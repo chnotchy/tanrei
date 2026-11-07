@@ -6521,8 +6521,10 @@ private object TonePerStateSystemSource {
             headlineTypescale = typescale.heading6,
             motionCloseDuration = 250,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionHideDelay = 300,
             motionOpenDuration = 300,
             motionOpenEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionShowDelay = 700,
             offset = 4.dp,
             windowMargin = 8.dp,
         )

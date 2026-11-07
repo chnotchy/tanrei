@@ -12643,8 +12643,10 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
   public var headlineTypescale: TanreiTextStyle
   public var motionCloseDuration: Double
   public var motionCloseEasing: TanreiCubicBezier
+  public var motionHideDelay: Double
   public var motionOpenDuration: Double
   public var motionOpenEasing: TanreiCubicBezier
+  public var motionShowDelay: Double
   public var offset: CGFloat
   public var windowMargin: CGFloat
 
@@ -12677,8 +12679,10 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     headlineTypescale: TanreiTextStyle,
     motionCloseDuration: Double,
     motionCloseEasing: TanreiCubicBezier,
+    motionHideDelay: Double,
     motionOpenDuration: Double,
     motionOpenEasing: TanreiCubicBezier,
+    motionShowDelay: Double,
     offset: CGFloat,
     windowMargin: CGFloat
   ) {
@@ -12710,8 +12714,10 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     self.headlineTypescale = headlineTypescale
     self.motionCloseDuration = motionCloseDuration
     self.motionCloseEasing = motionCloseEasing
+    self.motionHideDelay = motionHideDelay
     self.motionOpenDuration = motionOpenDuration
     self.motionOpenEasing = motionOpenEasing
+    self.motionShowDelay = motionShowDelay
     self.offset = offset
     self.windowMargin = windowMargin
   }

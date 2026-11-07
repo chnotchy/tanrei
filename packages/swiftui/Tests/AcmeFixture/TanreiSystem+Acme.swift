@@ -7052,8 +7052,10 @@ private let acmePopoverTokens = TanreiPopoverTokens(
   headlineTypescale: acmeTypescale.heading6,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionHideDelay: 300,
   motionOpenDuration: 300,
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionShowDelay: 700,
   offset: 4,
   windowMargin: 8
 )

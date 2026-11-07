@@ -5674,8 +5674,10 @@
     --tanrei-comp-popover-headline-typescale-font: var(--tanrei-sys-typescale-heading-6-font);
     --tanrei-comp-popover-motion-close-duration: var(--tanrei-sys-motion-role-appear-anchored-exit);
     --tanrei-comp-popover-motion-close-easing: var(--tanrei-sys-motion-easing-exit);
+    --tanrei-comp-popover-motion-hide-delay: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-popover-motion-open-duration: var(--tanrei-sys-motion-role-appear-anchored-enter);
     --tanrei-comp-popover-motion-open-easing: var(--tanrei-sys-motion-easing-enter);
+    --tanrei-comp-popover-motion-show-delay: var(--tanrei-sys-motion-duration-extra-long1);
     --tanrei-comp-popover-offset: var(--tanrei-sys-space-space50);
     --tanrei-comp-popover-window-margin: var(--tanrei-sys-space-space100);
     --tanrei-comp-previous-next-links-container-gap: var(--tanrei-sys-space-space150);

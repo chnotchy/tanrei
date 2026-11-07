@@ -7905,8 +7905,10 @@ public data class TanreiPopoverTokens(
     public val headlineTypescale: TanreiTextStyle,
     public val motionCloseDuration: Int,
     public val motionCloseEasing: TanreiCubicBezier,
+    public val motionHideDelay: Int,
     public val motionOpenDuration: Int,
     public val motionOpenEasing: TanreiCubicBezier,
+    public val motionShowDelay: Int,
     public val offset: Dp,
     public val windowMargin: Dp,
 ) {

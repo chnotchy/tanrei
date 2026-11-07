@@ -6608,8 +6608,10 @@ private object M3LikeSystemSource {
             headlineTypescale = typescale.heading6,
             motionCloseDuration = 100,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
+            motionHideDelay = 300,
             motionOpenDuration = 200,
             motionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            motionShowDelay = 700,
             offset = 4.dp,
             windowMargin = 8.dp,
         )

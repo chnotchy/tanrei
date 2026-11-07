@@ -6995,8 +6995,10 @@ private let m3LikePopoverTokens = TanreiPopoverTokens(
   headlineTypescale: m3LikeTypescale.heading6,
   motionCloseDuration: 100,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionHideDelay: 300,
   motionOpenDuration: 200,
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionShowDelay: 700,
   offset: 4,
   windowMargin: 8
 )
