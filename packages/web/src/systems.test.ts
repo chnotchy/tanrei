@@ -183,8 +183,9 @@ const SUBJECTS = [
   subject('figure', (fixture) => fixture.id === 'docs-demo-code' || fixture.id === 'filled-title-caption', { icons: true }),
   // Open below its anchor with an arrow, a headline, a close button and two actions: the preset's sheet (its color,
   // corners and elevation, drawn round the arrow as one shape), the headline's text style, its own small Button for the
-  // close glyph of its icon set, and its Buttons at the foot.
-  subject('popover', (fixture) => fixture.id === 'arrow-actions', { icons: true }),
+  // close glyph of its icon set, and its Buttons at the foot. Drawn alone: the compact fixtures open real popovers in the
+  // top layer, kept inside the window, so they would be drawn over it.
+  subject('popover', (fixture) => fixture.id === 'arrow-actions', { icons: true, alone: true }),
   // A required slider in error: the label's text style and color, the required mark the preset chooses (its filled tag,
   // or its asterisk), the preset's own slider untouched between the rows, and the error text in its error role. Axe
   // checks its fixtures in parts: its 368 fields on one page are about 15 000 elements.
@@ -488,6 +489,31 @@ async function axe(page: Page, spec: Spec, unit: string, system: string, contras
   }
 }
 
+/**
+ * The fixtures other than `own` that hold an element open in the top layer (an open popover, a modal dialog), in the
+ * light DOM or any shadow root; `(page)` for one outside every stage.
+ */
+async function othersInTopLayer(page: Page, own: string): Promise<string[]> {
+  return page.evaluate((id) => {
+    const found = new Set<string>();
+    const fixtureOf = (el: Element) => {
+      for (let node: Element | undefined = el; node; node = (node.getRootNode() as ShadowRoot).host) {
+        const stage = node.closest('[data-fixture]');
+        if (stage) return stage.getAttribute('data-fixture')!;
+      }
+      return '(page)';
+    };
+    const walk = (root: Document | ShadowRoot) => {
+      for (const el of root.querySelectorAll('*')) {
+        if (el.matches(':popover-open, dialog:modal') && fixtureOf(el) !== id) found.add(fixtureOf(el));
+        if (el.shadowRoot) walk(el.shadowRoot);
+      }
+    };
+    walk(document);
+    return [...found];
+  }, own);
+}
+
 test('presets are discovered from tokens/systems/', () => {
   expect([...presets].sort()).toEqual(['cupertino', 'm3-expressive-like', 'm3-like']);
 });
@@ -532,6 +558,9 @@ for (const system of presets) {
           if (window) await page.setViewportSize(window);
           await mountFixtures(page, spec, { system, icons, ...(reducedMotion ? { reducedMotion } : {}), ...(window || alone ? { fixtures: [fixture] } : {}) });
           const shot = ['systems', system, spec.name, `${fixture.id}.png`];
+          // The top layer is drawn over the whole window, wherever the shot scrolls to: another fixture's open surface
+          // there is drawn into this fixture's picture.
+          expect(await othersInTopLayer(page, fixture.id), 'fixtures with a surface open in the top layer').toEqual([]);
           if (wholeWindow) await expect(page).toHaveScreenshot(shot);
           else await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot(shot);
         });
