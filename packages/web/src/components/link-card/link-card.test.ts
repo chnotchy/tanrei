@@ -12,6 +12,9 @@ import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { resolveEasing } from '../../../test/appear.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -644,7 +647,7 @@ test.describe('the picture', () => {
     expect(read('src/styles/link-card.css')).toContain('@container (inline-size >= token(comp.link-card.layout.beside-min-width))');
   });
 
-  test('LKC-13 the picture box has its final size before the picture arrives, so nothing moves when it does; a picture that cannot be loaded leaves a card without a picture — no mark, no text, no address — is not asked for again and is reported; a changed image draws the box until the new picture has loaded', async ({ page }) => {
+  test('LKC-13 the picture box has its final size before the picture arrives, so nothing changes place when it does; a picture that cannot be loaded leaves a card without a picture — no mark, no text, no address — is not asked for again and is reported; a changed image draws the box until the new picture has loaded', async ({ page }) => {
     const seen = reports(page);
     let release: () => void = () => {};
     const held = new Promise<void>((resolve) => (release = resolve));
@@ -656,15 +659,17 @@ test.describe('the picture', () => {
     expect(before[0].width).toBeCloseTo(await resolveToken(page, T('media-width')), 1);
     release();
     await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    // (It fades in, at the place and size it had: the frames are read in the tests of the picture's motion below.)
+    await motionEnded(page.locator('#slow'));
     expect([await box(media), await box(page.locator('#slow')), await box(page.locator('#slow [data-part="title"]'))]).toEqual(before);
-    expect(await css(media, 'transition-duration')).toBe('0s');
-    expect(await css(media, 'animation-name')).toBe('none');
     expect(asked.filter((request) => request.type === 'image')).toHaveLength(1);
-    // image-failed is drawn exactly as no-picture with the same text.
+    // image-failed is drawn exactly as no-picture with the same text, once at rest (its box may fold away first, where
+    // it fails after the card has settled).
     await page.unroute('**/*');
     await mountSpec(page, ['image-failed', 'no-picture']);
     await card(page, 'image-failed').scrollIntoViewIfNeeded();
     await expect(part(page, 'image-failed', 'media')).toHaveCount(0);
+    await motionEnded(card(page, 'image-failed'));
     const parts = (id: string) => card(page, id).evaluate((el) => [...el.querySelectorAll('a, [data-part]')].map((node) => { const r = node.getBoundingClientRect(); const o = el.getBoundingClientRect(); return `${node.getAttribute('data-part') ?? 'a'} ${(r.left - o.left).toFixed(1)} ${(r.top - o.top).toFixed(1)} ${r.width.toFixed(1)} ${r.height.toFixed(1)}`; }));
     expect(await parts('image-failed')).toEqual(await parts('no-picture'));
     await expect(card(page, 'image-failed').locator('img[data-part="media"]')).toHaveCount(0);
@@ -683,6 +688,294 @@ test.describe('the picture', () => {
     await card(page, 't').evaluate((el, src) => el.setAttribute('image', `${src}#again`), PICTURE);
     await expect(part(page, 't', 'media')).toHaveCount(1);
     expect(await part(page, 't', 'media').evaluate((el) => (el as HTMLElement & { first?: boolean }).first === true)).toBe(false);
+  });
+});
+
+// ── The picture's motion (LKC-13): read frame by frame on a held clock (test/frames.ts) ─────────────────────────────
+/** What a picture's arrival and its box's fold are read by in every frame: the card, its parts and the line below it. */
+const pictureProbe: Probe = (root) => {
+  const host = root.querySelector('tanrei-link-card')!;
+  const a = host.querySelector(':scope > a')!;
+  const media = a.querySelector(':scope > img[data-part="media"]');
+  const body = a.querySelector(':scope > [data-part="body"]')!;
+  const title = body.querySelector(':scope > [data-part="title"]')!;
+  const after = root.querySelector('.after');
+  const [h, b, t] = [host.getBoundingClientRect(), body.getBoundingClientRect(), title.getBoundingClientRect()];
+  const m = media?.getBoundingClientRect();
+  return {
+    media: !!media,
+    opacity: media ? Number(getComputedStyle(media).opacity) : 1,
+    mediaX: m?.left,
+    mediaY: m?.top,
+    mediaWidth: m?.width,
+    mediaHeight: m?.height,
+    top: h.top,
+    height: h.height,
+    bottom: h.bottom,
+    bodyWidth: b.width,
+    bodyTop: b.top,
+    titleX: t.left,
+    titleY: t.top,
+    under: getComputedStyle(a).backgroundImage,
+    afterTop: after?.getBoundingClientRect().top,
+  };
+};
+const probes = (seen: Frames, rest = true) => [seen.before, ...seen.frames, ...(rest ? [seen.rest] : [])].map((frame: Frame) => frame.probe);
+const numbers = (seen: Frames, name: string, rest = true) => probes(seen, rest).map((probe) => Number(probe[name]));
+/** One way only: each value no further from the end than the one before (MOT-2). */
+const expectOneWay = (values: number[], way: 'up' | 'down', label: string) => {
+  for (let i = 1; i < values.length; i++) {
+    if (way === 'down') expect(values[i]!, `${label}, frame ${i - 1}: ${values.join(' → ')}`).toBeLessThanOrEqual(values[i - 1]! + 0.01);
+    else expect(values[i]!, `${label}, frame ${i - 1}: ${values.join(' → ')}`).toBeGreaterThanOrEqual(values[i - 1]! - 0.01);
+  }
+};
+/**
+ * It moves at every frame and never by a step: in each frame until it is within half a pixel of its end it has moved
+ * from the frame before; its first and its last move are a frame of the curve, which starts and ends slowly (a twentieth
+ * of the way at most), and no move is a quarter of the way (the spatial curve's steepest frame is about a sixth).
+ */
+const expectEveryFrameNoStep = (way: number[], label: string) => {
+  const end = way.at(-1)!;
+  const total = Math.abs(end - way[0]!);
+  expect(total, `${label}: it moves`).toBeGreaterThan(4);
+  const moves = way.slice(1).map((value, i) => Math.abs(value - way[i]!));
+  // (The first frame is the motion's start — what was drawn before it — and every frame after it moves.)
+  for (let i = 1; i < moves.length; i++) {
+    if (Math.abs(way[i]! - end) > 0.5) expect(moves[i]!, `${label}: frame ${i}, of ${way.join(' → ')}`).toBeGreaterThan(0.01);
+  }
+  const moving = moves.filter((move) => move > 0.01);
+  expect(moving.length, `${label}: frames that move`).toBeGreaterThanOrEqual(4);
+  expect(moving[0]!, `${label}: the first move, of ${way.join(' → ')}`).toBeLessThanOrEqual(Math.max(1, total / 20));
+  expect(moving.at(-1)!, `${label}: the last move, of ${way.join(' → ')}`).toBeLessThanOrEqual(Math.max(1, total / 20));
+  expect(Math.max(...moving), `${label}: the largest move, of ${way.join(' → ')}`).toBeLessThanOrEqual(total / 4);
+};
+/**
+ * A page of the site holding one card (`#card`, the build step's markup, its media `/pictures/<picture>`) and a line
+ * below it, in a column `width` wide. Every picture's response is held until `release(<picture>)` (by default the
+ * card's own): `/pictures/card.png` then answers with the picture, any other address with 404 — a picture that cannot
+ * be loaded.
+ */
+const heldPicture = async (page: P, picture: string, { width = 720, alt = '' }: { width?: number; alt?: string } = {}) => {
+  const holds = new Map<string, { held: Promise<void>; release: () => void }>();
+  const holdOf = (pathname: string) => {
+    let hold = holds.get(pathname);
+    if (!hold) {
+      let release: () => void = () => {};
+      const held = new Promise<void>((resolve) => (release = resolve));
+      hold = { held, release };
+      holds.set(pathname, hold);
+    }
+    return hold;
+  };
+  const pathname = `/pictures/${picture}`;
+  const markup = siteCard('card', HREF, { media: pathname, extra: 'data-external="false"' }).replace('</span><span data-part="site">', `</span>${alt ? `<span data-part="image-alt">${alt}</span>` : ''}<span data-part="site">`);
+  await served(page, `<div id="root" style="inline-size: ${width}px">${markup}<p class="after" style="margin: 0">Below.</p></div>`, { hold: (asked) => (asked.startsWith('/pictures/') ? holdOf(asked).held : undefined) });
+  const release = (name = picture) => holdOf(`/pictures/${name}`).release();
+  const host = page.locator('#card');
+  const media = host.locator('img[data-part="media"]');
+  await expect(host).not.toHaveAttribute('data-tanrei-settling');
+  await media.scrollIntoViewIfNeeded();
+  await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete)).toBe(false);
+  return { host, media, link: host.locator(':scope > a'), root: page.locator('#root'), release };
+};
+/** The script motions of a sampling — the picture's fade and the box's fold are the element's own `animate()`. */
+const scripted = (seen: Frames) => seen.motions.filter((motion) => motion.kind === 'script').map((motion) => [motion.on.split('.')[0], motion.duration, motion.easing] as const);
+
+test.describe('the picture’s motion', () => {
+  test('LKC-13 WHEN a picture arrives after the card has settled THE card fades it in over the box’s fill, over motion.picture-duration with motion.picture-easing, in which nothing changes place or size, and draws nothing beneath it at rest', async ({ page }) => {
+    const { root, host, media, release } = await heldPicture(page, 'card.png');
+    const seen = await sampleFrames(root, async () => {
+      release();
+      // Its fade begins when it has loaded: held at its start until the act is over.
+      await expect(host).toHaveAttribute('data-tanrei-arriving', '');
+    }, { probe: pictureProbe });
+    expect(seen.complete).toBe(true);
+    const first = seen.frames[0]!.probe;
+    expect(Number(first.opacity), 'from transparent').toBeLessThan(0.25);
+    expect(seen.rest.probe.opacity, 'to whole').toBe(1);
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    expectOneWay(numbers(seen, 'opacity').slice(1), 'up', 'the opacity');
+    // Nothing changes place or size, in any frame: the card, the picture's box, the title.
+    for (const probe of probes(seen)) {
+      for (const name of ['mediaX', 'mediaY', 'mediaWidth', 'mediaHeight', 'top', 'height', 'titleX', 'titleY', 'afterTop']) expect(Number(probe[name]), name).toBeCloseTo(Number(seen.before.probe[name]), 1);
+    }
+    // While it fades the box's fill is drawn beneath it, and at rest it is not.
+    for (const frame of seen.frames.filter((each) => Number(each.probe.opacity) < 1)) expect(String(frame.probe.under), `frame ${frame.index}`).toContain('gradient');
+    expect(seen.before.probe.under).toBe('none');
+    expect(seen.rest.probe.under).toBe('none');
+    expectNoFlicker(seen);
+    // On the tokens: a change of what a large box draws in place, on the state curve.
+    const [duration, easing] = [await resolveToken(page, T('motion-picture-duration'), 'duration'), await resolveEasing(page, T('motion-picture-easing'))];
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-large', 'duration'));
+    expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-state'));
+    expect(scripted(seen)).toEqual([['img', duration, easing]]);
+    expect(await motionCount(host), 'nothing moves at rest').toBe(0);
+    expect(await css(media, 'opacity')).toBe('1');
+  });
+
+  test('LKC-13 a picture the browser already holds when the card first draws it, or that a settled card is given, is drawn whole at once, with no fade', async ({ page }) => {
+    await mountSpec(page, ['full']);
+    await expect.poll(() => part(page, 'full', 'media').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await motionEnded(stage(page, 'full'));
+    // A card the page then draws whose picture the browser holds: whole in its first frame, no motion of it.
+    const markup = `<tanrei-link-card href="${HREF}" headline="Again" image="${PICTURE}" external="off"></tanrei-link-card>`;
+    const drawnAgain = await sampleFrames(stage(page, 'full'), () => stage(page, 'full').evaluate((el, html) => el.insertAdjacentHTML('beforeend', html), markup), { probe: pictureProbe });
+    expectFirstFrameAtRest(drawnAgain);
+    expect(scripted(drawnAgain)).toEqual([]);
+    // A card at rest given the same picture: drawn whole at once.
+    await stage(page, 'full').evaluate((el, href) => el.insertAdjacentHTML('beforeend', `<tanrei-link-card id="later" href="${href}" headline="Later" external="off"></tanrei-link-card>`), HREF);
+    const later = page.locator('#later');
+    await expect(later).not.toHaveAttribute('data-tanrei-settling');
+    const given = await sampleFrames(stage(page, 'full'), async () => {
+      await later.evaluate((el, src) => el.setAttribute('image', src), PICTURE);
+      await expect.poll(() => later.locator('img[data-part="media"]').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    });
+    expect(scripted(given)).toEqual([]);
+    expect(await later.locator('img[data-part="media"]').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+    expect(await later.getAttribute('data-tanrei-arriving')).toBeNull();
+  });
+
+  test('LKC-13 WHEN a picture beside the text fails after the card has settled THE card folds the box away at its end edge in one motion, over motion.resize-duration with motion.resize-easing: the text widens from 528 to 720 at every frame, the room is drawn in the box’s fill, and what follows stays with the card', async ({ page }) => {
+    const { root, host, link, release } = await heldPicture(page, 'broken.png');
+    const width = await resolveToken(page, T('media-width'));
+    const seen = await sampleFrames(root, async () => {
+      release();
+      await expect(host.locator('img[data-part="media"]')).toHaveCount(0);
+    }, { probe: pictureProbe });
+    expect(seen.complete).toBe(true);
+    const way = numbers(seen, 'bodyWidth');
+    expect(way[0], 'with the picture beside it').toBeCloseTo(720 - width, 0);
+    expect(way.at(-1), 'without it').toBeCloseTo(720, 0);
+    expectOneWay(way, 'up', 'the text’s width');
+    expectAnimated(seen, 'bodyWidth', { minSteps: 4 });
+    expectEveryFrameNoStep(way, 'the text’s width');
+    // In its layout: the card stays where it was, and the line below follows its bottom edge at every frame.
+    for (const probe of probes(seen)) {
+      expect(Number(probe.top)).toBeCloseTo(Number(seen.before.probe.top), 1);
+      expect(Number(probe.afterTop) - Number(probe.bottom), 'the line below follows the card').toBeCloseTo(Number(seen.before.probe.afterTop) - Number(seen.before.probe.bottom), 1);
+    }
+    // The room in the box's fill while it folds; nothing of it at rest.
+    for (const frame of seen.frames.filter((each) => Math.abs(Number(each.probe.bodyWidth) - 720) > 0.5)) expect(String(frame.probe.under), `frame ${frame.index}`).toContain('gradient');
+    expect(seen.rest.probe.under).toBe('none');
+    expectNoFlicker(seen);
+    // On the tokens: a large change of size, on the spatial curve; every part of it one motion.
+    const [duration, easing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await resolveEasing(page, T('motion-resize-easing'))];
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-large', 'duration'));
+    expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    expect(scripted(seen).length).toBeGreaterThanOrEqual(1);
+    for (const motion of scripted(seen)) expect(motion).toEqual(['a', duration, easing]);
+    // At rest: a card without a picture, and nothing of the motion left on it.
+    expect(await motionCount(host)).toBe(0);
+    expect(await host.getAttribute('data-tanrei-folding')).toBeNull();
+    expect(await link.getAttribute('style')).toBeNull();
+    expect(await px(link, 'padding-right')).toBe(0);
+  });
+
+  test('LKC-13 WHEN a picture above the text fails after the card has settled THE card folds the box away in one motion of its height: the card’s height falls and the line below it moves at every frame, with no step, and the text rises with the box', async ({ page }) => {
+    const { root, host, release } = await heldPicture(page, 'broken.png', { width: 320 });
+    const seen = await sampleFrames(root, async () => {
+      release();
+      await expect(host.locator('img[data-part="media"]')).toHaveCount(0);
+    }, { probe: pictureProbe });
+    expect(seen.complete).toBe(true);
+    const room = Number(seen.before.probe.mediaHeight);
+    expect(Math.round(room), 'the box above the text, 320 / 1.9').toBe(168);
+    const heights = numbers(seen, 'height');
+    expect(heights.at(-1)!).toBeCloseTo(heights[0]! - room, 0);
+    expectOneWay(heights, 'down', 'the card’s height');
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    expectEveryFrameNoStep(heights, 'the card’s height');
+    expectEveryFrameNoStep(numbers(seen, 'afterTop'), 'the line below');
+    // The text rises with the box's bottom edge, from below the box to the card's top, as the card's height falls.
+    const below = probes(seen).map((probe) => Number(probe.bodyTop) - Number(probe.top));
+    expect(below[0]!).toBeCloseTo(room, 0);
+    expect(below.at(-1)!).toBeCloseTo(0, 0);
+    expectOneWay(below, 'down', 'the text below the box');
+    for (const [i, probe] of probes(seen).entries()) expect(Number(probe.height) - below[i]!, `frame ${i - 1}: the text’s room`).toBeCloseTo(heights.at(-1)!, 0);
+    expectNoFlicker(seen);
+    expect(await motionCount(host)).toBe(0);
+    expect(await host.getAttribute('data-tanrei-folding')).toBeNull();
+  });
+
+  test('LKC-13 WHEN image changes while the box folds THE card turns round from the size then drawn and opens the box again to its final size (MOT-2)', async ({ page }) => {
+    const { root, host, release } = await heldPicture(page, 'broken.png', { width: 320 });
+    const full = (await box(host)).height;
+    // The fold held halfway as it begins — the same moment on any machine: the picture's own listener runs after the
+    // card's, which has started the fold.
+    await host.locator('img[data-part="media"]').evaluate((el) =>
+      el.addEventListener('error', () => {
+        const a = document.querySelector('#card > a')!;
+        for (const motion of a.getAnimations()) {
+          motion.pause();
+          motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+        }
+      }),
+    );
+    release();
+    await expect(host.locator('img[data-part="media"]')).toHaveCount(0);
+    const midway = (await box(host)).height;
+    expect(midway, 'partway').toBeLessThan(full - 168 * 0.1);
+    expect(midway).toBeGreaterThan(full - 168 * 0.9);
+    // A new image, whose picture is still on its way: the box opens again from what is drawn.
+    const turned = await sampleFrames(root, () => host.evaluate((el) => ((el as HTMLElement & { image: string }).image = '/pictures/card.png')), { probe: pictureProbe });
+    const start = turned.frames[0]!.probe;
+    expect(Number(start.height), 'from the height drawn').toBeCloseTo(midway, 0);
+    expect(Number(start.mediaHeight), 'the box from the size drawn').toBeCloseTo(midway - (full - 168), 0);
+    const heights = [...turned.frames.map((frame) => Number(frame.probe.height)), Number(turned.rest.probe.height)];
+    expectOneWay(heights, 'up', 'the card’s height');
+    expectAnimated(turned, 'height', { minSteps: 4 });
+    expect(Number(turned.rest.probe.height), 'to its height with the box').toBeCloseTo(full, 0);
+    expect(Math.round(Number(turned.rest.probe.mediaHeight))).toBe(168);
+    expectNoFlicker(turned);
+    expect(await motionCount(host)).toBe(0);
+  });
+
+  test('LKC-13 WHERE motion is reduced THE card draws an arriving picture whole and takes a failed picture’s box away at once (MOT-6)', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const arriving = await heldPicture(page, 'card.png');
+    const arrived = await sampleFrames(arriving.root, async () => {
+      arriving.release();
+      await expect.poll(() => arriving.media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    }, { probe: pictureProbe });
+    expect(arrived.motions).toEqual([]);
+    for (const probe of probes(arrived)) expect(probe.opacity).toBe(1);
+    const failing = await heldPicture(page, 'broken.png', { width: 320 });
+    const failed = await sampleFrames(failing.root, async () => {
+      failing.release();
+      await expect(failing.host.locator('img[data-part="media"]')).toHaveCount(0);
+    }, { probe: pictureProbe });
+    expectFirstFrameAtRest(failed);
+    expect(failed.motions).toEqual([]);
+    expect(failed.frames[0]!.probe.media).toBe(false);
+  });
+
+  test('LKC-13 LKC-25 the card’s name and description are the same before, during and after either motion: the title names it, and the picture’s alternative text is read once the picture has arrived — not while its box folds away', async ({ page }) => {
+    const arriving = await heldPicture(page, 'card.png', { alt: 'A wall of color swatches' });
+    await expect(arriving.link).toHaveAccessibleName('Card card');
+    await expect(arriving.link).toHaveAccessibleDescription('example.com');
+    const fading = await freezeFirstFrame(arriving.root, async () => {
+      arriving.release();
+      await expect(arriving.host).toHaveAttribute('data-tanrei-arriving', '');
+    }, { probe: pictureProbe });
+    expect(Number(fading.frame.probe.opacity), 'held at the start of its fade').toBeLessThan(0.25);
+    await expect(arriving.link).toHaveAccessibleName('Card card');
+    await expect(arriving.link).toHaveAccessibleDescription('A wall of color swatches example.com');
+    await fading.release();
+    await motionEnded(arriving.host);
+    await expect(arriving.link).toHaveAccessibleName('Card card');
+    await expect(arriving.link).toHaveAccessibleDescription('A wall of color swatches example.com');
+    const failing = await heldPicture(page, 'broken.png', { alt: 'A wall of color swatches' });
+    const folding = await freezeFirstFrame(failing.root, async () => {
+      failing.release();
+      await expect(failing.host).toHaveAttribute('data-tanrei-folding', '');
+    }, { probe: pictureProbe });
+    expect(Number(folding.frame.probe.bodyWidth), 'held at the start of its fold').toBeLessThan(720 - 100);
+    await expect(failing.link).toHaveAccessibleName('Card card');
+    await expect(failing.link).toHaveAccessibleDescription('example.com');
+    await folding.release();
+    await motionEnded(failing.host);
+    await expect(failing.link).toHaveAccessibleName('Card card');
+    await expect(failing.link).toHaveAccessibleDescription('example.com');
   });
 });
 

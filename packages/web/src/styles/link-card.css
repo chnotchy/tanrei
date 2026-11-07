@@ -37,6 +37,8 @@
  *   data-external (on the anchor)       "detected", where the page was not marked when it was made (LKC-24)
  *   data-undrawn (on the site name)     it only repeats the host (LKC-7)
  *   aria-labelledby, aria-describedby   the name and the description as LKC-25 divides them
+ *   data-tanrei-arriving (on the element)  a picture fades in: the box's fill beneath it (LKC-13)
+ *   data-tanrei-folding (on the element)   the picture's box folds away or opens again: its room in the fill (LKC-13)
  *
  * The marks need icons.css; without it no mark is drawn and none takes room.
  *
@@ -153,6 +155,7 @@
     --_lc-now-description: var(--_lc-description);
     --_lc-now-site: var(--_lc-site);
     --_lc-target: var(--tanrei-sys-target-pointer);
+    --_lc-beside: 0;
     /* LKC-12, narrow: the picture above the text (it is written after the body, so that the text is read first). */
     display: flex;
     flex-direction: column;
@@ -206,6 +209,12 @@
     /* Where the element reads sys.motion.duration.press-hold as a time (LKC-18): nothing here transitions. */
     transition-property: none;
     transition-delay: var(--tanrei-sys-motion-duration-press-hold);
+    /* Where it reads, as a time and a curve, the motion of the picture's box folding away (LKC-13: the transition's
+       duration and curve) and of a picture fading in (the animation's): nothing here transitions or is animated. */
+    transition-duration: var(--tanrei-comp-link-card-motion-resize-duration);
+    transition-timing-function: var(--tanrei-comp-link-card-motion-resize-easing);
+    animation-duration: var(--tanrei-comp-link-card-motion-picture-duration);
+    animation-timing-function: var(--tanrei-comp-link-card-motion-picture-easing);
   }
   /* LKC-21: the hit area reaches the minimum target on both axes around the card, and takes no room. */
   :where(tanrei-link-card) > :where(a:any-link) > :where([data-part='body'])::before {
@@ -471,6 +480,10 @@
   /* LKC-12, wide: beside the body at the card's end edge, comp.link-card.media.width wide and as tall as the card,
      whose height is the body's — the picture is out of the flow and the anchor keeps its room. */
   @container (inline-size >= token(comp.link-card.layout.beside-min-width)) {
+    /* Which layout is drawn, for the element: a fold of the picture's box ends at once where it changes (LKC-12, LKC-13). */
+    :where(tanrei-link-card) > :where(a) {
+      --_lc-beside: 1;
+    }
     :where(tanrei-link-card) > :where(a:has(> img[data-part='media'])) {
       padding-inline-end: var(--tanrei-comp-link-card-media-width);
     }
@@ -483,6 +496,47 @@
       aspect-ratio: auto;
       border-start-start-radius: 0;
       border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    }
+  }
+
+  /* LKC-13: a picture that arrives after the card has settled fades in (the element animates its opacity) over the
+     box's fill, which the anchor draws beneath it while it fades — the picture's own fill fades with it. Above the text
+     the box is the anchor's top, across it and as tall as its width divided by the proportion; beside it, the room the
+     anchor keeps at its end edge. Only while it fades: at rest the anchor draws its fill alone. */
+  :where(tanrei-link-card[data-tanrei-arriving]) > :where(a) {
+    background-image: linear-gradient(var(--_lc-media-fill) 0 0);
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: 100% calc(100cqi / var(--tanrei-comp-link-card-media-aspect-ratio));
+  }
+  @container (inline-size >= token(comp.link-card.layout.beside-min-width)) {
+    :where(tanrei-link-card[data-tanrei-arriving]) > :where(a) {
+      background-position: var(--_lc-end) top;
+      background-size: var(--tanrei-comp-link-card-media-width) 100%;
+    }
+  }
+  /* LKC-13: while the picture's box folds away — or opens again — the element animates the room the anchor keeps for
+     it, the picture's own size and the anchor's height, from what is drawn; everything but the text's box is drawn in
+     the box's fill (beneath a picture that fades in as it opens, too), the text's box in the container's, and what the
+     moving height does not hold is clipped to the container's corners. Above the text, the text's box is the anchor's
+     bottom, as tall as the element measured it (`--_lc-text-block`: it does not change while the box moves); beside it,
+     it is the anchor's content box, and the room its end padding. */
+  :where(tanrei-link-card[data-tanrei-folding]) > :where(a) {
+    overflow: hidden;
+    overflow: clip;
+    background-image: linear-gradient(var(--_lc-now-container) 0 0), linear-gradient(var(--_lc-media-fill) 0 0);
+    background-repeat: no-repeat;
+    background-origin: padding-box;
+    background-clip: padding-box;
+    background-position: center bottom, 0 0;
+    background-size: 100% var(--_lc-text-block, 100%), 100% 100%;
+  }
+  @container (inline-size >= token(comp.link-card.layout.beside-min-width)) {
+    :where(tanrei-link-card[data-tanrei-folding]) > :where(a) {
+      background-position: 0 0;
+      background-size: 100% 100%;
+      background-origin: content-box, padding-box;
+      background-clip: content-box, padding-box;
     }
   }
 

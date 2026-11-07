@@ -51063,6 +51063,42 @@
             },
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           },
+          "picture-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long a picture that has arrived takes to fade in over the fill of its box (LKC-13): a change of what a large box draws in place, in which nothing changes place or size. A picture the platform already holds, or one that arrives in the card's first frames, is drawn at once."
+          },
+          "picture-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that fade: a change of opacity in place."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long the picture's box takes to fold away when its picture cannot be loaded (LKC-13), and to open again when a new picture is given while it folds: beside the text its width goes to none while the text widens to the whole card, above the text its height goes to none; the card's height and what follows it move with it at every frame. A large change of size in place."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of that motion: a box that changes its size in place."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {

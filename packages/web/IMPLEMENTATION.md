@@ -10615,9 +10615,34 @@ Every part but the title is optional. Nobody writes this by hand: `linkCardToNod
 - `aria-labelledby` (the title) and `aria-describedby` (the description, the picture's alternative text once the picture has loaded, the site's name, the host, the words) on the anchor, with ids it writes (LKC-25). Before that the anchor is named by all of its text in reading order;
 - `rel="noopener"` for `target="_blank"`; `alt=""`, `referrerpolicy="no-referrer"`, `loading="lazy"` and `decoding="async"` on a picture whose markup left them out (a missing referrer policy is reported: the first request may have left before the script ran);
 - a picture that fails is removed, and is not asked for again until the product gives its address anew (LKC-10, LKC-13);
+- the picture's motion (LKC-13), below;
 - `data-pressed` through the shared press primitive, and `data-focus-style` where the browser has no style queries;
 - `inert` on an interactive element found inside the card (LKC-35);
 - the debug reports.
+
+**The picture's motion (LKC-13).** Both are the element's own `animate()`, so they leave nothing at rest and a change
+goes on from what is drawn; both are at once while the element settles (MOT-3) and under reduced motion. Their timing
+is read from the body, which carries the tokens on properties that move nothing: the fold's on its
+`transition-duration` and `transition-timing-function` (`comp.link-card.motion.resize-*`, `role.resize.large` and
+`easing.spatial`), the fade's on its `animation-duration` and `animation-timing-function`
+(`comp.link-card.motion.picture-*`, `role.state.large` and `easing.state`).
+
+- *A picture that arrives* — a media picture that was not already whole when the element first saw it (one the browser
+  held is drawn at once) and loads after the card has settled — fades in: its opacity from 0 to 1, nothing changing
+  place or size. While it fades the element carries `data-tanrei-arriving` and the stylesheet draws the box's fill on
+  the anchor beneath it (above the text, across the top and `100cqi / media.aspect-ratio` tall; beside it, the room at
+  the end edge), so the picture's own fill, which fades with it, is never missed.
+- *A picture that fails* while its box is laid out folds the box away: the element reads the box as drawn, removes the
+  picture, and animates the room the anchor keeps for it — `padding-inline-end` beside the text, `padding-block-start`
+  above it — from that size to none, and the anchor's `block-size` from the height drawn to its height without the
+  picture, together, so the card and what follows it move in every frame even where the text, widening, takes fewer
+  lines. While it moves the element carries `data-tanrei-folding`: the anchor clips (`overflow: clip`) and draws the
+  room in the box's fill and the text's box in the container's (above the text the text's box is the anchor's bottom,
+  `--_lc-text-block` tall, which the element measures; beside it, the anchor's content box).
+- *A new image while the box folds* turns it round: the new picture's box opens from the size drawn — beside the text
+  its `inline-size` and the anchor's end padding, above it its `block-size` — and the anchor's height with it. A card
+  whose own width crosses `layout.beside-min-width` while its box moves ends the motion at once (LKC-12); one taken
+  out of the page is at rest.
 
 **Layout.** The element is the query container (`container-type: inline-size`): the picture stands beside the text from `comp.link-card.layout.beside-min-width` of the card's own width, written into the `@container` condition by the build in rem (`scripts/conditions.js`), so the boundary grows with the text size. A system that changes that token gets `dist/systems/<id>.link-card.css`. Because the element is a size container it has no width of its own: in a flex row or a grid cell, give it one.
 
