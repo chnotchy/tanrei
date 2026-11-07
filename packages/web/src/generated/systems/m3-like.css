@@ -1848,6 +1848,9 @@
     --tanrei-comp-chat-composer-hovered-outline-width: var(--tanrei-comp-chat-composer-outline-width);
     --tanrei-comp-chat-composer-input-padding-block: var(--tanrei-sys-space-space100);
     --tanrei-comp-chat-composer-layout-inline-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 90), 0.25px);
+    --tanrei-comp-chat-composer-motion-glyph-fade-duration: var(--tanrei-sys-motion-role-state-compact);
+    --tanrei-comp-chat-composer-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-chat-composer-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-chat-composer-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
     --tanrei-comp-chat-composer-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-chat-composer-outline-width: var(--tanrei-sys-border-hairline);
