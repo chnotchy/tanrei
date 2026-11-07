@@ -1,6 +1,6 @@
 ---
 title: Combobox
-description: The box people type in to find one value, and the list of options it opens — without a label row, help or error text of its own. For a place whose label stands elsewhere, or inside a field a product composes itself.
+description: The box people type in to find one value or several, and the list of options it opens — without a label row, help or error text of its own. For a place whose label stands elsewhere, or inside a field a product composes itself.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -125,6 +125,57 @@ The combobox tells its field what only it knows. Its help starts where the text 
 
 A press on the field's label moves focus to the input and opens nothing. While the list is open the label is outside the combobox: the press closes the list, and focus stays in the input.
 
+### Several values
+
+Set `selection` to `multiple` and the combobox holds `values`: any number of its options, in the order they were chosen. Each chosen value stands in the box as a chip, before the text, and the box grows by whole lines as the chips wrap. None is hidden behind a count. The text is then only what the person types to find an option.
+
+<Example label="Several values: the chosen cities as chips, and a list that still filters" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cities">
+    <tanrei-combobox selection="multiple" values="kyoto lisbon" remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed" empty-text="No matches">
+      <tanrei-option value="kyoto">Kyoto</tanrei-option>
+      <tanrei-option value="lisbon">Lisbon</tanrei-option>
+      <tanrei-option value="nairobi">Nairobi</tanrei-option>
+      <tanrei-option value="tokyo">Tokyo</tanrei-option>
+      <tanrei-option value="toronto">Toronto</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</Example>
+
+```html
+<tanrei-field label="Cities">
+  <tanrei-combobox name="cities" selection="multiple" values='["kyoto", "lisbon"]'
+    remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed">
+    <tanrei-option value="kyoto">Kyoto</tanrei-option>
+    <tanrei-option value="lisbon">Lisbon</tanrei-option>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option>
+    <tanrei-option value="tokyo">Tokyo</tanrei-option>
+    <tanrei-option value="toronto">Toronto</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+
+<script type="module">
+  const cities = document.querySelector('[name="cities"]');
+  // A value was added or removed. `values` is already the new array.
+  cities.addEventListener('change', (e) => save(e.detail.values));
+</script>
+```
+
+| The person | What happens |
+| --- | --- |
+| Presses an option, or presses Enter on the active one | Its value is added at the end, or taken out where it is already chosen. The text empties, every option shows again, and the list stays open for the next choice. |
+| Types an option's whole label and presses Enter | That option is added. With `allowCustomValue`, any other text becomes a value of its own. |
+| Presses Backspace, or the arrow toward the start of the line, with the caret at the start of the text | Focus moves to the last chip. Nothing is removed yet. |
+| On a chip, presses an arrow, Home or End | Focus moves among the chips; past the last, back to the text. Escape and Tab go back to the text. |
+| On a chip, presses Backspace or Delete, or its remove button | That value is removed, and focus moves to the chip beside it, or to the text. |
+| Presses a chip | Focus goes to the text, and the list opens on that chip's option. |
+| Leaves the field, or presses Escape while the list is closed | The typed text empties. Nothing is chosen, and no value is removed. |
+
+The list stays open after a choice, because a person who chooses several usually chooses them in a row. It closes with Escape, with the chevron, with a press outside, or when focus leaves. Backspace moves to the last chip before it removes anything, as in the [chip field](/components/chip-field/): the key does the same in both fields, and nothing is removed that the person has not seen first.
+
+In a form it submits one entry for each value under its `name`, as a `<select multiple>` does, and none while nothing is chosen. A required field around it asks for at least one value.
+
+The chips are [chips](/components/chip/) of the input kind, drawn from the chip's tokens. The space between them is `comp.combobox.entries.*`, which follows the text input's entries unless a design system sets it apart.
+
 ## Specs
 
 <Example label="Bare comboboxes: in error, disabled, read-only, clearable, and large" column>
@@ -195,6 +246,9 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
 - `empty-text` and `clear-label` left empty are read from the product's words (`setWords()`).
 - Before the element is defined, its options are running text. Hide `tanrei-combobox:not(:defined) > *` and reserve the height.
+- With `selection="multiple"` the element submits each of `values` under its `name`, resets to its `values` attribute (a JSON array, or values separated by spaces), and `change` also carries `detail.values`.
+- Parts of the chosen values: `entry` (each chip), `entry-container`, `entry-label` and `entry-remove`.
+- `remove-label`, `added-text` and `removed-text` left empty are read from the product's words `entryRemoveLabel`, `entryAddedText` and `entryRemovedText`, the ones the chip field reads.
 
 ## Guidelines
 
@@ -239,6 +293,7 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - Focus is shown by the box's own edge, from the keyboard and from a pointer alike. The hit area meets the minimum target.
 - The asterisk after a floating label is hidden from assistive technology: the required state already says it.
 - A missing name is reported in debug builds.
+- With several values, the list box says that several options can be selected, and each option whether it is selected. The chosen values are a list named like the combobox, each a chip with a remove button named by `removeLabel`. A polite live region says what the person added or removed, in `addedText` and `removedText`.
 
 ### What you need to do
 
@@ -246,3 +301,4 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - Where a bare combobox can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the combobox.
 - Give every option a label and a value that is not empty, and keep the values unique.
 - Give a clearable combobox a `clearLabel`, and write `emptyText` and `statusText`.
+- With several values, give `removeLabel` with the place `{entry}`, and `addedText` and `removedText`, in the product's language, or set them once for every field with `setWords()`.
