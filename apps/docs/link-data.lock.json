@@ -22,6 +22,10 @@
       "height": 32,
       "type": "image/png"
     },
+    "https://llmstxt.org": {
+      "ok": false,
+      "reason": "image-step-failed"
+    },
     "https://modelcontextprotocol.io": {
       "ok": true,
       "file": "eaaa23635c90ec3bcc028be9fa64f896.png",

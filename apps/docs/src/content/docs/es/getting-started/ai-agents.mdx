@@ -8,7 +8,7 @@ sourceHash: cae040b44f8e42012e32aac5d132b7c76dcd0b81
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
-Un agente de programación que escribe la interfaz de tu producto necesita lo mismo que una persona de tu equipo: qué componentes existen, qué recibe cada uno y de dónde sale cada valor. Tanrei guarda las tres cosas en archivos que incluyen sus paquetes y en un servidor MCP, así que el agente puede consultarlas en lugar de adivinar. Esta página muestra cómo conectarlos y te da un archivo de reglas para copiar en tu repositorio.
+Un agente de programación que escribe la interfaz de tu producto necesita lo mismo que una persona de tu equipo: qué componentes existen, qué recibe cada uno y de dónde sale cada valor. Tanrei guarda las tres cosas en archivos que incluyen sus paquetes y en un servidor MCP, y este sitio también las sirve como texto para programas, así que el agente puede consultarlas en lugar de adivinar. Esta página muestra cómo conectarlos y te da un archivo de reglas para copiar en tu repositorio.
 
 ## Qué puede leer un agente en los paquetes
 
@@ -16,9 +16,15 @@ Un agente de programación que escribe la interfaz de tu producto necesita lo mi
 - **Los valores.** Cada token es una propiedad personalizada de `@tanrei/web/tokens.css`, nombrada por su ruta: `tanrei.sys.color.primary` es `--tanrei-sys-color-primary`. Si tu producto tiene su propia capa, la salida `tokens` de `tanrei build` es un paquete DTCG cuyos grupos llevan indicaciones de uso para agentes en `$extensions["dev.tanrei.llm"]` ([Tu propio sistema de diseño](/es/getting-started/your-design-system/)).
 - **Qué salió mal.** Un componente mal usado se dibuja igualmente y, en una compilación de desarrollo, escribe en la consola una advertencia que empieza por `[tanrei]` y nombra el elemento, el problema y la regla que incumple: un botón sin etiqueta ni icono, un texto que tu producto no ha dado, un componente que el sistema deja fuera. Una compilación de producción (`NODE_ENV=production`) no escribe ninguna.
 
+## Qué puede leer un agente en este sitio
+
+- **Un índice.** [llms.txt](/llms.txt) enumera las páginas de este sitio en el orden de su barra lateral, en el formato [llms.txt](https://llmstxt.org/), y sigue al sistema predeterminado: los componentes que incluye y, aparte, los que deja fuera, con lo que conviene usar en su lugar. Cada sistema incluido tiene su propio índice, en `/systems/<id>/llms.txt`.
+- **Cada página en Markdown.** Cada página está también en Markdown, en su dirección con `.md` en lugar de la barra final: `/es/components/button/` también es `/es/components/button.md`, y lo mismo en todos los idiomas. El Markdown de un componente reúne el texto de su página y su especificación completa. En el Markdown de cualquier página, un enlace a otra página lleva al Markdown de esa página. Cada página indica en su cabecera su Markdown y el índice.
+- **Todas las especificaciones en un archivo.** [llms-full.txt](/llms-full.txt) reúne la especificación de cada componente que incluye el sistema predeterminado, para un agente que lee un solo archivo y lo conserva.
+
 ## Conectar el servidor MCP
 
-`@tanrei/mcp` es un servidor [Model Context Protocol](https://modelcontextprotocol.io) para los tokens de Tanrei y las capas de los sistemas de diseño. Un agente le pregunta qué tokens existen, a qué se resuelve un token en un sistema y por qué, qué puede cambiar una capa y cómo, y si una edición de una capa es válida antes de escribirla. Todas las herramientas son de solo lectura: el agente edita tu archivo de capa por sí mismo y el servidor comprueba la edición con la misma compilación que ejecuta `tanrei build`. Los componentes no están entre sus respuestas; su contrato es el manifiesto de arriba.
+`@tanrei/mcp` es un servidor [Model Context Protocol](https://modelcontextprotocol.io) para los componentes y los tokens de Tanrei y las capas de los sistemas de diseño. Un agente le pregunta qué componentes incluye un sistema y qué recibe cada uno, si tu código usa solo esos, qué tokens existen, a qué se resuelve un token en un sistema y por qué, qué puede cambiar una capa y cómo, y si una edición de una capa es válida antes de escribirla. Todas las herramientas son de solo lectura: el agente edita tu archivo de capa por sí mismo y el servidor comprueba la edición con la misma compilación que ejecuta `tanrei build`.
 
 <ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
 
