@@ -3,7 +3,8 @@
 // written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('app-bar');
 type P = Page;
@@ -40,6 +41,8 @@ const BACK = nav('Back', 'arrow_back');
 const SEARCH = act('Search', 'search');
 const MORE = act('More options', 'more_vert');
 const SHARE = act('Share', 'share');
+/** An action whose overflow is never: the bar never takes it out of the top row, and the title gives way to it (APB-26). */
+const keep = (item: FixtureItem): FixtureItem => ({ ...item, props: { ...item.props, overflow: 'never' } });
 
 /** Which color, elevation and bottom edge a bar draws. */
 const drawnCondition = (page: P, id: string) =>
@@ -238,7 +241,7 @@ test.describe('layout', () => {
       icons: true,
       fixtures: [
         ...spec.fixtures.filter((f) => f.id === 'small-subtitle'),
-        fixture('long', { title: 'A very long screen title that cannot fit into the top row of a phone', subtitle: 'And a subtitle that is much too long to fit on one line either' }, [BACK, SEARCH]),
+        fixture('long', { title: 'A very long screen title that cannot fit into the top row of a phone', subtitle: 'And a subtitle that is much too long to fit on one line either' }, [BACK, keep(SEARCH)]),
       ],
     });
     // A letter spacing may be in em: it is resolved with its role's font.
@@ -294,7 +297,7 @@ test.describe('layout', () => {
       icons: true,
       fixtures: [
         ...spec.fixtures.filter((f) => f.id === 'small-center' || f.id === 'small'),
-        fixture('center-long', { title: 'A very long screen title that cannot fit into the top row', titleAlignment: 'center' }, [BACK, SEARCH, MORE]),
+        fixture('center-long', { title: 'A very long screen title that cannot fit into the top row', titleAlignment: 'center' }, [BACK, keep(SEARCH), keep(MORE)]),
         fixture('center-title-only', { title: 'Settings', titleAlignment: 'center' }),
       ],
     });
@@ -553,7 +556,7 @@ test.describe('insets and items', () => {
     expect(await screenBar(page).locator('.expanded').getAttribute('aria-hidden')).toBe('true');
   });
 
-  test('APB-13: an empty title draws no title block and exposes no heading; more than three actions or one navigation item still render, and a debug build reports them', async ({ page }) => {
+  test('APB-13: an empty title draws no title block and exposes no heading; more than one navigation item still renders, and a debug build reports it; four actions that fit are all drawn and not reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
@@ -568,15 +571,18 @@ test.describe('insets and items', () => {
     await expect(stage(page, 'large-untitled').getByRole('heading')).toHaveCount(0);
     // The large bar still has its (empty) title row.
     expect((await bounds(bar(page, 'large-untitled'))).height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-large')));
-    await expect(bar(page, 'crowded').locator('tanrei-button')).toHaveCount(6);
-    for (const i of [0, 1, 2, 3, 4, 5]) await expect(bar(page, 'crowded').locator('tanrei-button').nth(i)).toBeVisible();
-    await expect.poll(() => seen.filter((w) => w.includes('APB-13')).length).toBe(2);
-    expect(seen).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/<tanrei-app-bar>: the bar holds 2 navigation items; a bar has one navigation button \(APB-13\)/),
-        expect.stringMatching(/<tanrei-app-bar>: the bar holds 4 action items; more than three belong in an overflow menu \(APB-13\)/),
-      ]),
-    );
+    // Four actions, on a stage with room for them beside two navigation items: every one is drawn (APB-26).
+    await stage(page, 'crowded').evaluate((el: HTMLElement) => {
+      el.style.inlineSize = '480px';
+    });
+    const items = bar(page, 'crowded').locator(':scope > tanrei-button');
+    await expect(items).toHaveCount(6);
+    for (const i of [0, 1, 2, 3, 4, 5]) await expect(items.nth(i)).toBeVisible();
+    await expect(bar(page, 'crowded').locator('[part~="overflow-button"]')).toBeHidden();
+    await expect.poll(() => seen.filter((w) => w.includes('APB-13')).length).toBe(1);
+    expect(seen).toEqual(expect.arrayContaining([expect.stringMatching(/<tanrei-app-bar>: the bar holds 2 navigation items; a bar has one navigation button \(APB-13\)/)]));
+    // No count of actions is reported: the bar draws as many as fit (APB-26).
+    expect(seen.filter((w) => /action items|overflow menu/.test(w))).toEqual([]);
   });
 
   test('APB-14: a size the active system does not have renders with small’s tokens and is reported; a size a layer adds is drawn from its own tokens', async ({ page }) => {
@@ -966,6 +972,321 @@ test.describe('brand', () => {
     await brandPage(page, NAMED, `${SYMBOL}${SYMBOL}`);
     await expect(brandBar(page).locator('[slot="brand-symbol"]')).toHaveCount(2);
     await expect.poll(() => seen.filter((w) => w.includes('the brand-symbol slot holds 2 images')).length).toBe(1);
+  });
+});
+
+test.describe('overflow', () => {
+  /** The actions of a bar in reading order, with whether each is drawn. */
+  const drawn = (page: P, id: string) => bar(page, id).evaluate((el) => [...el.querySelectorAll('[slot="actions"]')].map((item) => ({ label: item.getAttribute('label'), shown: item.getBoundingClientRect().width > 0, out: item.hasAttribute('app-bar-out') })));
+  const shownLabels = async (page: P, id: string) => (await drawn(page, id)).filter((a) => a.shown).map((a) => a.label);
+  const more = (page: P, id: string) => stage(page, id).getByRole('button', { name: 'More actions' });
+  const moreHost = (page: P, id: string) => bar(page, id).locator('[part~="overflow-button"]');
+  const overflowMenu = (page: P, id: string) => bar(page, id).locator('.overflow-menu');
+  const widen = (page: P, id: string, width: string) =>
+    stage(page, id).evaluate((el: HTMLElement, w) => {
+      el.style.inlineSize = w;
+    }, width);
+  const settled = (page: P, id: string) => bar(page, id).evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const ALL = ['Search', 'Share', 'Edit', 'Archive', 'Delete', 'Print'];
+  const OVERFLOW_FIXTURES = spec.fixtures.filter((f) => f.id.startsWith('small-overflow'));
+
+  test('APB-26, APB-27: every action that fits is drawn, with no limit on their number; those that do not leave from the end and come back as soon as the room allows', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    for (const id of ['small-overflow-menu', 'small-overflow-hide']) {
+      const at360 = await drawn(page, id);
+      const shown = at360.filter((a) => a.shown).map((a) => a.label);
+      // From the end: what is drawn is the beginning of the reading order, and what is out carries the bar's mark.
+      expect(shown, id).toEqual(ALL.slice(0, shown.length));
+      expect(shown.length, id).toBeGreaterThan(0);
+      expect(shown.length, id).toBeLessThan(ALL.length);
+      expect(at360.filter((a) => a.out).map((a) => a.label), id).toEqual(ALL.slice(shown.length));
+      // The last thing drawn at the end stays inside the row's end padding; the title keeps its whole width.
+      const own = await bounds(bar(page, id));
+      const padding = await resolveToken(page, T('container-padding-inline'));
+      const last = id.endsWith('menu') ? await bounds(moreHost(page, id)) : await bounds(bar(page, id).locator(`[label="${shown.at(-1)}"]`));
+      expect(last.x + last.width).toBeLessThanOrEqual(own.x + own.width - padding + 0.5);
+      expect(await inner(page, id, '.row .title').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      // Room for all of them: every action is drawn, six of them, and no more button (APB-28).
+      await widen(page, id, '1200px');
+      await expect.poll(() => shownLabels(page, id), id).toEqual(ALL);
+      await expect(more(page, id)).toHaveCount(0);
+      // Narrowed again: the same ones leave.
+      await widen(page, id, '360px');
+      await expect.poll(() => shownLabels(page, id), id).toEqual(shown);
+    }
+    // Under menu the more button takes a place of its own: one action fewer than under hide, never the same count.
+    expect((await shownLabels(page, 'small-overflow-menu')).length).toBeLessThan((await shownLabels(page, 'small-overflow-hide')).length);
+  });
+
+  test('APB-26: an action whose overflow is never stays and the one before it leaves; content that is not a Button never leaves; the title keeps its whole width first', async ({ page }) => {
+    const items = ALL.map((label, i) => act(label, ['search', 'share', 'edit', 'archive', 'delete', 'print'][i]));
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('kept', { title: 'Inbox', overflowLabel: 'More actions' }, [BACK, ...items.slice(0, 5), keep(items[5])]),
+        fixture('short', { title: 'Inbox', overflow: 'hide' }, [BACK, ...items]),
+        fixture('long', { title: 'Messages from the whole team', overflow: 'hide' }, [BACK, ...items]),
+      ],
+    });
+    const kept = await drawn(page, 'kept');
+    expect(kept.at(-1)).toMatchObject({ label: 'Print', shown: true, out: false });
+    const shown = kept.filter((a) => a.shown).map((a) => a.label);
+    expect(shown.slice(0, -1)).toEqual(ALL.slice(0, shown.length - 1));
+    // The more button stands after the last action drawn, which is the one kept.
+    const [print, button] = [await bounds(bar(page, 'kept').locator('[label="Print"]')), await bounds(moreHost(page, 'kept'))];
+    expect(button.x).toBeGreaterThan(print.x);
+    // A wider title takes its room first: fewer actions are drawn beside it.
+    expect((await shownLabels(page, 'long')).length).toBeLessThan((await shownLabels(page, 'short')).length);
+    expect(await inner(page, 'long', '.row .title').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    // Content of the actions slot that is not a Button is never taken out.
+    await bar(page, 'short').evaluate((el) => {
+      const span = document.createElement('span');
+      span.slot = 'actions';
+      span.className = 'not-a-button';
+      span.textContent = 'Status';
+      el.append(span);
+    });
+    await settled(page, 'short');
+    await expect(bar(page, 'short').locator('.not-a-button')).toBeVisible();
+    await expect(bar(page, 'short').locator('.not-a-button')).not.toHaveAttribute('app-bar-out', '');
+  });
+
+  test('APB-26: a large bar draws the same actions expanded and collapsed; the navigation item and the title block keep their room', async ({ page }) => {
+    const items = ALL.map((label, i) => act(label, ['search', 'share', 'edit', 'archive', 'delete', 'print'][i]));
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('expanded', { size: 'large', title: 'Inbox', overflowLabel: 'More actions' }, [BACK, ...items]), fixture('collapsed', { size: 'large', title: 'Inbox', scrolled: true, overflowLabel: 'More actions' }, [BACK, ...items])],
+    });
+    const expanded = await shownLabels(page, 'expanded');
+    expect(expanded.length).toBeLessThan(ALL.length);
+    expect(await shownLabels(page, 'collapsed')).toEqual(expanded);
+    // The navigation item keeps its size and place (APB-4).
+    const [back, own] = [await bounds(bar(page, 'expanded').locator('[slot="navigation"]')), await bounds(bar(page, 'expanded'))];
+    expect(back.x - own.x).toBe(await resolveToken(page, T('container-padding-inline')));
+  });
+
+  test('APB-28: the more button stands actions.gap after the last action drawn, an icon-only text Button showing more_horiz, named by overflow-label and exposed as a button that opens a menu, with its expanded state', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    const id = 'small-overflow-menu';
+    const button = more(page, id);
+    await expect(button).toHaveCount(1);
+    await expect(button).toHaveAttribute('aria-haspopup', 'menu');
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    const host = moreHost(page, id);
+    await expect(host).toHaveAttribute('variant', 'text');
+    await expect(host).toHaveAttribute('size', 'medium');
+    await expect(host.locator('[slot="icon"]')).toHaveText('more_horiz');
+    const shown = await shownLabels(page, id);
+    const [last, box] = [await bounds(bar(page, id).locator(`[label="${shown.at(-1)}"]`)), await bounds(host)];
+    expect(box.x - (last.x + last.width)).toBeCloseTo(await resolveToken(page, T('actions-gap')), 1);
+    expect(box.y + box.height / 2).toBeCloseTo(last.y + last.height / 2, 1);
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    // Under hide there is none.
+    await expect(more(page, 'small-overflow-hide')).toHaveCount(0);
+    await expect(bar(page, 'small-overflow-hide').locator('[part~="overflow-button"]')).toHaveCount(0);
+  });
+
+  test('APB-29: the menu holds the actions that are out in reading order, with their labels and glyphs; a row does what its action does, once, and closes the menu; a toggle is a checkbox item, a link a link item', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    const id = 'small-overflow-menu';
+    const out = (await drawn(page, id)).filter((a) => a.out).map((a) => a.label);
+    await bar(page, id).evaluate((el) => {
+      const clicks: string[] = [];
+      (window as unknown as { clicks: string[] }).clicks = clicks;
+      for (const item of el.querySelectorAll('[slot="actions"]')) item.addEventListener('click', () => clicks.push(item.getAttribute('label') ?? ''));
+      el.addEventListener('click', (event) => {
+        if ((event.composedPath()[0] as Element).closest?.('tanrei-menu-item')) clicks.push('leaked');
+      });
+    });
+    await more(page, id).click();
+    const menu = overflowMenu(page, id);
+    await expect(menu).toHaveAttribute('open', '');
+    // Bottom-end: below the more button, the end edges aligned — where the menu rests, once its appearance has ended.
+    await motionEnded(page);
+    const [button, surface] = [await bounds(moreHost(page, id)), await bounds(menu.locator('.surface').first())];
+    expect(surface.y).toBeGreaterThanOrEqual(button.y + button.height - 0.5);
+    expect(surface.x + surface.width).toBeCloseTo(button.x + button.width, 0);
+    const rows = await menu.evaluate((el) => [...el.children].map((row) => `${row.localName}:${row.getAttribute('label')}:${row.getAttribute('leading-icon')}`));
+    const glyph: Record<string, string> = { Search: 'search', Share: 'share', Edit: 'edit', Archive: 'archive', Delete: 'delete', Print: 'print' };
+    expect(rows).toEqual(out.map((label) => `tanrei-menu-item:${label}:${glyph[label!]}`));
+    await menu.locator(`tanrei-menu-item[label="${out[1]}"]`).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { clicks: string[] }).clicks)).toEqual([out[1]]);
+    await expect(menu).not.toHaveAttribute('open');
+    // A toggle is a checkbox item with its state; a link a link item to the same place.
+    const last = bar(page, id).locator(`[slot="actions"][label="${out.at(-1)}"]`);
+    await last.evaluate((el) => {
+      el.setAttribute('toggle', '');
+      el.setAttribute('selected', '');
+    });
+    const first = bar(page, id).locator(`[slot="actions"][label="${out[0]}"]`);
+    await first.evaluate((el) => el.setAttribute('href', '#archive'));
+    await settled(page, id);
+    await more(page, id).click();
+    await expect(menu.locator(`tanrei-menu-checkbox-item[label="${out.at(-1)}"]`)).toHaveAttribute('checked', '');
+    await expect(menu.locator('tanrei-menu-item').first()).toHaveAttribute('href', '#archive');
+    // While it is open, a change of what is out closes it.
+    await widen(page, id, '1200px');
+    await expect(menu).not.toHaveAttribute('open');
+    expect(await page.evaluate(() => (window as unknown as { clicks: string[] }).clicks)).not.toContain('leaked');
+  });
+
+  test('APB-29, accessibility: Tab reaches the more button after the actions drawn; Enter opens the menu on its first item, the arrows move through it, Escape closes it and returns focus to the more button', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    const id = 'small-overflow-menu';
+    const shown = await shownLabels(page, id);
+    const host = moreHost(page, id);
+    await tabTo(page, bar(page, id).locator(`[label="${shown.at(-1)}"]`));
+    await tab(page);
+    await expect(host).toBeFocused();
+    await page.keyboard.press('Enter');
+    const menu = overflowMenu(page, id);
+    await expect(menu).toHaveAttribute('open', '');
+    const out = (await drawn(page, id)).filter((a) => a.out).map((a) => a.label);
+    await expect(menu.locator(`tanrei-menu-item[label="${out[0]}"]`)).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(menu.locator(`tanrei-menu-item[label="${out[1]}"]`)).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(menu).not.toHaveAttribute('open');
+    await expect(host).toBeFocused();
+    // An action that is out is no stop of the tab order.
+    await tab(page, { back: true });
+    await expect(bar(page, id).locator(`[label="${shown.at(-1)}"]`)).toBeFocused();
+  });
+
+  test('APB-30: under hide an action that is out is drawn as nothing, takes no focus and is not exposed; it stays in the page with its listeners and comes back with the room', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    const id = 'small-overflow-hide';
+    const out = (await drawn(page, id)).filter((a) => a.out).map((a) => a.label);
+    expect(out.length).toBeGreaterThan(0);
+    for (const label of out) {
+      const item = bar(page, id).locator(`[label="${label}"]`);
+      await expect(item).toBeHidden();
+      await expect(stage(page, id).getByRole('button', { name: label! })).toHaveCount(0);
+    }
+    // A page's own rule for the element cannot draw it (the bar's rule is important).
+    await page.addStyleTag({ content: 'tanrei-app-bar > tanrei-button { display: inline-flex; }' });
+    await expect(bar(page, id).locator(`[label="${out[0]}"]`)).toBeHidden();
+    await bar(page, id)
+      .locator(`[label="${out[0]}"]`)
+      .evaluate((el) => el.addEventListener('click', () => ((window as unknown as { hit: boolean }).hit = true)));
+    await widen(page, id, '1200px');
+    await expect(stage(page, id).getByRole('button', { name: out[0]! })).toBeVisible();
+    await stage(page, id).getByRole('button', { name: out[0]! }).click();
+    expect(await page.evaluate(() => (window as unknown as { hit?: boolean }).hit)).toBe(true);
+  });
+
+  test('APB-31: an action with keyboard focus that goes out hands it to the more button (menu), or to the nearest action still drawn before it (hide), without scrolling', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    for (const id of ['small-overflow-menu', 'small-overflow-hide']) {
+      await widen(page, id, '1200px');
+      await expect.poll(() => shownLabels(page, id), id).toEqual(ALL);
+      await tabTo(page, bar(page, id).locator('[label="Print"]'));
+      const scroll = await page.evaluate(() => [scrollX, scrollY]);
+      await widen(page, id, '360px');
+      await expect.poll(async () => (await drawn(page, id)).find((a) => a.label === 'Print')?.out, id).toBe(true);
+      if (id.endsWith('menu')) await expect(moreHost(page, id), id).toBeFocused();
+      else {
+        const shown = await shownLabels(page, id);
+        await expect(bar(page, id).locator(`[label="${shown.at(-1)}"]`), id).toBeFocused();
+      }
+      expect(await page.evaluate(() => [scrollX, scrollY]), id).toEqual(scroll);
+    }
+  });
+
+  test('APB-26: right-to-left mirrors the order — the actions leave from the end of the reading order, and the more button is at the left end', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    expect(await shownLabels(page, 'small-overflow-rtl')).toEqual(await shownLabels(page, 'small-overflow-menu'));
+    const shown = await shownLabels(page, 'small-overflow-rtl');
+    const [own, button, last, first, back] = [
+      await bounds(bar(page, 'small-overflow-rtl')),
+      await bounds(moreHost(page, 'small-overflow-rtl')),
+      await bounds(bar(page, 'small-overflow-rtl').locator(`[label="${shown.at(-1)}"]`)),
+      await bounds(bar(page, 'small-overflow-rtl').locator(`[label="${shown[0]}"]`)),
+      await bounds(bar(page, 'small-overflow-rtl').locator('[slot="navigation"]')),
+    ];
+    expect(button.x).toBeLessThan(last.x);
+    expect(last.x).toBeLessThan(first.x);
+    expect(button.x - own.x).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
+    expect(back.x).toBeGreaterThan(first.x);
+    await more(page, 'small-overflow-rtl').click();
+    await expect(overflowMenu(page, 'small-overflow-rtl')).toHaveAttribute('open', '');
+  });
+
+  test('APB-32: what is out is decided before the first frame and in the frame the room changes — no action is drawn and then taken out, nothing moves after it, nothing is animated, and no observer loop', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: OVERFLOW_FIXTURES });
+    const result = await page.evaluate(async () => {
+      const errors: string[] = [];
+      window.addEventListener('error', (event) => errors.push(event.message));
+      const frame = () => new Promise<number>(requestAnimationFrame);
+      const glyphs = ['search', 'share', 'edit', 'archive', 'delete', 'print', 'star', 'flag'];
+      const holder = document.createElement('div');
+      holder.style.inlineSize = '360px';
+      document.body.append(holder);
+      const appBar = document.createElement('tanrei-app-bar');
+      appBar.setAttribute('scroll-target', 'none');
+      appBar.setAttribute('headline', 'Inbox');
+      appBar.setAttribute('overflow-label', 'More actions');
+      appBar.innerHTML = `<tanrei-button slot="navigation" variant="text" label="Back"><span slot="icon">arrow_back</span></tanrei-button>${glyphs.map((g) => `<tanrei-button slot="actions" variant="text" label="${g}"><span slot="icon">${g}</span></tanrei-button>`).join('')}`;
+      // Every mark the bar ever sets or takes off, from the start: an action drawn and then taken out would show here.
+      const flips: string[] = [];
+      new MutationObserver((records) => records.forEach((r) => flips.push(`${(r.target as Element).getAttribute('label')}:${(r.target as Element).hasAttribute('app-bar-out')}`))).observe(appBar, { attributes: true, subtree: true, attributeFilter: ['app-bar-out'] });
+      const count = () => [...appBar.querySelectorAll('[slot="actions"]')].filter((child) => child.getBoundingClientRect().width > 0).length;
+      const moreDrawn = () => {
+        const button = appBar.shadowRoot?.querySelector('.more');
+        return !!button && !button.classList.contains('idle');
+      };
+      holder.append(appBar);
+      await frame();
+      const first = { count: count(), more: moreDrawn() };
+      await frame();
+      await frame();
+      const settled = { count: count(), more: moreDrawn() };
+      const atStart = [...flips];
+      // Where each action drawn stands: read in the frame after a change and two frames later, it is the same.
+      const places = () => [...appBar.querySelectorAll('[slot="actions"]'), appBar.shadowRoot!.querySelector('.more')].map((item) => (item ? Math.round(item.getBoundingClientRect().x) : null)).join();
+      const steps: [number, number, number][] = [];
+      const moved: string[] = [];
+      const heights = new Set<number>();
+      for (const width of [1200, 360, 1200]) {
+        holder.style.inlineSize = `${width}px`;
+        await frame();
+        const now = count();
+        const placed = places();
+        heights.add(Math.round(appBar.getBoundingClientRect().height));
+        await frame();
+        await frame();
+        steps.push([width, now, count()]);
+        if (places() !== placed) moved.push(`${width}: ${placed} -> ${places()}`);
+      }
+      const animations = appBar.shadowRoot!.getAnimations?.().length ?? 0;
+      holder.remove();
+      return { first, settled, steps, flipsAtStart: atStart, moved, heights: [...heights], animations, errors };
+    });
+    expect(result.first, 'the first frame shows what the last one does').toEqual(result.settled);
+    expect(result.settled.count).toBeLessThan(8);
+    expect(result.settled.more).toBe(true);
+    // Each mark set once at the start, none taken off before the room changed.
+    expect(result.flipsAtStart.filter((flip) => !flip.endsWith(':true')), result.flipsAtStart.join()).toEqual([]);
+    for (const [width, now, later] of result.steps) expect(now, `${width}`).toBe(later);
+    expect(result.steps[0][1]).toBe(8);
+    expect(result.steps[1][1]).toBe(result.settled.count);
+    expect(result.heights).toHaveLength(1);
+    expect(result.animations).toBe(0);
+    expect(result.moved).toEqual([]);
+    expect(result.errors).toEqual([]);
+  });
+
+  test('APB-33: an overflow the bar does not define is menu, and reported; a more button without a name is still drawn and opens its menu, and the missing word is reported', async ({ page }) => {
+    const seen = warnings(page);
+    const items = ALL.map((label, i) => act(label, ['search', 'share', 'edit', 'archive', 'delete', 'print'][i]));
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('odd', { title: 'Inbox', overflow: 'wrap' }, [BACK, ...items])] });
+    await expect.poll(() => seen.filter((w) => w.includes('APB-33')).length).toBeGreaterThanOrEqual(2);
+    expect(seen).toEqual(expect.arrayContaining([expect.stringMatching(/overflow "wrap" is not a value of the app bar; it is drawn as "menu"/), expect.stringMatching(/toolbarOverflowLabel/)]));
+    const host = moreHost(page, 'odd');
+    await expect(host).toBeVisible();
+    await host.click();
+    await expect(overflowMenu(page, 'odd')).toHaveAttribute('open', '');
   });
 });
 

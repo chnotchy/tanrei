@@ -1304,6 +1304,10 @@
       "key": "toolbarOverflowLabel",
       "readers": [
         {
+          "component": "app-bar",
+          "prop": "overflowLabel"
+        },
+        {
           "component": "toolbar",
           "prop": "overflowLabel"
         }
