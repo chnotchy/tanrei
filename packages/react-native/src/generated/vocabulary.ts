@@ -1740,6 +1740,9 @@ export interface TanreiComboboxTokens {
   readonly dividerColor: TanreiPaint;
   readonly dividerSpace: number;
   readonly dividerThickness: number;
+  readonly entriesGap: number;
+  readonly entriesRowGap: number;
+  readonly entriesTypingMinWidth: number;
   readonly focusedOpacity: number;
   readonly groupTitleColor: TanreiPaint;
   readonly groupTitleTypescale: TanreiTypescaleRole;

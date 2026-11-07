@@ -5503,6 +5503,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var dividerColor: TanreiPaint
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
+  public var entriesGap: CGFloat
+  public var entriesRowGap: CGFloat
+  public var entriesTypingMinWidth: CGFloat
   public var groupTitleColor: TanreiPaint
   public var groupTitleTypescale: TanreiTextStyle
   public var groupGap: CGFloat
@@ -5549,6 +5552,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     dividerColor: TanreiPaint,
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
+    entriesGap: CGFloat,
+    entriesRowGap: CGFloat,
+    entriesTypingMinWidth: CGFloat,
     groupTitleColor: TanreiPaint,
     groupTitleTypescale: TanreiTextStyle,
     groupGap: CGFloat,
@@ -5590,6 +5596,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.dividerColor = dividerColor
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
+    self.entriesGap = entriesGap
+    self.entriesRowGap = entriesRowGap
+    self.entriesTypingMinWidth = entriesTypingMinWidth
     self.groupTitleColor = groupTitleColor
     self.groupTitleTypescale = groupTitleTypescale
     self.groupGap = groupGap

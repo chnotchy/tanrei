@@ -86,6 +86,38 @@
             }
           }
         },
+        "entries": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.text-input.entries.gap}",
+            "$description": "While selection is multiple: the distance between two chosen values on one line of the box, and between the last one and the input. The text input's entries gap by default, so that the chips of a chip field and of a combobox stand alike.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lays the values chosen in a combobox of several out in the box beside the chips of its chip field: the same spacing by default, and a product whose chosen values are short may set them closer than the entries a person types."
+              }
+            }
+          },
+          "row-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.text-input.entries.row-gap}",
+            "$description": "While selection is multiple: the distance between two lines of chosen values when they wrap.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lays the values chosen in a combobox of several out in the box beside the chips of its chip field: the same spacing by default, and a product whose chosen values are short may set them closer than the entries a person types."
+              }
+            }
+          },
+          "typing-min-width": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.text-input.entries.typing-min-width}",
+            "$description": "While selection is multiple: the least width the input keeps beside the last chosen value of a line; with less left, it takes a line of its own.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lays the values chosen in a combobox of several out in the box beside the chips of its chip field: the same spacing by default, and a product whose chosen values are short may set them closer than the entries a person types."
+              }
+            }
+          }
+        },
         "stacked": {
           "$description": "The default look: a filled box with no edge at rest and no label of its own; focus and error draw a line inside the box's edge. The text input's stacked colors, part for part.",
           "option": {
