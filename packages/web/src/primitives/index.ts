@@ -177,8 +177,9 @@
 //                 every component that is a field itself) and `primitives/field-group-frame.ts` (a set: the field group
 //                 and the radio group); they draw the requirement tag with the Tag component, so they are imported by
 //                 path and are not part of this file
-//   form-disabled — takeFormDisabled(): a form-associated element takes the platform's word that it is disabled (a
-//                 fieldset's, or its own attribute's) where it is not lost: after the update under way
+//   form-disabled — FormDisabledController: a form-associated element reads a fieldset's part of its disabled state
+//                 from the platform where it renders, and draws again only when the platform's word changes what was
+//                 drawn; takeFormDisabled(): the Button's own, after the update under way
 //   disabled-while-focused — waitsWhileFocused(): the `disabled` attribute of a form-associated element that holds focus
 //                 waits until focus has left it, at most a frame, so focus leaves when the platform's own control's
 //                 would in every engine (the Button)
@@ -193,7 +194,7 @@ export { iconGlyph } from '../styles/icons.js';
 export { cornerRadius, shape } from '../styles/shape.js';
 export { type OpenAxis, OpenAxesController, type OpenAxesOptions } from './axes.js';
 export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedback } from './behavior.js';
-export { isDisabledControl, takeFormDisabled } from './form-disabled.js';
+export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
 export { focusedAtFirst, wantsAutofocus } from './autofocus.js';
 export { type FocusRingOptions, type FocusSelector, focusGlow, focusGlowEnds, focusRing, syncFocusStyle } from './focus-ring.js';

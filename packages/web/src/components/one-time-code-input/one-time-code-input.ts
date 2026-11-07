@@ -2,7 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { AvailabilityController, FieldControlController, delegatedAria, namedByProduct, delegatesAria, report, syncFocusStyle } from '../../primitives/index.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { type CodeState, type CodeType, furthest, readCharacter, readCode, readPermitted, readValue, removeBackward, removeForward, removeRun, replaceAll, settle, typeCharacter, typeText } from './code-text.js';
 import { styles } from './one-time-code-input.styles.js';
@@ -98,7 +98,6 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
     focused: { state: true },
     state: { state: true },
     composingText: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The code entered so far: at most `length` characters, digits or — for `alphanumeric` — digits and upper-case letters, with no separator. The `value` attribute is what a form reset returns to. */
@@ -140,8 +139,11 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   /** OTC-6: the text an input method is composing, as the method gave it; empty while none is. */
   private composingText = '';
 
-  /** Set by an ancestor `<fieldset disabled>`. */
-  private formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  private get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -248,8 +250,8 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
     if (typeof state === 'string') this.value = state;
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** The value a form submits — the code alone, or an empty string — and what its validation is told. */

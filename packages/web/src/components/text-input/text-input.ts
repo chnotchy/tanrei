@@ -52,7 +52,7 @@ import {
 } from './text-input-segments.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { AXES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -418,7 +418,6 @@ export class TanreiTextInput extends TanreiElement {
     hasEntries: { state: true },
     focused: { state: true },
     hovering: { state: true },
-    formDisabled: { state: true },
     segments: { state: true },
     entryError: { state: true },
   };
@@ -635,8 +634,11 @@ export class TanreiTextInput extends TanreiElement {
   protected focused = false;
   /** TXI-39: a fine pointer is over the field; its resize handle is revealed. */
   protected hovering = false;
-  /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
   /** What a date or time field's segments hold (TXI-42 … TXI-46). */
   protected segments: Segments = EMPTY_SEGMENTS;
   /** A date or time field's entry error, while it lasts (TXI-30). */
@@ -928,8 +930,8 @@ export class TanreiTextInput extends TanreiElement {
     this.showValue();
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   // ── Dates and times (TXI-28 … TXI-33, TXI-42 … TXI-47) ────────────────────────────────────────────────────────

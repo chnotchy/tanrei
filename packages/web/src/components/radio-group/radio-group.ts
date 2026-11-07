@@ -3,7 +3,7 @@ import { AvailabilityController } from '../../primitives/availability.js';
 import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
@@ -116,7 +116,6 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
     orientation: { type: String, reflect: true },
-    formDisabled: { state: true },
   };
 
   /** The value of the selected radio button; the empty string while none is selected. The `value` attribute is the first value and what a form reset returns to. */
@@ -167,8 +166,11 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   /** @from tanrei-field-group.orientation */
   orientation: TanreiFieldGroupOrientation = 'vertical';
 
-  /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -300,8 +302,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     this.value = typeof restored === 'string' ? restored : '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** The radio button of the group an event came from, if it came from one. */

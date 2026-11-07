@@ -458,7 +458,7 @@ form-associated by its own `ElementInternals`.
 | | What it is | Clause |
 |---|---|---|
 | `ComposedElement` | The base class of every composed element. Gives: `focus()` and `blur()` passed to `control`; a click that arrives on the host itself (a page's `<label for>`) focusing the control; `autofocus` on the host; `pass(name)` for a slot passed on; `updateComplete` that waits for the members; the frame's "ask again" passed to the members (`FIELD_CONTROL`); the debug report for an ARIA name on the host (`hostNameSentence`) of a composed element that is not a field. The subclass says `control`. Styles: `[composedHost, hiddenHost]` — the host is a block | W1, W7, W8, W9 |
-| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset, or the host's own attribute). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` | W5, W6 |
+| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset around the host, `FormDisabledController`). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` | W5, W6 |
 | `forward(this, NAMES)` | A directive on a member's tag: each named property of the element set on that member, as a property, on every render | W2 |
 | `exported(Member, collisions?)` | `{ attribute, names }`: the member's `exportparts` and the names `::part()` can then use, made from the member's `static parts`. For a part name two members share: `{ label: { as: 'field-label', bare: true } }` — the prefixed name always, the bare one only where the spec has the sentence by which the two are never drawn at once | W4 |
 | `FormSays` | What a form-associated **member** calls where it called `internals.setFormValue()` and `internals.setValidity()`: `says.value(value, state)`, `says.validity(flags, message, anchor)`. Each does that call, and tells the element composed around it | W6, items 2 and 3 |
@@ -594,7 +594,7 @@ test):
 - **`exportparts` twice.** `label, label: field-label` exports one part under both names in all three.
 - **A disabled host.** No `mousedown` and no `click` is dispatched on a disabled form-associated host, whatever is
   pressed inside it; `formDisabledCallback` is called for the host's own `disabled` attribute and for a fieldset's
-  alike, and unsetting the one leaves the other (`takeFormDisabled`).
+  alike, and unsetting the one leaves the other (`FormDisabledController` reads the fieldset's part from `:disabled`, less the host's own attribute).
 
 **Splitting a field that draws its own frame: the guide** (the text field, the number field, the color field, the
 select and the combobox are built this way). Do it in four steps, each green before the next:
@@ -3263,10 +3263,12 @@ product sets, `picked` for what the browser's picker reports, `channels` / `from
 - **No words** (CLI-42). The element supplies no text of its own and reads none of the product's:
   `invalidText`, `pickerLabel` and `label` are empty until the product gives them. An entry error without words still
   marks the input, and is reported in a debug build — by the Field when one frames it (FLD-28).
-- **`disabled` unset** is drawn at once: the platform's `formDisabledCallback` answers the element's own attribute too,
-  in the middle of the update that writes it, and is taken after that update — `takeFormDisabled()`
-  (`src/primitives/form-disabled.ts`), which every form-associated element of the package calls from its
-  `formDisabledCallback` (`src/primitives/form-disabled.test.ts` lists them and fails when one is added without it).
+- **`disabled` unset** is drawn at once, in one update: the element reads a fieldset's part from the platform where it
+  renders — `:disabled`, less its own attribute, which follows the property one step late — and the platform's
+  `formDisabledCallback`, which answers the element's own attribute too, in the middle of the update that writes it,
+  draws again only when it changes what was drawn — `FormDisabledController` (`src/primitives/form-disabled.ts`),
+  which every form-associated element of the package but the Button composes (`src/primitives/form-disabled.test.ts`
+  lists them, and counts the updates of each).
 
 What a browser does differently:
 
@@ -3477,7 +3479,7 @@ second, with the field group in its radio-group kind):
 - **The form is the host's own** — it has no value member to repeat (`ComposedControl` is not its base):
   `setFormValue(FormData, state)` with one entry per value under `name`, `null` while disabled, empty or unnamed;
   reset to the list given before the first render, else to the children's `checked` attributes; restore from the
-  state; `takeFormDisabled`; `valueMissing` while required and empty, with `error-text`, else the required text (the
+  state; `FormDisabledController`; `valueMissing` while required and empty, with `error-text`, else the required text (the
   instance's or the product's words), else `label`, anchored on the first enabled checkbox's native element. Inside a
   field group it also follows that group's `disabled` (its own `FieldControlController`, `takes: 'disabled'`), because
   what a form is told is the host's to say.

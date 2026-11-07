@@ -43,7 +43,7 @@ import '../button/button.js';
 import '../loading-indicator/loading-indicator.js';
 import '../option/option.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -226,7 +226,6 @@ export class TanreiCombobox extends TanreiElement {
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label above it is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the combobox does not know by name is laid out as stacked. Reflected. */
@@ -339,8 +338,11 @@ export class TanreiCombobox extends TanreiElement {
   protected hasLeading = false;
   /** CMB-15: the input has focus, however it was gained. */
   protected focused = false;
-  /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals: ElementInternals = this.attachInternals();
   /** What it tells its form, said where an element composed around it hears it (src/primitives/form-says.ts). */
@@ -701,8 +703,8 @@ export class TanreiCombobox extends TanreiElement {
     this.requestUpdate();
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   // ── CMB-16, CMB-17: the text ──────────────────────────────────────────────────────────────────────────────────

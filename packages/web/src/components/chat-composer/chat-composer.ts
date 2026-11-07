@@ -25,7 +25,7 @@ import { ComposedElement, composedHost, exported } from '../../primitives/compos
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter, fileKind } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiButton } from '../button/button.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
@@ -360,7 +360,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     receiving: { state: true },
     narrow: { state: true },
     count: { state: true },
-    formDisabled: { state: true },
   };
 
   /** @from tanrei-embedded-text-input.value */
@@ -477,8 +476,11 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   protected narrow = false;
   /** CCM-43: how many File items the product gave. */
   protected count = 0;
-  /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (`formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -616,9 +618,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   /** Disabled by its own `disabled`, by a field around it, or by its form (CCM-26, CCM-28, CCM-36). */
   private get isDisabled(): boolean {
-    // The platform's word arrives a turn after the element's own `disabled` was unset (src/primitives/form-disabled.ts):
-    // until then it is the platform's present answer that is read, so that nothing is said twice (CCM-9).
-    return this.disabled || this.field.disabled || (this.formDisabled && this.matches(':disabled'));
+    // A fieldset's part is the platform's present answer, less the element's own attribute (src/primitives/form-disabled.ts),
+    // so that the element unset by its property is enabled by that update and nothing is said twice (CCM-9).
+    return this.disabled || this.field.disabled || this.formDisabled;
   }
 
   /** CCM-18, CCM-27, CCM-28: the capsule is in its error condition, and the typing area is invalid — by `error`, by a field's, or over the limit. */
@@ -1559,8 +1561,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.value = typeof state === 'string' ? state : '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   override attributeChangedCallback(name: string, old: string | null, value: string | null) {
