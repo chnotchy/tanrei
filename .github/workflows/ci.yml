@@ -278,7 +278,7 @@ jobs:
               echo "::warning::ci:web-only — Flutter, Compose, React Native and SwiftUI are not run; CI result fails until the label is removed."
             fi
             # A draft is held (this job does not run for one: see its `if`). Kept for a run that reaches here another way: a push to work in progress then costs about two minutes of one
-            # runner and not 22 web shards and seven macOS jobs. `ci:run` on the draft runs it as if it were ready.
+            # runner and not 26 web shards and seven macOS jobs. `ci:run` on the draft runs it as if it were ready.
             if [ "$(echo "$pr" | jq -r '.draft')" = true ] && ! echo "$labels" | grep -qx 'ci:run'; then
               held=true
               echo "::warning::Draft — held. Mark the pull request ready for review, or add the label ci:run and push or re-run, to run the suites."
@@ -289,12 +289,15 @@ jobs:
           on() { if [ "$held" = true ]; then echo false; elif [ "$targeted" = true ]; then if [ "$1" = web ]; then echo true; else echo false; fi; elif [ "$ALL" = true ]; then echo true; else echo "$FILTER" | jq -r --arg k "$1" '.[$k] // "false"'; fi; }
           echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
           echo "workflows=$(on workflows)" >> "$GITHUB_OUTPUT"
-          # The web's matrix. Every test in the three engines (22 shards) on a dispatched run, a release and a push without
+          # The web's matrix. Every test in the three engines (26 shards) on a dispatched run, a release and a push without
           # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
           # (a component has about 100). A selection of nothing runs no web job.
           web=$(on web)
-          full='[{"engine":"chromium","projects":"--project=chromium","n":8},{"engine":"firefox","projects":"--project=firefox --project=firefox-no-style-queries","n":6},{"engine":"webkit","projects":"--project=webkit","n":8}]'
+          # Each engine's shards in a run of every test: about 26 minutes each of tests on a runner (the seconds of
+          # packages/web/test/durations.json at two workers), so that a runner half again as slow still ends near 41 of
+          # the job's 60. A selection's shards are at most these.
+          full='[{"engine":"chromium","projects":"--project=chromium","n":10},{"engine":"firefox","projects":"--project=firefox --project=firefox-no-style-queries","n":7},{"engine":"webkit","projects":"--project=webkit","n":9}]'
           grep=""
           if [ "$targeted" = true ]; then
             # A targeted run's shards: about 400 test runs each (matches × repeat, counted per engine by the step above),
@@ -319,17 +322,17 @@ jobs:
           elif [ "$web" = true ] && [ "$ALL" != true ]; then
             if [ -z "$SELECTION" ]; then echo "::error::the web's paths changed but no selection was made"; exit 1; fi
             if [ "$(echo "$SELECTION" | jq -r .all)" = true ]; then
-              n=8
+              n=1000 # each engine's full count
             else
               size=$(echo "$SELECTION" | jq '(.units | length) * 100 + (.files | length) * 50')
               if [ "$size" -eq 0 ]; then web=false; fi
-              n=$(( (size + 399) / 400 )); [ "$n" -gt 8 ] && n=8; [ "$n" -lt 1 ] && n=1
+              n=$(( (size + 399) / 400 )); [ "$n" -lt 1 ] && n=1
               grep=$(echo "$SELECTION" | jq -r .grep)
             fi
             if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-              engines=$(echo "$full" | jq -c --argjson n "$n" '[.[0] | .n = $n]')
+              engines=$(echo "$full" | jq -c --argjson n "$n" '[.[0] | .n = ([.n, $n] | min)]')
             else
-              engines=$(echo "$full" | jq -c --argjson n "$n" 'map(.n = (if $n < .n then $n else .n end))')
+              engines=$(echo "$full" | jq -c --argjson n "$n" 'map(.n = ([.n, $n] | min))')
             fi
           else
             engines=$full
@@ -462,12 +465,13 @@ jobs:
   # record-baselines.yml — scripts/ci/check-playwright-image.sh fails the run until it does. `--ipc=host`: Chromium
   # runs out of shared memory in a container without it (Playwright's Docker guide); `--user 1001`: the runner's own
   # uid, so the checkout stays writable and Firefox does not refuse to start as root.
-  # About 44,000 test runs in the three engines, about 19 hours of tests (two workers a runner), so every Playwright
-  # project runs in shards: 8 of Chromium (which also compares every snapshot), 6 of Firefox, 8 of WebKit, each of about
-  # 30 minutes. A run of every test deals its files to the shards by the seconds each one ran on CI
-  # (packages/web/test/durations.json, packages/tools/src/playwright-shards.js: a file longer than a shard's share by its
-  # top-level blocks), since Playwright's `--shard` deals equal counts of tests in file order and its first shards came
-  # near or past the 60-minute timeout while the last took 5–8 minutes; web-report measures them again on every such run.
+  # About 44,000 test runs in the three engines, about 22 hours of tests (two workers a runner), so every Playwright
+  # project runs in shards: 10 of Chromium (which also compares every snapshot), 7 of Firefox, 9 of WebKit, each of about
+  # 26 minutes of tests and a couple of setup. A run of every test, and a selection, deals its files to the shards by the
+  # seconds each one ran on CI (packages/web/test/durations.json, packages/tools/src/playwright-shards.js: a file longer
+  # than a shard's share by its top-level blocks; a file a selection matches in part by its share of the file's tests),
+  # since Playwright's `--shard` deals equal counts of tests in file order and its first shards came near or past the
+  # 60-minute timeout while the last took 5–8 minutes; web-report measures them again on every run of every test.
   # Baselines are found by `snapshotPathTemplate` (`snapshots/{arg}{ext}`), which names neither
   # the project, the platform nor the shard. `firefox-no-style-queries` rides with `firefox` (same browser; 46 tests).
   web:
@@ -482,10 +486,10 @@ jobs:
         shell: bash
     needs: [validate, changes]
     if: needs.changes.outputs.web == 'true'
-    timeout-minutes: 60 # a shard of every test takes about 30 minutes
+    timeout-minutes: 60 # a shard takes about 28 minutes; one on a runner half again as slow, about 41
     strategy:
       fail-fast: false # every shard reports, as the single run did
-      # Built by the changes job: every test in 8 Chromium, 6 Firefox and 8 WebKit shards, or a selection in fewer.
+      # Built by the changes job: every test in 10 Chromium, 7 Firefox and 9 WebKit shards, or a selection in as many or fewer.
       matrix: ${{ fromJSON(needs.changes.outputs.web-matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -521,24 +525,43 @@ jobs:
         env:
           WEB_GREP: ${{ needs.changes.outputs.web-grep }}
           WEB_REPEAT: ${{ needs.changes.outputs.web-repeat }}
+          TARGETED: ${{ needs.changes.outputs.targeted }}
           TANREI_TRACE: ${{ needs.changes.outputs.targeted == 'true' && 'first-failure' || '' }}
           # The matrix values reach the script through the environment, never spliced into it.
+          ENGINE: ${{ matrix.engine }}
           PROJECTS: ${{ matrix.projects }}
           SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
         run: |
           read -ra projects <<< "$PROJECTS"
-          repeat=()
-          if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
-          if [ -z "$WEB_GREP" ] && [ ${#repeat[@]} -eq 0 ]; then
-            # Every test: this shard's files by measured time (packages/web/test/durations.json). Every shard lists the
-            # tests, splits them the same way, checks that each is in exactly one shard, and runs its own test list.
-            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --list --reporter=json >"$RUNNER_TEMP/list.json"
-            node packages/tools/src/playwright-shards.js packages/web/test/durations.json "$RUNNER_TEMP/list.json" "$SHARD" "$RUNNER_TEMP/test-list.txt"
-            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --test-list "$RUNNER_TEMP/test-list.txt"
+          grep=()
+          if [ -n "$WEB_GREP" ]; then grep=(--grep "$WEB_GREP"); fi
+          if [ "$TARGETED" != true ]; then
+            # Every test, or a selection: this shard's files by measured time (packages/web/test/durations.json). Every
+            # shard lists the tests, splits them the same way, checks that each is in exactly one shard, and runs its own
+            # test list (with the selection's grep, so that a file it matches in part runs only that part). A selection
+            # also lists every test, so that such a file weighs only its part.
+            split=()
+            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" "${grep[@]}" --list --reporter=json >"$RUNNER_TEMP/list.json"
+            if [ ${#grep[@]} -gt 0 ]; then
+              pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --list --reporter=json >"$RUNNER_TEMP/every.json"
+              split+=(--every="$RUNNER_TEMP/every.json")
+            fi
+            # Chromium's first shard also runs the Node tests below, about 3½ minutes (the Node tests of the web package
+            # about 2¾, the React bindings and the projects check half a minute each): counted as 440 s of tests (two
+            # workers), it is given that much less of them.
+            if [ "$ENGINE" = chromium ]; then split+=(--first=440); fi
+            node packages/tools/src/playwright-shards.js packages/web/test/durations.json "$RUNNER_TEMP/list.json" "$SHARD" "$RUNNER_TEMP/test-list.txt" "${split[@]}"
+            if [ -s "$RUNNER_TEMP/test-list.txt" ]; then
+              pnpm --filter @tanrei/web exec playwright test "${projects[@]}" "${grep[@]}" --test-list "$RUNNER_TEMP/test-list.txt"
+            else
+              echo "::notice::Shard $SHARD of $ENGINE was dealt no tests: the selection is smaller than its shards."
+            fi
           else
-            # A selection or a targeted run (a pattern, or repeats): its tests by count, Playwright's own sharding; the
-            # durations are of whole files, which a pattern runs only part of.
-            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --shard="$SHARD" ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
+            # A targeted run (a pattern, and repeats): its tests by count, Playwright's own sharding, in as many shards
+            # as its count of test runs needs.
+            repeat=()
+            if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
+            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --shard="$SHARD" "${grep[@]}" "${repeat[@]}"
           fi
       # A failed test's traces (its retry's; in a targeted run every failed attempt's, the first included), screenshots and
       # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
