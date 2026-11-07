@@ -390,6 +390,10 @@
         {
           "component": "chip-field",
           "prop": "addedText"
+        },
+        {
+          "component": "combobox",
+          "prop": "addedText"
         }
       ],
       "places": [
@@ -424,6 +428,10 @@
         {
           "component": "chip-field",
           "prop": "removeLabel"
+        },
+        {
+          "component": "combobox",
+          "prop": "removeLabel"
         }
       ],
       "places": [
@@ -440,6 +448,10 @@
       "readers": [
         {
           "component": "chip-field",
+          "prop": "removedText"
+        },
+        {
+          "component": "combobox",
           "prop": "removedText"
         }
       ],

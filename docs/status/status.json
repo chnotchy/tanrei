@@ -1504,7 +1504,8 @@
       "builtFrom": [],
       "uses": [
         "button",
-        "loading-indicator"
+        "loading-indicator",
+        "chip"
       ],
       "hasSpec": true,
       "docs": "/components/combobox/",

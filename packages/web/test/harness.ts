@@ -496,7 +496,7 @@ export const INPUT_BOX = '--tanrei-comp-input-box-';
 const INPUT_BOX_READERS: Readonly<Record<string, RegExp>> = {
   'text-input': /^(?:entries-|motion-resize-|code-|segment-)/,
   select: /^(?:list-|option-|group-|divider-|separation|status-|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
-  combobox: /^(?:list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
+  combobox: /^(?:entries-|list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   'number-input': /^(?:stepper-|motion-repeat-)/,
   'color-input': /^swatch-(?:shape|outline-)/,
 };
