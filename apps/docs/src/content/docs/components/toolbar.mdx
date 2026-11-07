@@ -288,7 +288,7 @@ For the screen's title, the way back and one or two global actions, use the [app
 
 A docked toolbar is always horizontal. An inline or a floating one may be vertical, beside the content. One product can place a toolbar inline on one screen, dock one on another and float one on a third. A variant that a design system adds takes the inline structure with its own values.
 
-A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). Large buttons touch, medium ones end up 8 apart and small ones 16. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
+A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). In a floating toolbar large buttons touch, medium ones end up 8 apart and small ones 16. In an inline one, medium and small buttons stand as far apart, and large ones the gap of 4. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
 
 <Example label="Floating: small, medium and large items, and narrow and wide ones" column>
   <tanrei-toolbar variant="floating" label="Formatting, small">
@@ -388,7 +388,7 @@ Known platform gaps:
 - On React Native the Tab stop and the arrow keys work only where a hardware keyboard is attached, as in the tabs row.
 - React Native has the toolbar role but no way to expose an orientation, so a vertical toolbar is not announced as vertical.
 - React Native: the floating toolbar's width, the keys on a hardware keyboard, scrolling a focused item into view, and whether VoiceOver and TalkBack announce the toolbar have been checked in Jest only, not on a device.
-- Under `m3-like`, the toolbar draws the default system's values: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
+- Under `m3-like`, only the toolbar's gaps and a floating toolbar's padding at its ends (8, as Material's) are the preset's own. Its other values are the default system's: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
 
 ### What you need to do
 

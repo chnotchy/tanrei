@@ -2,7 +2,7 @@
 title: Barra de herramientas
 description: Reúne un conjunto de controles relacionados en una sola parada de tabulación, en línea donde su contenido la necesita, acoplada a lo largo del borde inferior o flotando sobre el contenido. Las teclas de flecha mueven el foco entre sus controles, y lo que no cabe pasa a un menú de desbordamiento.
 translationOf: components/toolbar.mdx
-sourceHash: 47f2d9d77e39ee388b0e8d2497527dfa0bcc8442
+sourceHash: 77c2c6358e68487e1b81780f8b64e6d132e993ac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -290,7 +290,7 @@ Para el título de la pantalla, el camino de vuelta y una o dos acciones globale
 
 Una barra de herramientas acoplada siempre es horizontal. Una en línea o una flotante puede ser vertical, junto al contenido. Un mismo producto puede poner una barra de herramientas en línea en una pantalla, acoplar otra en una segunda y hacer flotar otra en una tercera. Una variante que añade un sistema de diseño toma la estructura de la barra en línea con sus propios valores.
 
-Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). Los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
+Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). En una barra de herramientas flotante los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. En una en línea, los medianos y los pequeños quedan a la misma distancia, y los grandes a la separación de 4. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
 
 <Example label="Flotante: elementos small, medium y large, y elementos narrow y wide" column>
   <tanrei-toolbar variant="floating" label="Formato, small">
@@ -390,7 +390,7 @@ Carencias conocidas por plataforma:
 - En React Native, la parada de tabulación y las teclas de flecha funcionan solo donde hay un teclado físico conectado, como en la fila de pestañas.
 - React Native tiene el rol de barra de herramientas pero no tiene forma de exponer una orientación, así que una barra de herramientas vertical no se anuncia como vertical.
 - React Native: el ancho de la barra de herramientas flotante, las teclas en un teclado físico, el desplazamiento de un elemento con foco hasta dejarlo a la vista y si VoiceOver y TalkBack anuncian la barra de herramientas se han comprobado solo en Jest, no en un dispositivo.
-- Con `m3-like`, la barra de herramientas dibuja los valores del sistema predeterminado: los valores de la barra de herramientas de Material esperan a que la referencia de fidelidad la cubra. La barra de herramientas vibrante de Material, que cambia el color de sus elementos, no se puede dibujar, porque la barra de herramientas nunca cambia el estilo de sus elementos (laguna de imitación `toolbar-vibrant-color`).
+- Con `m3-like`, solo las separaciones de la barra de herramientas y el relleno de los extremos de una flotante (8, como en Material) son valores propios del preset. Lo demás se dibuja con los valores del sistema predeterminado: los valores de la barra de herramientas de Material esperan a que la referencia de fidelidad la cubra. La barra de herramientas vibrante de Material, que cambia el color de sus elementos, no se puede dibujar, porque la barra de herramientas nunca cambia el estilo de sus elementos (laguna de imitación `toolbar-vibrant-color`).
 
 ### Qué debes hacer tú
 
