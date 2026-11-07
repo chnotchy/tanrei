@@ -5741,8 +5741,9 @@ name and role are never touched. Parts: `container`, `arrow`, `title`, `supporti
 
 ## `<tanrei-popover>`
 
-Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays
-with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…38).
+Shows content a person can read and operate on a small surface that opens beside a control — when it is pressed, or as a
+pointer or keyboard focus rests on it — and stays with it, without dimming or blocking the rest of the page
+(`specs/popover.spec.json`, POP-1…51).
 
 ```html
 <tanrei-button id="share" variant="outlined">Share</tanrei-button>
@@ -5753,16 +5754,21 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 </tanrei-popover>
 <!-- Under a field: as wide as it, focus stays in it, the list reaches the edges. -->
 <tanrei-popover anchor="city" label="Suggestions" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+<!-- A preview of a link: opened by hover or keyboard focus, not by a press (POP-45, POP-46). -->
+<tanrei-popover anchor="author" label="Ada Lovelace" trigger="hover focus">…</tanrei-popover>
 <script type="module">
-  const [opener, panel] = [document.querySelector('#share'), document.querySelector('#panel')];
-  opener.addEventListener('click', () => (panel.open = !panel.open)); // the product toggles it (POP-18)
-  panel.addEventListener('close', () => (panel.open = false)); // …and closes it, whatever the reason (POP-21)
+  const panel = document.querySelector('#panel');
+  panel.addEventListener('toggle', (e) => (panel.open = e.detail.open)); // the opener's press asks (POP-18)
+  panel.addEventListener('close', () => (panel.open = false)); // …and so does everything else (POP-21)
 </script>
 ```
 
 | `<tanrei-popover>` | Type | Default | |
 |---|---|---|---|
-| `open` | boolean | `false` | whether it is shown; reflected. Controlled: it never opens or closes itself |
+| `open` | boolean | `false` | whether it is shown; reflected. Controlled: it asks with `toggle` and `close`, and never sets it itself |
+| `trigger` | (`press` \| `hover` \| `focus`)[] | `['press']` | what asks to open it, in any combination; the attribute is the values separated by spaces (`trigger="hover focus"`). A value it does not define is ignored, and a list with none is `press` (reported, POP-37) |
+| `showDelay` / `show-delay` | number \| `null` | `null` | ms a mouse or pen, or keyboard focus, rests on the anchor before it asks to open on hover or focus; `null` takes `motion.show-delay`. Not a number of 0 or more takes the token (reported, POP-51) |
+| `hideDelay` / `hide-delay` | number \| `null` | `null` | ms a popover opened by hover or focus waits once the pointer and focus have left it before it asks to close (`leave`); `null` takes `motion.hide-delay` |
 | `anchor` | string | `""` | the id of the element it stands beside, in the popover's own tree (its document or shadow root). That element is also the opener unless `opener` names one. No anchor found when `open` becomes true: it stays closed, reported (POP-29) |
 | `anchorElement` | `HTMLElement` \| `null` | `null` | the anchor as an element, for one an id cannot reach (another shadow root); it wins over `anchor`. A property only |
 | `opener` / `openerElement` | string / `HTMLElement` \| `null` | `""` / `null` | the element that is pressed, carries the ARIA states and takes focus back, where it is not the anchor (a field anchors, a button in it opens) |
@@ -5788,6 +5794,7 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 | Event | When |
 |---|---|
 | `close` | `CustomEvent<{ reason }>`, not bubbling: `escape`, `outside`, `focus-out`, `close` (the close button) or `anchor-hidden`. Once for one act of the person (a press outside that also moves focus is one). Set `open` to false; a product that declines is asked again at the next act. The web has no back of its own, so `back` is never sent |
+| `toggle` | `CustomEvent<{ open, reason }>`, not bubbling: a trigger asks — `press` (the opener's `click`: true while closed, false while open), `hover`, `focus` (true), or `leave` (false: a popover opened by hover or focus, the pointer and focus gone for `hideDelay`). Set `open` to `detail.open`. It is not the popover element's `ToggleEvent`, which never leaves the shadow root |
 
 Parts: `container` (the dialog), `arrow`, `header`, `headline`, `close-button`, `content`, `divider`, `actions`.
 
@@ -5831,8 +5838,8 @@ what follows the opener — focus goes to the opener and the key's own move goes
 overlay opened from inside it, or was lost with it (a press outside on nothing focusable); it stays where the person
 put it otherwise. The opener's own indicator is the browser's `:focus-visible`: it shows after a key, not after a press.
 
-**Dismissal (POP-21, POP-23, POP-24).** A press on the opener or the anchor is never outside: the product's handler
-toggles. **A press outside also reaches the element under it.** Escape is answered by the topmost popover alone, and only
+**Dismissal (POP-21, POP-23, POP-24).** A press on the opener or the anchor is never outside: on the opener it is
+`toggle` (with `press` among the triggers). **A press outside also reaches the element under it.** Escape is answered by the topmost popover alone, and only
 when the key reaches the popover's edge: a menu, a tooltip or a field inside it that takes the key keeps it; the popover
 then stops it, so a dialog it stands in stays open. An overlay opened from inside — a menu or another popover anywhere in
 the document whose anchor is inside, a tooltip, a modal dialog opened after the person acted inside — is the popover's
@@ -5841,9 +5848,24 @@ inside closes at once, a popover opened from inside fires its own `close` (reaso
 its own rule as focus returns to the popover's opener (`focus-out`). A docked picker or a search view opened from inside
 is not closed with it yet.
 
-**The opener (POP-18).** The popover writes `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` (its own id,
-generated when it has none, and only where the opener is in the popover's tree) on the opener — on the `<button>` a
-`<tanrei-button>` draws — and removes them when it is disconnected.
+**The opener (POP-18).** While `trigger` has `press`, the popover writes `aria-haspopup="dialog"`, `aria-expanded` and
+`aria-controls` (its own id, generated when it has none, and only where the opener is in the popover's tree) on the
+opener — on the `<button>` a `<tanrei-button>` draws — and removes them when it is disconnected or `press` leaves
+`trigger`. It hears the opener's `click`: closed, it asks `toggle` true; open, false.
+
+**Hover and focus (POP-45 to POP-51).** It listens on the anchor and the opener: `pointerenter` and `pointerleave` from a
+pointer whose `pointerType` is `mouse` or `pen` (touch never), and `focusin` on an element that matches `:focus-visible`
+(focus from a press or a tap is not keyboard focus). Entering starts the wait — `showDelay`, else the token, read from
+the `.timing` probe's `transition-delay` as each wait starts — and leaving or a `pointerdown` ends it; at its end it asks
+`toggle` true with `hover` or `focus`. When `open` then becomes true it is **open by hover or focus**: it moves no focus,
+is never a sheet, and while it is so a window `pointermove` listener follows the pointer. It is held while the pointer is
+on the anchor, the opener, the popover (the host hears `pointerenter`/`pointerleave` from its top-layer surface) or the
+**gap** — the strip between the anchor's edge and the placed box on its side (`data-side`), measured, not drawn — or
+focus is in it, or keyboard focus is on the anchor under `focus`; held by none of them for `hideDelay` (the probe's
+`transition-duration`) it asks `toggle` false with `leave`. `focus-out` from the dismissal is one of those ends, not a
+close. Escape (the dismissal's, wherever focus is) and a press outside close it as any popover; focus it gives back to
+the opener opens nothing by focus. A `click` on the opener while it is open by hover or focus, with `press`, adopts it:
+no event, focus moves in, a compact window draws it as a sheet.
 
 ## `<tanrei-callout>`
 

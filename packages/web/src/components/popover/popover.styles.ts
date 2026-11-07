@@ -343,6 +343,14 @@ export const styles = css`
     border-end-end-radius: 0;
   }
 
+  /* POP-45, POP-46, POP-48: the show and hide delays, read through real properties by script; this element draws nothing. */
+  .timing {
+    display: none;
+    transition-property: none;
+    transition-delay: ${t('motion-show-delay')};
+    transition-duration: ${t('motion-hide-delay')};
+  }
+
   /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */
   .shade {
     scroll-margin-block-start: ${t('container-min-width')};
