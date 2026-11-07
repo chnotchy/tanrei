@@ -8,7 +8,10 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { axTree } from '../../../test/ax-tree.js';
 
 const spec = loadSpec('callout');
 type P = Page;
@@ -21,12 +24,14 @@ const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..
 const dist = (file: string) => fs.readFileSync(path.join(pkg, 'dist', file), 'utf8');
 
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
-const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] > ${TAG}`);
+/** The fixture's callout: the stage's child, or the child of the block a CLO-13 test put it in. */
+const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] > ${TAG}, [data-fixture="${id}"] > div > ${TAG}`);
 /**
  * A part of the callout's own shadow root. A Button in the actions slot has parts of the same class names in its own
  * shadow root, so each is named with its parent in the callout's.
  */
 const OWN: Record<string, string> = {
+  '.box': '.box:has(> .container)',
   '.container': '.container:has(> .lead)',
   '.lead': '.container > .lead',
   '.icon': '.lead > .icon',
@@ -671,7 +676,100 @@ test.describe('behavior', () => {
     expect(await focused(page)).toBe('a#after');
   });
 
-  test('CLO-13: not open, the callout draws nothing, takes no space, exposes nothing and nothing in it is reachable by focus; open changes at once, without a motion, and dismiss is emitted only for a close the person made', async ({ page }) => {
+  /** CLO-13: sets `open` and waits for the update to render it. */
+  const setOpen = (page: P, id: string, open: boolean) =>
+    host(page, id).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, value) => {
+      el.open = value;
+      await el.updateComplete;
+    }, open);
+  const heightOf = (locator: Locator) => locator.evaluate((el) => el.getBoundingClientRect().height);
+  /**
+   * CLO-13: the fixture between a line above it and a line below it, in a block (no space beside it), a flex column
+   * with a gap, or prose (its margins between blocks). Moved there, the callout settles again and measures its box
+   * anew (MOT-3): the step waits until both are done.
+   */
+  const mountAround = async (page: P, id: string, layout: 'block' | 'gap' | 'prose' = 'block') => {
+    await mountSpec(page, id);
+    if (layout === 'prose') await withProse(page);
+    await stage(page, id).evaluate((el, how) => {
+      const callout = el.querySelector('tanrei-callout')!;
+      const wrap = document.createElement('div');
+      if (how === 'gap') wrap.style.cssText = 'display: flex; flex-direction: column; gap: 24px';
+      if (how === 'prose') {
+        wrap.className = 'tanrei-prose';
+        wrap.dataset.measure = 'false';
+      }
+      const line = (name: string, text: string) => {
+        const p = document.createElement('p');
+        p.className = name;
+        p.textContent = text;
+        if (how !== 'prose') p.style.margin = '0';
+        return p;
+      };
+      callout.replaceWith(wrap);
+      wrap.append(line('before', 'Above.'), callout, line('after', 'Below.'));
+    }, layout);
+    await expect(host(page, id)).not.toHaveAttribute('data-tanrei-settling');
+    await frames(page);
+  };
+  /** CLO-13: what the callout's motion is read by in every frame — the callout, its container, the line below it. */
+  const disclosureProbe: Probe = (root) => {
+    const callout = root.querySelector('tanrei-callout')!;
+    const container = callout.shadowRoot!.querySelector('.container')!;
+    const [h, c] = [callout.getBoundingClientRect(), container.getBoundingClientRect()];
+    return {
+      drawn: callout.getClientRects().length > 0,
+      height: h.height,
+      top: h.top,
+      bottom: h.bottom,
+      containerTop: c.top,
+      containerHeight: c.height,
+      opacity: Number(getComputedStyle(container).opacity),
+      afterTop: root.querySelector('.after')!.getBoundingClientRect().top,
+    };
+  };
+  /** One way only: each value is no further from the end than the one before (MOT-2). */
+  const expectOneWay = (values: number[], way: 'up' | 'down', label: string) => {
+    for (let i = 1; i < values.length; i++) {
+      if (way === 'down') expect(values[i]!, `${label}, frame ${i - 1}: ${values.join(' → ')}`).toBeLessThanOrEqual(values[i - 1]! + 0.01);
+      else expect(values[i]!, `${label}, frame ${i - 1}: ${values.join(' → ')}`).toBeGreaterThanOrEqual(values[i - 1]! - 0.01);
+    }
+  };
+  /**
+   * No step on the way: what follows starts and ends where it stands at rest — its first and its last move are a frame
+   * of the curve, which starts and ends slowly (2 % of the way at most), never the space beside the callout taken in
+   * one frame (a 24 px gap is 16 % of the way here) — and no move is a quarter of the way (the curve's steepest frame
+   * is about a sixth).
+   */
+  const expectNoStep = (way: number[], label: string) => {
+    const moves = way.slice(1).map((value, i) => Math.abs(value - way[i]!)).filter((move) => move > 0.01);
+    const total = Math.abs(way.at(-1)! - way[0]!);
+    expect(moves.length, `${label}: it moves`).toBeGreaterThanOrEqual(4);
+    expect(moves[0]!, `${label}: the first move, of ${way.join(' → ')}`).toBeLessThanOrEqual(Math.max(1, total / 20));
+    expect(moves.at(-1)!, `${label}: the last move, of ${way.join(' → ')}`).toBeLessThanOrEqual(Math.max(1, total / 20));
+    expect(Math.max(...moves), `${label}: the largest move, of ${way.join(' → ')}`).toBeLessThanOrEqual(total / 4);
+  };
+  /**
+   * CLO-13, MOT-5: in every frame it is drawn, the callout and its container stand where they rest, the container keeps
+   * its height (clipped: nothing in it moves or is laid out again) and the line below follows the callout's bottom edge.
+   */
+  const expectInPlace = (seen: Frames, rest: Frame['probe']) => {
+    for (const frame of seen.frames.filter((each) => each.probe.drawn)) {
+      const p = frame.probe;
+      near(Number(p.top), Number(rest.top), `frame ${frame.index}: the callout’s top`, 0.01);
+      near(Number(p.containerTop), Number(rest.containerTop), `frame ${frame.index}: its container’s top`, 0.01);
+      near(Number(p.containerHeight), Number(rest.containerHeight), `frame ${frame.index}: its container’s height`, 0.01);
+      near(Number(p.afterTop) - Number(p.bottom), Number(rest.afterTop) - Number(rest.bottom), `frame ${frame.index}: the line below follows its bottom edge`, 0.5);
+    }
+  };
+  /** The transitions of a motion: what moves, on which part, how long and on which curve. */
+  const motionsOf = (seen: Frames) =>
+    seen.motions
+      .filter((motion) => motion.kind === 'transition')
+      .map((motion) => [/^(block-size|height)$/.test(motion.name) ? 'height' : motion.name, motion.on.split('.').slice(0, 2).join('.'), motion.duration, motion.easing] as const)
+      .sort((a, b) => a[0].localeCompare(b[0]));
+
+  test('CLO-13: not open, the callout draws nothing, takes no space, exposes nothing and nothing in it is reachable by focus; markup starts it closed with open="false", the attribute spells it both ways, and dismiss is emitted only for a close the person made', async ({ page }) => {
     const f = spec.fixtures.find((fixture) => fixture.id === 'closable-title-actions')!;
     await mount(page, [{ ...f, id: 'closed', props: { ...f.props, open: false } }, { ...f, id: 'shown' }]);
     await page.evaluate(() => {
@@ -697,24 +795,229 @@ test.describe('behavior', () => {
     await stage(page, 'closed').locator('.before').focus();
     await tab(page);
     expect(await focused(page)).toBe('a.after');
-    // Shown by the product: at once, with no motion and no event.
-    await closed.evaluate((el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => ((el.open = true), el.updateComplete));
+    // Shown by the product, and closed again: no event either way, and at rest it is as tall as one shown from the start.
+    await setOpen(page, 'closed', true);
     await expect(closed).toBeVisible();
     expect(await closed.getAttribute('open')).toBeNull();
-    expect(await closed.evaluate((el) => [...el.getAnimations({ subtree: true }), ...el.shadowRoot!.getAnimations()].length)).toBe(0);
-    near((await box(closed)).height, (await box(host(page, 'shown'))).height, 'whole at once');
     expect(await closed.getAttribute('role')).toBe('alert');
-    // Closed by the product: at once, and no dismiss.
-    await closed.evaluate((el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => ((el.open = false), el.updateComplete));
+    await motionEnded(stage(page, 'closed'));
+    near((await box(closed)).height, (await box(host(page, 'shown'))).height, 'whole');
+    await setOpen(page, 'closed', false);
+    expect(await closed.getAttribute('role')).toBeNull();
+    await motionEnded(stage(page, 'closed'));
     expect(await closed.boundingBox()).toBeNull();
     await frames(page);
     expect(await dismissed(page)).toBe(0);
     // The attribute spells it both ways.
     await closed.evaluate((el) => el.removeAttribute('open'));
     await expect(closed).toBeVisible();
+    await motionEnded(stage(page, 'closed'));
     await closed.evaluate((el) => el.setAttribute('open', 'false'));
     await expect(closed).toBeHidden();
     expect(await dismissed(page)).toBe(0);
+  });
+
+  test('CLO-13: WHEN open becomes false THE callout closes in one motion of its height and its opacity, over comp.callout.motion.disclosure-duration with disclosure-easing, its content fixed to its top edge and what follows moving with its bottom edge at every frame, and is then out of the layout; WHEN open becomes true it opens along the same path the other way', async ({ page }) => {
+    const id = 'closable-title-actions';
+    await mountAround(page, id);
+    const closing = await sampleFrames(stage(page, id), () => setOpen(page, id, false), { probe: disclosureProbe });
+    const [shown, gone] = [closing.before.probe, closing.rest.probe];
+    const full = Number(shown.height);
+    expect(full, 'a callout with a title, a body and actions').toBeGreaterThan(80);
+    expect([shown.drawn, gone.drawn]).toEqual([true, false]);
+    expectAnimated(closing, 'height', { minSteps: 4 });
+    expectAnimated(closing, 'opacity', { minSteps: 4 });
+    // One motion: the height never grows back and the opacity never rises on the way (MOT-2).
+    const drawn = (seen: Frames) => [seen.before, ...seen.frames].filter((frame) => frame.probe.drawn).map((frame) => frame.probe);
+    expectOneWay(drawn(closing).map((probe) => Number(probe.height)), 'down', 'the height');
+    expectOneWay(drawn(closing).map((probe) => Number(probe.opacity)), 'down', 'the opacity');
+    // Fixed to its top edge: the callout and its container stay where they were, the container keeps its height (it is
+    // clipped, nothing in it is laid out again or scrolled), and the line below follows the callout's bottom edge.
+    expectInPlace(closing, shown);
+    // Gone, the line below stands where it does without the callout, and the last frame of the motion was no step from it.
+    near(Number(gone.afterTop), Number(shown.afterTop) - full, 'the line below, without the callout');
+    near(Number(drawn(closing).at(-1)!.afterTop), Number(gone.afterTop), 'no step at the end', 1);
+    expectNoFlicker(closing);
+    // On the tokens: the role of content that opens and closes in place, on the spatial curve, for both.
+    const [duration, easing] = [await resolveToken(page, T('motion-disclosure-duration'), 'duration'), await resolveEasing(page, T('motion-disclosure-easing'))];
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-disclosure', 'duration'));
+    expect(easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    expect(motionsOf(closing)).toEqual([
+      ['height', 'div.box', duration, easing],
+      ['opacity', 'div.container', duration, easing],
+    ]);
+    // With nothing beside it, no space moves.
+    expect(closing.motions.filter((motion) => motion.kind === 'script')).toEqual([]);
+    // Opened again: from no height and transparent, the same path the other way.
+    const opening = await sampleFrames(stage(page, id), () => setOpen(page, id, true), { probe: disclosureProbe });
+    const first = opening.frames[0]!.probe;
+    expect(first.drawn, 'drawn from the first frame').toBe(true);
+    expect(Number(first.height), 'from no height').toBeLessThan(full / 4);
+    expect(Number(first.opacity), 'from transparent').toBeLessThan(0.25);
+    near(Number(first.afterTop), Number(gone.afterTop), 'the line below starts where it stands without the callout', 1);
+    near(Number(opening.rest.probe.height), full, 'to its height');
+    expect(opening.rest.probe.opacity).toBe(1);
+    expectAnimated(opening, 'height', { minSteps: 4 });
+    expectAnimated(opening, 'opacity', { minSteps: 4 });
+    expectOneWay(opening.frames.map((frame) => Number(frame.probe.height)), 'up', 'the height');
+    expectOneWay(opening.frames.map((frame) => Number(frame.probe.opacity)), 'up', 'the opacity');
+    expectInPlace(opening, opening.rest.probe);
+    expectNoFlicker(opening);
+    expect(motionsOf(opening)).toEqual([
+      ['height', 'div.box', duration, easing],
+      ['opacity', 'div.container', duration, easing],
+    ]);
+    // At rest nothing of the motion is left on the callout.
+    expect(await part(page, id, '.box').evaluate((el) => el.getAttribute('style') ?? '')).toBe('');
+    expect(await motionCount(host(page, id)), 'nothing moves').toBe(0);
+  });
+
+  test('CLO-13: the space its container keeps beside it — a flex column’s gap, the margins prose puts between its blocks — closes and opens over the same motion: what follows moves in every frame, and is where it stands without the callout at the end of the close, with no step', async ({ page }) => {
+    const id = 'closable-title-actions';
+    for (const layout of ['gap', 'prose'] as const) {
+      await mountAround(page, id, layout);
+      // Where the line below stands without the callout, read in one task (no frame draws it).
+      const without = await stage(page, id).evaluate((el) => {
+        const callout = el.querySelector<HTMLElement>('tanrei-callout')!;
+        callout.style.display = 'none';
+        const top = el.querySelector('.after')!.getBoundingClientRect().top;
+        callout.style.removeProperty('display');
+        return top;
+      });
+      const closing = await sampleFrames(stage(page, id), () => setOpen(page, id, false), { probe: disclosureProbe });
+      const [shown, gone] = [closing.before.probe, closing.rest.probe];
+      const space = Number(shown.afterTop) - Number(shown.height) - without;
+      expect(space, `${layout}: the container keeps space beside the callout`).toBeGreaterThan(4);
+      near(Number(gone.afterTop), without, `${layout}: closed, the line below stands where it does without the callout`);
+      const way = [shown, ...closing.frames.map((frame) => frame.probe)].map((probe) => Number(probe.afterTop));
+      expectOneWay(way, 'down', `${layout}: the line below`);
+      expectAnimated(closing, 'afterTop', { minSteps: 4 });
+      // No step: the line below is never more than a frame's move from where it stood in the frame before, the last
+      // frame included.
+      expectNoStep(way, `${layout}: closing`);
+      expectNoFlicker(closing);
+      // The space moves on the box's clock, as one motion.
+      const [duration] = [await resolveToken(page, T('motion-disclosure-duration'), 'duration')];
+      expect(closing.motions.filter((motion) => motion.kind === 'script').map((motion) => [motion.on, motion.duration]), layout).toEqual([['tanrei-callout', duration]]);
+      const opening = await sampleFrames(stage(page, id), () => setOpen(page, id, true), { probe: disclosureProbe });
+      near(Number(opening.frames[0]!.probe.afterTop), without, `${layout}: opening, the line below starts where it stands without the callout`, 1);
+      near(Number(opening.rest.probe.afterTop), Number(shown.afterTop), `${layout}: and ends where it stood`);
+      const back = [...opening.frames.map((frame) => frame.probe), opening.rest.probe].map((probe) => Number(probe.afterTop));
+      expectOneWay(back, 'up', `${layout}: the line below`);
+      expectAnimated(opening, 'afterTop', { minSteps: 4 });
+      expectNoStep(back, `${layout}: opening`);
+      expectNoFlicker(opening);
+      // At rest the space's motion is gone, and the callout has the margin it had.
+      expect(await motionCount(host(page, id)), `${layout}: nothing moves`).toBe(0);
+      expect(await css(host(page, id), 'margin-block-end'), layout).toBe('0px');
+    }
+  });
+
+  test('CLO-13: WHEN open changes while the callout moves THE callout turns round from the height and the opacity then drawn (MOT-2)', async ({ page }) => {
+    const id = 'closable-title-actions';
+    await mountAround(page, id);
+    const full = (await box(host(page, id))).height;
+    for (const [first, then] of [
+      [false, true],
+      [true, false],
+    ] as const) {
+      // Opening is from closed, at rest.
+      if (first) {
+        await setOpen(page, id, false);
+        await motionEnded(stage(page, id));
+      }
+      // The motion of the first change held halfway — the same moment on any machine — and the second change made.
+      const midway = await host(page, id).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, open) => {
+        el.open = open;
+        await el.updateComplete;
+        const shadow = el.shadowRoot!;
+        for (const motion of [...shadow.querySelector('.box')!.getAnimations(), ...shadow.querySelector('.container')!.getAnimations(), ...el.getAnimations()]) {
+          motion.pause();
+          motion.currentTime = Number(motion.effect!.getComputedTiming().activeDuration) / 2;
+        }
+        return { height: el.getBoundingClientRect().height, opacity: Number(getComputedStyle(shadow.querySelector('.container')!).opacity) };
+      }, first);
+      expect(midway.height, `${first ? 'opening' : 'closing'}: partway`).toBeGreaterThan(full * 0.05);
+      expect(midway.height).toBeLessThan(full * 0.95);
+      expect(midway.opacity).toBeGreaterThan(0.05);
+      expect(midway.opacity).toBeLessThan(0.95);
+      const turned = await sampleFrames(stage(page, id), () => setOpen(page, id, then), { probe: disclosureProbe });
+      const start = turned.frames[0]!.probe;
+      near(Number(start.height), midway.height, `${then ? 'opened' : 'closed'} again: from the height drawn`, 0.5);
+      expect(Math.abs(Number(start.opacity) - midway.opacity), 'and from the opacity drawn').toBeLessThanOrEqual(0.05);
+      const probes = turned.frames.map((frame) => frame.probe).filter((probe) => probe.drawn);
+      expectOneWay(probes.map((probe) => Number(probe.height)), then ? 'up' : 'down', 'the height');
+      expectOneWay(probes.map((probe) => Number(probe.opacity)), then ? 'up' : 'down', 'the opacity');
+      expectNoFlicker(turned);
+      expect(turned.rest.probe.drawn).toBe(then);
+      if (then) near(Number(turned.rest.probe.height), full, 'to its height');
+    }
+  });
+
+  test('CLO-13: WHERE motion is reduced THE callout appears and disappears at once (MOT-6)', async ({ page }) => {
+    const id = 'closable-title-actions';
+    await mountAround(page, id);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const full = (await box(host(page, id))).height;
+    const closing = await sampleFrames(stage(page, id), () => setOpen(page, id, false), { probe: disclosureProbe });
+    // Out of the layout from the first frame. Inside it, nothing is drawn: the status glyph's box, measured again by
+    // its resize observer once it has no size, is hidden a frame later in WebKit (CLO-29), which nothing shows.
+    expectFirstFrameAtRest(closing, { ignore: (key, property) => property === 'visibility' && key.includes('/tanrei-callout:') });
+    expect(closing.motions).toEqual([]);
+    expect(closing.frames[0]!.probe.drawn).toBe(false);
+    const opening = await sampleFrames(stage(page, id), () => setOpen(page, id, true), { probe: disclosureProbe });
+    expectFirstFrameAtRest(opening);
+    expect(opening.motions).toEqual([]);
+    near(Number(opening.frames[0]!.probe.height), full, 'whole in the first frame');
+    expect(opening.frames[0]!.probe.opacity).toBe(1);
+  });
+
+  test('CLO-13: what assistive technology and focus are given changes at once, not after the motion — closing, the callout has no role, its content is out of the accessibility tree and the focus order and focus is where CLO-12 puts it; opening, it has its role, its announcement is written and Tab reaches its content', async ({ page, browserName }) => {
+    const id = 'closable-title-actions';
+    await mountAround(page, id);
+    await page.evaluate(() => {
+      const stage = document.querySelector('.stage')!;
+      stage.insertAdjacentHTML('afterbegin', '<a id="before" href="#b">Before</a>');
+      stage.insertAdjacentHTML('beforeend', '<a id="after" href="#a">After</a>');
+    });
+    const callout = host(page, id);
+    const tree = () => axTree(page, `[data-fixture="${id}"]`);
+    const insideIt = () => callout.evaluate((el) => el.contains(document.activeElement) || el.shadowRoot!.contains(el.shadowRoot!.activeElement));
+    // Closed by the person: every motion held at its start, the callout still drawn whole.
+    await page.locator('#before').focus();
+    await tabTo(page, close(page, id));
+    const closing = await freezeFirstFrame(stage(page, id), () => page.keyboard.press('Enter'));
+    expect(await heightOf(callout), 'still drawn whole').toBeGreaterThan(80);
+    expect(await focused(page), 'CLO-12').toBe('a#before');
+    expect(await callout.getAttribute('role')).toBeNull();
+    expect(await announced(page, id)).toEqual({ polite: '', assertive: '' });
+    expect(await part(page, id, '.box').evaluate((el) => [el.hasAttribute('inert'), el.getAttribute('aria-hidden')])).toEqual([true, 'true']);
+    if (browserName === 'chromium') {
+      const lines = await tree();
+      expect(lines.filter((line) => /Close|Three fields|Enter a name|Go to the first field|alert/.test(line)), 'nothing of it in the accessibility tree').toEqual([]);
+    }
+    await tab(page);
+    expect(await focused(page), 'Tab passes over it').toBe('a#after');
+    await callout.locator('[slot="actions"]').first().evaluate((el: HTMLElement) => el.focus());
+    expect(await insideIt(), 'nothing in it takes focus').toBe(false);
+    await closing.release();
+    await motionEnded(stage(page, id));
+    await expect(callout).toBeHidden();
+    // Opened by the product: held at its start, no taller than nothing, and already a live region with its words.
+    await page.locator('#before').focus();
+    const opening = await freezeFirstFrame(stage(page, id), () => setOpen(page, id, true));
+    expect(await heightOf(callout), 'held at its start').toBeLessThan(1);
+    expect(await callout.getAttribute('role')).toBe('alert');
+    await expect.poll(async () => (await announced(page, id)).assertive).toBe('Three fields need attention. Enter a name, choose a start date, and give an address that can receive mail.');
+    expect(await part(page, id, '.box').evaluate((el) => [el.hasAttribute('inert'), el.hasAttribute('aria-hidden')])).toEqual([false, false]);
+    if (browserName === 'chromium') {
+      const lines = await tree();
+      expect(lines.some((line) => /^\s*alert "Three fields need attention"/.test(line)), lines.join('\n')).toBe(true);
+      expect(lines.some((line) => /button "Close"/.test(line))).toBe(true);
+    }
+    await tab(page);
+    expect(await insideIt(), 'Tab reaches its content').toBe(true);
+    await opening.release();
   });
 
   test('CLO-10: the close button answers hover, focus and press as a Button on the tone does — the tone laid over its container at the system’s state-layer opacities — and keeps its own focus ring and minimum target; the callout’s container, text and glyph do not change under a pointer, a press or focus', async ({
@@ -1513,6 +1816,8 @@ test.describe('accessibility', () => {
       await withProse(page);
       await host(page, 'opened').evaluate((el: HTMLElement & { open: boolean }) => (el.open = true));
       await expect.poll(async () => (await announced(page, 'opened')).assertive).not.toBe('');
+      // Read once it has opened (CLO-13): partway its text is still fading in, and its contrast is not the one it rests at.
+      await motionEnded(stage(page, 'opened'));
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
     }

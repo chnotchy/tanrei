@@ -2308,6 +2308,8 @@ public data class TanreiCalloutTokens(
     public val iconGap: Dp,
     public val iconOpacity: Float,
     public val iconSize: Dp,
+    public val motionDisclosureDuration: Int,
+    public val motionDisclosureEasing: TanreiCubicBezier,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
     public val titleGap: Dp,

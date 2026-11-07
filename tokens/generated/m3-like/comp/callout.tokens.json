@@ -50,7 +50,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors and the glyph's color; and the close button's variant. The close button is a Tanrei Button with Button's own tokens: the callout names its variant, and on a filled look gives it the body color of its form as its tone.",
+            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors and the glyph's color; the close button's variant; and the duration and curve in which it opens and closes. The close button is a Tanrei Button with Button's own tokens: the callout names its variant, and on a filled look gives it the body color of its form as its tone.",
             "rules": [
               "A callout is part of the content and stays: a note, a caution, the reason for something, a summary of errors. A message that reports what the app just did and then goes is a snackbar; a choice the person must make before going on is a dialog; a word that names a state is a tag.",
               "A notice for a whole page or screen (often called a banner) is a callout the product places above that region's content, usually live and with an action or a close button. It is not another component, and there is no banner look.",
@@ -250,6 +250,18 @@
                 "fixed": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here."
               }
             }
+          }
+        },
+        "motion": {
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.disclosure}",
+            "$description": "How long the callout takes to open or close (CLO-13): its height and its opacity in one motion, what follows it moving with it. Content that opens and closes in place."
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
+            "$description": "The curve of that motion: a box that opens and closes in place."
           }
         },
         "info": {

@@ -3604,6 +3604,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
   public var iconGap: CGFloat
   public var iconOpacity: Double
   public var iconSize: CGFloat
+  public var motionDisclosureDuration: Double
+  public var motionDisclosureEasing: TanreiCubicBezier
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
   public var titleGap: CGFloat
@@ -3622,6 +3624,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
     iconGap: CGFloat,
     iconOpacity: Double,
     iconSize: CGFloat,
+    motionDisclosureDuration: Double,
+    motionDisclosureEasing: TanreiCubicBezier,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
     titleGap: CGFloat,
@@ -3639,6 +3643,8 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
     self.iconGap = iconGap
     self.iconOpacity = iconOpacity
     self.iconSize = iconSize
+    self.motionDisclosureDuration = motionDisclosureDuration
+    self.motionDisclosureEasing = motionDisclosureEasing
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
     self.titleGap = titleGap
