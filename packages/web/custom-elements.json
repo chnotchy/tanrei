@@ -17086,7 +17086,7 @@
         {
           "kind": "variable",
           "name": "itemStyles",
-          "description": "An item (FBM-3…5, FBM-9, FBM-10, FBM-18, FBM-19, FBM-22): a raised container at least item.height tall and as wide as\nits content, the icon and then the label, each state from the item parts of the menu's variant (inherited from the\nmenu), its own press, ring and corners; it grows in from its end edge when the menu opens."
+          "description": "An item (FBM-3…5, FBM-9, FBM-10, FBM-18, FBM-19, FBM-22): a raised container at least item.height tall and as wide as\nits content, the icon and then the label, each state from the item parts of the menu's variant (inherited from the\nmenu), its own press, ring and corners; it appears from its end edge when the menu opens."
         }
       ],
       "exports": [

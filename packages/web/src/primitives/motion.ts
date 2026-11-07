@@ -93,6 +93,12 @@ export interface AppearOptions {
   appear?: string;
   /** The duration of the cross-fade under reduced motion: by default `sys.motion.role.reduced`. */
   reduced?: string;
+  /**
+   * Whether the scale follows `sys.behavior.appearance: unfold` along the one axis that leaves the origin (the
+   * default). False: it scales on both axes under every appearance, for a surface that grows from its edge beside what
+   * opened it rather than away from it (a FAB menu's item, from its end edge beside the toggle).
+   */
+  unfold?: boolean;
 }
 
 /** The properties an appearance moves; what an exit waits for. `transform` too, for a surface still drawn with it. */
@@ -117,7 +123,8 @@ const under = (condition: string, motion: string) => `:is(${condition}) :is(${mo
  *
  * An anchored surface grows from the edge that faces its anchor, or from its own centre where `appear.origin` says
  * `center` (its side is still the one it starts toward). Under `sys.behavior.appearance: unfold` the scale applies along the one axis that leaves the anchor or the edge (both
- * axes from the centre), read with a style container query; a browser without them scales both axes. A sheet slides
+ * axes from the centre), read with a style container query; a browser without them scales both axes (and so does a
+ * surface that asks for no unfolding, `unfold: false`). A sheet slides
  * from its edge by its own size, unfaded and unscaled, whatever the appearance. Under reduced motion every appearance
  * is a cross-fade over `role.reduced`: no scale, no distance, no blur (WCAG 2.3.3 counts none of opacity as motion).
  *
@@ -207,9 +214,7 @@ export function appearStyles(options: AppearOptions): CSSResult {
     ${timing(exit)}
   }
   ${places.join('\n  ')}
-  @container style(--tanrei-sys-behavior-appearance: unfold) {
-    ${unfolds.join('\n    ')}
-  }
+  ${options.unfold === false ? '' : `@container style(--tanrei-sys-behavior-appearance: unfold) {\n    ${unfolds.join('\n    ')}\n  }`}
   ${centred.length ? `@container style(${from}-origin: center) {\n    ${centred.join('\n    ')}\n  }` : ''}
   ${sheet ? '' : `@container style(${from}-blur: 0px) {\n    :is(${motion}) { --_appear-filter: none; }\n  }`}
   ${sheet ? '' : `@container style(${from}-distance: 0px) {\n    :is(${motion}) { --_appear-translate: none; }\n  }`}

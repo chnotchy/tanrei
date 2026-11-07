@@ -102,6 +102,13 @@ customElements.define('x-anchored', class extends Appearing {
     appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'anchor', appear: '--x-appear' }),
   ];
 });
+// Grown from its inline-end edge: under unfold along the one axis that leaves it, or on both (unfold: false).
+customElements.define('x-edge', class extends Appearing {
+  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'inline-end' })];
+});
+customElements.define('x-edge-whole', class extends Appearing {
+  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', role: 'anchored', origin: 'inline-end', unfold: false })];
+});
 customElements.define('x-size', class extends kept(LitElement) {
   static properties = { lines: { type: Number }, anchor: {}, axis: {}, text: {} };
   static styles = css\`
@@ -479,6 +486,27 @@ test.describe('appearStyles and AppearController', () => {
     });
     // From the centre both axes unfold; below an anchor the width is whole and the height unfolds from 0.
     expect(unfolded.frames[0]!.probe).toEqual({ centre: '0 0', anchored: '1 0' });
+  });
+
+  test('a surface grown from an edge unfolds under unfold along the one axis that leaves it, and on both axes from that edge where it asks for no unfolding (unfold: false, a FAB menu’s item)', async ({ page }) => {
+    await open(page, '<div id="stage"></div>', { head: `<style>${read('dist/systems/m3-like.css')}</style>`, html: 'data-tanrei-system="m3-like"' });
+    await painted(page);
+    const stage = page.locator('#stage');
+    const seen = await sampleFrames(stage, () => stage.evaluate((el) => el.insertAdjacentHTML('beforeend', '<x-edge open></x-edge><x-edge-whole open></x-edge-whole>')), {
+      probe: (root) => {
+        const read = (tag: string) => {
+          const motion = root.querySelector(tag)?.shadowRoot?.querySelector('.motion');
+          if (!motion) return '';
+          const style = getComputedStyle(motion);
+          const [x = '1', y = x] = style.scale.replace('none', '').split(' ').filter(Boolean);
+          return `${Number(x)} ${Number(y)} at ${style.transformOrigin}`;
+        };
+        return { unfolding: read('x-edge'), whole: read('x-edge-whole') };
+      },
+    });
+    // m3-like starts a surface from scale 0: along the inline axis only, or on both; from the middle of the end edge.
+    expect(seen.frames[0]!.probe).toEqual({ unfolding: '0 1 at 120px 40px', whole: '0 0 at 120px 40px' });
+    expect(seen.rest.probe).toEqual({ unfolding: '1 1 at 120px 40px', whole: '1 1 at 120px 40px' });
   });
 
   test('enter(true) and exit(true) are made at once: no transition runs, and exit(true) resolves in the task that asks for it', async ({ page }) => {
