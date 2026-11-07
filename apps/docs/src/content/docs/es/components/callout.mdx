@@ -2,7 +2,7 @@
 title: Callout
 description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
 translationOf: components/callout.mdx
-sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
+sourceHash: 3d1bf520f77dcafbb5843ed539e8b4f896a51e0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
   <tanrei-callout headline="Consejo" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Mantén habilitada una acción y explica qué falta cuando se use.</tanrei-callout>
   <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar en una versión posterior.</tanrei-callout>
   <tanrei-callout status="warning" headline="El archivo ha cambiado en el disco" style="inline-size: min(100%, 34rem)">Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.<tanrei-button slot="actions" variant="outlined">Volver a cargar desde el disco</tanrei-button><tanrei-button slot="actions" variant="text">Conservar los míos</tanrei-button></tanrei-callout>
-  <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout desaparece de inmediato y el foco vuelve a donde estaba.</tanrei-callout>
+  <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout se cierra en un solo movimiento y el foco vuelve a donde estaba.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Mostrarlo de nuevo</tanrei-button>
   <tanrei-callout size="large" status="error" headline="Peligro" style="inline-size: min(100%, 34rem)">Este comando elimina todos los archivos generados y no se puede deshacer.</tanrei-callout>
 </Example>
@@ -173,7 +173,7 @@ La prosa no trae color, así que se lee sobre cualquier relleno, y sus enlaces v
 
 Las acciones son tus propios [botones](/es/components/button/) o enlaces, uno o dos. Usa botones `outlined` o `text`: un botón `tonal` tiene el relleno del callout tonal sin estado, y ahí no se distingue como botón. El callout los dispone en una fila que salta de línea y no hace nada más: no se cierra cuando se pulsa uno.
 
-`closable` dibuja un botón de cierre: un [botón](../button/) pequeño, solo con icono, que recibe su nombre de `close-label` y su variante de `--tanrei-comp-callout-close-button-variant` (tonal en el sistema predeterminado). En un callout tonal se dibuja en el color de texto del propio callout —un círculo de ese color hecho translúcido, con el glifo dentro en el mismo color—, de modo que se ve sobre el relleno de cualquier estado; en un callout outlined, que no tiene relleno, es el botón tal como es en cualquier otra parte. Responde al paso del puntero, al foco y a la pulsación como cualquier botón. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
+`closable` dibuja un botón de cierre: un [botón](../button/) pequeño, solo con icono, que recibe su nombre de `close-label` y su variante de `--tanrei-comp-callout-close-button-variant` (tonal en el sistema predeterminado). En un callout tonal se dibuja en el color de texto del propio callout —un círculo de ese color hecho translúcido, con el glifo dentro en el mismo color—, de modo que se ve sobre el relleno de cualquier estado; en un callout outlined, que no tiene relleno, es el botón tal como es en cualquier otra parte. Responde al paso del puntero, al foco y a la pulsación como cualquier botón. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout se cierra entonces en un solo movimiento: se desvanece mientras su altura se reduce a cero, con el contenido sujeto a su borde superior, y lo que viene detrás sube con su borde inferior, así que nada de lo que hay debajo da un salto. Si vuelves a poner `open` en true, se abre por el mismo camino. Donde el movimiento está reducido, desaparece y vuelve de inmediato. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
 
 ### Aparecer en respuesta a algo
 
@@ -232,6 +232,7 @@ El cuerpo, el slot del título y las acciones son hijos del propio elemento, as�
 - Un título dado como texto es texto sin más. Un encabezado en el slot `title` conserva su nivel.
 - No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces y controles del cuerpo, después a las acciones y después al botón de cierre.
 - Cuando se cierra mientras el foco está dentro, el foco vuelve al elemento que lo tenía antes de entrar en el callout, de modo que el siguiente Tab llega a lo que venía a continuación.
+- Desde el momento en que se cierra queda oculto para la tecnología de apoyo y nada de su interior puede recibir el foco, sin esperar a que termine el movimiento. Desde el momento en que se abre se puede leer y alcanzar, y un callout `live` se anuncia.
 - El botón de cierre es un botón: su área de pulsación alcanza el objetivo mínimo y, en un callout tonal, su glifo y su anillo de foco van en el color de texto del callout, que mantiene al menos 6:1 frente al botón en todos los estados y esquemas de color del sistema predeterminado.
 - Con el texto ampliado, todo salta de línea y crece; el glifo y el botón de cierre se quedan en la primera línea.
 - Con colores forzados, todos los aspectos ganan un borde en el color del texto, y el glifo se dibuja entero.
