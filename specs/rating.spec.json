@@ -37,7 +37,7 @@
       "name": "allowHalf",
       "type": "boolean",
       "default": false,
-      "description": "Lets the score end on a half mark: a press on the start half of a mark gives that mark less a half, and the arrow keys move by a half."
+      "description": "Lets a person give a score that ends on a half mark: a press on the start half of a mark gives that mark less a half, and the arrow keys move by a half. A read-only rating shows halves whatever it says (RAT-14)."
     },
     {
       "name": "size",
@@ -160,7 +160,7 @@
     },
     {
       "id": "RAT-14",
-      "text": "WHEN the product sets value THE rating SHALL draw the new value and SHALL NOT emit change; IF value is below 0 or above max THE rating SHALL draw and expose it clamped to that range, and IF it is not a whole number while allowHalf is false, or not a multiple of a half while it is true, SHALL draw and expose the nearest score it can show; IF max is not a whole number from 1 THE rating SHALL take the whole number below it and at least 1; in each case debug builds SHALL report the value."
+      "text": "WHEN the product sets value THE rating SHALL draw the new value and SHALL NOT emit change; IF value is below 0 or above max THE rating SHALL draw and expose it clamped to that range, and IF it is not a multiple of a half, or not a whole number while allowHalf is false and the rating is not read-only, SHALL draw and expose the nearest score it can show — a read-only rating shows halves whatever allowHalf says, so that an average is drawn to the nearest half; IF max is not a whole number from 1 THE rating SHALL take the whole number below it and at least 1; in each case debug builds SHALL report the value."
     },
     {
       "id": "RAT-15",
