@@ -512,7 +512,9 @@ function stepOf(component: string): Promise<Step | undefined> {
  * has 368) would define and lay out every one of them before it had loaded. Its canvas holds the room the fixture's
  * baseline shows until then. It is the document's stage, written in the canvas the staging is scoped to — with
  * `document.importNode`, so that its children are defined before it is connected, as when a page is parsed — and it
- * takes the document's step in script once its element is defined, as the web package's harness runs it.
+ * takes the document's step in script once its element is defined, as the web package's harness runs it. The canvas
+ * carries `data-staging` until that step has ended: what the step does may wait for the stage to be near the view (a
+ * file item asks for its picture only then), so whatever reads the stage as drawn waits for it there.
  */
 export function drawFixture(figure: HTMLElement) {
   const canvas = figure.querySelector<HTMLElement>('.docs-stage-canvas[data-pending]');
@@ -530,10 +532,13 @@ export function drawFixture(figure: HTMLElement) {
   else handle?.remove();
   const tag = gallery.dataset.fixtureTag;
   if (stage && tag && gallery.dataset.fixtureStep !== undefined) {
-    void Promise.all([stepOf(gallery.dataset.component ?? ''), customElements.whenDefined(tag)]).then(([step]) => {
-      const element = stage.querySelector(tag);
-      if (step && element) return step(element, stage.dataset.fixture ?? '');
-    });
+    canvas.setAttribute('data-staging', '');
+    void Promise.all([stepOf(gallery.dataset.component ?? ''), customElements.whenDefined(tag)])
+      .then(([step]) => {
+        const element = stage.querySelector(tag);
+        if (step && element) return step(element, stage.dataset.fixture ?? '');
+      })
+      .finally(() => canvas.removeAttribute('data-staging'));
   }
 }
 
