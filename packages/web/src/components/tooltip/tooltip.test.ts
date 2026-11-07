@@ -1805,11 +1805,20 @@ test.describe('motion', () => {
     // Entering…
     await anchor(page, 'a').hover();
     expect(await isOpen(page, 'a')).toBe(true);
-    // …and a quarter of the way in: the entering motion itself is moved there (it goes on running), not waited for.
+    // …and a quarter of the way in: the entering motion itself is moved there and played on from there, not waited for.
+    // Played, whatever the machine: the entrance stands held at its start until the frame after the one that opened it
+    // (AppearController), so a machine that has drawn no frame since finds it held, and one moved while held stays held.
+    // Firefox starts a transition that replaces a held one that never ran from the value at its timeline's time — here
+    // 0.018, where the motion shows 0.25 (measured) — and one that replaces a running one from the value shown. The
+    // turn below replaces a running motion in every engine once its start is resolved (`ready`).
     expect(
-      await motion(page, 'a').evaluate((el) => {
+      await motion(page, 'a').evaluate(async (el) => {
         const entering = el.getAnimations();
-        for (const animation of entering) animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 4;
+        for (const animation of entering) {
+          animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 4;
+          animation.play();
+        }
+        await Promise.all(entering.map((animation) => animation.ready));
         return entering.length;
       }),
     ).toBeGreaterThan(0);
@@ -1836,7 +1845,14 @@ test.describe('motion', () => {
     await page.waitForTimeout(150);
     expect(await isOpen(page, 'a')).toBe(false);
     expect(await log(page)).toEqual(['a:true', 'a:false', 'stage:div']);
-    // …and told to open again while it leaves: it comes back from where it is, not from nothing.
+    // …and told to open again while it leaves: it comes back from where it is, not from nothing. The exit is played on
+    // first where it still stands held at its start (a machine that has drawn no frame since the close), so that this
+    // turn too replaces a running motion in every engine.
+    await motion(page, 'a').evaluate(async (el) => {
+      const exiting = el.getAnimations();
+      for (const animation of exiting) animation.play();
+      await Promise.all(exiting.map((animation) => animation.ready));
+    });
     const leaving = await drawnNow(page, 'a');
     expect(leaving.opacity).toBeGreaterThan(0);
     await anchor(page, 'a').hover();
