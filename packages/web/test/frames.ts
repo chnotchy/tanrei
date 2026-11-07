@@ -554,6 +554,16 @@ async function run(target: Locator | Page, act: () => Promise<unknown>, options:
  */
 export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, options: SampleOptions = {}): Promise<Frames> => run(root, act, options, false);
 
+/**
+ * The root as it rests now, read as a frame of `sampleFrames` is: every motion in it finished, then read once nothing
+ * has changed for three frames. For a page that is not changing (a document just mounted), to tell a later change's
+ * rest apart from it.
+ */
+export async function frameAtRest(root: Locator | Page, options: Pick<SampleOptions, 'probe' | 'elements' | 'properties'> = {}): Promise<Frame> {
+  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false);
+  return seen.rest;
+}
+
 /** A first frame held still: every motion stands at its start until `release()`. */
 export interface FrozenFrame {
   /** The frame as it is held. */
