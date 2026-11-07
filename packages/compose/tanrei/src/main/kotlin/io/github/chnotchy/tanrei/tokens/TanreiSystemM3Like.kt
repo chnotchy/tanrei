@@ -142,6 +142,7 @@ private object M3LikeSystemSource {
             skeleton = skeleton(typescale, elevation),
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
+            splitView = splitView(typescale, elevation),
             stepper = stepper(typescale, elevation),
             steps = steps(typescale, elevation),
             swatch = swatch(typescale, elevation),
@@ -7801,6 +7802,16 @@ private object M3LikeSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun splitView(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSplitViewTokens =
+        TanreiSplitViewTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerWidth = 1.dp,
+            motionCollapseDuration = 500,
+            motionCollapseEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
+            motionResizeDuration = 200,
         )
 
     @Suppress("UNUSED_PARAMETER")

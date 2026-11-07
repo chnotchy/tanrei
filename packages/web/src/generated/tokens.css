@@ -6930,6 +6930,11 @@
     --tanrei-comp-snackbar-warning-outline-color: var(--tanrei-sys-color-warning);
     --tanrei-comp-snackbar-warning-supporting-text-color: var(--tanrei-sys-color-on-warning-container);
     --tanrei-comp-snackbar-warning-title-color: var(--tanrei-comp-snackbar-warning-supporting-text-color);
+    --tanrei-comp-split-view-divider-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-split-view-divider-width: var(--tanrei-sys-border-hairline);
+    --tanrei-comp-split-view-motion-collapse-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-split-view-motion-collapse-easing: var(--tanrei-sys-motion-easing-spatial);
+    --tanrei-comp-split-view-motion-resize-duration: var(--tanrei-sys-motion-role-resize-default);
     --tanrei-comp-stepper-bar-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-stepper-bar-filled-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-stepper-bar-gap: var(--tanrei-sys-space-space50);

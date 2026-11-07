@@ -1401,6 +1401,13 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "stepper",
       "title": "Stepper",
       "level": "base",

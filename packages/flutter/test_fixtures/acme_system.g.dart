@@ -8463,6 +8463,13 @@ const TanreiSystem acmeSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  splitView: TanreiSplitViewTokens(
+    dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    dividerWidth: 1.0,
+    motionCollapseDuration: 400,
+    motionCollapseEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionResizeDuration: 300,
+  ),
   stepper: TanreiStepperTokens(
     barColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     barFilledColor: TanreiPaint.role(TanreiColorRole.primary),

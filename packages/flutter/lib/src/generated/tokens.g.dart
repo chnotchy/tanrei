@@ -22646,6 +22646,44 @@ class TanreiSnackbarTokens {
       };
 }
 
+/// `comp.split-view.*`
+@immutable
+class TanreiSplitViewTokens {
+  const TanreiSplitViewTokens({
+    required this.dividerColor,
+    required this.dividerWidth,
+    required this.motionCollapseDuration,
+    required this.motionCollapseEasing,
+    required this.motionResizeDuration,
+  });
+
+  /// `comp.split-view.divider-color`
+  final TanreiPaint dividerColor;
+  /// `comp.split-view.divider-width`
+  final double dividerWidth;
+  /// `comp.split-view.motion-collapse-duration`
+  final int motionCollapseDuration;
+  /// `comp.split-view.motion-collapse-easing`
+  final TanreiCubicBezier motionCollapseEasing;
+  /// `comp.split-view.motion-resize-duration`
+  final int motionResizeDuration;
+
+  /// A copy with the given tokens replaced.
+  TanreiSplitViewTokens copyWith({
+    TanreiPaint? dividerColor,
+    double? dividerWidth,
+    int? motionCollapseDuration,
+    TanreiCubicBezier? motionCollapseEasing,
+    int? motionResizeDuration,
+  }) => TanreiSplitViewTokens(
+        dividerColor: dividerColor ?? this.dividerColor,
+        dividerWidth: dividerWidth ?? this.dividerWidth,
+        motionCollapseDuration: motionCollapseDuration ?? this.motionCollapseDuration,
+        motionCollapseEasing: motionCollapseEasing ?? this.motionCollapseEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+      );
+}
+
 /// The key of a condition of stepper (`comp.stepper`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -27044,6 +27082,7 @@ class TanreiSystem {
     required this.skeleton,
     required this.slider,
     required this.snackbar,
+    required this.splitView,
     required this.stepper,
     required this.steps,
     required this.swatch,
@@ -27148,6 +27187,7 @@ class TanreiSystem {
   final TanreiSkeletonTokens skeleton;
   final TanreiSliderTokens slider;
   final TanreiSnackbarTokens snackbar;
+  final TanreiSplitViewTokens splitView;
   final TanreiStepperTokens stepper;
   final TanreiStepsTokens steps;
   final TanreiSwatchTokens swatch;
@@ -27251,6 +27291,7 @@ class TanreiSystem {
     TanreiSkeletonTokens? skeleton,
     TanreiSliderTokens? slider,
     TanreiSnackbarTokens? snackbar,
+    TanreiSplitViewTokens? splitView,
     TanreiStepperTokens? stepper,
     TanreiStepsTokens? steps,
     TanreiSwatchTokens? swatch,
@@ -27352,6 +27393,7 @@ class TanreiSystem {
         skeleton: skeleton ?? this.skeleton,
         slider: slider ?? this.slider,
         snackbar: snackbar ?? this.snackbar,
+        splitView: splitView ?? this.splitView,
         stepper: stepper ?? this.stepper,
         steps: steps ?? this.steps,
         swatch: swatch ?? this.swatch,

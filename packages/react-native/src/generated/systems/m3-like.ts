@@ -12307,6 +12307,13 @@ export const m3Like = {
         },
       },
     },
+    splitView: {
+      dividerColor: { kind: "role", role: "outlineVariant" },
+      dividerWidth: 1,
+      motionCollapseDuration: 500,
+      motionCollapseEasing: [0.27, 1.06, 0.18, 1],
+      motionResizeDuration: 200,
+    },
     stepper: {
       barColor: { kind: "role", role: "outlineVariant" },
       barFilledColor: { kind: "role", role: "primary" },

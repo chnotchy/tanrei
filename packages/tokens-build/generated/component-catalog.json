@@ -1752,6 +1752,13 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "level": "base",

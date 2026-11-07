@@ -9688,6 +9688,20 @@ public data class TanreiSnackbarTokens(
     }
 }
 
+/** `comp.split-view`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiSplitViewTokens(
+    public val dividerColor: TanreiPaint,
+    public val dividerWidth: Dp,
+    public val motionCollapseDuration: Int,
+    public val motionCollapseEasing: TanreiCubicBezier,
+    public val motionResizeDuration: Int,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(dividerColor.roles())
+    }
+}
+
 /**
  * A condition of stepper: the key of one entry of [TanreiStepperConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -11677,6 +11691,7 @@ public data class TanreiSystem(
     public val skeleton: TanreiSkeletonTokens,
     public val slider: TanreiSliderTokens,
     public val snackbar: TanreiSnackbarTokens,
+    public val splitView: TanreiSplitViewTokens,
     public val stepper: TanreiStepperTokens,
     public val steps: TanreiStepsTokens,
     public val swatch: TanreiSwatchTokens,
@@ -11768,6 +11783,7 @@ public data class TanreiSystem(
         addAll(skeleton.referencedRoles())
         addAll(slider.referencedRoles())
         addAll(snackbar.referencedRoles())
+        addAll(splitView.referencedRoles())
         addAll(stepper.referencedRoles())
         addAll(steps.referencedRoles())
         addAll(swatch.referencedRoles())

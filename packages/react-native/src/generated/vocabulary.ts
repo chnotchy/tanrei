@@ -4840,6 +4840,18 @@ export interface TanreiSnackbarTokens {
 }
 
 /**
+ * `comp.split-view`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiSplitViewTokens {
+  readonly dividerColor: TanreiPaint;
+  readonly dividerWidth: number;
+  readonly motionCollapseDuration: number;
+  readonly motionCollapseEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+}
+
+/**
  * Every value of `comp.stepper`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `incomplete` (with a dev-only warning).
@@ -5838,6 +5850,7 @@ export interface TanreiComponents {
   readonly skeleton: TanreiSkeletonTokens;
   readonly slider: TanreiSliderTokens;
   readonly snackbar: TanreiSnackbarTokens;
+  readonly splitView: TanreiSplitViewTokens;
   readonly stepper: TanreiStepperTokens;
   readonly steps: TanreiStepsTokens;
   readonly swatch: TanreiSwatchTokens;

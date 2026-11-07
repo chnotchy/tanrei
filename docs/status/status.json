@@ -1916,6 +1916,26 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "handle"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": null,
+      "platforms": {
+        "web": "planned",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "category": "containment",
@@ -1956,7 +1976,7 @@
   ],
   "totals": {
     "web": {
-      "planned": 0,
+      "planned": 1,
       "lagging": 83,
       "alpha": 13,
       "beta": 0,
@@ -1964,7 +1984,7 @@
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 67,
+      "planned": 68,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1972,7 +1992,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 67,
+      "planned": 68,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1980,7 +2000,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 67,
+      "planned": 68,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1988,7 +2008,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 67,
+      "planned": 68,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

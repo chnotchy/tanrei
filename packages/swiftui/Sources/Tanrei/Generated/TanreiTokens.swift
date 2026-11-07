@@ -15635,6 +15635,29 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of split-view (comp.split-view).
+public struct TanreiSplitViewTokens: Sendable, Equatable {
+  public var dividerColor: TanreiPaint
+  public var dividerWidth: CGFloat
+  public var motionCollapseDuration: Double
+  public var motionCollapseEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+
+  public init(
+    dividerColor: TanreiPaint,
+    dividerWidth: CGFloat,
+    motionCollapseDuration: Double,
+    motionCollapseEasing: TanreiCubicBezier,
+    motionResizeDuration: Double
+  ) {
+    self.dividerColor = dividerColor
+    self.dividerWidth = dividerWidth
+    self.motionCollapseDuration = motionCollapseDuration
+    self.motionCollapseEasing = motionCollapseEasing
+    self.motionResizeDuration = motionResizeDuration
+  }
+}
+
 /// A value of stepper's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -18988,6 +19011,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _snackbar.value }
     set { _snackbar.value = newValue }
   }
+  public var splitView: TanreiSplitViewTokens {
+    get { _splitView.value }
+    set { _splitView.value = newValue }
+  }
   public var stepper: TanreiStepperTokens {
     get { _stepper.value }
     set { _stepper.value = newValue }
@@ -19120,6 +19147,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _skeleton: TanreiBox<TanreiSkeletonTokens>
   private var _slider: TanreiBox<TanreiSliderTokens>
   private var _snackbar: TanreiBox<TanreiSnackbarTokens>
+  private var _splitView: TanreiBox<TanreiSplitViewTokens>
   private var _stepper: TanreiBox<TanreiStepperTokens>
   private var _steps: TanreiBox<TanreiStepsTokens>
   private var _swatch: TanreiBox<TanreiSwatchTokens>
@@ -19222,6 +19250,7 @@ public struct TanreiSystem: Sendable, Equatable {
     skeleton: TanreiSkeletonTokens,
     slider: TanreiSliderTokens,
     snackbar: TanreiSnackbarTokens,
+    splitView: TanreiSplitViewTokens,
     stepper: TanreiStepperTokens,
     steps: TanreiStepsTokens,
     swatch: TanreiSwatchTokens,
@@ -19323,6 +19352,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._skeleton = TanreiBox(skeleton)
     self._slider = TanreiBox(slider)
     self._snackbar = TanreiBox(snackbar)
+    self._splitView = TanreiBox(splitView)
     self._stepper = TanreiBox(stepper)
     self._steps = TanreiBox(steps)
     self._swatch = TanreiBox(swatch)

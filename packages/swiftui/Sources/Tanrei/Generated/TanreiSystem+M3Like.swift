@@ -8329,6 +8329,14 @@ private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   )
 )
 
+private let m3LikeSplitViewTokens = TanreiSplitViewTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerWidth: 1,
+  motionCollapseDuration: 500,
+  motionCollapseEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionResizeDuration: 200
+)
+
 private let m3LikeStepperTokens = TanreiStepperTokens(
   barColor: .role(.outlineVariant),
   barFilledColor: .role(.primary),
@@ -10097,6 +10105,7 @@ extension TanreiSystem {
     skeleton: m3LikeSkeletonTokens,
     slider: m3LikeSliderTokens,
     snackbar: m3LikeSnackbarTokens,
+    splitView: m3LikeSplitViewTokens,
     stepper: m3LikeStepperTokens,
     steps: m3LikeStepsTokens,
     swatch: m3LikeSwatchTokens,
