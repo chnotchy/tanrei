@@ -19,6 +19,13 @@
   # and keep the page's own policy.
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
 
+# A page's Markdown names the site's index for language models, as llms.txt proposes (https://llmstxt.org/): the
+# relation `describedby`, the header form a file with no head of its own takes. An HTML page names it in its head
+# (components/frame/Head.astro). The header stays off the HTML pages, whose Link header the host makes from their
+# preload links for early hints (https://developers.cloudflare.com/pages/configuration/early-hints/).
+/*.md
+  Link: </llms.txt>; rel="describedby"
+
 # File names carry a content hash.
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable

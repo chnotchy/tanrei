@@ -1,6 +1,6 @@
-// `/llms.txt`: the site's index for language models (https://llmstxt.org/), following the default design system —
-// its components first, those it does not ship apart. Written by src/lib/llms.ts from the components manifests and
-// the specs, never from the site's pages.
+// `/llms.txt`: the site's index for language models (https://llmstxt.org/), following the default design system, its
+// sections the sidebar's groups in the sidebar's order — the components it ships, those it does not ship apart. Written
+// by src/lib/llms.ts from the sidebar, the components manifests and the specs, never from the site's pages.
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { translations } from '../../i18n/locales.mjs';
