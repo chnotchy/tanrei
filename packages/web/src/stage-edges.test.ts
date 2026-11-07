@@ -44,9 +44,8 @@ function reached(): string[] {
 
 /**
  * The pages whose stages still reach one of another color, each with the stages it is known for. The link's inverse
- * stages are painted by its staging (not a fixture's surface role), several of them in a row: set apart one by one,
- * each would take in a pixel of the page's surface between two of them, and the pictures that hold the line today
- * (`standalone-underline-never`, `external-disabled`) need recording again.
+ * stages are painted by its staging (not a fixture's surface role), several of them in a row, and they reach their
+ * neighbours on this page; no picture is taken of it: the link's are taken one fixture to a page (link.test.ts).
  */
 const KNOWN: Record<string, RegExp> = {
   link: /^(disabled-icon-only|inverse|inverse-icon-only|ltr-label-rtl|standalone-underline-never|inverse-underline-never|external|external-disabled|external-inverse|external-rtl) ← /,
