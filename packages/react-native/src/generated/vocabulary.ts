@@ -3079,6 +3079,8 @@ export interface TanreiListTokens {
   readonly motionFeedbackDuration: number;
   readonly motionReorderDuration: number;
   readonly motionReorderEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;

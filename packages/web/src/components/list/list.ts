@@ -40,6 +40,7 @@ import '../menu/menu.js';
 import { AXES, itemStyles, listStyles } from './list.styles.js';
 import type { TanreiListDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { SETTLING } from '../../styles/motion.js';
 import { delegatedAria, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
@@ -160,6 +161,29 @@ const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/g,
 
 /** Whether motion is reduced for this person. */
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** LST-41: the time (in milliseconds) and the curve of one of the list's motions, as the cascade computes them. */
+interface Timing {
+  duration: number;
+  easing: string;
+}
+/** LST-41: the axis an item that arrives or leaves grows or closes along: its height in a column, its width in a line. */
+type Along = 'block' | 'inline';
+/** LST-41: what is drawn of an item that arrives or leaves: its length along the list, the margin after it, its opacity. */
+interface Drawn {
+  length: number;
+  margin: number;
+  opacity: number;
+}
+
+/** `element.animate()`, with the standard curve where the engine cannot read the one the cascade gave. */
+function animateSafely(element: Element, frames: Keyframe[], options: KeyframeAnimationOptions): Animation {
+  try {
+    return element.animate(frames, options);
+  } catch {
+    return element.animate(frames, { ...options, easing: 'ease' });
+  }
+}
 
 /** LST-52: what an item's host says itself while it carries its role (an option, a list item), taken away when an action carries it. */
 const ITEM_HOST_ARIA = ['aria-selected', 'aria-disabled', 'aria-description'];
@@ -303,6 +327,11 @@ export class TanreiListItem extends TanreiElement {
     );
     if (same) return;
     if (!context.reorder) this.menuOpen = false;
+    // LST-41: a divider that comes or goes is drawn as the list now has it, not as it was fading.
+    if (context.divider !== now.divider) {
+      this.dividerFade?.cancel();
+      this.dividerFade = null;
+    }
     this.context = context;
   }
 
@@ -430,6 +459,76 @@ export class TanreiListItem extends TanreiElement {
     if (!this.context.reorder || this.context.size < 2) return;
     this.menuDrawn = true;
     this.menuOpen = true;
+  }
+
+  /** LST-41: the motions of the item's arrival or leave, and of its divider fading with an item before it. */
+  private presenceMotions: Animation[] = [];
+  private dividerFade: Animation | null = null;
+
+  /** @internal LST-41: what is drawn of the item now — its length along the list, the margin after it, its opacity — a motion of its presence under way included. */
+  drawnPresence(along: Along | null): Drawn {
+    const style = getComputedStyle(this);
+    const rect = this.getBoundingClientRect();
+    return {
+      length: along === 'inline' ? rect.width : rect.height,
+      margin: Number.parseFloat(style.getPropertyValue(along === 'inline' ? 'margin-inline-end' : 'margin-block-end')) || 0,
+      opacity: Number(style.opacity),
+    };
+  }
+
+  /**
+   * @internal LST-41: the item arrives (`arrive`) or leaves, from what is drawn of it (`from`, by default nothing when it
+   * arrives and the whole item when it leaves) to the whole item or to nothing. WHILE `along` names the list's axis its
+   * box's length on that axis moves over `resize`, with the margin after it, which takes the gap beside it while it is
+   * short, so that the items after it follow its edge in every frame; its content is held at its own length and clipped
+   * to the box, so that it stays fixed to the item's start edge. Its opacity moves over `fade`. A motion of its presence
+   * under way is cancelled first. A leave holds its last frame, for the list to take the item away.
+   */
+  showPresence(motion: { arrive: boolean; along: Along | null; rtl: boolean; gap: number; from?: Drawn; resize: Timing; fade: Timing }): Animation[] {
+    this.cancelPresence();
+    const { arrive, along, rtl, gap, resize, fade } = motion;
+    const row = this.row;
+    const whole = this.drawnPresence(along);
+    const none: Drawn = { length: 0, margin: -gap, opacity: 0 };
+    const from = motion.from ?? (arrive ? none : whole);
+    const to = arrive ? whole : none;
+    const fill: FillMode = arrive ? 'none' : 'forwards';
+    const animations: Animation[] = [];
+    if (along && row) {
+      const block = along === 'block';
+      const box = row.getBoundingClientRect();
+      const content = block ? box.height : box.width;
+      const [size, least, after] = block ? ['blockSize', 'minBlockSize', 'marginBlockEnd'] : ['inlineSize', 'minInlineSize', 'marginInlineEnd'];
+      const frame = (drawn: Drawn) => ({ [size]: `${drawn.length}px`, [least]: '0px', [after]: `${drawn.margin}px` });
+      // What of the content the box does not hold yet is cut at its end edge: the bottom, or the inline end.
+      const cut = (length: number) => {
+        const off = Math.max(0, content - length);
+        return block ? `inset(0px 0px ${off}px 0px)` : rtl ? `inset(0px 0px 0px ${off}px)` : `inset(0px ${off}px 0px 0px)`;
+      };
+      const held = (drawn: Drawn) => ({ [size]: `${content}px`, clipPath: cut(drawn.length) });
+      animations.push(animateSafely(this, [frame(from), frame(to)], { ...resize, fill, id: 'list-item-length' }));
+      animations.push(animateSafely(row, [held(from), held(to)], { ...resize, fill, id: 'list-item-content' }));
+    }
+    animations.push(animateSafely(this, [{ opacity: from.opacity }, { opacity: to.opacity }], { ...fade, fill, id: 'list-item-fade' }));
+    this.presenceMotions = animations;
+    return animations;
+  }
+
+  /** @internal LST-41: the motions of the item's presence end where they are, and it is drawn whole. */
+  cancelPresence() {
+    for (const animation of this.presenceMotions) animation.cancel();
+    this.presenceMotions = [];
+  }
+
+  /** @internal LST-41, LST-3: the divider before the item fades in (to 1) or out (to 0, held) with the items that arrive or leave before it. */
+  async fadeDivider(to: 0 | 1, fade: Timing) {
+    await this.updateComplete;
+    const divider = this.renderRoot.querySelector<HTMLElement>('.divider');
+    // A divider that comes is new: it fades in from nothing. One that goes, or a fade under way, is taken on from the
+    // opacity drawn (MOT-2).
+    const from = divider && (to === 0 || this.dividerFade) ? Number(getComputedStyle(divider).opacity) : 0;
+    this.dividerFade?.cancel();
+    this.dividerFade = divider ? animateSafely(divider, [{ opacity: from }, { opacity: to }], { ...fade, fill: to ? 'none' : 'forwards', id: 'list-divider-fade' }) : null;
   }
 
   /** @internal The element that takes focus: an interactive item's box, a link item's anchor, an option's host. */
@@ -720,6 +819,13 @@ interface PendingMove {
   timer: number;
 }
 
+/** LST-41: an item that leaves: the motions of its leave, and what the list set on it to give back as it was. */
+interface Departure {
+  animations: Animation[];
+  inert: boolean;
+  hidden: string | null;
+}
+
 /** A box, from the list's own top-left corner. */
 interface Box {
   x: number;
@@ -916,6 +1022,15 @@ export class TanreiList extends TanreiElement {
   /** LST-41: where each item is laid out (its box from the list's corner), and the motions that are running. */
   private places = new Map<TanreiListItem, Box & { name: string }>();
   private readonly motions = new Map<TanreiListItem, Animation>();
+  /** LST-41: whether the list has drawn its items while reorderable since it was connected: an item the product adds or takes away after that arrives or leaves. */
+  private drawnOnce = false;
+  /** LST-41: the items that arrive, and the items that leave — each the product's element, put back where it stood until it has gone, with what the list set on it. */
+  private readonly arriving = new Map<TanreiListItem, Animation[]>();
+  private readonly leaving = new Map<TanreiListItem, Departure>();
+  /** LST-41: an item that leaves and that the product gives back is told by the record of its insertion. */
+  private readonly returns = typeof MutationObserver === 'function' ? new MutationObserver((records) => this.givenBack(records)) : null;
+  /** The items as the last change of the list's children left them: a change that leaves them as they were is the list's own (an item that has left). */
+  private seen: TanreiListItem[] = [];
   private resize?: ResizeObserver;
   private scrollFrame = 0;
   /**
@@ -951,8 +1066,13 @@ export class TanreiList extends TanreiElement {
     this.addEventListener('tanrei-list-item-update', this.syncs.request);
   }
 
-  /** The items, in order: the list's `<tanrei-list-item>` children. */
+  /** The items, in order: the list's `<tanrei-list-item>` children — but for one the product took away that is still drawn leaving (LST-41). */
   private get items(): TanreiListItem[] {
+    return this.drawnItems.filter((child) => !this.leaving.has(child));
+  }
+
+  /** Every item that is drawn, in order: the items and those drawn leaving (LST-41). */
+  private get drawnItems(): TanreiListItem[] {
     return [...this.children].filter((child): child is TanreiListItem => child instanceof TanreiListItem);
   }
 
@@ -1014,6 +1134,8 @@ export class TanreiList extends TanreiElement {
     // LST-50: the list is one run — its rows keep a glyph's room while one of them draws a glyph (auto), always, or never.
     const space: TanreiListIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
     const leadingRoom = space === 'always' || (space === 'auto' && items.some((item) => item.drawsGlyph));
+    // LST-3, LST-41: the first item drawn has no divider before it — an item that leaves is drawn until it has gone.
+    const first = this.drawnItems[0];
     items.forEach((item, index) =>
       item.setListContext({
         selectable,
@@ -1023,7 +1145,7 @@ export class TanreiList extends TanreiElement {
         size: items.length,
         reorder,
         orientation,
-        divider: index === 0 ? 'none' : divider,
+        divider: item === first ? 'none' : divider,
         leadingRoom,
         density: String(this.density ?? ''),
         handleLabel: reorder ? this.handleName : '',
@@ -1142,13 +1264,18 @@ export class TanreiList extends TanreiElement {
     void at.focusHandle();
   }
 
-  /** The reorder motion's time (in milliseconds) and curve as the cascade computes them: a duration token is an expression. */
-  private motion(): { duration: number; easing: string } {
+  /**
+   * The time (in milliseconds) and the curve of one of the list's motions as the cascade computes them — a duration
+   * token is an expression: the reorder motion, the length of an item that arrives or leaves, or its fade (LST-41).
+   */
+  private motion(which: 'reorder' | 'resize' | 'state' = 'reorder'): Timing {
     const carrier = this.announcer;
     if (!carrier) return { duration: 0, easing: 'ease' };
     const style = getComputedStyle(carrier);
-    const duration = Number.parseFloat(style.transitionDuration) * 1000;
-    return { duration: duration > 0 ? duration : 0, easing: style.transitionTimingFunction.split(/,(?![^(]*\))/)[0].trim() || 'ease' };
+    const at = ['reorder', 'resize', 'state'].indexOf(which);
+    const entries = (value: string) => value.split(/,(?![^(]*\))/).map((each) => each.trim());
+    const duration = Number.parseFloat(entries(style.transitionDuration)[at] ?? '') * 1000;
+    return { duration: duration > 0 ? duration : 0, easing: entries(style.transitionTimingFunction)[at] || 'ease' };
   }
 
   /**
@@ -1198,6 +1325,7 @@ export class TanreiList extends TanreiElement {
     if (!this.isReorderable || !this.isConnected || this.carry || this.holding) return;
     const origin = this.getBoundingClientRect();
     this.places = new Map(items.map((item) => [item, { ...this.laidOut(item, origin), name: item.name }]));
+    this.drawnOnce = true;
   }
 
   /** Where every item is laid out is read a frame later, with every other list that asked in this turn: one layout for all. */
@@ -1213,8 +1341,10 @@ export class TanreiList extends TanreiElement {
   /**
    * LST-39, LST-41: the order changed — every item moves from where it was drawn to where it is now laid out, in both
    * directions where the list wraps, without fading or scaling, the focus ring with it. An element the product gave
-   * anew for an item it had moves as that item; an item that is new or gone appears or leaves at once. What was
-   * dropped and held (LST-39) goes on from where it is drawn. Where motion is reduced the new order is drawn at once.
+   * anew for an item it had moves as that item; any other new element arrives and any other item gone leaves
+   * (`present()`), started before the new places are read, so that the items after them follow by the layout and not by
+   * a move of their own. What was dropped and held (LST-39) goes on from where it is drawn. Where motion is reduced the
+   * new order is drawn at once (LST-42).
    */
   private async placesChanged() {
     let items = this.items;
@@ -1234,7 +1364,18 @@ export class TanreiList extends TanreiElement {
       const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : null;
       before.set(item, { x: place.x + (matrix?.m41 ?? 0), y: place.y + (matrix?.m42 ?? 0) });
     }
+    const order = [...this.places.keys()];
     const gone = [...this.places].filter(([item]) => !items.includes(item));
+    // The same content on a new element: the one item that is gone and had its name moves as that element.
+    const stands = new Map<TanreiListItem, { x: number; y: number }>();
+    const replaced = new Set<TanreiListItem>();
+    for (const item of items) {
+      if (before.has(item) || this.arriving.has(item)) continue;
+      const same = gone.filter(([old, place]) => place.name === item.name && !replaced.has(old));
+      if (same.length !== 1) continue;
+      stands.set(item, { x: same[0][1].x, y: same[0][1].y });
+      replaced.add(same[0][0]);
+    }
     if (held) {
       this.holding = false;
       this.letGo(false);
@@ -1243,17 +1384,15 @@ export class TanreiList extends TanreiElement {
       motion.cancel();
       this.motions.delete(item);
     }
+    const arrivals = items.filter((item) => !before.has(item) && !stands.has(item) && !this.arriving.has(item));
+    const departures = gone.filter(([item]) => !replaced.has(item)).map(([item, place]) => ({ item, place }));
+    this.present(arrivals, departures, order);
     const now = new Map(items.map((item) => [item, { ...this.laidOut(item, origin), name: item.name }]));
     const moving: [TanreiListItem, number, number][] = [];
     for (const item of items) {
       const place = now.get(item)!;
-      let was = before.get(item);
-      if (!was) {
-        // The same content on a new element: the one item that is gone and had this name.
-        const same = gone.filter(([, old]) => old.name === place.name);
-        if (same.length !== 1) continue;
-        was = { x: same[0][1].x, y: same[0][1].y };
-      }
+      const was = before.get(item) ?? stands.get(item);
+      if (!was) continue;
       const dx = was.x - place.x;
       const dy = was.y - place.y;
       if (Math.abs(dx) >= 0.5 || Math.abs(dy) >= 0.5) moving.push([item, dx, dy]);
@@ -1264,19 +1403,176 @@ export class TanreiList extends TanreiElement {
     if (!duration || reducedMotion()) return;
     for (const [item, dx, dy] of moving) {
       if (typeof item.animate !== 'function') continue;
-      const frames = [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }];
-      let motion: Animation;
-      try {
-        motion = item.animate(frames, { duration, easing });
-      } catch {
-        motion = item.animate(frames, { duration, easing: 'ease' });
-      }
+      const motion = animateSafely(item, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }], { duration, easing });
       this.motions.set(item, motion);
       const done = () => {
         if (this.motions.get(item) === motion) this.motions.delete(item);
       };
       motion.finished.then(done, done);
     }
+  }
+
+  // ── Items that arrive and leave (LST-41) ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * LST-41: the motions of an item's presence, or null where the change is drawn at once: before the list has drawn its
+   * items as reorderable (its first frames, MOT-3, and the moment it becomes reorderable), while it settles, and where
+   * motion is reduced (LST-42).
+   */
+  private presenceTiming(): { resize: Timing; fade: Timing } | null {
+    if (!this.drawnOnce || reducedMotion() || this.hasAttribute(SETTLING)) return null;
+    const resize = this.motion('resize');
+    const fade = this.motion('state');
+    return resize.duration || fade.duration ? { resize, fade } : null;
+  }
+
+  /** LST-41: the axis an item grows or closes along — none in a wrapping list, whose items fade where they stand. */
+  private get along(): Along | null {
+    return this.wrap ? null : this.axis === 'vertical' ? 'block' : 'inline';
+  }
+
+  /**
+   * LST-41: the new items arrive and the items gone leave. An item that leaves is the product's element, put back
+   * where it stood — before the next item of the order it had that is still drawn — inert, hidden from assistive
+   * technology and marked `data-leaving` (in a wrapping list `placed`: outside the flow, at the box it was drawn in),
+   * so that it is no item of the list from the change on (LST-18, LST-46) and is only drawn; it is taken away once its
+   * motion has ended. An element the product moved somewhere else is not the list's to draw. What is drawn of an item
+   * that arrived and is taken away goes on from where it is (MOT-2).
+   */
+  private present(arrivals: TanreiListItem[], departures: { item: TanreiListItem; place: Box }[], order: TanreiListItem[]) {
+    const timing = this.presenceTiming();
+    const unfinished = new Set<TanreiListItem>();
+    for (const { item } of departures) if (this.arriving.delete(item)) unfinished.add(item);
+    if (!timing || (!arrivals.length && !departures.length)) {
+      for (const item of unfinished) item.cancelPresence();
+      return;
+    }
+    const along = this.along;
+    const rtl = this.rtl;
+    const gap = along ? this.gapNow() : 0;
+    const ghosts: TanreiListItem[] = [];
+    let alone = this.items.length === 0;
+    for (const { item, place } of departures) {
+      if (item.parentNode) {
+        item.cancelPresence();
+        continue;
+      }
+      const index = order.indexOf(item);
+      const next = order.slice(index + 1).find((each) => each.parentElement === this);
+      const previous = order
+        .slice(0, Math.max(0, index))
+        .reverse()
+        .find((each) => each.parentElement === this);
+      if (next) next.before(item);
+      else if (previous) previous.after(item);
+      else this.append(item);
+      this.leaving.set(item, { animations: [], inert: item.inert, hidden: item.getAttribute('aria-hidden') });
+      item.inert = true;
+      item.setAttribute('aria-hidden', 'true');
+      if (along) item.setAttribute('data-leaving', '');
+      else {
+        item.style.setProperty('--_lst-leave-x', `${place.x}px`);
+        item.style.setProperty('--_lst-leave-y', `${place.y}px`);
+        item.style.setProperty('--_lst-leave-inline', `${place.w}px`);
+        item.style.setProperty('--_lst-leave-block', `${place.h}px`);
+        item.setAttribute('data-leaving', 'placed');
+      }
+      ghosts.push(item);
+    }
+    if (ghosts.length) {
+      // Its own insertion is no item given back; the next one is.
+      this.returns?.observe(this, { childList: true });
+      this.returns?.takeRecords();
+    }
+    // What the items are now — the first item drawn and its divider among it — before anything is drawn.
+    this.syncs.now();
+    for (const item of ghosts) {
+      // From what is drawn of it: the whole item, or where an arrival under way had got to.
+      const from = item.drawnPresence(along);
+      // One gap fewer once it has gone, unless it was the only item drawn.
+      const own = !alone;
+      alone = false;
+      const animations = item.showPresence({ arrive: false, along, rtl, gap: own ? gap : 0, from, ...timing });
+      this.leaving.get(item)!.animations = animations;
+      void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+        if (this.leaving.get(item)?.animations === animations) this.gone(item);
+      });
+    }
+    let first = this.drawnItems.length === arrivals.length;
+    for (const item of arrivals) {
+      // One gap more once it has come, unless it is the only item drawn.
+      const own = !first;
+      first = false;
+      this.arrive(item, { arrive: true, along, rtl, gap: own ? gap : 0, ...timing });
+    }
+    // LST-3: the divider of the first item that stays comes or goes with the items before it that arrive or leave: it
+    // is drawn while an item leaves before it (in the middle of the gap between the two), and fades out with it; it
+    // comes with a first item that arrives, and fades in with it.
+    if (along && this.dividers) {
+      const drawn = this.drawnItems;
+      const staying = drawn.find((each) => !this.leaving.has(each) && !this.arriving.has(each));
+      const ahead = staying ? drawn.slice(0, drawn.indexOf(staying)) : [];
+      if (staying && ahead.some((each) => ghosts.includes(each)) && ahead.every((each) => this.leaving.has(each))) void staying.fadeDivider(0, timing.fade);
+      else if (staying && ahead.some((each) => arrivals.includes(each))) void staying.fadeDivider(1, timing.fade);
+    }
+  }
+
+  /** LST-41: `item` grows into the list and fades in, and is an arriving item until it has. */
+  private arrive(item: TanreiListItem, motion: Parameters<TanreiListItem['showPresence']>[0]) {
+    const animations = item.showPresence(motion);
+    this.arriving.set(item, animations);
+    void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+      if (this.arriving.get(item) === animations) this.arriving.delete(item);
+    });
+  }
+
+  /** LST-41: an item that leaves has gone: it is taken away, and what the list set on it is given back as it was. */
+  private gone(item: TanreiListItem) {
+    const departure = this.leaving.get(item);
+    if (!departure) return;
+    this.leaving.delete(item);
+    if (item.parentElement === this) item.remove();
+    this.giveBack(item, departure);
+    if (!this.leaving.size) this.returns?.disconnect();
+  }
+
+  /** LST-41: what the list set on an item that left, given back as the product had it, the motions of its leave cancelled. */
+  private giveBack(item: TanreiListItem, departure: Departure) {
+    item.cancelPresence();
+    item.inert = departure.inert;
+    if (departure.hidden === null) item.removeAttribute('aria-hidden');
+    else item.setAttribute('aria-hidden', departure.hidden);
+    item.removeAttribute('data-leaving');
+    for (const name of ['--_lst-leave-x', '--_lst-leave-y', '--_lst-leave-inline', '--_lst-leave-block']) item.style.removeProperty(name);
+    if (item.getAttribute('style') === '') item.removeAttribute('style');
+  }
+
+  /**
+   * LST-41: the product gave back an item that was leaving: it is an item of the list again at once, and grows back
+   * from what is drawn of it (MOT-2).
+   */
+  private givenBack(records: MutationRecord[]) {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (!(node instanceof TanreiListItem) || node.parentElement !== this) continue;
+        const departure = this.leaving.get(node);
+        if (!departure) continue;
+        const along = this.along;
+        const from = node.drawnPresence(along);
+        this.leaving.delete(node);
+        this.giveBack(node, departure);
+        const timing = this.presenceTiming();
+        if (timing) this.arrive(node, { arrive: true, along, rtl: this.rtl, gap: along ? this.gapNow() : 0, from, ...timing });
+      }
+    }
+    if (!this.leaving.size) this.returns?.disconnect();
+  }
+
+  /** LST-41: every item that arrives or leaves is drawn as it will be, at once — before an item is carried, and when the list stops being reorderable. */
+  private endPresence() {
+    for (const [item] of this.arriving) item.cancelPresence();
+    this.arriving.clear();
+    for (const item of [...this.leaving.keys()]) this.gone(item);
   }
 
   // ── Carrying an item ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -1300,6 +1596,8 @@ export class TanreiList extends TanreiElement {
     const items = this.items;
     const from = items.indexOf(item);
     if (from < 0 || items.length < 2 || this.holding) return false;
+    // LST-41: an item that arrives or leaves is drawn as it will be, so that every place is read at rest.
+    this.endPresence();
     for (const motion of this.motions.values()) motion.cancel();
     this.motions.clear();
     this.letGo(false);
@@ -1696,8 +1994,18 @@ export class TanreiList extends TanreiElement {
    */
   private readonly onSlotChange = (event: Event) => {
     if (event.target !== event.currentTarget) return;
+    // LST-41: an item that was leaving and that the product took away (or moved elsewhere) is no longer the list's.
+    for (const [item, departure] of [...this.leaving]) {
+      if (item.parentElement === this) continue;
+      this.leaving.delete(item);
+      this.giveBack(item, departure);
+    }
+    // A change that leaves the items as they were is the list's own: an item that has left, or is put back to leave.
+    const items = this.items;
+    const same = items.length === this.seen.length && items.every((item, index) => item === this.seen[index]);
+    this.seen = items;
     // LST-35, LST-40: the product changed the items while one was carried — it goes back, nothing is moved.
-    if (this.carry) {
+    if (this.carry && !same) {
       const carry = this.carry;
       const keyboard = carry.by === 'keyboard';
       this.stopPointer();
@@ -1879,12 +2187,12 @@ export class TanreiList extends TanreiElement {
     }
   };
 
-  /** LST-41: every item's box is watched while the list is reorderable — where each is laid out is read when one changes. */
+  /** LST-41: every item's box is watched while the list is reorderable — where each is laid out is read when one changes, an item that leaves among them. */
   private observeItems() {
     if (!this.resize) return;
     this.resize.disconnect();
     this.resize.observe(this);
-    for (const item of this.items) this.resize.observe(item);
+    for (const item of this.drawnItems) this.resize.observe(item);
   }
 
   override connectedCallback() {
@@ -1904,6 +2212,10 @@ export class TanreiList extends TanreiElement {
     for (const motion of this.motions.values()) motion.cancel();
     this.motions.clear();
     this.places.clear();
+    // LST-41: drawn again where it is connected next, at rest.
+    this.endPresence();
+    this.drawnOnce = false;
+    this.seen = [];
     toRecord.delete(this);
   }
 
@@ -1959,6 +2271,8 @@ export class TanreiList extends TanreiElement {
       this.resize?.disconnect();
       this.places.clear();
       this.heldFocus = null;
+      this.endPresence();
+      this.drawnOnce = false;
     }
     this.syncs.now();
   }
