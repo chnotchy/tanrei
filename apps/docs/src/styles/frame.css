@@ -164,6 +164,7 @@
     block-size: var(--tanrei-sys-icon-medium);
     overflow: hidden;
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-sys-icon-medium);
     font-variation-settings: 'FILL' var(--tanrei-sys-icon-fill-unselected), 'wght' var(--tanrei-sys-icon-weight), 'GRAD' 0;
     font-feature-settings: 'liga';
@@ -188,6 +189,7 @@
     block-size: var(--tanrei-comp-button-icon-size-medium);
     overflow: hidden;
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-comp-button-icon-size-medium);
     font-feature-settings: 'liga';
     line-height: 1;
