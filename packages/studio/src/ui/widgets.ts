@@ -244,6 +244,9 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
   // The generic fallback is one of CSS's few names: a radio group, kept while the stack is drawn again.
   const generic = choice<string>({ label: t.named(label, t.fonts.generic), attrs: { 'data-stack-generic': true }, options: [], value: '', onchange: (name) => ((model = { ...model, generic: name }), changed()) });
 
+  // The list's items: a row taken away stays the list's child, marked `data-leaving`, until its motion has ended (LST-41),
+  // and is counted in nothing — an index read from the children with it among them is another family's.
+  const rows = () => [...list.querySelectorAll<HTMLElement>(':scope > tanrei-list-item:not([data-leaving])')];
   const changed = () => (draw(), onchange());
   list.addEventListener('move', (event) => {
     if (event.target !== list) return;
@@ -264,8 +267,9 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
       h('span', { class: 'ts-stack-row' },
         h('span', { class: 'ts-stack-text' }, h('span', { class: 'ts-stack-family', text: family }), missing),
         h('tanrei-button', { variant: 'text', label: t.labelled(t.fonts.remove, family), 'data-act': 'remove', onclick: () => {
-          // The item is found where it stands now: it may have been moved since it was drawn.
-          const index = [...list.children].indexOf(item);
+          // The item is found where it stands now among the list's items: it may have been moved since it was drawn,
+          // and a row removed a moment ago may still be drawn leaving before it.
+          const index = rows().indexOf(item);
           model = { ...model, families: model.families.filter((_, i) => i !== index) };
           changed();
           // The list puts focus on the handle of the item that took this one's place (LST-46); with no item left it is
@@ -294,11 +298,12 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
     // The rows are kept by the family they hold and put in the stack's order: a row that stays is the same element,
     // so the list sees which one moved, and nothing is drawn again under a press.
     model.families.forEach((family, index) => {
-      const item = ([...list.children] as HTMLElement[]).slice(index).find((each) => each.dataset.family === family) ?? row(family);
-      if (list.children[index] !== item) list.insertBefore(item, list.children[index] ?? null);
+      const now = rows();
+      const item = now.slice(index).find((each) => each.dataset.family === family) ?? row(family);
+      if (now[index] !== item) list.insertBefore(item, now[index] ?? null);
       item.style.setProperty('--ts-stack-face', cssFontFamily([family, fallback]));
     });
-    while (list.children.length > model.families.length) list.lastElementChild!.remove();
+    for (const extra of rows().slice(model.families.length)) extra.remove();
     list.hidden = !model.families.length;
     empty.hidden = !list.hidden;
     empty.textContent = model.system ? t.fonts.onlyPlatform : t.fonts.empty;
