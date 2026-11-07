@@ -105,7 +105,7 @@ Listing: 89 default · 8 advanced. A component of the first value is shown where
 | Resizable frame | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Marquee text | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Rating | base | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Rating | base | default | selection | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 
 ## Not shipped by a system
 

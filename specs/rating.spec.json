@@ -323,7 +323,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-rating",
       "props": {
         "value": "value",
