@@ -325,6 +325,21 @@ export const switchedOff = (
   </>
 );
 
+// `target` takes the two values, `same` and `new`, and HTML's spelling of them, `_self` and `_blank`; nothing else.
+export const targets = (
+  <>
+    <Button href="/docs/" target="_blank" targetLabel="opens in a new tab">Docs</Button>
+    <Button href="/docs/" target="_self">Docs</Button>
+    <all.Card href="/reports/q3/" target="_blank" label="Quarterly report" />
+    <all.LinkCard href="https://example.com/" target="_blank" />
+    <all.Chip href="/tags/new/" target="new" label="New" />
+    <ListItem href="/inbox/" target="_self" label="Inbox" />
+    <FileItem name="brief.pdf" href="/files/brief.pdf" target="_blank" />
+    {/* @ts-expect-error a named frame is no target of a Tanrei link */}
+    <Button href="/docs/" target="_top">Docs</Button>
+  </>
+);
+
 // The product's words are given through the same package: Tanrei ships none.
 const words: TanreiWords = {};
 setWords(words);

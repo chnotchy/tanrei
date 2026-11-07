@@ -97,7 +97,8 @@ is: `<BottomSheet noHandle>` (attribute `no-handle`), `<Tooltip noDescribe>` (`n
 (`free-scroll`), `<Card flush>` (`flush`), `<MainActionButton collapsed>` (`collapsed`). `closedBy`, `readOnly`,
 `maxLength`, `crossOrigin` and `referrerPolicy` are spelled as the DOM spells them, and the app shell's `scroll`
 attribute is the prop `scrolls` (`<AppShell scrolls="main">`), because an element already has a `scroll()` method.
-The prop types are the element's, so an editor completes the right names.
+A link's `target` is `same` or `new`, or HTML's spelling of the same two, `_self` and `_blank`:
+`<Button href="/docs/" target="_blank">`. The prop types are the element's, so an editor completes the right names.
 
 The element's parts (`::part(container)`, `::part(label)`) and custom properties (`--tanrei-comp-button-*`) are styled
 from your CSS as on the web. Each wrapper's doc comment — what an editor shows on hover — lists the element's slots and

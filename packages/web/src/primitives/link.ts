@@ -17,8 +17,11 @@ import { WordsController } from './words.js';
 // unless the click was cancelled; Space scrolls; a modified or a middle click opens a tab; the context menu, the drag
 // and the status bar are its own. Nothing here listens for any of it.
 
-/** Where a destination opens: where the person is, or a new context — a new tab or window on the web. */
-export type TanreiLinkTarget = 'same' | 'new';
+/** Where a destination opens: where the person is (`same`), or a new context (`new`) — a new tab or window on the web. */
+export type LinkOpening = 'same' | 'new';
+
+/** The `target` prop: `same` or `new`, or HTML's spelling of the same two, `_self` and `_blank`, which are read as those. */
+export type TanreiLinkTarget = LinkOpening | '_self' | '_blank';
 
 /** D7: the glyph of the system's icon set that marks a link which opens a new context. The icon set mirrors it. */
 export const LINK_MARK = 'open_in_new';
@@ -70,7 +73,7 @@ export function readDestination(href: string | null | undefined): { href: string
  * those (ASCII case-insensitively, as HTML reads them). Anything else — a named frame, `_top`, `_parent` — is `same`,
  * and `known` is false (D11).
  */
-export function readTarget(target: string | null | undefined): { target: TanreiLinkTarget; known: boolean } {
+export function readTarget(target: string | null | undefined): { target: LinkOpening; known: boolean } {
   const given = (target ?? '').trim();
   const html = given.toLowerCase();
   if (given === '' || given === 'same' || html === '_self') return { target: 'same', known: true };
@@ -82,7 +85,7 @@ export function readTarget(target: string | null | undefined): { target: TanreiL
  * D6: the anchor's `rel` — the product's own, with `noopener` added for a new context so that the opened page has no
  * handle to the one that opened it. `noreferrer` is never added: that is the product's choice, made through `rel`.
  */
-export function linkRel(rel: string | null | undefined, target: TanreiLinkTarget): string | null {
+export function linkRel(rel: string | null | undefined, target: LinkOpening): string | null {
   const tokens = (rel ?? '').split(/\s+/).filter(Boolean);
   if (target === 'new' && !tokens.some((token) => token.toLowerCase() === 'noopener')) tokens.push('noopener');
   return tokens.length ? tokens.join(' ') : null;
@@ -92,7 +95,7 @@ export function linkRel(rel: string | null | undefined, target: TanreiLinkTarget
 export interface LinkForm {
   /** The address the anchor carries; null while the link is disabled (D9: an anchor without a destination). */
   readonly href: string | null;
-  readonly target: TanreiLinkTarget;
+  readonly target: LinkOpening;
   /** D9: it cannot be followed. */
   readonly disabled: boolean;
   /** D7: it opens a new context, so a control that lays out its own content marks it with `LINK_MARK`. */

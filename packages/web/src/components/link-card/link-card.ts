@@ -8,7 +8,7 @@ import { TanreiLightElement } from '../../primitives/element.js';
 /** The core looks (outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLinkCardVariant = keyof TanreiLinkCardVariantRegistry;
 /** Where the destination opens: where the person is, or a new context. HTML's `_self` and `_blank` are read as the two. */
-export type TanreiLinkCardTarget = 'same' | 'new';
+export type TanreiLinkCardTarget = 'same' | 'new' | '_self' | '_blank';
 /** Whether the destination is on another site: `auto` decides as the Link does (LNK-30). */
 export type TanreiLinkCardExternal = 'auto' | 'on' | 'off';
 
