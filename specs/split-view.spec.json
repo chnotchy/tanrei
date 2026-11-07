@@ -7,7 +7,7 @@
   "level": "composed",
   "listing": "default",
   "builtFrom": ["handle"],
-  "fills": ["handle.axis", "handle.size", "handle.value", "handle.min", "handle.max"],
+  "fills": ["handle.axis", "handle.size", "handle.value", "handle.min", "handle.max", "handle.label", "handle.valueText", "handle.disabled"],
   "anatomy": [
     {
       "id": "start-pane",
@@ -95,18 +95,21 @@
     },
     {
       "name": "label",
-      "from": "handle.label",
-      "note": "Names the divider by what it resizes (\"Resize the message list\"); the primary pane's own heading, where it has one, is a good name."
+      "type": "string",
+      "default": "",
+      "description": "The Handle's accessible name, saying what the divider resizes in the product's words (\"Resize the message list\"); the primary pane's own heading, where it has one, is a good name. Never drawn. Required: a split view without one still works, and its Handle reports the missing name in debug builds (HDL-8)."
     },
     {
       "name": "valueText",
-      "from": "handle.valueText",
-      "note": "Read in place of the percentage where another reading is natural (\"List 320 pixels wide\"); the split view does not write it."
+      "type": "string",
+      "default": "",
+      "description": "Read in place of the percentage where another reading is natural (\"List 320 pixels wide\"), as the Handle's value text; the split view does not write it. Empty reads the percentage."
     },
     {
       "name": "disabled",
-      "from": "handle.disabled",
-      "note": "Keeps both panes at their sizes: the divider cannot be moved, folded or reached by Tab."
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps both panes at their sizes: the Handle is drawn as unavailable and cannot be moved, folded or reached by Tab (HDL-15). The panes' content stays as operable as it is."
     }
   ],
   "slots": [
