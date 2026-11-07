@@ -3,7 +3,7 @@
   "bundlesMeasured": {
     "date": "2026-11-07",
     "machine": "darwin arm64, 11 CPUs",
-    "load": "load average 15.88 (byte sizes do not depend on it)"
+    "load": "load average 7.38 (byte sizes do not depend on it)"
   },
   "bundles": {
     "accordion": {
@@ -12,8 +12,8 @@
       "allowedComponents": []
     },
     "app-bar": {
-      "budget": 81400,
-      "measured": 77438,
+      "budget": 70900,
+      "measured": 67452,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -26,78 +26,78 @@
       "allowedComponents": []
     },
     "avatar": {
-      "budget": 28800,
-      "measured": 27352,
+      "budget": 26400,
+      "measured": 25107,
       "allowedComponents": []
     },
     "badge": {
-      "budget": 14100,
-      "measured": 13412,
+      "budget": 13300,
+      "measured": 12602,
       "allowedComponents": []
     },
     "bottom-sheet": {
-      "budget": 54200,
-      "measured": 51530,
+      "budget": 48200,
+      "measured": 45880,
       "allowedComponents": [
         "button",
         "handle"
       ]
     },
     "breadcrumbs": {
-      "budget": 68700,
-      "measured": 65380,
+      "budget": 62100,
+      "measured": 59081,
       "allowedComponents": [
         "keyboard-shortcut",
         "menu"
       ]
     },
     "button": {
-      "budget": 37800,
-      "measured": 35966,
+      "budget": 34700,
+      "measured": 33035,
       "allowedComponents": []
     },
     "button-group": {
-      "budget": 18900,
-      "measured": 17938,
+      "budget": 16900,
+      "measured": 16030,
       "allowedComponents": []
     },
     "button-with-menu": {
-      "budget": 70100,
-      "measured": 66670,
+      "budget": 61600,
+      "measured": 58606,
       "allowedComponents": [
         "keyboard-shortcut",
         "menu"
       ]
     },
     "calendar": {
-      "budget": 55800,
-      "measured": 53134,
+      "budget": 50700,
+      "measured": 48270,
       "allowedComponents": [
         "button"
       ]
     },
     "callout": {
-      "budget": 49000,
-      "measured": 46601,
+      "budget": 43200,
+      "measured": 41102,
       "allowedComponents": [
         "button"
       ]
     },
     "card": {
-      "budget": 22300,
-      "measured": 21197,
+      "budget": 21300,
+      "measured": 20226,
       "allowedComponents": []
     },
     "carousel": {
-      "budget": 56900,
-      "measured": 54168,
+      "budget": 50300,
+      "measured": 47894,
       "allowedComponents": [
         "button"
       ]
     },
     "chat-composer": {
-      "budget": 92200,
-      "measured": 87751,
+      "budget": 78300,
+      "measured": 74536,
       "allowedComponents": [
         "button",
         "embedded-text-input",
@@ -107,13 +107,13 @@
       ]
     },
     "checkbox": {
-      "budget": 27600,
-      "measured": 26236,
+      "budget": 25600,
+      "measured": 24297,
       "allowedComponents": []
     },
     "checkbox-group": {
-      "budget": 46500,
-      "measured": 44224,
+      "budget": 43300,
+      "measured": 41146,
       "allowedComponents": [
         "checkbox",
         "field-group",
@@ -121,13 +121,13 @@
       ]
     },
     "chip": {
-      "budget": 32600,
-      "measured": 31007,
+      "budget": 30000,
+      "measured": 28507,
       "allowedComponents": []
     },
     "chip-field": {
-      "budget": 102600,
-      "measured": 97652,
+      "budget": 85400,
+      "measured": 81297,
       "allowedComponents": [
         "button",
         "chip",
@@ -138,8 +138,8 @@
       ]
     },
     "code-block": {
-      "budget": 79700,
-      "measured": 75895,
+      "budget": 72300,
+      "measured": 68840,
       "allowedComponents": [
         "button",
         "copy-button",
@@ -148,8 +148,8 @@
       ]
     },
     "color-field": {
-      "budget": 67200,
-      "measured": 63963,
+      "budget": 58900,
+      "measured": 56074,
       "allowedComponents": [
         "button",
         "color-input",
@@ -158,15 +158,15 @@
       ]
     },
     "color-input": {
-      "budget": 51600,
-      "measured": 49086,
+      "budget": 46100,
+      "measured": 43858,
       "allowedComponents": [
         "button"
       ]
     },
     "combobox": {
-      "budget": 79200,
-      "measured": 75389,
+      "budget": 72800,
+      "measured": 69310,
       "allowedComponents": [
         "button",
         "loading-indicator",
@@ -174,8 +174,8 @@
       ]
     },
     "combobox-field": {
-      "budget": 94700,
-      "measured": 90166,
+      "budget": 85600,
+      "measured": 81442,
       "allowedComponents": [
         "button",
         "combobox",
@@ -186,8 +186,8 @@
       ]
     },
     "copy-button": {
-      "budget": 60100,
-      "measured": 57157,
+      "budget": 54000,
+      "measured": 51417,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -195,8 +195,8 @@
       ]
     },
     "date-time-picker": {
-      "budget": 127700,
-      "measured": 121564,
+      "budget": 110600,
+      "measured": 105279,
       "allowedComponents": [
         "button",
         "calendar",
@@ -211,45 +211,45 @@
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 34100,
-      "measured": 32384,
+      "budget": 31800,
+      "measured": 30255,
       "allowedComponents": []
     },
     "divider": {
-      "budget": 15500,
-      "measured": 14739,
+      "budget": 14800,
+      "measured": 14014,
       "allowedComponents": []
     },
     "drop-zone": {
-      "budget": 23100,
-      "measured": 21944,
+      "budget": 22300,
+      "measured": 21147,
       "allowedComponents": []
     },
     "embedded-text-input": {
-      "budget": 19600,
-      "measured": 18652,
+      "budget": 18000,
+      "measured": 17103,
       "allowedComponents": []
     },
     "empty-state": {
-      "budget": 21500,
-      "measured": 20468,
+      "budget": 19700,
+      "measured": 18750,
       "allowedComponents": []
     },
     "fab-menu": {
-      "budget": 35600,
-      "measured": 33870,
+      "budget": 33500,
+      "measured": 31889,
       "allowedComponents": []
     },
     "field": {
-      "budget": 35700,
-      "measured": 33925,
+      "budget": 33000,
+      "measured": 31380,
       "allowedComponents": [
         "tag"
       ]
     },
     "field-group": {
-      "budget": 33000,
-      "measured": 31390,
+      "budget": 31600,
+      "measured": 30077,
       "allowedComponents": [
         "tag"
       ]
@@ -260,20 +260,20 @@
       "allowedComponents": []
     },
     "file-item": {
-      "budget": 45400,
-      "measured": 43226,
+      "budget": 39800,
+      "measured": 37834,
       "allowedComponents": [
         "progress-indicator"
       ]
     },
     "file-picker": {
-      "budget": 30900,
-      "measured": 29337,
+      "budget": 29100,
+      "measured": 27708,
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 125600,
-      "measured": 119594,
+      "budget": 107200,
+      "measured": 102026,
       "allowedComponents": [
         "button",
         "file-item",
@@ -285,21 +285,21 @@
       ]
     },
     "handle": {
-      "budget": 20900,
-      "measured": 19846,
+      "budget": 19700,
+      "measured": 18761,
       "allowedComponents": []
     },
     "image-preview": {
-      "budget": 66600,
-      "measured": 63380,
+      "budget": 60900,
+      "measured": 57979,
       "allowedComponents": [
         "button",
         "skeleton"
       ]
     },
     "keyboard-shortcut": {
-      "budget": 16200,
-      "measured": 15370,
+      "budget": 15500,
+      "measured": 14694,
       "allowedComponents": []
     },
     "link-card": {
@@ -308,8 +308,8 @@
       "allowedComponents": []
     },
     "list": {
-      "budget": 90100,
-      "measured": 85715,
+      "budget": 79600,
+      "measured": 75722,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -317,65 +317,65 @@
       ]
     },
     "list-row": {
-      "budget": 42700,
-      "measured": 40604,
+      "budget": 39300,
+      "measured": 37346,
       "allowedComponents": [
         "keyboard-shortcut",
         "tooltip"
       ]
     },
     "loading-indicator": {
-      "budget": 16300,
-      "measured": 15458,
+      "budget": 15700,
+      "measured": 14860,
       "allowedComponents": []
     },
     "main-action-button": {
-      "budget": 27100,
-      "measured": 25783,
+      "budget": 25100,
+      "measured": 23836,
       "allowedComponents": []
     },
     "marquee-text": {
-      "budget": 44500,
-      "measured": 42352,
+      "budget": 40800,
+      "measured": 38818,
       "allowedComponents": [
         "button"
       ]
     },
     "menu": {
-      "budget": 58400,
-      "measured": 55572,
+      "budget": 53200,
+      "measured": 50597,
       "allowedComponents": [
         "keyboard-shortcut"
       ]
     },
     "menubar": {
-      "budget": 70500,
-      "measured": 67106,
+      "budget": 64700,
+      "measured": 61534,
       "allowedComponents": [
         "keyboard-shortcut",
         "menu"
       ]
     },
     "meter": {
-      "budget": 18700,
-      "measured": 17808,
+      "budget": 17200,
+      "measured": 16295,
       "allowedComponents": []
     },
     "modal-layer": {
-      "budget": 17400,
-      "measured": 16479,
+      "budget": 16800,
+      "measured": 15996,
       "allowedComponents": []
     },
     "navigation-bar": {
-      "budget": 39000,
-      "measured": 37058,
+      "budget": 37300,
+      "measured": 35501,
       "allowedComponents": [
         "badge"
       ]
     },
     "navigation-drawer": {
-      "budget": 141500,
-      "measured": 134748,
+      "budget": 118800,
+      "measured": 113076,
       "allowedComponents": [
         "badge",
         "button",
@@ -388,8 +388,8 @@
       ]
     },
     "number-field": {
-      "budget": 73300,
-      "measured": 69786,
+      "budget": 64000,
+      "measured": 60902,
       "allowedComponents": [
         "button",
         "field",
@@ -398,20 +398,20 @@
       ]
     },
     "number-input": {
-      "budget": 57600,
-      "measured": 54807,
+      "budget": 51200,
+      "measured": 48728,
       "allowedComponents": [
         "button"
       ]
     },
     "number-ticker": {
-      "budget": 16700,
-      "measured": 15827,
+      "budget": 16300,
+      "measured": 15488,
       "allowedComponents": []
     },
     "one-time-code-field": {
-      "budget": 46800,
-      "measured": 44549,
+      "budget": 42500,
+      "measured": 40422,
       "allowedComponents": [
         "field",
         "one-time-code-input",
@@ -419,13 +419,13 @@
       ]
     },
     "one-time-code-input": {
-      "budget": 23600,
-      "measured": 22393,
+      "budget": 21800,
+      "measured": 20715,
       "allowedComponents": []
     },
     "option": {
       "budget": 8500,
-      "measured": 8068,
+      "measured": 8067,
       "allowedComponents": []
     },
     "page-header": {
@@ -434,30 +434,30 @@
       "allowedComponents": []
     },
     "pagination": {
-      "budget": 33400,
-      "measured": 31799,
+      "budget": 31700,
+      "measured": 30122,
       "allowedComponents": []
     },
     "popover": {
-      "budget": 62200,
-      "measured": 59205,
+      "budget": 57000,
+      "measured": 54202,
       "allowedComponents": [
         "button"
       ]
     },
     "progress-indicator": {
-      "budget": 18800,
-      "measured": 17881,
+      "budget": 17100,
+      "measured": 16252,
       "allowedComponents": []
     },
     "radio-button": {
-      "budget": 23900,
-      "measured": 22696,
+      "budget": 21700,
+      "measured": 20598,
       "allowedComponents": []
     },
     "radio-group": {
-      "budget": 45600,
-      "measured": 43420,
+      "budget": 42200,
+      "measured": 40176,
       "allowedComponents": [
         "field-group",
         "radio-button",
@@ -465,20 +465,20 @@
       ]
     },
     "resizable-frame": {
-      "budget": 28300,
-      "measured": 26914,
+      "budget": 26200,
+      "measured": 24946,
       "allowedComponents": [
         "handle"
       ]
     },
     "scroll-area": {
-      "budget": 19200,
-      "measured": 18275,
+      "budget": 17900,
+      "measured": 16977,
       "allowedComponents": []
     },
     "search": {
-      "budget": 77200,
-      "measured": 73461,
+      "budget": 68000,
+      "measured": 64748,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -486,13 +486,13 @@
       ]
     },
     "segmented-button": {
-      "budget": 31900,
-      "measured": 30302,
+      "budget": 29700,
+      "measured": 28222,
       "allowedComponents": []
     },
     "select": {
-      "budget": 76300,
-      "measured": 72611,
+      "budget": 70500,
+      "measured": 67059,
       "allowedComponents": [
         "button",
         "loading-indicator",
@@ -500,8 +500,8 @@
       ]
     },
     "select-field": {
-      "budget": 92000,
-      "measured": 87593,
+      "budget": 83500,
+      "measured": 79439,
       "allowedComponents": [
         "button",
         "field",
@@ -512,8 +512,8 @@
       ]
     },
     "side-sheet": {
-      "budget": 49800,
-      "measured": 47427,
+      "budget": 44900,
+      "measured": 42712,
       "allowedComponents": [
         "button"
       ]
@@ -524,13 +524,13 @@
       "allowedComponents": []
     },
     "slider": {
-      "budget": 28300,
-      "measured": 26912,
+      "budget": 26600,
+      "measured": 25278,
       "allowedComponents": []
     },
     "slider-field": {
-      "budget": 51600,
-      "measured": 49122,
+      "budget": 47200,
+      "measured": 44950,
       "allowedComponents": [
         "field",
         "slider",
@@ -538,30 +538,30 @@
       ]
     },
     "snackbar": {
-      "budget": 53700,
-      "measured": 51065,
+      "budget": 45900,
+      "measured": 43700,
       "allowedComponents": [
         "button"
       ]
     },
     "stepper": {
-      "budget": 28600,
-      "measured": 27231,
+      "budget": 27400,
+      "measured": 26006,
       "allowedComponents": []
     },
     "swatch": {
-      "budget": 15900,
-      "measured": 15128,
+      "budget": 15100,
+      "measured": 14316,
       "allowedComponents": []
     },
     "switch": {
-      "budget": 33300,
-      "measured": 31680,
+      "budget": 30600,
+      "measured": 29078,
       "allowedComponents": []
     },
     "tab-view": {
-      "budget": 69500,
-      "measured": 66165,
+      "budget": 61700,
+      "measured": 58749,
       "allowedComponents": [
         "keyboard-shortcut",
         "tabs",
@@ -574,31 +574,31 @@
       "allowedComponents": []
     },
     "table-of-contents": {
-      "budget": 31700,
-      "measured": 30156,
+      "budget": 30400,
+      "measured": 28879,
       "allowedComponents": []
     },
     "tabs": {
-      "budget": 64700,
-      "measured": 61540,
+      "budget": 57000,
+      "measured": 54223,
       "allowedComponents": [
         "keyboard-shortcut",
         "tooltip"
       ]
     },
     "tag": {
-      "budget": 19400,
-      "measured": 18421,
+      "budget": 17900,
+      "measured": 17023,
       "allowedComponents": []
     },
     "tag-group": {
-      "budget": 17900,
-      "measured": 17010,
+      "budget": 17000,
+      "measured": 16103,
       "allowedComponents": []
     },
     "text-field": {
-      "budget": 91600,
-      "measured": 87164,
+      "budget": 76800,
+      "measured": 73060,
       "allowedComponents": [
         "button",
         "field",
@@ -608,16 +608,16 @@
       ]
     },
     "text-input": {
-      "budget": 75300,
-      "measured": 71630,
+      "budget": 63100,
+      "measured": 60002,
       "allowedComponents": [
         "button",
         "handle"
       ]
     },
     "toolbar": {
-      "budget": 79800,
-      "measured": 75973,
+      "budget": 70000,
+      "measured": 66622,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -625,15 +625,15 @@
       ]
     },
     "tooltip": {
-      "budget": 31200,
-      "measured": 29677,
+      "budget": 28900,
+      "measured": 27471,
       "allowedComponents": [
         "keyboard-shortcut"
       ]
     },
     "tree-view": {
-      "budget": 127600,
-      "measured": 121468,
+      "budget": 111000,
+      "measured": 105704,
       "allowedComponents": [
         "button",
         "embedded-text-input",
@@ -645,8 +645,8 @@
       ]
     },
     "all": {
-      "budget": 811700,
-      "measured": 773010
+      "budget": 664500,
+      "measured": 632841
     }
   },
   "runtimeMeasured": {
