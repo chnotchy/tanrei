@@ -5931,22 +5931,13 @@
       "path": "src/components/chat-composer/chat-composer.styles.ts",
       "declarations": [
         {
-          "kind": "function",
-          "name": "measured",
-          "return": {
-            "type": {
-              "text": "string"
-            }
+          "kind": "variable",
+          "name": "LINE",
+          "type": {
+            "text": "string"
           },
-          "parameters": [
-            {
-              "name": "line",
-              "type": {
-                "text": "string"
-              }
-            }
-          ],
-          "description": "What depends on one line of the typing area's text (CCM-2, CCM-3, CCM-41), for a line of `line` (a CSS length):\nthe capsule's corners and its glow, which follow the one-line height, and the least height of each group of\nButtons, which is the typing area's with one line — so that a Button is centred on a single line and, as lines\ngrow, stays at the bottom edge at the distance it had. The stylesheet has it for a line of no height, which is\n`container.height` alone; the element writes it again, as a rule of its own, once it has read the member's line."
+          "default": "'--_ccm-line'",
+          "description": "CCM-41: the custom property the element writes on the capsule: one line of the typing area's text, in px."
         },
         {
           "kind": "variable",
@@ -5956,9 +5947,9 @@
       "exports": [
         {
           "kind": "js",
-          "name": "measured",
+          "name": "LINE",
           "declaration": {
-            "name": "measured",
+            "name": "LINE",
             "module": "src/components/chat-composer/chat-composer.styles.ts"
           }
         },

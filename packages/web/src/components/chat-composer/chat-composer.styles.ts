@@ -8,13 +8,17 @@ import { heldRadius, heldShape } from '../../styles/shape.js';
 // and every Button are drawn by their own elements from their own tokens.
 //
 // Nothing here writes a custom property or reads a token of a member: the capsule
-// holds its members, and a custom property on it would be inherited by each of them. So every state is written out
-// from its own tokens, and the one length the stylesheet cannot know — a line of the typing area's text, which is the
-// member's — is measured by the element and written as a rule of its own (`measured()`), never as a property.
+// holds its members, and a token written on it would be inherited by each of them. So every state is written out
+// from its own tokens. The one length the stylesheet cannot know — a line of the typing area's text, which is the
+// member's — is measured by the element and written on the capsule as `--_ccm-line` (LINE), a private name no member
+// reads; the rules that depend on it read it, so one stylesheet serves every instance.
 const PREFIX = '--tanrei-comp-chat-composer';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
 const MOTION = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
+
+/** CCM-41: the custom property the element writes on the capsule: one line of the typing area's text, in px. */
+export const LINE = '--_ccm-line';
 
 /** CCM-41: whether the capsule's shape token is the full step, which is drawn round whatever the smoothing. */
 const PILL = `var(${PREFIX}-container-shape-pill, 0)`;
@@ -35,10 +39,10 @@ const focusedCapsule = (focus: string) => (focus === ':focus-visible' ? '.capsul
  * What depends on one line of the typing area's text (CCM-2, CCM-3, CCM-41), for a line of `line` (a CSS length):
  * the capsule's corners and its glow, which follow the one-line height, and the least height of each group of
  * Buttons, which is the typing area's with one line — so that a Button is centred on a single line and, as lines
- * grow, stays at the bottom edge at the distance it had. The stylesheet has it for a line of no height, which is
- * `container.height` alone; the element writes it again, as a rule of its own, once it has read the member's line.
+ * grow, stays at the bottom edge at the distance it had. Until the element has read the member's line, the line has no
+ * height, which is `container.height` alone.
  */
-export const measured = (line: string): string => `
+const measured = (line: string): string => `
   ${heldShape('.capsule', radius(line), PILL)}
   ${heldFocusGlow(focusedCapsule, { plain: radius(line), eased: heldRadius(radius(line), PILL) }).cssText}
   .group {
@@ -137,7 +141,7 @@ export const styles = css`
   }
 
   /* CCM-41: the corners — one radius at every height — the glow of CCM-42 around them, and the groups' least height. */
-  ${unsafeCSS(measured('0px'))}
+  ${unsafeCSS(measured(`var(${LINE}, 0px)`))}
 
   /* ── The strip (CCM-43) ── the attachments at the top of the capsule, from the start edge, strip.gap apart: a tile
      at its own size beside its neighbours, aligned to the top of its line; a row across a whole line. A full line wraps;
