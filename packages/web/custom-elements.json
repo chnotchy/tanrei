@@ -3165,7 +3165,7 @@
                   }
                 }
               ],
-              "description": "BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at once."
+              "description": "BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at\nonce. The word also comes for the button's own attribute, which reflects its property inside the update that drew\nthe property's change: that word changes nothing drawn, and draws nothing again."
             },
             {
               "kind": "method",
