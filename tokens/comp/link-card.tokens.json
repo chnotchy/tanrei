@@ -36,7 +36,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a link card reads: its corners, the room around its text and its edge's width; for each look (outlined, filled) the fill, the edge, the colors of the title, the description and the site line, and the color hover, focus and press mix in, in each state; the text style and the most lines of the title and of the description; the site line's text style, the size and corners of the site's icon and the gaps of that line; the picture's width beside the text, its proportion above the text and the fill shown while it loads; the card width from which the picture stands beside the text; and the timing of a state change.",
+            "usage": "Everything a link card reads: its corners, the room around its text and its edge's width; for each look (outlined, filled) the fill, the edge, the colors of the title, the description and the site line, and the color hover, focus and press mix in, in each state; the text style and the most lines of the title and of the description; the site line's text style, the size and corners of the site's icon and the gaps of that line; the picture's width beside the text, its proportion above the text and the fill shown while it loads; the card width from which the picture stands beside the text; the timing of a state change; and the timing in which a picture fades in when it arrives and its box folds away when it cannot be loaded.",
             "rules": [
               "A link card is one link drawn as a block: the destination's title, a sentence about it, its picture and its site. A phrase that leads somewhere is a Link; a group of the product's own content that leads somewhere is a Card with a destination.",
               "The card never loads anything about the destination. The product gives title, description, image, siteName and siteIcon; where the pages are built, the package's helper reads them once and the site keeps what it read.",
@@ -293,6 +293,26 @@
             "$type": "duration",
             "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          },
+          "picture-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.large}",
+            "$description": "How long a picture that has arrived takes to fade in over the fill of its box (LKC-13): a change of what a large box draws in place, in which nothing changes place or size. A picture the platform already holds, or one that arrives in the card's first frames, is drawn at once."
+          },
+          "picture-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}",
+            "$description": "The curve of that fade: a change of opacity in place."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
+            "$description": "How long the picture's box takes to fold away when its picture cannot be loaded (LKC-13), and to open again when a new picture is given while it folds: beside the text its width goes to none while the text widens to the whole card, above the text its height goes to none; the card's height and what follows it move with it at every frame. A large change of size in place."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
+            "$description": "The curve of that motion: a box that changes its size in place."
           }
         }
       }
