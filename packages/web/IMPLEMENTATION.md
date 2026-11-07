@@ -6974,7 +6974,7 @@ action), not on a system switch alone.
 
 Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
 drawn as the edge of a region that stays — or, under `divider-visibility="scroll"`, only once content scrolls under it
-(`specs/app-bar.spec.json`, APB-1…18).
+(`specs/app-bar.spec.json`, APB-1…33).
 
 ```html
 <tanrei-app-bar headline="Inbox">
@@ -7002,9 +7002,28 @@ drawn as the edge of a region that stays — or, under `divider-visibility="scro
 | `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the bottom edge is drawn: `always` at rest and while content is under the bar, in `scrolled.outline.color`; `scroll` in each condition's own outline color (none at rest in the default system); `auto` takes `comp.app-bar.outline.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (APB-18); reflected |
 | `scrollTarget` / `scroll-target` | string | `""` | web only: the scrolling element the bar follows — empty for the document's scrolling element, an id (looked up in the bar's own document or shadow root, once more on the next frame if it is not there yet; reported if it never is), or `none` |
 | `headingLevel` / `heading-level` | number | `1` | web only: the title's heading level, 1–6 |
+| `overflow` | `menu` \| `hide` | `menu` | what becomes of the actions that do not fit: `menu` moves them, from the end, into a Tanrei Menu opened from a more button at the end; `hide` leaves them out of the bar, for actions you also give elsewhere. Anything else is `menu`, reported (APB-33); reflected |
+| `overflowLabel` / `overflow-label` | string | `""` | the more button's accessible name ("More actions"); empty takes the product's word `toolbarOverflowLabel` (reported where neither is given and the button is drawn) |
 
-Slots: `navigation` (one icon-only `<tanrei-button>`, the spec's `navigation` item), `actions` (up to three
-icon-only `<tanrei-button>`s, its `action` items, in reading order). The bar has no events: the buttons are yours.
+Slots: `navigation` (one icon-only `<tanrei-button>`, the spec's `navigation` item), `actions` (icon-only
+`<tanrei-button>`s, its `action` items, in reading order, as many as fit; `app-bar-overflow="never"` keeps one in the
+row). The bar has no events: the buttons are yours.
+
+**Actions that do not fit (APB-26…33).** No count is capped. The bar measures its top row, its start items, its title
+(a probe in its shadow root, in the top row's text roles: a large bar keeps the room its collapsed title will need) and
+each action drawn, with one `ResizeObserver`, and decides what is out from those widths: every action while they fit,
+else actions taken out from the end one at a time, skipping one with `app-bar-overflow="never"` and anything in the
+slot that is not a `<tanrei-button>`, until the rest — with the more button under `overflow="menu"` — fits. The start
+items and the title's whole width keep their room first; where nothing more can leave, the title is cut as before. An
+action that is out carries `app-bar-out` and is `display: none !important` (a page's rule for the element cannot draw
+it); it keeps its listeners and its state, and comes back as soon as it fits. The decision is made in the microtasks
+after the bar and its Buttons render, before the first frame; after a decision made in the observer's callback the
+observer is laid down until the next frame, so it never reports its own change (no loop error). The more button
+(`part="overflow-button"`, an icon-only text Button showing `more_horiz`) is drawn from the first time an action has to
+go out, laid out unseen while none is, so its width is known; its Menu (`part="overflow-menu"`, `bottom-end`) is filled
+when it opens: a menu item per action with its label and glyph, a checkbox item for a toggle, a link item for an action
+with `href`, a submenu for an action with a `<tanrei-menu anchor>` of its own. A row clicks the action's own button. Focus
+on an action that goes out moves to the more button, or under `hide` to the nearest action still drawn (APB-31).
 
 **Scrolling (APB-8, APB-9).** The bar listens (passively) to its scrolling element's `scroll` events. A small bar is
 `scrolled` while that element's `scrollTop` is above 0. A large bar shrinks by the distance scrolled, one for one, until
@@ -7037,9 +7056,8 @@ motion is reduced; a forced-colors bar draws its scrolled edge in `CanvasText`.
 **Semantics (APB-11…13).** No role, never focusable; Tab moves from the navigation item through the actions, which keep
 their own names and roles. The title is `role="heading"` with `aria-level` (`heading-level`), the subtitle is text read
 after it. A large bar exposes one title: the expanded one while any of it is visible (the top row's copy is
-`aria-hidden`), the top row's once collapsed. More than one navigation item or three actions still render, and are
-reported. The bar is not a landmark: wrap it in your own `<header>` if it is the page's banner. Parts: `container`,
-`top-row`, `title`, `subtitle`, `expanded`, `outline`.
+`aria-hidden`), the top row's once collapsed. More than one navigation item still renders, and is reported. The bar is not a landmark: wrap it in your own `<header>` if it is the page's banner. Parts: `container`,
+`top-row`, `title`, `subtitle`, `expanded`, `outline`, `overflow-button`, `overflow-menu`.
 
 ## `<tanrei-navigation-bar>`
 
