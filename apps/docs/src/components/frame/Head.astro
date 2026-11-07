@@ -40,6 +40,7 @@ const markdown = route.entry.data.pagefind === false ? undefined : markdownPathO
 
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
 {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
+<link rel="describedby" href="/llms.txt" />
 <Default />
 
 <script>
