@@ -92,6 +92,7 @@ export { Slider, type SliderMarks } from '../../generated/wrappers/slider.js';
 export { SliderField, type SliderFieldMarks } from '../../generated/wrappers/slider-field.js';
 export { Snackbar } from '../../generated/wrappers/snackbar.js';
 export { SnackbarHost } from '../../generated/wrappers/snackbar-host.js';
+export { SplitView } from '../../generated/wrappers/split-view.js';
 export { Stepper } from '../../generated/wrappers/stepper.js';
 export { StepperStep } from '../../generated/wrappers/stepper-step.js';
 export { Submenu } from '../../generated/wrappers/submenu.js';

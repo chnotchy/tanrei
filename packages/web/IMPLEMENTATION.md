@@ -6859,6 +6859,63 @@ Handle's own rule.
 
 The fixtures are drawn by the test harness in a room 640 wide, their content a block in `surface-container-low`.
 
+## `<tanrei-split-view>`
+
+Two panes, side by side or one above the other, and a Handle on the line between them that shares the room
+(`specs/split-view.spec.json`, SPV-1…16). It is built from `<tanrei-handle>`: one, in its shadow root, given its `axis`,
+`value`, `min`, `max`, `label`, `valueText` and `disabled` by the split view on every render.
+
+```html
+<tanrei-split-view collapsible min-size="240" label="Resize the message list" style="block-size: 100dvh">
+  <nav slot="start" aria-label="Messages">…</nav>
+  <main slot="end">…</main>
+</tanrei-split-view>
+```
+
+| `<tanrei-split-view>` | Type | Default | |
+|---|---|---|---|
+| `axis` | `horizontal` \| `vertical` | `horizontal` | side by side, or one above the other; any other value is `horizontal`, reported (SPV-15); reflected |
+| `primary` | `start` \| `end` | `start` | the pane `value` measures and that folds away; reflected |
+| `value` | number | `50` | the primary pane's share of the region less the divider, in percent; drawn held between the least and the greatest share, kept as given |
+| `min` / `max` | number | `10` / `90` | percent; a range outside 0–100 or upside down is both defaults, reported |
+| `minSize` / `min-size`, `maxSize` / `max-size` | number \| null | `null` | pixels, on top of `min` and `max`; the least wins where both cannot hold (SPV-16) |
+| `step` / `largeStep` (`large-step`) | number | `5` / `20` | percent per arrow key, and with Shift or Page Up/Down |
+| `resetValue` / `reset-value` | number | `50` | where a press moves the line while the pane cannot fold (SPV-7) |
+| `collapsible`, `collapsed` | boolean | `false` | reflected; `collapsed` is ignored while `collapsible` is false |
+| `label`, `valueText` (`value-text`), `disabled` | | | the Handle's |
+
+| Event | When |
+|---|---|
+| `resize` | each frame a drag moves the line: `detail.value` (the share drawn, 0 while folded), `detail.collapsed` |
+| `change` | once a person has changed the share: a drag ended, a key, a press |
+| `toggle` | once a person has folded or restored the pane |
+
+All three are composed and bubble; the Handle's own events stay in the shadow root, where the split view hears them.
+
+**Layout (SPV-1, SPV-2, SPV-11).** The host is a block that takes the size its layout gives; `.split` is a flex row (a
+column while `axis` is vertical) of the start pane, the divider and the end pane, so the focus order is the start
+pane's content, the Handle, the end pane's. The primary pane's box is `calc((100% - divider.width) * share / 100)`
+along the axis, the share written as `--_spv-share` on that box; the other pane is `flex: 1 1 0`. Both panes are
+`overflow: clip`. The Handle is absolutely centred on the divider (`translate: -50% -50%`, which needs no mirroring), at
+`z-index: 1` within the host's `isolation: isolate`. The split view sets `aria-controls` on the Handle to the primary
+pane box's id; the Handle moves it to its separator by element reference (HDL-26). A `ResizeObserver` on `.split`
+measures the region along the axis less the divider, which the drag's percentages and the pixel bounds count against.
+
+**A drag, keys, a press (SPV-3…7).** `resizestart` stops a motion under way, takes the share drawn and sets
+`pointer-events: none` on every slotted `<iframe>`, `<object>` and `<embed>`; each `resize` sets `value` from the
+distance (taken the other way while the end pane is primary), or folds the pane past half the least share; `resizeend`
+sends one `change` and one `toggle` where each changed. `step` moves the share the way the key points (Home the least,
+End the greatest, whichever pane is primary); `activate` folds and restores, or moves to `resetValue` and back.
+
+**Motion (SPV-6, SPV-7, SPV-9, SPV-10).** `AnimatedSize` (src/primitives/motion.ts) on the primary pane's box, on its
+inline axis (its block axis while vertical): `motion.collapse-duration` for a fold, a restore and a press,
+`motion.resize-duration` for a share the product sets, both on `motion.collapse-easing`; a drag, a key and the first
+frame are drawn at once. The other pane follows in the layout at every frame. A folded pane's box is `inert` at once,
+and its content `visibility: hidden` after the fold's duration (a transition delay), at once where motion is reduced.
+
+The fixtures are drawn by the test harness in a region 480 × 200, each pane's content a block in
+`surface-container-low`.
+
 ## `<tanrei-side-sheet>`
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and

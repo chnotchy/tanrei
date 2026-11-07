@@ -74,6 +74,7 @@ export {
   type TanreiResizableFrameSizeIndicator,
   type TanreiResizableFrameVariant,
 } from './components/resizable-frame/resizable-frame.js';
+export { TanreiSplitView, type TanreiSplitViewAxis, type TanreiSplitViewDetail, type TanreiSplitViewPrimary } from './components/split-view/split-view.js';
 export {
   TanreiBottomSheet,
   type TanreiBottomSheetCloseDetail,

@@ -44417,6 +44417,447 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/split-view/split-view.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "['horizontal', 'vertical']"
+          },
+          "default": "['horizontal', 'vertical']",
+          "description": "The axes and the primary panes the component defines (SPV-15: anything else is the first)."
+        },
+        {
+          "kind": "variable",
+          "name": "PRIMARIES",
+          "type": {
+            "text": "['start', 'end']"
+          },
+          "default": "['start', 'end']"
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "PRIMARIES",
+          "declaration": {
+            "name": "PRIMARIES",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/split-view/split-view.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Divides a region into two panes — side by side, or one above the other — with a hairline between them and a Handle on\nit that a person drags, steps from the keyboard or presses to give one pane more room; where `collapsible` is set, a\npress or Enter folds the primary pane away and brings it back.\n\nContract: specs/split-view.spec.json. Built from `<tanrei-handle>`, in its shadow root, which follows the window\nsplitter pattern: a focusable separator whose value is the primary pane's share in percent, which controls the primary\npane (`aria-controls`), moved by the arrow keys the way they point, Page Up and Page Down, Home (the least share) and\nEnd (the greatest), and folded and restored by Enter. The split view hears the Handle's events in its shadow root and\nsays what they mean in its own: `resize` in every frame of a drag, `change` once a person has changed the share,\n`toggle` once a person has folded or restored the pane, each with `{ value, collapsed }`; none is sent for a `value`\nor `collapsed` you set.\n\nThe split view takes the size its layout gives it; a vertical one needs a height to divide. `value` is the primary\npane's share of the region less the divider, held between `min` and `max` (percent) and `min-size` and `max-size`\n(pixels; where the region is too small for both, the least wins). While a drag lasts, every `<iframe>`, `<object>`\nand `<embed>` in either pane takes no pointer, so the drag is not lost over it.",
+          "name": "TanreiSplitView",
+          "cssParts": [
+            {
+              "description": "The start pane's box, which clips its content.",
+              "name": "start-pane"
+            },
+            {
+              "description": "The end pane's box.",
+              "name": "end-pane"
+            },
+            {
+              "description": "The hairline between the panes.",
+              "name": "divider"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the divider.",
+              "name": "handle"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content of the start pane: the inline-start side, or the top while axis is vertical.",
+              "name": "start"
+            },
+            {
+              "description": "The content of the end pane.",
+              "name": "end"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "axis",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSplitViewAxis"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal`: the panes stand side by side and the divider is upright. `vertical`: one above the other.",
+              "attribute": "axis",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "primary",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSplitViewPrimary"
+              },
+              "default": "'start'",
+              "description": "The pane the value measures and that folds away: `start` (a list beside its detail) or `end` (an inspector after a canvas).",
+              "attribute": "primary",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The primary pane's share of the region less the divider, in percent. A person's drag, key or press changes it; setting it sends no event.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The least share of the primary pane, in percent, while it is shown.",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The greatest share of the primary pane, in percent.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "minSize",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least size of the primary pane in pixels along the axis (`min-size`), on top of `min`; null sets none. It wins over `max-size`.",
+              "attribute": "min-size"
+            },
+            {
+              "kind": "field",
+              "name": "maxSize",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest size of the primary pane in pixels along the axis (`max-size`), on top of `max`; null sets none.",
+              "attribute": "max-size"
+            },
+            {
+              "kind": "field",
+              "name": "step",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region one arrow key moves the divider by.",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "largeStep",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region Shift with an arrow key, Page Up or Page Down moves the divider by (`large-step`).",
+              "attribute": "large-step"
+            },
+            {
+              "kind": "field",
+              "name": "resetValue",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The share a press on the Handle moves the primary pane to while it cannot fold (`reset-value`); the next press moves it back.",
+              "attribute": "reset-value"
+            },
+            {
+              "kind": "field",
+              "name": "collapsible",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets the primary pane fold away: by Enter or a press on the Handle, and by a drag past half its least share.",
+              "attribute": "collapsible",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "collapsed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the primary pane is folded away. A person's press, Enter or drag changes it; setting it sends no event. Ignored while `collapsible` is false.",
+              "attribute": "collapsed",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The Handle's accessible name, saying what it resizes (\"Resize the message list\"), in your words. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The share in your words (\"List 320 pixels wide\", `value-text`), read in place of the percentage.",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps both panes as they are: the Handle takes no input and no focus. The panes' content stays operable.",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "resize",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "The divider moved during a drag, in every frame it moves."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "A person changed the primary pane's share: a drag ended, a key, or a press that moved the divider."
+            },
+            {
+              "name": "toggle",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "A person folded the primary pane away or brought it back."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "axis",
+              "type": {
+                "text": "TanreiSplitViewAxis"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal`: the panes stand side by side and the divider is upright. `vertical`: one above the other.",
+              "fieldName": "axis"
+            },
+            {
+              "name": "primary",
+              "type": {
+                "text": "TanreiSplitViewPrimary"
+              },
+              "default": "'start'",
+              "description": "The pane the value measures and that folds away: `start` (a list beside its detail) or `end` (an inspector after a canvas).",
+              "fieldName": "primary"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "description": "The primary pane's share of the region less the divider, in percent. A person's drag, key or press changes it; setting it sends no event.",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "description": "The least share of the primary pane, in percent, while it is shown.",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "description": "The greatest share of the primary pane, in percent.",
+              "fieldName": "max"
+            },
+            {
+              "name": "min-size",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least size of the primary pane in pixels along the axis (`min-size`), on top of `min`; null sets none. It wins over `max-size`.",
+              "fieldName": "minSize"
+            },
+            {
+              "name": "max-size",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest size of the primary pane in pixels along the axis (`max-size`), on top of `max`; null sets none.",
+              "fieldName": "maxSize"
+            },
+            {
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region one arrow key moves the divider by.",
+              "fieldName": "step"
+            },
+            {
+              "name": "large-step",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region Shift with an arrow key, Page Up or Page Down moves the divider by (`large-step`).",
+              "fieldName": "largeStep"
+            },
+            {
+              "name": "reset-value",
+              "type": {
+                "text": "number"
+              },
+              "description": "The share a press on the Handle moves the primary pane to while it cannot fold (`reset-value`); the next press moves it back.",
+              "fieldName": "resetValue"
+            },
+            {
+              "name": "collapsible",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets the primary pane fold away: by Enter or a press on the Handle, and by a drag past half its least share.",
+              "fieldName": "collapsible"
+            },
+            {
+              "name": "collapsed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the primary pane is folded away. A person's press, Enter or drag changes it; setting it sends no event. Ignored while `collapsible` is false.",
+              "fieldName": "collapsed"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The Handle's accessible name, saying what it resizes (\"Resize the message list\"), in your words. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The share in your words (\"List 320 pixels wide\", `value-text`), read in place of the percentage.",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps both panes as they are: the Handle takes no input and no focus. The panes' content stays operable.",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-split-view",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "value",
+          "default": "this[name]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiSplitView",
+          "declaration": {
+            "name": "TanreiSplitView",
+            "module": "src/components/split-view/split-view.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-split-view",
+          "declaration": {
+            "name": "TanreiSplitView",
+            "module": "src/components/split-view/split-view.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/stepper/stepper.styles.ts",
       "declarations": [
         {

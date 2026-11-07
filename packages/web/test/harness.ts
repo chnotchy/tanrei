@@ -1254,6 +1254,14 @@ const STAGING: Record<string, Staging> = {
       .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
     slot: (name, text) => (name === 'default' ? `<div class="resizable-frame-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>` : undefined),
   },
+  // A split view divides the room its layout gives it (SPV-1): its stage gives it a region 480 × 200. What a fixture puts
+  // in a pane stands for the product's content: a block that fills the pane, in a surface of its own, its text in the
+  // body style.
+  'split-view': {
+    css: () => `.stage > tanrei-split-view { inline-size: 480px; block-size: 200px; }
+      .split-view-content { box-sizing: border-box; block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => `<div slot="${name}" class="split-view-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>`,
+  },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
   'list-row': {

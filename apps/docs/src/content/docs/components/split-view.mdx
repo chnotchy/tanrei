@@ -1,0 +1,150 @@
+---
+title: Split view
+description: Two panes side by side or one above the other, and a Handle on the line between them that a person drags, steps from the keyboard or presses to give one pane more room — and, where you allow it, to fold one pane away and bring it back.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import Example from '../../../components/visuals/Example.astro';
+
+## Overview
+
+<ComponentAvailability name="split-view" />
+
+<Example label="A list beside the message it opens; the list folds away with Enter or a press on the handle">
+  <tanrei-split-view collapsible value="35" min-size="160" label="Resize the message list" style="inline-size: 100%; block-size: 240px">
+    <div slot="start" style="box-sizing: border-box; block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">Inbox — 24 messages</div>
+    <div slot="end" style="box-sizing: border-box; block-size: 100%; padding: 1rem; color: var(--tanrei-sys-color-on-surface)">Drag the line between the panes, or move to it with Tab and use the arrow keys.</div>
+  </tanrei-split-view>
+</Example>
+
+A split view puts two things in one region and lets a person share the room between them: a list and the message it opens, a query and its results, a canvas and its settings. The line between the panes carries a [Handle](/components/handle/): dragged, it moves the line; moved from the keyboard, it moves it a step at a time; pressed without a drag, it folds the **primary** pane away and brings it back, or, where the pane cannot fold, moves the line to a share you choose and back.
+
+The split view keeps the primary pane's share of the region as `value`, in percent, tells you when a person has changed it, and gives the Handle the share as its value, so that assistive technology reads it.
+
+On the web it is `<tanrei-split-view>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A list beside its detail: the list never narrower than 240 pixels, and it can fold away. -->
+    <tanrei-split-view id="mail" collapsible min-size="240" label="Resize the message list" style="block-size: 100dvh">
+      <nav slot="start" aria-label="Messages">…</nav>
+      <main slot="end">…</main>
+    </tanrei-split-view>
+
+    <!-- A query above its results. -->
+    <tanrei-split-view axis="vertical" value="40" label="Resize the editor" style="block-size: 600px">
+      <div slot="start">…</div>
+      <div slot="end">…</div>
+    </tanrei-split-view>
+
+    <script type="module">
+      import '@tanrei/web/components/split-view';
+      const mail = document.querySelector('#mail');
+      // Keep the person's share from one visit to the next.
+      mail.value = Number(localStorage.getItem('mail-list')) || 30;
+      mail.addEventListener('change', (e) => localStorage.setItem('mail-list', String(e.detail.value)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SplitView } from '@tanrei/react';
+
+    <SplitView
+      collapsible
+      value={share}
+      collapsed={collapsed}
+      minSize={240}
+      label="Resize the message list"
+      onChange={(e) => setShare(e.detail.value)}
+      onToggle={(e) => setCollapsed(e.detail.collapsed)}
+    >
+      <nav slot="start" aria-label="Messages">…</nav>
+      <main slot="end">…</main>
+    </SplitView>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<ComponentSpecs name="split-view" />
+
+## Guidelines
+
+### When to use
+
+Use a split view where two things are worked on together and a person should decide how much room each gets.
+
+| You need | Use |
+| --- | --- |
+| One box a person resizes by its edge, with nothing beside it to give room to | The [resizable frame](/components/resizable-frame/). |
+| Supplementary content that comes and goes beside the page, at a width of its own | A [side sheet](/components/side-sheet/). |
+| A navigation beside the page, laid out by the page's shell | The [app shell](/components/app-shell/)'s navigation region. |
+| Three panes or more | Two split views, one inside a pane of the other: each line is a Handle of its own. |
+
+### The primary pane
+
+`primary` names the pane that `value` measures and that folds away: `start` (the default) for a list beside its detail or a navigation beside a page, `end` for an inspector after a canvas. The other pane takes the rest of the region. `axis="horizontal"` (the default) puts the panes side by side, the start pane at the start of the line of text — the right in a right-to-left layout; `axis="vertical"` puts the start pane on top.
+
+The split view takes the size its layout gives it. A vertical one needs a height to divide: give it one, or put it in a box that has one.
+
+### Shares and their limits
+
+`value` is the primary pane's share of the region, less the divider, in percent. `min` and `max` (10 and 90 by default) keep it from going too far either way. `minSize` and `maxSize` hold the pane to pixels as well — "the list is never narrower than 240" — so that it stays readable in a wide window and a narrow one. Where the region is too small for both, `minSize` wins, as `min-width` wins over `max-width` in CSS. When the region's size changes, the share you set is kept and the limits are counted again; nothing is sent.
+
+The arrow keys move the line by `step` percent of the region (5), Shift with an arrow and Page Up and Page Down by `largeStep` (20). A drag and a key are followed at once; a fold, a press that moves the line, and a share or a fold you set move over a short motion, and at once where reduced motion is asked for.
+
+### Folding a pane away
+
+With `collapsible`, Enter, Space or a press on the Handle folds the primary pane away, and the same again brings it back at the share it had. A drag past half the pane's least share folds it too. While it is folded, its content is neither drawn nor reachable, and the line stands at the region's edge, so that the pane can be brought back by everything that folded it. `collapsed` is the state; `value` is the share the pane comes back at.
+
+Without `collapsible`, a press on the Handle moves the line to `resetValue` (50) and the next press back to where it was, so that a person who cannot drag still reaches two sizes with one press each.
+
+### What it tells you
+
+| Event | When |
+| --- | --- |
+| `resize` | In every frame a drag moves the line: `value`, the share drawn (0 while folded), and `collapsed`. |
+| `change` | Once a person has changed the share: a drag ended, a key moved the line, or a press moved it. Store it here if you keep a person's share. |
+| `toggle` | Once a person has folded the pane away or brought it back. |
+
+None of them is sent for a `value` or `collapsed` you set.
+
+### Do
+
+- Give the Handle a name that says what it resizes: `label` ("Resize the message list"). The primary pane's own heading is a good one.
+- Set a least size under which the pane's content still works, with `minSize` where a percentage is not enough.
+- Keep a person's share and fold where they will come back to them, from `change` and `toggle`.
+
+### Don't
+
+- Don't make a pane collapsible if a person has no other way to its content when it is folded.
+- Don't draw a handle or a gutter of your own: restyle the split view's divider and the Handle through their tokens.
+- Don't put a split view where the window is too narrow for two panes: show one at a time there, which is the page's decision.
+
+## Accessibility
+
+<ComponentAccessibility name="split-view" />
+
+### What the component handles
+
+- The Handle is a focusable separator — the window splitter of the ARIA Authoring Practices — named by `label`, with the primary pane's share in whole percent as its value (0 while the pane is folded away), the least share as its minimum (0 while the pane can fold), the greatest as its maximum, and the primary pane as the element it controls.
+- It stands between the start pane's content and the end pane's in the focus order.
+- The arrow keys of its axis move the line the way they point, in a right-to-left layout too; Home gives the primary pane its least share and End its greatest. Folding is Enter's alone among the keys, so that a key held down never folds a pane by accident. F6, which the pattern lists as optional, is left to the browser, which moves to its own toolbar with it.
+- Enter, Space, or a press without a drag fold and restore the pane, or move the line to `resetValue` and back, so a size can be reached without dragging.
+- While a drag lasts, no embedded document in either pane takes the pointer, so the drag is not lost when the pointer passes over it.
+- A folded pane is inert: nothing in it takes focus, and assistive technology does not read it.
+- In forced-colors mode the divider takes the text color; the Handle draws itself as the Handle does.
+
+### What you need to do
+
+- Give the split view its `label`. Without one the Handle is still drawn and works, and a debug build reports it.
+- The panes are not landmarks of their own. Where a pane is a region of the page, put the landmark inside it (`<nav aria-label="Messages">`, `<main>`).
+- Make sure each pane's content works at every share you allow, from its least size up.

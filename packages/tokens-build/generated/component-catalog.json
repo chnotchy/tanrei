@@ -1756,7 +1756,14 @@
       "title": "Split view",
       "level": "composed",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-split-view",
+        "module": "@tanrei/web/components/split-view"
+      },
+      "react": {
+        "name": "SplitView"
+      }
     },
     {
       "name": "scroll-area",
