@@ -1483,6 +1483,48 @@ test.describe('behavior', () => {
     await expect.poll(() => offset(page, 'centered')).toBe(208);
   });
 
+  test('CRL-14: the browser’s momentum that goes on scrolling the row after the lift does not overtake the release’s settle — the row is held until it rests at the position nearest the lift', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
+    // A browser stops its own momentum only once it has the held row's style, a frame or more after the lift where the
+    // page is busy: until then the momentum scrolls the row on. Here it is a scroll past the midpoint toward the next
+    // position (208) while the settle runs; the settle replaces it frame by frame and ends where the lift chose (0).
+    const touch = (type: 'touchstart' | 'touchmove' | 'touchend', x: number) =>
+      scroller(page, 'centered').evaluate(
+        (el, [type, x]) => {
+          const at = [{ clientX: x as number, clientY: 0 }];
+          el.dispatchEvent(Object.assign(new Event(type as string), { touches: type === 'touchend' ? [] : at, changedTouches: at }));
+        },
+        [type, x] as const,
+      );
+    await holdPageClock(page);
+    await touch('touchstart', 150);
+    await scroller(page, 'centered').evaluate(
+      (el) =>
+        new Promise<void>((resolve) => {
+          el.addEventListener('scroll', () => resolve(), { once: true });
+          el.scrollLeft = 60;
+        }),
+    );
+    for (const x of [130, 110, 90]) {
+      await page.clock.runFor(4);
+      await touch('touchmove', x);
+    }
+    await page.clock.runFor(STOPPED_AFTER + 1);
+    await touch('touchend', 90);
+    await releaseClock(page);
+    const momentum = await scroller(page, 'centered').evaluate(async (el) => {
+      const frame = () => new Promise((r) => requestAnimationFrame(r));
+      // The settle's first frame has run: the momentum comes during its motion, from a frame to the next.
+      await frame();
+      await frame();
+      el.scrollLeft = 160;
+      return el.scrollLeft;
+    });
+    expect(momentum).toBe(160);
+    await atRest(page, 'centered');
+    expect(await offset(page, 'centered')).toBe(0);
+  });
+
   test('CRL-14: a fast touch stroke held still for more than 40 ms before the lift settles at the position nearest the lift, not where the browser’s own momentum would carry it; lifted within 40 ms it goes on to the next one', async ({ browser, browserName }) => {
     test.skip(browserName !== 'chromium', 'touch input is dispatched over CDP');
     // Real touches, so that the browser's own momentum is there to carry the row on: Chromium flings this stroke
