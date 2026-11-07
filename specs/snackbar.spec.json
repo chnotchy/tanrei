@@ -238,7 +238,7 @@
     },
     {
       "id": "SNK-17",
-      "text": "WHEN a snackbar is shown THE snackbar SHALL rise into place from below the bottom edge of its host by its own height plus its margin while fading in (WHILE placement is bottom; at top-end it descends instead, SNK-36), over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes it SHALL fade out in place over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
+      "text": "WHEN a snackbar is shown THE snackbar SHALL make its bar appear as every surface appears: from sys.motion.appear.opacity, sys.motion.appear.scale, sys.motion.appear.distance toward the edge of its host it stands at and sys.motion.appear.blur to whole, grown from the middle of that edge — the bottom edge WHILE placement is bottom, so that it rises into place, and the top edge at top-end, SNK-36 — over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes THE snackbar SHALL take the bar back the same way to where it started, over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHEN it closes while still appearing it SHALL turn round from the opacity and the size it has reached. WHERE sys.behavior.appearance is unfold the scale SHALL apply along the axis that leaves that edge only, so that the bar unfolds from it at its full width. WHERE motion is reduced it SHALL only fade in and out, over sys.motion.role.reduced, with no scale, distance or blur, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). WHEN it is shown before the document has first been painted it SHALL appear without its motion. The motion SHALL be drawn only: the place SNK-13 and SNK-35 give, the layout SNK-16, SNK-23 and SNK-25 measure, and the announcement (SNK-10), which does not wait for it, are those of the snackbar at rest."
     },
     {
       "id": "SNK-18",
@@ -322,7 +322,7 @@
     },
     {
       "id": "SNK-36",
-      "text": "WHILE placement is top-end, WHEN a snackbar is shown THE snackbar SHALL descend into place from above the top edge of its host by its own height plus its margin while fading in, over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing, as SNK-17 rises at the bottom; WHEN it closes it SHALL fade out in place as SNK-17 says, and WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once where the platform removes every animation."
+      "text": "WHILE placement is top-end, WHEN a snackbar is shown THE snackbar SHALL make its bar appear as SNK-17 says, grown from the middle of its top edge and travelling sys.motion.appear.distance down into place, the mirror of the bottom; WHEN it closes it SHALL take the bar back up the same way, as SNK-17 says, and WHERE motion is reduced it SHALL only fade in and out, over sys.motion.role.reduced, or appear and disappear at once where the platform removes every animation."
     },
     {
       "id": "SNK-37",
