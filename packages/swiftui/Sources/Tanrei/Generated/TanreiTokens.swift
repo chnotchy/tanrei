@@ -4228,6 +4228,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
   public var counterTypescale: TanreiTextStyle
   public var inputPaddingBlock: CGFloat
   public var layoutInlineMinWidth: CGFloat
+  public var motionGlyphFadeDuration: Double
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
@@ -4260,6 +4263,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     counterTypescale: TanreiTextStyle,
     inputPaddingBlock: CGFloat,
     layoutInlineMinWidth: CGFloat,
+    motionGlyphFadeDuration: Double,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
@@ -4288,6 +4294,9 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     self.counterTypescale = counterTypescale
     self.inputPaddingBlock = inputPaddingBlock
     self.layoutInlineMinWidth = layoutInlineMinWidth
+    self.motionGlyphFadeDuration = motionGlyphFadeDuration
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth

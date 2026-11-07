@@ -22317,6 +22317,32 @@
           }
         },
         "motion": {
+          "glyph-fade-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the glyph of the Button the composer brings in the send button's place takes to cross-fade between send and stop (CCM-35), with state-easing: a change of what a small part draws in place. The button itself — its name, its action, whether it is enabled — changes at once."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long the capsule takes to change its height when a File item is added to the strip or removed from it (CCM-35) — the strip opening or closing between the items that stay and the row of the typing area — and the items to fade in or out and move to their new places with it."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of that change of height, of the items' moves and of their fades."
+          },
           "state-duration": {
             "$type": "duration",
             "$value": {
@@ -22333,7 +22359,7 @@
               0,
               1
             ],
-            "$description": "The curve of those changes."
+            "$description": "The curve of those changes, and of the glyph's cross-fade between send and stop (glyph-fade-duration)."
           }
         },
         "outline": {
