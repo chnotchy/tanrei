@@ -255,7 +255,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-split-view",
       "props": {
         "axis": "axis",

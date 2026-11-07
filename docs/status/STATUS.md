@@ -103,7 +103,7 @@ Listing: 89 default · 8 advanced. A component of the first value is shown where
 | Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Handle | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Resizable frame | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Split view | composed: Handle | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Split view | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Marquee text | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 
