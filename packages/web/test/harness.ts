@@ -2366,7 +2366,7 @@ function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
   const own = staging.tag?.(f) ?? spec.platforms.web.name;
   const element = staging.element ? staging.element(f, attrs) : `<${own} ${attrs}>${children}${slotsMarkup(spec, f.slots)}${content}</${own}>`;
   // The stage's color, where the fixture names a surface role for it: an ancestor of the component, as its direction is.
-  const surface = f.surface ? ` style="background: var(--tanrei-sys-color-${f.surface})"` : '';
+  const surface = f.surface ? ` data-surface style="background: var(--tanrei-sys-color-${f.surface})"` : '';
   return `<div class="stage" ${mark}${f.direction ? ` dir="${f.direction}"` : ''}${surface}>${staging.wrap ? staging.wrap(element, f) : element}</div>`;
 }
 
@@ -2414,6 +2414,11 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
       body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
+      /* A picture of a stage is clipped to whole CSS pixels around it, so it takes in up to a pixel of the stages beside
+         it wherever a stage's height is a fraction of a pixel (a line of text is): a stage of another color drew a line
+         along its neighbours' pictures. One a fixture paints in a surface role stands a pixel apart, on the page's
+         surface; a whole pixel, so the stages below keep the fraction of a pixel they start at. */
+      .stage[data-surface] { margin-block: 1px; }
     </style>
     ${staging.css ? `<style>${staging.css()}</style>` : ''}
     ${twinCss.trim() ? `<style>${twinCss}</style>` : ''}
