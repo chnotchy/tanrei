@@ -76,11 +76,11 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="移到回收站" describes={false}>
+    <Tooltip text="移到回收站" noDescribe>
       <Button variant="text" label="移到回收站" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* 命令的按键显示在名称之后：每个字符串是一个组合键。 */}
-    <Tooltip text="粗体" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="粗体" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="粗体" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* 在控件下方，与它的起始边对齐，带箭头，画在表面上而不是反色。 */}
@@ -171,7 +171,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // 锚点是接受 Pressable 属性的“一个”子元素。工具提示会加上自己的处理函数，并先调用锚点自己的处理函数。
-    <Tooltip text="移到回收站" describes={false}>
+    <Tooltip text="移到回收站" noDescribe>
       <IconButton accessibilityLabel="移到回收站" onPress={trash}>delete</IconButton>
     </Tooltip>
 

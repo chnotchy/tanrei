@@ -92,7 +92,7 @@ On a server, where there is no `document`, a component renders its element's tag
 // <tanrei-text-field label="Email" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
 ```
 
-A prop at its default writes nothing, so a `false` is never written as present. A boolean that is on by default and turned off writes the attribute the element reads as off: `<CopyButton iconOnly={false} />` writes `icon-only="false"`, `<BottomSheet handle={false} />` writes `no-handle`. Handlers, objects and arrays are set in the browser, once the component mounts. The shadow root is not rendered on the server: the element draws itself when its definition loads, and React hydrates the tag without a mismatch.
+A prop at its default writes nothing, so a `false` is never written as present. A boolean that is on by default and turned off writes the attribute the element reads as off: `<CopyButton iconOnly={false} />` writes `icon-only="false"`. Handlers, objects and arrays are set in the browser, once the component mounts. The shadow root is not rendered on the server: the element draws itself when its definition loads, and React hydrates the tag without a mismatch.
 
 ### Next.js (App Router)
 

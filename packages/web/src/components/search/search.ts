@@ -27,7 +27,6 @@ import {
   focusWithin,
   holdPageScroll,
   hostAria,
-  inverseBoolean,
   markGlyph,
   modalLayer,
   naturalHeight,
@@ -702,8 +701,9 @@ export class TanreiSearch extends TanreiElement {
     queryRow: { type: String, attribute: 'query-row', reflect: true },
     queryRowText: { type: String, attribute: 'query-row-text' },
     inlineCompletion: { type: Boolean, attribute: 'inline-completion', reflect: true },
-    // SRC-14: an HTML boolean attribute cannot default to true: the attribute is the inverse, `no-wrap`.
-    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
+    // SRC-14: the spec's `wrap`, which defaults to true, is its inverse here, `noWrap`: an HTML boolean attribute cannot
+    // default to true, and the property has the attribute's name.
+    noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     density: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
@@ -811,11 +811,10 @@ export class TanreiSearch extends TanreiElement {
   inlineCompletion = false;
 
   /**
-   * Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the
-   * first to the last — with `query-row="none"`, through the input's own place (SRC-14, SRC-49). The attribute is the
-   * inverse, `no-wrap`, which stops them at the ends.
+   * Stops the arrow keys at the ends of the view's rows. False (the default): they go round — Down Arrow on the last to
+   * the first, Up Arrow on the first to the last — with `query-row="none"`, through the input's own place (SRC-14, SRC-49).
    */
-  wrap = true;
+  noWrap = false;
 
   /**
    * Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon
@@ -1528,7 +1527,7 @@ export class TanreiSearch extends TanreiElement {
 
   /**
    * SRC-14, SRC-49: Down Arrow (`step` 1) or Up Arrow (-1): the next or the previous place of the cycle, going round at
-   * the ends while `wrap` is true and doing nothing there otherwise. With none current, Down Arrow goes to the first
+   * the ends while `noWrap` is false and doing nothing there otherwise. With none current, Down Arrow goes to the first
    * place's row and Up Arrow, going round, to the last. `focused`: the result the key was pressed on, if any.
    */
   private move(step: 1 | -1, focused = -1) {
@@ -1536,9 +1535,9 @@ export class TanreiSearch extends TanreiElement {
     if (length === 0) return;
     const at = this.placeNow(focused);
     let next: number | null;
-    if (at === null) next = step > 0 ? 0 : this.wrap ? length - 1 : null;
-    else if (at + step >= length) next = this.wrap ? 0 : null;
-    else if (at + step < 0) next = this.wrap ? length - 1 : null;
+    if (at === null) next = step > 0 ? 0 : !this.noWrap ? length - 1 : null;
+    else if (at + step >= length) next = !this.noWrap ? 0 : null;
+    else if (at + step < 0) next = !this.noWrap ? length - 1 : null;
     else next = at + step;
     // With no suggestion a current first result stays where it is on Up Arrow at the end: there is no input's place.
     if (next === null) return;
@@ -1787,7 +1786,7 @@ export class TanreiSearch extends TanreiElement {
   /**
    * SRC-49: the keys a focused result answers. Down and Up Arrow move through the arrow keys' cycle — real focus through
    * the results in view order, across groups, from the first back to the input (the last suggestion active, where there
-   * is one), and round at the ends while wrap is true. Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
+   * is one), and round at the ends unless `noWrap`. Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
    * the browser's own activation of the link; the row only shows its press (SRC-19). Returns whether the key was taken.
    */
   #onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
@@ -1795,7 +1794,7 @@ export class TanreiSearch extends TanreiElement {
     if (plain && !event.shiftKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       event.preventDefault();
       // SRC-49: the cycle goes on from the result that has focus: to the next or the previous result, from the first
-      // back to the input with the last suggestion active, and round at the ends while wrap is true.
+      // back to the input with the last suggestion active, and round at the ends unless `noWrap`.
       this.move(event.key === 'ArrowDown' ? 1 : -1, this.rows.indexOf(row));
       return true;
     }

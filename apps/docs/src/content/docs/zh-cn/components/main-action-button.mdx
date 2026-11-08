@@ -56,8 +56,8 @@ import Example from '../../../../components/visuals/Example.astro';
       import '@tanrei/web/components/main-action-button';
       const compose = document.querySelector('tanrei-main-action-button.primary-action');
       compose.addEventListener('click', newMessage);
-      // extended 是一个默认为 true 的属性；从外部把它收起，例如在页面滚动之后。
-      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+      // 从外部把它收起，例如在页面滚动之后。
+      addEventListener('scroll', () => (compose.collapsed = scrollY > 0), { passive: true });
     </script>
     ```
   </TabItem>
@@ -65,7 +65,7 @@ import Example from '../../../../components/visuals/Example.astro';
     ```tsx
     import { MainActionButton } from '@tanrei/react';
 
-    <MainActionButton className="primary-action" label="撰写" extended={atTop} onClick={newMessage}>
+    <MainActionButton className="primary-action" label="撰写" collapsed={!atTop} onClick={newMessage}>
       <span slot="icon">edit</span>
     </MainActionButton>
 

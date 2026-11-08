@@ -14,7 +14,7 @@ const SideSheetElement = /* @__PURE__ */ createComponent({
     onClose: 'close' as EventName<TanreiEvent<TanreiSideSheetElement, CustomEvent<TanreiSideSheetCloseDetail>>>,
   },
 });
-const SideSheetAttributes = { variant: ['variant', 'standard'], open: ['open', false], headline: ['headline', ''], closable: ['not-closable', true], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'] } as const;
+const SideSheetAttributes = { variant: ['variant', 'standard'], open: ['open', false], headline: ['headline', ''], notClosable: ['not-closable', false], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'] } as const;
 /**
  * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or `modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one action (SSH-16).
  *

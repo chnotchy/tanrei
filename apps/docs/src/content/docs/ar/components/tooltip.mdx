@@ -76,11 +76,11 @@ import Example from '../../../../components/visuals/Example.astro';
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="نقل إلى المهملات" describes={false}>
+    <Tooltip text="نقل إلى المهملات" noDescribe>
       <Button variant="text" label="نقل إلى المهملات" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* مفاتيح الأمر بعد اسمه: تآلف واحد في كل سلسلة نصية. */}
-    <Tooltip text="غامق" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="غامق" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="غامق" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* تحت عنصر التحكم، محاذيًا لحافة بدايته، مع سهم، على سطح بدل المظهر المعكوس. */}
@@ -171,7 +171,7 @@ import Example from '../../../../components/visuals/Example.astro';
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // عنصر الارتكاز عنصر فرعي واحد يقبل خصائص Pressable. يضيف التلميح معالجاته، ويستدعي معالجات عنصر الارتكاز أولًا.
-    <Tooltip text="نقل إلى المهملات" describes={false}>
+    <Tooltip text="نقل إلى المهملات" noDescribe>
       <IconButton accessibilityLabel="نقل إلى المهملات" onPress={trash}>delete</IconButton>
     </Tooltip>
 

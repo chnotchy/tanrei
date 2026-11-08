@@ -190,8 +190,6 @@ export function webModuleOf(tag: string): string | undefined {
 export interface WebAttribute {
   /** The attribute's name as HTML writes it (`readonly`, `supporting-text`, `flush`). */
   name: string;
-  /** True where the attribute says the opposite of its property: a boolean that defaults to true (`inset`) has an attribute that turns it off (`flush`). */
-  inverse: boolean;
 }
 const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
   (customElements.modules ?? []).flatMap((m: any) =>
@@ -202,7 +200,7 @@ const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
         new Map(
           (d.attributes ?? [])
             .filter((a: any) => a.fieldName)
-            .map((a: any) => [a.fieldName, { name: a.name, inverse: a.type?.text === 'boolean' && a.default === 'true' && a.name !== a.fieldName.replace(/[A-Z]/g, (c: string) => `-${c.toLowerCase()}`) }]),
+            .map((a: any) => [a.fieldName, { name: a.name }]),
         ),
       ]),
   ),

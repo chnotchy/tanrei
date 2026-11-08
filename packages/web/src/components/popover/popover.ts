@@ -198,12 +198,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     arrow: { reflect: true, converter: choiceAttribute },
     width: { type: String, reflect: true },
     compactPresentation: { type: String, attribute: 'compact-presentation', reflect: true },
-    inset: {
-      type: Boolean,
-      attribute: 'no-inset',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `inset`, which defaults to true, is its inverse here, `noInset`: an HTML boolean attribute cannot default
+    // to true, and the property has the attribute's name (the spec's web notes).
+    noInset: { type: Boolean, attribute: 'no-inset', reflect: true },
     initialFocus: { type: String, attribute: 'initial-focus' },
     headline: { type: String },
     label: { type: String },
@@ -268,8 +265,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
    */
   compactPresentation: TanreiPopoverCompactPresentation = 'sheet';
 
-  /** Insets the content by the container's paddings. False — the attribute `no-inset` — lets content that pads itself reach the edges. */
-  inset = true;
+  /** Lets content that pads itself reach the edges (the attribute `no-inset`). False (the default) insets the content by the container's paddings. */
+  noInset = false;
 
   /**
    * `popover`: focus moves into it when it opens. `anchor`: focus stays where it is (a surface under a field the person

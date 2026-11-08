@@ -71,10 +71,9 @@ describe('the code in React', () => {
     assert.match(reactOf(`<${tag} ${attribute}="3"></${tag}>`, names), new RegExp(`=\\{3\\} />`));
     assert.match(reactOf('<tanrei-button onclick="this.closest(\'figure\').hidden = true">Hide</tanrei-button>', names), /onClick=\{\(event\) => \{ event\.currentTarget\.closest\('figure'\)\.hidden = true \}\}/);
   });
-  test('an attribute that turns off a property on by default is that property, false', () => {
-    const turnsOff = Object.entries(names.elements).flatMap(([tag, [, props]]) => Object.entries(props).filter(([, [, kind]]) => kind === 2).map(([attribute, [property]]) => [tag, attribute, property]));
-    assert.ok(turnsOff.some(([tag, attribute, property]) => tag === 'tanrei-card' && attribute === 'flush' && property === 'inset'), 'the card’s flush turns its inset off');
-    assert.match(reactOf('<tanrei-card flush="true">Text</tanrei-card>', names), /<Card inset=\{false\}>Text<\/Card>/);
+  test('a boolean attribute is the prop of its name: the card’s flush is flush', () => {
+    assert.equal(names.elements['tanrei-card'][1].flush, undefined, 'flush needs no entry: its prop is its name');
+    assert.match(reactOf('<tanrei-card flush="true">Text</tanrei-card>', names), /<Card flush>Text<\/Card>/);
   });
 });
 

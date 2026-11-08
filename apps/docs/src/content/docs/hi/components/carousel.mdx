@@ -73,7 +73,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     ```tsx
     import { Carousel, CarouselItem } from '@tanrei/react';
 
-    <Carousel label="हाल में देखे गए" itemWidth={120} fluidWidth={false} snap={false}>
+    <Carousel label="हाल में देखे गए" itemWidth={120} fixedWidth freeScroll>
       {walks.map((walk) => (
         <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
           <img src={walk.image} alt="" />

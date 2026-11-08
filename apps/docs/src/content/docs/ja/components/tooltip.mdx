@@ -76,11 +76,11 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="ゴミ箱に移動" describes={false}>
+    <Tooltip text="ゴミ箱に移動" noDescribe>
       <Button variant="text" label="ゴミ箱に移動" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* 名前の後ろに、そのコマンドのキーを表示します。文字列 1 つが 1 つの組み合わせです。 */}
-    <Tooltip text="太字" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="太字" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="太字" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* コントロールの下に、先頭側の端をそろえて、矢印付きで、反転ではなくサーフェスの上に描きます。 */}
@@ -171,7 +171,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // アンカーは、Pressable の props を受け取る子要素 1 つです。ツールチップはアンカー自身のハンドラーを先に呼びます。
-    <Tooltip text="ゴミ箱に移動" describes={false}>
+    <Tooltip text="ゴミ箱に移動" noDescribe>
       <IconButton accessibilityLabel="ゴミ箱に移動" onPress={trash}>delete</IconButton>
     </Tooltip>
 

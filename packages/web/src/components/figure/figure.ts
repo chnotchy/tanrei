@@ -146,12 +146,9 @@ export class TanreiFigure extends TanreiLightElement {
     label: { type: String },
     // The defaults are not reflected: a figure that is defined is the figure that was written.
     variant: { type: String, reflect: true, useDefault: true },
-    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `flush` (the spec's web notes).
-    inset: {
-      attribute: 'flush',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `inset`, which defaults to true, is its inverse here, `flush`: an HTML boolean attribute cannot default to
+    // true, and the property has the attribute's name (the spec's web notes).
+    flush: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true, useDefault: true },
     pattern: { type: String, reflect: true, useDefault: true },
   };
@@ -172,8 +169,8 @@ export class TanreiFigure extends TanreiLightElement {
   /** How the stage is set apart: `outlined` is the surface inside one hairline, `filled` a quiet tone and no edge, `plain` no fill, no edge, no padding and no line. A design system may add values. */
   variant: TanreiFigureVariant = 'outlined';
 
-  /** Whether the stage is padded inside the frame. False (the `flush` attribute) lets a picture, a chart or a map reach the frame's edges, clipped by its corners. The plain look is never padded. */
-  inset = true;
+  /** Lets a picture, a chart or a map reach the frame's edges, clipped by its corners. False (the default) pads the stage inside the frame; the plain look is never padded. */
+  flush = false;
 
   /** How the parts inside the frame are told apart: `divider` draws a line under the header and above the attachment, `gap` draws none and stands the attachment inside the frame; `auto` takes `comp.figure.separation`, the design system's answer. */
   separation: TanreiFigureSeparation = 'auto';

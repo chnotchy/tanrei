@@ -73,7 +73,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     ```tsx
     import { Carousel, CarouselItem } from '@tanrei/react';
 
-    <Carousel label="最近浏览" itemWidth={120} fluidWidth={false} snap={false}>
+    <Carousel label="最近浏览" itemWidth={120} fixedWidth freeScroll>
       {walks.map((walk) => (
         <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
           <img src={walk.image} alt="" />

@@ -12,7 +12,6 @@ import {
   type FieldSays,
   GlyphDrawnController,
   GlyphMirrorController,
-  inverseBoolean,
   NativeTextController,
   OpenAxesController,
   SEPARATION_VALUES,
@@ -244,8 +243,9 @@ export class TanreiCombobox extends TanreiElement {
     open: { type: Boolean, reflect: true },
     allowCustomValue: { type: Boolean, attribute: 'allow-custom-value', reflect: true },
     filter: { type: String, reflect: true },
-    // CMB-26: an HTML boolean attribute cannot default to true: the attribute is the inverse, `no-wrap`.
-    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
+    // CMB-26: the spec's `wrap`, which defaults to true, is its inverse here, `noWrap`: an HTML boolean attribute cannot
+    // default to true, and the property has the attribute's name.
+    noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     noChevron: { type: Boolean, attribute: 'no-chevron', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
@@ -333,11 +333,11 @@ export class TanreiCombobox extends TanreiElement {
   filter: TanreiComboboxFilter = 'contains';
 
   /**
-   * Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the
-   * first to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the
-   * attribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.
+   * Stops the arrow keys at the ends of the list. False (the default): they go round — Down Arrow on the last option to
+   * the first, Up Arrow on the first to the last — with `allowCustomValue`, through the text itself, where no option is
+   * active. Reflected.
    */
-  wrap = true;
+  noWrap = false;
 
   /** Draws no chevron (`no-chevron`: the spec's `chevron`, inverted, because a boolean attribute cannot default to true): for a field whose suggestions exist only for what was typed. The list then opens by typing and by the arrow keys alone. Reflected. */
   noChevron = false;
@@ -713,7 +713,7 @@ export class TanreiCombobox extends TanreiElement {
   /**
    * CMB-26: Down Arrow (`step` 1) or Up Arrow (-1) in the open list: the next or the previous shown option, across
    * groups. Where a custom value is allowed the text is the place before the first option, where none is active; at the
-   * ends the keys go round while `wrap` is true — through the text where it is a place — and do nothing otherwise.
+   * ends the keys go round while `noWrap` is false — through the text where it is a place — and do nothing otherwise.
    */
   private moveActive(step: 1 | -1) {
     const { options } = this.shown;
@@ -724,9 +724,9 @@ export class TanreiCombobox extends TanreiElement {
     const free = this.allowCustomValue;
     // The place to go: an option's index, -1 for the text (no option active), or null to stay.
     let next: number | null;
-    if (at < 0) next = step > 0 ? 0 : !free || this.wrap ? count - 1 : null;
-    else if (at + step >= count) next = this.wrap ? (free ? -1 : 0) : null;
-    else if (at + step < 0) next = free ? -1 : this.wrap ? count - 1 : null;
+    if (at < 0) next = step > 0 ? 0 : !free || !this.noWrap ? count - 1 : null;
+    else if (at + step >= count) next = !this.noWrap ? (free ? -1 : 0) : null;
+    else if (at + step < 0) next = free ? -1 : !this.noWrap ? count - 1 : null;
     else next = at + step;
     // The person moved: what is active now is announced at once.
     this.typedOption = null;
@@ -1604,7 +1604,7 @@ export class TanreiCombobox extends TanreiElement {
                   .label=${label}
                   .removeLabel=${sentence ? this.removeName(sentence, label) : ''}
                   .disabled=${inert}
-                  .removable=${!this.readOnly}
+                  .notRemovable=${this.readOnly}
                   @keydown=${this.#onEntryKey}
                   @click=${this.#onEntryClick}
                   @remove=${this.#onEntryRemove}

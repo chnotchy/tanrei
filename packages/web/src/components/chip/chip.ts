@@ -109,12 +109,9 @@ export class TanreiChip extends TanreiElement {
     label: { type: String },
     removeLabel: { type: String, attribute: 'remove-label', reflect: true },
     destructiveRemove: { type: Boolean, attribute: 'destructive-remove', reflect: true },
-    removable: {
-      type: Boolean,
-      attribute: 'not-removable',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `removable`, which defaults to true, is its inverse here, `notRemovable`: an HTML boolean attribute
+    // cannot default to true, and the property has the attribute's name (the spec's web notes).
+    notRemovable: { type: Boolean, attribute: 'not-removable', reflect: true },
     href: { type: String },
     target: { type: String },
     targetLabel: { type: String, attribute: 'target-label' },
@@ -161,11 +158,11 @@ export class TanreiChip extends TanreiElement {
   destructiveRemove = false;
 
   /**
-   * Whether an input chip draws its remove action. Set `not-removable` for an entry that cannot be taken away now (a
-   * read-only field's): no remove action is drawn, so none stands there doing nothing, none is a stop, Backspace and
-   * Delete ask for nothing, and the chip is padded as one without a remove action (CHP-38). Ignored unless `kind` is input.
+   * Draws no remove action on an input chip, for an entry that cannot be taken away now (a read-only field's): none
+   * stands there doing nothing, none is a stop, Backspace and Delete ask for nothing, and the chip is padded as one
+   * without a remove action (CHP-38). False (the default) draws it. Ignored unless `kind` is input.
    */
-  removable = true;
+  notRemovable = false;
 
   /**
    * The destination of an action chip: a URL, a path or a fragment. Not empty, the chip is a link and not a button
@@ -257,7 +254,7 @@ export class TanreiChip extends TanreiElement {
 
   /** CHP-18, CHP-38: an input chip has its remove action unless it is not removable. */
   private get removes() {
-    return this.effectiveKind === 'input' && this.removable;
+    return this.effectiveKind === 'input' && !this.notRemovable;
   }
 
   /** CHP-11: selected counts only on a filter chip. */
@@ -389,7 +386,7 @@ export class TanreiChip extends TanreiElement {
     }
     // CHP-26: the label is the name, and an input chip's remove action is named by removeLabel. It still renders; a debug build says what is missing.
     if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
-    if ((changed.has('removeLabel') || changed.has('kind') || changed.has('removable')) && this.removes && !this.removeLabel) {
+    if ((changed.has('removeLabel') || changed.has('kind') || changed.has('notRemovable')) && this.removes && !this.removeLabel) {
       report(this, 'CHP-26', 'removeLabel is empty, so the remove action has no accessible name; give it one that names the item');
     }
     // CHP-15: only an input chip draws an avatar.

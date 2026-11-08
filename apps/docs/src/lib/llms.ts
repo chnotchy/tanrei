@@ -28,6 +28,7 @@ import {
   statuses,
   systemLayers,
   webAttribute,
+  webPropertyDefault,
   type ComponentsManifest,
   type ManifestOmission,
   type Spec,
@@ -132,16 +133,23 @@ const fromNote = (entry: { from?: string; note?: string }) => {
   return member ? ` (From ${titleOf(member)}${entry.note ? `: ${line(entry.note)}` : '.'})` : '';
 };
 
-function propsTable(props: SpecProp[], tag?: string): string {
+/**
+ * The props, with the web attribute of each where `tag` is given: the attribute of the element's property the spec's web
+ * block maps the prop to (`mapping`), marked where that property is the prop's opposite — a prop on by default whose
+ * property is off by default (`inset`, the card's `flush`).
+ */
+function propsTable(props: SpecProp[], tag?: string, mapping: Record<string, string> = {}): string {
   const withAttribute = Boolean(tag);
   const head = ['Prop', 'Type', 'Default', ...(withAttribute ? ['Web attribute'] : []), 'Description'];
   const rows = props.map((prop) => {
-    const attribute = tag ? webAttribute(tag, prop.name) : undefined;
+    const property = mapping[prop.name] ?? prop.name;
+    const attribute = tag ? webAttribute(tag, property) : undefined;
+    const turnsOff = prop.type === 'boolean' && prop.default === true && property !== prop.name && webPropertyDefault(tag!, property) === 'false';
     return [
       code(prop.name),
       typeOf(prop),
       defaultOf(prop),
-      ...(withAttribute ? [attribute ? `${code(attribute.name)}${attribute.inverse ? ' (turns it off)' : ''}` : '—'] : []),
+      ...(withAttribute ? [attribute ? `${code(attribute.name)}${turnsOff ? ' (turns it off)' : ''}` : '—'] : []),
       `${line(prop.description)}${fromNote(prop)}`,
     ];
   });
@@ -306,7 +314,7 @@ export function componentMarkdown(name: string, site: URL): string {
   const out: string[] = [`# ${spec.title}`, '', `> ${line(spec.summary)}`, '', ...facts, '', ...availabilitySection(name), '', ...platformsSection(spec)];
 
   out.push('', '## Anatomy', '', ...spec.anatomy.map((part) => `- ${code(part.id)}${part.optional ? ' (optional)' : ''}: ${line(part.description)}`));
-  out.push('', '## Props', '', spec.props.length ? propsTable(spec.props, tag) : 'None.');
+  out.push('', '## Props', '', spec.props.length ? propsTable(spec.props, tag, spec.platforms.web?.props) : 'None.');
   if (spec.events?.length) out.push('', '## Events', '', table(['Event', 'Description'], spec.events.map((event) => [code(event.name), `${line(event.description)}${fromNote(event)}`])));
   if (spec.slots?.length) out.push('', '## Slots', '', table(['Slot', 'Description'], spec.slots.map((slot) => [code(slot.name), `${line(slot.description)}${fromNote(slot)}`])));
   for (const item of spec.items ?? []) {
@@ -315,7 +323,7 @@ export function componentMarkdown(name: string, site: URL): string {
     const names = platforms.filter((p) => spec.platforms[p]?.items?.[item.name]?.name).map((p) => `${en.platform[p] ?? p} ${code(spec.platforms[p].items![item.name].name)}`);
     if (names.length) out.push('', `Names: ${names.join(', ')}.`);
     const itemTag = spec.platforms.web?.items?.[item.name]?.name;
-    if (item.props?.length) out.push('', propsTable(item.props, itemTag && definedTags.has(itemTag) ? itemTag : undefined));
+    if (item.props?.length) out.push('', propsTable(item.props, itemTag && definedTags.has(itemTag) ? itemTag : undefined, spec.platforms.web?.items?.[item.name]?.props));
     if (item.events?.length) out.push('', table(['Event', 'Description'], item.events.map((event) => [code(event.name), line(event.description)])));
     if (item.slots?.length) out.push('', table(['Slot', 'Description'], item.slots.map((slot) => [code(slot.name), line(slot.description)])));
   }

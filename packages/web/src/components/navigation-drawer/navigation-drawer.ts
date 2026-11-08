@@ -1526,7 +1526,7 @@ interface Snapshot {
  * collapsed — its column in the layout, drawn as a standard drawer's — while closed, and expanded over the content while
  * open. The first header button is then the menu button: the drawer sets `aria-expanded` and `aria-controls` on its
  * native button (`ariaExpanded`, `ariaControlsElements`), and its activation asks for the other form: the drawer sets
- * `expanded` (or `open`) and fires `expandedchange`. The main action's `extended` follows the form. The read-only
+ * `expanded` (or `open`) and fires `expandedchange`. The main action's `collapsed` follows the form. The read-only
  * `collapsed` attribute reflects the form.
  *
  * Standard: a `<nav>` named by `label`, taking its form's width in the layout while `open` and none while closed (sliding
@@ -3431,7 +3431,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private syncMainAction() {
     const [main] = this.mainActions;
     // Set before the button is defined too: a Lit element takes a property set before its upgrade as its own.
-    if (main && ('extended' in main || !customElements.get(main.localName))) (main as HTMLElement & { extended: boolean }).extended = !this.collapsed;
+    if (main && ('collapsed' in main || !customElements.get(main.localName))) (main as HTMLElement & { collapsed: boolean }).collapsed = this.collapsed;
   }
 
   // ---- updates ----

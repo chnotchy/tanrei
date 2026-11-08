@@ -76,11 +76,11 @@ Web और React के उदाहरण मौजूदा स्पेक �
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="ट्रैश में डालें" describes={false}>
+    <Tooltip text="ट्रैश में डालें" noDescribe>
       <Button variant="text" label="ट्रैश में डालें" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* कमांड के नाम के बाद उसकी कुंजियाँ: हर स्ट्रिंग में एक कॉर्ड। */}
-    <Tooltip text="बोल्ड" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="बोल्ड" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="बोल्ड" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* कंट्रोल के नीचे, उसके शुरुआती किनारे की सीध में, तीर के साथ, इनवर्स की जगह सरफ़ेस पर। */}
@@ -171,7 +171,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // ऐंकर एक ही चाइल्ड है, जो Pressable की प्रॉपर्टी लेता है। टूलटिप अपने हैंडलर जोड़ता है, और पहले ऐंकर के अपने हैंडलर कॉल करता है।
-    <Tooltip text="ट्रैश में डालें" describes={false}>
+    <Tooltip text="ट्रैश में डालें" noDescribe>
       <IconButton accessibilityLabel="ट्रैश में डालें" onPress={trash}>delete</IconButton>
     </Tooltip>
 

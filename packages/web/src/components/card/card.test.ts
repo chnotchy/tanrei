@@ -298,9 +298,9 @@ test.describe('behavior', () => {
     const before = (await bounds(inner(page, 'outlined'))).height;
     await content(page, 'outlined').evaluate((el) => el.insertAdjacentHTML('beforeend', '<br>A second paragraph.'));
     expect((await bounds(inner(page, 'outlined'))).height).toBeGreaterThan(before);
-    // The property and its attribute agree: `inset` false is the `flush` attribute.
-    expect(await host(page, 'outlined-flush').evaluate((el) => (el as any).inset)).toBe(false);
-    await host(page, 'outlined').evaluate((el) => ((el as any).inset = false));
+    // The property and its attribute agree: the spec's `inset` false is `flush`, the property and the attribute.
+    expect(await host(page, 'outlined-flush').evaluate((el) => (el as any).flush)).toBe(true);
+    await host(page, 'outlined').evaluate((el) => ((el as any).flush = true));
     await expect(host(page, 'outlined')).toHaveAttribute('flush', '');
   });
 

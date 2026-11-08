@@ -775,10 +775,10 @@ test.describe('input, what is exposed, changes and layout', () => {
     await expect(stage(page, 'own').getByRole('figure', { name: 'After' })).toHaveAccessibleDescription('Another caption');
     await element.evaluate((el) => ((el as unknown as { variant: string }).variant = 'filled'));
     await expect.poll(() => css(frame(page, 'own'), 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));
-    await element.evaluate((el) => ((el as unknown as { inset: boolean }).inset = false));
+    await element.evaluate((el) => ((el as unknown as { flush: boolean }).flush = true));
     await expect(element).toHaveAttribute('flush', '');
     await expect.poll(() => px(shown(page, 'own'), 'padding-top')).toBe(0);
-    await element.evaluate((el) => ((el as unknown as { inset: boolean }).inset = true));
+    await element.evaluate((el) => ((el as unknown as { flush: boolean }).flush = false));
     await expect.poll(() => px(shown(page, 'own'), 'padding-top')).toBe(await resolveToken(page, T('stage-padding-block')));
     // The title and the caption taken away again.
     await element.evaluate((el) => ((el as unknown as { headline: string }).headline = ''));

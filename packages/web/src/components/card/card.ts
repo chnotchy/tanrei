@@ -50,12 +50,9 @@ export class TanreiCard extends TanreiElement {
     variant: { type: String, reflect: true },
     interactive: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `flush` (the spec's web notes).
-    inset: {
-      attribute: 'flush',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `inset`, which defaults to true, is its inverse here, `flush`: an HTML boolean attribute cannot default to
+    // true, and the property has the attribute's name (the spec's web notes).
+    flush: { type: Boolean, reflect: true },
     label: { type: String },
     href: { type: String },
     target: { type: String },
@@ -74,10 +71,10 @@ export class TanreiCard extends TanreiElement {
   disabled = false;
 
   /**
-   * Insets the content by the card's padding. False (the `flush` attribute) lets content reach the card's edges — a
-   * photo on top — and that content pads its own text (`--tanrei-comp-card-container-padding`).
+   * Lets content reach the card's edges — a photo on top — and that content pads its own text
+   * (`--tanrei-comp-card-container-padding`). False (the default) insets the content by the card's padding.
    */
-  inset = true;
+  flush = false;
 
   /** The accessible name: of the action or the link when interactive or a link card (normally its heading's text), of a named group otherwise. */
   label = '';
