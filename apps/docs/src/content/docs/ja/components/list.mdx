@@ -2,7 +2,7 @@
 title: リスト
 description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
+sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -146,6 +146,8 @@ SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補�
 
 順番はプロダクトのデータなので、リストが自分で変えることはありません。どの方法で動かしても `move` が発火し、`from` に項目のインデックス、`to` に移動後のインデックスが入ります（どちらも 0 から数えます）。それに応えて項目を並べ替えてください。するとリストは項目が入れ替わる様子を描き、動かした項目のハンドルにフォーカスを保ち、新しい位置を支援技術に伝えます。`comp.list.motion.reorder-duration` の時間内に何も変えなければ、その移動は拒否されたものとして扱われ、項目は元に戻り、何も読み上げられません。
 
+並べ替えられるリストに項目を加えたり取り除いたりすると、リストはその項目が入ってくる様子、出ていく様子を描きます。縦や横に並ぶリストでは、入ってくる項目は、隣の間隔といっしょに、リストの向きに沿ってゼロから自分の長さまで伸びながらフェードインします。出ていく項目は、フェードアウトしながらゼロまで縮みます。後ろの項目はその端について動くので、何も飛びません。折り返して並ぶリストでは、項目はその位置でフェードイン・フェードアウトし、ほかの項目が新しい位置へ動きます。リストが伝える件数と位置は即座に変わります。出ていく項目は、描かれている間も件数に入らず、支援技術から隠れ、フォーカスも押下も受けません。Web では、消え終わるまで `data-leaving` の付いた子としてリストに残るので、その間に項目を読むスクリプトは `tanrei-list-item:not([data-leaving])` で選んでください。モーションを減らす設定では、項目は即座に入り、即座に出ていきます。
+
 言葉はプロダクトのものです。ハンドルの名前（`dragHandleLabel`。場所 `{label}` にリストが項目の名前を入れます）、その説明（`dragHandleHint`）、メニューの 4 つの移動、そして読み上げられる 3 つの文（`liftedText`、`movedText`、`cancelledText`。場所は `{label}`、`{position}`、`{count}`）です。リストに指定するか、`setWords()` でプロダクト全体に一度だけ指定します。行のリストでは、列で「上へ移動」「下へ移動」と書くところを「左へ移動」「右へ移動」と書きます。
 
 <Tabs syncKey="platform">
@@ -168,7 +170,7 @@ SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補�
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
-        const items = [...list.children];
+        const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
       });
     </script>

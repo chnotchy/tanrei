@@ -2,7 +2,7 @@
 title: Cuadro de redacción de chat
 description: Permite escribir un mensaje y enviarlo, en una sola cápsula que lo contiene todo. Un área de escritura que crece con lo que se escribe, los archivos adjuntos al mensaje, tus propias acciones y un botón de enviar que solo está habilitado mientras el mensaje se puede enviar. Notifica el mensaje y nunca envía nada por sí mismo.
 translationOf: components/chat-composer.mdx
-sourceHash: 14a5591949903e4270525157dabc913983807927
+sourceHash: 6cec01c02685c8ba54ed91de1e6de4c605395bb4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -130,6 +130,12 @@ El botón de enviar solo está habilitado mientras se cumple todo lo siguiente. 
 | `length` | El texto es más largo que `maxLength` |
 | `uploading` | El estado de un elemento de archivo es `uploading` |
 | `failed` | Un elemento de archivo ha fallado y se puede reintentar |
+
+### Cuando se añaden o se quitan archivos
+
+Al adjuntar o quitar un archivo, la cápsula cambia de altura en un solo movimiento. La franja de archivos se abre o se cierra encima de la fila de escritura, así que la línea que se está escribiendo, sus acciones y el botón de enviar conservan su sitio respecto al borde inferior de la cápsula, y los archivos que se quedan conservan el suyo respecto al borde superior; nada se desplaza dentro de la cápsula. Un elemento de archivo nuevo aparece con un fundido en su sitio, uno que se quita se desvanece donde estaba y los demás se deslizan a sus nuevos lugares. Lo que reciben la persona y la tecnología de asistencia cambia al instante: un elemento de archivo quitado sale del orden del foco y del árbol de accesibilidad en cuanto se quita, y si el mensaje se puede enviar se decide con los archivos que hay ahora.
+
+Cuando el botón de enviar pasa a ser el de detener, o al revés, el botón cambia al instante —su nombre, su acción y si está habilitado— y solo su glifo hace un fundido cruzado. Donde el movimiento está reducido, todo esto ocurre al instante.
 
 ### Las teclas
 

@@ -158,6 +158,7 @@ A card does not judge its destination. A page may still describe itself falsely;
 
 - The card is a block. It takes the width its container gives it and is as tall as what it holds. It brings no space of its own around it.
 - From 480 wide the picture stands beside the text, at the end edge. Narrower, it stands above the text. The card decides from its own width, not the window's, and the boundary grows with the text size.
+- A picture fades in over its box's fill when it arrives, and nothing changes place or size; one already loaded when the card is first drawn appears at once. A picture that fails folds its box away in one motion: beside the text, the text widens into its room; above the text, the text rises with it, and what stands below the card moves up too, so nothing jumps. Where motion is reduced, the picture is drawn whole and a failed picture's box goes at once.
 - The element is a size container, so it needs a width from its layout. In a flex row or a grid cell, give it one.
 - In long-form text it is a block like a figure. It never sits inside a sentence.
 
