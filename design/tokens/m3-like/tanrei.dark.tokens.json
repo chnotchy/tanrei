@@ -29476,6 +29476,32 @@
             }
           }
         },
+        "entries": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "While selection is multiple: the distance between two chosen values on one line of the box, and between the last one and the input. The text input's entries gap by default, so that the chips of a chip field and of a combobox stand alike."
+          },
+          "row-gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "While selection is multiple: the distance between two lines of chosen values when they wrap."
+          },
+          "typing-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 72,
+              "unit": "px"
+            },
+            "$description": "While selection is multiple: the least width the input keeps beside the last chosen value of a line; with less left, it takes a line of its own."
+          }
+        },
         "filled": {
           "disabled": {
             "option": {

@@ -12164,7 +12164,7 @@
               },
               "privacy": "public",
               "attribute": "value",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "default": "''"
             },
             {
@@ -12533,7 +12533,7 @@
               }
             },
             {
-              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. Composed and bubbling. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only types or moves through the list.",
+              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. While selection is multiple: a value was added or removed, `values` is already the new array, and `detail.values` holds it. Composed and bubbling. Never fired when the product sets `value` or `values`, when the chosen option is chosen again (single), or while the person only types or moves through the list.",
               "name": "change",
               "type": {
                 "text": "CustomEvent<TanreiComboboxChangeDetail>"
@@ -12685,7 +12685,7 @@
                 "text": "string"
               },
               "fieldName": "value",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "default": "''"
             },
             {
@@ -13076,7 +13076,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that\nnarrows as they type and that they choose from, or, where the product allows it, a value of their own. The bare\ncontrol: it has no label row and no message of its own.\n\nContract: specs/combobox.spec.json. The options are `<tanrei-option>` children, optionally in\n`<tanrei-option-group>` elements (the pair a select holds too); the combobox reads them — and reads them again when\nthey change — and renders the rows itself. A `<slot>` among its children stands for the elements assigned to it, so\nthat an element composed around it passes its own children on as the options. Every visual value is a token: the box is\ndrawn from `--tanrei-comp-input-box-*`, the one set every input box is drawn from (CMB-63), and the list and the\nstatus row from `--tanrei-comp-combobox-*` — the list's hold the menu's values and the status row's the search's, in\nevery shipped design system.\n\n```html\n<tanrei-field label=\"City\">\n  <tanrei-combobox name=\"city\" value=\"tokyo\">\n    <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n    <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n  </tanrei-combobox>\n</tanrei-field>\n```\n\nIn a form it is framed: by a Field, as above, or as `<tanrei-combobox-field>`, which is that pair as one element.\nThe Field gives it its name, its description and its required, invalid and disabled states, and draws the label\nrow, the requirement mark, the help and the error; the combobox says back that it draws the label itself where its\nlook floats one (`filled`, `outlined`), where its input text starts and ends, and that it is drawn focused for as\nlong as its list is open (`src/primitives/field.ts`). Bare — a filter in a toolbar, a cell of a table — it is named\nby its own `label`, which a stacked combobox does not draw.\n\nIt holds two things: `value`, the committed choice, and `inputValue`, the text in the input. Typing changes the text,\nopens the list and filters it (`filter=\"contains\"`; with `filter=\"none\"` the product filters, on `input`); a press on\nan option or Enter on the active one chooses; leaving the box resolves the text — a typed label chooses its\noption, any other text is kept as the value (`allow-custom-value`) or given up. The value changes only by a choice,\na commit or the clear button.\n\nIt is a block as wide as its place, with no width of its own. It is a form-associated element: it takes `name`,\nsubmits `value` (never an uncommitted text), resets to the `value` attribute, is restored on navigation, follows\n`<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is\nempty. It never validates beyond that, and is never required by itself.\n\nThe pattern is the editable combobox with a list box: focus stays in the input while the list is open and one\noption at most is the active one (`aria-activedescendant`). While an input method composes, every key is its own.",
+          "description": "Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that\nnarrows as they type and that they choose from, or, where the product allows it, a value of their own. The bare\ncontrol: it has no label row and no message of its own.\n\nContract: specs/combobox.spec.json. The options are `<tanrei-option>` children, optionally in\n`<tanrei-option-group>` elements (the pair a select holds too); the combobox reads them — and reads them again when\nthey change — and renders the rows itself. A `<slot>` among its children stands for the elements assigned to it, so\nthat an element composed around it passes its own children on as the options. Every visual value is a token: the box is\ndrawn from `--tanrei-comp-input-box-*`, the one set every input box is drawn from (CMB-63), and the list and the\nstatus row from `--tanrei-comp-combobox-*` — the list's hold the menu's values and the status row's the search's, in\nevery shipped design system.\n\n```html\n<tanrei-field label=\"City\">\n  <tanrei-combobox name=\"city\" value=\"tokyo\">\n    <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n    <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n  </tanrei-combobox>\n</tanrei-field>\n```\n\nIn a form it is framed: by a Field, as above, or as `<tanrei-combobox-field>`, which is that pair as one element.\nThe Field gives it its name, its description and its required, invalid and disabled states, and draws the label\nrow, the requirement mark, the help and the error; the combobox says back that it draws the label itself where its\nlook floats one (`filled`, `outlined`), where its input text starts and ends, and that it is drawn focused for as\nlong as its list is open (`src/primitives/field.ts`). Bare — a filter in a toolbar, a cell of a table — it is named\nby its own `label`, which a stacked combobox does not draw.\n\nIt holds two things: `value`, the committed choice, and `inputValue`, the text in the input. Typing changes the text,\nopens the list and filters it (`filter=\"contains\"`; with `filter=\"none\"` the product filters, on `input`); a press on\nan option or Enter on the active one chooses; leaving the box resolves the text — a typed label chooses its\noption, any other text is kept as the value (`allow-custom-value`) or given up. The value changes only by a choice,\na commit or the clear button.\n\nIt is a block as wide as its place, with no width of its own. It is a form-associated element: it takes `name`,\nsubmits `value` (never an uncommitted text), resets to the `value` attribute, is restored on navigation, follows\n`<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is\nempty. It never validates beyond that, and is never required by itself.\n\nThe pattern is the editable combobox with a list box: focus stays in the input while the list is open and one\noption at most is the active one (`aria-activedescendant`). While an input method composes, every key is its own.\n\n**Several values** (`selection=\"multiple\"`): the chosen values are `values`, an array (the attribute is read as a\nJSON array or as words), each drawn as an input Chip in the box before the input, in lines that wrap. A choice adds\nthe option's value, or takes it out where it is chosen; the text empties and the list stays open, so that several\ncan be chosen in a row. Backspace at the start of the text moves focus to the last chip; there the arrows move\namong the chips and Backspace or Delete removes one — the chip field's keys. The list box says that it allows\nseveral, a polite live region says what was added or removed (`added-text`, `removed-text`), and the form gets one\nentry per value under `name`, as a `<select multiple>` gives.",
           "name": "TanreiCombobox",
           "cssParts": [
             {
@@ -13102,6 +13102,22 @@
             {
               "description": "The native `<input>`: the combobox.",
               "name": "input"
+            },
+            {
+              "description": "A chosen value while selection is multiple: a `<tanrei-chip>` of kind input.",
+              "name": "entry"
+            },
+            {
+              "description": "A chosen value's chip: its native button, its shape and colors.",
+              "name": "entry-container"
+            },
+            {
+              "description": "A chosen value's chip: its label.",
+              "name": "entry-label"
+            },
+            {
+              "description": "A chosen value's chip: its remove action.",
+              "name": "entry-remove"
             },
             {
               "description": "The box of the glyph at the start of the container.",
@@ -13202,14 +13218,37 @@
             },
             {
               "kind": "field",
+              "name": "selection",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxSelection"
+              },
+              "default": "'single'",
+              "description": "Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected.",
+              "attribute": "selection",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "value",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "values",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.\nAssign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.\nThe `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.",
+              "attribute": "values"
             },
             {
               "kind": "field",
@@ -13458,6 +13497,39 @@
             },
             {
               "kind": "field",
+              "name": "removeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name.",
+              "attribute": "remove-label"
+            },
+            {
+              "kind": "field",
+              "name": "addedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person chooses a value (`added-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryAddedText })`); with neither nothing is said.",
+              "attribute": "added-text"
+            },
+            {
+              "kind": "field",
+              "name": "removedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person removes a chosen value (`removed-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryRemovedText })`); with neither nothing is said.",
+              "attribute": "removed-text"
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -13568,7 +13640,7 @@
               "type": {
                 "text": "CustomEvent<TanreiComboboxChangeDetail>"
               },
-              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. Composed and bubbling. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only types or moves through the list."
+              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. While selection is multiple: a value was added or removed, `values` is already the new array, and `detail.values` holds it. Composed and bubbling. Never fired when the product sets `value` or `values`, when the chosen option is chosen again (single), or while the person only types or moves through the list."
             },
             {
               "name": "toggle",
@@ -13619,13 +13691,31 @@
               "fieldName": "size"
             },
             {
+              "name": "selection",
+              "type": {
+                "text": "TanreiComboboxSelection"
+              },
+              "default": "'single'",
+              "description": "Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected.",
+              "fieldName": "selection"
+            },
+            {
               "name": "value",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "fieldName": "value"
+            },
+            {
+              "name": "values",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.\nAssign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.\nThe `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.",
+              "fieldName": "values"
             },
             {
               "name": "input-value",
@@ -13814,6 +13904,33 @@
               "default": "'regular'",
               "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values.",
               "fieldName": "density"
+            },
+            {
+              "name": "remove-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name.",
+              "fieldName": "removeLabel"
+            },
+            {
+              "name": "added-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person chooses a value (`added-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryAddedText })`); with neither nothing is said.",
+              "fieldName": "addedText"
+            },
+            {
+              "name": "removed-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person removes a chosen value (`removed-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryRemovedText })`); with neither nothing is said.",
+              "fieldName": "removedText"
             },
             {
               "name": "inline",

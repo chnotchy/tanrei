@@ -1,8 +1,8 @@
 ---
 title: "组合框"
-description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
+description: "用户在里面键入以找到一个或多个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
+sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,57 @@ import Example from '../../../../components/visuals/Example.astro';
 
 按下字段的标签会把焦点移到输入框，不打开任何东西。列表打开时，标签位于组合框之外：这次按下会关闭列表，焦点留在输入框里。
 
+### 多个值
+
+把 `selection` 设为 `multiple`，组合框就持有 `values`：任意多个选项，按选择的先后排列。每个选中的值以一枚纸片显示在方框里、文本之前；纸片换行时，方框按整行增高。不会有值藏在一个数字后面。这时文本只是用户为查找选项而键入的内容。
+
+<Example label="多个值：选中的城市以纸片排列，列表仍然可以筛选" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市">
+    <tanrei-combobox selection="multiple" values="kyoto lisbon" remove-label="移除{entry}" added-text="已添加{entry}" removed-text="已移除{entry}" empty-text="没有匹配项">
+      <tanrei-option value="kyoto">京都</tanrei-option>
+      <tanrei-option value="lisbon">里斯本</tanrei-option>
+      <tanrei-option value="nairobi">内罗毕</tanrei-option>
+      <tanrei-option value="tokyo">东京</tanrei-option>
+      <tanrei-option value="toronto">多伦多</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</Example>
+
+```html
+<tanrei-field label="城市">
+  <tanrei-combobox name="cities" selection="multiple" values='["kyoto", "lisbon"]'
+    remove-label="移除{entry}" added-text="已添加{entry}" removed-text="已移除{entry}">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="lisbon">里斯本</tanrei-option>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option>
+    <tanrei-option value="tokyo">东京</tanrei-option>
+    <tanrei-option value="toronto">多伦多</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+
+<script type="module">
+  const cities = document.querySelector('[name="cities"]');
+  // 添加或移除了一个值。`values` 已经是新的数组。
+  cities.addEventListener('change', (e) => save(e.detail.values));
+</script>
+```
+
+| 用户的操作 | 结果 |
+| --- | --- |
+| 按下一个选项，或在活动选项上按 Enter | 它的值添加到末尾；如果已经选中，则取消选中。文本清空，所有选项重新显示，列表保持打开，方便继续选择。 |
+| 键入某个选项的完整标签并按 Enter | 添加该选项。设置了 `allowCustomValue` 时，其他文本也会原样成为一个值。 |
+| 插入点在文本开头时，按 Backspace 或指向行首的方向键 | 焦点移到最后一枚纸片。此时不会移除任何东西。 |
+| 在纸片上按方向键、Home 或 End | 在纸片之间移动；越过最后一枚，回到文本。Escape 和 Tab 也回到文本。 |
+| 在纸片上按 Backspace 或 Delete，或按它的移除按钮 | 移除这个值，焦点移到旁边的纸片，或者回到文本。 |
+| 按下一枚纸片 | 焦点移到文本，列表打开，并以这枚纸片对应的选项为活动选项。 |
+| 离开字段，或在列表关闭时按 Escape | 键入的文本清空。不会选中任何东西，也不会移除任何值。 |
+
+选择多个值的人通常会一个接一个地选，所以选择之后列表保持打开。按 Escape、按 V 形图标、在外部按下，或者焦点离开时，列表关闭。Backspace 在移除任何东西之前先移到最后一枚纸片，和[纸片字段](/zh-cn/components/chip-field/)一样：同一个键在两种字段里作用相同，用户没有先看到的东西不会被移除。
+
+在表单里，它像 `<select multiple>` 一样，为每个值以 `name` 提交一项；没有选中任何值时不提交。外面包着必填的字段时，至少要选一个值。
+
+纸片是输入类型的[纸片](/zh-cn/components/chip/)，用纸片的令牌绘制。纸片之间的间距是 `comp.combobox.entries.*`，除非设计系统另行设置，否则与文本输入框的条目间距相同。
+
 ## 规格
 
 <Example label="单独使用的组合框：错误、禁用、只读、可清除，以及大号" column>
@@ -197,6 +248,9 @@ import Example from '../../../../components/visuals/Example.astro';
 - 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
 - `empty-text` 和 `clear-label` 留空时，从产品的文字里读取（`setWords()`）。
 - 在元素完成定义之前，它的选项是连续文本。请隐藏 `tanrei-combobox:not(:defined) > *`，并预留高度。
+- 设置 `selection="multiple"` 时，元素以 `name` 提交 `values` 中的每个值，重置时回到 `values` 属性（JSON 数组，或用空格分隔的值），`change` 还带有 `detail.values`。
+- 选中值的部件：`entry`（每枚纸片）、`entry-container`、`entry-label` 和 `entry-remove`。
+- `remove-label`、`added-text` 和 `removed-text` 留空时，从产品的文字 `entryRemoveLabel`、`entryAddedText` 和 `entryRemovedText` 里读取，和纸片字段读取的相同。
 
 ## 指南
 
@@ -241,6 +295,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - 焦点由方框自己的边缘来显示，无论来自键盘还是指针。点击区域满足最小目标。
 - 浮动标签后面的星号对辅助技术隐藏：必填状态已经说明了这一点。
 - 缺少名称会在调试构建中报告。
+- 有多个值时，列表框会说明可以选择多个选项，每个选项都会说明自己是否已选中。选中的值是一个与组合框同名的列表，每个值是一枚纸片，带有以 `removeLabel` 命名的移除按钮。一个礼貌（polite）的实时区域用 `addedText` 和 `removedText` 说明用户添加或移除了什么。
 
 ### 需要你做的事
 
@@ -248,3 +303,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - 单独使用的组合框可能出错的地方，要用辅助技术读得到的文字说明哪里不对：一条与页面关联的、你自己的消息，或者包着组合框的字段。
 - 给每个选项一个标签和一个非空的值，并让各个值保持唯一。
 - 给可清除的组合框一个 `clearLabel`，并写上 `emptyText` 和 `statusText`。
+- 有多个值时，用产品的语言提供带有 `{entry}` 位置的 `removeLabel`，以及 `addedText` 和 `removedText`，或者用 `setWords()` 为所有字段一次设置好。
