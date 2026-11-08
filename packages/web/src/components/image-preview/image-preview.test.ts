@@ -2677,10 +2677,10 @@ test.describe('the whole use', () => {
 });
 
 test.describe('accessibility', () => {
-  for (const theme of ['light', 'dark'] as const) {
-    test(`no axe violations in ${theme}, every fixture, open`, async ({ page }) => {
-      test.setTimeout(180_000);
-      for (const f of spec.fixtures) {
+  // A test per fixture, in both themes: two mounts a page, not one page that mounts every fixture.
+  for (const f of spec.fixtures) {
+    test(`no axe violations in light and dark, open: ${f.id}`, async ({ page }) => {
+      for (const theme of ['light', 'dark'] as const) {
         await mount(page, f, { theme, loaded: !f.id.startsWith('loading') });
         expect((await look(page)).modal, `${f.id} is open`).toBe(true);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();

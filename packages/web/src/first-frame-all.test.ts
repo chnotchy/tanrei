@@ -51,6 +51,7 @@ import { type BrowserContext, type BrowserContextOptions, type Page, type Route,
 import { type Appeared, appearAgain, asStaged, expectDrawnAsMounted, mountForAppearing } from '../test/first-frame.js';
 import { type Probe, expectFirstFrameAtRest } from '../test/frames.js';
 import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, drawnAfterMount, itemsStagedInScript, loadSpec, pickerWindow, popoverWindow } from '../test/harness.js';
+import { MOUNTS_PER_PAGE } from '../test/mounts-per-page.js';
 import { MISSING } from '../test/pictures.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -223,8 +224,9 @@ const releasePictures = async (stage: Stage) => {
 
 /**
  * A context for each worker, and in it one page for a spec at a time: a spec's fixtures are made to appear on the page
- * that mounted them, and the next spec gets a new page. (One page given every spec's documents in turn grew until it
- * crashed in the Linux container: five crashes in a run of five thousand.)
+ * that mounted them, and the next spec gets a new page — as does a spec's mount past the MOUNTS_PER_PAGE a page may
+ * take (test/mounts-per-page.ts). (One page given every spec's documents in turn grew until it crashed in the Linux
+ * container: five crashes in a run of five thousand.)
  */
 interface Stage {
   context: BrowserContext;
@@ -234,6 +236,8 @@ interface Stage {
   /** What the page is mounted with: the spec's name, or `<spec>/<fixture>` for a fixture mounted alone (`ALONE`). */
   spec: string | null;
   viewport: { width: number; height: number };
+  /** The documents mounted into the page so far: at MOUNTS_PER_PAGE, the next mount takes a new page. */
+  mounts: number;
 }
 
 const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: boolean) => Promise<Appeared> }, { stage: Stage }>({
@@ -242,17 +246,27 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
       const u = workerInfo.project.use as BrowserContextOptions;
       const viewport = u.viewport ?? { width: 1280, height: 720 };
       const context = await browser.newContext({ viewport, deviceScaleFactor: u.deviceScaleFactor, userAgent: u.userAgent, isMobile: u.isMobile, hasTouch: u.hasTouch, colorScheme: u.colorScheme });
-      await use({ context, page: null, held: { open: false, routes: [] }, spec: null, viewport });
+      await use({ context, page: null, held: { open: false, routes: [] }, spec: null, viewport, mounts: 0 });
       await context.close();
     },
     { scope: 'worker' },
   ],
   appear: async ({ stage }, use, testInfo) => {
     await use(async (spec, fixture, measured) => {
-      if (stage.spec?.split('/')[0] !== spec.name || !stage.page) {
+      const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
+      // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
+      const mount = ALONE.some((a) => a.spec === spec.name && a.pick(fixture)) ? `${spec.name}/${fixture.id}` : spec.name;
+      const size = stage.page?.viewportSize();
+      // The fixtures as mounted are read in the window the page is mounted in: one that appears in another is mounted
+      // again in its own.
+      const mounting = stage.spec !== mount || size?.width !== window.width || size?.height !== window.height;
+      // A new spec gets a new page, and so does a mount past the MOUNTS_PER_PAGE a page may take (a spec whose fixtures
+      // appear in several windows, or alone, mounts again for each).
+      if (stage.spec?.split('/')[0] !== spec.name || !stage.page || (mounting && stage.mounts >= MOUNTS_PER_PAGE)) {
         stage.spec = null;
         await stage.page?.close();
         stage.page = await stage.context.newPage();
+        stage.mounts = 0;
         // A held picture is asked for while the fixture is sampled and answered after; one asked for later, at once.
         await stage.page.route(`${HELD}**`, (route) => {
           if (stage.held.open) stage.held.routes.push(route);
@@ -260,18 +274,14 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
         });
       }
       const { page } = stage;
-      const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
-      const size = page.viewportSize();
-      // The fixtures as mounted are read in the window the page is mounted in: one that appears in another is mounted
-      // again in its own.
-      if (size?.width !== window.width || size?.height !== window.height) {
+      const current = page.viewportSize();
+      if (current?.width !== window.width || current?.height !== window.height) {
         await page.setViewportSize(window);
         stage.spec = null;
       }
-      // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
-      const mount = ALONE.some((a) => a.spec === spec.name && a.pick(fixture)) ? `${spec.name}/${fixture.id}` : spec.name;
       if (stage.spec !== mount) {
         stage.held = { open: true, routes: [] };
+        stage.mounts += 1;
         try {
           await mountForAppearing(page, spec, mount === spec.name ? {} : { fixtures: [fixture] }, { asMounted: true, beforeReading: () => holdMountedPictures(page) });
         } finally {
