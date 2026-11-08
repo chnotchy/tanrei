@@ -435,7 +435,7 @@ describe('the playground', () => {
         assert.equal(attribute.fieldName, control.property, `${name}.${control.prop}: "${control.attribute}" is the attribute of ${attribute.fieldName}, not of ${control.property}`);
         if (control.kind === 'switch') assert.equal(attribute.type?.text?.replace(/ \| null$/, ''), 'boolean', `${name}.${control.prop}: a switch writes a boolean attribute`);
         // A switch that is on where nothing is written must have an attribute that turns it off.
-        if (control.kind === 'switch' && control.default === true) assert.ok(control.inverse || control.negated, `${name}.${control.prop}: on by default, and nothing turns it off`);
+        if (control.kind === 'switch' && control.default === true) assert.ok(control.negated, `${name}.${control.prop}: on by default, and nothing turns it off`);
       }
       for (const gap of unwritable) {
         const prop = specs[name].props.find((entry) => entry.name === gap.prop);
@@ -465,9 +465,8 @@ describe('the playground', () => {
     }
     const field = controlsOf('text-field').find((control) => control.prop === 'wrap');
     assert.deepEqual([field.attribute, field.property, field.negated, attributeOf(field, false), attributeOf(field, true), propertyOf(field, false)], ['no-wrap', 'noWrap', true, '', null, true], 'the spec’s wrap is the element’s no-wrap');
-    const inset = names.flatMap((name) => controlsOf(name)).find((control) => control.inverse);
-    assert.ok(inset, 'some switch is turned off by its attribute');
-    assert.deepEqual([attributeOf(inset, false), attributeOf(inset, true), propertyOf(inset, false)], ['', null, false]);
+    const inset = controlsOf('card').find((control) => control.prop === 'inset');
+    assert.deepEqual([inset.attribute, inset.property, inset.negated, attributeOf(inset, false), attributeOf(inset, true), propertyOf(inset, false)], ['flush', 'flush', true, '', null, true], 'the spec’s inset is the element’s flush');
   });
 
   test('the address keeps what differs from the start, and gives back only what the controls would hold', () => {

@@ -24,7 +24,7 @@ const SearchElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSearchMarks = /* @__PURE__ */ withMarks<SearchMarks>([], ['form']);
-const SearchAttributes = { presentation: ['presentation', 'docked'], bar: ['bar', 'field'], value: ['value', ''], label: ['label', ''], placeholder: ['placeholder', ''], expanded: ['expanded', false], disabled: ['disabled', false], clearLabel: ['clear-label', ''], backLabel: ['back-label', ''], shortcut: ['shortcut'], bindShortcut: ['bind-shortcut', false], status: ['status', 'idle'], statusText: ['status-text', ''], queryRow: ['query-row', 'first'], queryRowText: ['query-row-text', ''], inlineCompletion: ['inline-completion', false], wrap: ['no-wrap', true], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], inline: ['inline', false], name: ['name', ''], form: ['form'] } as const;
+const SearchAttributes = { presentation: ['presentation', 'docked'], bar: ['bar', 'field'], value: ['value', ''], label: ['label', ''], placeholder: ['placeholder', ''], expanded: ['expanded', false], disabled: ['disabled', false], clearLabel: ['clear-label', ''], backLabel: ['back-label', ''], shortcut: ['shortcut'], bindShortcut: ['bind-shortcut', false], status: ['status', 'idle'], statusText: ['status-text', ''], queryRow: ['query-row', 'first'], queryRowText: ['query-row-text', ''], inlineCompletion: ['inline-completion', false], noWrap: ['no-wrap', false], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], inline: ['inline', false], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a view under the bar, in a dialog or over the whole screen.
  *

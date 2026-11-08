@@ -94,7 +94,7 @@ import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
 // <tanrei-text-field label="电子邮箱" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
 ```
 
-处于默认值的 prop 不会写出任何内容，因此 `false` 永远不会被写成“存在”。默认开启的布尔值被关闭时，会写出元素读作“关闭”的属性：`<CopyButton iconOnly={false} />` 写出 `icon-only="false"`，`<BottomSheet handle={false} />` 写出 `no-handle`。处理函数、对象和数组在浏览器中、组件挂载时才设置。服务端不渲染影子根：元素在其定义加载后自行绘制，React 对该标签进行水合时不会出现不匹配。
+处于默认值的 prop 不会写出任何内容，因此 `false` 永远不会被写成“存在”。默认开启的布尔值被关闭时，会写出元素读作“关闭”的属性：`<CopyButton iconOnly={false} />` 写出 `icon-only="false"`。处理函数、对象和数组在浏览器中、组件挂载时才设置。服务端不渲染影子根：元素在其定义加载后自行绘制，React 对该标签进行水合时不会出现不匹配。
 
 ### Next.js（App Router）
 

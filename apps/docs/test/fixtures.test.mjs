@@ -61,23 +61,23 @@ describe("what the site reads of the web package's manifest (src/lib/repo.ts)", 
     assert.deepEqual([...definedTags].sort(), [...declared.keys()].sort());
   });
 
-  test("a property's attribute is the manifest's: HTML's own names, kebab-case, and the attribute that says the opposite", () => {
-    assert.deepEqual(webAttribute('tanrei-text-field', 'readOnly'), { name: 'readonly', inverse: false });
-    assert.deepEqual(webAttribute('tanrei-text-field', 'maxLength'), { name: 'maxlength', inverse: false });
-    assert.deepEqual(webAttribute('tanrei-text-field', 'supportingText'), { name: 'supporting-text', inverse: false });
-    assert.deepEqual(webAttribute('tanrei-text-input', 'noWrap'), { name: 'no-wrap', inverse: false });
-    assert.deepEqual(webAttribute('tanrei-field', 'countText'), { name: 'count-text', inverse: false });
-    assert.deepEqual(webAttribute('tanrei-card', 'inset'), { name: 'flush', inverse: true });
+  test("a property's attribute is the manifest's: HTML's own names, and kebab-case", () => {
+    assert.deepEqual(webAttribute('tanrei-text-field', 'readOnly'), { name: 'readonly' });
+    assert.deepEqual(webAttribute('tanrei-text-field', 'maxLength'), { name: 'maxlength' });
+    assert.deepEqual(webAttribute('tanrei-text-field', 'supportingText'), { name: 'supporting-text' });
+    assert.deepEqual(webAttribute('tanrei-text-input', 'noWrap'), { name: 'no-wrap' });
+    assert.deepEqual(webAttribute('tanrei-field', 'countText'), { name: 'count-text' });
+    assert.deepEqual(webAttribute('tanrei-card', 'flush'), { name: 'flush' });
     assert.equal(webAttribute('tanrei-card', 'noSuchProperty'), undefined);
     assert.equal(webAttribute('tanrei-no-such-element', 'label'), undefined);
   });
 
-  test('an attribute is the opposite of its property only where the property is a boolean that defaults to true', () => {
+  test('a boolean attribute has its property’s name, so a React prop is spelt as the attribute', () => {
+    const camel = (name) => name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
     for (const [tag, list] of attributes) {
       for (const attribute of list) {
-        if (!attribute.fieldName || !webAttribute(tag, attribute.fieldName)?.inverse) continue;
-        assert.equal(attribute.type?.text, 'boolean', `${tag} ${attribute.name}`);
-        assert.equal(attribute.default, 'true', `${tag} ${attribute.name}`);
+        if (!attribute.fieldName || attribute.type?.text !== 'boolean') continue;
+        assert.ok(attribute.fieldName === camel(attribute.name) || attribute.fieldName.toLowerCase() === attribute.name, `${tag} ${attribute.name} is the attribute of ${attribute.fieldName}`);
       }
     }
   });

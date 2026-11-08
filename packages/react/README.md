@@ -91,13 +91,14 @@ manifests. The manifest of your own system, which `tanrei build` writes into its
 | `form` on `Button` and on every form-associated control (`TextField`, `NumberField`, `NumberInput`, `ColorField`, `OneTimeCodeInput`, `Select`, `SelectField`, `Combobox`, `Checkbox`, `Switch`, `Slider`, `RadioButton`, `RadioGroup`, `Search`, `FileUpload`) | the **attribute**: the id of a form | `<Button type="submit" form="checkout">` sends a form it does not stand in, and `<TextField name="card" form="checkout">` is a field of one. The element's own `form` property is read-only and returns the form element, and a prop cannot be assigned to a property that has only a getter, so the wrapper keeps `form` out of the props and writes it on the element as the attribute when the element is attached, at every render. Its type is `string`. `type`, `name` and `value` are properties of the element and are passed as any prop |
 | `onClick` of a menu item (`MenuItem`, `MenuCheckboxItem`, `MenuRadioItem`) | `addEventListener('click')` on the element | the one native event mapped directly: a `<ButtonWithMenu>` forwards its items into its menu and stops their click at its shadow root (only its leading half's click reaches listeners on it), so React's root listener would never see it. The handler receives the native `MouseEvent`. It works the same in an ordinary `<Menu>`; `ButtonWithMenu`'s own `onClick` stays React's and fires for the leading half only |
 
-**A prop is the element's property, not its attribute**, and a few are not the attribute in camel case. An attribute
-that switches something off is the property that is on by default: `<BottomSheet handle={false}>` (attribute
-`no-handle`), `<Tooltip describes={false}>` (`no-describe`), `<Carousel snap={false}>` (`free-scroll`),
-`<Card inset={false}>` (`flush`), `<MainActionButton extended={false}>` (`collapsed`). `closedBy`, `readOnly`,
+**A prop is the element's property, not its attribute**, and the property is spelt as the attribute in camel case.
+A boolean that switches something off is named for what it does and is false by default, as an HTML boolean attribute
+is: `<BottomSheet noHandle>` (attribute `no-handle`), `<Tooltip noDescribe>` (`no-describe`), `<Carousel freeScroll>`
+(`free-scroll`), `<Card flush>` (`flush`), `<MainActionButton collapsed>` (`collapsed`). `closedBy`, `readOnly`,
 `maxLength`, `crossOrigin` and `referrerPolicy` are spelled as the DOM spells them, and the app shell's `scroll`
 attribute is the prop `scrolls` (`<AppShell scrolls="main">`), because an element already has a `scroll()` method.
-The prop types are the element's, so an editor completes the right names.
+A link's `target` is `same` or `new`, or HTML's spelling of the same two, `_self` and `_blank`:
+`<Button href="/docs/" target="_blank">`. The prop types are the element's, so an editor completes the right names.
 
 The element's parts (`::part(container)`, `::part(label)`) and custom properties (`--tanrei-comp-button-*`) are styled
 from your CSS as on the web. Each wrapper's doc comment — what an editor shows on hover — lists the element's slots and

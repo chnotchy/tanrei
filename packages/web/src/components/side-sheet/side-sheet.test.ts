@@ -578,12 +578,12 @@ test.describe('the close button', () => {
         main.innerHTML = `<div style="display: flex; inline-size: 720px; block-size: 480px"><div style="flex: 1"></div><tanrei-side-sheet variant="${v}" open headline="Filters" close-label="Close filters"><tanrei-button slot="actions" confirming>Apply</tanrei-button></tanrei-side-sheet></div>`;
       }, variant);
       const sheet = page.locator('tanrei-side-sheet');
-      expect(await sheet.evaluate((el) => (el as HTMLElement & { closable: boolean }).closable), variant).toBe(true);
+      expect(await sheet.evaluate((el) => (el as HTMLElement & { notClosable: boolean }).notClosable), variant).toBe(false);
       await expect(sheet, variant).not.toHaveAttribute('not-closable');
       await expect(sheet.locator('tanrei-button.close'), variant).toHaveCount(1);
       await expect(sheet.getByRole('button', { name: 'Close filters' }), variant).toHaveCount(1);
       await sheet.evaluate((el) => {
-        (el as HTMLElement & { closable: boolean }).closable = false;
+        (el as HTMLElement & { notClosable: boolean }).notClosable = true;
       });
       await expect(sheet, variant).toHaveAttribute('not-closable', '');
       await expect(sheet.locator('tanrei-button.close'), variant).toHaveCount(0);

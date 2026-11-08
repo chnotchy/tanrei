@@ -73,7 +73,7 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
     ```tsx
     import { Carousel, CarouselItem } from '@tanrei/react';
 
-    <Carousel label="Vistos recientemente" itemWidth={120} fluidWidth={false} snap={false}>
+    <Carousel label="Vistos recientemente" itemWidth={120} fixedWidth freeScroll>
       {walks.map((walk) => (
         <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
           <img src={walk.image} alt="" />

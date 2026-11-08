@@ -397,7 +397,7 @@ export {
   styledAsAnchorToo,
 } from './link.js';
 export { layoutSize, naturalHeight } from './natural-height.js';
-export { inverseBoolean, parseValues } from './values.js';
+export { parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
 export { type PhaseRead, cancelPhaseRead, readInPhase } from './read-phase.js';
 export { countWork } from './work-count.js';

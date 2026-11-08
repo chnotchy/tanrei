@@ -94,7 +94,7 @@ import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
 // <tanrei-text-field label="メールアドレス" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
 ```
 
-既定値のままの prop は何も書かないので、`false` が「ある」と書かれることはありません。既定でオンの真偽値をオフにしたときは、要素がオフと読む属性を書きます。`<CopyButton iconOnly={false} />` は `icon-only="false"` を、`<BottomSheet handle={false} />` は `no-handle` を書きます。ハンドラー、オブジェクト、配列は、ブラウザーでコンポーネントがマウントされたときに設定されます。シャドウルートはサーバーではレンダリングしません。要素は定義が読み込まれた時点で自分を描き、React はタグを不一致なしにハイドレーションします。
+既定値のままの prop は何も書かないので、`false` が「ある」と書かれることはありません。既定でオンの真偽値をオフにしたときは、要素がオフと読む属性を書きます。`<CopyButton iconOnly={false} />` は `icon-only="false"` を書きます。ハンドラー、オブジェクト、配列は、ブラウザーでコンポーネントがマウントされたときに設定されます。シャドウルートはサーバーではレンダリングしません。要素は定義が読み込まれた時点で自分を描き、React はタグを不一致なしにハイドレーションします。
 
 ### Next.js（App Router）
 

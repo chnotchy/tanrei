@@ -1309,7 +1309,7 @@ test.describe('suggestions', () => {
     await stop.focus();
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => activeOption(page, 'stop')).toBe('query');
-    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as any).wrap])).toEqual([true, false]);
+    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as any).noWrap])).toEqual([true, true]);
     await page.keyboard.press('ArrowUp');
     expect(await activeOption(page, 'stop'), 'Up Arrow on the query row stays').toBe('query');
     for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown');

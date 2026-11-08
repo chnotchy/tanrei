@@ -74,11 +74,11 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     ```tsx
     import { Button, Tooltip } from '@tanrei/react';
 
-    <Tooltip text="Move to trash" describes={false}>
+    <Tooltip text="Move to trash" noDescribe>
       <Button variant="text" label="Move to trash" onClick={trash}><span slot="icon">delete</span></Button>
     </Tooltip>
     {/* The command's keys after its name: one chord per string. */}
-    <Tooltip text="Bold" shortcut={['mod+b']} describes={false}>
+    <Tooltip text="Bold" shortcut={['mod+b']} noDescribe>
       <Button variant="text" label="Bold" onClick={bold}><span slot="icon">format_bold</span></Button>
     </Tooltip>
     {/* Below the control, lined up with its start edge, with an arrow, on a surface instead of inverse. */}
@@ -169,7 +169,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     import { IconButton, Tooltip } from '@tanrei/react-native';
 
     // The anchor is ONE child that takes a Pressable's props. The tooltip adds its handlers, calling the anchor's own first.
-    <Tooltip text="Move to trash" describes={false}>
+    <Tooltip text="Move to trash" noDescribe>
       <IconButton accessibilityLabel="Move to trash" onPress={trash}>delete</IconButton>
     </Tooltip>
 

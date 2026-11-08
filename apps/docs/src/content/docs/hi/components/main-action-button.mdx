@@ -56,8 +56,8 @@ import Example from '../../../../components/visuals/Example.astro';
       import '@tanrei/web/components/main-action-button';
       const compose = document.querySelector('tanrei-main-action-button.primary-action');
       compose.addEventListener('click', newMessage);
-      // extended एक प्रॉपर्टी है जिसका डिफ़ॉल्ट true है; इसे बाहर से समेटें, उदाहरण के लिए जब पेज स्क्रॉल किया हुआ हो।
-      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+      // इसे बाहर से समेटें, उदाहरण के लिए जब पेज स्क्रॉल किया हुआ हो।
+      addEventListener('scroll', () => (compose.collapsed = scrollY > 0), { passive: true });
     </script>
     ```
   </TabItem>
@@ -65,7 +65,7 @@ import Example from '../../../../components/visuals/Example.astro';
     ```tsx
     import { MainActionButton } from '@tanrei/react';
 
-    <MainActionButton className="primary-action" label="लिखें" extended={atTop} onClick={newMessage}>
+    <MainActionButton className="primary-action" label="लिखें" collapsed={!atTop} onClick={newMessage}>
       <span slot="icon">edit</span>
     </MainActionButton>
 

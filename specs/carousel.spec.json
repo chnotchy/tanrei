@@ -1022,17 +1022,17 @@
       "props": {
         "heroAlignment": "heroAlignment",
         "itemWidth": "itemWidth",
-        "fluidWidth": "fluidWidth",
+        "fluidWidth": "fixedWidth",
         "contentAlignment": "contentAlignment",
         "scaleOthers": "scaleOthers",
-        "snap": "snap",
+        "snap": "freeScroll",
         "loop": "loop",
         "navigation": "navigation",
         "indicator": "indicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
         "paused": "paused",
-        "playbackControl": "playbackControl",
+        "playbackControl": "noPlaybackControl",
         "autoplayProgress": "autoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
@@ -1055,7 +1055,7 @@
           "notes": "A `<tanrei-carousel-item>` child; its content is its default slot."
         }
       },
-      "notes": "Attributes: `hero-alignment`, `item-width` (a number of CSS pixels; without it the property is null), `content-alignment`, `scale-others`, `loop`, `indicator`, `autoplay`, `autoplay-interval` (milliseconds), `paused`, `autoplay-progress`, `play-label`, `pause-label`, `navigation` (reflected), `previous-label`, `next-label`. `fluidWidth`, `snap` and `playbackControl` are boolean properties that default to true; their attributes are the inverses `fixed-width`, `free-scroll` and `no-playback-control` (an HTML boolean attribute cannot default to true). `pausedchange` is a CustomEvent whose `detail.paused` is the new value. Built on a native horizontal scroller (so wheel, trackpad and touch scroll as the platform does) whose track is as long as the scroll range; the items are placed from its scroll offset (CRL-12), and the settle animates the scroll offset over comp.carousel.motion.scroll-duration and scroll-easing once the scroll ends (`scrollend`, or 100 ms without a scroll event, because not every engine sends `scrollend` after a wheel), since a smooth `scrollTo` cannot follow the tokens. Fling 0.5 px/ms, measured from the finger's last touch moves over their own time stamps; after a fling the settle starts at the release, and the browser's momentum is held until it ends. While loop is in effect the track is several turns long and the offset is moved by a whole number of turns (N × (H + g)) when the row rests near either end, which draws nothing new. Autoplay reads `prefers-reduced-motion` and `document.visibilityState` when it would advance and listens for their changes; the hover hold is `pointerenter` / `pointerleave` on the host, the focus hold `focusin` / `focusout`. The items are placed from one scroll position in one pass, each start rounded to a device pixel and each end taken from the next start (CRL-40). The previous and next controls are `<tanrei-button>` elements with `focusable-when-disabled`, given their variant through the Button's group-item channel; auto draws them under `(hover: hover) and (pointer: fine)` and shows them while the host matches `:hover` or `:focus-within`. Snapshot harness: a 400 × 200 stage (the carousel fills it: W 368), or 400 × 248 for the fixtures with a controls row, on a `surface` page, scrolled to its start, the pointer outside, motion not reduced and the autoplay clock stopped at the start of its interval."
+      "notes": "Attributes: `hero-alignment`, `item-width` (a number of CSS pixels; without it the property is null), `content-alignment`, `scale-others`, `loop`, `indicator`, `autoplay`, `autoplay-interval` (milliseconds), `paused`, `autoplay-progress`, `play-label`, `pause-label`, `navigation` (reflected), `previous-label`, `next-label`. `fluidWidth`, `snap` and `playbackControl` are their inverses, the boolean properties `fixedWidth`, `freeScroll` and `noPlaybackControl` (attributes `fixed-width`, `free-scroll` and `no-playback-control`), false by default: an HTML boolean attribute cannot default to true, and a property has its attribute's name. `pausedchange` is a CustomEvent whose `detail.paused` is the new value. Built on a native horizontal scroller (so wheel, trackpad and touch scroll as the platform does) whose track is as long as the scroll range; the items are placed from its scroll offset (CRL-12), and the settle animates the scroll offset over comp.carousel.motion.scroll-duration and scroll-easing once the scroll ends (`scrollend`, or 100 ms without a scroll event, because not every engine sends `scrollend` after a wheel), since a smooth `scrollTo` cannot follow the tokens. Fling 0.5 px/ms, measured from the finger's last touch moves over their own time stamps; after a fling the settle starts at the release, and the browser's momentum is held until it ends. While loop is in effect the track is several turns long and the offset is moved by a whole number of turns (N × (H + g)) when the row rests near either end, which draws nothing new. Autoplay reads `prefers-reduced-motion` and `document.visibilityState` when it would advance and listens for their changes; the hover hold is `pointerenter` / `pointerleave` on the host, the focus hold `focusin` / `focusout`. The items are placed from one scroll position in one pass, each start rounded to a device pixel and each end taken from the next start (CRL-40). The previous and next controls are `<tanrei-button>` elements with `focusable-when-disabled`, given their variant through the Button's group-item channel; auto draws them under `(hover: hover) and (pointer: fine)` and shows them while the host matches `:hover` or `:focus-within`. Snapshot harness: a 400 × 200 stage (the carousel fills it: W 368), or 400 × 248 for the fixtures with a controls row, on a `surface` page, scrolled to its start, the pointer outside, motion not reduced and the autoplay clock stopped at the start of its interval."
     },
     "swiftui": {
       "status": "lagging",

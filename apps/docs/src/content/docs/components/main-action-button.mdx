@@ -54,8 +54,8 @@ The label is a prop, not content, because it is needed in both forms: drawn whil
       import '@tanrei/web/components/main-action-button';
       const compose = document.querySelector('tanrei-main-action-button.primary-action');
       compose.addEventListener('click', newMessage);
-      // extended is a property that defaults to true; collapse it from outside, for example while the page is scrolled.
-      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+      // Collapse it from outside, for example while the page is scrolled.
+      addEventListener('scroll', () => (compose.collapsed = scrollY > 0), { passive: true });
     </script>
     ```
   </TabItem>
@@ -63,7 +63,7 @@ The label is a prop, not content, because it is needed in both forms: drawn whil
     ```tsx
     import { MainActionButton } from '@tanrei/react';
 
-    <MainActionButton className="primary-action" label="Compose" extended={atTop} onClick={newMessage}>
+    <MainActionButton className="primary-action" label="Compose" collapsed={!atTop} onClick={newMessage}>
       <span slot="icon">edit</span>
     </MainActionButton>
 

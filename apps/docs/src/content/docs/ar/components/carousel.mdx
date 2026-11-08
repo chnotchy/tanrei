@@ -73,7 +73,7 @@ import Example from '../../../../components/visuals/Example.astro';
     ```tsx
     import { Carousel, CarouselItem } from '@tanrei/react';
 
-    <Carousel label="شوهد مؤخرًا" itemWidth={120} fluidWidth={false} snap={false}>
+    <Carousel label="شوهد مؤخرًا" itemWidth={120} fixedWidth freeScroll>
       {walks.map((walk) => (
         <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
           <img src={walk.image} alt="" />
