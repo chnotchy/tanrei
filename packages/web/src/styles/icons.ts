@@ -178,6 +178,18 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
 `);
 }
 
+/**
+ * The product's switch for every glyph a stylesheet of the package draws in the light DOM: `hidden` while the icon
+ * families cannot draw yet (the font is loading, failed, or was never made available), so that no glyph's name is
+ * painted as letters; unset, the glyph inherits its parent's visibility. `visibility` keeps the box, so taking the
+ * switch off moves nothing. A stylesheet that draws a glyph of the icon set in a generated box writes this declaration
+ * in the glyph's rule (`test/stylesheets` refuses one that does not). A rule that hides a glyph of its own while it
+ * cannot be drawn (ACC-33, TRV-40) sets the switch on the glyph rather than its `visibility`, which this declaration,
+ * at one class's specificity, would otherwise override.
+ */
+export const ICON_VISIBILITY = '--tanrei-icon-visibility';
+export const GLYPH_VISIBILITY = `visibility: var(${ICON_VISIBILITY}, inherit);`;
+
 /** `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. */
 export const ICONS_CSS = `/*
  * Tanrei icons on the web. Token-driven; no icon is bundled.
@@ -224,6 +236,15 @@ export const ICONS_CSS = `/*
  * WITH NO SCRIPT AT ALL nothing reads the names: write data-mirror="always" yourself on each glyph that shows a
  * direction. An image or an SVG is never mirrored for you.
  *
+ * UNTIL THE FONT CAN DRAW. While the icon font is loading (or failed, or was never made available) the browser spells
+ * a glyph's name in a text face, and \`font-display: block\` hides it only for the block period (about 3 s). Set
+ * --tanrei-icon-visibility: hidden on the root (or on any subtree) until the icon families can draw, and take it off
+ * then: every glyph this package's stylesheets draw in the light DOM (.tanrei-icon and the components' generated
+ * glyphs) is not painted while it is set, and keeps its box, so nothing moves when it is taken off. Unset, a glyph
+ * inherits its parent's visibility. A .tanrei-icon slotted into a component is in the light DOM and follows it; the
+ * switch does not reach a component's own marks in its shadow root, which follow its spec (a checkbox, a switch, a
+ * menu's check draw nothing until the icon set can draw them).
+ *
  * GENERATED from src/styles/icons.ts by scripts/build.js (one source with the components' own icons).
  */
 @layer tanrei.components {
@@ -241,6 +262,7 @@ export const ICONS_CSS = `/*
     inline-size: var(--_size);
     block-size: var(--_size);${glyph({ size: 'var(--_size)', fill: 'var(--_fill)', family: 'var(--_family)', duration: 'var(--tanrei-sys-motion-duration-short3)', easing: 'var(--tanrei-sys-motion-easing-standard)' })}
     vertical-align: middle;
+    ${GLYPH_VISIBILITY}
   }
 ${opticalSize('.tanrei-icon', { size: 'var(--_size)', fill: 'var(--_fill)' })}
 
