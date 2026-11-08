@@ -8,6 +8,7 @@ import {
   type ShadowLayer,
   SystemWatchController,
   anchorGone,
+  cssZoom,
   choiceAttribute as choiceConverter,
   chordsConverter,
   chordsOf,
@@ -613,7 +614,11 @@ export class TanreiTooltip extends TanreiElement {
       return;
     }
     const style = getComputedStyle(surface);
-    const px = (value: string) => Number.parseFloat(value) || 0;
+    // In the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the surface's
+    // style is turned into them and what is written on it back into its own (`cssZoom()`, src/primitives/layout-scale.ts).
+    const zoom = cssZoom(surface);
+    const own = (value: number) => `${value / zoom}px`;
+    const px = (value: string) => (Number.parseFloat(value) || 0) * zoom;
     const margin = px(style.scrollMarginBlockEnd);
     // Its drawn size, not `offsetWidth` / `offsetHeight`: those are rounded to whole pixels, which puts the centre up to
     // half a pixel off the anchor's (the surface is never transformed, so this is its layout box, whatever its motion).
@@ -637,22 +642,22 @@ export class TanreiTooltip extends TanreiElement {
       viewport,
       placement,
       // TIP-24: the prop as given, or the token.
-      offset: usable(this.offset) ? this.offset : px(style.scrollMarginBlockStart),
-      crossOffset: this.crossOffset,
+      offset: usable(this.offset) ? this.offset * zoom : px(style.scrollMarginBlockStart),
+      crossOffset: this.crossOffset * zoom,
       margin,
       rtl,
       arrow,
       keep: this.side,
     });
     this.side = at.side;
-    surface.style.top = `${at.top}px`;
-    surface.style.left = `${at.left}px`;
+    surface.style.top = own(at.top);
+    surface.style.left = own(at.left);
     // TIP-15: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
     surface.toggleAttribute('data-held', at.held);
     // TIP-25: the arrow on the edge that faces the anchor, and the elevation round the container and the arrow together.
     if (at.arrow) {
-      surface.style.setProperty('--_arrow-at', `${at.point}px`);
+      surface.style.setProperty('--_arrow-at', own(at.point));
       const shade = getComputedStyle(this.renderRoot.querySelector('.shade')!).boxShadow;
       if (shade !== this.shade) {
         this.shade = shade;
