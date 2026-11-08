@@ -2717,6 +2717,13 @@ test.describe('triggers', () => {
   test('no axe violations with a popover open by hover, in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mount(page, `${anchorAt(200, 100)}${popover('headline="Storage" trigger="hover focus" show-delay="0"', 'Files in the trash still count toward your storage. <a href="#a">Manage storage</a>')}`, { theme });
+      // The anchor painted from the system's tokens, as a product paints what it anchors a popover to. A bare UA button's
+      // colors in the dark scheme are the engine's: WebKit on Linux draws white ButtonText on silver ButtonFace
+      // (#c0c0c0, 1.81:1) — the page's contrast, not the popover's.
+      await page.locator('#a').evaluate((el: HTMLElement) => {
+        el.style.backgroundColor = 'var(--tanrei-sys-color-surface-container-highest)';
+        el.style.color = 'var(--tanrei-sys-color-on-surface)';
+      });
       await onAnchor(page);
       await expect.poll(() => isShown(page)).toBe(true);
       await settle(page);
