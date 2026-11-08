@@ -56,7 +56,7 @@ import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import '../loading-indicator/loading-indicator.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
 import type { TanreiSearchDensityRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
@@ -718,7 +718,6 @@ export class TanreiSearch extends TanreiElement {
     hasLeading: { state: true },
     trailingCount: { state: true },
     hasContent: { state: true },
-    formDisabled: { state: true },
   };
 
   /**
@@ -893,8 +892,11 @@ export class TanreiSearch extends TanreiElement {
   protected trailingCount = 0;
   /** The default slot holds the product's own content (anything but the suggestions). */
   protected hasContent = false;
-  /** Set by an ancestor `<fieldset disabled>`. */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals: ElementInternals;
   private readonly children$ = new MutationObserver((records) => this.readChildren(records));
@@ -1201,8 +1203,8 @@ export class TanreiSearch extends TanreiElement {
     this.value = state ?? '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** The suggestions, the results and the result groups (children), and whether anything else is the view's content. */

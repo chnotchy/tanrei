@@ -235,7 +235,9 @@ const OBSERVED: MutationObserverInit = { childList: true, subtree: true, charact
  */
 export class OptionsController implements ReactiveController {
   model: OptionModel = { entries: [], options: [], hasIcons: false, nested: [] };
-  private readonly observer = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
+  // An attribute of the host itself is no option's: its `disabled`, which its own update writes, reads nothing again.
+  private readonly observer =
+    typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => records.some((record) => record.type !== 'attributes' || record.target !== this.host) && this.read());
   /** O4: the elements observed because they reach the host through a slot. */
   private assigned: Element[] = [];
   private readonly onSlotChange = (event: Event) => {

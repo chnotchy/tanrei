@@ -21,7 +21,7 @@
 import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
 import { type DelegatedName, delegatesAria, ownedNames } from './delegated-aria.js';
 import { FIELD_CONTROL } from './field.js';
-import { takeFormDisabled } from './form-disabled.js';
+import { FormDisabledController } from './form-disabled.js';
 import { type FormEntry, type FormWord, formSaysOf } from './form-says.js';
 import { hiddenHost } from './hidden.js';
 import { disabledWaitsWhileFocused } from './disabled-while-focused.js';
@@ -245,20 +245,24 @@ export interface ValueMember<V> extends HTMLElement {
  * **The element is the form's control** (W6): its class says `static formAssociated = true`; it takes `name` and `form`, and repeats on its own
  * internals what its value member tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the
  * state as they are, the validity flags, the message and the member's own anchor. It resets to its `value` attribute
- * (`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` with its own `disabled` for
- * its frame (`formDisabled`). Enter is the member's: it asks for the element's form (`formOf`).
+ * (`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` (`formDisabled`,
+ * src/primitives/form-disabled.ts) with its own `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).
  */
 export abstract class ComposedControl<V = string> extends ComposedElement {
   static override properties: PropertyDeclarations = {
     name: { type: String, reflect: true },
-    formDisabled: { state: true },
   };
 
   /** Web only: the name the value is submitted under. */
   name = '';
 
-  /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
-  protected formDisabled = false;
+  // `disabled` is the subclass's own (W6, item 6).
+  private readonly fieldset = new FormDisabledController(this as this & { readonly disabled: boolean });
+
+  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it. */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   /** W5: the member that holds the value, once rendered. */
   protected abstract get valueMember(): ValueMember<V> | null;
@@ -342,8 +346,8 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
     this.given = undefined;
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** W6, items 2 and 3: the same value and state, the same flags and message, and the member's own anchor. */

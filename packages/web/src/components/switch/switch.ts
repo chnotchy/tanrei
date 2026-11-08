@@ -156,8 +156,8 @@ export class TanreiSwitch extends TanreiElement {
     this.checked = state === 'true';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    this.selection.formDisabledCallback(disabled);
+  formDisabledCallback() {
+    this.selection.formDisabledCallback();
   }
 
   /** SWT-9: where style queries are missing, the focus style is read when focus arrives. */

@@ -2,7 +2,7 @@ import { type CSSResult, type ReactiveController, type ReactiveControllerHost, u
 import { cornerRadius } from '../styles/shape.js';
 import { formOf, pressDefaultButton } from './default-button.js';
 import { FieldControlController, type FieldControlOptions } from './field.js';
-import { takeFormDisabled } from './form-disabled.js';
+import { FormDisabledController } from './form-disabled.js';
 import type { Point } from './ripple.js';
 import { type StateSelector, stateRules } from './states.js';
 
@@ -243,8 +243,8 @@ export interface SelectionHost extends ReactiveControllerHost, HTMLElement {
  */
 export class SelectionController implements ReactiveController {
   readonly internals: ElementInternals;
-  /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
-  formDisabled = false;
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  private readonly fieldset: FormDisabledController;
   /**
    * What a field or a field group around the control gives it (src/primitives/field.ts): the name while it has none of
    * its own, the description, the invalid and required states, and `disabled` (FLD-8, FLD-10, FLD-11, FLD-14, FGR-8,
@@ -258,6 +258,7 @@ export class SelectionController implements ReactiveController {
     field: FieldControlOptions = {},
   ) {
     this.field = new FieldControlController(host, field);
+    this.fieldset = new FormDisabledController(host);
     this.internals = host.attachInternals();
     host.addController(this);
     host.addEventListener('click', this.onHostClick);
@@ -269,7 +270,7 @@ export class SelectionController implements ReactiveController {
 
   /** Disabled by its own `disabled`, by a disabled fieldset around it, or by the field or field group that frames it. */
   get disabled(): boolean {
-    return this.host.disabled || this.formDisabled || this.field.disabled;
+    return this.host.disabled || this.fieldset.byFieldset || this.field.disabled;
   }
 
   /** The form this element belongs to, if any. */
@@ -297,11 +298,8 @@ export class SelectionController implements ReactiveController {
     else this.internals.setValidity(input.validity, input.validationMessage, input);
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this.host, disabled, (value) => {
-      this.formDisabled = value;
-      this.host.requestUpdate();
-    });
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**

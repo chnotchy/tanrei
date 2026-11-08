@@ -21,7 +21,7 @@ import { ComposedElement, composedHost, exported, forward } from '../../primitiv
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
@@ -281,7 +281,6 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     countErrorText: { type: String, attribute: 'count-error-text' },
     formatSize: { attribute: false },
     count: { state: true },
-    formDisabled: { state: true },
   };
 
   /** @from tanrei-file-picker.layout */
@@ -397,8 +396,11 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** FUP-17: how many rows the product gave. */
   protected count = 0;
-  /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -632,8 +634,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     this.syncForm();
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**

@@ -2,7 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, type Templa
 import { styleMap } from 'lit/directives/style-map.js';
 import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -163,7 +163,6 @@ export class TanreiSlider extends TanreiElement {
     name: { type: String, reflect: true },
     hovered: { state: true },
     dragging: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The track's weight: small (the default), medium or large, or a size the design system adds. Anything else draws small (SLD-23). */
@@ -226,8 +225,11 @@ export class TanreiSlider extends TanreiElement {
   /** A press is dragging a handle: it follows without the value motion (SLD-16). */
   private dragging = false;
 
-  /** Set by an ancestor `<fieldset disabled>`. */
-  private formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  private get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -366,8 +368,8 @@ export class TanreiSlider extends TanreiElement {
     if (Number.isFinite(start)) this.startValue = start;
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────────────────────────────────────────

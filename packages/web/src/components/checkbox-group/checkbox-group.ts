@@ -3,7 +3,7 @@ import { live } from 'lit/directives/live.js';
 import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiCheckbox, type TanreiCheckboxOwner } from '../checkbox/checkbox.js';
@@ -112,7 +112,6 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     optionalText: { type: String, attribute: 'optional-text' },
     orientation: { type: String, reflect: true },
     selectAllLabel: { type: String, attribute: 'select-all-label' },
-    formDisabled: { state: true },
   };
 
   /**
@@ -179,8 +178,11 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   /** Not empty: the group brings one more checkbox before the first, labelled by this text ("All of these"), that checks or unchecks every checkbox of the set a person can switch and shows checked, unchecked or indeterminate from them (`select-all-label`). Empty: there is none. The instance's own words: it is never read from the product's words. */
   selectAllLabel = '';
 
-  /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -354,8 +356,8 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     this.requestUpdate('value');
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** CKG-2: checks and unchecks by the list; each checkbox takes its own selection motion (CHK-13). */
