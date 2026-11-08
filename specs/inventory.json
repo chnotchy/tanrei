@@ -661,6 +661,13 @@
       "listing": "default"
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "category": "containment",
@@ -671,6 +678,13 @@
       "name": "marquee-text",
       "title": "Marquee text",
       "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "category": "selection",
       "level": "base",
       "listing": "default"
     }

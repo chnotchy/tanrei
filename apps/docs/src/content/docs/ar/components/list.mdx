@@ -2,7 +2,7 @@
 title: القائمة (list)
 description: تحمل مجموعة من عناصر المنتج نفسه (صفوفًا، ومربعات، وبطاقات، وملفات) في عمود واحد، أو سطر واحد، أو أسطر تلتف فتصنع شبكة. يقرؤها الناس، ويفتحونها واحدًا بعد آخر، ويختارون منها، أو يسحبونها إلى ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
+sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -146,6 +146,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 الترتيب بياناتك، فلا تغيّره القائمة أبدًا. كل طريقة للتحريك تطلق `move` مع `from`، فهرس العنصر، و`to`، الفهرس الذي يجب أن يأخذه، وكلاهما يُعد من 0. أعد ترتيب عناصرك استجابةً لذلك. حينها ترسم القائمة العناصر وهي تتبادل الأماكن، وتُبقي التركيز على مقبض العنصر المنقول، وتخبر التقنيات المساعدة بمكانه الآن. وإن لم تغيّر شيئًا خلال زمن `comp.list.motion.reorder-duration` فقد رُفضت الحركة: تعود العناصر ولا يُعلَن شيء.
 
+حين تضيف عنصرًا إلى قائمة قابلة لإعادة الترتيب أو تزيل منها عنصرًا، ترسم القائمة العنصر وهو يصل أو يغادر. في العمود أو السطر يمتد العنصر الواصل على طول القائمة من لا شيء إلى طوله وهو يظهر تدريجيًّا، وتنفتح الفجوة التي بجانبه معه؛ ويتلاشى العنصر المغادر وينطوي حتى لا يبقى منه شيء. وتتبع العناصر التي بعده حافته، فلا يقفز شيء. وفي القائمة التي تلتفّ يظهر العنصر أو يتلاشى في مكانه بينما تنتقل العناصر الأخرى إلى أماكنها الجديدة. ويتغيّر العدد والمواضع التي تعرضها القائمة فورًا: العنصر المغادر يخرج من العدد، ويُخفى عن التقنيات المساعدة، ولا يأخذ تركيزًا ولا ضغطًا ما دام يُرسم مغادرًا. وعلى الويب يبقى في القائمة ابنًا يحمل `data-leaving` إلى أن يغادر، فالسكربت الذي يقرأ العناصر في أثناء ذلك يختار `tanrei-list-item:not([data-leaving])`. وحيث تُقلَّل الحركة تصل العناصر وتغادر فورًا.
+
 الكلمات كلماتك: اسم المقبض (`dragHandleLabel`، مع الموضع `{label}` الذي تملؤه القائمة باسم العنصر)، ووصفه (`dragHandleHint`)، والحركات الأربع في القائمة المنبثقة، والجمل الثلاث التي تُعلَن (`liftedText` و`movedText` و`cancelledText`، بالمواضع `{label}` و`{position}` و`{count}`). اذكرها على القائمة، أو مرة واحدة للمنتج بـ `setWords()`. وفي السطر، اكتب «التحريك يسارًا» و«التحريك يمينًا» حيث يقول العمود «التحريك لأعلى» و«التحريك لأسفل».
 
 <Tabs syncKey="platform">
@@ -168,7 +170,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
-        const items = [...list.children];
+        const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
       });
     </script>

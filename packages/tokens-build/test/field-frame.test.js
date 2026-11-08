@@ -205,8 +205,10 @@ test('a split field has no group of its own: the box is the one set, its input h
   assert.equal(count('select-field'), 0);
   // The combobox: 765, then 574; 206 were — the list, the matched letters, the status row, the gap of its two actions —,
   // 213 since seven measures of a row are one per density, and 217 are since a match is marked as a search marks one
-  // (its color and fill, and the two in the selected option, beside its weight).
-  assert.equal(count('combobox'), 217);
+  // (its color and fill, and the two in the selected option, beside its weight), and 220 are with the spacing of the
+  // chosen values a combobox of several values lays out in its box (entries.gap, entries.row-gap and
+  // entries.typing-min-width).
+  assert.equal(count('combobox'), 220);
   assert.equal(count('combobox-field'), 0);
 });
 

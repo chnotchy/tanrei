@@ -9,7 +9,8 @@ import { tanreiStudio } from '@tanrei/studio/vite';
 import { tabsBootstrap } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
 import { elementModulesPlugin } from './src/lib/element-modules.mjs';
-import { listingBootstrap, sidebarSlugs } from './src/lib/listing.mjs';
+import { listingBootstrap } from './src/lib/listing.mjs';
+import { sidebarConfig } from './src/lib/sidebar.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { pageLastmod } from './src/lib/lastmod.mjs';
@@ -103,76 +104,10 @@ export default defineConfig({
       // Code is Tanrei's code block, highlighted where the site is built (src/lib/markdown.mjs): the framework's own code
       // component, its highlighter and its themes are off — here, and for plain Markdown under `markdown` below.
       expressiveCode: false,
-      sidebar: [
-        {
-          label: 'Getting started',
-          translations: { ja: 'はじめに', 'zh-CN': '开始使用', hi: 'शुरू करें', es: 'Primeros pasos', ar: 'البدء' },
-          items: [
-            'getting-started',
-            'getting-started/web',
-            'getting-started/react',
-            'getting-started/swiftui',
-            'getting-started/compose',
-            'getting-started/flutter',
-            'getting-started/react-native',
-            'getting-started/presets',
-            'getting-started/your-design-system',
-            'getting-started/ai-agents',
-          ],
-        },
-        {
-          label: 'Foundations',
-          translations: { ja: '基礎', 'zh-CN': '基础', hi: 'बुनियादी बातें', es: 'Fundamentos', ar: 'الأسس' },
-          items: [
-            'foundations/brand',
-            'foundations/design-tokens',
-            'foundations/design-systems',
-            'foundations/theme-studio',
-            'foundations/color',
-            'foundations/typography',
-            'foundations/icons',
-            'foundations/shape',
-            'foundations/elevation',
-            'foundations/motion',
-            'foundations/states',
-            'foundations/behaviour',
-            'foundations/layout',
-            'foundations/accessibility',
-            'foundations/words',
-          ],
-        },
-        {
-          label: 'Token reference',
-          translations: { ja: 'トークンリファレンス', 'zh-CN': '令牌参考', hi: 'टोकन संदर्भ', es: 'Referencia de tokens', ar: 'مرجع الرموز' },
-          items: [
-            'tokens/color',
-            'tokens/typescale',
-            'tokens/shape',
-            'tokens/elevation',
-            'tokens/motion',
-            'tokens/state',
-            'tokens/space',
-          ],
-        },
-        {
-          label: 'Components',
-          translations: { ja: 'コンポーネント', 'zh-CN': '组件', hi: 'कंपोनेंट', es: 'Componentes', ar: 'المكوّنات' },
-          // Every component that has a page, from the status file the specs are written into: no page is listed here
-          // by hand (src/lib/listing.mjs). The sidebar groups them by category and shows the ones a spec marks
-          // `advanced` only to a reader who asked for everything (components/frame/Sidebar.astro).
-          items: sidebarSlugs(status.components),
-        },
-        {
-          label: 'Project',
-          translations: { ja: 'プロジェクト', 'zh-CN': '项目', hi: 'प्रोजेक्ट', es: 'Proyecto', ar: 'المشروع' },
-          items: [
-            'status',
-            'project/how-tanrei-is-built',
-            'project/contributing',
-            'project/license',
-          ],
-        },
-      ],
+      // The sidebar's groups and pages (src/lib/sidebar.mjs), which the index for language models follows too
+      // (src/pages/llms.txt.ts). The Components group is every component that has a page, from the status file the
+      // specs are written into: no page is listed there by hand (src/lib/listing.mjs).
+      sidebar: sidebarConfig(status.components),
     }),
     // The sitemap, with Starlight's languages as Starlight configures its own (which it leaves out once the site has
     // one): every page.

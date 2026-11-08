@@ -633,6 +633,7 @@
     block-size: var(--tanrei-comp-table-header-icon-size);
     margin-block-end: calc((var(--_table-header-leading) - var(--tanrei-comp-table-header-icon-size)) / 2);
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-comp-table-header-icon-size);
     font-style: normal;
     font-weight: normal;

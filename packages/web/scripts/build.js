@@ -8,6 +8,7 @@ import { allStylesheets } from './stylesheets.js';
 import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
 import { bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
+import { cssLiteralsPlugin, minifyCssLiterals, remapSourceMap } from './css-literals.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -346,6 +347,9 @@ const bundle = await build({
   sourcemap: true,
   metafile: true,
   outfile: 'dist/tanrei.bundle.js',
+  // The minifier leaves template literals as they are: the components' `css` templates lose their comments and
+  // indentation on the way in (scripts/css-literals.js).
+  plugins: [cssLiteralsPlugin()],
   // A development bundle: debug reports (src/primitives/report.ts) stay on. esbuild would otherwise define
   // process.env.NODE_ENV as "production" for a minified browser bundle.
   define: { 'process.env.NODE_ENV': '"development"', [TABLE_CSS_NAME]: tableText, [ACCORDION_CSS_NAME]: accordionText, [TABLE_OF_CONTENTS_CSS_NAME]: tableOfContentsText, ...Object.fromEntries(LIGHT_SHEETS) },
@@ -353,6 +357,17 @@ const bundle = await build({
 // The bundle inlines Lit, whose licence asks for its copyright notice and licence text in every copy: they are
 // written beside it, from the packages the bundle was made from.
 writeThirdPartyLicenses('dist', Object.keys(bundle.metafile.inputs).map((input) => path.resolve(input)), { what: 'dist/tanrei.bundle.js (and its source map)' });
+// The compiler's modules too (dist/components/, dist/primitives/, dist/styles/ and the rest), which a bundler of the
+// package's users reads: their `css` templates lose comments and indentation the same way, and each module's source
+// map moves with its code. This runs last, after everything above that imports a module from dist/ to write a sheet.
+for (const file of fs.readdirSync('dist', { recursive: true })) {
+  if (!file.endsWith('.js') || file === 'tanrei.bundle.js' || file.startsWith(`links${path.sep}`)) continue;
+  const source = fs.readFileSync(`dist/${file}`, 'utf8');
+  const { code, edits } = minifyCssLiterals(source);
+  if (!edits.length) continue;
+  fs.writeFileSync(`dist/${file}`, code);
+  if (fs.existsSync(`dist/${file}.map`)) fs.writeFileSync(`dist/${file}.map`, JSON.stringify(remapSourceMap(fs.readFileSync(`dist/${file}.map`, 'utf8'), source, edits)));
+}
 // `@tanrei/web/links/node`, the build-time helper (src/links/node/REQUIREMENTS.md). It runs under Node only
 // and is JavaScript with types written beside it, so the compiler above does not emit it: its files are copied as
 // they are. Nothing the bundle above is made from imports it (LKD-1; src/links/node/test/surface.test.mjs).

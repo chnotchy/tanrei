@@ -1,0 +1,237 @@
+// What the components cost at run time, counted rather than timed, against the budgets in perf-budgets.json
+// (`runtime`). A count is the same on a fast machine and on a loaded runner, so a budget can be held; a time can only be
+// reported (the components' own *.perf.test.ts report it beside their counts).
+//
+// The page is what a product ships: every element of the package (`@tanrei/web/all`) bundled with
+// `process.env.NODE_ENV` defined as "production" — no debug report runs, and reads nothing — and every stylesheet.
+//
+//   reads    what building N instances (or N items) reads of the page's layout and style — `getBoundingClientRect`,
+//            `getClientRects`, the offset, client and scroll sizes, `getComputedStyle` — at 100 against 10: the reads
+//            the 90 more cost. A read after a write makes the browser lay the page out again before it answers, so a
+//            component whose every instance reads at build forces a layout per instance. 0 is a build that reads
+//            nothing per instance.
+//   updates  how many times the elements drew again (Lit's `updated`, every element counted) for one change of one
+//            property: 1 is the change drawn once.
+//   sheets   the stylesheets the instances' shadow roots adopt that are not shared, at 100 against 1: 0 is a component
+//            whose every instance shares its sheets.
+//
+// Chromium only: the counts are the page's own and every engine makes them, but the budgets were measured in Chromium,
+// and an engine that takes another branch (a style query it lacks) reads differently.
+//
+// A count over its budget is a finding. A count that falls is the budget's to follow: lower it in the same change.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { type Page, expect, test } from '@playwright/test';
+import { build } from 'esbuild';
+import { twoFrames } from '../test/work-count.js';
+
+const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
+
+interface Budget {
+  budget: number;
+  measured: number;
+}
+const budgets = JSON.parse(read('perf-budgets.json')).runtime as Record<'reads' | 'updates' | 'sheets', Record<string, Budget>>;
+
+/** `@tanrei/web/all` as a product's production build makes it. */
+let bundle: Promise<string> | undefined;
+const production = () =>
+  (bundle ??= build({
+    entryPoints: [path.join(pkg, 'dist/all.js')],
+    bundle: true,
+    format: 'esm',
+    target: 'es2022',
+    minify: true,
+    write: false,
+    logLevel: 'silent',
+    define: { 'process.env.NODE_ENV': '"production"' },
+  }).then((result) => result.outputFiles[0]!.text));
+
+/**
+ * Counts, on `__perf`, every layout and style read the page makes from the start (`reads`), and every `updated` of a
+ * Tanrei element by its tag (`updates`). Installed before the bundle runs, so the elements' own references to the
+ * prototypes are the counted ones.
+ */
+function counters() {
+  const perf = { reads: 0, updates: {} as Record<string, number> };
+  (globalThis as { __perf?: typeof perf }).__perf = perf;
+  const wrap = (owner: object, name: string) => {
+    const descriptor = Object.getOwnPropertyDescriptor(owner, name)!;
+    if (descriptor.get) {
+      const get = descriptor.get;
+      Object.defineProperty(owner, name, {
+        ...descriptor,
+        get(this: unknown) {
+          perf.reads++;
+          return get.call(this);
+        },
+      });
+    } else {
+      const fn = descriptor.value as (...args: unknown[]) => unknown;
+      Object.defineProperty(owner, name, {
+        ...descriptor,
+        value(this: unknown, ...args: unknown[]) {
+          perf.reads++;
+          return fn.apply(this, args);
+        },
+      });
+    }
+  };
+  for (const name of ['getBoundingClientRect', 'getClientRects', 'clientWidth', 'clientHeight', 'clientTop', 'clientLeft', 'scrollWidth', 'scrollHeight', 'scrollTop', 'scrollLeft']) wrap(Element.prototype, name);
+  for (const name of ['offsetWidth', 'offsetHeight', 'offsetTop', 'offsetLeft', 'offsetParent']) wrap(HTMLElement.prototype, name);
+  for (const name of ['getBoundingClientRect', 'getClientRects']) wrap(Range.prototype, name);
+  wrap(window, 'getComputedStyle');
+  // Every element class is defined by the bundle: its `updated` is counted from its definition on.
+  const define = customElements.define;
+  customElements.define = function (this: CustomElementRegistry, tag: string, element: CustomElementConstructor, options?: ElementDefinitionOptions) {
+    const proto = element.prototype as { updated?: (...args: unknown[]) => unknown };
+    const updated = proto.updated;
+    if (tag.startsWith('tanrei-') && updated) {
+      proto.updated = function (this: Element, ...args: unknown[]) {
+        if (this.localName === tag) perf.updates[tag] = (perf.updates[tag] ?? 0) + 1;
+        return updated.apply(this, args);
+      };
+    }
+    return define.call(this, tag, element, options);
+  };
+}
+
+/** A page with every stylesheet of the package, the counters, the production bundle, and an empty `#pane`. */
+async function budgetPage(page: Page) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
+  const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>body { margin: 0; }</style><script>(${counters.toString()})()</script>`;
+  await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${await production()}</script></body></html>`);
+  await page.waitForFunction(() => !!customElements.get('tanrei-chat-composer'));
+}
+
+/** The counts from `act` to two frames after it (the work it queued for a microtask, an observer or a frame included). */
+async function counted(page: Page, act: (page: Page) => Promise<unknown>) {
+  await twoFrames(page);
+  await page.evaluate(() => {
+    const perf = (globalThis as unknown as { __perf: { reads: number; updates: Record<string, number> } }).__perf;
+    perf.reads = 0;
+    perf.updates = {};
+  });
+  await act(page);
+  await twoFrames(page);
+  await twoFrames(page);
+  return page.evaluate(() => {
+    const { reads, updates } = (globalThis as unknown as { __perf: { reads: number; updates: Record<string, number> } }).__perf;
+    return { reads, updates: { ...updates }, drawn: Object.values(updates).reduce((sum, count) => sum + count, 0) };
+  });
+}
+
+/** Builds `markup` in the emptied `#pane`, counted. */
+const built = (page: Page, markup: string) =>
+  counted(page, async () => {
+    await page.evaluate(() => {
+      document.querySelector('#pane')!.innerHTML = '';
+    });
+    await twoFrames(page);
+    await page.evaluate((html) => {
+      (globalThis as unknown as { __perf: { reads: number } }).__perf.reads = 0;
+      document.querySelector('#pane')!.innerHTML = html;
+    }, markup);
+  });
+
+const times = (n: number, item: (i: number) => string) => Array.from({ length: n }, (_, i) => item(i)).join('');
+
+/** What building is measured at 10 and at 100: instances of a component, or items of one container. */
+const BUILDS: Record<string, (n: number) => string> = {
+  button: (n) => times(n, (i) => `<tanrei-button label="Button ${i}"></tanrei-button>`),
+  'text-field, in error': (n) => times(n, (i) => `<tanrei-text-field label="Name ${i}" error error-text="Required"></tanrei-text-field>`),
+  'menu, items': (n) => `<tanrei-menu open inline>${times(n, (i) => `<tanrei-menu-item label="Item ${i}"></tanrei-menu-item>`)}</tanrei-menu>`,
+  'list, items': (n) => `<tanrei-list label="Many">${times(n, (i) => `<tanrei-list-item label="Item ${i}"></tanrei-list-item>`)}</tanrei-list>`,
+  'dialog, closed': (n) => times(n, (i) => `<tanrei-dialog headline="Dialog ${i}">Body</tanrei-dialog>`),
+  'side-sheet, closed': (n) => times(n, (i) => `<tanrei-side-sheet headline="Sheet ${i}">Body</tanrei-side-sheet>`),
+  'popover, closed': (n) => times(n, (i) => `<tanrei-popover headline="Popover ${i}">Body</tanrei-popover>`),
+  'chat-composer': (n) => times(n, (i) => `<tanrei-chat-composer label="Message ${i}"></tanrei-chat-composer>`),
+};
+
+/** One change of one property, on markup built first: the element `#it` and what is changed on it. */
+const CHANGES: Record<string, { markup: string; change: (it: HTMLElement & Record<string, unknown>) => void }> = {
+  'button, disabled': { markup: '<tanrei-button id="it" label="Save"></tanrei-button>', change: (it) => (it.disabled = true) },
+  'text-field, value': { markup: '<tanrei-text-field id="it" label="Name"></tanrei-text-field>', change: (it) => (it.value = 'Ada') },
+  'text-field, error': { markup: '<tanrei-text-field id="it" label="Name" error-text="Required"></tanrei-text-field>', change: (it) => (it.error = true) },
+  'menu item, label': { markup: `<tanrei-menu open inline>${times(10, (i) => `<tanrei-menu-item${i ? '' : ' id="it"'} label="Item ${i}"></tanrei-menu-item>`)}</tanrei-menu>`, change: (it) => (it.label = 'Renamed') },
+  'list item, label': { markup: `<tanrei-list label="Many">${times(10, (i) => `<tanrei-list-item${i ? '' : ' id="it"'} label="Item ${i}"></tanrei-list-item>`)}</tanrei-list>`, change: (it) => (it.label = 'Renamed') },
+  'tabs, value': {
+    markup: `<tanrei-tabs id="it" label="Many" value="v0">${times(10, (i) => `<tanrei-tab value="v${i}" label="Tab ${i}"></tanrei-tab>`)}${times(10, (i) => `<tanrei-tab-panel value="v${i}">Panel ${i}</tanrei-tab-panel>`)}</tanrei-tabs>`,
+    change: (it) => (it.value = 'v5'),
+  },
+};
+
+/** The instances whose shadow roots' adopted sheets are counted, at 1 and at 100. */
+const SHEETS: Record<string, (n: number) => string> = {
+  button: BUILDS.button!,
+  'text-field': (n) => times(n, (i) => `<tanrei-text-field label="Name ${i}"></tanrei-text-field>`),
+  'chat-composer': BUILDS['chat-composer']!,
+};
+
+/** The adopted stylesheets of every shadow root in `#pane` that are not the same object. */
+const uniqueSheets = (page: Page) =>
+  page.evaluate(() => {
+    const sheets = new Set<CSSStyleSheet>();
+    const visit = (root: ParentNode) => {
+      for (const element of root.querySelectorAll('*')) {
+        if (!element.shadowRoot) continue;
+        for (const sheet of element.shadowRoot.adoptedStyleSheets) sheets.add(sheet);
+        visit(element.shadowRoot);
+      }
+    };
+    visit(document.querySelector('#pane')!);
+    return sheets.size;
+  });
+
+const held = (kind: 'reads' | 'updates' | 'sheets', name: string, count: number, detail: string) => {
+  const entry = budgets[kind][name];
+  const line = `${kind} ${name}: ${count} (budget ${entry?.budget}, measured ${entry?.measured}); ${detail}`;
+  console.log(`perf-budget ${line}`);
+  test.info().annotations.push({ type: 'cost', description: line });
+  expect(entry, `perf-budgets.json has no runtime.${kind}["${name}"]`).toBeTruthy();
+  expect(count, line).toBeLessThanOrEqual(entry!.budget);
+};
+
+test.describe('the run-time budgets (perf-budgets.json)', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium', 'the budgets are measured in Chromium');
+
+  test('every budget is a case here, and every case has a budget', () => {
+    expect(Object.keys(budgets.reads).sort()).toEqual(Object.keys(BUILDS).sort());
+    expect(Object.keys(budgets.updates).sort()).toEqual(Object.keys(CHANGES).sort());
+    expect(Object.keys(budgets.sheets).sort()).toEqual(Object.keys(SHEETS).sort());
+  });
+
+  for (const [name, markup] of Object.entries(BUILDS)) {
+    test(`reads: ${name} — what 90 more cost to build, in layout and style reads, is within its budget`, async ({ page }) => {
+      await budgetPage(page);
+      // The first build compiles what the others run, and loads what they draw with.
+      await built(page, markup(10));
+      const small = await built(page, markup(10));
+      const large = await built(page, markup(100));
+      held('reads', name, large.reads - small.reads, `${small.reads} reads at 10, ${large.reads} at 100`);
+    });
+  }
+
+  for (const [name, { markup, change }] of Object.entries(CHANGES)) {
+    test(`updates: ${name} — one change is drawn within its budget of updates`, async ({ page }) => {
+      await budgetPage(page);
+      await built(page, markup);
+      const made = await counted(page, (p) => p.evaluate(`(${change.toString()})(document.querySelector('#it'))`));
+      held('updates', name, made.drawn, JSON.stringify(made.updates));
+    });
+  }
+
+  for (const [name, markup] of Object.entries(SHEETS)) {
+    test(`sheets: ${name} — 99 more instances adopt no more unshared sheets than the budget`, async ({ page }) => {
+      await budgetPage(page);
+      await built(page, markup(1));
+      const one = await uniqueSheets(page);
+      await built(page, markup(100));
+      const hundred = await uniqueSheets(page);
+      held('sheets', name, hundred - one, `${one} distinct sheets at 1, ${hundred} at 100`);
+    });
+  }
+});

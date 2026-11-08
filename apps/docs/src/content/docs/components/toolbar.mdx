@@ -288,7 +288,7 @@ For the screen's title, the way back and one or two global actions, use the [app
 
 A docked toolbar is always horizontal. An inline or a floating one may be vertical, beside the content. One product can place a toolbar inline on one screen, dock one on another and float one on a third. A variant that a design system adds takes the inline structure with its own values.
 
-A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). Large buttons touch, medium ones end up 8 apart and small ones 16. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
+A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). In a floating toolbar large buttons touch, medium ones end up 8 apart and small ones 16. In an inline one, medium and small buttons stand as far apart, and large ones the gap of 4. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
 
 <Example label="Floating: small, medium and large items, and narrow and wide ones" column>
   <tanrei-toolbar variant="floating" label="Formatting, small">
@@ -369,6 +369,7 @@ What is hidden is decided before the toolbar is drawn, and again in the frame in
 - A group with a `label` is exposed as a group with that name. Lines between groups are exposed as separators.
 - The overflow button is exposed as a button that opens a menu, with its expanded state, and its menu holds every hidden item with its own name and state.
 - Each item keeps its own name, role, state and target. The toolbar adds nothing to them and never restyles them.
+- When a toggle item is switched, its look changes as its Button's does anywhere else, over the Button's state motion for its size. Its selected state changes for assistive technology at once, not when the motion ends. Where motion is reduced, and in the frames in which the toolbar is first drawn, the look changes at once too. The toolbar adds no motion of its own.
 - Between two items the hit areas never overlap. In a docked toolbar they meet at the middle of the gap, and the default system's gap (16) is wide enough that every item keeps its whole 48 touch target there too; a design system with a narrower gap narrows the targets between items. In an inline or a floating toolbar the items stand just far enough apart for each to keep a touch target's length of its own along the row, whatever the pointer, so a narrow or a small button is never squeezed by its neighbours. On a side with no neighbour, an item keeps its whole target.
 - When `overflow` is `scroll` and an item that receives keyboard focus is scrolled out of view, the toolbar scrolls it fully into view.
 - At larger text sizes the toolbar grows across its axis to hold its items. It does not scale them.
@@ -387,7 +388,7 @@ Known platform gaps:
 - On React Native the Tab stop and the arrow keys work only where a hardware keyboard is attached, as in the tabs row.
 - React Native has the toolbar role but no way to expose an orientation, so a vertical toolbar is not announced as vertical.
 - React Native: the floating toolbar's width, the keys on a hardware keyboard, scrolling a focused item into view, and whether VoiceOver and TalkBack announce the toolbar have been checked in Jest only, not on a device.
-- Under `m3-like`, the toolbar draws the default system's values: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
+- Under `m3-like`, only the toolbar's gaps and a floating toolbar's padding at its ends (8, as Material's) are the preset's own. Its other values are the default system's: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
 
 ### What you need to do
 

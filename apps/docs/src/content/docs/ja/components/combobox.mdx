@@ -1,8 +1,8 @@
 ---
 title: コンボボックス
-description: 入力して 1 つの値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
+description: 入力して 1 つ、または複数の値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/combobox.mdx
-sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
+sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,57 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 
 フィールドのラベルを押すと、入力欄にフォーカスが移り、何も開きません。リストが開いている間は、ラベルはコンボボックスの外側にあります。押すとリストが閉じ、フォーカスは入力欄に残ります。
 
+### 複数の値
+
+`selection` を `multiple` にすると、コンボボックスは `values` を持ちます。オプションをいくつでも、選んだ順に保持します。選んだ値はそれぞれチップとしてボックスの中、テキストの前に並び、チップが折り返すと、ボックスは 1 行ずつ高くなります。件数の表示の裏に隠れる値はありません。このときテキストは、オプションを探すために入力する文字だけになります。
+
+<Example label="複数の値。選んだ都市がチップとして並び、リストは引き続き絞り込めます" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市">
+    <tanrei-combobox selection="multiple" values="kyoto lisbon" remove-label="{entry}を削除" added-text="{entry}を追加しました" removed-text="{entry}を削除しました" empty-text="一致する項目はありません">
+      <tanrei-option value="kyoto">京都</tanrei-option>
+      <tanrei-option value="lisbon">リスボン</tanrei-option>
+      <tanrei-option value="nairobi">ナイロビ</tanrei-option>
+      <tanrei-option value="tokyo">東京</tanrei-option>
+      <tanrei-option value="toronto">トロント</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</Example>
+
+```html
+<tanrei-field label="都市">
+  <tanrei-combobox name="cities" selection="multiple" values='["kyoto", "lisbon"]'
+    remove-label="{entry}を削除" added-text="{entry}を追加しました" removed-text="{entry}を削除しました">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="lisbon">リスボン</tanrei-option>
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option>
+    <tanrei-option value="tokyo">東京</tanrei-option>
+    <tanrei-option value="toronto">トロント</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+
+<script type="module">
+  const cities = document.querySelector('[name="cities"]');
+  // 値が追加または削除されました。`values` はすでに新しい配列です。
+  cities.addEventListener('change', (e) => save(e.detail.values));
+</script>
+```
+
+| 操作 | 結果 |
+| --- | --- |
+| オプションを押す、またはアクティブなオプションで Enter を押す | その値が末尾に追加されます。すでに選ばれていれば外れます。テキストは空になり、すべてのオプションがまた表示され、次を選べるようにリストは開いたままです。 |
+| オプションのラベルをすべて入力して Enter を押す | そのオプションが追加されます。`allowCustomValue` があれば、それ以外のテキストもそのまま 1 つの値になります。 |
+| テキストの先頭にキャレットがある状態で、Backspace か、行の先頭の方向を指す矢印キーを押す | 最後のチップにフォーカスが移ります。この時点では何も削除されません。 |
+| チップの上で矢印キー、Home、End を押す | チップの間を移動します。最後のチップの先はテキストに戻ります。Escape と Tab でもテキストに戻ります。 |
+| チップの上で Backspace か Delete を押す、または削除ボタンを押す | その値が削除され、フォーカスは隣のチップか、テキストに移ります。 |
+| チップを押す | フォーカスがテキストに移り、そのチップのオプションをアクティブにしてリストが開きます。 |
+| フィールドから離れる、またはリストが閉じた状態で Escape を押す | 入力したテキストが空になります。何も選ばれず、値も削除されません。 |
+
+複数を選ぶ人はたいてい続けて選ぶので、選んだあともリストは開いたままです。Escape、シェブロン、外側を押す操作、またはフォーカスが離れることで閉じます。Backspace は、何かを削除する前にまず最後のチップに移ります。これは[チップフィールド](/ja/components/chip-field/)と同じです。2 つのフィールドで同じキーが同じように働き、目にしていないものが削除されることはありません。
+
+フォームでは、`<select multiple>` と同じように、値ごとに 1 つのエントリを `name` で送信します。何も選ばれていなければ何も送信しません。必須のフィールドで囲むと、少なくとも 1 つの値が求められます。
+
+チップは入力の種類の[チップ](/ja/components/chip/)で、チップのトークンで描かれます。チップの間隔は `comp.combobox.entries.*` で、デザインシステムが別に設定しない限り、テキスト入力のエントリの間隔と同じです。
+
 ## 仕様
 
 <Example label="単独のコンボボックス：エラー、無効、読み取り専用、消去ボタン付き、large" column>
@@ -197,6 +248,9 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 - パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
 - `empty-text` と `clear-label` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
 - 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-combobox:not(:defined) > *` を隠し、高さを確保しておいてください。
+- `selection="multiple"` のとき、要素は `values` の各値を `name` で送信し、リセットすると `values` 属性（JSON の配列、または空白で区切った値）に戻ります。`change` は `detail.values` も持ちます。
+- 選んだ値のパーツ: `entry`（各チップ）、`entry-container`、`entry-label`、`entry-remove`。
+- `remove-label`、`added-text`、`removed-text` を空のままにすると、プロダクトの言葉の `entryRemoveLabel`、`entryAddedText`、`entryRemovedText` から読みます。チップフィールドが読むものと同じです。
 
 ## ガイドライン
 
@@ -241,6 +295,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 - フォーカスは、キーボードでもポインターでも、ボックス自身の縁で示します。ヒット領域は最小ターゲットを満たします。
 - 浮き上がるラベルのあとのアスタリスクは、支援技術から隠します。必須の状態がすでに伝えているためです。
 - 名前がない場合は、デバッグビルドで報告します。
+- 値が複数のとき、リストボックスは複数のオプションを選べることを伝え、各オプションは選ばれているかどうかを伝えます。選んだ値は、コンボボックスと同じ名前のリストで、それぞれが `removeLabel` で名前を付けた削除ボタンを持つチップです。ポライトなライブリージョンが、追加・削除した内容を `addedText` と `removedText` で伝えます。
 
 ### 利用者側で行うこと
 
@@ -248,3 +303,4 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 - 単独のコンボボックスの値が誤りになりうる場合は、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自前のメッセージか、コンボボックスを囲むフィールドを使います。
 - すべてのオプションにラベルと空でない値を付け、値は重複させません。
 - 消去できるコンボボックスには `clearLabel` を付け、`emptyText` と `statusText` を書きます。
+- 値が複数のときは、`{entry}` の場所を含む `removeLabel`、`addedText`、`removedText` をプロダクトの言語で指定するか、`setWords()` ですべてのフィールドにまとめて設定します。

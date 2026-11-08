@@ -2,7 +2,7 @@
 title: "列表"
 description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
+sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -146,6 +146,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 
 顺序是产品的数据，所以列表从不自行改变它。每种移动方式都会触发 `move`，其中 `from` 是项的索引，`to` 是它要到达的索引，均从 0 开始计数。请据此重新排列你的项。随后列表会绘制项交换位置的过程，让焦点保持在被移动项的手柄上，并告诉辅助技术它现在的位置。如果在 `comp.list.motion.reorder-duration` 的时间内你没有做任何改变，这次移动即被视为拒绝：项回到原位，也不会播报。
 
+向可调整顺序的列表添加一项或移除一项时，列表会画出它进入或离开的过程。在纵向或横向排列的列表中，进入的项沿列表方向从零伸展到自己的长度，同时淡入，旁边的间距随之打开；离开的项淡出，并收缩为零。后面的项跟着它的边缘移动，不会出现跳动。在换行排列的列表中，项在原位淡入或淡出，其他项移到新的位置。列表暴露的数量和位置会立即改变：离开的项在画出离开过程期间已不计入数量，对辅助技术隐藏，也不接受焦点和按下。在 Web 上，它会作为带 `data-leaving` 的子元素留在列表中，直到完全消失，因此在此期间读取各项的脚本请用 `tanrei-list-item:not([data-leaving])` 来选择。在减少动效的设置下，项立即进入、立即离开。
+
 文字由产品提供：手柄的名称（`dragHandleLabel`，列表会在占位符 `{label}` 处填入项的名称）、它的说明（`dragHandleHint`）、菜单中的四种移动，以及要播报的三句话（`liftedText`、`movedText`、`cancelledText`，占位符为 `{label}`、`{position}` 和 `{count}`）。可以在列表上提供，也可以用 `setWords()` 为整个产品提供一次。在一行的列表中，把一列中的“上移”“下移”写成“左移”“右移”。
 
 <Tabs syncKey="platform">
@@ -168,7 +170,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
-        const items = [...list.children];
+        const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
       });
     </script>

@@ -225,6 +225,49 @@ export const styles = css`
   .input:focus {
     outline: none;
   }
+
+  /* CMB-74, CMB-82: the chosen values and the input, in lines from the start edge that wrap: entries.gap between two
+     items on a line (and before the input), entries.row-gap between two lines, every item centred on its line (the
+     row's own align-items), an entry that does not fit going whole to the next line and never wider than one. The
+     list and its items have no box: their chips stand in the row itself. The input takes what is left of the last line
+     while that is entries.typing-min-width at least, and a line of its own otherwise. The first line stands where the
+     one input line stands without entries, and the last as far from the bottom, so the container grows by whole lines.
+     The two distances are handed to the chips as a set's are (the Chip's internal contract): a chip's hit area ends
+     at the middle of the gap to its neighbour. */
+  .entries,
+  .item {
+    display: contents;
+  }
+  .entries {
+    --tanrei-set-gap: var(${P}-entries-gap);
+    --tanrei-set-row-gap: var(${P}-entries-row-gap);
+  }
+  .item > tanrei-chip {
+    flex: none;
+    max-inline-size: 100%;
+  }
+  .field[data-entries] .body {
+    flex-wrap: wrap;
+    gap: var(${P}-entries-row-gap) var(${P}-entries-gap);
+  }
+  .field[data-entries]:not(${unsafeCSS(FILLED)}[data-labelled]) .body {
+    padding-block: max(var(--_pad-block), calc((var(--_height) - var(--_input-line)) / 2));
+  }
+  .field[data-entries] .input {
+    flex-basis: var(${P}-entries-typing-min-width);
+  }
+  /* CMB-79: the live region that says what was added or removed is read, never drawn. */
+  .announcer {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
   /* CMB-15: selected text is highlighted in selection.color and drawn in selection.content.color, in every variant and
      state. The fill color is named too: the input sets it to currentcolor, and the highlight has to carry its own. */
   .input::selection {

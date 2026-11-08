@@ -5503,6 +5503,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var dividerColor: TanreiPaint
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
+  public var entriesGap: CGFloat
+  public var entriesRowGap: CGFloat
+  public var entriesTypingMinWidth: CGFloat
   public var groupTitleColor: TanreiPaint
   public var groupTitleTypescale: TanreiTextStyle
   public var groupGap: CGFloat
@@ -5549,6 +5552,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     dividerColor: TanreiPaint,
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
+    entriesGap: CGFloat,
+    entriesRowGap: CGFloat,
+    entriesTypingMinWidth: CGFloat,
     groupTitleColor: TanreiPaint,
     groupTitleTypescale: TanreiTextStyle,
     groupGap: CGFloat,
@@ -5590,6 +5596,9 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.dividerColor = dividerColor
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
+    self.entriesGap = entriesGap
+    self.entriesRowGap = entriesRowGap
+    self.entriesTypingMinWidth = entriesTypingMinWidth
     self.groupTitleColor = groupTitleColor
     self.groupTitleTypescale = groupTitleTypescale
     self.groupGap = groupGap
@@ -13420,6 +13429,267 @@ public struct TanreiRadioButtonTokens: Sendable, Equatable {
   }
 }
 
+/// A value of rating's `size` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiRatingSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiRatingSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let small = TanreiRatingSize(rawValue: "small")
+  public static let medium = TanreiRatingSize(rawValue: "medium")
+  public static let large = TanreiRatingSize(rawValue: "large")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiRatingSize] = [.small, .medium, .large]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiRatingSize.medium
+}
+
+/// Everything of rating that depends on its size.
+public struct TanreiRatingSizeTokens: Sendable, Equatable {
+  public var markSize: CGFloat
+  public var containerSize: CGFloat
+
+  public init(
+    markSize: CGFloat,
+    containerSize: CGFloat
+  ) {
+    self.markSize = markSize
+    self.containerSize = containerSize
+  }
+}
+
+/// The sizes of rating: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiRatingSizes: Sendable, Equatable {
+  public var small: TanreiRatingSizeTokens
+  public var medium: TanreiRatingSizeTokens
+  public var large: TanreiRatingSizeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiRatingSize: TanreiRatingSizeTokens]
+
+  public init(
+    small: TanreiRatingSizeTokens,
+    medium: TanreiRatingSizeTokens,
+    large: TanreiRatingSizeTokens,
+    extra: [TanreiRatingSize: TanreiRatingSizeTokens] = [:]
+  ) {
+    self.small = small
+    self.medium = medium
+    self.large = large
+    self.extra = extra
+  }
+
+  /// The tokens of one rating size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiRatingSize) -> TanreiRatingSizeTokens? {
+    switch key {
+    case .small: return small
+    case .medium: return medium
+    case .large: return large
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a rating size this design system does not have reads the tokens of `medium`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiRatingSize) -> TanreiRatingSizeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no rating size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
+  }
+
+  /// Every rating size of this design system: the core ones, then what it added.
+  public var keys: [TanreiRatingSize] { TanreiRatingSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// A value of rating's `condition` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiRatingCondition(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiRatingCondition: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let unselected = TanreiRatingCondition(rawValue: "unselected")
+  public static let selected = TanreiRatingCondition(rawValue: "selected")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiRatingCondition] = [.unselected, .selected]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiRatingCondition.unselected
+}
+
+/// How one condition of rating is drawn in one state.
+public struct TanreiRatingConditionStateTokens: Sendable, Equatable {
+  public var containerColor: TanreiPaint
+  public var markColor: TanreiPaint
+  public var stateLayerColor: TanreiPaint
+
+  public init(
+    containerColor: TanreiPaint,
+    markColor: TanreiPaint,
+    stateLayerColor: TanreiPaint
+  ) {
+    self.containerColor = containerColor
+    self.markColor = markColor
+    self.stateLayerColor = stateLayerColor
+  }
+}
+
+/// One condition of rating: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiRatingConditionTokens: Sendable, Equatable {
+  public var enabled: TanreiRatingConditionStateTokens
+  public var hovered: TanreiRatingConditionStateTokens
+  public var focused: TanreiRatingConditionStateTokens
+  public var pressed: TanreiRatingConditionStateTokens
+  public var disabled: TanreiRatingConditionStateTokens
+
+  public init(
+    enabled: TanreiRatingConditionStateTokens,
+    hovered: TanreiRatingConditionStateTokens,
+    focused: TanreiRatingConditionStateTokens,
+    pressed: TanreiRatingConditionStateTokens,
+    disabled: TanreiRatingConditionStateTokens
+  ) {
+    self.enabled = enabled
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The tokens of this condition of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  public subscript(state state: TanreiInteraction) -> TanreiRatingConditionStateTokens {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
+/// The conditions of rating: named fields for the core values, `extra` for what a design system added.
+/// Read one with `conditions[key]`.
+public struct TanreiRatingConditions: Sendable, Equatable {
+  public var unselected: TanreiRatingConditionTokens
+  public var selected: TanreiRatingConditionTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiRatingCondition: TanreiRatingConditionTokens]
+
+  public init(
+    unselected: TanreiRatingConditionTokens,
+    selected: TanreiRatingConditionTokens,
+    extra: [TanreiRatingCondition: TanreiRatingConditionTokens] = [:]
+  ) {
+    self.unselected = unselected
+    self.selected = selected
+    self.extra = extra
+  }
+
+  /// The tokens of one rating condition, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiRatingCondition) -> TanreiRatingConditionTokens? {
+    switch key {
+    case .unselected: return unselected
+    case .selected: return selected
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a rating condition this design system does not have reads the tokens of `unselected`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiRatingCondition) -> TanreiRatingConditionTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no rating condition \"\(key.rawValue)\"; using \"unselected\"")
+    return unselected
+  }
+
+  /// Every rating condition of this design system: the core ones, then what it added.
+  public var keys: [TanreiRatingCondition] { TanreiRatingCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Values of rating that depend on the state but not on the variant.
+public struct TanreiRatingStateTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+  public var opacity: Double
+
+  public init(
+    containerShape: CGFloat,
+    opacity: Double
+  ) {
+    self.containerShape = containerShape
+    self.opacity = opacity
+  }
+}
+
+/// Component tokens of rating (comp.rating).
+public struct TanreiRatingTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+  public var motionFeedbackDuration: Double
+  public var motionSelectionDuration: Double
+  public var motionSelectionEasing: TanreiCubicBezier
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
+  public var sizes: TanreiRatingSizes
+  public var conditions: TanreiRatingConditions
+  /// Values of the hovered state shared by every variant.
+  public var hovered: TanreiRatingStateTokens
+  /// Values of the focused state shared by every variant.
+  public var focused: TanreiRatingStateTokens
+  /// Values of the pressed state shared by every variant.
+  public var pressed: TanreiRatingStateTokens
+  /// Values of the disabled state shared by every variant.
+  public var disabled: TanreiRatingStateTokens
+
+  public init(
+    containerShape: CGFloat,
+    motionFeedbackDuration: Double,
+    motionSelectionDuration: Double,
+    motionSelectionEasing: TanreiCubicBezier,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
+    sizes: TanreiRatingSizes,
+    conditions: TanreiRatingConditions,
+    hovered: TanreiRatingStateTokens,
+    focused: TanreiRatingStateTokens,
+    pressed: TanreiRatingStateTokens,
+    disabled: TanreiRatingStateTokens
+  ) {
+    self.containerShape = containerShape
+    self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionSelectionDuration = motionSelectionDuration
+    self.motionSelectionEasing = motionSelectionEasing
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
+    self.sizes = sizes
+    self.conditions = conditions
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `enabled`, which rating has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiRatingStateTokens? {
+    switch state {
+    case .enabled: return nil
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
 /// Component tokens of resizable-frame (comp.resizable-frame).
 public struct TanreiResizableFrameTokens: Sendable, Equatable {
   public var containerMinHeight: CGFloat
@@ -15671,6 +15941,29 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
     case .pressed: return pressed
     case .disabled: return nil
     }
+  }
+}
+
+/// Component tokens of split-view (comp.split-view).
+public struct TanreiSplitViewTokens: Sendable, Equatable {
+  public var dividerColor: TanreiPaint
+  public var dividerWidth: CGFloat
+  public var motionCollapseDuration: Double
+  public var motionCollapseEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+
+  public init(
+    dividerColor: TanreiPaint,
+    dividerWidth: CGFloat,
+    motionCollapseDuration: Double,
+    motionCollapseEasing: TanreiCubicBezier,
+    motionResizeDuration: Double
+  ) {
+    self.dividerColor = dividerColor
+    self.dividerWidth = dividerWidth
+    self.motionCollapseDuration = motionCollapseDuration
+    self.motionCollapseEasing = motionCollapseEasing
+    self.motionResizeDuration = motionResizeDuration
   }
 }
 
@@ -18991,6 +19284,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _radioButton.value }
     set { _radioButton.value = newValue }
   }
+  public var rating: TanreiRatingTokens {
+    get { _rating.value }
+    set { _rating.value = newValue }
+  }
   public var resizableFrame: TanreiResizableFrameTokens {
     get { _resizableFrame.value }
     set { _resizableFrame.value = newValue }
@@ -19026,6 +19323,10 @@ public struct TanreiSystem: Sendable, Equatable {
   public var snackbar: TanreiSnackbarTokens {
     get { _snackbar.value }
     set { _snackbar.value = newValue }
+  }
+  public var splitView: TanreiSplitViewTokens {
+    get { _splitView.value }
+    set { _splitView.value = newValue }
   }
   public var stepper: TanreiStepperTokens {
     get { _stepper.value }
@@ -19150,6 +19451,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _progressIndicator: TanreiBox<TanreiProgressIndicatorTokens>
   private var _prose: TanreiBox<TanreiProseTokens>
   private var _radioButton: TanreiBox<TanreiRadioButtonTokens>
+  private var _rating: TanreiBox<TanreiRatingTokens>
   private var _resizableFrame: TanreiBox<TanreiResizableFrameTokens>
   private var _scrollArea: TanreiBox<TanreiScrollAreaTokens>
   private var _search: TanreiBox<TanreiSearchTokens>
@@ -19159,6 +19461,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _skeleton: TanreiBox<TanreiSkeletonTokens>
   private var _slider: TanreiBox<TanreiSliderTokens>
   private var _snackbar: TanreiBox<TanreiSnackbarTokens>
+  private var _splitView: TanreiBox<TanreiSplitViewTokens>
   private var _stepper: TanreiBox<TanreiStepperTokens>
   private var _steps: TanreiBox<TanreiStepsTokens>
   private var _swatch: TanreiBox<TanreiSwatchTokens>
@@ -19252,6 +19555,7 @@ public struct TanreiSystem: Sendable, Equatable {
     progressIndicator: TanreiProgressIndicatorTokens,
     prose: TanreiProseTokens,
     radioButton: TanreiRadioButtonTokens,
+    rating: TanreiRatingTokens,
     resizableFrame: TanreiResizableFrameTokens,
     scrollArea: TanreiScrollAreaTokens,
     search: TanreiSearchTokens,
@@ -19261,6 +19565,7 @@ public struct TanreiSystem: Sendable, Equatable {
     skeleton: TanreiSkeletonTokens,
     slider: TanreiSliderTokens,
     snackbar: TanreiSnackbarTokens,
+    splitView: TanreiSplitViewTokens,
     stepper: TanreiStepperTokens,
     steps: TanreiStepsTokens,
     swatch: TanreiSwatchTokens,
@@ -19353,6 +19658,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._progressIndicator = TanreiBox(progressIndicator)
     self._prose = TanreiBox(prose)
     self._radioButton = TanreiBox(radioButton)
+    self._rating = TanreiBox(rating)
     self._resizableFrame = TanreiBox(resizableFrame)
     self._scrollArea = TanreiBox(scrollArea)
     self._search = TanreiBox(search)
@@ -19362,6 +19668,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._skeleton = TanreiBox(skeleton)
     self._slider = TanreiBox(slider)
     self._snackbar = TanreiBox(snackbar)
+    self._splitView = TanreiBox(splitView)
     self._stepper = TanreiBox(stepper)
     self._steps = TanreiBox(steps)
     self._swatch = TanreiBox(swatch)

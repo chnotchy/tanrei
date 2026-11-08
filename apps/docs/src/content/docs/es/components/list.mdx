@@ -2,7 +2,7 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
+sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -146,6 +146,8 @@ Arrastrar nunca es la única forma. El tirador es un botón: pulsarlo, o Intro, 
 
 El orden son tus datos, así que la lista nunca lo cambia. Toda forma de mover dispara `move` con `from`, el índice del elemento, y `to`, el índice que debe tener, ambos contados desde 0. Reordena tus elementos en respuesta. La lista dibuja entonces cómo cambian de lugar, mantiene el foco en el tirador del elemento movido y comunica a la tecnología de asistencia dónde queda. Si no cambias nada en el tiempo de `comp.list.motion.reorder-duration`, el movimiento se rechazó: los elementos vuelven y no se anuncia nada.
 
+Cuando añades un elemento a una lista reordenable o quitas uno, la lista lo dibuja llegando o yéndose. En una columna o una línea, un elemento que llega crece a lo largo de la lista desde cero mientras aparece con un fundido, y el hueco de al lado se abre con él; uno que se va se desvanece y se cierra hasta desaparecer. Los elementos que vienen detrás siguen su borde, así que nada da un salto. En una lista que salta de línea, el elemento aparece o se desvanece en su sitio mientras los demás se mueven a sus nuevos lugares. El recuento y las posiciones que la lista expone cambian al instante: un elemento que se va queda fuera del recuento, oculto para la tecnología de asistencia y sin recibir foco ni pulsaciones mientras se dibuja su salida. En la web sigue en la lista como hijo con `data-leaving` hasta que se ha ido, así que un script que lea los elementos entretanto debe seleccionar `tanrei-list-item:not([data-leaving])`. Con movimiento reducido, los elementos llegan y se van al instante.
+
 Las palabras son tuyas: el nombre del tirador (`dragHandleLabel`, con el lugar `{label}` que la lista rellena con el nombre del elemento), su descripción (`dragHandleHint`), los cuatro movimientos del menú y las tres frases que se anuncian (`liftedText`, `movedText`, `cancelledText`, con los lugares `{label}`, `{position}` y `{count}`). Indícalas en la lista o una sola vez para el producto con `setWords()`. En una fila, escribe «Mover a la izquierda» y «Mover a la derecha» donde una columna dice «Mover hacia arriba» y «Mover hacia abajo».
 
 <Tabs syncKey="platform">
@@ -168,7 +170,7 @@ Las palabras son tuyas: el nombre del tirador (`dragHandleLabel`, con el lugar `
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
-        const items = [...list.children];
+        const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
       });
     </script>

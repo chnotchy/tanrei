@@ -10,7 +10,7 @@
     const list = event.target instanceof Element ? event.target.closest('tanrei-list[data-demo-product]') : null;
     if (!list || event.target !== list) return;
     const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
-    const items = [...list.children];
+    const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
     list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
   });
   const remove = (from: EventTarget | null) => {

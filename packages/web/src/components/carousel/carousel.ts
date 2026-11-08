@@ -908,9 +908,9 @@ export class TanreiCarousel extends TanreiElement {
   /**
    * CRL-14: while snap is true, the row comes to rest at a resting position — the next one in the direction of a fling,
    * or the nearest. With `release`, the settle is a touch release's: it claims the row from the release (whatever the
-   * pan or the momentum moved before its first frame), and runs even where the row is already at the resting position,
-   * so that the row stays held until its first frame; a settle after a scroll ended yields to a scroll that comes before
-   * its first frame.
+   * pan or the momentum moved before its first frame), holds it to the end of its motion (the momentum does not
+   * overtake it), and runs even where the row is already at the resting position, so that the row stays held until its
+   * first frame; a settle after a scroll ended yields to a scroll that comes before its first frame.
    */
   private settle({ release = false } = {}) {
     const geometry = this.geometry;
@@ -922,7 +922,7 @@ export class TanreiCarousel extends TanreiElement {
     }
     const offset = this.readOffset();
     const target = geometry.offset(geometry.settlePosition(geometry.position(offset), direction));
-    if (release || Math.abs(target - offset) >= 0.5) this.scrollRowTo(target, { from: offset, claim: release });
+    if (release || Math.abs(target - offset) >= 0.5) this.scrollRowTo(target, { from: offset, claim: release, held: release });
     else this.atRest();
   }
 
@@ -974,10 +974,13 @@ export class TanreiCarousel extends TanreiElement {
    * Scrolls from `from` to `to` over the motion's duration and easing, or at once where motion is reduced. It starts in
    * the next frame. With `claim`, that first frame replaces whatever scrolled the row since the call (the browser's own
    * jump to a focused element, the momentum after a fling); without it, a scroll that came before the first frame wins,
-   * as one that comes during the motion does. The easing's progress is read from an effect without a target, so the
+   * as one that comes during the motion does — except with `held`, a touch release's settle, which holds the row
+   * (`hold()`) from the release to its end: the person cannot pan a held row, so a scroll during it is the browser's own
+   * momentum, which carries on until the browser has the held row's style (a frame or more after the release where the
+   * page is busy), and every frame replaces it. The easing's progress is read from an effect without a target, so the
    * scroll follows the token's curve.
    */
-  private scrollRowTo(to: number, { from = this.offset, claim = true, kind = 'scroll' as Motion } = {}) {
+  private scrollRowTo(to: number, { from = this.offset, claim = true, held = false, kind = 'scroll' as Motion } = {}) {
     this.stopScrolling();
     const { duration, easing } = this.motion(kind);
     this.target = to;
@@ -987,7 +990,7 @@ export class TanreiCarousel extends TanreiElement {
     // browser's), which wins and settles in its turn.
     let last: number | null = claim ? null : this.readOffset();
     const overtaken = () => {
-      if (last === null || Math.abs(this.readOffset() - last) <= 1) return false;
+      if (held || last === null || Math.abs(this.readOffset() - last) <= 1) return false;
       this.stopScrolling();
       this.onScroll();
       return true;
