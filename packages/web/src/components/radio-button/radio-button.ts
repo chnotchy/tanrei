@@ -256,8 +256,8 @@ export class TanreiRadioButton extends TanreiElement {
     this.checked = state === 'true';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    this.selection.formDisabledCallback(disabled);
+  formDisabledCallback() {
+    this.selection.formDisabledCallback();
   }
 
   /** The options with `name` under `root`, in document order. */

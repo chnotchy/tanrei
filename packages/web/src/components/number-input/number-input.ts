@@ -20,7 +20,7 @@ import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges 
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INSET, styles } from './number-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
@@ -193,7 +193,6 @@ export class TanreiNumberInput extends TanreiElement {
     entryError: { state: true },
     pressing: { state: true },
     focused: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The look, as the text inputs beside it: `stacked` is a filled box whose label is the row of its Field; `filled` and `outlined` float the label inside the box. Use one style per form. A value the number input does not know by name is laid out as stacked. Reflected. */
@@ -289,8 +288,11 @@ export class TanreiNumberInput extends TanreiElement {
   private given: number | null = null;
   /** NMI-15: the input has focus, however it was gained. */
   protected focused = false;
-  /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals: ElementInternals;
   /** What it tells its form, said where an element composed around it hears it (src/primitives/form-says.ts). */
@@ -539,8 +541,8 @@ export class TanreiNumberInput extends TanreiElement {
     this.requestUpdate();
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**

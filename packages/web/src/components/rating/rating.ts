@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FocusedStop, GlyphMirrorController, OpenAxesController, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle, takeFormDisabled } from '../../primitives/index.js';
+import { AvailabilityController, FocusedStop, GlyphMirrorController, OpenAxesController, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { hiddenHost } from '../../primitives/hidden.js';
@@ -88,7 +89,6 @@ export class TanreiRating extends TanreiElement {
     name: { type: String, reflect: true },
     hovered: { state: true },
     preview: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The score: a number of marks from 0 to `max`, whole or — while `allowHalf` — in halves. 0 is no score yet. */
@@ -130,8 +130,11 @@ export class TanreiRating extends TanreiElement {
   /** RAT-7: the score the fine pointer would give, drawn in place of `value` while it is over a mark. */
   private preview: number | null = null;
 
-  /** Set by an ancestor `<fieldset disabled>` (`formDisabledCallback`). */
-  private formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  private get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -302,10 +305,8 @@ export class TanreiRating extends TanreiElement {
     this.value = Number.isFinite(value) ? value : 0;
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => {
-      this.formDisabled = value;
-    });
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** The mark an event came from, by its index; `null` from the row itself. */

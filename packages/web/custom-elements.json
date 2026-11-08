@@ -6564,15 +6564,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "method",
@@ -7319,15 +7311,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "method",
@@ -7773,15 +7757,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -8440,15 +8416,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "method",
@@ -10735,14 +10703,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -11406,14 +11366,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "description": "The platform's word on whether the element is disabled: by a `<fieldset disabled>` around it, and by its own\n`disabled` attribute too. Lit writes that attribute in the middle of an update, where a change of state would not\nbe drawn: it is taken once that update is over, so an input whose `disabled` was unset is drawn enabled again."
             }
           ],
@@ -12483,14 +12435,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -13623,15 +13567,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -16753,15 +16689,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -20368,15 +20296,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "field",
@@ -31103,14 +31023,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -32074,15 +31986,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -33669,14 +33573,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -34670,15 +34566,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -36851,15 +36739,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -37285,15 +37165,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "method",
@@ -37753,15 +37625,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -39997,15 +39861,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -41306,14 +41162,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -42249,15 +42097,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -43447,14 +43287,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -44234,15 +44066,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "field",
@@ -46469,15 +46293,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [
@@ -49757,14 +49573,6 @@
             {
               "kind": "method",
               "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -51770,15 +51578,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "field",
@@ -53910,7 +53710,7 @@
         },
         {
           "kind": "class",
-          "description": "A composed element with a value member (W5, W6). The subclass names the member (`valueMember`) and writes the\n`value` accessor in place, on these two:\n\n    get value(): string { return this.memberValue(''); }\n    set value(value: string) { this.giveValue(value); }\n\n**The value is the member's at every moment** (W5): what was last set on the element until the member has taken it\n— the element's next render — and from then on what the member holds. So in every listener of a member's event,\ncapturing or bubbling, `event.target.value` is the new value, and a value the member changed is read back changed.\n\n**The element is the form's control** (W6): its class says `static formAssociated = true`; it takes `name` and `form`, and repeats on its own\ninternals what its value member tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the\nstate as they are, the validity flags, the message and the member's own anchor. It resets to its `value` attribute\n(`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` with its own `disabled` for\nits frame (`formDisabled`). Enter is the member's: it asks for the element's form (`formOf`).",
+          "description": "A composed element with a value member (W5, W6). The subclass names the member (`valueMember`) and writes the\n`value` accessor in place, on these two:\n\n    get value(): string { return this.memberValue(''); }\n    set value(value: string) { this.giveValue(value); }\n\n**The value is the member's at every moment** (W5): what was last set on the element until the member has taken it\n— the element's next render — and from then on what the member holds. So in every listener of a member's event,\ncapturing or bubbling, `event.target.value` is the new value, and a value the member changed is read back changed.\n\n**The element is the form's control** (W6): its class says `static formAssociated = true`; it takes `name` and `form`, and repeats on its own\ninternals what its value member tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the\nstate as they are, the validity flags, the message and the member's own anchor. It resets to its `value` attribute\n(`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` (`formDisabled`,\nsrc/primitives/form-disabled.ts) with its own `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).",
           "name": "ComposedControl",
           "members": [
             {
@@ -54008,15 +53808,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             },
             {
               "kind": "method",

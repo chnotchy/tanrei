@@ -105,7 +105,7 @@ test.describe('behavior', () => {
     expect(built.inputHasName).toBe(false);
     expect(built.delegates).toBe(false);
     expect({ custom: built.custom, sheet: built.sheet }, 'no custom property is written and none is read').toEqual({ custom: [], sheet: [] });
-    expect(built.properties, 'no state but the disabled fieldset’s').toEqual(['formDisabled']);
+    expect(built.properties, 'no state: a disabled fieldset is read from the platform').toEqual([]);
     // What the Field says reaches the input through the Field's own connection: named, invalid, required, disabled.
     await expect(typing(one(page, 'plain'))).toHaveAttribute('aria-label', 'Width');
     await expect(typing(one(page, 'plain'))).toHaveAttribute('aria-invalid', 'true');
