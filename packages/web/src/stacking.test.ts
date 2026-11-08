@@ -1,5 +1,5 @@
 // A component's stacking order stays inside the component. A shadow root makes no stacking context, so a z-index a
-// component gives one of its parts — a Code block's copy button, a Slider's value indicator, a Button group's divider —
+// component gives one of its parts — a Code block's copy button, a Button group's divider —
 // is otherwise ordered in the PAGE's stacking context, against the page's own levels: it rose over a sticky header of
 // the product's at z-index 1 and took its clicks. So a component that gives any of its parts a z-index makes its own
 // outermost box a stacking context (`isolation: isolate`), and what has to stand over the page is drawn in the top
@@ -99,14 +99,7 @@ function escaping(): string[] {
  * What still reaches the page's stacking order, by component, with the reason; this list only shrinks. A part listed
  * here that no longer escapes fails too, so the entry is taken out with the fix.
  */
-const KNOWN: Record<string, { part: RegExp; reason: string }> = {
-  // SLD's value indicator must stand over the content beside the slider (above it, where it rises), which a stacking
-  // context of the slider's own would put under any later positioned neighbour. It belongs in the top layer, as the
-  // other floating parts are (a popover placed against the handle); until then it is the one part that escapes.
-  slider: { part: /› div\.value-indicator \(1\)$/, reason: 'the value indicator rises over the neighbours; it moves to the top layer in its own change' },
-  'slider-field': { part: /› div\.value-indicator \(1\)$/, reason: 'the Slider inside it' },
-  field: { part: /› div\.value-indicator \(1\)$/, reason: 'the Slider of its slider fixtures' },
-};
+const KNOWN: Record<string, { part: RegExp; reason: string }> = {};
 
 for (const name of NAMES) {
   test(`a z-index in ${name} orders its own parts only: each is ordered in a stacking context inside the component`, async ({ page }) => {

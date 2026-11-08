@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, FollowController, OpenAxesController, PressController, anchorGone, layoutSize, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
@@ -119,7 +119,7 @@ const originPoint = (f: number): End => (f <= 0 ? TRACK_START : f >= 1 ? TRACK_E
  * @csspart stop-indicator - A stop dot.
  * @csspart container - A handle's round state layer (hover, focus, press).
  * @csspart handle - A handle: the element with role slider. Its background is the fill; its `::before` draws the outline.
- * @csspart value-indicator - A handle's value indicator.
+ * @csspart value-indicator - A handle's value indicator, drawn in the top layer (`popover="manual"`) and placed against its handle (SLD-28).
  * @attr {string} form - The id of the form the slider belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires {CustomEvent<TanreiSliderChangeDetail>} input - The person changed a value; the element's `value` (and `startValue`) is already the new one.
  * @fires {CustomEvent<TanreiSliderChangeDetail>} change - The person finished changing a value (the press ended, or a key was pressed); always after its input.
@@ -245,7 +245,16 @@ export class TanreiSlider extends TanreiElement {
   /** The press being answered: the pointer, the handle it moves, where it began and whether it has become a drag. */
   private gesture: { pointer: number; handle: HandleId; touch: boolean; x: number; y: number; dragging: boolean; before: Values } | null = null;
 
-  private readonly resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.placeIndicators());
+  /**
+   * SLD-28: each value indicator is drawn in the top layer, where nothing around the slider clips or covers it, and so is
+   * placed by script: again whenever its handle can have moved — a drag, the value motion, a scroll, a resize, the
+   * slider moved by its neighbours — and whenever its own size changes (new value text, a web font arriving late).
+   */
+  private readonly following = new FollowController(this, {
+    followed: () => [this, ...this.handles.map((id) => this.inThumb(id, '.handle'))],
+    sized: () => this.handles.map((id) => this.inThumb(id, '.value-indicator')),
+    check: () => this.placeIndicators(),
+  });
   /**
    * SLD-17, SLD-21, SLD-25: a change of the direction it inherits moves the handles and the tracks to the other side. It
    * is no change of value, so it is drawn at once: the value motion the new insets started (a piece's two ends are
@@ -376,14 +385,12 @@ export class TanreiSlider extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.resize?.observe(this);
-    window.addEventListener('resize', this.placeIndicators);
+    // Put back into the page, it shows its value indicators again (taken out, they left the top layer with it).
+    if (this.hasUpdated) this.presentIndicators();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.resize?.disconnect();
-    window.removeEventListener('resize', this.placeIndicators);
     this.gesture = null;
     this.dragging = false;
   }
@@ -445,7 +452,7 @@ export class TanreiSlider extends TanreiElement {
     } else {
       this.says.value(this.isDisabled ? null : String(end), `${start} ${end}`);
     }
-    this.placeIndicators();
+    this.presentIndicators();
   }
 
   // ─── Changes by the person (SLD-2, SLD-3, SLD-4) ────────────────────────────────────────────────────────────
@@ -627,45 +634,94 @@ export class TanreiSlider extends TanreiElement {
     delete (event.currentTarget as HTMLElement).dataset.pointerFocus;
   }
 
-  // ─── The value indicator's place (SLD-17) ───────────────────────────────────────────────────────────────────
+  // ─── The value indicator's place (SLD-17, SLD-28) ──────────────────────────────────────────────────────────
 
-  /** Shifts each value indicator along the axis so it stays inside the window, from its handle's settled place. */
-  private readonly placeIndicators = () => {
-    if (this.indicator === 'none' || !this.isConnected) return;
-    const rail = this.renderRoot.querySelector('.rail')?.getBoundingClientRect();
-    if (!rail) return;
+  /** Whether the value indicators are drawn at all now: shown by `valueIndicator`, on a slider that takes input (SLD-20). */
+  private get indicatorsShown(): boolean {
+    return this.isConnected && this.interactive && this.indicator !== 'none';
+  }
+
+  /** Places the value indicators now, and follows their handles while any can be drawn (SLD-28). */
+  private presentIndicators() {
+    this.placeIndicators();
+    if (this.indicatorsShown) this.following.start();
+    else this.following.stop();
+  }
+
+  /**
+   * SLD-17, SLD-28: each value indicator in the top layer while it can be drawn, placed against its handle's outer edge
+   * across the axis and shifted along it so it stays inside the window. Whether it is seen (`always`, or `active` while
+   * the handle is pressed or has keyboard focus) and its fade are the style's; this keeps it in the top layer for as long
+   * as either can be, so the fade runs both ways. Returns whether anything changed.
+   */
+  private readonly placeIndicators = (): boolean => {
+    const shown = this.indicatorsShown;
     const vertical = this.axis === 'vertical';
-    const rtl = !vertical && this.rtl;
-    const values = this.values;
-    const scale = this.scale;
-    const view = document.documentElement;
+    // Nothing is measured while no indicator is shown: a page of sliders without one lays out nothing for them.
+    const root = document.documentElement;
+    const view = shown ? { width: root.clientWidth, height: root.clientHeight } : { width: 0, height: 0 };
+    let changed = false;
     for (const id of this.handles) {
       const indicator = this.inThumb(id, '.value-indicator');
-      if (!indicator) continue;
-      // Watch the indicator's own size too: new value text, or a web font that arrives late, changes its width without
-      // resizing the slider. (Setting --_shift moves it by `translate`, which is no resize, so this cannot loop.)
-      this.resize?.observe(indicator);
-      const f = scale.fraction(values[id]);
-      // The box's exact, fractional size, in the same viewport pixels as the rail. offsetWidth/offsetHeight round it to
-      // whole pixels (and a computed width is serialized to three decimals), while text is rarely a whole number of
-      // pixels wide: from a rounded-down size the clamp left the indicator a fraction of a pixel outside the window.
-      // Its own `translate` only moves the box, so the shift already applied does not change this size.
-      const box = indicator.getBoundingClientRect();
-      const size = vertical ? box.height : box.width;
-      const center = vertical ? rail.bottom - f * rail.height : rtl ? rail.right - f * rail.width : rail.left + f * rail.width;
-      const limit = vertical ? view.clientHeight : view.clientWidth;
+      const handle = this.inThumb(id, '.handle');
+      if (!indicator || !handle) continue;
+      const box = shown ? handle.getBoundingClientRect() : null;
+      // SLD-28: a handle that is not drawn (the slider or an ancestor hidden, a dialog it stands in closed) or is out of
+      // sight (outside the window, scrolled away inside an ancestor that clips) draws no indicator — and is shown again,
+      // newest in the top layer, so above a dialog or a popover it stands in that opened while it was not drawn.
+      if (!box || anchorGone(handle, box, view)) {
+        if (indicator.matches(':popover-open')) {
+          indicator.hidePopover();
+          changed = true;
+        }
+        continue;
+      }
+      if (!indicator.matches(':popover-open')) {
+        indicator.showPopover();
+        changed = true;
+      }
+      // The point it stands against, in the window: the middle of the handle's top edge (horizontal), or of its edge at
+      // the inline start (vertical: the left, or the right in right-to-left). The handle's box is its outer edge, the
+      // outline drawn inside it; a handle that moves (a drag, the value motion) is read where it is drawn now.
+      const side = vertical ? (this.rtl ? 'right' : 'left') : 'top';
+      const point = vertical ? { x: this.rtl ? box.right : box.left, y: box.top + box.height / 2 } : { x: box.left + box.width / 2, y: box.top };
+      // The box's exact, fractional size, in the same pixels as the handle's. offsetWidth/offsetHeight round it to whole
+      // pixels, while text is rarely a whole number of pixels wide: from a rounded-down size the clamp left the
+      // indicator a fraction of a pixel outside the window. Its own `translate` only moves the box.
+      const at = indicator.getBoundingClientRect();
+      const size = vertical ? at.height : at.width;
+      const center = vertical ? point.y : point.x;
+      const limit = vertical ? view.height : view.width;
       const start = center - size / 2;
       const shift = start < 0 ? -start : start + size > limit ? limit - (start + size) : 0;
-      // The shift is measured in the window's pixels and applied by `translate` in the indicator's own: inside a scaled
-      // ancestor (a `transform`, a `zoom`) one of its pixels is not one of the window's, so the shift is turned into
-      // its own by what the box is drawn at over what it is laid out at.
+      // Lengths are written in the indicator's own pixels, measured in the window's: under a `zoom` one of its pixels is
+      // not one of the window's, so each is turned into its own by what the box is drawn at over what it is laid out
+      // at. (A transform around the slider does not reach the top layer.)
       const laid = layoutSize(indicator);
       const own = vertical ? laid.height : laid.width;
       // (A laid-out size is serialized to three decimals: a ratio that near 1 is no scale at all.)
       const ratio = own > 0 && size > 0 ? size / own : 1;
       const drawn = Math.abs(ratio - 1) < 0.001 ? 1 : ratio;
-      indicator.style.setProperty('--_shift', `${shift / drawn}px`);
+      if (indicator.dataset.side !== side) {
+        indicator.dataset.side = side;
+        changed = true;
+      }
+      // The point from each edge of the window: the edge the indicator stands at across the axis is placed from the
+      // window's edge on that side (its bottom above the handle, its right edge to the left of it), so that its size
+      // never enters where that edge is drawn.
+      for (const [name, value] of [
+        ['--_x', point.x / drawn],
+        ['--_y', point.y / drawn],
+        ['--_r', (view.width - point.x) / drawn],
+        ['--_b', (view.height - point.y) / drawn],
+        ['--_shift', shift / drawn],
+      ] as const) {
+        if (indicator.style.getPropertyValue(name) === `${value}px`) continue;
+        indicator.style.setProperty(name, `${value}px`);
+        changed = true;
+      }
     }
+    return changed;
   };
 
   // ─── Rendering ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -801,7 +857,7 @@ export class TanreiSlider extends TanreiElement {
             @focus=${this.#onFocus}
             @blur=${this.#onBlur}
           ></div>
-          <div part="value-indicator" class="value-indicator" data-tanrei-shape aria-hidden="true"><span class="value-text">${words}</span></div>
+          <div part="value-indicator" class="value-indicator" popover="manual" data-tanrei-shape aria-hidden="true"><span class="value-text">${words}</span></div>
         </div>
       </div>
     `;

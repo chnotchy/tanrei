@@ -40,7 +40,8 @@
 // - `LATER`: what an element draws by a clock of its own after its rest is read (a loading indicator's show delay), and
 //   a live region's words, said after a pause: left out of that comparison.
 // - `ALONE`: a fixture its spec draws otherwise among the others on one page (one tooltip open in a window, a modal
-//   one above the other, a surface placed against the window): read as mounted from a page that mounts it alone.
+//   one above the other, a surface placed against the window, a value indicator its handle below the window's edge
+//   does not draw): read as mounted from a page that mounts it alone.
 // - `PICTURED`: a fixture whose pictures cannot be held once mounted as they are when it appears. Not compared.
 // - a fixture a step in script draws more of once it is mounted (`drawnAfterMount`: scrolled, handed files, dragged
 //   over) is not compared either.
@@ -127,6 +128,9 @@ const PICTURED: { spec: string; pick: Pick; rule: string }[] = [
   { spec: 'image-preview', pick: showsPicture, rule: 'IMP-30: a source changed after its picture has loaded keeps that picture until the new one has' },
 ];
 
+/** A fixture that shows a slider's value indicator at all times (on the slider itself, or on a slider it holds). */
+const indicatorShown: Pick = (f) => f.props.valueIndicator === 'always' || !!f.items?.some((item) => item.kind === 'slider' && item.props.valueIndicator === 'always');
+
 /**
  * The fixtures whose spec makes them draw otherwise among the others on one page, each with the rule: what they are as
  * mounted is read from a page that mounts them alone, where they stand where they appear.
@@ -138,7 +142,12 @@ const ALONE: { spec: string; pick: Pick; rule: string }[] = [
   { spec: 'popover', pick: (f) => opened(f) && f.id.startsWith('compact'), rule: "POP-39, POP-5: a compact popover is placed against the window, and its anchor lies where its stage does" },
   { spec: 'navigation-drawer', pick: (f) => f.props.filterable === true, rule: 'NVD-87: of the drawers shown that bind one chord, the first keeps it' },
   { spec: 'app-shell', pick: (f) => f.id.startsWith('compact'), rule: 'APS-13: a compact window keeps the navigation bar at its bottom edge' },
+  // A stage mounted below the window's edge holds a handle out of sight, which draws no value indicator.
+  ...['slider', 'slider-field', 'field'].map((spec) => ({ spec, pick: indicatorShown, rule: 'SLD-28: a value indicator is not drawn while its handle is out of sight' })),
 ];
+
+/** Whether the fixture `fixture` of `spec` is read as mounted from a page that mounts it alone (`ALONE`). */
+const alone = (spec: Spec, fixture: Fixture) => ALONE.some((a) => a.spec === spec.name && a.pick(fixture));
 
 /** Fixtures whose first frame is not their rest, by `<spec>/<fixture>`, with what they show: a defect, not fixed yet. Only shrinks. */
 const KNOWN: Record<string, string> = {};
@@ -255,7 +264,7 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
     await use(async (spec, fixture, measured) => {
       const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
       // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
-      const mount = ALONE.some((a) => a.spec === spec.name && a.pick(fixture)) ? `${spec.name}/${fixture.id}` : spec.name;
+      const mount = alone(spec, fixture) ? `${spec.name}/${fixture.id}` : spec.name;
       const size = stage.page?.viewportSize();
       // The fixtures as mounted are read in the window the page is mounted in: one that appears in another is mounted
       // again in its own.
@@ -303,7 +312,9 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
 });
 
 for (const spec of specs) {
-  for (const fixture of spec.fixtures) {
+  // A spec's fixtures mounted alone come after the others: the one after a fixture mounted alone mounts the whole spec
+  // again, which on a spec of hundreds of fixtures is most of a test's time.
+  for (const fixture of [...spec.fixtures].sort((a, b) => Number(alone(spec, a)) - Number(alone(spec, b)))) {
     for (const measured of [false, true]) {
       const how = measured ? ', inserted by a task that reads its layout,' : '';
       const designed = BY_DESIGN.find((d) => d.spec === spec.name && d.pick(fixture));
