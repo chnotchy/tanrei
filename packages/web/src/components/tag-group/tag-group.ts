@@ -36,12 +36,39 @@ const sameOrder = (a: readonly Node[], b: readonly Node[]) => a.length === b.len
 /** Whether motion is reduced for this person (TGR-10). */
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** TGR-10: where a member was laid out at the last look, from the list's corner and without its move, and the line it stood on. */
+/** TGR-10: where a member was laid out at the last look, from the list's corner and without its move, its size, and the line it stood on. */
 interface Place {
   x: number;
   y: number;
+  width: number;
+  height: number;
   line: readonly Element[];
 }
+
+/** TGR-10: a member the product took away, put back where it was drawn while it fades out, and what the group set on it to give back. */
+interface Departure {
+  fade: Animation | null;
+  /** The opacity it fades out from. */
+  from: number;
+  inert: boolean;
+  hidden: string | null;
+}
+
+/** TGR-10: a fade under way on a member, from one opacity to another. */
+interface Fade {
+  motion: Animation;
+  from: number;
+  to: number;
+}
+
+/** TGR-10: the custom properties that put a member that leaves at the box it was drawn in (tag-group.styles.ts). */
+const LEAVE_BOX = ['--_tgr-leave-x', '--_tgr-leave-y', '--_tgr-leave-inline', '--_tgr-leave-block'];
+
+/**
+ * TGR-10: what a member shows, by which an element the product gives anew is known as the member it had: its kind of
+ * element, its label and its text.
+ */
+const nameOf = (member: Element) => [member.localName, member.getAttribute('kind') ?? '', member.getAttribute('label') ?? '', member.textContent?.trim() ?? ''].join('\u0000');
 
 /**
  * Whether the group may give this member the list item role: it has no `role` of its own, and it is an element that
@@ -95,12 +122,18 @@ function holdsFocus(member: Element): boolean {
  * that is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between
  * its chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.
  *
- * When a member is added, removed or changes its size, the members whose place that changes move there from where
- * they were drawn, over `--tanrei-comp-tag-group-motion-move-duration` with `-move-easing`, along a line and from one
- * line to another (TGR-10). A line that keeps the same members follows the change at once: a chip that grows with its
- * own motion carries the chips after it. A member that is added appears and one that is removed leaves at once; with
- * reduced motion, or when the group's width changes, every member is placed at once. The motion is a `translate` added
- * to the member's own, so a member keeps focus, and its focus indicator, while it moves.
+ * When a member is added, removed, moved to another place in the order or changes its size, the members whose place
+ * that changes move there from where they were drawn, over `--tanrei-comp-tag-group-motion-move-duration` with
+ * `-move-easing`, along a line and from one line to another (TGR-10). A line that keeps the same members follows the
+ * change at once: a chip that grows with its own motion carries the chips after it. A member that is added fades in at
+ * its place and one that is removed fades out where it was drawn, over the same time and curve. While it fades out the
+ * group puts your element back as its child — `inert`, `aria-hidden="true"` and `data-leaving`, outside the flow —
+ * then removes it and gives back the `inert` and `aria-hidden` it had: a script that reads the group's children in
+ * that time selects `:not([data-leaving])`. An element you give anew in place of one you took away, showing the same
+ * label, is drawn as that member and moves from its place, without a fade. What the group exposes changes at once:
+ * the order of focus and reading is the new one from the change on. With reduced motion every member is placed at
+ * once and the fades stay; when the group's width changes, everything is drawn as it will be at once. The move is a
+ * `translate` added to the member's own, so a member keeps focus, and its focus indicator, while it moves.
  *
  * It supplies no words: the name of the set is yours, in `label`.
  *
@@ -181,17 +214,23 @@ export class TanreiTagGroup extends TanreiElement {
 
   /**
    * The group reads who is there, gives and takes back the item role, and (TGR-9) sees a member leave while focus was
-   * on it. TGR-10: then, once the members that came have rendered — still before the frame is drawn — it places them
-   * again, and the members that changed place move from where they were drawn.
+   * on it. TGR-10: a member that came fades in and one that went fades out where it was drawn; then, once the members
+   * that came have rendered — still before the frame is drawn — it places them again, and the members that changed
+   * place move from where they were drawn.
    */
-  private readonly children$ = new MutationObserver((records) => {
+  private readonly children$ = new MutationObserver((records) => this.childrenChanged(records));
+
+  private childrenChanged(records: readonly MutationRecord[]) {
     const before = this.content;
+    const drawn = this.places;
+    this.givenBack(records);
     this.read();
     this.select();
     this.afterLeave(before, records);
+    this.present(before, drawn, records);
     const came = records.flatMap((record) => [...record.addedNodes]).map((node) => (node as Node & { updateComplete?: Promise<unknown> }).updateComplete);
     void Promise.all(came).then(() => this.place(true));
-  });
+  }
 
   /**
    * TGR-5, TGR-10: the list's box and each member's are watched while they are in the page, and the members placed
@@ -215,11 +254,11 @@ export class TanreiTagGroup extends TanreiElement {
   /** TGR-10: each member's box is watched while it is here: a member that changes its size moves the others. */
   private watchMembers() {
     for (const member of this.sized) {
-      if (member.parentNode === this) continue;
+      if (member.parentNode === this && !this.leaving.has(member)) continue;
       this.lines$?.unobserve(member);
       this.sized.delete(member);
     }
-    for (const member of this.children) {
+    for (const member of this.members) {
       if (this.sized.has(member)) continue;
       this.lines$?.observe(member);
       this.sized.add(member);
@@ -272,9 +311,10 @@ export class TanreiTagGroup extends TanreiElement {
    * there is more than one (the custom state `wrapped`, which the styles read). Then each member that was here, stands
    * somewhere else, and is not carried — a line that holds the same members in the same order follows its members'
    * sizes at once — moves from where it is drawn to its new place: a change that comes during a move takes the member
-   * on from where it is. A member that came appears at once; one that left is gone. At a new width, direction or gap
-   * (TGR-14, TGR-16), while the first frames are drawn, while a font face is loading and where motion is reduced,
-   * everything is placed at once.
+   * on from where it is. A member that came, or one drawn leaving, does not move: it fades where it stands
+   * (`present()`). At a new width, direction or gap (TGR-14, TGR-16), while the first frames are drawn, while a font
+   * face is loading and where motion is reduced, everything is placed at once; at a new width, direction or gap the
+   * fades end too.
    */
   private place(byMembers = false) {
     const list = this.observed;
@@ -287,13 +327,13 @@ export class TanreiTagGroup extends TanreiElement {
       return;
     }
     const origin = list.getBoundingClientRect();
-    const laid: { member: Element; x: number; y: number; bottom: number; shown: { x: number; y: number } }[] = [];
-    for (const member of this.children) {
+    const laid: { member: Element; x: number; y: number; width: number; height: number; bottom: number; shown: { x: number; y: number } }[] = [];
+    for (const member of this.members) {
       const box = member.getBoundingClientRect();
       if (box.width === 0 && box.height === 0) continue;
       const shown = this.shownOffset(member);
       const y = box.top - origin.top - shown.y;
-      laid.push({ member, x: box.left - origin.left - shown.x, y, bottom: y + box.height, shown });
+      laid.push({ member, x: box.left - origin.left - shown.x, y, width: box.width, height: box.height, bottom: y + box.height, shown });
     }
     // A member starts a line when it stands wholly below the line before (TGR-1: each is centred on its line's middle).
     const lines: Element[][] = [];
@@ -313,12 +353,14 @@ export class TanreiTagGroup extends TanreiElement {
     const style = getComputedStyle(list);
     const by = [style.direction, style.columnGap, style.rowGap].join(' ');
     const relaid = by !== this.placedBy || (!byMembers && Math.abs(origin.width - this.placedWidth) >= 0.5);
-    this.places = new Map(laid.map((one) => [one.member, { x: one.x, y: one.y, line: lineOf.get(one.member)! }]));
+    this.places = new Map(laid.map((one) => [one.member, { x: one.x, y: one.y, width: one.width, height: one.height, line: lineOf.get(one.member)! }]));
     this.placedBy = by;
     this.placedWidth = origin.width;
     const { duration, easing } = this.moveTiming();
     // A face that arrives while the page loads resizes members without anyone's act: they are placed at once (MOT-1).
     const loading = typeof document !== 'undefined' && document.fonts?.status === 'loading';
+    // At a new width, direction or gap the members that fade are drawn as they will be, too.
+    if (relaid) this.endPresence();
     if (relaid || !before.size || !duration || loading || this.settle.settling || !documentPainted() || reducedMotion()) {
       this.stopMoves();
       return;
@@ -349,6 +391,210 @@ export class TanreiTagGroup extends TanreiElement {
     }
   }
 
+  // ── Members that arrive and leave (TGR-10) ─────────────────────────────────────────────────────────────────────
+
+  /** TGR-10: the members that fade in, and the members that fade out — each the product's element, put back where it was drawn until it has gone. */
+  private readonly arriving = new Map<Element, Fade>();
+  private readonly leaving = new Map<Element, Departure>();
+
+  /**
+   * TGR-10: the time and curve of a fade, or null where a member is added or removed at once: while the group draws its
+   * first frames (MOT-3), before it has laid out a member, and where the active system gives the motion no time. Where
+   * motion is reduced the fades stay (MOT-6): an opacity is no movement.
+   */
+  private fadeTiming(): { duration: number; easing: string } | null {
+    if (!this.observed || !this.isConnected || !this.places.size || this.settle.settling || !documentPainted()) return null;
+    const timing = this.moveTiming();
+    return timing.duration ? timing : null;
+  }
+
+  /** TGR-10: the opacity a fade under way draws now — `rest` where none is under way. */
+  private static drawnOpacity(fade: Fade | undefined, rest: number): number {
+    const progress = fade?.motion.effect?.getComputedTiming().progress;
+    if (!fade || progress === null || progress === undefined) return rest;
+    return fade.from + (fade.to - fade.from) * progress;
+  }
+
+  /** TGR-10: the opacity `member` rests at, as its own styles give it. */
+  private static restingOpacity(member: Element): number {
+    const opacity = Number.parseFloat(getComputedStyle(member).opacity);
+    return Number.isFinite(opacity) ? opacity : 1;
+  }
+
+  /** TGR-10: `member` fades from `from` to `to`; a leave holds its last frame, for the group to take the member away. */
+  private static fade(member: Element, from: number, to: number, timing: { duration: number; easing: string }, leave: boolean): Animation | null {
+    if (typeof member.animate !== 'function') return null;
+    const frames = [{ opacity: String(from) }, { opacity: String(to) }];
+    const fill: FillMode = leave ? 'forwards' : 'none';
+    try {
+      return member.animate(frames, { duration: timing.duration, easing: timing.easing, fill });
+    } catch {
+      return member.animate(frames, { duration: timing.duration, easing: 'ease', fill });
+    }
+  }
+
+  /** TGR-10: `member` fades in from `from`, and is an arriving member until it has. */
+  private arrive(member: Element, from: number, timing: { duration: number; easing: string }) {
+    this.arriving.get(member)?.motion.cancel();
+    this.arriving.delete(member);
+    const to = TanreiTagGroup.restingOpacity(member);
+    const motion = TanreiTagGroup.fade(member, from, to, timing, false);
+    if (!motion) return;
+    const fade = { motion, from, to };
+    this.arriving.set(member, fade);
+    const done = () => {
+      if (this.arriving.get(member) === fade) this.arriving.delete(member);
+    };
+    motion.finished.then(done, done);
+  }
+
+  /**
+   * TGR-10: what the product changed among the members, drawn. A member that came fades in at its place; one that went
+   * — taken out of the document, not moved somewhere else in it — is put back where it was drawn, before the member
+   * that followed it, outside the flow at the box it was drawn in (the custom state `leaving` makes the list their
+   * containing block), inert, hidden from assistive technology and marked `data-leaving`, and fades out there; it is
+   * taken away once it has. It is no member from the change on: not an item of the list, not counted, not focusable.
+   * An element the product gave anew in place of one that went, showing the same, is that member: it moves from where
+   * that one was drawn, without a fade. The first member of an empty group and the last one of a group come and go
+   * at once, as the group does (TGR-8).
+   */
+  private present(before: readonly Node[], drawn: ReadonlyMap<Element, Place>, records: readonly MutationRecord[]) {
+    const removed = new Set<Element>();
+    const added = new Set<Element>();
+    for (const record of records) {
+      for (const node of record.removedNodes) if (node instanceof Element && before.includes(node) && node.parentNode !== this) removed.add(node);
+      for (const node of record.addedNodes) if (node instanceof Element && node.parentNode === this && !before.includes(node) && !this.leaving.has(node) && !this.arriving.has(node)) added.add(node);
+    }
+    // A member that went while it faded in is drawn from the opacity it had got to.
+    const unfinished = new Map<Element, number>();
+    for (const member of removed) {
+      const fade = this.arriving.get(member);
+      if (!fade) continue;
+      unfinished.set(member, TanreiTagGroup.drawnOpacity(fade, fade.to));
+      fade.motion.cancel();
+      this.arriving.delete(member);
+    }
+    // Gone from the document: one moved elsewhere in it is not the group's to draw.
+    const gone = [...removed].filter((member) => !member.isConnected);
+    const replaced = new Set<Element>();
+    for (const member of added) {
+      const same = gone.filter((one) => !replaced.has(one) && nameOf(one) === nameOf(member));
+      const was = same.length === 1 ? drawn.get(same[0]!) : undefined;
+      if (!was) continue;
+      replaced.add(same[0]!);
+      added.delete(member);
+      // It moves from where that one was drawn.
+      const shown = this.shownOffset(same[0]!);
+      this.places.set(member, { ...was, x: was.x + shown.x, y: was.y + shown.y });
+    }
+    const timing = this.fadeTiming();
+    if (!timing || !this.content.length) return;
+    if (before.length) for (const member of added) this.arrive(member, 0, timing);
+    const leavers = gone.filter((member) => !replaced.has(member) && drawn.has(member));
+    if (!leavers.length || !this.internals) return;
+    try {
+      this.internals.states.add('leaving');
+    } catch {
+      // No custom states, no box to put a member that leaves in: it leaves at once.
+      return;
+    }
+    for (const member of leavers) {
+      const was = drawn.get(member)!;
+      const shown = this.shownOffset(member);
+      this.moves.get(member)?.motion.cancel();
+      this.moves.delete(member);
+      const at = before.indexOf(member);
+      const next = before.slice(at + 1).find((node) => node.parentNode === this);
+      const previous = before
+        .slice(0, at)
+        .reverse()
+        .find((node) => node.parentNode === this);
+      if (next) this.insertBefore(member, next);
+      else if (previous) this.insertBefore(member, previous.nextSibling);
+      else this.append(member);
+      const own = member instanceof HTMLElement ? member : null;
+      const from = unfinished.get(member) ?? TanreiTagGroup.restingOpacity(member);
+      const departure: Departure = { fade: null, from, inert: own?.inert ?? false, hidden: member.getAttribute('aria-hidden') };
+      this.leaving.set(member, departure);
+      if (own) {
+        own.inert = true;
+        const box = [was.x + shown.x, was.y + shown.y, was.width, was.height];
+        LEAVE_BOX.forEach((name, i) => own.style.setProperty(name, `${box[i]}px`));
+      }
+      member.setAttribute('aria-hidden', 'true');
+      member.setAttribute('data-leaving', '');
+      const fade = TanreiTagGroup.fade(member, from, 0, timing, true);
+      if (!fade) {
+        this.gone(member);
+        continue;
+      }
+      departure.fade = fade;
+      fade.finished.then(
+        () => {
+          if (this.leaving.get(member) === departure) this.gone(member);
+        },
+        () => undefined,
+      );
+    }
+    // Putting them back is the group's own change, not the product's.
+    this.children$.takeRecords();
+  }
+
+  /** TGR-10: a member that left has gone: it is taken away, and what the group set on it is given back as it was. */
+  private gone(member: Element) {
+    const departure = this.leaving.get(member);
+    if (!departure) return;
+    this.leaving.delete(member);
+    if (member.parentNode === this) member.remove();
+    this.giveBack(member, departure);
+  }
+
+  /** TGR-10: what the group set on a member that left, given back as the product had it, its fade cancelled. */
+  private giveBack(member: Element, departure: Departure) {
+    departure.fade?.cancel();
+    if (member instanceof HTMLElement) {
+      member.inert = departure.inert;
+      for (const name of LEAVE_BOX) member.style.removeProperty(name);
+      if (member.getAttribute('style') === '') member.removeAttribute('style');
+    }
+    if (departure.hidden === null) member.removeAttribute('aria-hidden');
+    else member.setAttribute('aria-hidden', departure.hidden);
+    member.removeAttribute('data-leaving');
+    if (this.leaving.size) return;
+    try {
+      this.internals?.states.delete('leaving');
+    } catch {
+      // No custom states: nothing was put back (present()).
+    }
+  }
+
+  /**
+   * TGR-10: the product put back a member that was fading out, here or anywhere else: it is the product's again at
+   * once, and here a member that fades in from the opacity then drawn (MOT-2).
+   */
+  private givenBack(records: readonly MutationRecord[]) {
+    if (!this.leaving.size) return;
+    const touched = new Set<Element>();
+    for (const record of records) {
+      for (const node of [...record.addedNodes, ...record.removedNodes]) if (node instanceof Element && this.leaving.has(node)) touched.add(node);
+    }
+    for (const member of touched) {
+      const departure = this.leaving.get(member)!;
+      const shown = departure.fade ? TanreiTagGroup.drawnOpacity({ motion: departure.fade, from: departure.from, to: 0 }, 0) : 0;
+      this.leaving.delete(member);
+      this.giveBack(member, departure);
+      const timing = member.parentNode === this ? this.fadeTiming() : null;
+      if (timing) this.arrive(member, shown, timing);
+    }
+  }
+
+  /** TGR-10: every member that fades in or out is drawn as it will be, at once. */
+  private endPresence() {
+    for (const [, fade] of this.arriving) fade.motion.cancel();
+    this.arriving.clear();
+    for (const member of [...this.leaving.keys()]) this.gone(member);
+  }
+
   /** TGR-5: whether the members stand on more than one line, kept as the custom state `wrapped`. */
   private wrap(wrapped: boolean) {
     try {
@@ -376,7 +622,12 @@ export class TanreiTagGroup extends TanreiElement {
 
   /** The chips of the group, in the order given (TGR-3). */
   private get chips(): ChipLike[] {
-    return [...this.children].filter((child): child is ChipLike => child.localName === CHIP);
+    return this.members.filter((child): child is ChipLike => child.localName === CHIP);
+  }
+
+  /** The members, in the order given (TGR-3): the group's element children, but for one drawn leaving (TGR-10). */
+  private get members(): Element[] {
+    return [...this.children].filter((child) => !this.leaving.has(child));
   }
 
   /** TGR-17, TGR-18: the filter chips the selection holds — those with a value. */
@@ -494,12 +745,16 @@ export class TanreiTagGroup extends TanreiElement {
   /**
    * TGR-9: focus that leaves a member which is still here has gone elsewhere, by the person's doing. An engine that
    * says so while it removes the focused element says it of a member that is no longer here: that one is the
-   * observer's to follow, so it is kept.
+   * observer's to follow, so it is kept. TGR-10: a member the product moved inside the group — removed and put back in
+   * one task — is here again by then, so the group first reads the change of its children that is still to be
+   * reported: it gives the moved member its focus back.
    */
   private readonly onFocusOut = (event: FocusEvent) => {
     const member = this.memberOf(event.target);
     if (!member) return;
     queueMicrotask(() => {
+      const pending = this.children$.takeRecords();
+      if (pending.length) this.childrenChanged(pending);
       if (this.focused === member && member.parentNode === this && !holdsFocus(member)) this.focused = null;
     });
   };
@@ -526,6 +781,7 @@ export class TanreiTagGroup extends TanreiElement {
     this.observed = null;
     this.sized.clear();
     this.stopMoves();
+    this.endPresence();
     this.places = new Map();
     this.placedBy = '';
     this.placedWidth = -1;
@@ -550,13 +806,13 @@ export class TanreiTagGroup extends TanreiElement {
 
   /** TGR-3, TGR-7, TGR-8, TGR-10: who is in the group now. */
   private read() {
-    const content = [...this.childNodes].filter(isContent);
+    const content = [...this.childNodes].filter((node) => isContent(node) && !this.leaving.has(node as Element));
     if (sameOrder(content, this.content) && this.hasUpdated) return;
     this.content = content;
     const members = content.filter((node): node is Element => node.nodeType === Node.ELEMENT_NODE);
     // TGR-7: each member is an item of the list while it is here; one that left is what it was.
     for (const member of this.given) {
-      if (member.parentNode === this) continue;
+      if (member.parentNode === this && !this.leaving.has(member)) continue;
       this.given.delete(member);
       if (member.getAttribute('role') === ITEM_ROLE) member.removeAttribute('role');
     }
@@ -565,8 +821,9 @@ export class TanreiTagGroup extends TanreiElement {
       member.setAttribute('role', ITEM_ROLE);
       this.given.add(member);
     }
-    // TGR-8: no member, no list, no space — at once, before the next frame.
+    // TGR-8: no member, no list, no space — at once, before the next frame, and nothing is drawn leaving (TGR-10).
     this.empty = content.length === 0;
+    if (this.empty) this.endPresence();
     try {
       if (this.empty) this.internals?.states.add('empty');
       else this.internals?.states.delete('empty');
@@ -612,7 +869,7 @@ export class TanreiTagGroup extends TanreiElement {
    * disabled chip) is passed. A member that was only moved inside the group keeps focus (TGR-10). Where the product
    * has already put focus somewhere, or nothing here takes it, the group does nothing.
    */
-  private afterLeave(before: readonly Node[], records: MutationRecord[]) {
+  private afterLeave(before: readonly Node[], records: readonly MutationRecord[]) {
     const held = this.focused;
     if (!held || !records.some((record) => [...record.removedNodes].includes(held))) return;
     const active = this.ownerDocument.activeElement;

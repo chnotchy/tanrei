@@ -11,7 +11,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { tempDir } from '../../../packages/tools/src/test-tmp.js';
 import { translations } from '../i18n/locales.mjs';
-import { decodeEntities, demoteHeadings, frontMatter, markdownMark, markdownPathOf, pageMarkdown, pageMarkdownFiles, readPage, specSection } from '../src/lib/page-markdown.mjs';
+import { decodeEntities, demoteHeadings, frontMatter, markdownMark, markdownOfIn, markdownPathOf, pageMarkdown, pageMarkdownFiles, readPage, specSection } from '../src/lib/page-markdown.mjs';
 
 const here = (file) => fileURLToPath(new URL(file, import.meta.url));
 const languages = translations.map(({ dir }) => dir);
@@ -115,6 +115,35 @@ describe('the conversion', () => {
     const body = bodyOf(page(`<div class="docs-card-grid">${card('/a/', 'A', 'The first.')}${card('/b/', 'B', 'The second.')}</div>`));
     assert.equal(body, '- [A](https://tanrei.example/a/): The first.\n- [B](https://tanrei.example/b/): The second.\n');
   });
+  test("a link to a page of the site that has its Markdown leads to that Markdown, its fragment kept; any other link is the page's", () => {
+    const markdownOf = markdownOfIn(
+      new Map([
+        ['https://tanrei.example/guide/', 'https://tanrei.example/guide.md'],
+        ['https://tanrei.example/foundations/color/', 'https://tanrei.example/foundations/color.md'],
+        ['https://tanrei.example/ja/', 'https://tanrei.example/ja/index.md'],
+      ]),
+    );
+    const body = bodyOf(
+      page(
+        '<h2 id="a">Part</h2><p>See <a href="/foundations/color/#scheme">color</a>, <a href="../foundations/color">color again</a>, <a href="/ja/">日本語</a>, <a href="#a">this part</a>, ' +
+          '<a href="/studio/">the studio</a>, <a href="/llms.txt">the index</a>, <a href="https://example.com/foundations/color/">elsewhere</a> and <a href="/foundations/color/?x=1">a query</a>.</p>' +
+          '<tanrei-link-card><a href="/foundations/color/"><span data-part="title">Color</span><span data-part="description">Its roles.</span></a></tanrei-link-card>',
+      ),
+      { markdownOf },
+    );
+    assert.equal(
+      body,
+      [
+        '## Part',
+        '',
+        'See [color](https://tanrei.example/foundations/color.md#scheme), [color again](https://tanrei.example/foundations/color.md), [日本語](https://tanrei.example/ja/index.md), [this part](https://tanrei.example/guide.md#a), ' +
+          '[the studio](https://tanrei.example/studio/), [the index](https://tanrei.example/llms.txt), [elsewhere](https://example.com/foundations/color/) and [a query](https://tanrei.example/foundations/color.md).',
+        '',
+        '- [Color](https://tanrei.example/foundations/color.md): Its roles.',
+        '',
+      ].join('\n'),
+    );
+  });
   test('an example the page draws is left out, and what is ignored, hidden, no text or navigation with it; an image stays', () => {
     const body = bodyOf(
       page(
@@ -175,7 +204,7 @@ describe('the build', () => {
     const dir = tempDir('page-markdown');
     const write = (file, text) => (fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true }), fs.writeFileSync(path.join(dir, file), text));
     write('index.html', page('<p>Home.</p>', { title: 'Home', canonical: 'https://tanrei.example/' }));
-    write('ja/index.html', page('<p>ホーム。</p>', { title: 'ホーム', lang: 'ja', canonical: 'https://tanrei.example/ja/' }));
+    write('ja/index.html', page('<p>ホーム。<a href="/ja/components/button/#props">ボタン</a>、<a href="/">English</a>、<a href="/missing/">ない</a>。</p>', { title: 'ホーム', lang: 'ja', canonical: 'https://tanrei.example/ja/' }));
     write('components/button/index.html', page(`<h2>Specs</h2>${markdownMark.spec('button')}<p>Table.</p>${markdownMark.end}`, { title: 'Button', canonical: 'https://tanrei.example/components/button/' }));
     write('ja/components/button/index.html', page(`<p>使い方。</p><h2>仕様</h2>${markdownMark.spec('button')}<p>表。</p>${markdownMark.end}`, { title: 'ボタン', lang: 'ja', canonical: 'https://tanrei.example/ja/components/button/' }));
     write('components/button.md', '# Button\n\n> Lets people act.\n\n## Props\n\nNone.\n');
@@ -208,6 +237,14 @@ describe('the build', () => {
     const read = (file) => fs.readFileSync(path.join(dir, file), 'utf8');
     assert.equal(read('components/button.md').split('\n> What the guide is for.\n\n')[1], '## Specs\n\n### Props\n\nNone.\n');
     assert.equal(read('ja/components/button.md').split('\n> What the guide is for.\n\n')[1], '使い方。\n\n## 仕様\n\n### Props\n\nNone.\n');
+  });
+  test('a link to a page the build writes Markdown for leads to it; a link to a page it writes none for stays', async () => {
+    const dir = site();
+    await build(dir, () => undefined);
+    const text = fs.readFileSync(path.join(dir, 'ja/index.md'), 'utf8');
+    assert.match(text, /\[ボタン\]\(https:\/\/tanrei\.example\/ja\/components\/button\.md#props\)/);
+    assert.match(text, /\[English\]\(https:\/\/tanrei\.example\/index\.md\)/);
+    assert.match(text, /\[ない\]\(https:\/\/tanrei\.example\/missing\/\)/);
   });
   test('the site gives it the sitemap’s dates: the same function, read once (astro.config.mjs)', () => {
     const config = fs.readFileSync(here('../astro.config.mjs'), 'utf8');

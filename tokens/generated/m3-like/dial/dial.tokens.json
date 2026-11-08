@@ -2041,6 +2041,11 @@
               "reason": "The round state layer is not a fill; disabled, it stays invisible."
             },
             {
+              "match": "tanrei.comp.rating.*.disabled.container.color",
+              "$value": "{tanrei.comp.rating.$1.container.color}",
+              "reason": "The round state layer behind each mark is not a fill; disabled, it stays invisible."
+            },
+            {
               "match": "tanrei.comp.switch.*.disabled.track.color",
               "derive": {
                 "fn": "alpha",

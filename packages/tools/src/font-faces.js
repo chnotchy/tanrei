@@ -31,10 +31,17 @@
 //                     English page that quotes two Japanese words took 107 KB of it for six characters. The cut draws
 //                     those characters with the same glyphs, at every weight; a character it does not hold falls
 //                     through to <family> and its own files, and a page in <lang> never asks for the cut. The docs do.
+//
+// Each family of the tokens' text stacks that font-metrics.js knows a fallback for (Inter, Noto Sans JP, Roboto Mono)
+// is also registered a second time, as "<family> Fallback": the platform's own face (Arial, Courier New, the platform's
+// Japanese face) drawn at the family's average width and line height, computed here from the family's files. The
+// stylesheet sets the tokens' text stacks on the root with each such face right after its family, so that text drawn
+// before the family's file arrives takes the room it will take after (font-metrics.js says how, and why).
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { METRIC_FALLBACKS, fallbackFace, percent } from './font-metrics.js';
 
 /**
  * The family name the tokens use → [package, stylesheet inside it, the subsets to register (all, when not named)].
@@ -167,6 +174,65 @@ export function textOf(paths, from = process.cwd()) {
 }
 
 /**
+ * The upright faces of a family's package stylesheet: the file each is drawn from, its subset, weights and code points.
+ * @returns {{ file: string, subset: string | undefined, weight: string, ranges: [number, number][] }[]}
+ */
+export function packageFaces(family, from = process.cwd()) {
+  const entry = FONT_PACKAGES[family];
+  if (!entry) throw new Error(`font-faces: no package is known for "${family}"`);
+  const sheet = createRequire(path.join(from, 'package.json')).resolve(`${entry[0]}/${entry[1]}`);
+  const id = family.toLowerCase().replaceAll(' ', '-');
+  return (fs.readFileSync(sheet, 'utf8').match(/@font-face\s*\{[^}]*\}/g) ?? [])
+    .filter((face) => /font-style: normal;/.test(face))
+    .map((face) => ({
+      file: path.join(path.dirname(sheet), face.match(/url\(\.\/(files\/[^)]+)\)/)[1]),
+      subset: face.match(new RegExp(`files/${id}-([a-z0-9-]+)-[a-z]+-normal\\.`))?.[1],
+      weight: face.match(/font-weight: ([\d ]+);/)?.[1] ?? '400',
+      ranges: parseUnicodeRange(face.match(/unicode-range: ([^;]+);/)?.[1] ?? 'U+0-10FFFF'),
+    }));
+}
+
+/**
+ * The fallback face of each family of METRIC_FALLBACKS that `from` registers (font-metrics.js), with the code points
+ * of the family's faces: the fallback stands in for the family on those characters and on no other, so a character
+ * the family does not draw falls through the stack as it did before.
+ * @param {{ families?: string[], subsets?: string[] }} [options] as fontFacesCss() registers them
+ * @returns {Promise<Record<string, { family: string, local: string[], sizeAdjust: number, ascentOverride: number, descentOverride: number, lineGapOverride: number, codepoints: [number, number][] }>>} by the family it stands in for
+ */
+export async function metricFallbacks(from = process.cwd(), { families = registeredFamilies(from), subsets } = {}) {
+  const { sfnt } = await import('./icon-font.js');
+  const out = {};
+  for (const family of families.filter((f) => f in METRIC_FALLBACKS)) {
+    const faces = packageFaces(family, from);
+    const kept = subsets && !FONT_PACKAGES[family][2] ? faces.filter((face) => subsets.includes(face.subset)) : faces;
+    out[family] = { ...(await fallbackFace(family, faces, sfnt)), codepoints: kept.flatMap((face) => face.ranges) };
+  }
+  return out;
+}
+
+/** `stack` with each family's fallback face (metricFallbacks()) named right after it. */
+export const withFallbacks = (stack, fallbacks = {}) => stack.flatMap((family) => (fallbacks[family] ? [family, fallbacks[family].family] : [family]));
+
+/** The code points of these ranges, merged, as a `unicode-range` value. */
+function rangesValue(ranges) {
+  const merged = [];
+  for (const [first, last] of [...ranges].sort((a, b) => a[0] - b[0])) {
+    const end = merged.at(-1);
+    if (end && first <= end[1] + 1) end[1] = Math.max(end[1], last);
+    else merged.push([first, last]);
+  }
+  return merged.map(([first, last]) => (first === last ? `U+${first.toString(16)}` : `U+${first.toString(16)}-${last.toString(16)}`)).join(',');
+}
+
+/** The @font-face of a fallback (metricFallbacks()). */
+function fallbackCss({ family, local, sizeAdjust, ascentOverride, descentOverride, lineGapOverride, codepoints }, of) {
+  return [
+    `\n/* ${family} — the platform's own face, drawn at ${of}'s average width and line height until ${of} arrives (font-metrics.js). */`,
+    `@font-face {\n  font-family: '${family}';\n  src: ${local.map((name) => `local('${name}')`).join(', ')};\n  size-adjust: ${percent(sizeAdjust)};\n  ascent-override: ${percent(ascentOverride)};\n  descent-override: ${percent(descentOverride)};\n  line-gap-override: ${percent(lineGapOverride)};\n  unicode-range: ${rangesValue(codepoints)};\n}`,
+  ].join('\n');
+}
+
+/**
  * Writes `family` cut down to the characters of `text` it is split into files for by Unicode range, beside `outFile`:
  * for each of its faces whose subset is a number (Noto Sans JP's slices) and holds any of them, one file of those
  * characters alone. A face named for a script (`latin`, `cyrillic`…) is not cut, and nor is a character one of those
@@ -175,18 +241,7 @@ export function textOf(paths, from = process.cwd()) {
  */
 export async function writeTextCut(outFile, family, text, from = process.cwd()) {
   const { subsetText } = await import('./icon-font.js');
-  const entry = FONT_PACKAGES[family];
-  if (!entry) throw new Error(`font-faces: no package is known for "${family}"`);
-  const sheet = createRequire(path.join(from, 'package.json')).resolve(`${entry[0]}/${entry[1]}`);
-  const id = family.toLowerCase().replaceAll(' ', '-');
-  const faces = (fs.readFileSync(sheet, 'utf8').match(/@font-face\s*\{[^}]*\}/g) ?? [])
-    .filter((face) => /font-style: normal;/.test(face))
-    .map((face) => ({
-      file: path.join(path.dirname(sheet), face.match(/url\(\.\/(files\/[^)]+)\)/)[1]),
-      subset: face.match(new RegExp(`files/${id}-([a-z0-9-]+)-[a-z]+-normal\\.`))?.[1],
-      weight: face.match(/font-weight: ([\d ]+);/)?.[1] ?? '400',
-      ranges: parseUnicodeRange(face.match(/unicode-range: ([^;]+);/)?.[1] ?? 'U+0-10FFFF'),
-    }));
+  const faces = packageFaces(family, from);
   const holds = (ranges, cp) => ranges.some(([first, last]) => cp >= first && cp <= last);
   const scripts = faces.filter((face) => !/^\d+$/.test(face.subset ?? ''));
   const wanted = new Set([...text].map((ch) => ch.codePointAt(0)).filter((cp) => !scripts.some((face) => holds(face.ranges, cp))));
@@ -237,11 +292,21 @@ const familyList = (families) => families.map((family) => (GENERIC_FAMILIES.has(
  *   `iconFiles` — an icon family registered from this file instead of its package's (writeIconSubsets()), with the
  *   weights it still has;
  *   `textCuts` — a family's cut (writeTextCut()), registered after it as cutFamily(family), and set before it in each
- *   of `stacks` on a page whose language is not `lang`.
+ *   of `stacks` on a page whose language is not `lang`;
+ *   `fallbacks` — a family's fallback face (metricFallbacks()), registered after it, and named right after it in each
+ *   of `stacks` (and of a cut's stacks) on the root.
+ * @param {Record<string, string[]>} [options.stacks] the tokens' text stacks (typefaceStacks()), set on the root with the fallbacks in them
  */
-export function fontFacesCss(outFile, from = process.cwd(), { families, embed = false, subsets, iconFiles = {}, textCuts = [] } = {}) {
+export function fontFacesCss(outFile, from = process.cwd(), { families, embed = false, subsets, iconFiles = {}, textCuts = [], fallbacks = {}, stacks = {} } = {}) {
   const require = createRequire(path.join(from, 'package.json'));
   const out = ['/* GENERATED by packages/tools/src/font-faces.js — do not edit. Fonts are loaded from @fontsource packages (development', '   dependencies) and registered under the family names the tokens use. Tanrei\'s libraries bundle no font. */'];
+  // The tokens set the stacks on the root inside their layer; this rule is outside it, and stands aside for a root
+  // that names another system. A site's own rule for a language (later in its stylesheets) still replaces it, as the
+  // rule of a cut below does: it comes first.
+  const named = Object.entries(stacks).filter(([, stack]) => stack.some((family) => fallbacks[family]));
+  if (named.length) {
+    out.push('\n/* The tokens\' text stacks, each fallback face right after the family it stands in for. */', ':root:not([data-tanrei-system]) {', ...named.map(([property, stack]) => `  ${property}: ${familyList(withFallbacks(stack, fallbacks))};`), '}');
+  }
   for (const family of families ?? Object.keys(FONT_PACKAGES)) {
     const entry = FONT_PACKAGES[family];
     if (!entry) throw new Error(`font-faces: no package is known for "${family}". Known: ${Object.keys(FONT_PACKAGES).join(', ')}`);
@@ -275,7 +340,8 @@ export function fontFacesCss(outFile, from = process.cwd(), { families, embed = 
       // browser's block period, about 3 s, which a cut-down file fits in on a slow line and the full one did not.
       .replace(/font-display: swap;/g, isIconFamily(family) ? 'font-display: block;' : 'font-display: swap;');
     out.push(`\n/* ${family} — ${pkg} */`, css.trim());
-    for (const cut of textCuts.filter((c) => c.family === family && c.faces.length)) out.push(textCutCss(cut, relative));
+    if (fallbacks[family]) out.push(fallbackCss(fallbacks[family], family));
+    for (const cut of textCuts.filter((c) => c.family === family && c.faces.length)) out.push(textCutCss(cut, relative, fallbacks));
   }
   return `${out.join('\n')}\n`;
 }
@@ -285,7 +351,7 @@ export function fontFacesCss(outFile, from = process.cwd(), { families, embed = 
  * stack is set on the root, where the tokens set it, under a rule that outranks theirs (`:root`) and that a site's own
  * rule for a language later in its stylesheets (the docs' for Chinese, Hindi and Arabic) still overrides.
  */
-function textCutCss({ family, lang, faces, stacks }, relative) {
+function textCutCss({ family, lang, faces, stacks }, relative, fallbacks) {
   const name = cutFamily(family);
   const css = [`\n/* ${name} — ${family} cut down to the characters the site's pages hold that its other faces do not draw (--text-cut). */`];
   for (const face of faces) {
@@ -294,7 +360,7 @@ function textCutCss({ family, lang, faces, stacks }, relative) {
   }
   const named = Object.entries(stacks).filter(([, stack]) => stack.includes(family));
   if (named.length) {
-    css.push(`:root:not(:lang(${lang})) {`, ...named.map(([property, stack]) => `  ${property}: ${familyList(stack.flatMap((f) => (f === family ? [name, f] : [f])))};`), '}');
+    css.push(`:root:not(:lang(${lang})) {`, ...named.map(([property, stack]) => `  ${property}: ${familyList(withFallbacks(stack, fallbacks).flatMap((f) => (f === family ? [name, f] : [f])))};`), '}');
   }
   return css.join('\n');
 }
@@ -371,7 +437,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const bytes = faces.reduce((total, face) => total + face.bytes, 0);
     console.log(`✔ fonts: ${family} cut down to the ${count} characters of the pages it draws, in ${faces.length} files (${Math.round(bytes / 1024)} KB), drawn first on a page not in ${lang}`);
   }
-  fs.writeFileSync(outFile, fontFacesCss(outFile, process.cwd(), { iconFiles, textCuts }));
+  const fallbacks = await metricFallbacks();
+  for (const [family, face] of Object.entries(fallbacks)) {
+    console.log(`✔ fonts: ${face.family} for ${family}: size-adjust ${percent(face.sizeAdjust)}, ascent ${percent(face.ascentOverride)}, descent ${percent(face.descentOverride)}, line gap ${percent(face.lineGapOverride)}`);
+  }
+  fs.writeFileSync(outFile, fontFacesCss(outFile, process.cwd(), { iconFiles, textCuts, fallbacks, stacks: typefaceStacks() }));
   console.log(`✔ fonts: ${path.relative(process.cwd(), outFile)} (${registeredFamilies().join(', ') || 'no @fontsource package found'})`);
   if (option('--full-icons')) {
     const fullFile = path.resolve(option('--full-icons'));

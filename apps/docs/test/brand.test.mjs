@@ -23,7 +23,7 @@ describe('the header', () => {
   const css = read(docs, 'src/styles/frame.css');
 
   test('the header’s brand is the app bar’s: a link to the first page named by the site’s name', () => {
-    assert.match(header, /<tanrei-app-bar class="docs-app-bar" brand-href=\{homeHref\(route\)\} brand-label=\{route\.siteTitle\}>/);
+    assert.match(header, /<tanrei-app-bar class="docs-app-bar" brand-href=\{homeHref\(route\)\} brand-label=\{route\.siteTitle\} overflow="hide">/);
     assert.doesNotMatch(header, /<a slot="(?:navigation|brand)/, 'the link is the bar’s, not one written by the page');
   });
 
@@ -98,10 +98,10 @@ describe('the brand page', () => {
   const page = (dir) => read(docs, `src/content/docs/${dir ? `${dir}/` : ''}foundations/brand.mdx`);
 
   test('it takes the place of the principles page in every language: in the sidebar, and at the old address', () => {
-    const config = read(docs, 'astro.config.mjs');
-    assert.match(config, /'foundations\/brand',/);
-    assert.doesNotMatch(config, /'foundations\/principles',/);
-    assert.match(config, /redirects: moved/);
+    const sidebar = read(docs, 'src/lib/sidebar.mjs');
+    assert.match(sidebar, /'foundations\/brand',/);
+    assert.doesNotMatch(sidebar, /'foundations\/principles',/);
+    assert.match(read(docs, 'astro.config.mjs'), /redirects: moved/);
     for (const dir of languages) {
       assert.ok(page(dir), `${dir || 'en'}: the brand page`);
       assert.ok(!fs.existsSync(new URL(`src/content/docs/${dir ? `${dir}/` : ''}foundations/principles.mdx`, docs)), `${dir || 'en'}: the principles page is gone`);

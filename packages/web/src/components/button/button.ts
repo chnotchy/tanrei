@@ -382,10 +382,14 @@ export class TanreiButton extends TanreiElement {
     return { submits: this.formAction === 'submit', disabled: this.refuses };
   }
 
-  /** BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at once. */
+  /**
+   * BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at
+   * once. The word also comes for the button's own attribute, which reflects its property inside the update that drew
+   * the property's change: that word changes nothing drawn, and draws nothing again.
+   */
   formDisabledCallback(disabled: boolean) {
     takeFormDisabled(this, disabled, () => {
-      this.requestUpdate();
+      if (this.drawnDisabled !== this.isDisabled) this.requestUpdate();
       // A group that keeps one Tab stop among its items (a toolbar) is told: no attribute of the item changed.
       this[GROUP_ITEM].availabilityChanged();
     });

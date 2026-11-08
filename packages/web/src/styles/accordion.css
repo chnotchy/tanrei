@@ -508,6 +508,7 @@
     block-size: var(--_acc-chevron-size);
     margin-block-start: calc((1lh - var(--_acc-chevron-size)) / 2);
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--_acc-chevron-size);
     font-style: normal;
     font-weight: normal;
@@ -541,10 +542,13 @@
   :where(tanrei-accordion) > :where(details[open]) > :where(summary)::after {
     rotate: 0.5turn;
   }
-  /* ACC-33: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
-  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary)::after,
-  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary) > :where(.tanrei-icon) {
+  /* ACC-33: while the icon set cannot draw a glyph, none is drawn and every box is kept. The icon is told by the
+     switch icons.css reads (its own `visibility` there, at one class's specificity, would win over this rule's). */
+  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary)::after {
     visibility: hidden;
+  }
+  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary) > :where(.tanrei-icon) {
+    --tanrei-icon-visibility: hidden;
   }
 
   /* ── The content (ACC-8): inset to the header's first part, nothing above it, the density's space under it ──── */

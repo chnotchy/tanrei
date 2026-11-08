@@ -1207,6 +1207,22 @@
       }
     },
     {
+      "name": "rating",
+      "title": "Rating",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-rating",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/rating"
+      },
+      "react": {
+        "name": "Rating",
+        "import": "@tanrei/react/cupertino"
+      }
+    },
+    {
       "name": "resizable-frame",
       "title": "Resizable frame",
       "level": "composed",
@@ -1397,6 +1413,22 @@
       },
       "react": {
         "name": "Snackbar",
+        "import": "@tanrei/react/cupertino"
+      }
+    },
+    {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-split-view",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/split-view"
+      },
+      "react": {
+        "name": "SplitView",
         "import": "@tanrei/react/cupertino"
       }
     },

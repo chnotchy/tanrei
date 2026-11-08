@@ -16,7 +16,10 @@
 //     front matter, with the page's address and the date it last changed, and again as the H1 and a quote under it.
 //     The date is the sitemap's (lib/lastmod.mjs): the same function, read once when the site is built.
 //   - Headings, paragraphs, lists, description lists, quotes, links and images as Markdown has them; a link or an image
-//     by its absolute address.
+//     by its absolute address. A link to a page of the site that has its Markdown is a link to that Markdown, its
+//     fragment kept (the headings are the page's, so a renderer that names them names them alike): a program that reads
+//     the files follows one to the next without reading a page's HTML. A link to anything else (a page with no
+//     Markdown, a file, another site) is to what the page links to.
 //   - Tanrei's code block as a fenced block with its language; Tanrei's table (and any table) as a GFM table; a callout
 //     as a quote, with GitHub's alert mark for its status and its title in bold; each panel of a set of tabs under its
 //     label, in bold; a link card as a list item, its title linked and its description after it.
@@ -218,18 +221,32 @@ function inlineCode(/** @type {string} */ text) {
 }
 
 /**
- * The context the conversion runs in: the page's address, which every link and image is made absolute against.
+ * The context the conversion runs in: the page's address, which every link and image is made absolute against, and
+ * the address of the Markdown of a page of the site, by the page's absolute address, for a page that has one.
  *
- * @typedef {{ base: string }} Context
+ * @typedef {{ base: string, markdownOf?: (url: string) => string | undefined }} Context
  */
 
-/** An address of the page, absolute. A link to a place in this page stays a link to that place in the HTML page. */
+/** An address of the page, absolute. */
 function absolute(/** @type {string | undefined} */ href, /** @type {Context} */ context) {
   if (!href) return undefined;
   try {
     return new URL(href, context.base).href;
   } catch {
     return href;
+  }
+}
+
+/** A link's address: a page of the site with its Markdown as that Markdown, its fragment kept; any other, absolute. */
+function linkTo(/** @type {string | undefined} */ href, /** @type {Context} */ context) {
+  const address = absolute(href, context);
+  if (!address || !context.markdownOf) return address;
+  try {
+    const url = new URL(address);
+    const markdown = context.markdownOf(`${url.origin}${url.pathname}`);
+    return markdown ? `${markdown}${url.hash}` : address;
+  } catch {
+    return address;
   }
 }
 
@@ -273,7 +290,7 @@ function inlineOf(/** @type {Node} */ node, /** @type {Context} */ context) {
     }
     case 'a': {
       const text = inline(children, context).trim() || escapeText(attr(node, 'aria-label') ?? '');
-      const href = absolute(attr(node, 'href'), context);
+      const href = linkTo(attr(node, 'href'), context);
       return href && text ? `[${text}](${href.replace(/[()\s]/g, encodeURIComponent)})` : text;
     }
     case 'img': {
@@ -410,7 +427,7 @@ function blockOf(/** @type {Node} */ node, /** @type {Context} */ context) {
       const link = find(node, (each) => each.name === 'a');
       const title = link && find(link, (each) => attr(each, 'data-part') === 'title');
       const description = link && find(link, (each) => attr(each, 'data-part') === 'description');
-      const href = absolute(link && attr(link, 'href'), context);
+      const href = linkTo(link && attr(link, 'href'), context);
       if (!title || !href) return blocksOf(children, context);
       const words = description ? escapeText(squash(textOf(description))) : '';
       return [{ text: `- [${escapeText(squash(textOf(title)))}](${href})${words ? `: ${words}` : ''}`, item: LINK_CARDS }];
@@ -596,17 +613,18 @@ export function frontMatter(fields) {
  * A built page as Markdown.
  *
  * @param {string} html The page as the site serves it.
- * @param {{ url: string, lastmod?: (url: string) => string | undefined, spec?: (name: string) => string }} options The
- *   page's absolute address (its canonical link wins where it has one), the date a page last changed by its address,
- *   and the Markdown of a component's spec by
- *   its name, for the part of the page that marks it.
+ * @param {{ url: string, lastmod?: (url: string) => string | undefined, spec?: (name: string) => string, markdownOf?: (url: string) => string | undefined }} options
+ *   The page's absolute address (its canonical link wins where it has one), the date a page last changed by its
+ *   address, the Markdown of a component's spec by its name, for the part of the page that marks it, and the absolute
+ *   address of the Markdown of a page of the site by the page's absolute address (without its query and fragment), for
+ *   a page that has one: the links to it lead there.
  * @returns {string | undefined} None for a page the search does not read.
  */
-export function pageMarkdown(html, { url, lastmod, spec }) {
+export function pageMarkdown(html, { url, lastmod, spec, markdownOf }) {
   const page = readPage(html);
   if (!page) return undefined;
   const address = page.url ?? url;
-  const context = { base: address, spec: spec && ((/** @type {string} */ name) => specSection(spec(name))) };
+  const context = { base: address, markdownOf, spec: spec && ((/** @type {string} */ name) => specSection(spec(name))) };
   const body = joinBlocks(dropEmptySections(blocksOf(page.body.children ?? [], context)));
   const head = [frontMatter({ title: page.title, description: page.description, url: address, last_updated: lastmod?.(address) }), '', `# ${escapeText(page.title)}`];
   if (page.description) head.push('', `> ${escapeText(page.description)}`);
@@ -614,6 +632,20 @@ export function pageMarkdown(html, { url, lastmod, spec }) {
 }
 
 // ── The build ────────────────────────────────────────────────────────────
+
+/** Whether a built page is one the search reads, and so has its Markdown (`readPage`): an element of it is its body. */
+const SEARCHED = /<[a-z][a-z0-9-]*\s[^>]*\bdata-pagefind-body(?=[\s>=/])/i;
+
+/**
+ * The address of a page's Markdown by the page's absolute address, from the pages that have one: a page's address
+ * with or without its trailing slash (`/foundations/color/`, `/foundations/color`).
+ *
+ * @param {Map<string, string>} markdownByPage The Markdown's absolute address by the page's, as the build writes them.
+ * @returns {(url: string) => string | undefined}
+ */
+export function markdownOfIn(markdownByPage) {
+  return (url) => markdownByPage.get(url) ?? markdownByPage.get(url.endsWith('/') ? url : `${url}/`);
+}
 
 /**
  * The integration that writes every page's Markdown beside it when the site is built.
@@ -648,13 +680,24 @@ export function pageMarkdownFiles({ languages, lastmod }) {
           }
           return /** @type {string} */ (specs.get(name));
         };
+        // The pages that have their Markdown, by address: every page the search reads, as `readPage` tells one.
+        const pathnameOf = (/** @type {string} */ file) => `/${file.replace(/(^|\/)index\.html$/, '$1')}`;
+        /** @type {Map<string, string>} */
+        const markdownByPage = new Map();
+        for (const file of pages) {
+          if (!SEARCHED.test(fs.readFileSync(path.join(root, file), 'utf8'))) continue;
+          const pathname = pathnameOf(file);
+          markdownByPage.set(new URL(pathname, site).href, new URL(markdownPathOf(pathname, languages), site).href);
+        }
         /** @type {[string, string][]} */
         const written = [];
         for (const file of pages) {
-          const pathname = `/${file.replace(/(^|\/)index\.html$/, '$1')}`;
+          const pathname = pathnameOf(file);
           const url = new URL(pathname, site).href;
-          const markdown = pageMarkdown(fs.readFileSync(path.join(root, file), 'utf8'), { url, lastmod, spec: specOf });
+          const markdown = pageMarkdown(fs.readFileSync(path.join(root, file), 'utf8'), { url, lastmod, spec: specOf, markdownOf: markdownOfIn(markdownByPage) });
           if (markdown) written.push([markdownPathOf(pathname, languages), markdown]);
+          // The links of every page were led to the Markdown the build writes, and to no other.
+          if (Boolean(markdown) !== markdownByPage.has(url)) throw new Error(`${pathname}: the build took it for a page ${markdown ? 'with no' : 'with its'} Markdown, and it has ${markdown ? 'one' : 'none'}.`);
         }
         for (const [address, markdown] of written) {
           const file = path.join(root, address);

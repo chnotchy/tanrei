@@ -363,6 +363,7 @@
       margin-block-start: calc((1lh - 1em) / 2);
       margin-inline: var(--_link-gap) 0;
       font-family: var(--tanrei-sys-icon-family-unselected);
+      visibility: var(--tanrei-icon-visibility, inherit);
       font-style: normal;
       font-weight: normal;
       line-height: 1lh;

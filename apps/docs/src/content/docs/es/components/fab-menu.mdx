@@ -2,7 +2,7 @@
 title: Menú FAB
 description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
 translationOf: components/fab-menu.mdx
-sourceHash: 8ce8b0f6b2cf6294a457130430e3cf0e7f503e76
+sourceHash: 708545e07032948fe6792c91167a06049d179d54
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -206,8 +206,8 @@ La variante da color por igual al conmutador y a los elementos. Mientras está a
 
 El menú FAB es una superposición sobre la que se actúa y que no es modal, como el menú. Las personas actúan dentro de él, así que recibe el foco y lo devuelve, pero no se bloquea nada más de la pantalla: no hay velo ni retención del foco.
 
-- **Apertura.** El conmutador pide abrir con `toggle`. Los elementos aparecen encima de él, alineados con su lado de fin, uno tras otro empezando por el más cercano, y el foco pasa al primer elemento, arriba. Si se abre con Flecha arriba, el foco va en cambio al último elemento, el que está junto al conmutador.
-- **Cierre.** Escape, la acción de retroceso de la plataforma, una pulsación fuera de los elementos y del conmutador, Tab o la salida del foco piden cerrar con `close` y el motivo. Activar un elemento emite primero su clic y después `close` con el motivo `item`. Una pulsación en el conmutador mientras está abierto es una conmutación, no una pulsación fuera.
+- **Apertura.** El conmutador pide abrir con `toggle`. Los elementos aparecen encima de él, alineados con su lado de fin, uno tras otro empezando por el más cercano. Cada uno aparece como aparece toda superficie del sistema de diseño: en el sistema predeterminado, con un fundido mientras crece un poco desde el centro de su borde de fin. El foco pasa al primer elemento, arriba. Si se abre con Flecha arriba, el foco va en cambio al último elemento, el que está junto al conmutador.
+- **Cierre.** Escape, la acción de retroceso de la plataforma, una pulsación fuera de los elementos y del conmutador, Tab o la salida del foco piden cerrar con `close` y el motivo. Activar un elemento emite primero su clic y después `close` con el motivo `item`. Una pulsación en el conmutador mientras está abierto es una conmutación, no una pulsación fuera. Los elementos se van juntos, por el mismo camino por el que llegaron. Si se pide cerrar mientras aún se abren, o abrir mientras aún se cierran, cada elemento da la vuelta desde donde está.
 - **Devolución del foco.** Cuando los elementos se cierran y el foco estaba entre ellos, el foco vuelve al conmutador. Tab desde un elemento los cierra y avanza a partir del conmutador, como habría hecho desde él.
 - **Quién cierra.** En la web, Compose y React Native defines `open` (`expanded`, `visible`) desde `toggle` y lo vuelves a poner en false desde `close`. En SwiftUI y Flutter el menú FAB se abre y se cierra solo mediante su binding o su controlador.
 
@@ -237,7 +237,7 @@ El menú FAB es una superposición sobre la que se actúa y que no es modal, com
 - El menú no es modal: no retiene el foco, no vuelve inerte el resto de la pantalla y no dibuja ningún velo. Tab desde un elemento lo cierra.
 - El área de pulsación del conmutador alcanza el objetivo mínimo en todos los tamaños. Cada elemento tiene al menos la altura de un objetivo, y todo su contenedor es su área de pulsación.
 - El conmutador no crece con el tamaño del texto, porque un icono no es texto. Los elementos crecen y ajustan sus etiquetas en varias líneas.
-- Donde el movimiento está reducido, el conmutador cambia y los elementos aparecen y desaparecen de inmediato.
+- Donde el movimiento está reducido, el conmutador cambia de inmediato y los elementos solo se funden al aparecer y al irse, todos a la vez.
 - Las compilaciones de depuración notifican la falta de la etiqueta del conmutador, un elemento sin etiqueta o sin icono, y menos de dos o más de seis elementos.
 
 Carencias conocidas por plataforma:

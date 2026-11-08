@@ -23,6 +23,7 @@ import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
 import { firstFamilies } from '../../lib/first-faces.mjs';
 import { markdownPathOf } from '../../lib/page-markdown.mjs';
+import { sampleGlyph } from '../../lib/repo';
 import { translations } from '../../../i18n/locales.mjs';
 import { ns, tokensIn } from '../../lib/tokens';
 
@@ -34,13 +35,74 @@ const files = firstFamilies(stacks).map((family) => {
   if (!file) throw new Error(`Head.astro: the tokens set text in "${family}", and no file of it is preloaded. Add its Latin file.`);
   return file;
 });
+// Icons are not drawn until their font can draw them. A glyph of the icon set is a ligature: while its font is not there
+// the browser spells its name in a text face, and the face's `font-display: block` hides that only for the block
+// period (about 3 s; on a slower line the names were drawn). So a script inline in the head sets the web package's switch,
+// `--tanrei-icon-visibility: hidden`, on the root before anything is drawn — every glyph the package's stylesheets draw
+// in the light DOM then keeps its box and is not painted, and nothing moves when it is taken off — and takes it off once
+// each icon family the tokens name (unselected, selected) draws a glyph as one ligature: a name measured in a box that
+// is not drawn, about one em wide once the font draws it (the web package's own test of a glyph, primitives/glyph.ts).
+// Laying the probes out asks for the faces at once; the switch comes off in the frame a probe's width changes to one
+// em. Once the page has loaded, `document.fonts.load` waits for each family's face to arrive or fail: a family that
+// cannot draw then never will.
+//
+// A page whose font fails to load, or names a family no face is registered for, keeps its icons hidden — a ligature's
+// name is no picture of the icon, and the components' own marks draw nothing in that case either (CHK-19) — and says
+// so in the console once the page has loaded. A page whose script does not run never sets the switch, and has the
+// browser's `font-display: block`.
+const iconsReady = `(() => {
+  const root = document.documentElement;
+  if (!document.fonts || typeof ResizeObserver !== 'function') return;
+  const SWITCH = '--tanrei-icon-visibility';
+  const FAMILIES = ['--tanrei-sys-icon-family-unselected', '--tanrei-sys-icon-family-selected'];
+  const GLYPH = ${JSON.stringify(sampleGlyph)};
+  const EM = 24;
+  root.style.setProperty(SWITCH, 'hidden');
+  let probes = [];
+  const drawn = () => probes.every((probe) => { const width = probe.getBoundingClientRect().width; return width > 0 && width <= EM * 1.5; });
+  const sizes = new ResizeObserver(() => drawn() && ready());
+  const ready = () => {
+    sizes.disconnect();
+    for (const probe of probes) probe.remove();
+    probes = [];
+    root.style.removeProperty(SWITCH);
+  };
+  const measure = () => {
+    probes = FAMILIES.map((family) => {
+      const probe = document.createElement('span');
+      probe.setAttribute('aria-hidden', 'true');
+      probe.setAttribute('data-docs-icon-probe', '');
+      probe.textContent = GLYPH;
+      probe.style.cssText = 'position: absolute; inset-block-start: 0; inset-inline-start: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font: normal ' + EM + 'px/1 var(' + family + '); letter-spacing: normal; font-feature-settings: \\'liga\\'; text-transform: none';
+      return document.body.appendChild(probe);
+    });
+    if (drawn()) return ready();
+    for (const probe of probes) sizes.observe(probe);
+    // Once the page has loaded, every stylesheet has registered its faces: each family is asked for, and the loads
+    // settle once its face has arrived or failed. A family still not drawn then will not be.
+    const loaded = new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve, { once: true })));
+    loaded.then(() => {
+      const style = getComputedStyle(root);
+      const stacks = [...new Set(FAMILIES.map((family) => style.getPropertyValue(family).trim()).filter(Boolean))];
+      return Promise.allSettled(stacks.map((stack) => document.fonts.load(EM + 'px ' + stack, GLYPH))).then(() => {
+        if (!probes.length) return;
+        if (drawn()) return ready();
+        console.warn('[docs] The icon font cannot draw (' + stacks.join(', ') + '): it failed to load, or no face is registered for it. Icons stay hidden rather than drawn as their names.');
+      });
+    });
+  };
+  if (document.body) measure();
+  else addEventListener('DOMContentLoaded', measure, { once: true });
+})();`;
 const route = Astro.locals.starlightRoute;
 const markdown = route.entry.data.pagefind === false ? undefined : markdownPathOf(Astro.url.pathname, translations.map(({ dir }) => dir));
 ---
 
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
 {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
+<link rel="describedby" href="/llms.txt" />
 <Default />
+<script is:inline set:html={iconsReady} />
 
 <script>
   import '../../lib/link-fallback';

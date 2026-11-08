@@ -53,3 +53,24 @@ test('both are exported', () => {
   assert.equal(pkg.exports['./base.css'], './dist/base.css');
   assert.equal(pkg.exports['./tanrei.css'], './dist/tanrei.css');
 });
+
+// The product's switch for the light DOM's glyphs (src/styles/icons.ts, `ICON_VISIBILITY`): while the icon font cannot
+// draw, a product sets `--tanrei-icon-visibility: hidden` and no glyph's name is painted as letters. Every rule of a
+// stylesheet that sets a glyph of the icon set in a box of its own reads it, and so does `.tanrei-icon`.
+test('every glyph a stylesheet draws in the light DOM reads --tanrei-icon-visibility', () => {
+  const READS = 'visibility: var(--tanrei-icon-visibility, inherit);';
+  const dir = path.join(root, 'src/styles');
+  const missing = [];
+  let glyphs = 0;
+  for (const file of fs.readdirSync(dir).filter((name) => name.endsWith('.css'))) {
+    const css = withoutComments(fs.readFileSync(path.join(dir, file), 'utf8'));
+    for (const at of [...css.matchAll(/font-family: var\(--tanrei-sys-icon-family-unselected\);/g)].map((match) => match.index)) {
+      glyphs++;
+      const body = css.slice(css.lastIndexOf('{', at) + 1, css.indexOf('}', at));
+      if (!body.includes(READS)) missing.push(`${file}: ${css.slice(css.lastIndexOf('}', at) + 1, css.lastIndexOf('{', at)).trim()}`);
+    }
+  }
+  assert.ok(glyphs >= 10, `${glyphs} glyph rules`);
+  assert.deepEqual(missing, []);
+  assert.ok(read('dist/icons.css').includes(READS), 'icons.css: .tanrei-icon');
+});

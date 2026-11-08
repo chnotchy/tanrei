@@ -2,7 +2,7 @@
 title: Grupo de botones
 description: Dispone unos pocos botones relacionados en una fila o en una columna, separados o unidos en una sola forma, coloca la acción que completa la tarea y la que la abandona donde las personas las esperan, y da nombre a los botones como grupo.
 translationOf: components/button-group.mdx
-sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
+sourceHash: b3eb984339082c654635e536f5146825fcb1ecec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -262,7 +262,7 @@ Un grupo connected une sus botones de una de dos maneras. Con un **divisor**, lo
   </tanrei-button-group>
 </Example>
 
-Con un divisor, una unión lleva una línea solo donde los dos botones descansan sobre el mismo relleno. Entre un conmutador seleccionado y uno sin seleccionar, o entre un botón filled y uno outlined, el borde del relleno ya marca la unión, así que ahí no se dibuja ninguna línea.
+Con un divisor, una unión lleva una línea solo donde los dos botones descansan sobre el mismo relleno. Entre un conmutador seleccionado y uno sin seleccionar, o entre un botón filled y uno outlined, el borde del relleno ya marca la unión, así que ahí no se dibuja ninguna línea. Al cambiar un conmutador, las líneas que tiene al lado aparecen o se desvanecen con un fundido, o cambian de color, al compás del cambio del propio botón, y nada se mueve. Donde el movimiento está reducido, cambian de inmediato.
 
 <Example label="Conmutadores unidos por un divisor: no hay línea junto al seleccionado">
   <tanrei-button-group variant="connected" label="Estilo de texto">

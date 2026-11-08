@@ -496,7 +496,7 @@ export const INPUT_BOX = '--tanrei-comp-input-box-';
 const INPUT_BOX_READERS: Readonly<Record<string, RegExp>> = {
   'text-input': /^(?:entries-|motion-resize-|code-|segment-)/,
   select: /^(?:list-|option-|group-|divider-|separation|status-|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
-  combobox: /^(?:list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
+  combobox: /^(?:entries-|list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   'number-input': /^(?:stepper-|motion-repeat-)/,
   'color-input': /^swatch-(?:shape|outline-)/,
 };
@@ -1267,6 +1267,14 @@ const STAGING: Record<string, Staging> = {
       .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
     slot: (name, text) => (name === 'default' ? `<div class="resizable-frame-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>` : undefined),
   },
+  // A split view divides the room its layout gives it (SPV-1): its stage gives it a region 480 × 200. What a fixture puts
+  // in a pane stands for the product's content: a block that fills the pane, in a surface of its own, its text in the
+  // body style.
+  'split-view': {
+    css: () => `.stage > tanrei-split-view { inline-size: 480px; block-size: 200px; }
+      .split-view-content { box-sizing: border-box; block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => `<div slot="${name}" class="split-view-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>`,
+  },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
   'list-row': {
@@ -1450,9 +1458,10 @@ const STAGING: Record<string, Staging> = {
     css: () => `.stage:has(> tanrei-button-with-menu) { display: flex; align-items: center; inline-size: 320px; block-size: 96px; }`,
   },
   // A toolbar's stages (TBR-1, TBR-4, TBR-6 and TBR-18's verify): a docked one spans a 360 × 64 stage (no system inset);
-  // a horizontal floating one is centred in 360 × 96, a vertical one in 96 × 240, so the elevation's shadow shows on
-  // every side (one with groups in 96 × 288); an inline one stands at the start of a 360 × 56 stage, vertically
-  // centred — an overflowing one in 240.
+  // a horizontal floating one is centred in a stage at least 360 × 96, a vertical one in one at least 96 × 240, with
+  // its elevation's reach above and below it (`stageReaches`), so the shadow shows whole on every side — the vertical
+  // one's length is still at most the 240 its stage gives it (a toolbar that scrolls, TBR-8); an inline one
+  // stands at the start of a 360 × 56 stage, vertically centred — an overflowing one in 240.
   // Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled, `tanrei-button-with-menu`
   // children, `tanrei-toolbar-group`s and `tanrei-divider` separators; a menu button is given an id and a closed
   // `tanrei-menu` anchored to it, beside it (the fixture format has no field for the menu's own items).
@@ -1460,9 +1469,8 @@ const STAGING: Record<string, Staging> = {
     css: () => `.stage:has(> tanrei-toolbar) { box-sizing: border-box; inline-size: 360px; padding: 0; }
       .stage:has(> tanrei-toolbar:not([variant='docked'], [variant='floating'])) { display: flex; align-items: center; block-size: 56px; }
       .stage:is([data-fixture='inline-overflow'], [data-fixture='inline-overflow-pinned'], [data-fixture='rtl-inline-overflow']) { inline-size: 240px; }
-      .stage:has(> tanrei-toolbar[variant='floating']) { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; block-size: 96px; }
-      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; block-size: 240px; }
-      .stage[data-fixture='floating-vertical-groups'] { block-size: 288px; }`,
+      .stage:has(> tanrei-toolbar[variant='floating']) { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; min-block-size: 96px; padding-block: var(--stage-reach-toolbar-container-elevation-floating); }
+      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; min-block-size: 240px; max-block-size: calc(240px + 2 * var(--stage-reach-toolbar-container-elevation-floating)); }`,
     items: (spec, f) => toolbarItemsMarkup(spec, f),
   },
   // A keyboard shortcut's `keys` attribute holds its chords separated by spaces (the spec's web note); every fixture pins
@@ -2350,6 +2358,72 @@ export function drawnUnder<T extends DocumentOptions>(spec: Spec, options: T): T
   return options.system || !spec.layer || spec.layer === 'core' ? options : { ...options, system: spec.layer };
 }
 
+/**
+ * How far a list of box shadows reaches past its box, on the side it reaches furthest, in CSS pixels: each outer layer's
+ * offset, blur radius and spread (an inset layer reaches nowhere). The lengths are px or 0, as the tokens write them.
+ */
+export function shadowReach(shadows: string): number {
+  let reach = 0;
+  for (const layer of splitOutsideParentheses(shadows, ',')) {
+    const words = splitOutsideParentheses(layer.trim(), ' ').filter(Boolean);
+    if (words.includes('inset')) continue;
+    const lengths = words.filter((word) => /^-?(\d*\.)?\d+(px)?$/.test(word)).map((word) => Number.parseFloat(word));
+    if (lengths.length < 2) continue;
+    const [x, y, blur = 0, spread = 0] = lengths;
+    reach = Math.max(reach, ...[x, -x, y, -y].map((offset) => offset + blur + spread));
+  }
+  return reach;
+}
+
+/** `text` split at `separator` wherever it stands outside parentheses. */
+function splitOutsideParentheses(text: string, separator: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')') depth--;
+    else if (depth === 0 && text[i] === separator) {
+      parts.push(text.slice(from, i));
+      from = i + 1;
+    }
+  }
+  return [...parts, text.slice(from)];
+}
+
+/**
+ * The values a custom property takes in a document's sheets, with the `var()` it is written as written out: the
+ * last sheet's declarations of it where that sheet sets it (a preset's, in each scheme it sets it for), an earlier
+ * sheet's otherwise.
+ */
+function tokenValues(name: string, sheets: string[], seen: string[] = []): string[] {
+  if (seen.includes(name)) return [];
+  const declaration = new RegExp(`${name}\\s*:\\s*([^;}]+)`, 'g');
+  const own = [...sheets].reverse().map((sheet) => [...sheet.matchAll(declaration)].map((m) => m[1].trim())).find((values) => values.length) ?? [];
+  return own.flatMap((value) => {
+    const ref = /var\((--[\w-]+)\)/.exec(value);
+    return ref ? tokenValues(ref[1], sheets, [...seen, name]).map((resolved) => value.replace(ref[0], resolved)) : [value];
+  });
+}
+
+/**
+ * The room a stage leaves for a component's elevation, so that its baseline holds the whole shadow: a staging that
+ * names `var(--stage-reach-<token>)` — `<token>` a component's elevation token less its `--tanrei-comp-` prefix — gets
+ * it on the document's root, as far as that token's shadow reaches past the component's box, at its deepest, in the
+ * system the document is drawn under. A system with a shallower shadow is given less room.
+ */
+function stageReaches(staging: string, options: DocumentOptions): string {
+  const tokens = [...new Set([...staging.matchAll(/var\(--stage-reach-([\w-]+)\)/g)].map((m) => m[1]))];
+  if (!tokens.length) return '';
+  const sheets = [read('dist/tokens.css'), systemStyles(options)].filter(Boolean);
+  const declarations = tokens.map((token) => {
+    const values = tokenValues(`--tanrei-comp-${token}`, sheets);
+    if (!values.length) throw new Error(`--stage-reach-${token}: the document's sheets declare no --tanrei-comp-${token}`);
+    return `--stage-reach-${token}: ${Math.ceil(Math.max(...values.map(shadowReach)))}px;`;
+  });
+  return `:root { ${declarations.join(' ')} }\n`;
+}
+
 /** The stylesheet of the mounted preset, as the document embeds it. */
 const systemStyles = (options: DocumentOptions) => (options.system ? (options.systemCss ?? read(`dist/systems/${options.system}.css`)) : '');
 
@@ -2366,7 +2440,7 @@ function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
   const own = staging.tag?.(f) ?? spec.platforms.web.name;
   const element = staging.element ? staging.element(f, attrs) : `<${own} ${attrs}>${children}${slotsMarkup(spec, f.slots)}${content}</${own}>`;
   // The stage's color, where the fixture names a surface role for it: an ancestor of the component, as its direction is.
-  const surface = f.surface ? ` style="background: var(--tanrei-sys-color-${f.surface})"` : '';
+  const surface = f.surface ? ` data-surface style="background: var(--tanrei-sys-color-${f.surface})"` : '';
   return `<div class="stage" ${mark}${f.direction ? ` dir="${f.direction}"` : ''}${surface}>${staging.wrap ? staging.wrap(element, f) : element}</div>`;
 }
 
@@ -2414,8 +2488,13 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
       body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
+      /* A picture of a stage is clipped to whole CSS pixels around it, so it takes in up to a pixel of the stages beside
+         it wherever a stage's height is a fraction of a pixel (a line of text is): a stage of another color drew a line
+         along its neighbours' pictures. One a fixture paints in a surface role stands a pixel apart, on the page's
+         surface; a whole pixel, so the stages below keep the fraction of a pixel they start at. */
+      .stage[data-surface] { margin-block: 1px; }
     </style>
-    ${staging.css ? `<style>${staging.css()}</style>` : ''}
+    ${staging.css ? `<style>${stageReaches(staging.css(), options)}${staging.css()}</style>` : ''}
     ${twinCss.trim() ? `<style>${twinCss}</style>` : ''}
   </head>
   <body>${options.lead ?? ''}<${holder}${staging.page ? ' class="stages"' : ''}>${stages}</${holder}>${assets ? `<script type="module" src="${assets.bundle}"></script>` : `<script type="module">${read('dist/tanrei.bundle.js')}</script>`}${staging.after ? afterScript(tag, options.fixtures ?? spec.fixtures, staging.after) : ''}</body>
