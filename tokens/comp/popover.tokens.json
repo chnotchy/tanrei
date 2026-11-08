@@ -8,9 +8,9 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a popover reads: the container's color, elevation, corner shape, paddings, the gap between its parts, its least and greatest width and its greatest height; the distance to its anchor and to the window's edges; the window width below which it is a sheet; the arrow; the header's gap, the headline's color and text style and the close button's variant; the content color; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the open and close motion.",
+            "usage": "Everything a popover reads: the container's color, elevation, corner shape, paddings, the gap between its parts, its least and greatest width and its greatest height; the distance to its anchor and to the window's edges; the window width below which it is a sheet; the arrow; the header's gap, the headline's color and text style and the close button's variant; the content color; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; the open and close motion; and how long a pointer or keyboard focus rests on the anchor before a popover that opens by hover or focus opens, and how long it waits once they have left it before it closes.",
             "rules": [
-              "A popover is opened by a press on a control and holds content a person can operate. Something that opens on hover or focus and only describes its anchor is a tooltip; a list of commands or choices is a menu; something the task cannot go on without is a dialog.",
+              "A popover holds content a person reads or operates and opens from a control: by a press by default, or by hover or focus where its trigger says so. Something that only describes its anchor in a few words is a tooltip; a list of commands or choices is a menu; something the task cannot go on without is a dialog.",
               "Beside its anchor a popover is not modal: no scrim, no focus trap, nothing behind it inert. Escape, a press outside it and focus leaving it close it. In a window narrower than compact.window-width it takes the bottom sheet's appearance and is modal, reading comp.bottom-sheet's container, scrim and motion tokens; compactPresentation own keeps one beside its anchor.",
               "Say where it goes with placement, offset and crossOffset; never position it by hand. It flips, shifts and follows its anchor by itself.",
               "Give it a name: headline where it draws one, label where it does not.",
@@ -313,6 +313,28 @@
           "close-easing": {
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.exit}"
+          },
+          "show-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.extra-long1}",
+            "$description": "Where trigger has hover or focus and showDelay is not set: how long a fine pointer or keyboard focus rests on the anchor before the popover asks to open, so that a pointer passing over an anchor, or Tab passing along a row of them, opens no surface. Longer than the tooltip's, because the surface is larger and covers more of what the person is reading. A waiting time, kept where motion is reduced.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long a person rests on a control before a surface it holds opens by itself, apart from how long they rest before a tooltip names it: a preview the size of a popover that came as quickly as a tooltip would cover the page under every passing pointer.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "hide-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long a popover opened by hover or focus stays once the pointer has left its anchor, the gap and the popover and focus has left them, so the pointer can slip off an edge and come back (WCAG 1.4.13, hoverable). A waiting time, kept where motion is reduced.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how forgiving a surface opened by hover is of a pointer that strays off it, apart from its tooltips: a popover holds more to read and to reach, so a product may want it to wait longer than a tooltip before it closes.",
+                "since": "0.1.0"
+              }
+            }
           }
         }
       }

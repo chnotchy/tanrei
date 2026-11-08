@@ -18294,8 +18294,10 @@ class TanreiPopoverTokens {
     required this.headlineTypescale,
     required this.motionCloseDuration,
     required this.motionCloseEasing,
+    required this.motionHideDelay,
     required this.motionOpenDuration,
     required this.motionOpenEasing,
+    required this.motionShowDelay,
     required this.offset,
     required this.windowMargin,
   });
@@ -18356,10 +18358,14 @@ class TanreiPopoverTokens {
   final int motionCloseDuration;
   /// `comp.popover.motion-close-easing`
   final TanreiCubicBezier motionCloseEasing;
+  /// `comp.popover.motion-hide-delay`
+  final int motionHideDelay;
   /// `comp.popover.motion-open-duration`
   final int motionOpenDuration;
   /// `comp.popover.motion-open-easing`
   final TanreiCubicBezier motionOpenEasing;
+  /// `comp.popover.motion-show-delay`
+  final int motionShowDelay;
   /// `comp.popover.offset`
   final double offset;
   /// `comp.popover.window-margin`
@@ -18395,8 +18401,10 @@ class TanreiPopoverTokens {
     TanreiTextStyle? headlineTypescale,
     int? motionCloseDuration,
     TanreiCubicBezier? motionCloseEasing,
+    int? motionHideDelay,
     int? motionOpenDuration,
     TanreiCubicBezier? motionOpenEasing,
+    int? motionShowDelay,
     double? offset,
     double? windowMargin,
   }) => TanreiPopoverTokens(
@@ -18428,8 +18436,10 @@ class TanreiPopoverTokens {
         headlineTypescale: headlineTypescale ?? this.headlineTypescale,
         motionCloseDuration: motionCloseDuration ?? this.motionCloseDuration,
         motionCloseEasing: motionCloseEasing ?? this.motionCloseEasing,
+        motionHideDelay: motionHideDelay ?? this.motionHideDelay,
         motionOpenDuration: motionOpenDuration ?? this.motionOpenDuration,
         motionOpenEasing: motionOpenEasing ?? this.motionOpenEasing,
+        motionShowDelay: motionShowDelay ?? this.motionShowDelay,
         offset: offset ?? this.offset,
         windowMargin: windowMargin ?? this.windowMargin,
       );

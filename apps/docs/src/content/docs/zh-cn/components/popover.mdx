@@ -1,8 +1,8 @@
 ---
 title: "弹出框"
-description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它；在 compact 窗口中，则显示在一个具有底部面板外观的模态表面上。"
+description: "在一小块表面上显示可供阅读和操作的内容；它在某个控件旁边打开——在这个控件被按下时，或在指针或键盘焦点停留在它上面时——并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它；在 compact 窗口中，则显示在一个具有底部面板外观的模态表面上。"
 translationOf: components/popover.mdx
-sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
+sourceHash: 423dcc9ccf4410ebef8292c5c8e5ad7a43f5a874
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,15 +16,22 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="popover" />
 
 <Example label="按下按钮：一条带链接的说明，以及一个带操作的简短表单">
-  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">存储空间</tanrei-button>
-  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="存储空间" closable close-label="关闭存储空间说明" arrow placement="bottom" onclose="this.open = false">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined">存储空间</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="存储空间" closable close-label="关闭存储空间说明" arrow placement="bottom" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     回收站里的文件在删除之前仍会占用你的存储空间。<a class="tanrei-link" href="#指南">存储空间如何计算</a>
   </tanrei-popover>
-  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">重命名</tanrei-button>
-  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="重命名文件夹" onclose="this.open = false">
+  <tanrei-button id="popover-demo-form-opener" variant="outlined">重命名</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="重命名文件夹" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <tanrei-text-field label="名称" value="报告" autofocus></tanrei-text-field>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">取消</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">重命名</tanrei-button>
+  </tanrei-popover>
+</Example>
+
+<Example label="把指针停在名字上，或用 Tab 移到名字上：显示这个人的预览">
+  <p>由 <a class="tanrei-link" id="popover-demo-person" href="#指南">李明</a> 于周一分享。</p>
+  <tanrei-popover id="popover-demo-preview" anchor="popover-demo-person" label="李明" trigger="hover focus" placement="bottom-start" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    李明，分析引擎团队。管理 12 个共享文件夹。<a class="tanrei-link" href="#指南">打开个人资料</a>
   </tanrei-popover>
 </Example>
 
@@ -34,9 +41,32 @@ import Example from '../../../../components/visuals/Example.astro';
 
 控件是你自己的。在 Web 上，你用 `anchor` 指明它：弹出框贴着哪个元素放置，就写哪个元素的 id。这个元素同时也是打开弹出框的控件（opener）：弹出框会告诉辅助技术，这个控件会打开一个对话框，以及这个对话框当前是否打开；关闭时也把焦点交还给它。如果表面以一个输入框为锚点，而打开它的是输入框里的一个按钮，就用 `opener` 指明这个按钮。
 
-弹出框与菜单一样，是受控组件。打开它的控件被按下时，由你设置 `open`；弹出框触发 `close` 时，由你把它设回 false。它从不自行打开：悬停、聚焦或经过一段时间都不会打开它。`close` 带有原因：`escape`、`outside`、`focus-out`、`close`（它的关闭按钮）或 `anchor-hidden`。操作从不关闭弹出框，关闭它的是你的处理函数。在 compact 窗口中以面板形式显示时，按下遮罩会带来 `outside`，而从不带来 `focus-out` 或 `anchor-hidden`。
+弹出框与菜单一样，是受控组件。它用 `toggle` 请求打开或关闭，`detail.open` 是它请求的值，由你把 `open` 设为这个值。默认情况下，按下打开它的控件会请求打开，再按一次会请求关闭，所以你不需要在这个控件上写处理函数。其他情况下，它用 `close` 请求关闭，由你把 `open` 设回 false。`close` 带有原因：`escape`、`outside`、`focus-out`、`close`（它的关闭按钮）或 `anchor-hidden`。在 compact 窗口中作为面板显示时，按下遮罩会发送 `outside`，而不会发送 `focus-out` 或 `anchor-hidden`。操作按钮从不关闭弹出框，关闭它的是你的处理函数。
 
 请给它一个名称：画出标题时用 `headline`，不画标题时用 `label`。
+
+### 触发方式
+
+`trigger` 指定什么会打开弹出框：`press`、`hover` 和 `focus` 中的一个或多个，可以任意组合。在 Web 上，这个属性用空格分隔各个值，例如 `trigger="hover focus"`。
+
+| 触发方式 | 何时打开弹出框 | 焦点去哪里 |
+| --- | --- | --- |
+| `press`（默认） | 按下打开它的控件，或在这个控件上按 Enter 或 Space。再按一次会请求关闭 | 进入弹出框 |
+| `hover` | 鼠标、触控板或可悬停的笔在锚点上停留 `showDelay` 这么久。触摸永远不会打开它 | 不移动，留在原处 |
+| `focus` | 键盘焦点在锚点上停留 `showDelay` 这么久。按下或点按带来的焦点不算 | 不移动，留在锚点上；下一次 Tab 进入弹出框 |
+
+`toggle` 用 `detail.reason` 说明是哪种触发方式。通过悬停或聚焦打开的弹出框：
+
+- 打开前会等待，这样指针从锚点上经过，或用 Tab 依次经过一排锚点时，都不会打开。不写 `showDelay` 时，使用 `comp.popover.motion.show-delay`（默认系统中为 700 ms）。
+- 只要指针在锚点上、在锚点与弹出框之间的空隙上，或在弹出框上，或者焦点在弹出框里，它就保持打开。触发方式包含 `focus` 时，锚点上的键盘焦点也会让它保持打开。无论 `hideDelay` 是多少，指针都能穿过空隙。
+- 以上都不成立的状态持续 `hideDelay` 之后，它用 `toggle` 请求关闭，原因是 `leave`。不写 `hideDelay` 时，使用 `comp.popover.motion.hide-delay`（默认系统中为 300 ms）。只要有一项成立，它就不会因计时而关闭。
+- 无论焦点在哪里，按 Escape 都会关闭它，焦点留在原处。按 Escape 关闭后，要等指针或焦点离开锚点再回来，它才会再次打开。
+- 在 compact 窗口中也显示在锚点旁边，因为面板会在用户只是指向锚点时夺走焦点。
+- 以与其他弹出框相同的动效出现。
+
+触发方式包含 `press` 时，在通过悬停打开的弹出框上按下打开它的控件，弹出框会保持打开，就像是按下打开的一样：焦点移入其中，指针离开也不再关闭它。不包含 `press` 时，这个控件执行它自己的动作，例如链接的跳转，而且它不会声明自己会打开对话框。
+
+这些等待是时间，不是动效：在减少动态效果时也保持不变。
 
 SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
 
@@ -56,13 +86,16 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <tanrei-text-field id="city" label="城市"></tanrei-text-field>
     <tanrei-popover anchor="city" label="建议" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
 
+    <!-- 链接的预览：由悬停或键盘焦点打开，而不是按下。 -->
+    <a id="author" href="/people/ada">李明</a>
+    <tanrei-popover id="author-preview" anchor="author" label="李明" trigger="hover focus">…</tanrei-popover>
+
     <script type="module">
       import '@tanrei/web/components/popover';
 
-      const opener = document.querySelector('#share');
       const panel = document.querySelector('#share-panel');
-      // 由打开它的控件来切换。在这个控件上按下从不算“在外部”，所以按一次不会先关闭再重新打开。
-      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // 按下打开它的控件会请求打开，再按一次会请求关闭。
+      panel.addEventListener('toggle', (e) => (panel.open = e.detail.open));
       // Escape、在外部按下、焦点离开、关闭按钮、锚点离开视野。
       panel.addEventListener('close', (e) => {
         console.log(e.detail.reason);
@@ -83,8 +116,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
     const [open, setOpen] = useState(false);
 
-    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>分享</Button>
-    <Popover anchor="share" open={open} headline="分享此页面" closable closeLabel="关闭分享" onClose={() => setOpen(false)}>
+    <Button id="share" variant="outlined">分享</Button>
+    <Popover anchor="share" open={open} headline="分享此页面" closable closeLabel="关闭分享" onToggle={(e) => setOpen(e.detail.open)} onClose={() => setOpen(false)}>
       知道链接的任何人都可以查看。
       <Button slot="actions" dismissive onClick={stopSharing}>停止分享</Button>
       <Button slot="actions" confirming onClick={copyLink}>复制链接</Button>
@@ -96,12 +129,12 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 ## 规格
 
 <Example label="位置、箭头，以及与锚点等宽的弹出框">
-  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">上方，居中</tanrei-button>
-  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="存储空间" placement="top" arrow onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
-  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">侧面，末尾侧</tanrei-button>
-  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="存储空间" placement="end-top" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
-  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">与这个按钮等宽</tanrei-button>
-  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="存储空间" width="anchor" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined">上方，居中</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="存储空间" placement="top" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined">侧面，末尾侧</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="存储空间" placement="end-top" ontoggle="this.open = event.detail.open" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem">与这个按钮等宽</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="存储空间" width="anchor" ontoggle="this.open = event.detail.open" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
 </Example>
 
 ### 位置
@@ -175,6 +208,9 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - Web 没有自己的返回手势，所以 `close` 绝不会带有原因 `back`。
 - `anchorElement` 和 `openerElement` 是属性（property），用于 id 够不着的元素，例如位于另一个 shadow root 里的元素。
 - `arrow` 可以是未设置、true 或 false：这个属性（attribute）可以不写、写成 `arrow`，或写成 `arrow="false"`。
+- `trigger` 是列表属性（property），它的属性（attribute）用空格分隔各个值。`showDelay` 和 `hideDelay` 对应 `show-delay` 和 `hide-delay` 属性，单位为毫秒。
+- `toggle` 是带有 `detail.open` 和 `detail.reason` 的 `CustomEvent`。在标记中，可以用 `ontoggle="this.open = event.detail.open"` 响应它。
+- 悬停由 `pointerType` 为 `mouse` 或 `pen` 的指针判断，键盘焦点由匹配 `:focus-visible` 的焦点判断。
 - 用 `autofocus` 标记打开时取得焦点的元素。
 - 在强制颜色模式下，容器和它的箭头带有一道文本颜色的边线。
 
@@ -184,9 +220,9 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 | 方面 | 工具提示 | 弹出框 | 菜单 | 对话框 |
 | --- | --- | --- | --- | --- |
-| 怎样打开 | 悬停、键盘聚焦、长按 | 按下打开它的控件 | 按下它的锚点 | 由产品打开 |
+| 怎样打开 | 悬停、键盘聚焦、长按 | 按下打开它的控件；`trigger` 指定时，也可以是悬停或键盘聚焦 | 按下它的锚点 | 由产品打开 |
 | 里面是什么 | 对锚点的描述 | 供用户操作的内容 | 只有菜单项 | 一项决定 |
-| 是否取得焦点 | 从不 | 是，并且交还 | 是，并且交还 | 是，并且留住 |
+| 是否取得焦点 | 从不 | 按下打开时取得，并且交还 | 是，并且交还 | 是，并且留住 |
 | 是否阻挡页面 | 否 | 否（在 compact 窗口中作为面板时为是） | 否 | 是 |
 
 1. 如果它只是说明控件是什么，里面没有任何可以按下的东西，它就是工具提示。
@@ -203,13 +239,15 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - **不要用它代替页面。** 用户继续之前必须读到的内容，应写在字段的辅助文字或页面本身里，不需要谁去询问。
 
 <Example label="切换提示：按下信息按钮">
-  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="关于存储空间" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
-  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="关于存储空间" arrow onclose="this.open = false">回收站中的文件在被删除之前仍会占用存储空间。 <a class="tanrei-link" href="#guidelines">存储空间如何计算</a></tanrei-popover>
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="关于存储空间" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">回收站中的文件在被删除之前仍会占用存储空间。 <a class="tanrei-link" href="#guidelines">存储空间如何计算</a></tanrei-popover>
 </Example>
 
 ### 推荐
 
-- 通过按下某个控件来打开它，再次按下这个控件时关闭它。
+- 默认通过按下某个控件来打开它。再次按下这个控件时，弹出框会请求关闭。
+- 对链接目标的预览（例如一个人或一份文档）使用 `trigger="hover focus"`，并确保用户顺着链接也能看到同样的信息。
+- 通过悬停打开的弹出框里有可操作的内容时，在触发方式中加上 `press`，让使用键盘或触摸的用户能有意地打开它并进入其中。
 - 内容要短。只做一件事，最多几个输入框。
 - 如果弹出框大到会盖住用户原本要在外部按下的地方，就加上 `closable`；在没有 Escape 的触摸设备上也要加。
 - 位于用户正在输入的输入框下方的表面，使用 `width="anchor"` 和 `initialFocus="anchor"`。
@@ -218,7 +256,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ### 避免
 
-- 不要在悬停或聚焦时打开弹出框。触摸无法这样打开它；而仅仅因为指针经过就取得焦点的表面，是一个陷阱。
+- 不要把用户需要的信息只放在通过悬停打开的弹出框里。触摸设备上没有悬停，请提供另一条途径获得同样的信息：链接的目标，或在触发方式中加上 `press`。
+- 不要为了让悬停弹出框显得快而缩短 `showDelay`。弹出框比工具提示大，指针每次经过都会盖住页面。
 - 不要把在外部误按一下就会丢失的内容放进弹出框。长表单应该放在对话框或面板里。
 - 不要在弹出框里嵌套一层以上的弹出框。每多一层，就要多按一次 Escape。
 - 用户必须先作出回应才能继续的内容，不要用弹出框。那是对话框。
@@ -231,7 +270,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 - 容器是一个非模态的对话框，以 `headline` 或 `label` 命名。它之外的任何东西都不会被隐藏，也不会变为惰性（inert）。
 - 在 compact 窗口中以面板形式显示时，容器是一个模态对话框：它之外的一切都变为惰性，Tab 和 Shift+Tab 在它里面循环。关闭时焦点回到打开它的控件。
-- 打开它的控件会暴露两点：它会打开一个对话框，以及这个对话框当前是否打开。控件自己的名称和角色不变。
+- 触发方式包含 `press` 时，打开它的控件会暴露两点：它会打开一个对话框，以及这个对话框当前是否打开。只通过悬停或聚焦打开它的锚点，这两点都不暴露。控件自己的名称和角色不变。
+- 通过悬停或聚焦打开的弹出框符合 WCAG 1.4.13（悬停或聚焦时显示的内容）：不移动指针和焦点就能用 Escape 关闭它，指针可以穿过空隙移到它上面，并且在指针和焦点离开之前它一直显示。
 - 打开时，焦点移到你标记的元素上，否则移到容器，这样弹出框的名称会最先被读到。只有从键盘打开弹出框时，容器上才显示焦点指示。
 - 无论弹出框在文档中的什么位置，它在 Tab 顺序中都紧跟在打开它的控件之后。在它的最后一个元素上按 Tab，焦点会移到这个控件之后的内容上，弹出框随之关闭。焦点从不被留在里面。
 - Escape 只关闭最上面的浮层，并且不再向外传递：包含弹出框的对话框保持打开。
@@ -242,6 +282,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 ### 需要你做的事
 
 - 给弹出框一个 `headline` 或 `label`；设置了 `closable` 时，再给一个 `closeLabel`。
-- 在打开它的控件被按下时设置 `open`，并在 `close` 时把它设为 false。
+- 把 `open` 设为 `toggle` 请求的值，并在 `close` 时把它设为 false。
+- 只使用 `hover` 时，确保弹出框显示的内容也能通过其他途径获得，因为使用触摸的用户永远看不到它。
 - 在 Web 上，请尽量把弹出框元素放在文档中紧跟在打开它的控件之后的位置，让屏幕阅读器的阅读顺序与 Tab 顺序一致。
 - 简短表单的第一个输入框，请标记为初始焦点。只有文本的弹出框不要加标记。

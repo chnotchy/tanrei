@@ -1,8 +1,8 @@
 ---
 title: पॉपओवर
-description: वह कॉन्टेंट जिसे व्यक्ति पढ़ और ऑपरेट कर सकता है, एक छोटी सरफ़ेस पर दिखाता है। सरफ़ेस उस कंट्रोल के बग़ल में खुलती है जिसे व्यक्ति ने दबाया और उसी के साथ रहती है, बाक़ी पेज को धुँधला किए या रोके बिना। कॉम्पैक्ट विंडो में यह बॉटम शीट जैसी दिखने वाली एक मोडल सरफ़ेस में दिखता है।
+description: वह कॉन्टेंट जिसे व्यक्ति पढ़ और ऑपरेट कर सकता है, एक छोटी सरफ़ेस पर दिखाता है। सरफ़ेस किसी कंट्रोल के बग़ल में खुलती है — जब उसे दबाया जाए, या जब पॉइंटर या कीबोर्ड फ़ोकस उस पर ठहरे — और उसी के साथ रहती है, पेज के बाक़ी हिस्से को धुँधला किए या रोके बिना; कॉम्पैक्ट विंडो में यह बॉटम शीट जैसी दिखने वाली मोडल सरफ़ेस पर दिखता है।
 translationOf: components/popover.mdx
-sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
+sourceHash: 423dcc9ccf4410ebef8292c5c8e5ad7a43f5a874
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,15 +16,22 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="popover" />
 
 <Example label="कोई बटन दबाएँ: लिंक वाला एक नोट, और क्रियाओं वाला एक छोटा फ़ॉर्म">
-  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">स्टोरेज</tanrei-button>
-  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="स्टोरेज" closable close-label="स्टोरेज की जानकारी बंद करें" arrow placement="bottom" onclose="this.open = false">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined">स्टोरेज</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="स्टोरेज" closable close-label="स्टोरेज की जानकारी बंद करें" arrow placement="bottom" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं। <a class="tanrei-link" href="#दिशानिर्देश">स्टोरेज कैसे गिना जाता है</a>
   </tanrei-popover>
-  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">नाम बदलें</tanrei-button>
-  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="फ़ोल्डर का नाम बदलें" onclose="this.open = false">
+  <tanrei-button id="popover-demo-form-opener" variant="outlined">नाम बदलें</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="फ़ोल्डर का नाम बदलें" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <tanrei-text-field label="नाम" value="रिपोर्ट" autofocus></tanrei-text-field>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">नाम बदलें</tanrei-button>
+  </tanrei-popover>
+</Example>
+
+<Example label="किसी नाम पर पॉइंटर रोकें, या Tab से उस तक जाएँ: उस व्यक्ति की झलक">
+  <p><a class="tanrei-link" id="popover-demo-person" href="#दिशानिर्देश">अनीता शर्मा</a> ने सोमवार को शेयर किया।</p>
+  <tanrei-popover id="popover-demo-preview" anchor="popover-demo-person" label="अनीता शर्मा" trigger="hover focus" placement="bottom-start" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    अनीता शर्मा, एनालिटिकल इंजन टीम। 12 शेयर किए गए फ़ोल्डर सँभालती हैं। <a class="tanrei-link" href="#दिशानिर्देश">प्रोफ़ाइल खोलें</a>
   </tanrei-popover>
 </Example>
 
@@ -34,9 +41,32 @@ import Example from '../../../../components/visuals/Example.astro';
 
 कंट्रोल आपका अपना है। वेब पर आप उसे `anchor` से बताते हैं, जो उस एलिमेंट का id है जिसके बग़ल में पॉपओवर रहता है। वही एलिमेंट ओपनर भी है: पॉपओवर सहायक तकनीक को बताता है कि वह एक डायलॉग खोलता है और वह डायलॉग खुला है या नहीं, और फ़ोकस उसी को लौटाता है। जहाँ सरफ़ेस का ऐंकर कोई फ़ील्ड है और उसे फ़ील्ड के भीतर का कोई बटन खोलता है, वहाँ उस बटन को `opener` से बताएँ।
 
-पॉपओवर कंट्रोल्ड है, जैसे मेन्यू। ओपनर के दबाए जाने पर आप `open` सेट करते हैं, और जब पॉपओवर `close` एमिट करता है तो उसे वापस false करते हैं। वह कभी ख़ुद नहीं खुलता: न होवर पर, न फ़ोकस पर, न कुछ समय बाद। `close` के साथ एक कारण आता है: `escape`, `outside`, `focus-out`, `close` (उसका बंद करने वाला बटन) या `anchor-hidden`। कोई क्रिया पॉपओवर को कभी बंद नहीं करती; उसे आपका हैंडलर बंद करता है। कॉम्पैक्ट विंडो में शीट के रूप में यह अपने स्क्रिम को दबाने पर `outside` भेजता है, और कभी `focus-out` या `anchor-hidden` नहीं भेजता।
+पॉपओवर कंट्रोल्ड है, जैसे मेन्यू। वह `toggle` से खुलने या बंद होने के लिए कहता है, जिसका `detail.open` वह मान है जो वह माँगता है, और आप `open` को वही मान देते हैं। डिफ़ॉल्ट रूप से ओपनर को दबाने पर वह खुलने के लिए कहता है और दोबारा दबाने पर बंद होने के लिए, इसलिए ओपनर पर आपको कोई हैंडलर नहीं लिखना होता। बाक़ी हर चीज़ के लिए वह `close` से बंद होने को कहता है, और आप `open` को वापस false करते हैं। `close` के साथ एक कारण आता है: `escape`, `outside`, `focus-out`, `close` (उसका बंद करने वाला बटन) या `anchor-hidden`। कॉम्पैक्ट विंडो में शीट के रूप में वह अपने स्क्रिम पर दबाने के लिए `outside` भेजता है, और कभी `focus-out` या `anchor-hidden` नहीं भेजता। कोई क्रिया पॉपओवर को कभी बंद नहीं करती; उसे आपका हैंडलर बंद करता है।
 
 उसे एक नाम दें: जहाँ वह हेडलाइन दिखाता है वहाँ `headline`, और जहाँ नहीं दिखाता वहाँ `label`।
+
+### इसे क्या खोलता है
+
+`trigger` बताता है कि पॉपओवर किससे खुलता है: `press`, `hover` और `focus` में से एक या ज़्यादा, किसी भी मेल में। वेब पर ऐट्रिब्यूट इन्हें स्पेस से अलग करके लिखता है, जैसे `trigger="hover focus"`।
+
+| ट्रिगर | पॉपओवर कब खुलता है | फ़ोकस कहाँ जाता है |
+| --- | --- | --- |
+| `press` (डिफ़ॉल्ट) | ओपनर को दबाने पर, या उस पर Enter या Space दबाने पर। दोबारा दबाने पर वह बंद होने को कहता है | पॉपओवर के भीतर |
+| `hover` | माउस, ट्रैकपैड या होवर करने वाला पेन `showDelay` तक ऐंकर पर ठहरे। टच से कभी नहीं | कहीं नहीं: जहाँ था वहीं रहता है |
+| `focus` | कीबोर्ड फ़ोकस `showDelay` तक ऐंकर पर ठहरे। दबाने या टैप करने से आया फ़ोकस नहीं गिना जाता | कहीं नहीं: ऐंकर पर रहता है, और अगला Tab पॉपओवर के भीतर ले जाता है |
+
+`toggle` ट्रिगर को `detail.reason` में बताता है। होवर या फ़ोकस से खुला पॉपओवर:
+
+- खुलने से पहले रुकता है, ताकि ऐंकर के ऊपर से गुज़रता पॉइंटर या ऐंकरों की कतार से गुज़रता Tab कुछ न खोले। `showDelay` न देने पर `comp.popover.motion.show-delay` (डिफ़ॉल्ट सिस्टम में 700 ms) लिया जाता है।
+- तब तक खुला रहता है जब तक पॉइंटर ऐंकर पर, ऐंकर और पॉपओवर के बीच के गैप पर, या पॉपओवर पर हो, और जब तक फ़ोकस उसके भीतर हो। ट्रिगर में `focus` हो तो ऐंकर पर कीबोर्ड फ़ोकस भी उसे खुला रखता है। `hideDelay` कुछ भी हो, पॉइंटर गैप पार कर सकता है।
+- जब इनमें से कुछ भी `hideDelay` तक न रहे, तो वह `toggle` से, कारण `leave` के साथ, बंद होने को कहता है। `hideDelay` न देने पर `comp.popover.motion.hide-delay` (डिफ़ॉल्ट सिस्टम में 300 ms) लिया जाता है। इनमें से कोई भी बात बनी रहे तो वह समय बीतने पर कभी बंद नहीं होता।
+- फ़ोकस कहीं भी हो, Escape से बंद होता है, और फ़ोकस को नहीं हिलाता। Escape के बाद वह तब तक दोबारा नहीं खुलता जब तक पॉइंटर या फ़ोकस ऐंकर से हटकर वापस न आए।
+- कॉम्पैक्ट विंडो में भी अपने ऐंकर के बग़ल में रहता है, क्योंकि शीट उस व्यक्ति से फ़ोकस छीन लेती जिसने ऐंकर की ओर बस इशारा किया है।
+- किसी भी पॉपओवर वाली मोशन के साथ दिखता है।
+
+ट्रिगर में `press` हो, तो होवर से खुले पॉपओवर के ओपनर को दबाने पर वह ऐसे खुला रहता है मानो दबाने से खुला हो: फ़ोकस भीतर जाता है, और पॉइंटर के हटने पर अब वह बंद नहीं होता। `press` न हो, तो ओपनर का अपना काम होता है, जैसे लिंक पर जाना, और ओपनर यह नहीं बताता कि वह डायलॉग खोलता है।
+
+ये प्रतीक्षाएँ समय हैं, मोशन नहीं: मोशन कम होने पर भी ये वही रहती हैं।
 
 SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
 
@@ -56,13 +86,16 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <tanrei-text-field id="city" label="शहर"></tanrei-text-field>
     <tanrei-popover anchor="city" label="सुझाव" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
 
+    <!-- किसी लिंक की झलक: होवर या कीबोर्ड फ़ोकस से खुलती है, दबाने से नहीं। -->
+    <a id="author" href="/people/ada">अनीता शर्मा</a>
+    <tanrei-popover id="author-preview" anchor="author" label="अनीता शर्मा" trigger="hover focus">…</tanrei-popover>
+
     <script type="module">
       import '@tanrei/web/components/popover';
 
-      const opener = document.querySelector('#share');
       const panel = document.querySelector('#share-panel');
-      // ओपनर इसे टॉगल करता है। ओपनर पर दबाना कभी "outside" नहीं होता, इसलिए एक बार दबाने से यह बंद होकर दोबारा नहीं खुलता।
-      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // ओपनर को दबाने पर यह खुलने के लिए कहता है, और दोबारा दबाने पर बंद होने के लिए।
+      panel.addEventListener('toggle', (e) => (panel.open = e.detail.open));
       // Escape, बाहर दबाना, फ़ोकस का बाहर जाना, बंद करने वाला बटन, ऐंकर का नज़र से ओझल होना।
       panel.addEventListener('close', (e) => {
         console.log(e.detail.reason);
@@ -83,8 +116,8 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
     const [open, setOpen] = useState(false);
 
-    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>शेयर करें</Button>
-    <Popover anchor="share" open={open} headline="यह पेज शेयर करें" closable closeLabel="शेयर करने का पैनल बंद करें" onClose={() => setOpen(false)}>
+    <Button id="share" variant="outlined">शेयर करें</Button>
+    <Popover anchor="share" open={open} headline="यह पेज शेयर करें" closable closeLabel="शेयर करने का पैनल बंद करें" onToggle={(e) => setOpen(e.detail.open)} onClose={() => setOpen(false)}>
       जिसके पास भी लिंक है, वह इसे पढ़ सकता है।
       <Button slot="actions" dismissive onClick={stopSharing}>शेयर करना बंद करें</Button>
       <Button slot="actions" confirming onClick={copyLink}>लिंक कॉपी करें</Button>
@@ -96,12 +129,12 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 ## स्पेक
 
 <Example label="स्थान, तीर, और अपने ऐंकर जितना चौड़ा पॉपओवर">
-  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">ऊपर, बीच में</tanrei-button>
-  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="स्टोरेज" placement="top" arrow onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
-  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">बग़ल में, अंत की ओर</tanrei-button>
-  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="स्टोरेज" placement="end-top" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
-  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">इस बटन जितना चौड़ा</tanrei-button>
-  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="स्टोरेज" width="anchor" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined">ऊपर, बीच में</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="स्टोरेज" placement="top" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined">बग़ल में, अंत की ओर</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="स्टोरेज" placement="end-top" ontoggle="this.open = event.detail.open" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem">इस बटन जितना चौड़ा</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="स्टोरेज" width="anchor" ontoggle="this.open = event.detail.open" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
 </Example>
 
 ### यह कहाँ रहता है
@@ -175,6 +208,9 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - वेब का अपना कोई बैक जेस्चर नहीं है, इसलिए `close` के साथ `back` कारण कभी नहीं आता।
 - `anchorElement` और `openerElement` उस एलिमेंट के लिए प्रॉपर्टी हैं जिस तक कोई id नहीं पहुँच सकता, जैसे किसी दूसरे शैडो रूट का एलिमेंट।
 - `arrow` true, false या सेट नहीं होता है: ऐट्रिब्यूट `arrow` है, `arrow="false"` है, या है ही नहीं।
+- `trigger` एक सूची वाली प्रॉपर्टी है। इसका ऐट्रिब्यूट स्पेस से अलग किए गए मान है। `showDelay` और `hideDelay` मिलीसेकंड में `show-delay` और `hide-delay` ऐट्रिब्यूट हैं।
+- `toggle` एक `CustomEvent` है, जिसमें `detail.open` और `detail.reason` होते हैं। मार्कअप में `ontoggle="this.open = event.detail.open"` इसका जवाब देता है।
+- होवर उस पॉइंटर से सुना जाता है जिसका `pointerType` `mouse` या `pen` हो, और कीबोर्ड फ़ोकस वह फ़ोकस है जो `:focus-visible` से मेल खाए।
 - जो एलिमेंट खुलने पर फ़ोकस लेता है, उस पर `autofocus` से निशान लगाएँ।
 - फ़ोर्स्ड कलर्स में कंटेनर और उसके तीर को टेक्स्ट के रंग की आउटलाइन मिलती है।
 
@@ -184,9 +220,9 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 | पहलू | टूलटिप | पॉपओवर | मेन्यू | डायलॉग |
 | --- | --- | --- | --- | --- |
-| कैसे खुलता है | होवर, कीबोर्ड फ़ोकस, देर तक दबाना | अपने ओपनर को दबाने पर | अपने ऐंकर को दबाने पर | प्रॉडक्ट खोलता है |
+| कैसे खुलता है | होवर, कीबोर्ड फ़ोकस, देर तक दबाना | अपने ओपनर को दबाने पर, या होवर या कीबोर्ड फ़ोकस पर जहाँ उसका `trigger` कहे | अपने ऐंकर को दबाने पर | प्रॉडक्ट खोलता है |
 | इसमें क्या रहता है | अपने ऐंकर का विवरण | वह कॉन्टेंट जिसे व्यक्ति ऑपरेट करता है | सिर्फ़ आइटम | एक फ़ैसला |
-| फ़ोकस लेता है | कभी नहीं | हाँ, और उसे लौटाता है | हाँ, और उसे लौटाता है | हाँ, और उसे भीतर रखता है |
+| फ़ोकस लेता है | कभी नहीं | दबाकर खोलने पर, और उसे लौटाता है | हाँ, और उसे लौटाता है | हाँ, और उसे भीतर रखता है |
 | पेज को रोकता है | नहीं | नहीं (कॉम्पैक्ट विंडो में शीट के रूप में हाँ) | नहीं | हाँ |
 
 1. अगर वह सिर्फ़ यह बताता है कि कंट्रोल क्या है, और उसमें दबाने लायक़ कुछ नहीं है, तो वह टूलटिप है।
@@ -203,13 +239,15 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - **पेज की जगह नहीं।** आगे बढ़ने से पहले जो पढ़ना ज़रूरी है, वह फ़ील्ड के सहायक टेक्स्ट में या पेज पर ही रखें, जहाँ किसी को पूछना न पड़े।
 
 <Example label="टॉगलटिप: सूचना बटन दबाएँ">
-  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="स्टोरेज के बारे में" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
-  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="स्टोरेज के बारे में" arrow onclose="this.open = false">ट्रैश की फ़ाइलें मिटाए जाने तक आपके स्टोरेज में गिनी जाती हैं। <a class="tanrei-link" href="#guidelines">स्टोरेज कैसे गिना जाता है</a></tanrei-popover>
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="स्टोरेज के बारे में" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">ट्रैश की फ़ाइलें मिटाए जाने तक आपके स्टोरेज में गिनी जाती हैं। <a class="tanrei-link" href="#guidelines">स्टोरेज कैसे गिना जाता है</a></tanrei-popover>
 </Example>
 
 ### करें
 
-- इसे किसी कंट्रोल को दबाने पर खोलें, और उसी कंट्रोल को दोबारा दबाने पर बंद करें।
+- डिफ़ॉल्ट रूप से इसे किसी कंट्रोल को दबाने पर खोलें। उसी कंट्रोल को दोबारा दबाने पर पॉपओवर बंद होने के लिए कहता है।
+- किसी लिंक के गंतव्य की झलक के लिए, जैसे कोई व्यक्ति या दस्तावेज़, `trigger="hover focus"` इस्तेमाल करें, जिस तक व्यक्ति लिंक पर जाकर भी पहुँच सके।
+- होवर से खुलने वाले पॉपओवर में ऑपरेट करने लायक़ कुछ हो, तो ट्रिगर में `press` भी जोड़ें, ताकि कीबोर्ड या टच से इस्तेमाल करने वाला व्यक्ति उसे जान-बूझकर खोल सके और उसके भीतर पहुँच सके।
 - कॉन्टेंट छोटा रखें। एक काम, ज़्यादा से ज़्यादा कुछ फ़ील्ड।
 - `closable` तब जोड़ें जब पॉपओवर इतना बड़ा हो कि वह उस चीज़ को ढक ले जिसे व्यक्ति उसके बाहर दबाता, और टच के लिए, जहाँ Escape नहीं है।
 - जिस फ़ील्ड में व्यक्ति टाइप कर रहा है, उसके नीचे की सरफ़ेस के लिए `width="anchor"` और `initialFocus="anchor"` इस्तेमाल करें।
@@ -218,7 +256,8 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ### न करें
 
-- पॉपओवर को होवर या फ़ोकस पर न खोलें। टच से उस तक पहुँचा नहीं जा सकता, और जो सरफ़ेस सिर्फ़ इसलिए फ़ोकस ले ले कि पॉइंटर उसके ऊपर से गुज़रा, वह एक जाल है।
+- व्यक्ति के लिए ज़रूरी कोई चीज़ सिर्फ़ होवर से खुलने वाले पॉपओवर में न रखें। टच पर होवर होता ही नहीं, इसलिए वही जानकारी किसी और तरीक़े से दें: लिंक का गंतव्य, या ट्रिगर में `press`।
+- होवर वाले पॉपओवर को तेज़ दिखाने के लिए `showDelay` छोटा न करें। पॉपओवर टूलटिप से बड़ा होता है, और हर गुज़रते पॉइंटर के नीचे पेज को ढक देता।
 - पॉपओवर में वह चीज़ न रखें जिसे व्यक्ति ग़लती से एक बार बाहर दबाकर खो दे। लंबे फ़ॉर्म की जगह डायलॉग या शीट है।
 - पॉपओवर के भीतर एक से ज़्यादा पॉपओवर नेस्ट न करें। हर स्तर पर Escape एक बार और दबानी पड़ती है।
 - जिस चीज़ का जवाब व्यक्ति को आगे बढ़ने से पहले देना ही है, उसके लिए पॉपओवर इस्तेमाल न करें। वह डायलॉग है।
@@ -231,7 +270,8 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 - कंटेनर एक ऐसा डायलॉग है जो मोडल नहीं है, और उसका नाम `headline` या `label` से आता है। उसके बाहर की कोई चीज़ छिपाई या निष्क्रिय नहीं की जाती।
 - कॉम्पैक्ट विंडो में शीट के रूप में कंटेनर एक मोडल डायलॉग है: उसके बाहर सब कुछ निष्क्रिय होता है, और Tab और Shift+Tab उसके भीतर ही घूमते हैं। बंद होने पर फ़ोकस ओपनर पर लौटता है।
-- ओपनर सहायक तकनीक को बताता है कि वह एक डायलॉग खोलता है और वह डायलॉग खुला है या नहीं। उसका अपना नाम और रोल नहीं बदलते।
+- ट्रिगर में `press` हो, तो ओपनर सहायक तकनीक को बताता है कि वह एक डायलॉग खोलता है और वह डायलॉग खुला है या नहीं। जो ऐंकर उसे सिर्फ़ होवर या फ़ोकस से खोलता है, वह इनमें से कुछ नहीं बताता। उसका अपना नाम और रोल नहीं बदलता।
+- होवर या फ़ोकस से खुला पॉपओवर WCAG 1.4.13 (होवर या फ़ोकस पर दिखने वाला कॉन्टेंट) पूरा करता है: Escape उसे पॉइंटर या फ़ोकस हिलाए बिना हटा देता है, पॉइंटर गैप पार करके उस पर जा सकता है, और वह तब तक दिखता रहता है जब तक पॉइंटर और फ़ोकस उससे हट न जाएँ।
 - खुलने पर फ़ोकस उस एलिमेंट पर जाता है जिस पर आपने निशान लगाया है, या कंटेनर पर, ताकि पॉपओवर का नाम पहले पढ़ा जाए। कंटेनर पर फ़ोकस इंडिकेटर सिर्फ़ तब दिखता है जब पॉपओवर कीबोर्ड से खोला गया हो।
 - Tab क्रम में पॉपओवर अपने ओपनर के ठीक बाद आता है, वह दस्तावेज़ में कहीं भी हो। उसके आख़िरी एलिमेंट से Tab उस चीज़ पर बढ़ती है जो ओपनर के बाद आती है, और इससे पॉपओवर बंद हो जाता है। फ़ोकस कभी भीतर बाँधकर नहीं रखा जाता।
 - Escape सिर्फ़ सबसे ऊपर वाले ओवरले को बंद करती है, और उससे आगे नहीं जाती: पॉपओवर जिस डायलॉग में है, वह खुला रहता है।
@@ -242,6 +282,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 ### आपको क्या करना है
 
 - पॉपओवर को `headline` या `label` दें, और `closable` रहते एक `closeLabel` भी।
-- ओपनर को दबाने पर `open` सेट करें, और `close` पर उसे false करें।
+- `open` को वह मान दें जो `toggle` माँगता है, और `close` पर उसे false करें।
+- सिर्फ़ `hover` हो, तो पक्का करें कि पॉपओवर जो दिखाता है उस तक किसी और तरीक़े से भी पहुँचा जा सके, क्योंकि टच से इस्तेमाल करने वाला व्यक्ति उसे कभी नहीं देखता।
 - वेब पर, जहाँ हो सके, पॉपओवर एलिमेंट को दस्तावेज़ में उसके ओपनर के ठीक बाद रखें, ताकि स्क्रीन रीडर के पढ़ने का क्रम Tab क्रम के साथ चले।
 - छोटे फ़ॉर्म के पहले फ़ील्ड पर शुरुआती फ़ोकस का निशान लगाएँ। सिर्फ़ टेक्स्ट वाले पॉपओवर को बिना निशान के छोड़ें।

@@ -37,6 +37,7 @@ import {
   isDividerVisibility,
   keepOverlayFocusAfterPress,
   keyboardCover,
+  logicalAncestors,
   modalLayer,
   modalSheetKeys,
   numericAttribute,
@@ -75,6 +76,13 @@ export type TanreiPopoverInitialFocus = 'popover' | 'anchor';
 export type TanreiPopoverCompactPresentation = 'sheet' | 'own';
 /** Why the popover asks to be closed (POP-21). The web has no back of its own, so it never sends `back`. */
 export type TanreiPopoverCloseReason = 'escape' | 'back' | 'outside' | 'focus-out' | 'close' | 'anchor-hidden';
+/** What opens the popover (`trigger`): its opener pressed, a fine pointer resting on its anchor, keyboard focus resting on it. */
+export type TanreiPopoverTrigger = 'press' | 'hover' | 'focus';
+/** `toggle`'s detail: the value of `open` asked for, and the trigger that asks — or `leave` (POP-18, POP-45, POP-46, POP-48). */
+export interface TanreiPopoverToggleDetail {
+  open: boolean;
+  reason: TanreiPopoverTrigger | 'leave';
+}
 /** `close`'s detail: why the popover asks to be closed. */
 export interface TanreiPopoverCloseDetail {
   reason: TanreiPopoverCloseReason;
@@ -85,6 +93,14 @@ const DEFAULT_PLACEMENT: TanreiPopoverPlacement = 'bottom-start';
 const WIDTHS: readonly TanreiPopoverWidth[] = ['content', 'anchor'];
 const INITIAL_FOCUS: readonly TanreiPopoverInitialFocus[] = ['popover', 'anchor'];
 const COMPACT_PRESENTATIONS: readonly TanreiPopoverCompactPresentation[] = ['sheet', 'own'];
+const TRIGGERS: readonly TanreiPopoverTrigger[] = ['press', 'hover', 'focus'];
+/** `trigger`'s attribute: the values separated by spaces; absent is the default, press alone. */
+const triggerAttribute = {
+  fromAttribute: (value: string | null): string[] => (value === null ? ['press'] : value.split(/\s+/).filter(Boolean)),
+  toAttribute: (value: unknown): string | null => (Array.isArray(value) ? value.join(' ') : null),
+};
+/** POP-45: the pointers that hover — a mouse, a trackpad, a pen. Touch, and what a platform synthesises from it, never do. */
+const hovers = (event: PointerEvent) => event.pointerType === 'mouse' || event.pointerType === 'pen';
 /** POP-24: a popover in a popover is the most a product should need; a third level is reported. */
 const DEEP = 3;
 /**
@@ -104,8 +120,14 @@ let ids = 0;
  * beside, in the popover's own tree (`anchorElement` for an element an id cannot reach), and that element is also the
  * opener — the one that carries `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` and takes focus back —
  * unless `opener` / `openerElement` names another (a field that anchors the surface, with a button inside it that
- * opens it). The product sets `open` when the opener is pressed, and to false when the popover fires `close`: the
- * popover never opens or closes by itself, on hover, on focus or after a time.
+ * opens it). The popover asks to be opened or closed by its triggers with `toggle`, and to be closed with `close`; the
+ * product sets `open` from them. `trigger` says what asks to open it, one or more of: `press` (the default) — the
+ * opener's click, which asks to close it again while it is open; `hover` — a mouse or a pen resting on the anchor for `show-delay` ms, never touch;
+ * `focus` — keyboard focus resting on the anchor for `show-delay` ms. A popover opened by hover or focus takes no focus,
+ * stays beside its anchor in every window, stays while the pointer is on the anchor, the gap or the popover or focus is
+ * in it (or keyboard focus on the anchor, with `focus`), and asks to close (`toggle`, reason `leave`) once neither has
+ * held for `hide-delay` ms; Escape closes it wherever focus is, and a press on the opener (with `press`) keeps it open
+ * as if the press had opened it. The waits default to `comp.popover.motion.show-delay` and `.hide-delay`.
  *
  * The drawn popover is a `popover="manual"` element in the shadow root, in the top layer (above an open modal
  * `<dialog>` the element stands in), holding a `role="dialog"` container that is not modal: no scrim, no focus trap,
@@ -153,6 +175,7 @@ let ids = 0;
  * @csspart divider - A hairline below the header and above the actions, while the content scrolls, as `divider-visibility` says (hidden from assistive technology).
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiPopoverCloseDetail>} close - The popover asks to be closed: `detail.reason` is `escape`, `outside` (as a sheet, a press on its scrim), `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
+ * @fires {CustomEvent<TanreiPopoverToggleDetail>} toggle - The popover asks to be opened or closed by its triggers: `detail.open` is the value asked for, and `detail.reason` is `press` (its opener, open or closed), `hover`, `focus` or `leave` (opened by hover or focus, the pointer and focus left). Set `open` to `detail.open`.
  */
 export class TanreiPopover extends TanreiElement implements VariantHost, PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'popover');
@@ -166,6 +189,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   static override properties: PropertyDeclarations = {
     open: { type: Boolean, reflect: true },
+    trigger: { converter: triggerAttribute },
+    showDelay: { attribute: 'show-delay', converter: numericAttribute },
+    hideDelay: { attribute: 'hide-delay', converter: numericAttribute },
     placement: { type: String, reflect: true },
     offset: { converter: numericAttribute },
     crossOffset: { attribute: 'cross-offset', converter: crossOffsetAttribute },
@@ -194,8 +220,21 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     sheet: { state: true },
   };
 
-  /** Whether the popover is shown. Controlled: set it when the opener is pressed, and to false in answer to `close`. Reflected. */
+  /** Whether the popover is shown. Controlled: set it to what `toggle` asks for, and to false in answer to `close`. Reflected. */
   open = false;
+
+  /**
+   * What asks to open it: one or more of `press` (its opener pressed), `hover` (a mouse or a pen resting on its anchor)
+   * and `focus` (keyboard focus resting on its anchor). The attribute is the values separated by spaces
+   * (`trigger="hover focus"`). A value it does not define is ignored, and a list with none is `press` (POP-37).
+   */
+  trigger: TanreiPopoverTrigger[] = ['press'];
+
+  /** How long, in ms, the pointer or keyboard focus rests on the anchor before it asks to open on hover or focus. Null takes `motion.show-delay`. The attribute is `show-delay`. */
+  showDelay: number | null = null;
+
+  /** How long, in ms, a popover opened by hover or focus waits once the pointer and focus have left it before it asks to close. Null takes `motion.hide-delay`. The attribute is `hide-delay`. */
+  hideDelay: number | null = null;
 
   /**
    * Where it prefers to stand: a side of the anchor and how it lines up along it, or `auto`. It flips to the opposite
@@ -306,6 +345,25 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private stated: HTMLElement | null = null;
   private unregister: (() => void) | null = null;
 
+  /** POP-47: open by hover or focus — presented without taking focus, beside its anchor, closed when they leave (POP-48). */
+  private byHover = false;
+  /** POP-47: the hover or focus `toggle` it sent, while `open` has not become true since. */
+  private asked: 'hover' | 'focus' | null = null;
+  /** POP-45, POP-48: a fine pointer is on the anchor, the opener, the gap, the popover or an overlay opened from it. */
+  private hovering = false;
+  /** POP-45: a fine pointer is on the anchor or the opener themselves. */
+  private onAnchor = false;
+  /** POP-46, POP-48: keyboard focus is on the anchor or the opener. */
+  private keyboardOn = false;
+  /** POP-45, POP-46: the wait before asking to open, and what it waits for; POP-48: the wait before asking to close. */
+  private showTimer: ReturnType<typeof setTimeout> | undefined;
+  private showFor: 'hover' | 'focus' | null = null;
+  private hideTimer: ReturnType<typeof setTimeout> | undefined;
+  /** The anchor and the opener whose press, pointer and focus it hears. */
+  private heard: HTMLElement[] = [];
+  /** POP-48: the window's pointer-move listener is there. */
+  private tracking = false;
+
   private get surface(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.surface') ?? null;
   }
@@ -401,7 +459,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   /** POP-21, POP-23, POP-24: Escape, a press outside and focus leaving (src/primitives/dismiss.ts); POP-20: Tab at its ends. */
   private readonly dismiss = new DismissController(this, {
     related: () => [this.anchorNode, this.openerNode],
-    request: (reason: DismissReason) => this.requestClose(reason),
+    request: (reason: DismissReason) => this.answerDismiss(reason),
     tab: (event) => {
       const surface = this.container;
       if (surface) tabThroughOverlay(event, { surface, host: this, opener: this.openerNode });
@@ -429,6 +487,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       close: () => this.requestClose('anchor-hidden'),
       kind: 'popover',
     });
+    // POP-48: the pointer on the popover itself (its surface, its content) keeps one opened by hover or focus open.
+    this.addEventListener('pointerenter', this.onPointerEnter);
+    this.addEventListener('pointerleave', this.onPointerLeave);
     if (this.hasUpdated) {
       this.readSlots();
       this.observe();
@@ -451,6 +512,11 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     this.presentedAs = null;
     this.first = true;
     this.state(null);
+    this.hear([]);
+    this.track(false);
+    this.endTriggers();
+    this.removeEventListener('pointerenter', this.onPointerEnter);
+    this.removeEventListener('pointerleave', this.onPointerLeave);
   }
 
   // ---- POP-21: asking to close ----
@@ -464,6 +530,264 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** POP-13: the close button asks once for each activation. */
   private readonly onCloseClick = () => this.requestClose('close');
+
+  /** POP-21, POP-48, POP-50: what the dismissal asks, as the popover is open now. */
+  private answerDismiss(reason: DismissReason) {
+    // POP-48: open by hover or focus, focus leaving is one of the things that held it; another may hold it still.
+    if (this.byHover && reason === 'focus-out') this.settle();
+    else this.requestClose(reason);
+  }
+
+  // ---- POP-18, POP-45 to POP-51: what opens it ----
+
+  /** The triggers it answers: those of `trigger` it defines, or press where it names none (POP-37). */
+  private get triggers(): Set<TanreiPopoverTrigger> {
+    const list: unknown[] = Array.isArray(this.trigger) ? this.trigger : [];
+    const known = new Set(list.filter((each): each is TanreiPopoverTrigger => TRIGGERS.includes(each as TanreiPopoverTrigger)));
+    return known.size > 0 ? known : new Set<TanreiPopoverTrigger>(['press']);
+  }
+
+  /** POP-18, POP-45, POP-46: `toggle` asking to open, with the trigger, while it is closed. The product sets `open`. */
+  private requestOpen(reason: TanreiPopoverTrigger) {
+    if (this.open) return;
+    this.clearShow();
+    this.asked = reason === 'press' ? null : reason;
+    this.dispatchEvent(new CustomEvent<TanreiPopoverToggleDetail>('toggle', { detail: { open: true, reason } }));
+  }
+
+  /** POP-18, POP-48: `toggle` asking to close — its opener pressed again, or the pointer and focus gone — while it is open. */
+  private requestShut(reason: 'press' | 'leave') {
+    if (!this.open) return;
+    this.dispatchEvent(new CustomEvent<TanreiPopoverToggleDetail>('toggle', { detail: { open: false, reason } }));
+  }
+
+  /** POP-45, POP-46, POP-48, POP-51: the waits in ms, read as each starts — a usable prop as given, the token otherwise. */
+  private timing() {
+    const probe = this.find('.timing');
+    const style = probe ? getComputedStyle(probe) : null;
+    const ms = (value: string | undefined) => (Number.parseFloat(value ?? '') || 0) * 1000;
+    return {
+      show: usableLength(this.showDelay) ? this.showDelay : ms(style?.transitionDelay),
+      hide: usableLength(this.hideDelay) ? this.hideDelay : ms(style?.transitionDuration),
+    };
+  }
+
+  /** POP-45, POP-46: what rests on the anchor and may open it — the pointer under hover, keyboard focus under focus. */
+  private get resting(): 'hover' | 'focus' | null {
+    const triggers = this.triggers;
+    if (this.onAnchor && triggers.has('hover')) return 'hover';
+    if (this.keyboardOn && triggers.has('focus')) return 'focus';
+    return null;
+  }
+
+  /** POP-45, POP-46: the wait before asking to open; it asks only if something still rests on the anchor. */
+  private startShow(reason: 'hover' | 'focus') {
+    if (this.open || this.showTimer !== undefined) return;
+    this.showFor = reason;
+    const ask = () => {
+      const was = this.showFor;
+      this.showTimer = undefined;
+      this.showFor = null;
+      const resting = this.resting;
+      if (!resting || this.open || !this.isConnected) return;
+      this.requestOpen(was === 'focus' && this.keyboardOn ? 'focus' : was === 'hover' && this.onAnchor ? 'hover' : resting);
+    };
+    const { show } = this.timing();
+    if (show === 0) ask();
+    else this.showTimer = setTimeout(ask, show);
+  }
+
+  private clearShow() {
+    clearTimeout(this.showTimer);
+    this.showTimer = undefined;
+    this.showFor = null;
+  }
+
+  private clearHide() {
+    clearTimeout(this.hideTimer);
+    this.hideTimer = undefined;
+  }
+
+  /** Whether `node` is the anchor or the opener, or inside either. */
+  private inAnchor(node: Node): boolean {
+    const anchors = [this.anchorNode, this.openerNode];
+    for (const ancestor of logicalAncestors(node)) if (anchors.includes(ancestor as HTMLElement)) return true;
+    return false;
+  }
+
+  /**
+   * POP-48: whether something holds a popover open by hover or focus — the pointer on the anchor, the opener, the gap,
+   * the popover or an overlay opened from it; focus in the popover or such an overlay; keyboard focus on the anchor or
+   * the opener under the focus trigger.
+   */
+  private get held(): boolean {
+    if (this.hovering) return true;
+    const active = deepActive();
+    if (active && active !== document.body && this.dismiss.owns(active) && !this.inAnchor(active)) return true;
+    return this.keyboardOn && this.triggers.has('focus');
+  }
+
+  /** POP-48: held, the wait to close stops; held no more, it starts, and asks once it has run out and nothing holds again. */
+  private settle() {
+    if (!this.byHover || !this.open || this.held) {
+      this.clearHide();
+      return;
+    }
+    if (this.hideTimer !== undefined) return;
+    const ask = () => {
+      this.hideTimer = undefined;
+      if (this.byHover && this.open && !this.held) this.requestShut('leave');
+    };
+    const { hide } = this.timing();
+    if (hide === 0) ask();
+    else this.hideTimer = setTimeout(ask, hide);
+  }
+
+  /** POP-49: a press on the opener of a popover open by hover or focus keeps it open, as if the press had opened it. */
+  private adopt() {
+    this.byHover = false;
+    this.clearHide();
+    this.track(this.hovering);
+    // POP-39, POP-42: a compact window now draws it as a sheet, which takes focus as it changes presentation.
+    if (this.wantsSheet() !== this.sheet) {
+      this.requestUpdate();
+      return;
+    }
+    // POP-19: focus moves in.
+    const container = this.container;
+    if (this.presentedAs === 'anchored' && this.initialFocus !== 'anchor' && !this.inline && container) focusOverlay(this, container);
+  }
+
+  /**
+   * POP-48: whether a point is the popover's for hover — on the gap between the anchor and the container: as deep as the
+   * space between them (the offset, and the arrow's height while one is drawn), as wide as the container along that side.
+   * Measured, not drawn, so it takes no press.
+   */
+  private inGap(x: number, y: number): boolean {
+    const surface = this.surface;
+    const anchor = this.anchorNode;
+    if (!surface || !anchor || this.presentedAs !== 'anchored') return false;
+    const a = anchor.getBoundingClientRect();
+    const s = surface.getBoundingClientRect();
+    const across = (from: number, to: number, at: number) => at >= from && at <= to;
+    switch (surface.dataset.side) {
+      case 'top':
+        return across(s.left, s.right, x) && across(s.bottom, a.top, y);
+      case 'bottom':
+        return across(s.left, s.right, x) && across(a.bottom, s.top, y);
+      case 'left':
+        return across(s.top, s.bottom, y) && across(s.right, a.left, x);
+      case 'right':
+        return across(s.top, s.bottom, y) && across(a.right, s.left, x);
+      default:
+        return false;
+    }
+  }
+
+  /** POP-45, POP-48: where a fine pointer is now (`target`, at x and y), and what follows from it. Touch is never heard. */
+  private point(event: PointerEvent, target: EventTarget | null) {
+    if (!hovers(event)) return;
+    const node = target instanceof Node ? target : null;
+    const anchor = !!node && this.inAnchor(node);
+    const was = this.onAnchor;
+    this.onAnchor = anchor;
+    this.hovering = anchor || (!!node && this.dismiss.owns(node)) || this.inGap(event.clientX, event.clientY);
+    // POP-45: entering the anchor starts the wait; staying on it after the popover was dismissed starts none (POP-50).
+    if (anchor && !was && !this.open && this.triggers.has('hover')) this.startShow('hover');
+    if (!anchor && was && this.asked === 'hover' && !this.open) this.asked = null;
+    if (!this.open && !this.resting) this.clearShow();
+    this.track(this.hovering || this.byHover);
+    this.settle();
+  }
+
+  private readonly onPointerEnter = (event: PointerEvent) => this.point(event, event.composedPath()[0] ?? null);
+  private readonly onPointerLeave = (event: PointerEvent) => this.point(event, event.relatedTarget);
+  private readonly onPointerMove = (event: PointerEvent) => this.point(event, event.composedPath()[0] ?? null);
+
+  /** POP-48: the window's pointer moves are heard while the pointer is the popover's or it is open by hover or focus. */
+  private track(on: boolean) {
+    if (on === this.tracking) return;
+    this.tracking = on;
+    if (on) document.addEventListener('pointermove', this.onPointerMove, true);
+    else document.removeEventListener('pointermove', this.onPointerMove, true);
+  }
+
+  /** POP-22, POP-50: focus the popover gives back to its opener is no new focus, and opens nothing. */
+  private returning = false;
+
+  /** POP-46: keyboard focus arriving on the anchor or the opener starts the wait; focus by pointer or touch does not. */
+  private readonly onFocusIn = (event: FocusEvent) => {
+    const target = event.composedPath()[0];
+    if (this.keyboardOn || !(target instanceof Element) || !target.matches(':focus-visible')) return;
+    this.keyboardOn = true;
+    if (!this.returning && !this.open && this.triggers.has('focus')) this.startShow('focus');
+    this.settle();
+  };
+
+  private readonly onFocusOut = (event: FocusEvent) => {
+    const to = event.relatedTarget;
+    if (to instanceof Node && this.inAnchor(to)) return;
+    this.keyboardOn = false;
+    if (this.asked === 'focus' && !this.open) this.asked = null;
+    if (!this.open && !this.resting) this.clearShow();
+    this.settle();
+  };
+
+  /** POP-45: a press on the anchor or the opener ends the wait to open by hover; the pointer must leave and come back. */
+  private readonly onPress = () => {
+    if (this.open) return;
+    this.clearShow();
+    this.asked = null;
+  };
+
+  /** POP-18: the opener activated — by a pointer, a touch, Enter or Space — while trigger has press; POP-49: adopted. */
+  private readonly onOpenerClick = (event: MouseEvent) => {
+    if (!this.triggers.has('press') || !this.isConnected) return;
+    // A click that comes from inside the popover (one drawn inside its opener) is no press on the opener.
+    if (event.composedPath().includes(this)) return;
+    if (!this.open) this.requestOpen('press');
+    else if (this.byHover) this.adopt();
+    else this.requestShut('press');
+  };
+
+  /** The anchor and the opener: their pointer and focus are heard, and the opener's press. */
+  private hear(nodes: HTMLElement[]) {
+    const want = [...new Set(nodes)];
+    const opener = this.openerNode;
+    for (const node of this.heard) {
+      if (want.includes(node)) continue;
+      node.removeEventListener('pointerenter', this.onPointerEnter);
+      node.removeEventListener('pointerleave', this.onPointerLeave);
+      node.removeEventListener('focusin', this.onFocusIn);
+      node.removeEventListener('focusout', this.onFocusOut);
+      node.removeEventListener('pointerdown', this.onPress);
+      node.removeEventListener('click', this.onOpenerClick);
+    }
+    for (const node of want) {
+      if (!this.heard.includes(node)) {
+        node.addEventListener('pointerenter', this.onPointerEnter);
+        node.addEventListener('pointerleave', this.onPointerLeave);
+        node.addEventListener('focusin', this.onFocusIn);
+        node.addEventListener('focusout', this.onFocusOut);
+        node.addEventListener('pointerdown', this.onPress);
+      }
+      // Only the opener's press: the anchor's would be heard a second time where the opener stands inside it.
+      if (node === opener) node.addEventListener('click', this.onOpenerClick);
+      else node.removeEventListener('click', this.onOpenerClick);
+    }
+    this.heard = want;
+  }
+
+  /** Everything the triggers were waiting for or holding ends (the element left the page). */
+  private endTriggers() {
+    this.clearShow();
+    this.clearHide();
+    this.hovering = false;
+    this.onAnchor = false;
+    this.keyboardOn = false;
+    this.asked = null;
+    this.byHover = false;
+  }
 
   // ---- POP-18: the opener ----
 
@@ -637,7 +961,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       const opener = this.openerNode;
       this.dismiss.closeOwned();
       this.withdrawSheet(true);
-      returnOverlayFocus(opener, (node) => this.dismiss.owns(node));
+      this.giveBack(opener);
       this.lastReason = null;
       return;
     }
@@ -646,7 +970,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if (!this.inline && this.dismiss.active) {
       const opener = this.openerNode;
       this.dismiss.closeOwned();
-      returnOverlayFocus(opener, (node) => this.dismiss.owns(node));
+      this.giveBack(opener);
       if (this.lastReason === 'outside') keepOverlayFocusAfterPress(opener);
       this.dismiss.stop();
     }
@@ -654,11 +978,22 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     this.anchored.hide();
   }
 
+  /** POP-22: focus goes back to the opener if it was inside; POP-50: given back, it opens nothing by focus. */
+  private giveBack(opener: HTMLElement | null) {
+    this.returning = true;
+    try {
+      returnOverlayFocus(opener, (node) => this.dismiss.owns(node));
+    } finally {
+      this.returning = false;
+    }
+  }
+
   // ---- POP-39 to POP-43: a compact window ----
 
   /** POP-39, POP-43: whether it is drawn as a sheet now, were it open: a compact window, unless it keeps its own presentation. */
   private wantsSheet(): boolean {
-    if (this.inline || this.initialFocus === 'anchor' || this.compactPresentation === 'own') return false;
+    // POP-43, POP-47: open by hover or focus, it stays beside its anchor.
+    if (this.inline || this.byHover || this.initialFocus === 'anchor' || this.compactPresentation === 'own') return false;
     return this.compact.read(this.find('.probe'));
   }
 
@@ -786,7 +1121,18 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if (scrim) this.requestClose('outside');
   };
 
-  protected override willUpdate() {
+  protected override willUpdate(changed: PropertyValues<this>) {
+    // POP-47: open by hover or focus when it opens after asking for that, and nothing else since; the waits end.
+    if (changed.has('open')) {
+      if (this.open) {
+        this.byHover = this.asked !== null;
+        this.clearShow();
+      } else {
+        this.byHover = false;
+        this.clearHide();
+      }
+      this.asked = null;
+    }
     // POP-39, POP-42: the presentation is decided while it is open, and kept while it closes (its exit is drawn in it).
     if (!this.open || !this.hasUpdated) return;
     const sheet = this.wantsSheet();
@@ -833,8 +1179,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       this.switchPresentation();
     }
     if (want && !this.presented) {
-      // POP-19: a popover mounted with open true (or shown again by anything but `open`) moves no focus.
-      this.present(opening && !this.first && !mode);
+      // POP-19: a popover mounted with open true (or shown again by anything but `open`) moves no focus; POP-47: nor
+      // one opened by hover or focus.
+      this.present(opening && !this.first && !mode && !this.byHover);
       if (this.presented) this.observe();
     } else if (!want && this.presented) this.withdraw();
     else if (this.presented) {
@@ -843,7 +1190,12 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       this.anchored.place();
       this.syncScroll();
     }
-    this.state(this.openerTarget);
+    // POP-18: the opener says it opens a dialog only where a press opens it.
+    this.state(this.triggers.has('press') ? this.openerTarget : null);
+    this.hear([this.anchorNode, this.openerNode].filter((node): node is HTMLElement => !!node));
+    // POP-48: open by hover or focus, what holds it is watched from now on (the pointer may have left already).
+    this.track(this.hovering || this.byHover);
+    if (changed.has('open')) this.settle();
     this.first = false;
   }
 
@@ -861,6 +1213,21 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if (changed.has('width') && !WIDTHS.includes(this.width)) report(this, 'POP-37', `width "${String(this.width)}" is not one of ${WIDTHS.join(', ')}; the popover is as wide as its content`);
     if (changed.has('initialFocus') && !INITIAL_FOCUS.includes(this.initialFocus)) {
       report(this, 'POP-37', `initial-focus "${String(this.initialFocus)}" is not one of ${INITIAL_FOCUS.join(', ')}; focus moves into the popover`);
+    }
+    if (changed.has('trigger')) {
+      const list: unknown[] = Array.isArray(this.trigger) ? this.trigger : [];
+      const unknown = list.filter((each) => !TRIGGERS.includes(each as TanreiPopoverTrigger));
+      if (unknown.length) report(this, 'POP-37', `trigger ${unknown.map((each) => JSON.stringify(String(each))).join(', ')} is not one of ${TRIGGERS.join(', ')}; it is ignored`);
+      if (!list.some((each) => TRIGGERS.includes(each as TanreiPopoverTrigger))) report(this, 'POP-37', `trigger names none of ${TRIGGERS.join(', ')}; the popover opens on a press`);
+    }
+    for (const [prop, attribute, token] of [
+      ['showDelay', 'show-delay', 'comp.popover.motion.show-delay'],
+      ['hideDelay', 'hide-delay', 'comp.popover.motion.hide-delay'],
+    ] as const) {
+      const value: unknown = this[prop];
+      if (changed.has(prop) && value !== null && value !== undefined && !usableLength(value)) {
+        report(this, 'POP-51', `${attribute} ${JSON.stringify(String(value))} is not a number of milliseconds of 0 or more; ${token} is waited instead`);
+      }
     }
     const offset: unknown = this.offset;
     if (changed.has('offset') && offset !== null && offset !== undefined && !usableLength(offset)) {
@@ -920,7 +1287,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       <span class="focus whole" data-tanrei-shape></span>
     `;
     // POP-39: the resolved compact.window-width, which the script matches the window against.
-    const probe = html`<span class="probe" aria-hidden="true"></span>`;
+    // POP-45, POP-48: the show and hide delays the tokens resolve to, read by the script.
+    const probe = html`<span class="probe" aria-hidden="true"></span><span class="timing" aria-hidden="true"></span>`;
     if (this.sheet) {
       // POP-39, POP-40: the bottom sheet's appearance — a native modal <dialog> over the bottom sheet's scrim. It is the
       // surface that appears (POP-41, MOT-4): settling leaves its slide alone, as a dialog's and a bottom sheet's.
