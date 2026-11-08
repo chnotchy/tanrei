@@ -73,9 +73,9 @@ const flatParent = (node: Node): Node | null => {
  *
  * It holds the menu's own item elements as its children, exactly as `<tanrei-menu>` holds them, and forwards them — each
  * in a slot of its own, none of them moved — into a Tanrei Menu in its shadow root, a manual popover in the top layer
- * placed below its title. The host is the title: `role="menuitem"` with `aria-haspopup="menu"`, `aria-expanded`,
- * `aria-disabled`, its position among the bar's titles, and the bar's roving `tabindex`; it draws its label in its shadow
- * root from the `--tanrei-comp-menubar-*` tokens of its condition (unselected, or expanded while its menu is open) and
+ * placed below its title, created when the menu is first shown (MBR-49). The host is the title: `role="menuitem"` with
+ * `aria-haspopup="menu"`, `aria-expanded`, `aria-disabled`, its position among the bar's titles, and the bar's roving
+ * `tabindex`; it draws its label in its shadow root from the `--tanrei-comp-menubar-*` tokens of its condition (unselected, or expanded while its menu is open) and
  * state. The bar it is in does the rest: the keys, the pointer, which menu is open, and folding it into the overflow
  * item when the row has no room — it is then drawn as a submenu item of the overflow item's menu, with the same label
  * and the same items, and `open` and `toggle` mean the same there.
@@ -122,6 +122,8 @@ export class TanreiMenubarMenu extends TanreiElement {
   private place: Place = NOWHERE;
   /** MBR-4, MBR-5: focus a pointer's act gave the title, which is not the focused state and draws no ring. */
   private pointerFocused = false;
+  /** MBR-49: the menu has been shown once, so its surface is built — and kept, to close with its motion and open again. */
+  private built = false;
   private readonly children$ = new MutationObserver(() => this.readChildren());
 
   /**
@@ -324,6 +326,14 @@ export class TanreiMenubarMenu extends TanreiElement {
     if (this.place.folded) {
       return html`<tanrei-submenu label=${this.label} ?disabled=${this.disabled} .open=${shown} @toggle=${this.onSubmenuToggle}>${slots}</tanrei-submenu>`;
     }
+    // MBR-49: no menu is built until it is first shown. Built in the render that shows it, it is mounted open — in the
+    // same task as the input, placed, appearing (MNU-4: mounted after the first paint, with its motion; MBR-29: without
+    // it where it takes another's place) and taking focus (MNU-1) as a menu built before would. Until then the items
+    // stay in the light tree, assigned to no slot, and are drawn nowhere.
+    if (shown) this.built = true;
+    const surface = this.built
+      ? html`<tanrei-menu class="menu" aria-label=${this.label || nothing} .bar=${this.channel} .open=${shown} ?inline=${this.place.inline && shown} @close=${this.onMenuClose}>${slots}</tanrei-menu>`
+      : nothing;
     return html`<span
         class=${classMap({ title: true, p: true, d: this.disabled, expanded: shown, pf: this.pointerFocused })}
         @pointerdown=${this.press.onPointerDown}
@@ -338,7 +348,7 @@ export class TanreiMenubarMenu extends TanreiElement {
               : nothing}</span
           ></span
         ></span
-      ><tanrei-menu class="menu" aria-label=${this.label || nothing} .bar=${this.channel} .open=${shown} ?inline=${this.place.inline && shown} @close=${this.onMenuClose}>${slots}</tanrei-menu>`;
+      >${surface}`;
   }
 }
 
