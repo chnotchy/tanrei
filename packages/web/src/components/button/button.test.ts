@@ -54,6 +54,43 @@ test.describe('behavior', () => {
     await expect(target.getByRole('button', { disabled: true })).toHaveCount(1);
   });
 
+  test('BTN-2, BTN-32: one change of disabled — the property set or unset, a fieldset around the button disabled or enabled — is drawn in one update, and drawn as it is', async ({ page }) => {
+    // Each change is made in one task; what it queued (the reflected attribute's word from the platform, a frame's
+    // work) has run two frames later. The updates of this one button are counted.
+    const drawn = await page.evaluate(async () => {
+      const frames = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const proto = customElements.get('tanrei-button')!.prototype as { updated: (...args: unknown[]) => unknown };
+      const updated = proto.updated;
+      let updates = 0;
+      proto.updated = function (this: HTMLElement, ...args: unknown[]) {
+        if (this.id === 'counted') updates++;
+        return updated.apply(this, args);
+      };
+      const fieldset = document.createElement('fieldset');
+      const button = Object.assign(document.createElement('tanrei-button'), { id: 'counted', label: 'Save' }) as HTMLElement & { disabled: boolean };
+      fieldset.append(button);
+      document.body.append(fieldset);
+      await frames();
+      const changes: [string, () => void][] = [
+        ['disabled set', () => (button.disabled = true)],
+        ['disabled unset', () => (button.disabled = false)],
+        ['fieldset disabled', () => (fieldset.disabled = true)],
+        ['fieldset enabled', () => (fieldset.disabled = false)],
+      ];
+      const counts: Record<string, [number, boolean]> = {};
+      for (const [name, change] of changes) {
+        updates = 0;
+        change();
+        await frames();
+        counts[name] = [updates, !!button.shadowRoot!.querySelector('button')!.disabled];
+      }
+      proto.updated = updated;
+      fieldset.remove();
+      return counts;
+    });
+    expect(drawn).toEqual({ 'disabled set': [1, true], 'disabled unset': [1, false], 'fieldset disabled': [1, true], 'fieldset enabled': [1, false] });
+  });
+
   // Precedence between focused and pressed cannot be SEEN here (the default gives both 0.1): see the acme test below.
   test('BTN-3: each state renders from that state’s tokens (default system)', async ({ page }) => {
     const target = page.locator(button('filled-medium'));

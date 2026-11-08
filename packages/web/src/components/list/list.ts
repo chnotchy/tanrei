@@ -625,10 +625,20 @@ export class TanreiListItem extends TanreiElement {
     }
   }
 
-  /** The content changed: what it holds is inspected, the list hears that the item's name may have changed. */
+  /** What the item draws from its content — its List rows' name and description, and its text (the handle's name) — as its last update read it. */
+  private drawnContent = '';
+
+  private get contentRead(): string {
+    return [this.contentName, this.contentDescription, spoken(this.textContent)].join('\n');
+  }
+
+  /**
+   * The content changed: what it holds is inspected, the list hears that the item's name may have changed, and the
+   * item is drawn again where what it draws from its content did — not for the content its first update already read.
+   */
   #onContentChange() {
     this.tellContent();
-    this.requestUpdate();
+    if (this.contentRead !== this.drawnContent) this.requestUpdate();
     void this.inspectContent();
     this.reportName();
     if (this.hasUpdated) notifyItemUpdate(this, 'tanrei-list-item-update');
@@ -678,6 +688,7 @@ export class TanreiListItem extends TanreiElement {
   /** LST-48: a List row in the content is told what the item is before the item is drawn as that. */
   protected override willUpdate() {
     this.tellContent();
+    this.drawnContent = this.contentRead;
     // LST-52: an action's role is carried inside: what the product writes on the host is moved there in that mode alone.
     syncDelegation(this, ITEM_HOST_ARIA);
   }
