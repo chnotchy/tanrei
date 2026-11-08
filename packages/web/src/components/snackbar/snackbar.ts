@@ -10,6 +10,8 @@ import {
   SystemWatchController,
   compChoice,
   containedWheel,
+  deepActive,
+  focusWithin,
   giveTone,
   giveVariant,
   modalLayer,
@@ -312,6 +314,19 @@ export class TanreiSnackbar extends TanreiElement {
     return this.appear.exit(!this.isConnected);
   }
 
+  /**
+   * @internal SNK-39: keyboard focus to its first focus stop in SNK-11's order — the text while it scrolls, the action,
+   * the expand button, the close button — with its focus indicator. Returns whether focus is now inside it; false where it
+   * has no stop, or where focus cannot land there (inert behind a modal dialog that is not Tanrei's).
+   */
+  focusFirst(): boolean {
+    const root = this.renderRoot;
+    const first = root?.querySelector<HTMLElement>('.text[tabindex="0"]') ?? root?.querySelector<HTMLElement>('.action') ?? root?.querySelector<HTMLElement>('tanrei-button.expand') ?? root?.querySelector<HTMLElement>('tanrei-button.close');
+    if (!first) return false;
+    first.focus({ focusVisible: true } as FocusOptions);
+    return focusWithin(this);
+  }
+
   /** @internal The host closed it (dismissCurrent, clear): `dismiss` with the reason host. */
   dismissByHost() {
     this.settle('dismiss', 'host');
@@ -579,11 +594,12 @@ interface Request {
  * SNK-38: what the person does in a snackbar shown inside a modal surface goes no further than the box it is in, so that
  * the surface never reads it as its own: a press is not a press on its scrim, an arrow key does not move its content (an
  * image preview's), a wheel does not zoom it. Tab goes on, so that the surface's focus trap counts the snackbar's controls
- * with its own; Escape is the snackbar's (SNK-11), which stops it itself.
+ * with its own, and F6, which the host hears on the window (SNK-39); Escape is the snackbar's (SNK-11), which stops it
+ * itself.
  */
 const KEPT_IN_MOUTH = ['keydown', 'keyup', 'keypress', 'pointerdown', 'pointerup', 'pointermove', 'pointercancel', 'mousedown', 'mouseup', 'click', 'dblclick', 'auxclick', 'contextmenu', 'wheel', 'touchstart', 'touchmove', 'touchend', 'touchcancel'] as const;
-/** The keys that go on out of the box (SNK-38): Tab, which the surface's focus trap answers. */
-const KEYS_OUT_OF_MOUTH = new Set(['Tab']);
+/** The keys that go on out of the box (SNK-38): Tab, which the surface's focus trap answers, and F6 (SNK-39). */
+const KEYS_OUT_OF_MOUTH = new Set(['Tab', 'F6']);
 const keepInMouth = (event: Event) => {
   if (event instanceof KeyboardEvent && KEYS_OUT_OF_MOUTH.has(event.key)) return;
   event.stopPropagation();
@@ -619,6 +635,10 @@ interface Mouth {
  *
  * `show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.
  * `dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.
+ *
+ * F6 or Shift+F6 moves keyboard focus to the showing snackbar's first control from wherever it is, and from inside it back
+ * to where it was (SNK-39); `focusCurrent()` moves it there from a shortcut of the product's own. A product that gives F6
+ * a meaning of its own keeps it by handling the key first (`preventDefault()`): the host leaves a key that is handled.
  *
  * @tag tanrei-snackbar-host
  * @slot - The snackbar being shown (the host puts it there).
@@ -656,6 +676,7 @@ export class TanreiSnackbarHost extends TanreiElement {
   override connectedCallback() {
     super.connectedCallback();
     this.unsubscribe = modalLayer.subscribe(this.onLayer);
+    window.addEventListener('keydown', this.onShortcut);
     document.addEventListener('visibilitychange', this.onConditions);
     window.addEventListener('blur', this.onConditions);
     window.addEventListener('focus', this.onConditions);
@@ -665,6 +686,7 @@ export class TanreiSnackbarHost extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.unsubscribe?.();
+    window.removeEventListener('keydown', this.onShortcut);
     document.removeEventListener('visibilitychange', this.onConditions);
     window.removeEventListener('blur', this.onConditions);
     window.removeEventListener('focus', this.onConditions);
@@ -695,6 +717,44 @@ export class TanreiSnackbarHost extends TanreiElement {
     for (const request of this.queue.splice(0)) request.resolve({ result: 'dismiss', reason: 'host' });
     this.dismissCurrent();
   }
+
+  /**
+   * SNK-39: moves keyboard focus to the showing snackbar's first control — the text while it scrolls, the action, the
+   * expand button or the close button — as F6 does, for a shortcut of the product's own. Returns whether focus moved
+   * there: false while no snackbar is shown or the one shown has no control. Focus goes back to where it was with F6, or
+   * when the snackbar closes (SNK-11).
+   */
+  focusCurrent(): boolean {
+    const current = this.current;
+    if (!current?.visible) return false;
+    if (focusWithin(current.snackbar)) return true;
+    const from = deepActive();
+    if (!current.snackbar.focusFirst()) return false;
+    // Where it was, as deep as it was: an element inside another component's shadow root, not that component.
+    this.returnFocus = from && from !== document.body ? from : null;
+    return true;
+  }
+
+  /**
+   * SNK-39: F6 or Shift+F6 — to the showing snackbar's first control, or from inside it back to where focus was. Heard on
+   * the window as the key leaves the page, so that a key the product has handled (`defaultPrevented`) is left alone, as
+   * is the key while no snackbar with a control is shown: F6 then keeps the browser's own meaning.
+   */
+  private readonly onShortcut = (event: KeyboardEvent) => {
+    if (event.key !== 'F6' || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+    const current = this.current;
+    if (!current?.visible) return;
+    if (!focusWithin(current.snackbar)) {
+      if (this.focusCurrent()) event.preventDefault();
+      return;
+    }
+    event.preventDefault();
+    // Back to where focus was before it entered the snackbar or, where that is gone or cannot take it (inert behind the
+    // modal surface the snackbar now shows in), to the platform's default.
+    const back = this.returnFocus as HTMLElement | null;
+    if (back?.isConnected && typeof back.focus === 'function') back.focus({ focusVisible: true } as FocusOptions);
+    if (focusWithin(current.snackbar)) (deepActive() as HTMLElement | null)?.blur();
+  };
 
   /** The snackbar being shown, if any. */
   get snackbar(): TanreiSnackbar | null {
