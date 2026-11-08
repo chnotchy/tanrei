@@ -52,7 +52,7 @@
     }
   }
   /* The appearance's button: in the bar's context in a medium or wider window, first in the drawer's list in a
-     compact one, where the bar has no room for it beside the wordmark and three actions (Header.astro). */
+     compact one, where the bar has no room for it beside the wordmark and the actions (Header.astro). */
   .docs-look-row {
     display: none;
   }
@@ -90,7 +90,7 @@
   tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-compact-only {
     display: inline-flex;
   }
-  /* A bar too narrow for the brand beside the menu button, the design system and three actions (a 320 wide window,
+  /* A bar too narrow for the brand beside the menu button, the design system and the three actions that stay (a 320 wide window,
      or text twice its size) leaves the brand out: the widths are the reader's text size, as the shell's are (APS-2).
      The design system's button still says the name, and the first level of the breadcrumbs still leads home. */
   tanrei-app-shell > [slot='header'] {
@@ -98,6 +98,10 @@
   }
   @container docs-header (inline-size < 22rem) {
     .docs-brand {
+      display: none;
+    }
+    /* The repository's link leaves before the brand does (Header.astro): the room the brand gives up is not its. */
+    #docs-repository {
       display: none;
     }
   }
@@ -128,6 +132,11 @@
   }
   tanrei-app-bar:not(:defined) > .docs-look {
     display: inline-flex;
+  }
+  /* The repository's link is drawn once the bar is defined, which decides whether the row has room for it (APB-26):
+     it stands before the search, so that drawing it then moves nothing. Without script the foot of the page links it. */
+  tanrei-app-bar:not(:defined) > #docs-repository {
+    display: none;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
     display: inline-flex;
@@ -164,6 +173,7 @@
     block-size: var(--tanrei-sys-icon-medium);
     overflow: hidden;
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-sys-icon-medium);
     font-variation-settings: 'FILL' var(--tanrei-sys-icon-fill-unselected), 'wght' var(--tanrei-sys-icon-weight), 'GRAD' 0;
     font-feature-settings: 'liga';
@@ -188,6 +198,7 @@
     block-size: var(--tanrei-comp-button-icon-size-medium);
     overflow: hidden;
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--tanrei-comp-button-icon-size-medium);
     font-feature-settings: 'liga';
     line-height: 1;

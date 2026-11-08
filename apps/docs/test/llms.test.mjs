@@ -1,6 +1,7 @@
 // The site's text for language models (src/lib/llms.ts): `/llms.txt` and each system's `/systems/<id>/llms.txt` in
-// the llms.txt form (https://llmstxt.org/: one H1, a blockquote, sections of link lines), following each system's
-// components manifest — the default index names no component the default system does not ship; every component's
+// the llms.txt form (https://llmstxt.org/: one H1, a blockquote, sections of link lines), its sections the sidebar's
+// groups in the sidebar's order, each link the page as Markdown, following each system's components manifest — the
+// default index names no component the default system does not ship; every component's
 // page as Markdown, with every requirement of its spec by id; `/llms-full.txt` under a size it is watched against; the
 // head's link to a page's Markdown; and that a crawler may read all of them. Everything is compared with the files the
 // site reads (the manifests, the specs, the token documents), read from disk.
@@ -13,7 +14,9 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { componentMarkdown, llmsFull, llmsIndex, markdownPath, pageGroups, PAGE_FOLDERS, standIns, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
+const { componentMarkdown, llmsFull, llmsIndex, markdownPath, pageGroups, pageMarkdownPath, standIns, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
+const { SIDEBAR_GROUPS } = await import('../src/lib/sidebar.mjs');
+const { componentPages } = await import('../src/lib/listing.mjs');
 const { componentTokenSources, config, statusComponents } = await import('../src/lib/repo.ts');
 const { expandStateVocabulary } = await import('../../../packages/token-engine/src/states.js');
 const { translations } = await import('../i18n/locales.mjs');
@@ -93,11 +96,37 @@ describe('the indexes', () => {
       assert.equal(sections.at(-1).title, 'Optional');
     });
 
-    test(`${name}: lists the components its manifest ships, first, and the others apart`, () => {
+    test(`${name}: has the sidebar's groups for its sections, in the sidebar's order, the components where the sidebar has them`, () => {
+      const manifest = manifests.get(id ?? defaultId);
+      const expected = SIDEBAR_GROUPS.flatMap((group) =>
+        'components' in group
+          ? [`Components in ${manifest.name}`, 'Design systems']
+          : [group.label],
+      );
+      const titles = sections.map((section) => section.title).filter((title) => !/^(Advanced components in|Components not in) /.test(title));
+      assert.deepEqual(titles, [...expected, 'Optional']);
+      // The advanced components and those the system does not ship follow its components, before the systems.
+      const at = (pattern) => sections.findIndex((section) => pattern.test(section.title));
+      const shippedAt = at(/^Components in /);
+      const systemsAt = at(/^Design systems$/);
+      for (const pattern of [/^Advanced components in /, /^Components not in /]) {
+        const index = at(pattern);
+        if (index !== -1) assert.ok(shippedAt < index && index < systemsAt, `${pattern}: between the components and the systems`);
+      }
+    });
+
+    test(`${name}: lists each list of components in the sidebar's order`, () => {
+      // A component with no page of its own (the prose styles) is in no group of the sidebar: after those that are.
+      const rank = (name) => { const at = componentPages(statusComponents).findIndex((row) => row.name === name); return at === -1 ? Infinity : at; };
+      for (const section of sections.filter((each) => /[Cc]omponents (not )?in /.test(each.title))) {
+        const names = section.links.map((link) => componentOf(link.url));
+        assert.deepEqual(names.map(rank), names.map(rank).sort((a, b) => a - b), section.title);
+      }
+    });
+
+    test(`${name}: lists the components its manifest ships, and the others apart`, () => {
       const manifest = manifests.get(id ?? defaultId);
       const shipped = new Set(manifest.components.map((component) => component.name));
-      const [first] = sections;
-      assert.match(first.title, /^Components in /);
       const inShipped = sections.filter((section) => /^(Advanced )?[Cc]omponents in /.test(section.title)).flatMap((section) => section.links.map((link) => componentOf(link.url)));
       assert.deepEqual([...inShipped].sort(), [...shipped].sort());
       const apart = sections.find((section) => section.title.startsWith('Components not in'));
@@ -114,13 +143,15 @@ describe('the indexes', () => {
     test(`${name}: links to a page, a system or a file the site builds`, () => {
       const pages = new Set(statusComponents.filter((row) => row.hasSpec && row.docs).map((row) => markdownPath(row.name)));
       const systems = new Set(systemIds.map(systemIndexPath));
-      const content = new Set(groups.flatMap((group) => group.pages.map((page) => page.href)));
+      const content = new Set(groups.flatMap((group) => group.pages.map((page) => pageMarkdownPath(page.href))));
       for (const { url } of sections.flatMap((section) => section.links)) {
         const address = new URL(url);
         if (address.origin !== site.origin) continue;
         const path = address.pathname;
-        assert.ok(pages.has(path) || systems.has(path) || content.has(path) || ['/llms-full.txt', '/status/'].includes(path), url);
+        assert.ok(pages.has(path) || systems.has(path) || content.has(path) || path === '/llms-full.txt', url);
       }
+      // A page of the site is linked as its Markdown, never as its HTML.
+      for (const { url } of sections.flatMap((section) => section.links)) if (new URL(url).origin === site.origin) assert.doesNotMatch(new URL(url).pathname, /\/$/, url);
     });
   }
 
@@ -141,15 +172,21 @@ describe('the indexes', () => {
     }
   });
 
-  test("lists every English page of the site's folders, and no translation", () => {
+  test("lists every page of the sidebar but the components, in its order, in English, and no translation", () => {
     const pages = groups.flatMap((group) => group.pages);
-    for (const [folder] of PAGE_FOLDERS) {
-      const files = fs.readdirSync(here(`../src/content/docs/${folder}/`)).filter((file) => /\.mdx?$/.test(file));
-      const listed = pages.filter((page) => page.href === `/${folder}/` || page.href.startsWith(`/${folder}/`));
-      assert.equal(listed.length, files.length, folder);
-      for (const page of listed) assert.ok(page.title, page.href);
-    }
+    const slugs = SIDEBAR_GROUPS.flatMap((group) => ('components' in group ? [] : group.items));
+    assert.deepEqual(pages.map((page) => page.href), slugs.map((slug) => `/${slug}/`));
+    for (const page of pages) assert.ok(page.title, page.href);
     for (const { dir } of translations) assert.ok(!pages.some((page) => page.href.startsWith(`/${dir}/`)), dir);
+    assert.throws(() => pageGroups([], []), /The sidebar names the page "getting-started"/);
+  });
+
+  test('the default index lists the getting-started pages in the sidebar\'s order, each as its Markdown', () => {
+    const { sections } = parse(llmsIndex(site, groups));
+    const start = sections.find((section) => section.title === 'Getting started');
+    assert.deepEqual(start.links.slice(0, 2).map((link) => link.url), [new URL('/getting-started.md', site).href, new URL('/getting-started/web.md', site).href]);
+    const project = sections.find((section) => section.title === 'Project');
+    assert.equal(project.links[0].url, new URL('/status.md', site).href);
   });
 });
 
@@ -255,6 +292,21 @@ describe('llms-full.txt', () => {
   test(`stays under ${CEILING} bytes`, () => {
     const bytes = Buffer.byteLength(text);
     assert.ok(bytes < CEILING, `llms-full.txt is ${bytes} bytes`);
+  });
+});
+
+describe('a reader finds the index from any page', () => {
+  // llms.txt proposes the relation `describedby` from a page to the llms.txt that covers it, as a link element or as a
+  // Link header (https://llmstxt.org/).
+  test('an HTML page names it in its head (Head.astro)', () => {
+    const head = fs.readFileSync(here('../src/components/frame/Head.astro'), 'utf8');
+    assert.match(head, /^<link rel="describedby" href="\/llms\.txt" \/>$/m);
+  });
+  test('a page’s Markdown names it in a Link header, and an HTML page has no Link header of ours (public/_headers)', async () => {
+    const { headerRules, headersFor } = await import('./browser/host.mjs');
+    const rules = headerRules(fs.readFileSync(here('../public/_headers'), 'utf8'));
+    for (const path of ['/foundations/color.md', '/ja/components/button.md', '/index.md']) assert.equal(headersFor(rules, path).link, '</llms.txt>; rel="describedby"', path);
+    for (const path of ['/', '/foundations/color/', '/llms.txt']) assert.equal(headersFor(rules, path).link, undefined, path);
   });
 });
 

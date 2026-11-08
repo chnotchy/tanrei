@@ -129,6 +129,12 @@ The send button is enabled only while all of these are true. For each one that i
 | `uploading` | A file item's status is `uploading` |
 | `failed` | A file item has failed and can be tried again |
 
+### Attachments coming and going
+
+When a file is attached or removed, the capsule changes height in one motion. The strip of files opens or closes above the typing row, so the line being written, its actions and the send button keep their place against the capsule's bottom edge, and the files that stay keep theirs against its top edge; nothing in the capsule scrolls. A new file item fades in at its place, a removed one fades out where it was, and the others slide to their new places. What a person and assistive technology are given changes at once: a removed file item leaves the focus order and the accessibility tree as soon as it is removed, and whether the message can be sent is decided from the files there now.
+
+When the send button becomes the stop button, or back, the button changes at once — its name, its action and whether it is enabled — and only its glyph cross-fades. Where motion is reduced, all of this happens at once.
+
 ### The keys
 
 Enter sends and Shift+Enter begins a new line. With `sendKey="modifier"`, Enter begins a new line. Ctrl+Enter and Command+Enter send with either value of `sendKey`. An input method's Enter never sends.

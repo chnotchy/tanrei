@@ -40,6 +40,7 @@ const SUBJECTS: Record<string, (rest: string) => string> = {
   'tanrei-slider-field': (rest) => `<tanrei-slider-field label="Slider" value="40" ${rest}></tanrei-slider-field>`,
   'tanrei-radio-button': (rest) => `<tanrei-radio-button label="Radio" value="a" checked ${rest}></tanrei-radio-button>`,
   'tanrei-radio-group': (rest) => `<tanrei-radio-group label="Radio group" value="a" ${rest}>${RADIOS}</tanrei-radio-group>`,
+  'tanrei-rating': (rest) => `<tanrei-rating label="Rating" value="3" ${rest}></tanrei-rating>`,
   'tanrei-search': (rest) => `<tanrei-search label="Search" value="a" ${rest}></tanrei-search>`,
   // A Button is one of its form's controls and adds to a submission only when it is the button pressed (BTN-29,
   // BTN-31): what it submits is read from the submission its own press makes.

@@ -70,7 +70,7 @@ The words are yours: Tanrei ships none. Give them on each element, or once for t
 </Example>
 
 - **Which numbers are shown.** The first and the last page (`boundaries`, 1 by default), the current page and one page on each side of it (`siblings`, 1 by default). The pages left out between them are one ellipsis. Near an end, more pages are shown on the other side, so the row holds the same number of places on every page and keeps its width.
-- **The current page** is drawn filled and is exposed as the current one. Activating it does nothing.
+- **The current page** is drawn filled and is exposed as the current one. Activating it does nothing. When the page changes, the page that was current gives up its fill and the new page takes it over a short motion, while assistive technology is told the new page at once. Where motion is reduced, the change is drawn at once.
 - **Previous and next** are icon-only. They are disabled on the first and on the last page, and keep their places. **First and last** are drawn on either side of them with `first-last`.
 - **The short form** (`variant="compact"`) draws previous and next around your sentence, "Page 3 of 10". Without a sentence it draws the two numbers with a slash, "3 / 10", and a development build reports that the words are missing. The numbered form draws the short one by itself where it does not fit the width it is given.
 - **Two sizes**: `medium` (40) and `small` (32), for a dense place such as the status line of a [Table](/components/table/).

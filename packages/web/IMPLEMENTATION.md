@@ -880,9 +880,21 @@ focus, and observes its child list. When that member is among the removed nodes 
 fallen to the body, it calls `focus()` on the members that followed, then on those before, until one takes it: a chip
 takes it on its own button or link (the first focusable thing in its shadow root, never the remove action), a tag and a
 disabled chip do not. If the product has already moved focus, or nothing takes it, the group does nothing. Two cases
-beyond the spec's words: a member that was only moved inside the group is focused again; and where the product wrote
-the whole set again (no former member is left), the member that now stands at the removed one's place is tried first —
-chips written a moment ago are waited for (`updateComplete`).
+beyond the spec's words: where the product wrote the whole set again (no former member is left), the member that now
+stands at the removed one's place is tried first — chips written a moment ago are waited for (`updateComplete`); and a
+member the product moved inside the group is focused again (TGR-10). Chromium fires `focusout` while it removes the
+focused element, and the group's check of that event runs before its observer is told of the move, so the check first
+reads the change of the child list still to be reported (`takeRecords()`).
+
+**Changes of the set (TGR-10).** A member that changes place moves by a `translate` animation added to its own
+(`composite: 'add'`), from where it was drawn. A member that is added fades in by an opacity animation; one that is
+removed is put back as the group's child, before the member that followed it, for the length of its fade-out — `inert`,
+`aria-hidden="true"`, `data-leaving`, and absolutely placed at the box it was drawn in, the list being its containing
+block only while the custom state `leaving` is set — then removed, its own `inert` and `aria-hidden` given back. An
+element given anew in place of a removed one with the same tag, kind, label and text moves as that member, without a
+fade. All of it reads its time and curve from the list's computed transition, which carries the two motion tokens. The
+first frames, an empty group's first member and its last, and a new width, direction or gap draw at once; reduced
+motion places at once and keeps the fades.
 
 **Debug reports.** A `tanrei-chip` while `spacing` is `tags` (TGR-4); content that is not a tag or a chip (TGR-11); an
 unknown `spacing` (TGR-16). An empty group reports nothing.
@@ -2418,6 +2430,66 @@ is a form-associated element that is validated; the radio group inside it is the
 Limits: `aria-*` attributes the product writes on the host do not reach the element with the role; a radio button
 inside a shadow root of the product's own, inside the group, is not found (`closest()` and `querySelectorAll()` stop
 at the root).
+
+## `<tanrei-rating>`
+
+A score out of a few marks, given or shown (specs/rating.spec.json). One element, form-associated; every mark is drawn
+in its shadow root.
+
+```html
+<tanrei-rating name="score" label="Your rating of this recipe"></tanrei-rating>
+<tanrei-rating label="Your rating" allow-half value="3.5"></tanrei-rating>
+<tanrei-rating label="Average rating" value="4.3" read-only value-text="4.3 out of 5 stars, 128 reviews"></tanrei-rating>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `value` | number | `0` | the score, 0 to `max`; 0 is none. Drawn and exposed clamped and at the nearest score it can show (RAT-14) |
+| `max` | number | `5` | how many marks; the whole number below it, at least 1 |
+| `allowHalf` / `allow-half` | boolean | `false` | halves can be given; reflected |
+| `size` | `small` \| `medium` \| `large` (+ added) | `medium` | the mark (`mark.size`) and the round container behind it (`container.size`); reflected |
+| `icon` | string | `""` | a glyph of the icon set; empty draws `star` |
+| `label` | string | `""` | the accessible name, never drawn; required |
+| `optionLabels` / `option-labels` | string[] | `[]` | each score's name, lowest first; the attribute is a JSON array |
+| `valueText` / `value-text` | string | `""` | how a read-only score is read |
+| `readOnly` / `read-only` | boolean | `false` | one image with a name; reflected |
+| `disabled`, `name` | | | the platform's; `form` is the platform's attribute |
+
+`change` and `preview` are `CustomEvent`s whose `detail.value` is the new score, or the score a fine pointer would give
+(`null` when it leaves). Neither fires for a value the product sets.
+
+**What it is to assistive technology** follows the number of choices (WAI-ARIA APG: a radio group suits up to seven,
+a slider more). The shadow root holds one `.row` — `role="radiogroup"` with one `role="radio"` span per mark and a
+roving `tabindex` (not `<input type="radio">`, whose name group cannot reach across shadow roots); `role="slider"`
+with `aria-valuemin="0"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` from `optionLabels`; or `role="img"`
+with `aria-label` and `aria-description` (read-only). `focus()` on the host focuses the stop: the checked radio, the
+first, or the slider. The radio group's keys are the radio group's (RGP-5, RGP-6); the slider's are the slider's; Enter
+submits the form through its default button (`pressDefaultButton()`), as Enter in the platform's radio does. Space
+on the checked mark changes nothing: no input takes a score back to 0 (as a radio group has none; a product that needs it
+places a Button that sets `value` to 0).
+
+**The drawing.** Each mark is a `.item` (the `container` part: the state layer, the ripple, the radio's focus ring)
+holding a `.mark` (the `mark` part) of two `.layer`s in one grid cell: `.off`, the icon set's unselected family and
+fill in `unselected.mark.color`, and `.on`, its selected family and fill in `selected.mark.color`. `data-fill`
+(`full`, `half`, `empty`) shows one of them or both; a half clips each layer to its half with `clip-path: inset()`,
+the halves swapped under `:dir(rtl)`. The clip is on the layer, the mirroring (`data-tanrei-mirrored`, by
+`GlyphMirrorController`) on the glyph inside it, so a mirrored glyph keeps its halves where the direction puts them.
+A change of score fades the layers' opacity over `motion.selection-duration`; a fade, so it stays under reduced
+motion (MOT-6). A mark with any of the score in it is in the selected condition: its container reads the selected
+condition's state tokens.
+
+**The hit area** (RAT-8) is the row's `::before`, reaching the minimum target above, below and past both ends; a point
+is read against the row (`scoreAt()`): the containers touch, so the mark whose slot of the row holds the point is the
+nearer one, and the end marks take what lies past the ends. Hover is `data-hovered`, written by the element on the mark
+the pointer would press — `:hover` on a container would miss the target's band above and below it. Each mark has its
+own `PressController`, so a press-hold on one mark is not cut short by a press on the next.
+
+**Forms.** Submits `value` under `name` while it is above 0 (a read-only rating too); disabled — by itself or a
+disabled `<fieldset>` — nothing. Resets to the value it had when first connected; restores the state the browser keeps.
+
+Limits: the web cannot tell a glyph name the icon set lacks from a font still loading, so an unknown `icon` draws its
+name in place of `star` and is not reported (RAT-18's last clause). `aria-*` the product writes on the host do not
+reach the element with the role.
 
 ## `<tanrei-select>`, `<tanrei-option>` and `<tanrei-option-group>`
 
@@ -4167,7 +4239,7 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 | The value member | None: it is a feature. `value` is the typing area's at every moment (an accessor over the member), and the form value is its own — a `FormData` with the text under `name` and each kept file under `files-name` |
 | Focus (W7) | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
 | The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
-| No custom property (W3) | The capsule holds its members, and a custom property on it would be inherited by each. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as a rule of a constructed stylesheet of the element's own (`measured()`), after its static sheet and in no cascade layer |
+| No custom property (W3) | The capsule holds its members, and a custom property on it would be inherited by each. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
 | What can be sent (CCM-9) | `reasons()`, read on demand; `sendablechange` after each update in which the answer or the reasons changed. The element's own `disabled` is read with the platform's present answer (`:disabled`), so that unsetting it says one change and not two |
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
@@ -6902,6 +6974,63 @@ transition during a drag. Outlined, a mouse over the frame sets `revealed` on it
 Handle's own rule.
 
 The fixtures are drawn by the test harness in a room 640 wide, their content a block in `surface-container-low`.
+
+## `<tanrei-split-view>`
+
+Two panes, side by side or one above the other, and a Handle on the line between them that shares the room
+(`specs/split-view.spec.json`, SPV-1…16). It is built from `<tanrei-handle>`: one, in its shadow root, given its `axis`,
+`value`, `min`, `max`, `label`, `valueText` and `disabled` by the split view on every render.
+
+```html
+<tanrei-split-view collapsible min-size="240" label="Resize the message list" style="block-size: 100dvh">
+  <nav slot="start" aria-label="Messages">…</nav>
+  <main slot="end">…</main>
+</tanrei-split-view>
+```
+
+| `<tanrei-split-view>` | Type | Default | |
+|---|---|---|---|
+| `axis` | `horizontal` \| `vertical` | `horizontal` | side by side, or one above the other; any other value is `horizontal`, reported (SPV-15); reflected |
+| `primary` | `start` \| `end` | `start` | the pane `value` measures and that folds away; reflected |
+| `value` | number | `50` | the primary pane's share of the region less the divider, in percent; drawn held between the least and the greatest share, kept as given |
+| `min` / `max` | number | `10` / `90` | percent; a range outside 0–100 or upside down is both defaults, reported |
+| `minSize` / `min-size`, `maxSize` / `max-size` | number \| null | `null` | pixels, on top of `min` and `max`; the least wins where both cannot hold (SPV-16) |
+| `step` / `largeStep` (`large-step`) | number | `5` / `20` | percent per arrow key, and with Shift or Page Up/Down |
+| `resetValue` / `reset-value` | number | `50` | where a press moves the line while the pane cannot fold (SPV-7) |
+| `collapsible`, `collapsed` | boolean | `false` | reflected; `collapsed` is ignored while `collapsible` is false |
+| `label`, `valueText` (`value-text`), `disabled` | | | the Handle's |
+
+| Event | When |
+|---|---|
+| `resize` | each frame a drag moves the line: `detail.value` (the share drawn, 0 while folded), `detail.collapsed` |
+| `change` | once a person has changed the share: a drag ended, a key, a press |
+| `toggle` | once a person has folded or restored the pane |
+
+All three are composed and bubble; the Handle's own events stay in the shadow root, where the split view hears them.
+
+**Layout (SPV-1, SPV-2, SPV-11).** The host is a block that takes the size its layout gives; `.split` is a flex row (a
+column while `axis` is vertical) of the start pane, the divider and the end pane, so the focus order is the start
+pane's content, the Handle, the end pane's. The primary pane's box is `calc((100% - divider.width) * share / 100)`
+along the axis, the share written as `--_spv-share` on that box; the other pane is `flex: 1 1 0`. Both panes are
+`overflow: clip`. The Handle is absolutely centred on the divider (`translate: -50% -50%`, which needs no mirroring), at
+`z-index: 1` within the host's `isolation: isolate`. The split view sets `aria-controls` on the Handle to the primary
+pane box's id; the Handle moves it to its separator by element reference (HDL-26). A `ResizeObserver` on `.split`
+measures the region along the axis less the divider, which the drag's percentages and the pixel bounds count against.
+
+**A drag, keys, a press (SPV-3…7).** `resizestart` stops a motion under way, takes the share drawn and sets
+`pointer-events: none` on every slotted `<iframe>`, `<object>` and `<embed>`; each `resize` sets `value` from the
+distance (taken the other way while the end pane is primary), or folds the pane past half the least share; `resizeend`
+sends one `change` and one `toggle` where each changed. `step` moves the share the way the key points (Home the least,
+End the greatest, whichever pane is primary); `activate` folds and restores, or moves to `resetValue` and back.
+
+**Motion (SPV-6, SPV-7, SPV-9, SPV-10).** `AnimatedSize` (src/primitives/motion.ts) on the primary pane's box, on its
+inline axis (its block axis while vertical): `motion.collapse-duration` for a fold, a restore and a press,
+`motion.resize-duration` for a share the product sets, both on `motion.collapse-easing`; a drag, a key and the first
+frame are drawn at once. The other pane follows in the layout at every frame. A folded pane's box is `inert` at once,
+and its content `visibility: hidden` after the fold's duration (a transition delay), at once where motion is reduced.
+
+The fixtures are drawn by the test harness in a region 480 × 200, each pane's content a block in
+`surface-container-low`.
 
 ## `<tanrei-side-sheet>`
 

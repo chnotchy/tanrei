@@ -4,7 +4,7 @@
 <!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
 > **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
 
-**Components:** 13 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
+**Components:** 15 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
 
 <!-- /tanrei:status -->
 
@@ -186,7 +186,27 @@ and Tanrei with it, by `import()`; a static `import` would load it before the te
 Tanrei references fonts by name and bundles none. Make the families your system names available, with `@font-face`
 or a font service, under exactly those names; `tanrei build` lists them. For the default system: `Inter`,
 `Noto Sans JP`, `Noto Sans`, `Roboto Mono`, and `Material Symbols Rounded` for icons (use `font-display: block` for
-the icon font, so that an icon never flashes as its name).
+the icon font, so that an icon does not flash as its name).
+
+`font-display: block` hides an icon's name only for the browser's block period, about 3 seconds; on a slower line the
+name is then drawn in a text face. To keep it hidden until the font can draw, set `--tanrei-icon-visibility: hidden` on
+the root while the icon font loads, and take it off once it can draw: every glyph the stylesheets draw in the light DOM
+(`.tanrei-icon`, a slotted one too, and the glyphs `link.css`, `prose.css` and the others generate) is not painted while
+it is set, and keeps its box, so nothing moves when it is taken off. The components' own marks need nothing: each
+draws nothing until the icon set can draw it. Set the switch from a script, so that a page whose script does not run
+is never left with it on, and say so when the font fails to load rather than leaving the icons hidden without a word:
+
+```html
+<script>
+  // In the head, after the stylesheet that registers the icon face (whose faces `load` reads), before the body.
+  const root = document.documentElement;
+  root.style.setProperty('--tanrei-icon-visibility', 'hidden');
+  document.fonts.load('24px "Material Symbols Rounded"', 'home').then(
+    (faces) => faces.length ? root.style.removeProperty('--tanrei-icon-visibility') : console.warn('The icon font is not registered: icons stay hidden.'),
+    () => console.warn('The icon font failed to load: icons stay hidden.'),
+  );
+</script>
+```
 
 ## Editors and tools
 

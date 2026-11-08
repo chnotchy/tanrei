@@ -154,6 +154,23 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
 
+## Rating
+
+| Fixture | Web Components |
+| --- | --- |
+| `empty` | <img src="../../packages/web/snapshots/rating/empty.png" alt="web empty" width="160"> |
+| `value` | <img src="../../packages/web/snapshots/rating/value.png" alt="web value" width="160"> |
+| `full` | <img src="../../packages/web/snapshots/rating/full.png" alt="web full" width="160"> |
+| `half` | <img src="../../packages/web/snapshots/rating/half.png" alt="web half" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/rating/small.png" alt="web small" width="160"> |
+| `large` | <img src="../../packages/web/snapshots/rating/large.png" alt="web large" width="160"> |
+| `ten` | <img src="../../packages/web/snapshots/rating/ten.png" alt="web ten" width="160"> |
+| `heart` | <img src="../../packages/web/snapshots/rating/heart.png" alt="web heart" width="160"> |
+| `read-only` | <img src="../../packages/web/snapshots/rating/read-only.png" alt="web read-only" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/rating/disabled.png" alt="web disabled" width="160"> |
+| `half-rtl` | <img src="../../packages/web/snapshots/rating/half-rtl.png" alt="web half-rtl" width="160"> |
+| `on-container-highest` | <img src="../../packages/web/snapshots/rating/on-container-highest.png" alt="web on-container-highest" width="160"> |
+
 ## Resizable frame
 
 | Fixture | Web Components |
@@ -178,6 +195,17 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `none` | <img src="../../packages/web/snapshots/scroll-area/none.png" alt="web none" width="160"> |
 | `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
 | `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
+
+## Split view
+
+| Fixture | Web Components |
+| --- | --- |
+| `horizontal` | <img src="../../packages/web/snapshots/split-view/horizontal.png" alt="web horizontal" width="160"> |
+| `vertical` | <img src="../../packages/web/snapshots/split-view/vertical.png" alt="web vertical" width="160"> |
+| `primary-end` | <img src="../../packages/web/snapshots/split-view/primary-end.png" alt="web primary-end" width="160"> |
+| `collapsed` | <img src="../../packages/web/snapshots/split-view/collapsed.png" alt="web collapsed" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/split-view/disabled.png" alt="web disabled" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/split-view/rtl.png" alt="web rtl" width="160"> |
 
 ## Stepper
 

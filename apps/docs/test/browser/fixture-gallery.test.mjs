@@ -491,7 +491,13 @@ describe('every component page shows its fixtures, each whole, on a stage of its
           const grown = [];
           let otherMachine = 0;
           for (const each of result.grown) {
-            const height = await ownHeight(name, each.id, documents[name].sizes[each.id].width);
+            // A stage without a baseline has no size to be drawn at: its fixture's baseline is not recorded.
+            const size = documents[name].sizes[each.id];
+            if (!size) {
+              problems.push(`${at}: ${each.id}: its stage grew, and it has no baseline (packages/web/snapshots/${name}/${each.id}.png) to measure it against`);
+              continue;
+            }
+            const height = await ownHeight(name, each.id, size.width);
             if (Math.abs(height - each.stage) <= 1) otherMachine++;
             else grown.push(`${each.id}: its stage held ${each.before} and grew to ${each.after} when it was drawn (its own document draws it ${Math.round(height)} tall, the page ${Math.round(each.stage)})`);
           }

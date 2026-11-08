@@ -32,6 +32,13 @@ const NO_WEB_EFFECT = [
   /\.md$/,
 ];
 
+/**
+ * Test files that draw the whole package (`dist/all.js`, every stylesheet) read from disk rather than importing it, so
+ * no import leads to them: they depend on every component, and run whenever any component's code, spec, tokens or
+ * stylesheet changes — not for a change to a component's own tests or baselines, which the package does not ship.
+ */
+export const EVERY_COMPONENT = ['packages/web/src/perf-budget.test.ts'];
+
 const posix = (p) => p.split(path.sep).join('/');
 
 function walk(dir, out = []) {
@@ -219,6 +226,7 @@ export function affected(changed, root = REPO) {
       }
     }
   }
+  if (selected.size) for (const f of EVERY_COMPONENT) if (fs.existsSync(path.join(root, f))) files.add(f);
   for (const u of ownTestsOnly) selected.add(u);
   if (canary && !selected.size && !files.size) for (const u of CANARY) selected.add(u);
   return { all: false, units: [...selected].sort(), files: [...files].sort(), reasons };

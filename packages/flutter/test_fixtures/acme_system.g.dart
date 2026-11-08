@@ -3410,6 +3410,9 @@ const TanreiSystem acmeSystem = TanreiSystem(
     dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     dividerSpace: 4.0,
     dividerThickness: 1.0,
+    entriesGap: 8.0,
+    entriesRowGap: 8.0,
+    entriesTypingMinWidth: 72.0,
     groupTitleColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     groupTitleTypescale: _typescaleLabelSmall,
     groupGap: 16.0,
@@ -7460,6 +7463,100 @@ const TanreiSystem acmeSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  rating: TanreiRatingTokens(
+    containerShape: 9999.0,
+    motionFeedbackDuration: 450,
+    motionSelectionDuration: 250,
+    motionSelectionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionStateDuration: 200,
+    motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    sizes: TanreiRatingSizes(
+      small: TanreiRatingSizeTokens(
+        markSize: 20.0,
+        containerSize: 28.0,
+      ),
+      medium: TanreiRatingSizeTokens(
+        markSize: 24.0,
+        containerSize: 32.0,
+      ),
+      large: TanreiRatingSizeTokens(
+        markSize: 32.0,
+        containerSize: 40.0,
+      ),
+    ),
+    conditions: TanreiRatingConditions(
+      unselected: TanreiRatingConditionTokens(
+        enabled: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          markColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        hovered: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.outline), 0.06),
+          markColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        focused: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.outline), 0.12),
+          markColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        pressed: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.outline), 0.2),
+          markColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        disabled: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          markColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+        ),
+      ),
+      selected: TanreiRatingConditionTokens(
+        enabled: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          markColor: TanreiPaint.role(TanreiColorRole.primary),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+        ),
+        hovered: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.primary), 0.06),
+          markColor: TanreiPaint.role(TanreiColorRole.primary),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+        ),
+        focused: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.primary), 0.12),
+          markColor: TanreiPaint.role(TanreiColorRole.primary),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+        ),
+        pressed: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.none(), TanreiPaint.role(TanreiColorRole.primary), 0.2),
+          markColor: TanreiPaint.role(TanreiColorRole.primary),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+        ),
+        disabled: TanreiRatingConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          markColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+        ),
+      ),
+    ),
+    hovered: TanreiRatingStateTokens(
+      containerShape: 9999.0,
+      opacity: 1.0,
+    ),
+    focused: TanreiRatingStateTokens(
+      containerShape: 9999.0,
+      opacity: 1.0,
+    ),
+    pressed: TanreiRatingStateTokens(
+      containerShape: 9999.0,
+      opacity: 1.0,
+    ),
+    disabled: TanreiRatingStateTokens(
+      containerShape: 9999.0,
+      opacity: 1.0,
+    ),
+  ),
   resizableFrame: TanreiResizableFrameTokens(
     containerMinHeight: 200.0,
     containerMinWidth: 320.0,
@@ -8475,6 +8572,13 @@ const TanreiSystem acmeSystem = TanreiSystem(
     pressed: TanreiSnackbarStateTokens(
       opacity: 1.0,
     ),
+  ),
+  splitView: TanreiSplitViewTokens(
+    dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    dividerWidth: 1.0,
+    motionCollapseDuration: 400,
+    motionCollapseEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionResizeDuration: 300,
   ),
   stepper: TanreiStepperTokens(
     barColor: TanreiPaint.role(TanreiColorRole.outlineVariant),

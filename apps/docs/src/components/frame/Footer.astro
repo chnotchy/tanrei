@@ -12,9 +12,9 @@
 //
 // No link to edit the page: the repository takes no pull requests from outside (CONTRIBUTING.md). This component
 // replaces Starlight's `Footer` (astro.config.mjs). The words are the page's language's (lib/i18n.ts, `pageFoot`,
-// `sourceLink`); each link leaves the site, and says so as a Markdown link that leaves it does (LNK-34). The header has
-// no room for them: the app bar holds three actions. The lines are no text of the page, so the search index does not
-// read them.
+// `sourceLink`); each link leaves the site, and says so as a Markdown link that leaves it does (LNK-34). The header
+// links the repository alone, and only where its row has room (Header.astro): these links are on every page at every
+// width. The lines are no text of the page, so the search index does not read them.
 import Default from '@astrojs/starlight/components/Footer.astro';
 import { sourcesOf } from 'virtual:tanrei-docs/last-updated';
 import { pageSourceLinks, reportProblemHref, repositoryHref } from '../../lib/repository';

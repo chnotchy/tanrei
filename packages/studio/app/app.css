@@ -15,6 +15,8 @@
    faces the reader's system already has — no font is downloaded for them, except Arabic's: the faces systems have for
    it are drawn smaller and thinner than the text around them, so the app loads Noto Sans Arabic (fonts.generated.css,
    registered for the Arabic subset alone) and names it first. Inter stays first, for Latin text and Western digits.
+   Each of Inter and Roboto Mono keeps its fallback face right after it (fonts.generated.css: the platform's face drawn
+   at the family's width and line height until its file arrives).
    The preview is not touched: its scope holds the stacks of the system being edited. */
 :root[lang^='zh'] {
   --app-script-faces: 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei';
@@ -26,9 +28,9 @@
   --app-script-faces: 'Noto Sans Arabic', 'SF Arabic', 'Segoe UI', 'Geeza Pro', 'Noto Naskh Arabic', 'Tahoma';
 }
 :root:is([lang^='zh'], [lang='hi'], [lang='ar']) {
-  --tanrei-ref-typeface-brand: Inter, var(--app-script-faces), system-ui, sans-serif;
-  --tanrei-ref-typeface-plain: Inter, var(--app-script-faces), system-ui, sans-serif;
-  --tanrei-ref-typeface-mono: 'Roboto Mono', var(--app-script-faces), ui-monospace, monospace;
+  --tanrei-ref-typeface-brand: Inter, 'Inter Fallback', var(--app-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-plain: Inter, 'Inter Fallback', var(--app-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-mono: 'Roboto Mono', 'Roboto Mono Fallback', var(--app-script-faces), ui-monospace, monospace;
 }
 * {
   box-sizing: border-box;

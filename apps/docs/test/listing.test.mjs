@@ -39,7 +39,7 @@ describe('what the lists read', () => {
     }
   });
   test('and no source of the site writes a listing’s name, or the name of a component shown on request', () => {
-    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/page-head.ts', 'src/lib/repo.ts', 'src/lib/search.mjs', 'src/components/ListingSwitch.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/frame/PageTitle.astro', 'src/components/frame/Search.astro'];
+    const files = ['astro.config.mjs', 'src/lib/sidebar.mjs', 'src/lib/listing.mjs', 'src/lib/page-head.ts', 'src/lib/repo.ts', 'src/lib/search.mjs', 'src/components/ListingSwitch.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/frame/PageTitle.astro', 'src/components/frame/Search.astro'];
     for (const file of files) {
       // Without the comments, and without the word a module's default export is asked for by (`import: 'default'`).
       const text = read(file).replace(/^\s*(\/\/|\*|\/\*).*$/gm, '').replace(/\bimport: 'default'/g, '');
@@ -54,7 +54,9 @@ describe('the sidebar', () => {
   const slugs = sidebarSlugs(statusComponents);
 
   test('lists no component by hand: the configuration asks for the pages of the status file', () => {
-    assert.match(config, /items: sidebarSlugs\(status\.components\),/);
+    assert.match(config, /sidebar: sidebarConfig\(status\.components\),/);
+    assert.match(read('src/lib/sidebar.mjs'), /'components' in group \? sidebarSlugs\(rows\)/);
+    assert.doesNotMatch(read('src/lib/sidebar.mjs'), /['"`]components\/[a-z0-9-]+['"`]/, 'a component’s page is written into the sidebar');
     assert.match(config, /JSON\.parse\(fs\.readFileSync\(new URL\('\.\.\/\.\.\/docs\/status\/status\.json', import\.meta\.url\), 'utf8'\)\)/);
     assert.doesNotMatch(config, /['"`]components\/[a-z0-9-]+['"`]/, 'a component’s page is written into the configuration');
   });

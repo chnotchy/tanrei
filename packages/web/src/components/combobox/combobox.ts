@@ -1,4 +1,9 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
+import { wordPlaces } from '../../generated/words.js';
+import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.js';
+import { parseValues } from '../../primitives/values.js';
+import { TanreiChip } from '../chip/chip.js';
 import {
   AvailabilityController,
   DismissController,
@@ -73,11 +78,20 @@ export interface TanreiComboboxToggleDetail {
   open: boolean;
   reason?: TanreiComboboxToggleReason;
 }
-/** `change`'s and `action`'s detail: the committed value, and the text the input now shows. */
+/** Whether one value is chosen, or any number (CMB-70). */
+export type TanreiComboboxSelection = 'single' | 'multiple';
+/** `change`'s and `action`'s detail: the committed value, and the text the input now shows; while selection is multiple, also the chosen values. */
 export interface TanreiComboboxChangeDetail {
   value: string;
   inputValue: string;
+  /** The chosen values after the change, while selection is multiple (CMB-71). */
+  values?: string[];
 }
+
+/** CMB-79: the props that read each word with places, by the word's key: what a report names. */
+const WORD_PROPS = { entryRemoveLabel: 'removeLabel', entryAddedText: 'addedText', entryRemovedText: 'removedText' } as const;
+/** CMB-74: the Chip's parts, exported under the prefix `entry-`; its icon, check and avatar are never drawn here. */
+const ENTRY_PARTS = 'container: entry-container, label: entry-label, remove: entry-remove';
 
 type Layout = 'stacked' | 'filled' | 'outlined';
 const FILTERS: readonly string[] = ['contains', 'none'];
@@ -135,6 +149,14 @@ function whenParsed(task: () => void) {
  * The pattern is the editable combobox with a list box: focus stays in the input while the list is open and one
  * option at most is the active one (`aria-activedescendant`). While an input method composes, every key is its own.
  *
+ * **Several values** (`selection="multiple"`): the chosen values are `values`, an array (the attribute is read as a
+ * JSON array or as words), each drawn as an input Chip in the box before the input, in lines that wrap. A choice adds
+ * the option's value, or takes it out where it is chosen; the text empties and the list stays open, so that several
+ * can be chosen in a row. Backspace at the start of the text moves focus to the last chip; there the arrows move
+ * among the chips and Backspace or Delete removes one — the chip field's keys. The list box says that it allows
+ * several, a polite live region says what was added or removed (`added-text`, `removed-text`), and the form gets one
+ * entry per value under `name`, as a `<select multiple>` gives.
+ *
  * @tag tanrei-combobox
  * @slot - The options: `<tanrei-option>` elements, optionally in `<tanrei-option-group>` elements. They are read, not drawn in place. A `<slot>` element here stands for the elements assigned to it.
  * @slot leading-icon - A glyph at the start of the container that stands for the combobox whatever is chosen (a magnifier before a field that searches people). It takes the place of the chosen option's own glyph. A glyph the icon set flags is mirrored in right-to-left; `data-mirror="auto | always | never"` on the element decides for one use.
@@ -144,6 +166,10 @@ function whenParsed(task: () => void) {
  * @csspart label - The label floating in a filled or an outlined combobox.
  * @csspart requirement-label - The required asterisk after a floating label.
  * @csspart input - The native `<input>`: the combobox.
+ * @csspart entry - A chosen value while selection is multiple: a `<tanrei-chip>` of kind input.
+ * @csspart entry-container - A chosen value's chip: its native button, its shape and colors.
+ * @csspart entry-label - A chosen value's chip: its label.
+ * @csspart entry-remove - A chosen value's chip: its remove action.
  * @csspart leading-icon - The box of the glyph at the start of the container.
  * @csspart clear-button - The clear button, a `<tanrei-button>`.
  * @csspart chevron - The chevron's button at the end of the container.
@@ -159,7 +185,7 @@ function whenParsed(task: () => void) {
  * @csspart status - The status row after the options.
  * @attr {string} form - The id of the form the combobox belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires input - The person changed the text: the native, composed `input` of the text element as they type, delete, paste or an input method commits; one more when the clear button empties the text and when Escape restores it. `inputValue` is already the new text. Never fired when the product sets `inputValue` or `value`, or when a choice writes its label. The product's cue to load options.
- * @fires {CustomEvent<TanreiComboboxChangeDetail>} change - The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. Composed and bubbling. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only types or moves through the list.
+ * @fires {CustomEvent<TanreiComboboxChangeDetail>} change - The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. While selection is multiple: a value was added or removed, `values` is already the new array, and `detail.values` holds it. Composed and bubbling. Never fired when the product sets `value` or `values`, when the chosen option is chosen again (single), or while the person only types or moves through the list.
  * @fires {CustomEvent<TanreiComboboxToggleDetail>} toggle - The list was opened or closed by the person, or closed by having nothing left to show; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` or `empty`. After a choice it follows `change`. Composed and not bubbling, as the platform's own `toggle`: heard on the element, and on an element composed around it, and by no ancestor. Never fired when the product sets `open`.
  * @fires {CustomEvent<TanreiComboboxChangeDetail>} action - The person pressed Enter with no option active and the text was committed; after any `change` it caused. Cancelable: unless it is cancelled, the form the combobox stands in is then asked to submit.
  */
@@ -182,6 +208,10 @@ export class TanreiCombobox extends TanreiElement {
     'label',
     'requirement-label',
     'input',
+    'entry',
+    'entry-container',
+    'entry-label',
+    'entry-remove',
     'leading-icon',
     'clear-button',
     'chevron',
@@ -200,7 +230,9 @@ export class TanreiCombobox extends TanreiElement {
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
+    selection: { type: String, reflect: true },
     value: { type: String },
+    values: { attribute: 'values', converter: { fromAttribute: parseValues } },
     inputValue: { type: String, attribute: 'input-value' },
     name: { type: String, reflect: true },
     label: { type: String },
@@ -223,6 +255,9 @@ export class TanreiCombobox extends TanreiElement {
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     density: { type: String, reflect: true, useDefault: true },
+    removeLabel: { type: String, attribute: 'remove-label' },
+    addedText: { type: String, attribute: 'added-text' },
+    removedText: { type: String, attribute: 'removed-text' },
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
@@ -234,8 +269,18 @@ export class TanreiCombobox extends TanreiElement {
   /** The container's minimum height: `medium` or `large` (48 / 56 in the default system), the text input's two sizes. The hit area always meets the minimum target. Reflected. */
   size: TanreiComboboxSize = 'medium';
 
-  /** The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. */
+  /** Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected. */
+  selection: TanreiComboboxSelection = 'single';
+
+  /** The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple. */
   value = '';
+
+  /**
+   * The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.
+   * Assign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.
+   * The `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.
+   */
+  values: string[] = [];
 
   /** The text in the input (`input-value`). The combobox writes it as the person types and when a value is chosen or restored; the product may set it, and reads it from `input` to load options. */
   // An accessor, not a field: the text is the person's at every moment (CBF-3). The native `input`
@@ -331,6 +376,15 @@ export class TanreiCombobox extends TanreiElement {
    */
   density: TanreiComboboxDensity = 'regular';
 
+  /** While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name. */
+  removeLabel = '';
+
+  /** While selection is multiple, the sentence assistive technology is told when the person chooses a value (`added-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryAddedText })`); with neither nothing is said. */
+  addedText = '';
+
+  /** While selection is multiple, the sentence assistive technology is told when the person removes a chosen value (`removed-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryRemovedText })`); with neither nothing is said. */
+  removedText = '';
+
   /** For tests and fixtures: draws the open list in place below the field — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal. */
   inline = false;
 
@@ -397,7 +451,9 @@ export class TanreiCombobox extends TanreiElement {
   /** CMB-24, CMB-26, CMB-27, CMB-40, CMB-41: the active option, the keys that move it, the press and the choice. */
   private readonly list = new OptionListController(this, {
     model: () => this.shown,
-    chosen: () => this.chosen,
+    // CMB-76: with several chosen, the list opens on the first of them it shows.
+    chosen: () => (this.multiple ? (this.shown.options.find((option) => this.chosenSet.has(option.value)) ?? null) : this.chosen),
+    selected: () => (this.multiple ? this.chosenSet : null),
     choose: (option) => this.choose(option),
     iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'),
     // CMB-26: an active option that is no longer shown gives way to what typing would have found — made active by the
@@ -471,13 +527,44 @@ export class TanreiCombobox extends TanreiElement {
     return STATUSES.includes(this.status) ? this.status : 'idle';
   }
 
-  /** CMB-17, CMB-57: the chosen option — the first, in order and across groups, whose value equals `value`; never one whose value is empty. */
-  private get chosen(): OptionData | null {
-    return this.value === '' ? null : (this.options$.model.options.find((option) => option.value === this.value) ?? null);
+  /** CMB-70: several values are chosen — `values` — and the input holds only what is typed. */
+  private get multiple(): boolean {
+    return this.selection === 'multiple';
   }
 
-  /** CMB-17: the text of the committed value: the chosen option's label; a value that names no option itself where a custom value is allowed, and nothing otherwise. */
+  private chosenMemo: { given: unknown; list: string[]; set: ReadonlySet<string> } | null = null;
+
+  /** CMB-70, CMB-77: the chosen values as they are drawn — in order, each once, none empty — read once for each array given. */
+  private get chosenRead(): { list: string[]; set: ReadonlySet<string> } {
+    const given = this.values;
+    if (this.chosenMemo?.given !== given) {
+      const list = [...new Set((Array.isArray(given) ? given : []).map((value) => String(value)))].filter((value) => value !== '');
+      this.chosenMemo = { given, list, set: new Set(list) };
+    }
+    return this.chosenMemo;
+  }
+
+  private get chosenList(): string[] {
+    return this.chosenRead.list;
+  }
+
+  private get chosenSet(): ReadonlySet<string> {
+    return this.chosenRead.set;
+  }
+
+  /** CMB-74, CMB-77: what a chosen value is drawn with — the label of the first option whose value it is, or the value itself. */
+  private labelOf(value: string): string {
+    return this.options$.model.options.find((option) => option.value === value)?.label ?? value;
+  }
+
+  /** CMB-17, CMB-57: the chosen option — the first, in order and across groups, whose value equals `value`; never one whose value is empty. None while selection is multiple (CMB-70). */
+  private get chosen(): OptionData | null {
+    return this.value === '' || this.multiple ? null : (this.options$.model.options.find((option) => option.value === this.value) ?? null);
+  }
+
+  /** CMB-17: the text of the committed value: the chosen option's label; a value that names no option itself where a custom value is allowed, and nothing otherwise. While selection is multiple, always nothing (CMB-70). */
   private get committedText(): string {
+    if (this.multiple) return '';
     const chosen = this.chosen;
     return chosen ? chosen.label : this.allowCustomValue ? this.value : '';
   }
@@ -547,7 +634,12 @@ export class TanreiCombobox extends TanreiElement {
 
   /** CMB-20: the clear button is drawn. */
   private get clearShown(): boolean {
-    return this.clearable && this.text !== '' && !this.inert_ && !this.readOnly;
+    return this.clearable && (this.text !== '' || (this.multiple && this.chosenList.length > 0)) && !this.inert_ && !this.readOnly;
+  }
+
+  /** CMB-74: the chosen values are drawn as entries in the box. */
+  private get hasEntries(): boolean {
+    return this.multiple && this.chosenList.length > 0;
   }
 
   /**
@@ -693,12 +785,17 @@ export class TanreiCombobox extends TanreiElement {
 
   formResetCallback() {
     this.value = this.getAttribute('value') ?? '';
+    // CMB-78: several values reset to the `values` attribute.
+    this.values = parseValues(this.getAttribute('values'));
+    if (this.multiple) this.write('');
     this.settle();
     this.requestUpdate();
   }
 
   formStateRestoreCallback(state: string | File | FormData | null) {
-    this.value = typeof state === 'string' ? state : '';
+    // CMB-78: several values are kept as a JSON array (`updated()`).
+    if (this.multiple) this.values = typeof state === 'string' ? parseValues(state) : [];
+    else this.value = typeof state === 'string' ? state : '';
     this.settle();
     this.requestUpdate();
   }
@@ -837,7 +934,8 @@ export class TanreiCombobox extends TanreiElement {
     else {
       // CMB-48: the option an arrow key or the chevron opens the list on is the person's: announced at once.
       this.typedOption = null;
-      this.list.start(how === 'key');
+      // CMB-75: an entry that opens the list names its own option as the active one.
+      this.list.start(how === 'key', active ?? undefined);
     }
     this.toggled({ open: true });
   }
@@ -856,8 +954,205 @@ export class TanreiCombobox extends TanreiElement {
   private choose(option: OptionData) {
     // CMB-17, CMB-57: an option whose value is empty is not a choice.
     if (option.disabled || option.value === '' || this.inert_ || this.readOnly) return;
+    if (this.multiple) {
+      this.switchValue(option.value, option.label);
+      // CMB-71: the list stays open with the option still active — the person's now, so it is named at once.
+      this.typedOption = null;
+      this.announcement.now();
+      return;
+    }
     this.commit(option.value, option.label);
     this.closeList('select');
+  }
+
+  // ── CMB-70 … CMB-79: several values ────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * CMB-71, CMB-72: the person chose `value` — added at the end of `values` where it is not there, taken out where it
+   * is (`add` only adds) — the text emptied without `input`, every option shown again, `change` once and the
+   * announcement. Returns whether `values` changed.
+   */
+  private switchValue(value: string, label: string, add = false): boolean {
+    const list = this.chosenList;
+    const had = list.includes(value);
+    this.write('');
+    this.settle();
+    if (had && add) return false;
+    this.changeValues(had ? list.filter((each) => each !== value) : [...list, value], had ? { removed: label } : { added: label });
+    return true;
+  }
+
+  /** CMB-71, CMB-75, CMB-77: `values` becomes `next` by the person's act: `change` once, and what was added or removed is said (CMB-79). */
+  private changeValues(next: string[], said: { added?: string; removed?: string } = {}) {
+    this.values = next;
+    this.dispatchEvent(new CustomEvent<TanreiComboboxChangeDetail>('change', { bubbles: true, composed: true, detail: { value: this.value, inputValue: this.text, values: [...next] } }));
+    if (said.added !== undefined) this.announce('entryAddedText', this.addedText, said.added, 'nothing is said when a value is chosen');
+    if (said.removed !== undefined) this.announce('entryRemovedText', this.removedText, said.removed, 'nothing is said when a chosen value is removed');
+  }
+
+  /**
+   * CMB-79: one sentence of the product's in the live region, in place of what it held, the label isolated in it as text
+   * of its own direction. With no sentence nothing is said, and a debug build says so.
+   */
+  private announce(key: 'entryAddedText' | 'entryRemovedText', own: string, entry: string, effect: string) {
+    const region = this.renderRoot.querySelector('.announcer');
+    if (!region) return;
+    const sentence = this.words.get(key, own);
+    if (!sentence) {
+      region.replaceChildren();
+      this.words.missing(key, { prop: WORD_PROPS[key], id: 'CMB-79', effect });
+      return;
+    }
+    reportPlaces(this, 'CMB-79', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+    region.replaceChildren(
+      ...fillPlaces(sentence, { entry }).runs.map((run) => {
+        if (run.place !== 'entry') return run.text;
+        const bdi = document.createElement('bdi');
+        bdi.textContent = run.text;
+        return bdi;
+      }),
+    );
+  }
+
+  /** CMB-74, CMB-79: the name of one chosen value's remove action — the product's sentence with its place filled. */
+  private removeName(sentence: string, entry: string): string {
+    return fillPlaces(sentence, { entry })
+      .runs.map((run) => run.text)
+      .join('');
+  }
+
+  private get chips(): TanreiChip[] {
+    return [...(this.renderRoot?.querySelectorAll<TanreiChip>('.entries tanrei-chip') ?? [])];
+  }
+
+  private get rtl(): boolean {
+    return getComputedStyle(this).direction === 'rtl';
+  }
+
+  /** CMB-75: the key being pressed on an entry, while its Chip answers it (its `remove` says which key asked). */
+  private entryKey = '';
+
+  private readonly onEntryKeyFirst = {
+    capture: true,
+    handleEvent: (event: KeyboardEvent) => {
+      this.entryKey = event.repeat ? '' : event.key;
+    },
+  };
+
+  /**
+   * CMB-75: in the input, at the start of the text with nothing selected, Backspace or the arrow that points to where
+   * the line starts moves focus to the last entry and removes nothing — never for the repeats of a held key. Returns
+   * whether the key was taken.
+   */
+  private toEntries(event: KeyboardEvent): boolean {
+    if (!this.hasEntries || event.repeat) return false;
+    if (event.key !== 'Backspace' && event.key !== (this.rtl ? 'ArrowRight' : 'ArrowLeft')) return false;
+    if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return false;
+    const input = this.input;
+    if (!input || input.selectionStart !== 0 || input.selectionEnd !== 0) return false;
+    event.preventDefault();
+    this.chips.at(-1)?.focus();
+    return true;
+  }
+
+  /** CMB-75: the keys among the entries. Each arrow moves the way it points; nothing is removed here (the Chip asks). */
+  #onEntryKey(event: KeyboardEvent) {
+    this.entryKey = '';
+    const chips = this.chips;
+    const index = chips.findIndex((chip) => chip === event.currentTarget);
+    if (index < 0) return;
+    if (event.key === 'Tab') {
+      // Shift+Tab leaves backward, as the platform has it.
+      if (event.shiftKey || event.ctrlKey || event.metaKey) return;
+      event.preventDefault();
+      this.focus();
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const forward = this.rtl ? 'ArrowLeft' : 'ArrowRight';
+    const backward = this.rtl ? 'ArrowRight' : 'ArrowLeft';
+    switch (event.key) {
+      case forward:
+        event.preventDefault();
+        if (chips[index + 1]) chips[index + 1]!.focus();
+        else this.focusTyping(true);
+        return;
+      case backward:
+        event.preventDefault();
+        chips[index - 1]?.focus();
+        return;
+      case 'Home':
+        event.preventDefault();
+        chips[0]!.focus();
+        return;
+      case 'End':
+        event.preventDefault();
+        chips.at(-1)!.focus();
+        return;
+      case 'ArrowUp':
+      case 'ArrowDown':
+        event.preventDefault();
+        return;
+      case 'Escape':
+        event.preventDefault();
+        event.stopPropagation();
+        this.focusTyping();
+        return;
+      default:
+        // A character: typed in the input, where the key's text then goes. Enter and Space are the Chip's own.
+        if (event.key.length === 1 && event.key !== ' ' && !event.isComposing) this.focusTyping();
+    }
+  }
+
+  /** Focus to the input; `start` puts the caret at the start of its text. */
+  private focusTyping(start = false) {
+    this.input?.focus();
+    if (!start) return;
+    try {
+      this.input?.setSelectionRange(0, 0);
+    } catch {
+      // A native element without a selection: the caret stays where the browser has it.
+    }
+  }
+
+  /**
+   * CMB-75: an entry's Chip asked for its removal (CHP-22 leaves the removing and the focus to its owner). Focus goes
+   * first, while the chip is still there: after Backspace to the entry before, or the one after where it was the
+   * first; after Delete or the remove action to the entry after; to the input where there is none.
+   */
+  #onEntryRemove(event: Event) {
+    event.stopPropagation();
+    const key = this.entryKey;
+    this.entryKey = '';
+    if (this.inert_ || this.readOnly) return;
+    const chips = this.chips;
+    const index = chips.indexOf(event.currentTarget as TanreiChip);
+    const list = this.chosenList;
+    const value = list[index];
+    if (value === undefined) return;
+    const to = key === 'Backspace' ? (chips[index - 1] ?? chips[index + 1]) : chips[index + 1];
+    if (to) to.focus();
+    else this.focus();
+    this.changeValues(
+      list.filter((_, at) => at !== index),
+      { removed: this.labelOf(value) },
+    );
+  }
+
+  /** CMB-75: the Chip itself was activated: focus to the input, and the list open with that value's option active. Nothing is removed. */
+  #onEntryClick(event: MouseEvent) {
+    if (this.inert_) return;
+    const value = this.chosenList[this.chips.indexOf(event.currentTarget as TanreiChip)];
+    this.focus();
+    if (this.readOnly || value === undefined) return;
+    const option = this.shown.options.find((each) => each.value === value) ?? null;
+    // A press made by a key (no pointer, `detail` 0) draws the option focused.
+    const keyboard = event.detail === 0;
+    this.typedOption = null;
+    this.announcement.now();
+    if (this.open && this.presented) {
+      if (option) this.list.setActive(option, keyboard);
+    } else this.openList(keyboard ? 'key' : 'press', option ?? undefined);
   }
 
   /** CMB-22, CMB-24: into the overlay layer beside the container. Focus stays where it is. */
@@ -893,6 +1188,8 @@ export class TanreiCombobox extends TanreiElement {
       this.enter(event);
       return;
     }
+    // CMB-75, CMB-81: to the entries — read-only too, where they are still read.
+    if (this.multiple && this.toEntries(event)) return;
     if (this.readOnly) return;
     const open = this.open && this.presented;
     if (key === 'Escape') {
@@ -943,7 +1240,15 @@ export class TanreiCombobox extends TanreiElement {
       if (!this.readOnly) this.list.activate(event);
       return;
     }
-    if (!this.resolve()) {
+    if (this.multiple && this.text.trim() !== '') {
+      // CMB-72: a text is resolved into a value — never a commit, an action or a submission.
+      event.preventDefault();
+      if (!this.readOnly) this.enterText();
+      return;
+    }
+    // CMB-72: an empty text commits nothing while several values are chosen: `value` is not theirs.
+    if (this.multiple) this.settle();
+    else if (!this.resolve()) {
       event.preventDefault();
       if (!this.open) this.openList('text', null);
       return;
@@ -956,6 +1261,25 @@ export class TanreiCombobox extends TanreiElement {
       event.preventDefault();
       pressDefaultButton(form);
     }
+  }
+
+  /**
+   * CMB-72: Enter on a typed text while several values are chosen and no option is active. An option's whole label
+   * adds that option (a chosen one only empties the text); any other text is added as written where a custom value is
+   * allowed, and kept — with the list kept or opened — where it is not.
+   */
+  private enterText() {
+    const text = this.text.trim();
+    const option = this.named(text);
+    if (option) {
+      this.switchValue(option.value, option.label, true);
+      return;
+    }
+    if (this.allowCustomValue) {
+      this.switchValue(text, text, true);
+      return;
+    }
+    if (!this.open) this.openList('text', null);
   }
 
   #onFocus() {
@@ -991,7 +1315,9 @@ export class TanreiCombobox extends TanreiElement {
     if (next && this.renderRoot.contains(next)) return;
     if (!next && !document.hasFocus()) return;
     if (this.inert_ || this.readOnly) return;
-    if (!this.resolve()) this.restore();
+    // CMB-73: several values — leaving chooses nothing and empties the text.
+    if (this.multiple) this.restore();
+    else if (!this.resolve()) this.restore();
     this.closeList(tabbed ? 'tab' : 'focus-out');
   }
 
@@ -1003,7 +1329,8 @@ export class TanreiCombobox extends TanreiElement {
   #onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
-    if (target.closest('.input')) return;
+    // CMB-75: a chosen value's chip takes the press — and the focus — itself.
+    if (target.closest('.input, tanrei-chip')) return;
     // The press must not take the focus it gives — nor take it from the input: where a pressed button takes no focus
     // (Safari), a press on the clear button or the chevron would leave the field, and resolve the text.
     event.preventDefault();
@@ -1024,6 +1351,16 @@ export class TanreiCombobox extends TanreiElement {
    */
   #onClear() {
     if (this.inert_ || this.readOnly) return;
+    if (this.multiple) {
+      // CMB-77: the text and every chosen value, said by nothing but the events.
+      const had = this.chosenList.length > 0;
+      this.write('');
+      this.settle();
+      this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'deleteContentBackward' }));
+      if (had) this.changeValues([]);
+      this.focus();
+      return;
+    }
     const had = this.value !== '';
     this.value = '';
     this.ownValue = '';
@@ -1069,6 +1406,12 @@ export class TanreiCombobox extends TanreiElement {
     // The first render already draws the glyphs' room: the light-DOM children are there before the slots say so.
     if (!this.hasUpdated) this.hasLeading = [...this.children].some((child) => child.slot === 'leading-icon');
     if (this.inert_) this.focused = false;
+
+    // CMB-77: focus on an entry whose value is no longer chosen goes to the input, before its chip leaves.
+    if (changed.has('values') || changed.has('selection')) {
+      const focused = this.shadowRoot?.activeElement;
+      if (focused instanceof TanreiChip && !(this.multiple && this.chosenSet.has(focused.dataset.value ?? ''))) this.focus();
+    }
 
     // CMB-31: a value or a text the product set. A value shows its text and ends an edit; a text is shown, and the list
     // is filtered by it as by typed text. Neither fires anything.
@@ -1129,8 +1472,16 @@ export class TanreiCombobox extends TanreiElement {
     // The form's view: the committed value — never the text of an edit — left out while disabled; a missing value while
     // the Field that frames it says it is required (CMB-12, CMB-59). Said through `FormSays`, so that an element
     // composed around the combobox repeats it on its own internals.
-    this.says.value(this.inert_ ? null : this.value, this.value);
-    if (this.frame.required && this.value === '' && !this.inert_ && !this.readOnly) {
+    // CMB-78: several values are one entry each under the name, in order, as a `<select multiple>` gives them.
+    const list = this.chosenList;
+    if (!this.multiple) this.says.value(this.inert_ ? null : this.value, this.value);
+    else if (this.inert_ || !this.name || list.length === 0) this.says.value(null, JSON.stringify(list));
+    else {
+      const data = new FormData();
+      for (const value of list) data.append(this.name, value);
+      this.says.value(data, JSON.stringify(list));
+    }
+    if (this.frame.required && (this.multiple ? list.length === 0 : this.value === '') && !this.inert_ && !this.readOnly) {
       this.says.validity({ valueMissing: true }, missingValueMessage('text', { errorText: '', requiredText: this.frame.state?.requiredText ?? '', label: this.name_ }), this.input ?? undefined);
     } else this.says.validity();
     // CMB-57, CMB-43: the options' checks judge them once their own updates have written what the product gave them
@@ -1150,6 +1501,16 @@ export class TanreiCombobox extends TanreiElement {
     // matches nothing. (Without the words the list has nothing to show and is not open: `open` is taken back.)
     if (this.emptyAsked && !this.emptyWords && !this.inert_ && !this.readOnly && (this.focused || this.open || changed.has('open'))) {
       this.words.missing('emptyText', { id: 'CMB-32', effect: 'a text that matches nothing draws no row in the list' });
+    }
+    if (changed.has('selection') && this.selection !== 'single' && this.selection !== 'multiple') report(this, 'CMB-70', `selection "${this.selection}" is not single or multiple; it behaves as "single"`);
+    // CMB-79: the remove actions are drawn and work without a name; two of them with one name cannot be told apart.
+    if (this.hasEntries && !this.readOnly && !this.inert_) {
+      const sentence = this.words.get('entryRemoveLabel', this.removeLabel);
+      if (!sentence) this.words.missing('entryRemoveLabel', { prop: 'removeLabel', id: 'CMB-79', effect: 'each chosen value\'s remove action is drawn and works, and has no accessible name' });
+      else {
+        reportPlaces(this, 'CMB-79', 'removeLabel', sentence, wordPlaces.entryRemoveLabel ?? [], 'each remove action is named with it as it is written');
+        for (const place of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) report(this, 'CMB-79', `removeLabel has no place {${place}}, so every remove action has the same name; write it as "Remove {${place}}"`);
+      }
     }
     if (changed.has('filter') && !FILTERS.includes(this.filter)) report(this, 'CMB-56', `filter "${this.filter}" is not contains or none; it behaves as "contains"`);
     if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'CMB-56', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
@@ -1220,6 +1581,39 @@ export class TanreiCombobox extends TanreiElement {
     // The text is the chosen option's label for as long as nobody has changed it: its words are in that option's
     // language, and in its direction where the option says one (`lang`, `dir` on the option or its group).
     const said = chosen && this.text === chosen.label ? chosen : null;
+    const entries = this.hasEntries;
+    // CMB-74, CMB-79, CMB-81: the chosen values, each an input Chip in an item of one list named by the combobox's name,
+    // out of the Tab order (CHP-23) and focusable by the keys, by pointer and by assistive technology; no list while
+    // none is chosen. A value is known by itself: no two are the same.
+    const sentence = entries ? this.words.get('entryRemoveLabel', this.removeLabel) : '';
+    const chips = entries
+      ? html`<div class="entries" role="list" aria-label=${name || nothing} @keydown=${this.onEntryKeyFirst}
+          >${repeat(
+            this.chosenList,
+            (value) => value,
+            (value) => {
+              const label = this.labelOf(value);
+              return html`<div class="item" role="listitem"
+                ><tanrei-chip
+                  part="entry"
+                  exportparts=${ENTRY_PARTS}
+                  tabindex="-1"
+                  kind="input"
+                  size="small"
+                  data-value=${value}
+                  .label=${label}
+                  .removeLabel=${sentence ? this.removeName(sentence, label) : ''}
+                  .disabled=${inert}
+                  .removable=${!this.readOnly}
+                  @keydown=${this.#onEntryKey}
+                  @click=${this.#onEntryClick}
+                  @remove=${this.#onEntryRemove}
+                ></tanrei-chip
+              ></div>`;
+            },
+          )}</div
+        >`
+      : nothing;
     // CMB-12, CMB-48: the input is an editable combobox named by its own label, else by the Field's — drawn or not, and
     // never by the placeholder — and described by what the Field gives. They are values written on this element
     // (`aria-label`; the description as a text of this shadow root), because an id cannot be referenced across a
@@ -1232,7 +1626,8 @@ export class TanreiCombobox extends TanreiElement {
         ?data-disabled=${inert}
         ?data-focused=${(this.focused || expanded) && !inert}
         ?data-labelled=${floating}
-        ?data-has-value=${this.text !== ''}
+        ?data-has-value=${this.text !== '' || entries}
+        ?data-entries=${entries}
         data-leading=${leading ?? nothing}
         ?data-chevron=${chevron}
         ?data-clear=${clear}
@@ -1244,7 +1639,7 @@ export class TanreiCombobox extends TanreiElement {
           <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
           <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
-            <input
+            ${chips}<input
               id="input"
               part="input"
               class="input"
@@ -1256,7 +1651,7 @@ export class TanreiCombobox extends TanreiElement {
               spellcheck="false"
               lang=${said?.lang || nothing}
               dir=${said?.dir || own}
-              .placeholder=${this.placeholder}
+              .placeholder=${entries ? '' : this.placeholder}
               ?disabled=${inert}
               ?readonly=${this.readOnly}
               ${delegatedAria(this, { 'aria-label': name, 'aria-describedby': described && 'description', 'aria-invalid': this.inError && 'true', 'aria-required': this.frame.required && 'true', 'aria-readonly': this.readOnly && 'true' })}
@@ -1288,6 +1683,7 @@ export class TanreiCombobox extends TanreiElement {
         </div>
         <span id="name" hidden>${name}</span>
         ${described ? html`<span id="description" hidden>${described}</span>` : nothing}
+        ${this.multiple ? html`<span class="announcer" aria-live="polite"></span>` : nothing}
       </div>
       ${this.list.render({ labelledBy: 'name', inline: this.inline, text: this.labelText, after: this.renderStatus(), tail: this.statusShown || this.emptyShown, busy: this.statusNow === 'loading' })}
     `;

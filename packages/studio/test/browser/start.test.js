@@ -9,8 +9,14 @@ const menu = (page) => page.locator('[data-start-menu]');
 const openMenu = async (page) => {
   await page.locator('[data-start-open]').click();
   await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
-  // Grown in: a surface still fading in is no color to measure.
-  await page.waitForFunction(() => document.querySelector('[data-start-menu]').shadowRoot.getAnimations({ subtree: true }).every((animation) => animation.playState !== 'running'));
+  // Grown in: a surface still fading in is no color to measure. The entrance is held paused at its start until the
+  // next frame (the web's AppearController), so the wait is for every motion that has an end to have ended — in the
+  // menu's shadow root and in each item's — not for none to be running.
+  await page.waitForFunction(() => {
+    const menu = document.querySelector('[data-start-menu]');
+    const roots = [menu, ...menu.querySelectorAll('*')].flatMap((el) => (el.shadowRoot ? [el.shadowRoot] : []));
+    return roots.flatMap((root) => root.getAnimations()).every((animation) => animation.playState === 'finished' || !Number.isFinite(animation.effect?.getComputedTiming().endTime));
+  });
 };
 const label = (page) => page.locator('[data-start-label]').textContent();
 /** The dialogs the page opened, each answered as `answer` says (Playwright would dismiss one nobody listens for). */

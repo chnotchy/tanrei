@@ -856,18 +856,27 @@ export class TanreiNumberInput extends TanreiElement {
     return () => field.toggleAttribute('data-wrapped', wrapped);
   };
 
-  /** NMI-37: the container and the input's line are watched while the number input is on the page. */
+  /** NMI-37: the elements given to the observer of wrapping, to be taken back from it — those, and no others. */
+  private wrapWatched: HTMLElement[] = [];
+
+  /**
+   * NMI-37: the container and the input's line are watched while the number input is on the page. What was given is
+   * taken back as it was given; an input whose first update ends after it left the page gives nothing.
+   */
   private watchWrap(on: boolean) {
+    if (!wrapObserver) return;
+    for (const element of this.wrapWatched) {
+      wrapReaders.delete(element);
+      wrapObserver.unobserve(element);
+    }
+    this.wrapWatched = [];
+    if (!on || !this.isConnected) return;
     for (const selector of ['.container', '.body']) {
       const element = this.renderRoot?.querySelector<HTMLElement>(selector);
-      if (!element || !wrapObserver) continue;
-      if (on) {
-        wrapReaders.set(element, this.readWrap);
-        wrapObserver.observe(element);
-      } else {
-        wrapReaders.delete(element);
-        wrapObserver.unobserve(element);
-      }
+      if (!element) continue;
+      wrapReaders.set(element, this.readWrap);
+      wrapObserver.observe(element);
+      this.wrapWatched.push(element);
     }
   }
 

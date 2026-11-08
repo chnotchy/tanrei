@@ -111,7 +111,7 @@ test('every form-associated element of the manifest has a wrapper that writes fo
   // The list is the manifest's: an element that becomes form-associated is held here without anyone adding it.
   assert.deepEqual(
     tags.sort(),
-    ['button', 'chat-composer', 'checkbox', 'checkbox-group', 'chip-field', 'color-field', 'color-input', 'combobox', 'combobox-field', 'embedded-text-input', 'file-upload', 'number-field', 'number-input', 'one-time-code-field', 'one-time-code-input', 'radio-button', 'radio-group', 'search', 'select', 'select-field', 'slider', 'slider-field', 'switch', 'text-field', 'text-input'].map((name) => `tanrei-${name}`),
+    ['button', 'chat-composer', 'checkbox', 'checkbox-group', 'chip-field', 'color-field', 'color-input', 'combobox', 'combobox-field', 'embedded-text-input', 'file-upload', 'number-field', 'number-input', 'one-time-code-field', 'one-time-code-input', 'radio-button', 'radio-group', 'rating', 'search', 'select', 'select-field', 'slider', 'slider-field', 'switch', 'text-field', 'text-input'].map((name) => `tanrei-${name}`),
   );
   const wrappers = await import('../dist/entries/generated/all.js');
   for (const tag of tags) {

@@ -1745,6 +1745,45 @@ test.describe('behavior', () => {
     })).toEqual(['Restored draft', 0]);
   });
 
+  test('CCM-41: what the chat composer measures — one line of its text — is drawn without a stylesheet of each instance: a hundred composers adopt the sheets one adopts, and each draws its own line', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const sheets = (n: number) =>
+      page.evaluate(async (count) => {
+        const frames = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        const pane = document.createElement('div');
+        pane.style.inlineSize = '480px';
+        pane.innerHTML = Array.from({ length: count }, (_, i) => `<tanrei-chat-composer label="Message ${i}" send-label="Send"></tanrei-chat-composer>`).join('');
+        document.body.append(pane);
+        await frames();
+        await frames();
+        const unique = new Set<CSSStyleSheet>();
+        const visit = (root: ParentNode) => {
+          for (const element of root.querySelectorAll('*')) {
+            if (!element.shadowRoot) continue;
+            for (const sheet of element.shadowRoot.adoptedStyleSheets) unique.add(sheet);
+            visit(element.shadowRoot);
+          }
+        };
+        visit(pane);
+        // Every composer's groups are as tall as one line of its typing area, which it measured.
+        const groups = [...pane.querySelectorAll('tanrei-chat-composer')].map((composer) => {
+          const typed = composer.shadowRoot!.querySelector('tanrei-embedded-text-input')?.shadowRoot?.querySelector('[part~="input"]');
+          const group = composer.shadowRoot!.querySelector<HTMLElement>('.group.send')!;
+          return { line: typed ? parseFloat(getComputedStyle(typed).lineHeight) : NaN, least: parseFloat(getComputedStyle(group).minBlockSize) };
+        });
+        pane.remove();
+        return { unique: unique.size, groups };
+      }, n);
+    const one = await sheets(1);
+    const hundred = await sheets(100);
+    expect(hundred.unique, `${one.unique} distinct sheets with one composer, ${hundred.unique} with a hundred`).toBe(one.unique);
+    const padding = await token(page, 'input-padding-block');
+    for (const { line, least } of [...one.groups, ...hundred.groups]) {
+      expect(line).toBeGreaterThan(0);
+      near(least, line + 2 * padding, 'a group\'s least height: one line and the padding');
+    }
+  });
+
   test('CCM-41: the capsule is one container behind everything — filled with the container color of its condition, lifted by its elevation, its edge outline.width wide in its outline color, drawn inside its box; its four corners have one radius, container.shape and never more than half the height it has inline with one line of text — at one line, at six, with a strip, stacked and at 200 % text alike — and it clips nothing', async ({ page }) => {
     await mount(page, one('inline-empty', 'inline-lines-at-maximum', 'inline-image-tiles', 'stacked-typed', 'error'));
     const [fill, edge, width] = [await color(page, 'standard-container-color'), await color(page, 'standard-outline-color'), await token(page, 'outline-width')];

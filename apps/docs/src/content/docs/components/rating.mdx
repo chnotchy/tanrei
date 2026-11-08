@@ -1,0 +1,145 @@
+---
+title: Rating
+description: Lets a person give a score out of a few marks — stars by default — or shows a score already given, a whole mark or, where the product allows it, a half mark at a time.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import Example from '../../../components/visuals/Example.astro';
+
+## Overview
+
+<ComponentAvailability name="rating" />
+
+<Example label="A score to give, and an average to read">
+  <tanrei-rating label="Your rating of this recipe" value="4"></tanrei-rating>
+  <tanrei-rating label="Average rating" value="4.5" read-only value-text="4.5 out of 5 stars"></tanrei-rating>
+</Example>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a rating yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-rating name="score" label="Your rating of this recipe"></tanrei-rating>
+
+    <!-- Words for each score, in your language; shown beside the rating while a person points. -->
+    <tanrei-rating
+      label="Your rating"
+      option-labels='["Poor", "Fair", "Good", "Very good", "Excellent"]'
+    ></tanrei-rating>
+    <span id="words"></span>
+
+    <!-- An average, read only. -->
+    <tanrei-rating label="Average rating" value="4.5" read-only value-text="4.5 out of 5 stars"></tanrei-rating>
+
+    <script type="module">
+      import '@tanrei/web/components/rating';
+      const rating = document.querySelector('tanrei-rating[option-labels]');
+      rating.addEventListener('change', (event) => save(event.detail.value));
+      rating.addEventListener('preview', (event) => {
+        const score = event.detail.value ?? rating.value;
+        document.querySelector('#words').textContent = score ? rating.optionLabels[score - 1] : '';
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Rating } from '@tanrei/react';
+
+    <Rating label="Your rating of this recipe" value={score} onChange={(event) => setScore(event.detail.value)} />
+    <Rating
+      label="Your rating"
+      optionLabels={['Poor', 'Fair', 'Good', 'Very good', 'Excellent']}
+      onPreview={(event) => setPointed(event.detail.value)}
+    />
+    <Rating label="Average rating" value={average} readOnly valueText={`${average} out of 5 stars`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<Example label="Sizes: small, medium and large">
+  <tanrei-rating size="small" label="Small" value="3"></tanrei-rating>
+  <tanrei-rating size="medium" label="Medium" value="3"></tanrei-rating>
+  <tanrei-rating size="large" label="Large" value="3"></tanrei-rating>
+</Example>
+
+<Example label="Halves, another glyph, ten marks and disabled">
+  <tanrei-rating label="Halves" value="3.5" allow-half></tanrei-rating>
+  <tanrei-rating label="How much did you enjoy it?" value="4" icon="favorite"></tanrei-rating>
+  <tanrei-rating label="How likely are you to recommend us?" value="7" max="10"></tanrei-rating>
+  <tanrei-rating label="Disabled" value="2" disabled></tanrei-rating>
+</Example>
+
+<ComponentSpecs name="rating" />
+
+## Guidelines
+
+### When to use
+
+Use a rating to ask a person for a score on a short scale — a review of a recipe, a product or a stay — and to show a score already given, such as the average of a product's reviews in a list. Its marks are the scale: a person sees at once how many there are and how many are given.
+
+For a choice whose options are words rather than steps of one scale, use a [radio group](/components/radio-group/). For a value on a long or continuous range, use a [slider](/components/slider/).
+
+### Whole marks and halves
+
+| Setting | What a person can give | What assistive technology meets |
+| --- | --- | --- |
+| Whole marks, up to seven | One score per mark | A radio group, one radio per mark: the arrow keys check the next or previous mark |
+| Halves, or more than seven marks | Every half (or every mark) up to the maximum | A slider: the arrow keys move by a step, Page Up and Page Down by a mark, Home and End to the ends |
+| Read only | Nothing | One image, named by the label and described by the value text |
+
+Allow halves only where a person needs that precision. Five stars in halves are ten choices, which takes longer to give. A read-only rating always shows halves, so an average such as 4.3 is drawn as four and a half marks: say the exact value in the value text.
+
+### Choosing a size
+
+| Size | Mark / round area in the default system | Use for |
+| --- | --- | --- |
+| Small | 20 / 28 | A list row, next to small text. |
+| Medium | 24 / 32 | A form. The default. |
+| Large | 32 / 40 | The one score a view is about, such as a product's page. |
+
+Whatever the size, each mark takes a whole touch target: neighbouring marks share the space between them at the middle.
+
+### Taking a score back
+
+A rating has no way to take a score back to none, by pointer, by key or by assistive technology: a press on the score already given changes nothing, as a radio group has no way to uncheck. If your form must let a person withdraw a score, place a text Button beside the rating that sets its value to 0.
+
+### Do
+
+- Give it a label that says what is scored: "Your rating of this recipe". If a question is shown next to it, use the same words.
+- Name the scores in your language with `optionLabels` when the steps mean something ("Poor", "Excellent"), and show the words beside the rating while a person points (`preview`).
+- Give a read-only rating a value text that says the score exactly: "4.3 out of 5 stars, 128 reviews".
+
+### Don't
+
+- Don't use a rating for a choice whose options are not steps of one scale.
+- Don't rely on a colored star alone. The default system draws given marks filled and the others outlined, so the score is read from the shapes; keep that if you change the colors.
+- Don't use more marks than a person can count at a glance. Ten is the most that stays readable.
+
+## Accessibility
+
+<ComponentAccessibility name="rating" />
+
+### What the component handles
+
+- With whole marks up to seven, it is a radio group named by the label, each mark a radio named by its entry in `optionLabels` or by its number in the language of the page. It is one stop in the focus order: the checked mark, or the first while there is no score. The arrow keys check the next or previous mark and wrap, Space checks the focused mark, Enter submits the form.
+- With halves or more than seven marks, it is one slider from 0 to the maximum, its value text the entry of `optionLabels` for the score. The arrow keys move by a step, Page Up and Page Down by a mark, Home to one step and End to the maximum.
+- Read only, it is one image named by the label and described by the value text. It cannot be focused or pressed.
+- Each mark's hit area reaches the minimum target without changing what is drawn; neighbouring marks are divided at the middle between them.
+- Marks within the score are drawn filled and the others outlined, so the score never rests on color alone. The outlined marks are held at 3:1 against the surface. With forced colors, every mark is drawn in the text color.
+- Disabled, it is drawn in the disabled colors, cannot be focused, takes no input and is left out of the form, and still exposes its score.
+- An empty label, `optionLabels` of the wrong length, a value it cannot show, an unknown size and a read-only rating with nothing to describe it are reported in debug builds.
+
+### What you need to do
+
+- Give every rating a label, and a read-only one a value text.
+- Write the words of `optionLabels` and `valueText` in your product's language.
+- If a score can be withdrawn, give people a Button to do it: the rating has no clear action.
