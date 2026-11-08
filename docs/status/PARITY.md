@@ -154,6 +154,23 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
 
+## Rating
+
+| Fixture | Web Components |
+| --- | --- |
+| `empty` | <img src="../../packages/web/snapshots/rating/empty.png" alt="web empty" width="160"> |
+| `value` | <img src="../../packages/web/snapshots/rating/value.png" alt="web value" width="160"> |
+| `full` | <img src="../../packages/web/snapshots/rating/full.png" alt="web full" width="160"> |
+| `half` | <img src="../../packages/web/snapshots/rating/half.png" alt="web half" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/rating/small.png" alt="web small" width="160"> |
+| `large` | <img src="../../packages/web/snapshots/rating/large.png" alt="web large" width="160"> |
+| `ten` | <img src="../../packages/web/snapshots/rating/ten.png" alt="web ten" width="160"> |
+| `heart` | <img src="../../packages/web/snapshots/rating/heart.png" alt="web heart" width="160"> |
+| `read-only` | <img src="../../packages/web/snapshots/rating/read-only.png" alt="web read-only" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/rating/disabled.png" alt="web disabled" width="160"> |
+| `half-rtl` | <img src="../../packages/web/snapshots/rating/half-rtl.png" alt="web half-rtl" width="160"> |
+| `on-container-highest` | <img src="../../packages/web/snapshots/rating/on-container-highest.png" alt="web on-container-highest" width="160"> |
+
 ## Resizable frame
 
 | Fixture | Web Components |

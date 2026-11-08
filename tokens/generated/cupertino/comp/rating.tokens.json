@@ -1,0 +1,230 @@
+{
+  "tanrei": {
+    "comp": {
+      "rating": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks a person for a score out of a few marks in a review form, and shows the average score of what it lists, read only: the marks given and the marks not given are told apart, at a size for a list row, for a form and for a detail page.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "mark.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a rating reads: per size the glyph box of each mark and the round container behind it (the containers touch), the container's corner, and for each condition (unselected: a mark beyond the score; selected: a mark within it) the container, mark and state-layer colors in each state, and the motion of a state, of a change of score and of a press.",
+            "rules": [
+              "A mark within the score is the icon set's selected form (filled) in selected.mark.color; a mark beyond it is the unselected form (outlined) in unselected.mark.color. The two differ in shape as well as color: never draw both forms alike.",
+              "unselected.mark.color must stay at least 3:1 against the surface (sys.color.outline is): the marks not given are counted, so they are a functional boundary.",
+              "A half score draws its last mark twice: the selected form on its inline-start half and the unselected form on its inline-end half. There is no third color.",
+              "Hover, focus and press show on the round container behind a mark, never on the mark.",
+              "The default system draws the selected mark in sys.color.primary, not gold: a product that wants a colored star sets selected.mark.color (sys.color.warning, or a palette of its own).",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into its container; it aliases that condition's mark color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "mark.size",
+                "container.size"
+              ]
+            },
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "mark": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The glyph box of each mark, per size: the icon sizes small, medium and large (20 / 24 / 32).",
+            "small": {
+              "$value": "{tanrei.sys.icon.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.medium}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.large}"
+            }
+          }
+        },
+        "container": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The round container behind each mark, per size (28 / 32 / 40): the containers touch, so this is also the distance from one mark's centre to the next. The hit area reaches the minimum target beyond it, divided between neighbours at the middle.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws small marks in large round areas for touch, another packs them close in a dense list: the container is set apart from the mark.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corner of each mark's container: round in the default system.",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$description": "A mark beyond the score, drawn in the icon set's unselected (outlined) form: at least 3:1 against the surface, so that the marks not given can be counted.",
+              "$value": "{tanrei.sys.color.outline}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.rating.unselected.mark.color}"
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$description": "A mark within the score, drawn in the icon set's selected (filled) form.",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.rating.selected.mark.color}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.compact}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}"
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
+            "$description": "How long a mark takes to fade between its unselected and its selected form when the score changes."
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.feedback}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        }
+      }
+    }
+  }
+}

@@ -46,6 +46,8 @@ const SUBJECTS = [
   subject('checkbox', (fixture) => fixture.id === 'selected', { icons: true }),
   // Selected: the ring's size and stroke, the dot, and the round container's size at once.
   subject('radio-button', (fixture) => fixture.id === 'selected'),
+  // A score with a half: the mark's size, the round container's size, the two forms of the glyph (the icon set's family and fill) and both mark colors at once.
+  subject('rating', (fixture) => fixture.id === 'half', { icons: true }),
   // On: the track's size and fill, the handle's size, color and elevation at the far end (m3-like's grows, cupertino's is raised).
   subject('switch', (fixture) => fixture.id === 'selected', { icons: true }),
   // Elevated: the container's color, corner (and its smoothing) and each preset's own elevation at rest, around body text.
