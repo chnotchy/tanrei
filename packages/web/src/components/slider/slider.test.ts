@@ -1,4 +1,4 @@
-// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…24) is cited by a test title, every
+// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…29) is cited by a test title, every
 // fixture has a baseline, and every part, state and choice of kind is read back from the tokens — never from a number
 // written here.
 // SLD-27: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -1117,6 +1117,70 @@ test.describe('the value indicator in the top layer', () => {
     expect(handle.y - ind.bottom).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
     await page.evaluate(() => document.querySelector('dialog')!.close());
     await expect.poll(open).toBe(false);
+  });
+
+  test('SLD-29: under an ancestor’s zoom the value indicator is magnified with the content — twice its size and twice the offset from its handle under zoom 2, centred on it, kept inside the window at its edge; under an ancestor’s transform: scale(2) it keeps its own size, centred on the handle drawn twice as large, the offset from it', async ({ page }) => {
+    const long = { valueIndicator: 'always', valueText: 'A long value text' } as const;
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fixture('plain', { value: 40, label: 'Plain', ...long }),
+        fixture('zoomed', { value: 40, label: 'Zoomed', ...long }),
+        fixture('zoomed-edge', { value: 100, label: 'Zoomed edge', ...long }),
+        fixture('scaled', { value: 40, label: 'Scaled', ...long }),
+      ],
+      // Room above the first slider for its indicator, inside the window.
+      lead: '<div style="block-size: 120px"></div>',
+    });
+    // The zoom and the transform are on the stage, the slider's parent; a stage that is moved is moved by a box around
+    // it that is not zoomed, so that its offset is in the window's pixels.
+    await page.evaluate(() => {
+      const stage = (id: string) => document.querySelector<HTMLElement>(`[data-fixture="${id}"]`)!;
+      for (const id of ['zoomed', 'zoomed-edge']) stage(id).style.zoom = '2';
+      const mover = document.createElement('div');
+      mover.className = 'mover';
+      mover.style.cssText = 'position: relative; inset-inline-start: 0px';
+      const edge = stage('zoomed-edge');
+      edge.replaceWith(mover);
+      mover.append(edge);
+      Object.assign(stage('scaled').style, { transformOrigin: '0 0', transform: 'scale(2)' });
+      window.dispatchEvent(new Event('resize'));
+    });
+    const offset = await resolveToken(page, T('value-indicator-offset'));
+    /** The indicator's and its handle's boxes as drawn in the window, once the indicator stands against the handle again. */
+    const placed = async (id: string, gap: number) => {
+      await expect.poll(async () => Math.abs((await rect(handleOf(page, id))).y - (await rect(indicatorOf(page, id))).bottom - gap), `${id}: placed against its handle`).toBeLessThan(0.5);
+      return { ind: await rect(indicatorOf(page, id)), handle: await rect(handleOf(page, id)) };
+    };
+    const plain = await placed('plain', offset);
+    // Under zoom 2: twice the size, twice the offset, centred on the handle (drawn twice as large too).
+    const zoomed = await placed('zoomed', offset * 2);
+    expect(zoomed.handle.width).toBeCloseTo(plain.handle.width * 2, 1);
+    // The width is the text's, whose advances an engine fits to each font size (Chromium on Linux drew the text 1 wider
+    // than twice its width at the plain size): twice as wide within 1 %, where an indicator the zoom missed is half as wide.
+    expect(Math.abs(zoomed.ind.width / plain.ind.width - 2), 'twice as wide').toBeLessThan(0.02);
+    expect(Math.abs(zoomed.ind.height - plain.ind.height * 2), 'twice as high').toBeLessThan(1);
+    expect(zoomed.handle.y - zoomed.ind.bottom).toBeCloseTo(offset * 2, 1);
+    expect(zoomed.ind.x + zoomed.ind.width / 2).toBeCloseTo(zoomed.handle.x + zoomed.handle.width / 2, 0);
+    // At the window's right edge under zoom 2: shifted only as far as it must, to the window's edge and not past it.
+    const width = await page.evaluate(() => document.documentElement.clientWidth);
+    const handleAt = await center(handleOf(page, 'zoomed-edge'));
+    await page.locator('[data-fixture="zoomed-edge"]').evaluate((stage, dx) => {
+      (stage.parentElement as HTMLElement).style.insetInlineStart = `${dx}px`;
+      window.dispatchEvent(new Event('resize'));
+    }, width - 4 - handleAt.x);
+    await expect.poll(async () => Math.abs((await center(handleOf(page, 'zoomed-edge'))).x - (width - 4)), 'the handle 4 inside the right edge').toBeLessThan(0.5);
+    await expect.poll(async () => Math.abs(width - (await rect(indicatorOf(page, 'zoomed-edge'))).right), 'kept inside the window, at its edge').toBeLessThan(0.5);
+    const edge = await placed('zoomed-edge', offset * 2);
+    expect(Math.abs(edge.ind.width / plain.ind.width - 2), 'still twice as wide').toBeLessThan(0.02);
+    // Under transform: scale(2): the handle is drawn twice as large; the indicator keeps its own size and stands the
+    // offset (not twice it) above the handle's drawn top, centred on it.
+    const scaled = await placed('scaled', offset);
+    expect(scaled.handle.width).toBeCloseTo(plain.handle.width * 2, 1);
+    expect(scaled.ind.width).toBeCloseTo(plain.ind.width, 1);
+    expect(scaled.ind.height).toBeCloseTo(plain.ind.height, 1);
+    expect(scaled.handle.y - scaled.ind.bottom).toBeCloseTo(offset, 1);
+    expect(scaled.ind.x + scaled.ind.width / 2).toBeCloseTo(scaled.handle.x + scaled.handle.width / 2, 0);
+    expect(await indicatorOf(page, 'scaled').evaluate((el) => el.matches(':popover-open'))).toBe(true);
   });
 });
 
