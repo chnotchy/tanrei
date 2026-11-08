@@ -45,13 +45,14 @@ test('MDL-2: where the window widens as the page’s scroll is held — no gutte
   expectNothingMoved(seen, WIDENED);
 });
 
-test('MDL-2: where the window widens as the page’s scroll is held, a snackbar shown behind the dialog stays where it was, at the bottom and at the top end', async ({ page }) => {
+test('MDL-2: where the window widens as the page’s scroll is held, a snackbar shown when the dialog opens — moved inside it (SNK-38) — stays where it was, at the bottom and at the top end', async ({ page }) => {
   const host = await mount(page, STYLED_BAR);
   await page.evaluate(() => {
     document.body.insertAdjacentHTML('beforeend', '<tanrei-snackbar-host></tanrei-snackbar-host>');
     return customElements.whenDefined('tanrei-snackbar-host');
   });
-  const snackbars = page.locator('tanrei-snackbar-host tanrei-snackbar');
+  // Wherever it is shown: in the host, or inside the dialog while it is open (a locator looks into shadow roots).
+  const snackbars = page.locator('tanrei-snackbar[popover]');
   for (const placement of ['bottom', 'top-end']) {
     await page.evaluate((placement) => {
       const snackbars = document.querySelector<HTMLElement & { show(options: object): Promise<unknown> }>('tanrei-snackbar-host')!;

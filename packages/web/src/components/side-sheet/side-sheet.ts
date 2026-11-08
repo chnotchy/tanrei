@@ -22,7 +22,6 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -513,7 +512,6 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     this.shown = true;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.layout();
     this.onViewport();
@@ -526,7 +524,6 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     this.shown = false;
     this.drag = null;
     this.listenToDrag(false);
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const hadFocus = focusWithin(this);
     const dialog = this.dialog;

@@ -28,7 +28,6 @@ import {
   holdPageScroll,
   hostAria,
   markGlyph,
-  modalLayer,
   naturalHeight,
   notifyItemUpdate,
   placeMenu,
@@ -2219,7 +2218,6 @@ export class TanreiSearch extends TanreiElement {
     // it is taken back from where its fade has got to (MOT-2).
     if (!dialog.open) openModal(dialog);
     this.fullShown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
     this.onViewport();
@@ -2239,7 +2237,6 @@ export class TanreiSearch extends TanreiElement {
     const dialog = this.dialog;
     if (!this.fullShown) return;
     this.fullShown = false;
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     const active = deepActive();

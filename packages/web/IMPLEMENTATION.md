@@ -6175,12 +6175,26 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 | `dismiss` | `CustomEvent<{ reason }>`, bubbling: `close`, `escape` (Escape with focus inside), `timeout` or `host` |
 | `expandedchange` | `CustomEvent<{ expanded }>`, bubbling: the person toggled the expand button (the spec's `toggle`; a popover already fires a native `toggle` when shown and hidden). Not fired when the product sets `expanded` |
 
-**The host (SNK-8…13, SNK-17).** One snackbar at a time, in the order asked for; a snackbar not yet shown waits while a
-`<tanrei-dialog>` is open modally (`src/primitives/modal.ts`). The host appends each as a `<tanrei-snackbar popover="manual">`
-child and shows it in the top layer, fixed at the bottom of the window, centred, `container.margin` above the bottom edge
-(plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard, measured from `visualViewport`) and at
-least that far from the sides; a dialog opened later is above it, and while it holds the page's scroll the snackbar's
-sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. Its bar appears as every surface does
+**The host (SNK-8…13, SNK-17).** One snackbar at a time, in the order asked for. The host appends each as a
+`<tanrei-snackbar popover="manual">` child and shows it in the top layer, fixed at the bottom of the window, centred,
+`container.margin` above the bottom edge (plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard,
+measured from `visualViewport`) and at least that far from the sides; while a modal surface holds the page's scroll the
+snackbar's sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does
+not move. **Over a modal surface (SNK-38)**: a modal `<dialog>` makes everything outside it inert, a top-layer popover
+too, so a snackbar shown from the host behind it could be neither pressed nor heard. `modalLayer` (`src/primitives/modal.ts`)
+lists the modal `<dialog>`s open in the window, the topmost last — `openModal()` adds one once `showModal()` has made it
+modal and `closeModal()` deletes it once it is not (`src/primitives/modal-exit.ts`), so every modal surface counts with no
+code of its own. While one is open the host puts a box of its own in the topmost `<dialog>` — a `div` with a shadow root:
+two live regions and a slot, out of the surface's flow (`mouthStyles`) — and shows the snackbar there: a flat-tree
+descendant of the modal dialog is not inert, and as a popover it is still in the top layer, above the surface and its
+scrim, at the same place. A snackbar asked for then shows at once; one already showing is moved there when the surface
+opens, and back (or into the surface below) when it closes — after the task that opened or closed it, at once
+(`appearIn(true)`), still open, not announced again, its timeout started again from its whole length. A surface's focus
+trap counts its controls after the surface's own (`tabbables()` looks through the box's shadow root and slot). The box
+stops a key other than Tab, a press and a wheel from bubbling into the surface, so that none of them reads as the
+surface's (a press on its scrim, an image preview's arrow keys); Escape is the snackbar's own. Inside the surface the
+snackbar is in its shadow tree: a page's rules for `tanrei-snackbar` do not reach it there, and its events bubble no
+further than that tree. Its bar appears as every surface does
 (`appearStyles()` and `AppearController`, `src/primitives/motion.ts`, role `toast`): from `sys.motion.appear.*`, grown from
 the middle of the window's edge it stands at — the bottom one, or the top one at the top end (SNK-36) — and that far toward
 it, over `motion.enter-*`; closed, it goes back the same way over `motion.exit-*`, turned round from where it is, and stays
@@ -6189,8 +6203,8 @@ cross-fades over `sys.motion.role.reduced`; shown before the document's first pa
 is the motion element (`data-edge`, `.open`), so a measure of it while it moves reads its layout (`laidHeight()`), never its
 drawn box. The announcement does not wait for the motion.
 The timeout runs only while the snackbar is not hovered, holds no focus, is not expanded, the page is visible and focused
-(`visibilityState`, `document.hasFocus()`) and no Tanrei modal dialog is open; each time those hold again it starts from its
-whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither
+(`visibilityState`, `document.hasFocus()`); each time those hold again, and each time it moves into or out of a modal
+surface, it starts from its whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither
 lengthens it here: `auto` (indefinite with an action) is what keeps an action reachable. **Announcements (SNK-10)**: the host
 draws two visually hidden live regions in its shadow root from the start — `role="status"` `aria-live="polite"` for the
 default, info and success forms, `role="alert"` `aria-live="assertive"` for warning and error — and writes statusLabel, the
@@ -6705,8 +6719,8 @@ closed at once — focus and the page are given back — and kept drawn in the t
 scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
 it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
 there at once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Focus moves when it opens and
-closes, not when the motion ends. A snackbar waits for, and
-pauses under, an open dialog (`src/primitives/modal.ts`).
+closes, not when the motion ends. A snackbar shown while it is open is shown inside it (SNK-38, `modalLayer` in
+`src/primitives/modal.ts`).
 
 **Holding the page's scroll (MDL-2)** is `holdPageScroll()` (`src/primitives/modal.ts`), shared by every modal surface:
 `overflow: hidden` on the root from the first holder until the last lets go. Where a classic scroll bar took room, the
@@ -7631,7 +7645,7 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 
 **Modal (NVD-19…22, NVD-40).** A native `<dialog>` in the shadow root opened with `showModal()`: the top layer,
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
-waiting (`modalLayer`). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
+shown inside it (`modalLayer`, SNK-38). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
 the exit motion. It opens and closes with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts, MDL-7): closed,
 it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out over its
 fading scrim until their transitions have finished (no timer, and no `overlay` transition, which Firefox and WebKit do not
@@ -8642,7 +8656,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `isDisabledControl(control)` (`form-disabled.ts`) | whether a control a container walks is disabled now: by its own `disabled` or by a disabled fieldset around it (a Button answers for itself: a link button is disabled by none) — what a toolbar's one Tab stop and a dialog's count of enabled actions read (TBR-10, DLG-19); `GROUP_AVAILABILITY` (`group-item.ts`) is how an item tells its group that the platform's word changed | which items it walks |
 | `NativeTextController` (`native-text.ts`) | a component's `value` and its native text element kept in step around an input method (TXF-1, TXF-4, SRC-4): the element's own `input` is the component's, nothing is written into a composition, a value set meanwhile waits for its end, and a committed composition always ends with one `input` that is not composing, sent in a later task where the browser sent none — `ending` is true until then, so a component can tell that `input` from typing (a view closed in that gap stays closed: SRC-5, CMB-21); a composition that ends with the value as it began is not committed and ends with no `input` (TXI-4: none is sent, and Firefox's own is stopped at the element by `composingInput`) | the element, the value's getter and setter; optional `reported` (the value the component's `input` reports, where the element shows another text: a search's suggestion or completion), `commit` (what a composition may leave: the text field's limit) and `settled(closed)` (whether an `input` closes the composition) hooks; `composingInput(event)` first in the `input` listener, `show()` from `updated()`; `ending` where the closing `input` must not undo what happened since the composition ended |
 | `CompositionEnd`, `isCompositionInput()`, `COMPOSITION_INPUT_TYPES` (`composition-end.ts`) | what an engine still reports for an input method's composition once it has ended, told by what it is and never by a timer (a timer runs after input on a busy page, so a key or a digit typed next was lost): an `input` whose inputType names a composition (Firefox's last one comes after the end), and the committing key WebKit reports after the end — key code 229, or pressed no later than the end (TXI-45, ETI-4, OTC-6, OTC-13) | `ended(event)` from `compositionend`, `tookKey(event)` in a `keydown` listener, `reset()` when the element leaves |
-| `modalLayer` (`modal.ts`) | the Tanrei modal overlays open in the window: a dialog adds and removes itself; a snackbar host waits for them and pauses under them | `add(el)` / `delete(el)`, `covered`, `subscribe(fn)` |
+| `modalLayer` (`modal.ts`) | the modal `<dialog>`s of Tanrei's surfaces open in the window, the topmost last: `openModal()` adds one, `closeModal()` deletes it, no component does; a snackbar host shows its snackbar inside the topmost (SNK-38) | `top`, `add(dialog)` / `delete(dialog)`, `subscribe(fn)` |
 | `deepActive()`, `tabbables()`, `trapFocus()`, `holdPageScroll()`, `SCROLL_HOLD_INSET` (`modal.ts`) | what every modal overlay does (dialog, modal drawer): the focused element through shadow roots, the Tab order through shadow roots and slots, Tab wrapping inside, the page's scroll held while any holder is open, and the room the window gains on each side while it is held (MDL-2), which a part fixed against the window's edge adds to its insets | the container; the holder; `var(${SCROLL_HOLD_INSET.right}, 0px)` in the part's insets |
 | `containWheel(event, scroller)`, `containedWheel` (`contained-wheel.ts`) | a box that keeps its scroll from the page (`overscroll-behavior: contain`) also does in Gecko, which keeps to `contain` only within one wheel transaction (`mousewheel.transaction.timeout`, 1.5 s) that an event scrolling nothing neither begins nor prolongs: a wheel turned toward an end the box already stands at is cancelled, along the axis the wheel is turned (the larger part; sideways for Shift with a vertical wheel), and only along an axis the box scrolls and contains. Not cancelled: Ctrl (zoom, a pinch), a wheel the box or a scroller inside it can still take. Bound by the navigation drawer, the menu, the option list (select, combobox), the popover, the search's view, the calendar's year view, the tabs, the toolbar, the carousel (from its own wheel listener), the compact table of contents, the snackbar's text, the date-time picker's body, the side and bottom sheets' content and the app shell's navigation and aside. Not bound where a modal overlay holds the page's scroll (`holdPageScroll()`: the dialog, the image preview): nothing behind can scroll | `@wheel=${containedWheel}` on the box that scrolls, or `addEventListener('wheel', containedWheel, containedWheel)` for a light-DOM child; never on a box as large as the page, since a listener that can cancel makes every wheel over it wait for script |
 | `DestinationsController`, `NavigationDestination`, `destinationStyles(prefix, { lines })` (`destination.ts`) | the destinations of a navigation region: the first destination with the region's value is selected, an activation sets `value` and fires `change` (or `reselect`), the context each destination is told, the debug reports; a bar's destination (a `<button>` or `<a href>` cell, the item container that is the state layer and the indicator, the grow of a new indicator, label visibility, badge and description) | the items, the behaviour ids, the range, which labels show, what more each destination is told (`context`: the drawer's form and nesting); a subclass with its tag and prefix |

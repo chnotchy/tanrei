@@ -9,7 +9,6 @@ import {
   focusWithin,
   holdPageScroll,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -175,7 +174,6 @@ export class TanreiModalLayer extends TanreiElement {
     this.opener = deepActive();
     openModal(dialog);
     this.shown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.onViewport();
     this.focusInside();
@@ -185,7 +183,6 @@ export class TanreiModalLayer extends TanreiElement {
   private withdraw(restore: boolean) {
     if (!this.shown) return;
     this.shown = false;
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
     if (dialog) void closeModal(dialog);

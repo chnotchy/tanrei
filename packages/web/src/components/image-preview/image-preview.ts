@@ -22,7 +22,6 @@ import {
   giveVariant,
   holdPageScroll,
   isLeaving,
-  modalLayer,
   modalSheetKeys,
   openModal,
   report,
@@ -1322,7 +1321,6 @@ export class TanreiImagePreview extends TanreiElement {
     else openModal(dialog);
     this.appear.enter();
     this.presented = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.giveVariants();
     this.measure();
@@ -1348,7 +1346,6 @@ export class TanreiImagePreview extends TanreiElement {
     this.gesture = null;
     this.gestureView = null;
     this.resize$?.disconnect();
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
     // IMP-4, IMP-33: no longer modal at once — the page and focus are given back now — and drawn in the top layer until

@@ -555,11 +555,8 @@ export const styles = css`
   }
 `;
 
-/** The host: the two live regions (SNK-10), drawn nowhere; its snackbars are in the top layer. */
-export const hostStyles = css`
-  :host {
-    display: block;
-  }
+/** A live region (SNK-10), drawn nowhere and still read. */
+const announce = css`
   .announce {
     position: absolute;
     inline-size: 1px;
@@ -571,4 +568,29 @@ export const hostStyles = css`
     white-space: nowrap;
     border: 0;
   }
+`;
+
+/** The host: the two live regions (SNK-10), drawn nowhere; its snackbars are in the top layer. */
+export const hostStyles = css`
+  :host {
+    display: block;
+  }
+  ${announce}
+`;
+
+/**
+ * SNK-38: the box the host puts in the topmost modal surface's `<dialog>` while one is open — two live regions of its
+ * own and the snackbar, which is in the top layer. Out of the surface's flow, so that its layout (a gap, a grid track) is
+ * as it was, and a box all the same: a focus trap that counts the surface's tab stops looks inside what has one.
+ */
+export const mouthStyles = css`
+  :host {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    block-size: 0;
+    overflow: visible;
+  }
+  ${announce}
 `;
