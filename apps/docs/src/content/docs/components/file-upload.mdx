@@ -394,6 +394,7 @@ With `rows="given"` each row is a [file item](/components/file-item/) you write,
 - Format the size yourself and give it as `sizeText`, or as the `formatSize` function with `rows="own"`. Whether a megabyte is 1000 or 1024 kilobytes is your product's decision.
 - `progress` is your report of your own sending. The component never moves the bar by itself.
 - Don't set on a row what the file upload gives every row: its form, its preview, the two action names, `disabled`.
+- A row you take out is drawn leaving. The component puts your element back where it stood, `inert`, hidden from assistive technology and marked `data-leaving`, and removes it once it has faded and closed. It is no row from the moment you take it out: read your rows as `tanrei-file-item:not([data-leaving])` meanwhile.
 
 ### In a field
 
@@ -467,6 +468,7 @@ In a right-to-left layout the trigger and the row glyphs stand at the right, the
 - With `rows="own"` one choice is one message: the name of each file that was kept, then each refused file's name with your sentence. The file upload adds no word and no count. Set `announcement` in your `change` listener to say one sentence of your own instead.
 - A removal is not announced. After a row is removed, focus goes to the next row's remove action, to the previous row's where none follows, or to the trigger when no row is left. With `rows="own"` the file upload does this itself.
 - At 200% text every text wraps and nothing is cut. In forced colors the area keeps an edge, a receiving area has a thicker one, and a row's bar stays visible.
+- A row that is added opens from nothing and fades in, and a row that is removed fades out and closes, the rows below moving with it. A change of status that changes a row's height moves it too. What assistive technology reads, the count and focus change at once, not at the end of the motion. With reduced motion every change is drawn at once.
 
 How it is built on the web: the file picker is the file upload's member, in its shadow root, and the picker inside it is a real `<input type="file">`, kept from sight, from the focus order and from assistive technology. The trigger stays in your DOM, and so do the file items you give. The group, the list, the live region and the file items the file upload makes itself are in the shadow root.
 

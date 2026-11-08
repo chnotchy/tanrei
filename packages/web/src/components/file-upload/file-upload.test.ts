@@ -18,9 +18,10 @@ import path from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, type TestInfo, expect, test } from '@playwright/test';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { bezierOf, resolveEasing } from '../../../test/appear.js';
 import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
-import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
+import { EVERY_ANIMATION, motionCount, motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('file-upload');
 type P = Page;
@@ -40,8 +41,8 @@ const emptyText = (page: P, id: string) => picker(page, id).locator('.group > .c
 const list = (page: P, id: string) => host(page, id).locator('.group > tanrei-list.list');
 const region = (page: P, id: string) => host(page, id).locator('.group > .announce');
 const trigger = (page: P, id: string) => host(page, id).locator(':scope > [slot="trigger"]');
-/** The rows the product gave: its own file items, in the light DOM. */
-const rows = (page: P, id: string) => host(page, id).locator(`:scope > ${ITEM}`);
+/** The rows the product gave: its own file items, in the light DOM — but one it took away that is drawn leaving (FUP-29). */
+const rows = (page: P, id: string) => host(page, id).locator(`:scope > ${ITEM}:not([data-leaving])`);
 const row = (page: P, id: string, index: number) => rows(page, id).nth(index);
 /** The parts of a file item, inside the file item. */
 const inRow = (r: Locator, name: 'item' | 'body' | 'icon' | 'headline' | 'supporting' | 'said' | 'mark' | 'retry' | 'remove' | 'bar' | 'lead' | 'end' | 'text' | 'box' | 'preview') =>
@@ -701,53 +702,6 @@ test.describe('behavior', () => {
     await expect(trigger(page, 'given').locator('[part="container"]')).toBeEnabled();
     await expect(inRow(row(page, 'given', 1), 'remove')).toBeEnabled();
     await expect(inRow(ownRow(page, 'own', 0), 'remove')).toBeEnabled();
-  });
-
-  test('FUP-29: a row that is added, removed or changes its status is drawn at once, without a motion of the file upload’s own, and the rows after it take their new places at once — in a strip of tiles also where that moves a tile to another line', async ({ page }) => {
-    await mountSpec(page, 'button-multiple', 'tiles');
-    // Its own motions: those in its shadow root and in every shadow root inside it — the File picker, the List and its
-    // items; the rows given as children are the product's.
-    const moving = (id: string) =>
-      host(page, id).evaluate((el, every) => {
-        const mine = [el, ...el.shadowRoot!.querySelectorAll<HTMLElement>('.group, .list, .rows')];
-        return { animations: ((0, eval)(every) as (root: ShadowRoot) => Animation[])(el.shadowRoot!).length, transitions: mine.map((node) => getComputedStyle(node).transitionDuration).filter((duration) => duration.split(',').some((each) => Number.parseFloat(each) > 0)), animated: mine.map((node) => getComputedStyle(node).animationName).filter((name) => name !== 'none') };
-      }, EVERY_ANIMATION);
-    // A column: the row after a removed one stands where it stood, in the same task that drew the change.
-    {
-      const id = 'button-multiple';
-      const first = await box(row(page, id, 0));
-      const after = await host(page, id).evaluate(async (el) => {
-        el.querySelector('tanrei-file-item')!.remove();
-        await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-        return el.querySelector('tanrei-file-item')!.getBoundingClientRect().y;
-      });
-      near(after, first.y, 'the next row takes its place at once');
-      expect(await moving(id)).toEqual({ animations: 0, transitions: [], animated: [] });
-      // Added, and its status changed.
-      const added = await host(page, id).evaluate(async (el) => {
-        el.insertAdjacentHTML('afterbegin', '<tanrei-file-item value="n" name="new.pdf" status="uploading"></tanrei-file-item>');
-        await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-        const [one, two] = [...el.querySelectorAll('tanrei-file-item')].map((item) => item.getBoundingClientRect());
-        return { y: one!.y, below: two!.y > one!.y };
-      });
-      near(added.y, first.y, 'a row that is added is drawn at once');
-      expect(added.below).toBe(true);
-      expect(await moving(id)).toEqual({ animations: 0, transitions: [], animated: [] });
-    }
-    // A strip: the fourth tile, on the second line, moves up to the first when a tile before it leaves.
-    {
-      const id = 'tiles';
-      const [first, fourth] = [await box(row(page, id, 0)), await box(row(page, id, 3))];
-      expect(fourth.y).toBeGreaterThan(first.y + first.height - 1);
-      const now = await host(page, id).evaluate(async (el) => {
-        el.querySelector('tanrei-file-item')!.remove();
-        await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-        return [...el.querySelectorAll('tanrei-file-item')].map((item) => item.getBoundingClientRect().y);
-      });
-      expect(now).toHaveLength(3);
-      for (const y of now) near(y, first.y, 'every tile on the first line, at once');
-      expect(await moving(id)).toEqual({ animations: 0, transitions: [], animated: [] });
-    }
   });
 
   test('FUP-30: when a row leaves while focus is on one of its stops, focus moves to the remove action of the row that followed, or of the one before where none follows, or to the trigger where no row is left; where that row has no remove action — a read-only file item — to its body where it is pressable, and otherwise on to the next such row or the trigger; a row added or changed otherwise moves no focus, and focus elsewhere is left alone', async ({ page }) => {
@@ -1434,8 +1388,8 @@ test.describe('behavior', () => {
 // ── Its own rows: FUP-42 to FUP-55, and the six ids that hold "WHILE rows is given" ──────────────────
 // A fixture made by `ownFx` gives no `rows`: it is a file upload that keeps its own files, as one placed in a form is.
 const ownFx = (id: string, props: Fixture['props'] = {}, extra: Extra = {}): Fixture => ({ id, props: { label: 'Attachments', removeLabel: 'Remove {name}', ...props }, slots: { trigger: 'Choose files' }, ...extra });
-/** The rows the file upload drew itself: in its shadow root, in the list. */
-const ownRows = (page: P, id: string) => host(page, id).locator(`.group > .list > tanrei-list-item > ${ITEM}`);
+/** The rows the file upload drew itself: in its shadow root, in the list — but one the List draws leaving (FUP-29). */
+const ownRows = (page: P, id: string) => host(page, id).locator(`.group > .list > tanrei-list-item:not([data-leaving]) > ${ITEM}`);
 const ownRow = (page: P, id: string, index: number) => ownRows(page, id).nth(index);
 type Upload = HTMLElement & {
   files: File[];
@@ -2153,7 +2107,7 @@ test.describe('its own rows', () => {
     expect(warnings.filter((w) => w.includes('fileSizeErrorText'))).toEqual([]);
   });
 
-  test('FUP-54: what the spec says of a row, of the list and of what stands around them holds for the rows it drew itself — the column, the List’s small gap apart, each as wide as the file upload, a name that wraps and is never cut; emptyText while there is no row; disabled rows that stay readable with their remove actions disabled and out of the focus order, and no change; rows that come and go at once; enlarged text; forced colors; and right-to-left, with a Latin name keeping its order', async ({ page, browserName }) => {
+  test('FUP-54: what the spec says of a row, of the list and of what stands around them holds for the rows it drew itself — the column, the List’s small gap apart, each as wide as the file upload, a name that wraps and is never cut; emptyText while there is no row; disabled rows that stay readable with their remove actions disabled and out of the focus order, and no change; rows that arrive and leave in one motion; enlarged text; forced colors; and right-to-left, with a Latin name keeping its order', async ({ page, browserName }) => {
     const long = 'quarterly-report-with-a-very-long-name-that-cannot-fit-on-one-line-of-the-row-2026-final-version-reviewed.pdf';
     await mount(page, [ownFx('a', { multiple: true, emptyText: 'No file chosen', accept: ['.pdf'], constraintsText: 'x', typeErrorText: 'Only PDF files can be added.' }), ownFx('rtl', { multiple: true }, { direction: 'rtl' })]);
     const id = 'a';
@@ -2161,6 +2115,9 @@ test.describe('its own rows', () => {
     await expect(list(page, id)).toBeHidden();
     await give(page, id, [{ name: long, modified: 1000 }, B, MOV]);
     await expect(ownRows(page, id)).toHaveCount(3);
+    // FUP-29: the rows arrive in one motion, and are measured at rest.
+    expect(await motionCount(list(page, id)), 'the rows arrive with a motion').toBeGreaterThan(0);
+    await motionEnded(host(page, id));
     // FUP-2: emptyText is drawn only while the list holds no row; the trigger's description follows.
     await expect(emptyText(page, id)).toHaveCount(0);
     // FUP-17: one column, item-gap apart, as wide as the file upload; the name whole.
@@ -2176,7 +2133,7 @@ test.describe('its own rows', () => {
     await expect(stage(page, id).getByRole('list')).toHaveCount(1);
     await expect(stage(page, id).getByRole('listitem')).toHaveCount(3);
     await expect(inRow(ownRow(page, id, 1), 'remove')).toHaveAttribute('aria-label', 'Remove b.pdf');
-    // FUP-29: a row appears and leaves at once, without a motion.
+    // FUP-29: at rest nothing of the motion is left on a row.
     expect(await motionCount(ownRow(page, id, 1))).toBe(0);
     // FUP-34: in forced colors the rows are drawn in the system's colors.
     if (browserName !== 'webkit') {
@@ -2199,6 +2156,7 @@ test.describe('its own rows', () => {
     await give(page, 'rtl', [{ name: 'brief.pdf', modified: 1000 }]);
     const r = ownRow(page, 'rtl', 0);
     await expect(r).toBeVisible();
+    await motionEnded(host(page, 'rtl'));
     const [icon, remove, headline] = [await box(inRow(r, 'icon')), await box(inRow(r, 'remove')), await box(inRow(r, 'headline'))];
     expect(icon.x, 'the glyph at the right').toBeGreaterThan(headline.x);
     expect(remove.x, 'the remove action at the left').toBeLessThan(headline.x);
@@ -2211,6 +2169,7 @@ test.describe('its own rows', () => {
     });
     await give(page, id, [{ name: long, modified: 1000 }, MOV]);
     await expect(ownRows(page, id)).toHaveCount(2);
+    await motionEnded(host(page, id));
     await frames(page);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'nothing scrolls sideways').toBe(true);
     for (const index of [0, 1]) {
@@ -2595,6 +2554,321 @@ test.describe('reorderable', () => {
     await expect(host(page, 'own').locator('.group > .list')).toHaveJSProperty('reorderable', false);
     expect(await handleOf(page, 'own', 0).count()).toBe(0);
   });
+});
+
+// ── Rows that arrive and leave: FUP-29 ───────────────────────────────────────────────────────────────────────────
+// The test is the product (or, while rows is own, the person): it adds rows, takes them away and changes their status.
+// Every motion is read with its clock held (test/frames.ts), so that each frame is the same moment on any machine and
+// in any engine.
+
+/**
+ * What a change of the rows is read by in every frame: the top and bottom of each item of the List by its file's name
+ * (`top:brief.pdf`), the height, opacity and edges of the item named by the stage's `data-marked` — the row that
+ * arrives, leaves or changes — and whether it is drawn, the room between the file picker and the list (`gap`, 0 while
+ * the list is out of the layout), the list's height and the file upload's bottom edge.
+ */
+const rowsProbe: Probe = (root) => {
+  const host = root.querySelector('tanrei-file-upload')!;
+  const shadow = host.shadowRoot!;
+  const box = (el: Element) => el.getBoundingClientRect();
+  const list = shadow.querySelector('.list')!;
+  const picker = shadow.querySelector('tanrei-file-picker')!;
+  const out: Record<string, number | boolean> = { hostBottom: box(host).bottom, gap: box(list).top - box(picker).bottom, listHeight: box(list).height };
+  const marked = root.getAttribute('data-marked');
+  let m: Element | null = null;
+  for (const item of shadow.querySelectorAll('.list > tanrei-list-item')) {
+    const label = item.getAttribute('label') ?? '';
+    if (label === marked) {
+      m = item;
+      continue;
+    }
+    Object.assign(out, { [`top:${label}`]: box(item).top, [`bottom:${label}`]: box(item).bottom, [`opacity:${label}`]: Number(getComputedStyle(item).opacity) });
+  }
+  const r = m ? box(m) : null;
+  Object.assign(out, { drawn: !!m, height: r ? r.height : 0, markedTop: r ? r.top : 0, markedBottom: r ? r.bottom : 0, opacity: m ? Number(getComputedStyle(m).opacity) : 0 });
+  return out;
+};
+const at = (frame: Frame, name: string) => Number(frame.probe[name]);
+/** The rows' motions as the sampler held them, by name: [the element, duration, curve]. */
+const heldMotions = (seen: Frames) =>
+  [...new Set(seen.motions.map((motion) => `${motion.name}|${motion.on.split('.')[0]}|${motion.duration}|${bezierOf(motion.easing).join(' ')}`))].sort();
+/** The motions of a box's height (a transition of `block-size`, which an engine may name `height`): [the element, duration, curve]. */
+const heights = (seen: Frames) =>
+  heldMotions(seen)
+    .filter((motion) => /^(block-size|height)\|/.test(motion))
+    .map((motion) => motion.slice(motion.indexOf('|') + 1));
+/** The List's resize and state motion, as the cascade computes them: what the rows move by. */
+const listMotion = async (page: P) => {
+  const resize = await resolveToken(page, '--tanrei-comp-list-motion-resize-duration', 'duration');
+  const state = await resolveToken(page, '--tanrei-comp-list-motion-state-duration', 'duration');
+  expect(resize, 'the List resizes on the large resize role').toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-large', 'duration'));
+  const curve = async (name: string) => bezierOf(await resolveEasing(page, name)).join(' ');
+  expect(await curve('--tanrei-comp-list-motion-resize-easing')).toBe(await curve('--tanrei-sys-motion-easing-spatial'));
+  return { resize, state, resizeCurve: await curve('--tanrei-comp-list-motion-resize-easing'), stateCurve: await curve('--tanrei-comp-list-motion-state-easing') };
+};
+const mark = (page: P, id: string, name: string) => stage(page, id).evaluate((el, name) => el.setAttribute('data-marked', name), name);
+
+test.describe('rows that arrive and leave', () => {
+  test('FUP-29: WHEN the product adds a row to a column THE file upload opens its height from nothing over the List’s resize motion while it fades in, its content fixed to its top; the row before it stays, the rows after it follow its edge in every frame and the file upload’s bottom with them — also while not reorderable', async ({ page }) => {
+    await mountSpec(page, 'button-multiple');
+    const id = 'button-multiple';
+    const { resize, state, resizeCurve, stateCurve } = await listMotion(page);
+    const gap = await resolveToken(page, '--tanrei-comp-list-gap-small');
+    await mark(page, id, 'new.pdf');
+    const seen = await sampleFrames(stage(page, id), () =>
+      host(page, id).evaluate((el) => {
+        const added = Object.assign(document.createElement('tanrei-file-item'), { value: 'n', name: 'new.pdf' });
+        added.setAttribute('size-text', '20 KB');
+        el.insertBefore(added, el.querySelectorAll('tanrei-file-item')[1]!);
+      }),
+      { probe: rowsProbe },
+    );
+    const [before, rest] = [seen.before, seen.rest];
+    const height = at(rest, 'height');
+    expect(height, 'a row of its own height at rest').toBeGreaterThan(40);
+    // Drawn from the first frame, and opening: its height never falls on its way from nothing to its own.
+    expect(seen.frames[0]!.probe.drawn).toBe(true);
+    expect(at(seen.frames[0]!, 'height')).toBeLessThan(height / 2);
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    const heights = seen.frames.map((frame) => at(frame, 'height'));
+    for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i}: it does not shrink`).toBeGreaterThanOrEqual(heights[i - 1]! - 0.01);
+    expect(at(seen.frames[0]!, 'opacity')).toBeLessThan(0.5);
+    expect(rest.probe.opacity).toBe(1);
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    // The row before it stays; the one after stands below its edge in every frame, never over it and never more than
+    // the List's gap below it; the file upload's bottom goes with the last row.
+    for (const frame of seen.frames) {
+      expect(at(frame, 'top:brief.pdf'), `frame ${frame.index}: the row before it`).toBeCloseTo(at(before, 'top:brief.pdf'), 1);
+      const below = at(frame, 'top:floor-plan.png') - at(frame, 'markedBottom');
+      expect(below, `frame ${frame.index}: the next row below its edge`).toBeGreaterThanOrEqual(-0.5);
+      expect(below, `frame ${frame.index}: the next row at most the gap below it`).toBeLessThanOrEqual(gap + 0.5);
+    }
+    expectAnimated(seen, 'top:floor-plan.png', { minSteps: 4 });
+    expectAnchored(seen, 'top:survey.pdf', 'top:floor-plan.png');
+    expectAnchored(seen, 'hostBottom', 'bottom:survey.pdf');
+    expect(at(rest, 'top:floor-plan.png') - at(before, 'top:floor-plan.png'), 'the next row has moved by its height and the gap').toBeCloseTo(height + gap, 1);
+    expectNoFlicker(seen);
+    // On the List's tokens: its length on the resize motion, its fade on the state motion.
+    const motions = heldMotions(seen);
+    expect(motions).toContain(`list-item-length|tanrei-list-item|${resize}|${resizeCurve}`);
+    expect(motions).toContain(`list-item-fade|tanrei-list-item|${state}|${stateCurve}`);
+    // At rest nothing of the motion is left.
+    expect(await motionCount(host(page, id))).toBe(0);
+  });
+
+  test('FUP-29: WHEN the product takes a row away THE file upload draws the product’s own element leaving — put back where it stood, inert, hidden and marked data-leaving — fading and closing over the same motions while the rows after it follow, and then removes it, giving back what it set on it; what is exposed, counted, submitted and focused changes at once', async ({ page }) => {
+    await mount(page, [fx('given', { label: 'Attachments', multiple: true, ...WORDS }, { items: [file('a', 'a.pdf'), file('b', 'b.pdf'), file('c', 'c.pdf')] })]);
+    const id = 'given';
+    const gap = await resolveToken(page, '--tanrei-comp-list-gap-small');
+    const height = (await box(row(page, id, 1))).height;
+    await mark(page, id, 'b.pdf');
+    const takeAway = () =>
+      host(page, id).evaluate((el) => {
+        const taken = el.querySelectorAll('tanrei-file-item')[1]!;
+        (window as unknown as { taken: Element }).taken = taken;
+        taken.remove();
+      });
+    const seen = await sampleFrames(stage(page, id), takeAway, { probe: rowsProbe });
+    const [before, rest] = [seen.before, seen.rest];
+    // Drawn whole in its first frame, where it stood, then closing and fading: its height never rises.
+    const drawnFrames = seen.frames.filter((frame) => frame.probe.drawn);
+    expect(drawnFrames.length, 'it is drawn while it leaves').toBeGreaterThanOrEqual(4);
+    expect(at(seen.frames[0]!, 'height')).toBeGreaterThan(height / 2);
+    expect(at(seen.frames[0]!, 'markedTop')).toBeCloseTo(at(before, 'bottom:a.pdf') + gap, 1);
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    const heights = drawnFrames.map((frame) => at(frame, 'height'));
+    for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i}: it does not grow`).toBeLessThanOrEqual(heights[i - 1]! + 0.01);
+    for (const frame of drawnFrames) {
+      expect(at(frame, 'top:a.pdf'), `frame ${frame.index}: the row before it`).toBeCloseTo(at(before, 'top:a.pdf'), 1);
+      const below = at(frame, 'top:c.pdf') - at(frame, 'markedBottom');
+      expect(below, `frame ${frame.index}: the next row below its edge`).toBeGreaterThanOrEqual(-0.5);
+      expect(below, `frame ${frame.index}: the next row at most the gap below it`).toBeLessThanOrEqual(gap + 0.5);
+    }
+    expectAnimated(seen, 'top:c.pdf', { minSteps: 4 });
+    expectAnchored(seen, 'hostBottom', 'bottom:c.pdf');
+    // At rest it has gone, the next row stands where it stood, and the element is the product's as it was.
+    expect(rest.probe.drawn).toBe(false);
+    expect(at(rest, 'top:c.pdf')).toBeCloseTo(at(before, 'bottom:a.pdf') + gap, 1);
+    const returned = await page.evaluate(() => {
+      const taken = (window as unknown as { taken: HTMLElement }).taken;
+      return [taken.isConnected, taken.inert, taken.getAttribute('aria-hidden'), taken.hasAttribute('data-leaving')];
+    });
+    expect(returned).toEqual([false, false, null, false]);
+    expect(await motionCount(host(page, id))).toBe(0);
+  });
+
+  test('FUP-29: a row taken away is out of the list, the count, the form and the focus order from the change on — while it is still drawn leaving — and focus on it goes as FUP-30 says; and the page has no axe violations', async ({ page }) => {
+    await mount(page, [fx('given', { label: 'Attachments', multiple: true, name: 'files', ...WORDS }, { items: [file('a', 'a.pdf'), file('b', 'b.pdf'), file('c', 'c.pdf')] })], { lead: '<form id="form"></form>' });
+    const id = 'given';
+    await host(page, id).evaluate((el) => {
+      el.setAttribute('form', 'form');
+      for (const row of el.querySelectorAll<HTMLElement & { file: File | null }>('tanrei-file-item')) row.file = new File(['x'], row.getAttribute('name')!);
+    });
+    // As a product does: on remove, the row is taken out. What is exposed is read in the first frame after the change —
+    // while the row is drawn leaving, whatever the machine's pace between the key and the test's next read.
+    await page.evaluate(() =>
+      document.addEventListener('remove', (event) => {
+        const taken = event.target as Element;
+        const el = taken.parentElement!;
+        taken.remove();
+        requestAnimationFrame(() => {
+          const leaving = el.querySelector('tanrei-file-item[data-leaving]') as HTMLElement | null;
+          const items = [...el.shadowRoot!.querySelectorAll<HTMLElement>('.list > tanrei-list-item')];
+          let active: Element | null = document.activeElement;
+          while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+          const within = (active?.getRootNode() as ShadowRoot | Document) instanceof ShadowRoot ? ((active!.getRootNode() as ShadowRoot).host as Element) : null;
+          (window as unknown as { __now: unknown }).__now = {
+            leaving: leaving?.getAttribute('value') ?? null,
+            inert: leaving?.inert ?? null,
+            hidden: leaving?.getAttribute('aria-hidden') ?? null,
+            drawn: items.length,
+            hiddenItems: items.filter((item) => item.getAttribute('aria-hidden') === 'true' && item.inert).length,
+            submitted: new FormData(document.querySelector<HTMLFormElement>('#form')!).getAll('files').map((each) => (each as File).name),
+            focus: `${within?.getAttribute('value') ?? ''} ${active?.classList.contains('remove') ? 'remove' : (active?.localName ?? '')}`,
+          };
+        });
+      }),
+    );
+    // The person removes b by its remove action; the product takes it out.
+    await inRow(row(page, id, 1), 'remove').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __now?: unknown }).__now ?? null)).not.toBeNull();
+    expect(await page.evaluate(() => (window as unknown as { __now: unknown }).__now), 'drawn leaving, and no row; focus on the remove action of the row that followed').toEqual({
+      leaving: 'b',
+      inert: true,
+      hidden: 'true',
+      drawn: 3,
+      hiddenItems: 1,
+      submitted: ['a.pdf', 'c.pdf'],
+      focus: 'c remove',
+    });
+    await expect(stage(page, id).getByRole('listitem')).toHaveCount(2);
+    expect(await focused(page), 'focus on the remove action of the row that followed').toBe('tanrei-file-item[c] button.action.remove');
+    // The page has no axe violations while a row leaves: what leaves is hidden and inert.
+    const results = await new AxeBuilder({ page }).include(`[data-fixture="${id}"]`).analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
+    await motionEnded(host(page, id));
+    await expect(host(page, id).locator(':scope > tanrei-file-item')).toHaveCount(2);
+  });
+
+  test('FUP-29: the room above the list opens with the first row and closes with the last over the List’s resize motion — while rows is own, for the person’s choice and for clear() — and the list is out of the layout at rest once it holds no row', async ({ page }) => {
+    await mount(page, [ownFx('own', { multiple: true })]);
+    const id = 'own';
+    const room = await token(page, 'list-gap');
+    expect(room).toBeGreaterThan(0);
+    await mark(page, id, 'a.pdf');
+    const opened = await sampleFrames(stage(page, id), () => give(page, id, [A]), { probe: rowsProbe });
+    expect(at(opened.before, 'gap')).toBe(0);
+    expect(at(opened.rest, 'gap')).toBeCloseTo(room, 1);
+    expectAnimated(opened, 'gap', { minSteps: 4 });
+    expectAnimated(opened, 'height', { minSteps: 4 });
+    expectAnimated(opened, 'hostBottom', { minSteps: 4 });
+    const gaps = opened.frames.map((frame) => at(frame, 'gap'));
+    for (let i = 1; i < gaps.length; i++) expect(gaps[i]!, `frame ${i}: the room only opens`).toBeGreaterThanOrEqual(gaps[i - 1]! - 0.01);
+    expectNoFlicker(opened);
+    const closed = await sampleFrames(stage(page, id), () => host(page, id).evaluate((el) => (el as Upload).clear()), { probe: rowsProbe });
+    expectAnimated(closed, 'gap', { minSteps: 4 });
+    expectAnimated(closed, 'hostBottom', { minSteps: 4 });
+    expect(at(closed.rest, 'gap'), 'no room at rest').toBe(0);
+    expect(closed.rest.probe.drawn).toBe(false);
+    await expect(list(page, id)).toBeHidden();
+    near((await box(host(page, id))).height, (await box(picker(page, id))).height, 'as tall as its file picker at rest');
+  });
+
+  test('FUP-29: WHEN a row’s status changes THE file upload moves the row’s height to its new one over the List’s resize motion, anchored at its top, the rows after it following — only where the status changes it', async ({ page }) => {
+    await mount(page, [fx('given', { label: 'Attachments', multiple: true, ...WORDS }, { items: [file('a', 'a.pdf', { sizeText: '20 KB' }), file('b', 'b.pdf', { sizeText: '20 KB', status: 'uploading', statusText: 'Uploading', progress: 0.5 }), file('c', 'c.pdf', { sizeText: '20 KB' })] })]);
+    const id = 'given';
+    const { resize, resizeCurve } = await listMotion(page);
+    await mark(page, id, 'b.pdf');
+    const before = (await box(row(page, id, 1))).height;
+    const seen = await sampleFrames(
+      stage(page, id),
+      () =>
+        row(page, id, 1).evaluate((el) => {
+          Object.assign(el, { status: 'error', errorText: 'The connection was lost, and the file could not be sent to the server. Try again later.' });
+        }),
+      { probe: rowsProbe },
+    );
+    const after = at(seen.rest, 'height');
+    expect(Math.abs(after - before), 'the status changes the row’s height').toBeGreaterThan(4);
+    expectAnimated(seen, 'height', { minSteps: 4 });
+    // Anchored at its top, the row before it still, the row after it below its edge in every frame.
+    for (const frame of seen.frames) {
+      expect(at(frame, 'markedTop'), `frame ${frame.index}: its top stays`).toBeCloseTo(at(seen.before, 'markedTop'), 1);
+      expect(at(frame, 'top:a.pdf')).toBeCloseTo(at(seen.before, 'top:a.pdf'), 1);
+    }
+    expectAnchored(seen, 'top:c.pdf', 'markedBottom');
+    expectAnimated(seen, 'top:c.pdf', { minSteps: 4 });
+    expect(heights(seen)).toEqual([`tanrei-list-item|${resize}|${resizeCurve}`]);
+    // A change that leaves its height as it was moves nothing.
+    const still = await sampleFrames(stage(page, id), () => row(page, id, 0).evaluate((el) => Object.assign(el, { sizeText: '21 KB' })), { probe: rowsProbe });
+    expect(heights(still)).toEqual([]);
+  });
+
+  test('FUP-29: in a strip of tiles a tile that arrives fades in at its place, the tiles whose place changes move there, and the strip’s height moves to its new one where that adds a line — over the List’s motions', async ({ page }) => {
+    const tile = (n: number) => file(`t${n}`, `tile-${n}.png`, { status: 'done' });
+    await mount(page, [fx('strip', { label: 'Photos', multiple: true, itemForm: 'tile', ...WORDS }, { items: [1, 2, 3].map(tile) })]);
+    const id = 'strip';
+    const { resize, resizeCurve } = await listMotion(page);
+    // As many tiles as fill the line the last one stands on, plus one: the strip gains a line.
+    const adding = await host(page, id).evaluate((el) => {
+      const tops = [...el.querySelectorAll('tanrei-file-item')].map((each) => Math.round(each.getBoundingClientRect().top));
+      const perLine = tops.filter((top) => top === tops[0]).length;
+      const onLast = tops.filter((top) => top === tops.at(-1)).length;
+      return onLast === perLine ? 1 : perLine - onLast + 1;
+    });
+    await mark(page, id, 'tile-9.png');
+    const seen = await sampleFrames(
+      stage(page, id),
+      () =>
+        host(page, id).evaluate((el, adding) => {
+          for (let n = 9 - adding + 1; n <= 9; n++) el.insertAdjacentHTML('beforeend', `<tanrei-file-item value="t${n}" name="tile-${n}.png" status="done"></tanrei-file-item>`);
+        }, adding),
+      { probe: rowsProbe },
+    );
+    expect(at(seen.rest, 'listHeight'), 'a line more').toBeGreaterThan(at(seen.before, 'listHeight') + 20);
+    expectAnimated(seen, 'listHeight', { minSteps: 4 });
+    expectAnimated(seen, 'hostBottom', { minSteps: 4 });
+    expect(at(seen.frames[0]!, 'opacity')).toBeLessThan(0.5);
+    expectAnimated(seen, 'opacity', { minSteps: 4 });
+    // It fades where it stands: its place is its place at rest from the first frame.
+    for (const frame of seen.frames.filter((each) => each.probe.drawn)) expect(at(frame, 'markedTop'), `frame ${frame.index}`).toBeCloseTo(at(seen.rest, 'markedTop'), 1);
+    expect(heights(seen)).toEqual([`tanrei-list|${resize}|${resizeCurve}`]);
+    // A tile that leaves fades out where it was drawn, and the strip closes the line again.
+    await mark(page, id, 'tile-1.png');
+    const left = await sampleFrames(stage(page, id), () => host(page, id).evaluate((el, adding) => {
+      for (const each of [...el.querySelectorAll('tanrei-file-item')].slice(-adding)) each.remove();
+    }, adding), { probe: rowsProbe });
+    expectAnimated(left, 'listHeight', { minSteps: 4 });
+  });
+
+  test('FUP-29: WHERE motion is reduced THE file upload makes every change of the rows at once — added, removed, a change of status, the first and the last row — with no motion and no row drawn leaving', async ({ page }) => {
+    await mount(page, [fx('given', { label: 'Attachments', multiple: true, ...WORDS }, { items: [file('a', 'a.pdf'), file('b', 'b.pdf', { status: 'uploading', statusText: 'Uploading', progress: 0.5 })] }), ownFx('own', { multiple: true })], { reducedMotion: true });
+    const now = async (id: string) => ({
+      motions: await motionCount(host(page, id)),
+      leaving: await host(page, id).evaluate((el) => el.querySelectorAll('[data-leaving]').length + el.shadowRoot!.querySelectorAll('[data-leaving]').length),
+    });
+    await host(page, 'given').evaluate((el) => el.insertAdjacentHTML('afterbegin', '<tanrei-file-item value="n" name="new.pdf"></tanrei-file-item>'));
+    expect(await now('given')).toEqual({ motions: 0, leaving: 0 });
+    await host(page, 'given').evaluate((el) => el.querySelector('tanrei-file-item')!.remove());
+    expect(await now('given')).toEqual({ motions: 0, leaving: 0 });
+    await row(page, 'given', 1).evaluate((el) => Object.assign(el, { status: 'error', errorText: 'The connection was lost, and the file could not be sent to the server. Try again later.' }));
+    expect(await now('given')).toEqual({ motions: 0, leaving: 0 });
+    await give(page, 'own', [A]);
+    expect(await now('own')).toEqual({ motions: 0, leaving: 0 });
+    near((await box(list(page, 'own'))).y - ((await box(picker(page, 'own'))).y + (await box(picker(page, 'own'))).height), await token(page, 'list-gap'), 'the room is there at once');
+    await host(page, 'own').evaluate((el) => (el as Upload).clear());
+    expect(await now('own')).toEqual({ motions: 0, leaving: 0 });
+    await expect(list(page, 'own')).toBeHidden();
+  });
+
+  for (const id of ['button-multiple', 'drop-area-statuses']) {
+    test(`FUP-29, MOT-3: ${id} is drawn at rest in its first frame — no row arrives and no room opens as it is mounted`, async ({ page }) => {
+      const seen = await appearingFixture(page, spec, id, { icons: true });
+      expectFirstFrameAtRest(seen);
+    });
+  }
 });
 
 test.describe('accessibility', () => {
