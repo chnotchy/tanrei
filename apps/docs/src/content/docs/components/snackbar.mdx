@@ -34,7 +34,7 @@ You don't place a snackbar. You ask a host to show one, and the host queues it, 
 | Flutter | `TanreiSnackbarMessenger`, around the page it reports on | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`, a controller whose `closed` is a future |
 | React Native | rendered by `TanreiProvider` in its overlay layer | `useSnackbar().show(options)`, a promise |
 
-Each host also closes the snackbar that is showing (`dismissCurrent`) and drops the waiting ones as well (`clear`), both with the reason `host`. A snackbar element drawn outside a host is drawn in place, centred across the width it is given as a host centres it (or at the end of that width when its `placement` is `top-end`): no timeout, queue, entrance or announcement. That form is for documentation pages and tests, like the demo above.
+Each host also closes the snackbar that is showing (`dismissCurrent`) and drops the waiting ones as well (`clear`), both with the reason `host`. On the web, `focusCurrent()` moves keyboard focus to the showing snackbar's first control, as F6 does, and returns whether it moved. A snackbar element drawn outside a host is drawn in place, centred across the width it is given as a host centres it (or at the end of that width when its `placement` is `top-end`): no timeout, queue, entrance or announcement. That form is for documentation pages and tests, like the demo above.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,16 +319,17 @@ SwiftUI, Compose, Flutter and React Native do not have the top-end placement yet
 | `long` | Closes after the long timeout (10 seconds in the default system). |
 | `indefinite` | Stays until the person or your code closes it. |
 
-A timed snackbar pauses while the pointer is over it, while focus is inside it, while it is expanded, while the app is hidden or in the background, and while a Tanrei modal dialog covers it. It then starts again from its whole length. Android's accessibility timeout lengthens it when that is longer, and a snackbar with an action never times out while a screen reader is running. If you time out a snackbar that has an action, also offer that action elsewhere, such as Undo in a menu. Debug builds remind you.
+A timed snackbar pauses while the pointer is over it, while focus is inside it, while it is expanded, and while the app is hidden or in the background. It then starts again from its whole length, as it also does when it moves into a modal surface or back out of one. Android's accessibility timeout lengthens it when that is longer, and a snackbar with an action never times out while a screen reader is running. If you time out a snackbar that has an action, also offer that action elsewhere, such as Undo in a menu. Debug builds remind you.
 
 ### Showing, focus and closing
 
 A snackbar is a read overlay. People take in its message, so showing it never moves focus.
 
-- **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has left. A snackbar requested while a Tanrei modal dialog is open waits until the dialog closes.
-- **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard; or, with `placement="top-end"`, at the top end, below a sticky header (see [Placement](#placement)). Either way it is drawn above its area's content and below a modal dialog and its scrim.
+- **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has left. An open modal surface does not hold it back: a snackbar requested while one is open shows in its turn, inside that surface.
+- **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard; or, with `placement="top-end"`, at the top end, below a sticky header (see [Placement](#placement)). Either way it is drawn above its area's content and, while a modal surface is open, above that surface and its scrim.
 - **Announcement.** When it appears, assistive technology reads the status label, the title and the message once, followed by the action's label: politely, after what is being read, or assertively for warning and error. Nothing takes keyboard or screen-reader focus.
 - **Focus.** The action, the expand button and the close button are reached with Tab at the host's place in the focus order, which is why the host goes last. The bar itself is not a Tab stop, except its text while an expanded bar scrolls it.
+- **F6.** While a snackbar with a control is shown, F6 or Shift+F6 moves focus straight to its first control from wherever focus is, in the page or in the modal surface the snackbar shows in: its text while that scrolls, otherwise the action, the expand button or the close button. Pressed again inside the snackbar, it takes focus back to where it was. Neither closes the snackbar or announces it again, and while focus is inside, a timed snackbar pauses. Without such a snackbar, or when your product has already handled the key, F6 keeps its usual meaning, such as moving between the browser's regions. For a shortcut of your own, such as Command+Option+Z for Undo, call `focusCurrent()` on the web host: it moves focus the same way and returns whether it moved.
 - **Closing.** The snackbar closes when its action is activated (`action`), or without it (`dismiss`), for one of these reasons:
 
 | Reason | When |
@@ -340,6 +341,24 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 
 - **Focus back.** When a snackbar closes while focus is inside it, focus returns to the element that had it before focus entered the snackbar.
 - **Motion.** The bar appears as every surface of the design system does, from the middle of the edge it stands at: the bottom edge, or the top edge at the top end. In the default system it fades in while it grows a little; where the design system makes surfaces travel into place, it rises from below, or comes down at the top end. It leaves the same way back, and one that closes while still appearing turns round from where it is. Where motion is reduced it only fades; on Android, whose setting removes every animation, it appears and disappears at once. The announcement does not wait for the motion.
+
+### While a modal surface is open
+
+A modal surface — a dialog, a modal layer, a modal side sheet or bottom sheet, a modal navigation drawer, an image preview, a popover shown as a sheet, a search's dialog or full-screen view, a modal date-time picker — makes everything outside it inert. A snackbar shown behind it could be neither pressed nor heard, so the host shows it inside the topmost surface instead:
+
+- It is drawn above the surface and its scrim, where it would stand anyway, and announced as usual.
+- A snackbar requested while a surface is open shows in its turn; it does not wait for the surface to close.
+- When a surface opens while a snackbar shows, or the surface it shows in closes, the snackbar moves at once to the surface that is then on top, or back to the host when none is open: without its entrance motion, still open, as expanded as it was, keeping its place in the queue, and without being announced again. A timed one starts again from its whole length.
+- Its controls come after the surface's own in the focus order, and focus stays inside the surface. It takes the surface's layout direction.
+- What the person does in the snackbar stays in the snackbar: a press on it is not a press on the scrim, arrow keys pressed in it do not move the surface's content, and Escape closes the snackbar and leaves the surface open. Only Tab still moves through the surface's focus order.
+
+On the web the host shows it in a box it puts inside the surface's `<dialog>`, so there the snackbar is in that surface's shadow tree:
+
+- Your page's CSS rules for `tanrei-snackbar`, `::part()` selectors included, do not reach it. Style it through its tokens.
+- Custom properties set on `<tanrei-snackbar-host>`, or on an element that holds the host but not the surface, do not reach it either. Set the snackbar's tokens where every surface inherits them too, such as on the document's root.
+- Its `action`, `dismiss` and `expandedchange` events bubble no further than that tree, so a listener on the document does not hear them. Listen on the snackbar itself, or use what `show()` resolves with.
+
+SwiftUI, Compose, Flutter and React Native do not show the snackbar inside a modal surface yet, and do not move focus with F6.
 
 ### Do
 
@@ -359,7 +378,7 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 - Don't use the warning or error form for routine confirmations. They interrupt the screen reader.
 - Don't draw a snackbar inverse to mark it as important. Inverse changes colors only; a status says what kind of message it is.
 - Don't show a snackbar for something the screen already shows clearly.
-- Don't move focus to a snackbar or its action. It must not take people away from their work.
+- Don't move focus to a snackbar or its action yourself when it appears. It must not take people away from their work; move focus there only when the person asks, with F6 or a shortcut of yours that calls `focusCurrent()`.
 
 ## Accessibility
 
@@ -369,9 +388,10 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 
 - The snackbar is announced through a live region: a polite one (the status role on the web) for the default, info and success forms, and an assertive one (the alert role) for warning and error. Its status label, title and message, then its action's label, are announced once when it appears, and always whole, even when the text is cut. On SwiftUI, Compose, Flutter and React Native the platform's own announcement is used, at high priority for warning and error, and none of them takes focus.
 - A status form is never told by color alone: it draws the status's glyph and exposes `statusLabel` as text before the title. The glyph itself is hidden from assistive technology, and so are the expand and close glyphs.
-- The action is named by its label, the expand button by `expandLabel` and the close button by `closeLabel`. All are reached with Tab at the host's place in the focus order, and activated with Enter or Space.
+- The action is named by its label, the expand button by `expandLabel` and the close button by `closeLabel`. All are reached with Tab at the host's place in the focus order, or at once with F6 or Shift+F6, which from inside the snackbar takes focus back to where it was; they are activated with Enter or Space.
 - The expand button exposes whether the text is expanded, and keeps the same name in both states. An expanded bar whose text scrolls makes the text a focus stop, named by the title and scrolled with the arrow keys and Page Up and Page Down.
 - Escape closes the snackbar while focus is inside it. When it closes with focus inside, focus returns to where it was before.
+- While a modal surface is open, everything outside it is inert, so the snackbar is shown inside the topmost one: it is announced, can be pressed, and is reached with Tab after the surface's own controls without focus leaving the surface. Escape closes the snackbar and leaves the surface open.
 - Where the bar stands changes nothing else. A snackbar at the top end is reached with Tab at the host's place in the focus order and announced exactly as one at the bottom, and it never covers a sticky header.
 - A snackbar with an action does not time out by default. Timed snackbars pause while hovered, focused or expanded, lengthen to Android's accessibility timeout and, with an action, never time out while a screen reader runs.
 - The action meets the minimum target on both axes without changing its drawn size, and the expand and close buttons, which are Buttons, keep their own. Every focus ring shows for keyboard focus only, in a color of the snackbar's form, so that it is visible on every bar: a surface, a status's tint and an inverse bar.
@@ -400,6 +420,7 @@ Known platform gaps:
 - Write the message as plain text that makes sense on its own when read aloud.
 - Give the close button a `closeLabel`, a status form a `statusLabel`, and a snackbar whose text may run long an `expandLabel`, all in your product's language.
 - Place the host last on the page, or last in the layout on Compose.
+- If F6 has a meaning of its own in your product, handle the key before the host does (on the web, call `preventDefault()` on it): the host then leaves it alone.
 - On React Native, pass the window's `insets` to `TanreiProvider`, so the snackbar keeps clear of the system bars.
 - If you choose `short` or `long` for a snackbar with an action, offer the same action somewhere that does not time out.
 - Put anything people must act on in a dialog, not a snackbar.
