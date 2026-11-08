@@ -31,3 +31,27 @@ export function layoutScale(element: Element, drawn: DOMRectReadOnly = element.g
   };
   return { x: ratio(drawn.width, laid.x), y: ratio(drawn.height, laid.y) };
 }
+
+/**
+ * The CSS `zoom` an element is drawn at: its own times its ancestors'. An element in the top layer takes the zoom of
+ * its ancestors in the page — its box is that much larger — though no transform of theirs reaches it. 1 where no zoom
+ * is set.
+ *
+ * Under a zoom the element's pixels are not the window's: `getBoundingClientRect()` answers in the window's pixels,
+ * while a length the element is given (`top`, `left`, a custom property its rules size it by) is drawn at the zoom
+ * times its value, and a length read from its computed style or its layout (`offsetHeight`, `layoutSize()`) is in its
+ * own pixels. A component that places an element against another by script measures in the window's pixels: it turns
+ * what it reads from the element into them (times the zoom) and what it writes back into the element's own (divided by
+ * it), so that the element stands against what it is placed by, the distances between them drawn at the zoom as the
+ * element is.
+ *
+ * `Element.currentCSSZoom` where the engine has it; elsewhere what the element is drawn at over what it is laid out at
+ * (`layoutScale()`), which is the zoom for an element that no transform reaches (one in the top layer, not transformed
+ * itself), and 1 for one that has no box.
+ */
+export function cssZoom(element: Element): number {
+  const zoom = (element as Element & { currentCSSZoom?: number }).currentCSSZoom;
+  if (typeof zoom === 'number' && zoom > 0) return zoom;
+  const { x, y } = layoutScale(element);
+  return x > 0 && x !== 1 ? x : y > 0 ? y : 1;
+}

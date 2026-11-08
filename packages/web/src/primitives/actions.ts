@@ -1,4 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
+import { cssZoom } from './layout-scale.js';
 import { GROUP_ITEM, type GroupItem } from './group-item.js';
 import { report } from './report.js';
 
@@ -109,7 +110,10 @@ export class ActionPlacement {
     box.classList.remove('stacked');
     box.classList.add('measuring');
     const drawn = this.actions.filter((action) => action.getClientRects().length > 0);
-    const widths = drawn.map((action) => action.getBoundingClientRect().width);
+    // In the box's own pixels, as its gap and its inner width are: under an ancestor's zoom a drawn width is that much
+    // larger (`cssZoom()`).
+    const zoom = cssZoom(box);
+    const widths = drawn.map((action) => action.getBoundingClientRect().width / zoom);
     const style = getComputedStyle(box);
     const gap = Number.parseFloat(style.columnGap) || 0;
     const gaps = gap * Math.max(0, widths.length - 1);

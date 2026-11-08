@@ -49,7 +49,8 @@
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
-//                 measured on the page and written in the element's own pixels
+//                 measured on the page and written in the element's own pixels; cssZoom(): the CSS zoom it is drawn at,
+//                 which reaches the top layer, for an overlay placed against its anchor by script
 //   selection   — SelectionController and the styles of a form-associated selection control (checkbox, radio, switch),
 //                 and conditionStates(): the state rules of any component whose conditions are its state variants
 //   item-row    — the row of a column of items (list, menu): its states, paints, ripple and target height
@@ -305,7 +306,7 @@ export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
-export { layoutScale } from './layout-scale.js';
+export { cssZoom, layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';

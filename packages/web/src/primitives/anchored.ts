@@ -6,6 +6,7 @@ import { AppearController, type AppearTiming, appearStyles } from './motion.js';
 import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type AnchoredSide, ANCHORED_PLACEMENTS, type NamedSide, anchorGone, placeAnchored, usableLength, visibleViewport } from './placement.js';
 import { keyboardCover } from './sheet.js';
 import { flatParent } from './flat-tree.js';
+import { cssZoom } from './layout-scale.js';
 
 // A surface that opens beside a control and stays with it (a popover, POP-1 to POP-5, POP-7, POP-8, POP-10, POP-26,
 // POP-27, POP-36; and every surface that cites those rules — a select's, a combobox's, a color field's). What the
@@ -15,7 +16,8 @@ import { flatParent } from './flat-tree.js';
 //                for a test's fixture (`inline`), and out of it again
 //   placing      `placeAnchored()` (src/primitives/placement.ts) against the anchor's box: the side and the alignment,
 //                the offsets, flipping, shifting, and — where the side lacks room — the surface limited to the room,
-//                or moved back over the anchor where the room is less than the surface's least size
+//                or moved back over the anchor where the room is less than the surface's least size; in the window's
+//                pixels, which an ancestor's CSS zoom makes smaller than the surface's own (`cssZoom()`)
 //   following    FollowController: placed again when the anchor moves, by events, frame by frame only while it moves
 //   the anchor   gone (removed, hidden, scrolled out of sight): the component is told, once
 //   the arrow    where it points, and the elevation drawn round the surface and its arrow as one shape
@@ -57,7 +59,10 @@ export interface AnchoredSurfaceOptions {
   /** The order `auto` tries the sides in, and how it lines the surface up. */
   auto: readonly NamedSide[];
   autoAlign: 'center' | 'start';
-  /** The distance from the anchor's edge as the product set it; anything that is not a usable length takes the token. */
+  /**
+   * The distance from the anchor's edge as the product set it, in the surface's own pixels (drawn at an ancestor's zoom,
+   * as the surface is); anything that is not a usable length takes the token.
+   */
   offset: () => number | null | undefined;
   crossOffset: () => number;
   /** Whether an arrow is asked for now. */
@@ -66,7 +71,10 @@ export interface AnchoredSurfaceOptions {
   matchWidth?: () => boolean;
   /** Drawn in place, not in the top layer: placed inside its positioned ancestor, which stands for the window. */
   inline?: () => boolean;
-  /** The least size the surface is limited to; with less room than that on its side, it covers its anchor instead. */
+  /**
+   * The least size the surface is limited to, in its own pixels (its style's, its layout's); with less room than that on
+   * its side, it covers its anchor instead.
+   */
   least?: () => { width: number; height: number };
   /** What scrolls inside the surface: its position is kept while the surface is measured. */
   scroller?: () => HTMLElement | null;
@@ -226,11 +234,14 @@ export class AnchoredSurfaceController implements ReactiveController {
     if (this.inline) {
       const parent = (surface.offsetParent as HTMLElement | null) ?? root;
       const box = parent.getBoundingClientRect();
+      // Its client lengths are in its own pixels; the frame is in the window's (`cssZoom()`).
+      const zoom = cssZoom(parent);
       // Where the surface's own `top` and `left` are counted from, when that is not the box that stands for the window.
       const held = positionedIn(surface, parent);
       const from = held === parent ? null : held.getBoundingClientRect();
-      const shift = from ? { x: box.x + parent.clientLeft - from.x - held.clientLeft, y: box.y + parent.clientTop - from.y - held.clientTop } : { x: 0, y: 0 };
-      return { x: box.x + parent.clientLeft, y: box.y + parent.clientTop, width: parent.clientWidth, height: parent.clientHeight, cover: 0, shift };
+      const inner = from ? cssZoom(held) : zoom;
+      const shift = from ? { x: box.x + parent.clientLeft * zoom - from.x - held.clientLeft * inner, y: box.y + parent.clientTop * zoom - from.y - held.clientTop * inner } : { x: 0, y: 0 };
+      return { x: box.x + parent.clientLeft * zoom, y: box.y + parent.clientTop * zoom, width: parent.clientWidth * zoom, height: parent.clientHeight * zoom, cover: 0, shift };
     }
     const [top, bottom, left, right] = [px(style.outlineOffset), px(style.scrollPaddingBlockEnd), px(style.scrollPaddingInlineStart), px(style.scrollPaddingInlineEnd)];
     // POP-36, SEL-24, CMB-22: the visible part of the window — the keyboard's top edge is an edge of it — less the
@@ -311,16 +322,21 @@ export class AnchoredSurfaceController implements ReactiveController {
     } else if (!gone) this.wasGone = false;
     if (!this.shown || !element || !box || !element.isConnected) return false;
 
-    const margin = px(style.scrollMarginBlockEnd);
+    // Placed in the window's pixels. Under an ancestor's zoom, which reaches the top layer, the surface's own pixels are
+    // larger (`cssZoom()`): what is read from its style and its layout is turned into the window's (times `zoom`), and
+    // what is written on it back into its own (`own()`), so that it stands at its anchor with every distance at the zoom.
+    const zoom = cssZoom(surface);
+    const own = (value: number) => `${value / zoom}px`;
+    const margin = px(style.scrollMarginBlockEnd) * zoom;
     const anchor = { x: box.x - frame.x, y: box.y - frame.y, width: box.width, height: box.height };
     const viewport = { width: frame.width, height: frame.height };
-    const limit = (name: 'inline' | 'block', value: number) => surface.style.setProperty(`--_anchored-max-${name}`, `${Math.max(0, value)}px`);
+    const limit = (name: 'inline' | 'block', value: number) => surface.style.setProperty(`--_anchored-max-${name}`, own(Math.max(0, value)));
     const scroller = this.options.scroller?.() ?? null;
     const scrolled = scroller?.scrollTop ?? 0;
     // Measured at the most it may be in this window: its own size, within its own limits.
     limit('inline', viewport.width - 2 * margin);
     limit('block', viewport.height - 2 * margin);
-    if (this.options.matchWidth?.()) surface.style.setProperty('--_anchored-anchor-inline', `${anchor.width}px`);
+    if (this.options.matchWidth?.()) surface.style.setProperty('--_anchored-anchor-inline', own(anchor.width));
     else surface.style.removeProperty('--_anchored-anchor-inline');
     // Its drawn size, not `offsetWidth` / `offsetHeight`: those are rounded to whole pixels (the box is never transformed).
     const measure = () => {
@@ -343,10 +359,10 @@ export class AnchoredSurfaceController implements ReactiveController {
     arrange(Math.max(0, viewport.width - 2 * margin));
     let size = measure();
     const arrow: AnchoredArrow = {
-      width: px(style.scrollMarginInlineStart),
-      height: px(style.scrollMarginInlineEnd),
-      inset: px(style.scrollPaddingBlockStart),
-      radius: painted ? Math.min(px(getComputedStyle(painted).borderTopLeftRadius), size.width / 2, size.height / 2) : 0,
+      width: px(style.scrollMarginInlineStart) * zoom,
+      height: px(style.scrollMarginInlineEnd) * zoom,
+      inset: px(style.scrollPaddingBlockStart) * zoom,
+      radius: painted ? Math.min(px(getComputedStyle(painted).borderTopLeftRadius) * zoom, size.width / 2, size.height / 2) : 0,
       drawn: this.options.arrow(),
     };
     const offset = this.options.offset();
@@ -354,8 +370,8 @@ export class AnchoredSurfaceController implements ReactiveController {
       anchor,
       viewport,
       placement,
-      offset: usableLength(offset) ? offset : px(style.scrollMarginBlockStart),
-      crossOffset: this.options.crossOffset(),
+      offset: (usableLength(offset) ? offset : px(style.scrollMarginBlockStart)) * zoom,
+      crossOffset: this.options.crossOffset() * zoom,
       margin,
       rtl,
       arrow,
@@ -370,7 +386,7 @@ export class AnchoredSurfaceController implements ReactiveController {
       // size, where it keeps the window's limit and is moved back over the anchor.
       const vertical = at.side === 'top' || at.side === 'bottom';
       const least = this.options.least?.() ?? { width: 0, height: 0 };
-      if (at.room > 0 && at.room >= (vertical ? least.height : least.width)) {
+      if (at.room > 0 && at.room >= (vertical ? least.height : least.width) * zoom) {
         limit(vertical ? 'block' : 'inline', at.room);
         if (!vertical) arrange(at.room);
         size = measure();
@@ -382,14 +398,14 @@ export class AnchoredSurfaceController implements ReactiveController {
     this.at = at;
     // In place the surface's `top` and `left` are counted from the box CSS positions it in (`positionedIn()`): the box
     // it is kept in, or a positioned box of a shadow tree it is slotted through (a Field's frame around a control).
-    surface.style.top = `${at.top + (inline ? frame.shift.y : frame.y)}px`;
-    surface.style.left = `${at.left + (inline ? frame.shift.x : frame.x)}px`;
+    surface.style.top = own(at.top + (inline ? frame.shift.y : frame.y));
+    surface.style.left = own(at.left + (inline ? frame.shift.x : frame.x));
     // POP-26: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
     surface.toggleAttribute('data-held', at.held);
     // POP-10: the arrow on the edge that faces the anchor, and the elevation round the surface and the arrow together.
     if (at.arrow) {
-      surface.style.setProperty('--_arrow-at', `${at.point}px`);
+      surface.style.setProperty('--_arrow-at', own(at.point));
       const shade = this.readShade();
       if (shade !== this.shade) {
         this.shade = shade;
