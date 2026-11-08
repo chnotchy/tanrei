@@ -37,7 +37,6 @@ import {
   isDividerVisibility,
   keepOverlayFocusAfterPress,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   numericAttribute,
   onBackdrop,
@@ -690,7 +689,6 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     this.arrange();
     dialog.classList.toggle('instant', instant);
     openModal(dialog);
-    modalLayer.add(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
@@ -705,7 +703,6 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** POP-40: the modal layer, the page's scroll and the keyboard are given back (the sheet left the page or closed). */
   private releaseSheet() {
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     window.visualViewport?.removeEventListener('scroll', this.onViewport);

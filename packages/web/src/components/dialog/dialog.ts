@@ -21,7 +21,6 @@ import {
   isDisabledControl,
   isDividerVisibility,
   keyboardCover,
-  modalLayer,
   openModal,
   report,
   syncDividerVisibility,
@@ -413,7 +412,6 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
       this.checkCloseButton();
     }
     stack.push(this);
-    modalLayer.add(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
     this.onViewport();
@@ -430,7 +428,6 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     this.shown = false;
     const index = stack.indexOf(this);
     if (index >= 0) stack.splice(index, 1);
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     // DLG-13: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its

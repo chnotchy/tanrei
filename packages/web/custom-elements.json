@@ -43939,6 +43939,11 @@
           "kind": "variable",
           "name": "hostStyles",
           "description": "The host: the two live regions (SNK-10), drawn nowhere; its snackbars are in the top layer."
+        },
+        {
+          "kind": "variable",
+          "name": "mouthStyles",
+          "description": "SNK-38: the box the host puts in the topmost modal surface's `<dialog>` while one is open — two live regions of its\nown and the snackbar, which is in the top layer. Out of the surface's flow, so that its layout (a gap, a grid track) is\nas it was, and a box all the same: a focus trap that counts the surface's tab stops looks inside what has one."
         }
       ],
       "exports": [
@@ -43995,6 +44000,14 @@
           "name": "hostStyles",
           "declaration": {
             "name": "hostStyles",
+            "module": "src/components/snackbar/snackbar.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "mouthStyles",
+          "declaration": {
+            "name": "mouthStyles",
             "module": "src/components/snackbar/snackbar.styles.ts"
           }
         }
@@ -44351,7 +44364,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,\nwith `placement=\"top-end\"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it\nreads from `--tanrei-app-shell-scroll-offset` on the document's root.\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.",
+          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,\nwith `placement=\"top-end\"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it\nreads from `--tanrei-app-shell-scroll-offset` on the document's root.\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\nWhile a Tanrei modal surface is open (a dialog, a modal sheet or drawer, an image preview…), everything outside it is\ninert, the host's live regions and its snackbar too; so the host shows its snackbar inside the topmost one, in a box of\nits own with two live regions of its own, drawn above that surface and its scrim and reached by Tab after the\nsurface's controls (SNK-38). There it is in that surface's shadow tree: listen to the snackbar itself, or use what\n`show()` resolves with, and style it through its tokens.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.",
           "name": "TanreiSnackbarHost",
           "slots": [
             {

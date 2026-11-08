@@ -41,7 +41,6 @@ import {
   clockFor,
   localeHourCycle,
   minuteText,
-  modalLayer,
   layoutSize,
   naturalHeight,
   numberText,
@@ -2279,7 +2278,6 @@ export class TanreiDateTimePicker extends TanreiElement {
         // src/primitives/modal-exit.ts).
         openModal(surface);
         this.appear.enter();
-        modalLayer.add(this);
         holdPageScroll(this, true);
         window.visualViewport?.addEventListener('resize', this.onWindow);
       } else {
@@ -2368,7 +2366,6 @@ export class TanreiDateTimePicker extends TanreiElement {
     this.listen(false);
     window.removeEventListener('resize', this.onWindow);
     if (surface instanceof HTMLDialogElement) {
-      modalLayer.delete(this);
       holdPageScroll(this, false);
       window.visualViewport?.removeEventListener('resize', this.onWindow);
       // DTM-35: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its

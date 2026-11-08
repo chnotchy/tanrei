@@ -17,7 +17,6 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -660,7 +659,6 @@ export class TanreiBottomSheet extends TanreiElement {
     }
     openModal(dialog);
     this.shown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.onViewport();
     this.measure();
@@ -677,7 +675,6 @@ export class TanreiBottomSheet extends TanreiElement {
       this.cancelSettle();
       this.placeDrawn(drawn);
     }
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
