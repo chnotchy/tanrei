@@ -285,7 +285,7 @@ If the expanded text is still taller than the space the host has, the bar takes 
 
 Choose one placement for the whole product and give it to the host, so that people learn where messages appear: `placement` on `<tanrei-snackbar-host>` applies to every snackbar it shows, and a snackbar asked for with its own `placement` keeps it. On a phone keep the bottom, where Material puts the snackbar and where the thumb is. On the desktop screens of a business application, such as a dashboard, an admin console or an editor whose own toolbar, status bar or table pagination sits at the bottom, use `top-end`, where Carbon and Fluent put their notifications.
 
-At the top end the bar stands a margin below the top edge and from the end edge, inside the safe area, and below a sticky header, so that it never covers the top app bar. On the web it reads the header's height from `--tanrei-app-shell-scroll-offset`, which [App shell](/components/app-shell/) sets on the document's root; a product with a frame of its own sets that property to the height of its own sticky header. It comes down from above the top edge instead of rising from below, and an expanded bar grows downward. Nothing else changes: it is still one snackbar at a time and never a stack, its controls are still reached at the host's place in the focus order, and it is announced the same way.
+At the top end the bar stands a margin below the top edge and from the end edge, inside the safe area, and below a sticky header, so that it never covers the top app bar. On the web it reads the header's height from `--tanrei-app-shell-scroll-offset`, which [App shell](/components/app-shell/) sets on the document's root; a product with a frame of its own sets that property to the height of its own sticky header. It appears from its top edge instead of its bottom edge, and an expanded bar grows downward. Nothing else changes: it is still one snackbar at a time and never a stack, its controls are still reached at the host's place in the focus order, and it is announced the same way.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -325,7 +325,7 @@ A timed snackbar pauses while the pointer is over it, while focus is inside it, 
 
 A snackbar is a read overlay. People take in its message, so showing it never moves focus.
 
-- **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has faded out. A snackbar requested while a Tanrei modal dialog is open waits until the dialog closes.
+- **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has left. A snackbar requested while a Tanrei modal dialog is open waits until the dialog closes.
 - **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard; or, with `placement="top-end"`, at the top end, below a sticky header (see [Placement](#placement)). Either way it is drawn above its area's content and below a modal dialog and its scrim.
 - **Announcement.** When it appears, assistive technology reads the status label, the title and the message once, followed by the action's label: politely, after what is being read, or assertively for warning and error. Nothing takes keyboard or screen-reader focus.
 - **Focus.** The action, the expand button and the close button are reached with Tab at the host's place in the focus order, which is why the host goes last. The bar itself is not a Tab stop, except its text while an expanded bar scrolls it.
@@ -339,7 +339,7 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 | `host` | Your code closed it or cleared the queue. |
 
 - **Focus back.** When a snackbar closes while focus is inside it, focus returns to the element that had it before focus entered the snackbar.
-- **Motion.** It rises into place from below the bottom edge while fading in, or comes down from above the top edge at the top end, and fades out in place. Where motion is reduced it fades without moving; on Android, whose setting removes every animation, it appears and disappears at once.
+- **Motion.** The bar appears as every surface of the design system does, from the middle of the edge it stands at: the bottom edge, or the top edge at the top end. In the default system it fades in while it grows a little; where the design system makes surfaces travel into place, it rises from below, or comes down at the top end. It leaves the same way back, and one that closes while still appearing turns round from where it is. Where motion is reduced it only fades; on Android, whose setting removes every animation, it appears and disappears at once. The announcement does not wait for the motion.
 
 ### Do
 

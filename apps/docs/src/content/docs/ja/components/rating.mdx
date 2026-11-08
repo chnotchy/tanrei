@@ -1,0 +1,147 @@
+---
+title: レーティング
+description: 星などいくつかの印で点数を付けてもらう、または付いた点数を示します。点数は印 1 つ単位で、プロダクトが許せば半分単位で扱います。
+translationOf: components/rating.mdx
+sourceHash: 25b13f989c447c068d88297e731129b9728740f5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import Example from '../../../../components/visuals/Example.astro';
+
+## 概要
+
+<ComponentAvailability name="rating" />
+
+<Example label="付ける点数と、読むだけの平均点">
+  <tanrei-rating label="このレシピの評価" value="4"></tanrei-rating>
+  <tanrei-rating label="平均評価" value="4.5" read-only value-text="5 つ星中 4.5"></tanrei-rating>
+</Example>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は予定で、まだレーティングを提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-rating name="score" label="このレシピの評価"></tanrei-rating>
+
+    <!-- 各点数の言葉は、プロダクトの言語で。ポインターを置いている間、レーティングの横に出します。 -->
+    <tanrei-rating
+      label="あなたの評価"
+      option-labels='["悪い", "まあまあ", "良い", "とても良い", "最高"]'
+    ></tanrei-rating>
+    <span id="words"></span>
+
+    <!-- 読むだけの平均点。 -->
+    <tanrei-rating label="平均評価" value="4.5" read-only value-text="5 つ星中 4.5"></tanrei-rating>
+
+    <script type="module">
+      import '@tanrei/web/components/rating';
+      const rating = document.querySelector('tanrei-rating[option-labels]');
+      rating.addEventListener('change', (event) => save(event.detail.value));
+      rating.addEventListener('preview', (event) => {
+        const score = event.detail.value ?? rating.value;
+        document.querySelector('#words').textContent = score ? rating.optionLabels[score - 1] : '';
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Rating } from '@tanrei/react';
+
+    <Rating label="このレシピの評価" value={score} onChange={(event) => setScore(event.detail.value)} />
+    <Rating
+      label="あなたの評価"
+      optionLabels={['悪い', 'まあまあ', '良い', 'とても良い', '最高']}
+      onPreview={(event) => setPointed(event.detail.value)}
+    />
+    <Rating label="平均評価" value={average} readOnly valueText={`5 つ星中 ${average}`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<Example label="サイズ：Small、Medium、Large">
+  <tanrei-rating size="small" label="Small" value="3"></tanrei-rating>
+  <tanrei-rating size="medium" label="Medium" value="3"></tanrei-rating>
+  <tanrei-rating size="large" label="Large" value="3"></tanrei-rating>
+</Example>
+
+<Example label="半分単位、別のグリフ、10 個の印、無効">
+  <tanrei-rating label="半分単位" value="3.5" allow-half></tanrei-rating>
+  <tanrei-rating label="どのくらい楽しめましたか？" value="4" icon="favorite"></tanrei-rating>
+  <tanrei-rating label="友人に勧める可能性はどのくらいですか？" value="7" max="10"></tanrei-rating>
+  <tanrei-rating label="無効" value="2" disabled></tanrei-rating>
+</Example>
+
+<ComponentSpecs name="rating" />
+
+## ガイドライン
+
+### 使う場面
+
+レシピ、商品、宿泊のレビューのように、短い尺度で点数を付けてもらうときに使います。一覧に並べた商品のレビューの平均点のように、付いた点数を示すときにも使います。印の並びがそのまま尺度になるので、印がいくつあり、いくつ付いているかがひと目でわかります。
+
+選択肢が 1 つの尺度の段階ではなく言葉であるなら、[ラジオグループ](/ja/components/radio-group/)を使います。長い範囲や連続した範囲の値には[スライダー](/ja/components/slider/)を使います。
+
+### 印 1 つ単位と半分単位
+
+| 設定 | 付けられる点数 | 支援技術から見えるもの |
+| --- | --- | --- |
+| 印 1 つ単位、7 個まで | 印ごとに 1 つの点数 | ラジオグループ。印ごとに 1 つのラジオで、矢印キーで次または前の印を選びます |
+| 半分単位、または 8 個以上 | 最大値までの半分ごと（または印ごと）の点数 | スライダー。矢印キーで 1 段階、Page Up と Page Down で印 1 つ、Home と End で両端に動きます |
+| 読み取り専用 | なし | 1 枚の画像。ラベルが名前、値のテキストが説明になります |
+
+半分単位は、その細かさが必要な場合にだけ許可します。5 つ星を半分単位にすると選択肢は 10 になり、付けるのに時間がかかります。読み取り専用のレーティングは常に半分単位で描くので、4.3 のような平均点は 4 つ半の印になります。正確な値は値のテキストで伝えます。
+
+### サイズの選び方
+
+| サイズ | 既定のシステムでの印 / 丸い領域 | 用途 |
+| --- | --- | --- |
+| Small | 20 / 28 | 一覧の行、小さなテキストの横。 |
+| Medium | 24 / 32 | フォーム。既定値です。 |
+| Large | 32 / 40 | 商品のページのように、その画面の主役である点数。 |
+
+どのサイズでも、各印はタッチターゲットを丸ごと持ちます。隣り合う印は、その間の領域を真ん中で分け合います。
+
+### 点数を取り消す
+
+レーティングには、付けた点数をなしに戻す操作がありません。ポインターでも、キーでも、支援技術でもできません。付いている点数の印を押しても何も変わりません。ラジオグループに選択を外す操作がないのと同じです。点数を取り下げられるようにする必要があるフォームでは、レーティングの横に、値を 0 にする Text のボタンを置きます。
+
+### 推奨
+
+- 何を評価するのかがわかるラベルを付けます。「このレシピの評価」のようにします。横に質問を表示するなら、同じ言葉を使います。
+- 段階に意味があるなら（「悪い」「最高」）、`optionLabels` で各点数にプロダクトの言語で名前を付けます。ポインターを置いている間は、その言葉をレーティングの横に出します（`preview`）。
+- 読み取り専用のレーティングには、点数を正確に伝える値のテキストを付けます。「5 つ星中 4.3、レビュー 128 件」のようにします。
+
+### 非推奨
+
+- 1 つの尺度の段階ではない選択肢に、レーティングを使わない。
+- 星の色だけに頼らない。既定のシステムは、付いた印を塗りつぶし、それ以外を線で描くので、点数は形から読めます。色を変えるときも、この違いは残します。
+- ひと目で数えられないほど多くの印を使わない。読みやすいのは 10 個までです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="rating" />
+
+### コンポーネントが担うこと
+
+- 印 1 つ単位で 7 個までなら、ラベルを名前とするラジオグループになります。各印は、`optionLabels` の項目、またはページの言語で書いた数を名前とするラジオです。フォーカスが止まる位置は 1 つで、選ばれている印、点数がなければ最初の印です。矢印キーで次または前の印を選び、端では反対側に回ります。Space でフォーカスのある印を選び、Enter でフォームを送信します。
+- 半分単位、または 8 個以上なら、0 から最大値までの 1 つのスライダーになります。値のテキストは、その点数に当たる `optionLabels` の項目です。矢印キーで 1 段階、Page Up と Page Down で印 1 つ、Home で 1 段階、End で最大値に動きます。
+- 読み取り専用なら、ラベルを名前とし、値のテキストで説明される 1 枚の画像になります。フォーカスも押すこともできません。
+- 各印のヒット領域は、描かれるものを変えずに最小ターゲットまで広がります。隣り合う印は、その間の真ん中で分かれます。
+- 点数の内側の印は塗りつぶし、それ以外は線で描くので、点数が色だけに頼ることはありません。線の印はサーフェスに対して 3:1 を保ちます。強制カラーモードでは、すべての印をテキストの色で描きます。
+- 無効のときは無効の色で描き、フォーカスできず、入力を受け付けず、フォームから外れます。点数は伝え続けます。
+- 空のラベル、長さの合わない `optionLabels`、描けない値、未知のサイズ、説明のない読み取り専用のレーティングは、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- すべてのレーティングにラベルを、読み取り専用のものには値のテキストを付けます。
+- `optionLabels` と `valueText` の言葉は、プロダクトの言語で書きます。
+- 点数を取り下げられるようにするなら、そのためのボタンを用意します。レーティングには取り消す操作がありません。

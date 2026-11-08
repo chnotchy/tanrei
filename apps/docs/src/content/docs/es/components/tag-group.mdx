@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
+sourceHash: f1814e294152182a5dafe030507781c5aa9574e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -225,6 +225,14 @@ Dos cosas siguen siendo tuyas:
 
 - Cuando no queda ningún chip que reciba el foco, mueve el foco al control al que pertenece el conjunto: el campo que añade elementos o el botón que abre los filtros. De lo contrario, el navegador lo pierde.
 - El grupo no anuncia nada. Donde haya que oír que se ha quitado algo, como un filtro que se quita lejos de la lista que cambia, comunícalo en una región activa (live region) o con un [snackbar](/es/components/snackbar/).
+
+### Cuando el conjunto cambia
+
+Cuando añades, quitas o reordenas miembros, o uno cambia de tamaño, cada miembro que cambia de lugar se desplaza a su nuevo lugar en un solo movimiento, a lo largo de su línea o hacia otra línea. Un miembro que añades aparece con un fundido donde va a quedar, y uno que quitas desaparece con un fundido donde estaba. Cuando quien lee pide menos movimiento, los miembros ocupan sus nuevos lugares al instante y solo quedan los fundidos.
+
+La tecnología de asistencia y el teclado reciben el cambio al instante: el nuevo orden de la lista y del foco rige desde el momento en que lo haces. Un chip que mueves conserva el foco.
+
+En la web, mientras un miembro que quitaste se desvanece, el grupo vuelve a poner tu elemento donde estaba, inerte, oculto a la tecnología de asistencia y marcado con `data-leaving`. Un script que lea los hijos del grupo en ese tiempo selecciona `:not([data-leaving])`.
 
 ### Recomendado
 

@@ -2,7 +2,7 @@
 title: Tarjeta de enlace
 description: Un enlace dibujado como un bloque. El título del destino, una frase sobre él, su imagen y el sitio en el que está, a partir de valores que la tarjeta recibe y nunca carga.
 translationOf: components/link-card.mdx
-sourceHash: 6418c55dc327d21c94615818c38abb29768255c4
+sourceHash: 6bf8cfbf6cdb5a0e1da5b8d0972f721e3359e23b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -160,6 +160,7 @@ Una tarjeta no juzga su destino. Una página puede seguir describiéndose de for
 
 - La tarjeta es un bloque. Toma el ancho que le da su contenedor y es tan alta como lo que contiene. No trae ningún espacio propio a su alrededor.
 - A partir de 480 de ancho, la imagen va junto al texto, en el borde de fin. Con menos, va encima del texto. La tarjeta decide según su propio ancho, no el de la ventana, y el límite crece con el tamaño del texto.
+- Una imagen que llega aparece con un fundido sobre el relleno de su recuadro, y nada cambia de sitio ni de tamaño; una que ya está cargada cuando la tarjeta se dibuja por primera vez aparece de inmediato. Una imagen que no se puede cargar pliega su recuadro en un solo movimiento: junto al texto, el texto se ensancha hasta ocupar su sitio; encima del texto, el texto sube con él. Lo que hay debajo de la tarjeta se mueve también, así que nada da un salto. Donde el movimiento está reducido, la imagen se dibuja entera y el recuadro de una imagen fallida desaparece de inmediato.
 - El elemento es un contenedor de tamaño, así que necesita que su diseño de página le dé un ancho. En una fila flex o en una celda de cuadrícula, dale uno.
 - En un texto largo es un bloque, como una figura. Nunca va dentro de una frase.
 

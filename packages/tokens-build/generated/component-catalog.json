@@ -1752,6 +1752,20 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-split-view",
+        "module": "@tanrei/web/components/split-view"
+      },
+      "react": {
+        "name": "SplitView"
+      }
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "level": "base",
@@ -1777,6 +1791,20 @@
       },
       "react": {
         "name": "MarqueeText"
+      }
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-rating",
+        "module": "@tanrei/web/components/rating"
+      },
+      "react": {
+        "name": "Rating"
       }
     }
   ]

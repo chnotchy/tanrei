@@ -460,6 +460,7 @@
     margin-left: var(--_trv-after-left);
     margin-right: var(--_trv-after-right);
     font-family: var(--tanrei-sys-icon-family-unselected);
+    visibility: var(--tanrei-icon-visibility, inherit);
     font-size: var(--_trv-chevron-size);
     font-style: normal;
     font-weight: normal;
@@ -748,10 +749,13 @@
   :where(tanrei-tree-view) > :where([data-tanrei-filter-status][hidden]) {
     display: none;
   }
-  /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
-  :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before,
-  :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol)) > :where(.tanrei-icon) {
+  /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. The icon is told by the
+     switch icons.css reads (its own `visibility` there, at one class's specificity, would win over this rule's). */
+  :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before {
     visibility: hidden;
+  }
+  :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol)) > :where(.tanrei-icon) {
+    --tanrei-icon-visibility: hidden;
   }
 
   /* ── The loading row (TRV-13): the indicator in the chevron's box, the product's words after it ─────────────── */

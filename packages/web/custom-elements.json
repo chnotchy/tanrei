@@ -3165,7 +3165,7 @@
                   }
                 }
               ],
-              "description": "BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at once."
+              "description": "BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at\nonce. The word also comes for the button's own attribute, which reflects its property inside the update that drew\nthe property's change: that word changes nothing drawn, and draws nothing again."
             },
             {
               "kind": "method",
@@ -5931,11 +5931,15 @@
       "path": "src/components/chat-composer/chat-composer.styles.ts",
       "declarations": [
         {
+          "kind": "variable",
+          "name": "styles"
+        },
+        {
           "kind": "function",
-          "name": "measured",
+          "name": "measuredSheet",
           "return": {
             "type": {
-              "text": "string"
+              "text": "CSSStyleSheet | null"
             }
           },
           "parameters": [
@@ -5946,27 +5950,23 @@
               }
             }
           ],
-          "description": "What depends on one line of the typing area's text (CCM-2, CCM-3, CCM-41), for a line of `line` (a CSS length):\nthe capsule's corners and its glow, which follow the one-line height, and the least height of each group of\nButtons, which is the typing area's with one line — so that a Button is centred on a single line and, as lines\ngrow, stays at the bottom edge at the distance it had. The stylesheet has it for a line of no height, which is\n`container.height` alone; the element writes it again, as a rule of its own, once it has read the member's line."
-        },
-        {
-          "kind": "variable",
-          "name": "styles"
+          "description": "CCM-41: the rules of `measured()` for a line of `line` (a length in px), as one constructed stylesheet that every\ncomposer whose typing area has that line adopts — so a page of a hundred composers holds the sheets one holds. Null\nwhere a browser cannot construct a stylesheet: the line of no height then stands."
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "measured",
+          "name": "styles",
           "declaration": {
-            "name": "measured",
+            "name": "styles",
             "module": "src/components/chat-composer/chat-composer.styles.ts"
           }
         },
         {
           "kind": "js",
-          "name": "styles",
+          "name": "measuredSheet",
           "declaration": {
-            "name": "styles",
+            "name": "measuredSheet",
             "module": "src/components/chat-composer/chat-composer.styles.ts"
           }
         }
@@ -12164,7 +12164,7 @@
               },
               "privacy": "public",
               "attribute": "value",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "default": "''"
             },
             {
@@ -12533,7 +12533,7 @@
               }
             },
             {
-              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. Composed and bubbling. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only types or moves through the list.",
+              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. While selection is multiple: a value was added or removed, `values` is already the new array, and `detail.values` holds it. Composed and bubbling. Never fired when the product sets `value` or `values`, when the chosen option is chosen again (single), or while the person only types or moves through the list.",
               "name": "change",
               "type": {
                 "text": "CustomEvent<TanreiComboboxChangeDetail>"
@@ -12685,7 +12685,7 @@
                 "text": "string"
               },
               "fieldName": "value",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "default": "''"
             },
             {
@@ -13076,7 +13076,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that\nnarrows as they type and that they choose from, or, where the product allows it, a value of their own. The bare\ncontrol: it has no label row and no message of its own.\n\nContract: specs/combobox.spec.json. The options are `<tanrei-option>` children, optionally in\n`<tanrei-option-group>` elements (the pair a select holds too); the combobox reads them — and reads them again when\nthey change — and renders the rows itself. A `<slot>` among its children stands for the elements assigned to it, so\nthat an element composed around it passes its own children on as the options. Every visual value is a token: the box is\ndrawn from `--tanrei-comp-input-box-*`, the one set every input box is drawn from (CMB-63), and the list and the\nstatus row from `--tanrei-comp-combobox-*` — the list's hold the menu's values and the status row's the search's, in\nevery shipped design system.\n\n```html\n<tanrei-field label=\"City\">\n  <tanrei-combobox name=\"city\" value=\"tokyo\">\n    <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n    <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n  </tanrei-combobox>\n</tanrei-field>\n```\n\nIn a form it is framed: by a Field, as above, or as `<tanrei-combobox-field>`, which is that pair as one element.\nThe Field gives it its name, its description and its required, invalid and disabled states, and draws the label\nrow, the requirement mark, the help and the error; the combobox says back that it draws the label itself where its\nlook floats one (`filled`, `outlined`), where its input text starts and ends, and that it is drawn focused for as\nlong as its list is open (`src/primitives/field.ts`). Bare — a filter in a toolbar, a cell of a table — it is named\nby its own `label`, which a stacked combobox does not draw.\n\nIt holds two things: `value`, the committed choice, and `inputValue`, the text in the input. Typing changes the text,\nopens the list and filters it (`filter=\"contains\"`; with `filter=\"none\"` the product filters, on `input`); a press on\nan option or Enter on the active one chooses; leaving the box resolves the text — a typed label chooses its\noption, any other text is kept as the value (`allow-custom-value`) or given up. The value changes only by a choice,\na commit or the clear button.\n\nIt is a block as wide as its place, with no width of its own. It is a form-associated element: it takes `name`,\nsubmits `value` (never an uncommitted text), resets to the `value` attribute, is restored on navigation, follows\n`<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is\nempty. It never validates beyond that, and is never required by itself.\n\nThe pattern is the editable combobox with a list box: focus stays in the input while the list is open and one\noption at most is the active one (`aria-activedescendant`). While an input method composes, every key is its own.",
+          "description": "Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that\nnarrows as they type and that they choose from, or, where the product allows it, a value of their own. The bare\ncontrol: it has no label row and no message of its own.\n\nContract: specs/combobox.spec.json. The options are `<tanrei-option>` children, optionally in\n`<tanrei-option-group>` elements (the pair a select holds too); the combobox reads them — and reads them again when\nthey change — and renders the rows itself. A `<slot>` among its children stands for the elements assigned to it, so\nthat an element composed around it passes its own children on as the options. Every visual value is a token: the box is\ndrawn from `--tanrei-comp-input-box-*`, the one set every input box is drawn from (CMB-63), and the list and the\nstatus row from `--tanrei-comp-combobox-*` — the list's hold the menu's values and the status row's the search's, in\nevery shipped design system.\n\n```html\n<tanrei-field label=\"City\">\n  <tanrei-combobox name=\"city\" value=\"tokyo\">\n    <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n    <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n  </tanrei-combobox>\n</tanrei-field>\n```\n\nIn a form it is framed: by a Field, as above, or as `<tanrei-combobox-field>`, which is that pair as one element.\nThe Field gives it its name, its description and its required, invalid and disabled states, and draws the label\nrow, the requirement mark, the help and the error; the combobox says back that it draws the label itself where its\nlook floats one (`filled`, `outlined`), where its input text starts and ends, and that it is drawn focused for as\nlong as its list is open (`src/primitives/field.ts`). Bare — a filter in a toolbar, a cell of a table — it is named\nby its own `label`, which a stacked combobox does not draw.\n\nIt holds two things: `value`, the committed choice, and `inputValue`, the text in the input. Typing changes the text,\nopens the list and filters it (`filter=\"contains\"`; with `filter=\"none\"` the product filters, on `input`); a press on\nan option or Enter on the active one chooses; leaving the box resolves the text — a typed label chooses its\noption, any other text is kept as the value (`allow-custom-value`) or given up. The value changes only by a choice,\na commit or the clear button.\n\nIt is a block as wide as its place, with no width of its own. It is a form-associated element: it takes `name`,\nsubmits `value` (never an uncommitted text), resets to the `value` attribute, is restored on navigation, follows\n`<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is\nempty. It never validates beyond that, and is never required by itself.\n\nThe pattern is the editable combobox with a list box: focus stays in the input while the list is open and one\noption at most is the active one (`aria-activedescendant`). While an input method composes, every key is its own.\n\n**Several values** (`selection=\"multiple\"`): the chosen values are `values`, an array (the attribute is read as a\nJSON array or as words), each drawn as an input Chip in the box before the input, in lines that wrap. A choice adds\nthe option's value, or takes it out where it is chosen; the text empties and the list stays open, so that several\ncan be chosen in a row. Backspace at the start of the text moves focus to the last chip; there the arrows move\namong the chips and Backspace or Delete removes one — the chip field's keys. The list box says that it allows\nseveral, a polite live region says what was added or removed (`added-text`, `removed-text`), and the form gets one\nentry per value under `name`, as a `<select multiple>` gives.",
           "name": "TanreiCombobox",
           "cssParts": [
             {
@@ -13102,6 +13102,22 @@
             {
               "description": "The native `<input>`: the combobox.",
               "name": "input"
+            },
+            {
+              "description": "A chosen value while selection is multiple: a `<tanrei-chip>` of kind input.",
+              "name": "entry"
+            },
+            {
+              "description": "A chosen value's chip: its native button, its shape and colors.",
+              "name": "entry-container"
+            },
+            {
+              "description": "A chosen value's chip: its label.",
+              "name": "entry-label"
+            },
+            {
+              "description": "A chosen value's chip: its remove action.",
+              "name": "entry-remove"
             },
             {
               "description": "The box of the glyph at the start of the container.",
@@ -13202,14 +13218,37 @@
             },
             {
               "kind": "field",
+              "name": "selection",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxSelection"
+              },
+              "default": "'single'",
+              "description": "Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected.",
+              "attribute": "selection",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "value",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "values",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.\nAssign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.\nThe `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.",
+              "attribute": "values"
             },
             {
               "kind": "field",
@@ -13458,6 +13497,39 @@
             },
             {
               "kind": "field",
+              "name": "removeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name.",
+              "attribute": "remove-label"
+            },
+            {
+              "kind": "field",
+              "name": "addedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person chooses a value (`added-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryAddedText })`); with neither nothing is said.",
+              "attribute": "added-text"
+            },
+            {
+              "kind": "field",
+              "name": "removedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person removes a chosen value (`removed-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryRemovedText })`); with neither nothing is said.",
+              "attribute": "removed-text"
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -13568,7 +13640,7 @@
               "type": {
                 "text": "CustomEvent<TanreiComboboxChangeDetail>"
               },
-              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. Composed and bubbling. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only types or moves through the list."
+              "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; `value` is already the new one. `detail.value` and `detail.inputValue`. While selection is multiple: a value was added or removed, `values` is already the new array, and `detail.values` holds it. Composed and bubbling. Never fired when the product sets `value` or `values`, when the chosen option is chosen again (single), or while the person only types or moves through the list."
             },
             {
               "name": "toggle",
@@ -13619,13 +13691,31 @@
               "fieldName": "size"
             },
             {
+              "name": "selection",
+              "type": {
+                "text": "TanreiComboboxSelection"
+              },
+              "default": "'single'",
+              "description": "Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected.",
+              "fieldName": "selection"
+            },
+            {
               "name": "value",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The committed choice: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to.",
+              "description": "The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple.",
               "fieldName": "value"
+            },
+            {
+              "name": "values",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.\nAssign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.\nThe `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.",
+              "fieldName": "values"
             },
             {
               "name": "input-value",
@@ -13814,6 +13904,33 @@
               "default": "'regular'",
               "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values.",
               "fieldName": "density"
+            },
+            {
+              "name": "remove-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name.",
+              "fieldName": "removeLabel"
+            },
+            {
+              "name": "added-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person chooses a value (`added-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryAddedText })`); with neither nothing is said.",
+              "fieldName": "addedText"
+            },
+            {
+              "name": "removed-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "While selection is multiple, the sentence assistive technology is told when the person removes a chosen value (`removed-text`), with the place `{entry}`: this instance's words, else the product's (`setWords({ entryRemovedText })`); with neither nothing is said.",
+              "fieldName": "removedText"
             },
             {
               "name": "inline",
@@ -26838,7 +26955,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "One menu of a menubar — the spec's item kind `menu`: its title in the bar's row, and the items that open below it.\n\nIt holds the menu's own item elements as its children, exactly as `<tanrei-menu>` holds them, and forwards them — each\nin a slot of its own, none of them moved — into a Tanrei Menu in its shadow root, a manual popover in the top layer\nplaced below its title. The host is the title: `role=\"menuitem\"` with `aria-haspopup=\"menu\"`, `aria-expanded`,\n`aria-disabled`, its position among the bar's titles, and the bar's roving `tabindex`; it draws its label in its shadow\nroot from the `--tanrei-comp-menubar-*` tokens of its condition (unselected, or expanded while its menu is open) and\nstate. The bar it is in does the rest: the keys, the pointer, which menu is open, and folding it into the overflow\nitem when the row has no room — it is then drawn as a submenu item of the overflow item's menu, with the same label\nand the same items, and `open` and `toggle` mean the same there.\n\n`open` is its own: the bar sets it when the person opens or closes the menu and fires `toggle`; the product may set it\nto open or close the menu itself, which fires none. The items' own `click`, `change` and `toggle` bubble through it.",
+          "description": "One menu of a menubar — the spec's item kind `menu`: its title in the bar's row, and the items that open below it.\n\nIt holds the menu's own item elements as its children, exactly as `<tanrei-menu>` holds them, and forwards them — each\nin a slot of its own, none of them moved — into a Tanrei Menu in its shadow root, a manual popover in the top layer\nplaced below its title, created when the menu is first shown (MBR-49). The host is the title: `role=\"menuitem\"` with\n`aria-haspopup=\"menu\"`, `aria-expanded`, `aria-disabled`, its position among the bar's titles, and the bar's roving\n`tabindex`; it draws its label in its shadow root from the `--tanrei-comp-menubar-*` tokens of its condition (unselected, or expanded while its menu is open) and\nstate. The bar it is in does the rest: the keys, the pointer, which menu is open, and folding it into the overflow\nitem when the row has no room — it is then drawn as a submenu item of the overflow item's menu, with the same label\nand the same items, and `open` and `toggle` mean the same there.\n\n`open` is its own: the bar sets it when the person opens or closes the menu and fires `toggle`; the product may set it\nto open or close the menu itself, which fires none. The items' own `click`, `change` and `toggle` bubble through it.",
           "name": "TanreiMenubarMenu",
           "cssParts": [
             {
@@ -37319,6 +37436,420 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/rating/rating.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium', 'large']"
+          },
+          "default": "['small', 'medium', 'large']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-size-${value}` }, ]",
+          "description": "RAT-18: sizes a design system adds get their block on demand; a size the active system lacks draws medium."
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/rating/rating.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/rating/rating.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Lets a person give a score out of a few marks — stars by default — or shows a score already given, a whole mark or,\nwhere the product allows it, a half mark at a time.\n\nContract: specs/rating.spec.json. Every visual value comes from `--tanrei-comp-rating-*` tokens: per size the mark's\nglyph box and the round container behind it, and per condition (unselected, selected) and state the container and\nmark colors. How a press is answered and how keyboard focus is drawn are the system's choices of kind\n(`--tanrei-sys-behavior-*`), read from the cascade.\n\nWhat it is to assistive technology follows the number of choices (WAI-ARIA APG): whole marks up to seven are a radio\ngroup, one radio per mark, with the radio group's keys (arrows check the next or previous mark and wrap, Space checks\nthe focused one); halves, or more than seven marks, are one slider (arrows by one step, Page Up and Page Down by a\nmark, Home and End); read-only, one image named by `label` and described by `value-text`. Enter submits its form. No\ninput takes a score back to 0: a press on the score already given changes nothing.\n\nForm-associated: it submits `value` under `name` while it is above 0, resets to the value it was first given,\nrestores it on navigation and follows a disabled `<fieldset>`.",
+          "name": "TanreiRating",
+          "cssParts": [
+            {
+              "description": "The row of marks: the radio group, the slider or the image; the slider's focus ring is drawn around it.",
+              "name": "row"
+            },
+            {
+              "description": "The round container behind each mark: the state layer, the ripple and a radio's focus ring.",
+              "name": "container"
+            },
+            {
+              "description": "The glyph box of each mark, holding its selected and unselected forms (hidden from assistive technology).",
+              "name": "mark"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The score: a number of marks from 0 to `max`, whole or — while `allowHalf` — in halves. 0 is no score yet.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "5",
+              "description": "How many marks are drawn: the highest score. A whole number from 1.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "allowHalf",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a person give a score that ends on a half mark: a press on a mark's inline-start half gives that mark less a half, and the keys move by a half (the `allow-half` attribute). A read-only rating shows halves whatever it says.",
+              "attribute": "allow-half",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiRatingSize"
+              },
+              "default": "'medium'",
+              "description": "The size of each mark (20 / 24 / 32) and of the round container behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "icon",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "attribute": "icon"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the rating for assistive technology (\"Your rating of this recipe\"). Required. Never drawn.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "optionLabels",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The name of each score a person can give, from the lowest (one mark, or a half while `allowHalf`): [\"Poor\", \"Fair\", …]. Empty names each score by its number in the element's language. The `option-labels` attribute is a JSON array.",
+              "attribute": "option-labels"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads a read-only rating's score (\"4.5 out of 5 stars\"), in the product's language (the `value-text` attribute).",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows a score that cannot be changed — an average, a review's score — as one image with a name: not focusable and not pressable (the `read-only` attribute).",
+              "attribute": "read-only",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the rating as unavailable: drawn in the disabled colors, not focusable, taking no input and left out of form submission.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name the score is submitted under with a form.",
+              "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form it belongs to, if any.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "focus",
+              "parameters": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "type": {
+                    "text": "FocusOptions"
+                  }
+                }
+              ],
+              "description": "`element.focus()` focuses the rating's stop: the checked mark, or the first, or the slider."
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "formStateRestoreCallback",
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "string | null"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "formDisabledCallback",
+              "parameters": [
+                {
+                  "name": "disabled",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiRatingChangeDetail>"
+              },
+              "description": "The person changed the score, by a press or a key; `detail.value` is the new score, which `value` already holds. Not fired when the product sets `value`."
+            },
+            {
+              "name": "preview",
+              "type": {
+                "text": "CustomEvent<TanreiRatingPreviewDetail>"
+              },
+              "description": "A fine pointer moved onto a mark (`detail.value` is the score it would give) or off the rating (`null`)."
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the form the rating belongs to, where it stands outside it: the platform's own attribute. The `form` property is read-only and returns the form element.",
+              "name": "form"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The score: a number of marks from 0 to `max`, whole or — while `allowHalf` — in halves. 0 is no score yet.",
+              "fieldName": "value"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "5",
+              "description": "How many marks are drawn: the highest score. A whole number from 1.",
+              "fieldName": "max"
+            },
+            {
+              "name": "allow-half",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a person give a score that ends on a half mark: a press on a mark's inline-start half gives that mark less a half, and the keys move by a half (the `allow-half` attribute). A read-only rating shows halves whatever it says.",
+              "fieldName": "allowHalf"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiRatingSize"
+              },
+              "default": "'medium'",
+              "description": "The size of each mark (20 / 24 / 32) and of the round container behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values.",
+              "fieldName": "size"
+            },
+            {
+              "name": "icon",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "fieldName": "icon"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the rating for assistive technology (\"Your rating of this recipe\"). Required. Never drawn.",
+              "fieldName": "label"
+            },
+            {
+              "name": "option-labels",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The name of each score a person can give, from the lowest (one mark, or a half while `allowHalf`): [\"Poor\", \"Fair\", …]. Empty names each score by its number in the element's language. The `option-labels` attribute is a JSON array.",
+              "fieldName": "optionLabels"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads a read-only rating's score (\"4.5 out of 5 stars\"), in the product's language (the `value-text` attribute).",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "read-only",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows a score that cannot be changed — an average, a review's score — as one image with a name: not focusable and not pressable (the `read-only` attribute).",
+              "fieldName": "readOnly"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the rating as unavailable: drawn in the disabled colors, not focusable, taking no input and left out of form submission.",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name the score is submitted under with a form.",
+              "fieldName": "name"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-rating",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiRating",
+          "declaration": {
+            "name": "TanreiRating",
+            "module": "src/components/rating/rating.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-rating",
+          "declaration": {
+            "name": "TanreiRating",
+            "module": "src/components/rating/rating.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/resizable-frame/resizable-frame.styles.ts",
       "declarations": [
         {
@@ -44466,6 +44997,447 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/split-view/split-view.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "['horizontal', 'vertical']"
+          },
+          "default": "['horizontal', 'vertical']",
+          "description": "The axes and the primary panes the component defines (SPV-15: anything else is the first)."
+        },
+        {
+          "kind": "variable",
+          "name": "PRIMARIES",
+          "type": {
+            "text": "['start', 'end']"
+          },
+          "default": "['start', 'end']"
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "PRIMARIES",
+          "declaration": {
+            "name": "PRIMARIES",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/split-view/split-view.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/split-view/split-view.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Divides a region into two panes — side by side, or one above the other — with a hairline between them and a Handle on\nit that a person drags, steps from the keyboard or presses to give one pane more room; where `collapsible` is set, a\npress or Enter folds the primary pane away and brings it back.\n\nContract: specs/split-view.spec.json. Built from `<tanrei-handle>`, in its shadow root, which follows the window\nsplitter pattern: a focusable separator whose value is the primary pane's share in percent, which controls the primary\npane (`aria-controls`), moved by the arrow keys the way they point, Page Up and Page Down, Home (the least share) and\nEnd (the greatest), and folded and restored by Enter. The split view hears the Handle's events in its shadow root and\nsays what they mean in its own: `resize` in every frame of a drag, `change` once a person has changed the share,\n`toggle` once a person has folded or restored the pane, each with `{ value, collapsed }`; none is sent for a `value`\nor `collapsed` you set.\n\nThe split view takes the size its layout gives it; a vertical one needs a height to divide. `value` is the primary\npane's share of the region less the divider, held between `min` and `max` (percent) and `min-size` and `max-size`\n(pixels; where the region is too small for both, the least wins). While a drag lasts, every `<iframe>`, `<object>`\nand `<embed>` in either pane takes no pointer, so the drag is not lost over it.",
+          "name": "TanreiSplitView",
+          "cssParts": [
+            {
+              "description": "The start pane's box, which clips its content.",
+              "name": "start-pane"
+            },
+            {
+              "description": "The end pane's box.",
+              "name": "end-pane"
+            },
+            {
+              "description": "The hairline between the panes.",
+              "name": "divider"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the divider.",
+              "name": "handle"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content of the start pane: the inline-start side, or the top while axis is vertical.",
+              "name": "start"
+            },
+            {
+              "description": "The content of the end pane.",
+              "name": "end"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "axis",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSplitViewAxis"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal`: the panes stand side by side and the divider is upright. `vertical`: one above the other.",
+              "attribute": "axis",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "primary",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSplitViewPrimary"
+              },
+              "default": "'start'",
+              "description": "The pane the value measures and that folds away: `start` (a list beside its detail) or `end` (an inspector after a canvas).",
+              "attribute": "primary",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The primary pane's share of the region less the divider, in percent. A person's drag, key or press changes it; setting it sends no event.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The least share of the primary pane, in percent, while it is shown.",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The greatest share of the primary pane, in percent.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "minSize",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least size of the primary pane in pixels along the axis (`min-size`), on top of `min`; null sets none. It wins over `max-size`.",
+              "attribute": "min-size"
+            },
+            {
+              "kind": "field",
+              "name": "maxSize",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest size of the primary pane in pixels along the axis (`max-size`), on top of `max`; null sets none.",
+              "attribute": "max-size"
+            },
+            {
+              "kind": "field",
+              "name": "step",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region one arrow key moves the divider by.",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "largeStep",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region Shift with an arrow key, Page Up or Page Down moves the divider by (`large-step`).",
+              "attribute": "large-step"
+            },
+            {
+              "kind": "field",
+              "name": "resetValue",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "description": "The share a press on the Handle moves the primary pane to while it cannot fold (`reset-value`); the next press moves it back.",
+              "attribute": "reset-value"
+            },
+            {
+              "kind": "field",
+              "name": "collapsible",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets the primary pane fold away: by Enter or a press on the Handle, and by a drag past half its least share.",
+              "attribute": "collapsible",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "collapsed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the primary pane is folded away. A person's press, Enter or drag changes it; setting it sends no event. Ignored while `collapsible` is false.",
+              "attribute": "collapsed",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The Handle's accessible name, saying what it resizes (\"Resize the message list\"), in your words. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The share in your words (\"List 320 pixels wide\", `value-text`), read in place of the percentage.",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps both panes as they are: the Handle takes no input and no focus. The panes' content stays operable.",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "resize",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "The divider moved during a drag, in every frame it moves."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "A person changed the primary pane's share: a drag ended, a key, or a press that moved the divider."
+            },
+            {
+              "name": "toggle",
+              "type": {
+                "text": "CustomEvent<TanreiSplitViewDetail>"
+              },
+              "description": "A person folded the primary pane away or brought it back."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "axis",
+              "type": {
+                "text": "TanreiSplitViewAxis"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal`: the panes stand side by side and the divider is upright. `vertical`: one above the other.",
+              "fieldName": "axis"
+            },
+            {
+              "name": "primary",
+              "type": {
+                "text": "TanreiSplitViewPrimary"
+              },
+              "default": "'start'",
+              "description": "The pane the value measures and that folds away: `start` (a list beside its detail) or `end` (an inspector after a canvas).",
+              "fieldName": "primary"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "description": "The primary pane's share of the region less the divider, in percent. A person's drag, key or press changes it; setting it sends no event.",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "description": "The least share of the primary pane, in percent, while it is shown.",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "description": "The greatest share of the primary pane, in percent.",
+              "fieldName": "max"
+            },
+            {
+              "name": "min-size",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least size of the primary pane in pixels along the axis (`min-size`), on top of `min`; null sets none. It wins over `max-size`.",
+              "fieldName": "minSize"
+            },
+            {
+              "name": "max-size",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest size of the primary pane in pixels along the axis (`max-size`), on top of `max`; null sets none.",
+              "fieldName": "maxSize"
+            },
+            {
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region one arrow key moves the divider by.",
+              "fieldName": "step"
+            },
+            {
+              "name": "large-step",
+              "type": {
+                "text": "number"
+              },
+              "description": "Percent of the region Shift with an arrow key, Page Up or Page Down moves the divider by (`large-step`).",
+              "fieldName": "largeStep"
+            },
+            {
+              "name": "reset-value",
+              "type": {
+                "text": "number"
+              },
+              "description": "The share a press on the Handle moves the primary pane to while it cannot fold (`reset-value`); the next press moves it back.",
+              "fieldName": "resetValue"
+            },
+            {
+              "name": "collapsible",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets the primary pane fold away: by Enter or a press on the Handle, and by a drag past half its least share.",
+              "fieldName": "collapsible"
+            },
+            {
+              "name": "collapsed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the primary pane is folded away. A person's press, Enter or drag changes it; setting it sends no event. Ignored while `collapsible` is false.",
+              "fieldName": "collapsed"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The Handle's accessible name, saying what it resizes (\"Resize the message list\"), in your words. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The share in your words (\"List 320 pixels wide\", `value-text`), read in place of the percentage.",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps both panes as they are: the Handle takes no input and no focus. The panes' content stays operable.",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-split-view",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "value",
+          "default": "this[name]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiSplitView",
+          "declaration": {
+            "name": "TanreiSplitView",
+            "module": "src/components/split-view/split-view.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-split-view",
+          "declaration": {
+            "name": "TanreiSplitView",
+            "module": "src/components/split-view/split-view.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/stepper/stepper.styles.ts",
       "declarations": [
         {
@@ -47476,7 +48448,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.\n\nContract: specs/tag-group.spec.json. It reads four tokens (`--tanrei-comp-tag-group-gap-*` and `-row-gap-*`, one pair\nper `spacing`) and draws nothing of its own: no container, no fill, no edge, no padding, and not its `label`. Its\nmembers are `<tanrei-tag>` and `<tanrei-chip>` children, which stay in your DOM where you wrote them, drawn from\ntheir own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group itself never\ntakes focus. With the default `selection=\"none\"` it handles no key, keeps no selection, does not make filter chips\nexclusive and fires no event.\n\nIt is a list (TGR-7): the shadow root holds one element with the list role, named by `label`, around the slot, and\neach member is given `role=\"listitem\"` while it is in the group — the attribute is written on your element where it\nhas no `role` of its own, and taken back when it leaves. A chip's button or link, with its state, is inside its item.\n\n`spacing` says what the set holds. Lines of tags stand as close as the tags along a line; lines of chips stand far\nenough apart that each chip keeps its whole touch target, and a chip in a group ends its hit area at the middle of\nthe gap to its neighbour — along a line, and between two lines while the set wraps (TGR-5). A set of chips wants\n`spacing=\"chips\"`.\n\nWhen a member leaves while focus is on it — on a chip or on its remove action — focus goes to the chip that followed\nit, or to the one before where none follows (TGR-9). The group removes nothing itself: on a chip's `remove` you take\nthe element out. When the last member that takes focus has gone the group has nowhere to put it; move it yourself to\nthe control the set belongs to. A group with no member draws nothing, takes no space and exposes nothing (TGR-8).\n\n`selection=\"single\"` or `\"multiple\"` makes the group hold the selection of its filter chips (TGR-17 to TGR-21), named\nby each chip's `value`: `value` is the one that is on (single; `null` for none), `values` the ones that are on\n(multiple). The group sets each filter chip's `selected` from them, and when a person switches a chip it sets `value`\nor `values`, stops the chip's own `change` and fires its own. A single selection can be emptied by switching its chip\noff, because each chip is a toggle. The set is then one Tab stop — the chip that last had focus, else the first chip\nthat is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between\nits chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.\n\nWhen a member is added, removed or changes its size, the members whose place that changes move there from where\nthey were drawn, over `--tanrei-comp-tag-group-motion-move-duration` with `-move-easing`, along a line and from one\nline to another (TGR-10). A line that keeps the same members follows the change at once: a chip that grows with its\nown motion carries the chips after it. A member that is added appears and one that is removed leaves at once; with\nreduced motion, or when the group's width changes, every member is placed at once. The motion is a `translate` added\nto the member's own, so a member keeps focus, and its focus indicator, while it moves.\n\nIt supplies no words: the name of the set is yours, in `label`.",
+          "description": "Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.\n\nContract: specs/tag-group.spec.json. It reads four tokens (`--tanrei-comp-tag-group-gap-*` and `-row-gap-*`, one pair\nper `spacing`) and draws nothing of its own: no container, no fill, no edge, no padding, and not its `label`. Its\nmembers are `<tanrei-tag>` and `<tanrei-chip>` children, which stay in your DOM where you wrote them, drawn from\ntheir own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group itself never\ntakes focus. With the default `selection=\"none\"` it handles no key, keeps no selection, does not make filter chips\nexclusive and fires no event.\n\nIt is a list (TGR-7): the shadow root holds one element with the list role, named by `label`, around the slot, and\neach member is given `role=\"listitem\"` while it is in the group — the attribute is written on your element where it\nhas no `role` of its own, and taken back when it leaves. A chip's button or link, with its state, is inside its item.\n\n`spacing` says what the set holds. Lines of tags stand as close as the tags along a line; lines of chips stand far\nenough apart that each chip keeps its whole touch target, and a chip in a group ends its hit area at the middle of\nthe gap to its neighbour — along a line, and between two lines while the set wraps (TGR-5). A set of chips wants\n`spacing=\"chips\"`.\n\nWhen a member leaves while focus is on it — on a chip or on its remove action — focus goes to the chip that followed\nit, or to the one before where none follows (TGR-9). The group removes nothing itself: on a chip's `remove` you take\nthe element out. When the last member that takes focus has gone the group has nowhere to put it; move it yourself to\nthe control the set belongs to. A group with no member draws nothing, takes no space and exposes nothing (TGR-8).\n\n`selection=\"single\"` or `\"multiple\"` makes the group hold the selection of its filter chips (TGR-17 to TGR-21), named\nby each chip's `value`: `value` is the one that is on (single; `null` for none), `values` the ones that are on\n(multiple). The group sets each filter chip's `selected` from them, and when a person switches a chip it sets `value`\nor `values`, stops the chip's own `change` and fires its own. A single selection can be emptied by switching its chip\noff, because each chip is a toggle. The set is then one Tab stop — the chip that last had focus, else the first chip\nthat is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between\nits chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.\n\nWhen a member is added, removed, moved to another place in the order or changes its size, the members whose place\nthat changes move there from where they were drawn, over `--tanrei-comp-tag-group-motion-move-duration` with\n`-move-easing`, along a line and from one line to another (TGR-10). A line that keeps the same members follows the\nchange at once: a chip that grows with its own motion carries the chips after it. A member that is added fades in at\nits place and one that is removed fades out where it was drawn, over the same time and curve. While it fades out the\ngroup puts your element back as its child — `inert`, `aria-hidden=\"true\"` and `data-leaving`, outside the flow —\nthen removes it and gives back the `inert` and `aria-hidden` it had: a script that reads the group's children in\nthat time selects `:not([data-leaving])`. An element you give anew in place of one you took away, showing the same\nlabel, is drawn as that member and moves from its place, without a fade. What the group exposes changes at once:\nthe order of focus and reading is the new one from the change on. With reduced motion every member is placed at\nonce and the fades stay; when the group's width changes, everything is drawn as it will be at once. The move is a\n`translate` added to the member's own, so a member keeps focus, and its focus indicator, while it moves.\n\nIt supplies no words: the name of the set is yours, in `label`.",
           "name": "TanreiTagGroup",
           "slots": [
             {
@@ -47605,6 +48577,21 @@
           },
           "tagName": "tanrei-tag-group",
           "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "motion",
+          "type": {
+            "text": "Animation"
+          }
+        },
+        {
+          "kind": "variable",
+          "name": "to"
+        },
+        {
+          "kind": "variable",
+          "name": "from"
         }
       ],
       "exports": [

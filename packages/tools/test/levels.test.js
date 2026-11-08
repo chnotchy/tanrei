@@ -162,6 +162,7 @@ test('the repository as it is today: which components are put together and which
     'select-field',
     'side-sheet',
     'slider-field',
+    'split-view',
     'tab-view',
     'text-field',
   ]);
@@ -206,7 +207,8 @@ test('the repository as it is today: which components are put together and which
   // The resizable frame is put together from the Handle: the fifty-seventh.
   // The select, which named no other component since it became the bare control, uses the Button for its clear
   // button: the fifty-eighth.
-  assert.equal(specs.filter((each) => namedComponents(each).length).length, 58);
+  // The split view is put together from the Handle, as the resizable frame is: the fifty-ninth.
+  assert.equal(specs.filter((each) => namedComponents(each).length).length, 59);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   // The text input uses the Button for its picker button and the Handle for its resize handle; the bottom sheet uses
   // the Handle for its drag handle too (neither is a new name among the fifty-five: both named the Button already).

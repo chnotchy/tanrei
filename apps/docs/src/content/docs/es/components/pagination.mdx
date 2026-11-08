@@ -2,7 +2,7 @@
 title: Paginación
 description: Recorre las páginas numeradas de una lista. Números de página con la página actual marcada, anterior y siguiente, primera y última donde las pidas, y una forma corta que dice qué página de cuántas.
 translationOf: components/pagination.mdx
-sourceHash: 1c1cccbf82e1fb4aeaa57031bf176f4cf7943f25
+sourceHash: 458a4038d3550060a61fbd6920da965d35815a5d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -72,7 +72,7 @@ Los textos son tuyos: Tanrei no incluye textos propios. Dalos en cada elemento, 
 </Example>
 
 - **Qué números se muestran.** La primera y la última página (`boundaries`, 1 por defecto), la página actual y una página a cada lado (`siblings`, 1 por defecto). Las páginas que se dejan fuera entre ellas son una sola elipsis. Cerca de un extremo se muestran más páginas al otro lado, de modo que la fila tiene el mismo número de huecos en todas las páginas y conserva su anchura.
-- **La página actual** se dibuja con relleno y se expone como la actual. Activarla no hace nada.
+- **La página actual** se dibuja con relleno y se expone como la actual. Activarla no hace nada. Al cambiar de página, la que era actual pierde el relleno y la nueva lo toma con una animación breve, mientras que las tecnologías de asistencia reciben la nueva página al instante. Si el movimiento está reducido, el cambio se dibuja al instante.
 - **Anterior y siguiente** son solo iconos. Están desactivados en la primera y en la última página, y conservan su sitio. Con `first-last`, **primera y última** se dibujan a ambos lados.
 - **La forma corta** (`variant="compact"`) dibuja anterior y siguiente alrededor de tu frase, «Página 3 de 10». Sin frase, dibuja los dos números con una barra, «3 / 10», y una compilación de desarrollo avisa de que faltan los textos. La forma con números pasa por sí sola a la corta donde no cabe en la anchura que se le da.
 - **Dos tamaños**: `medium` (40) y `small` (32), para un lugar denso como la línea de estado de una [tabla](/es/components/table/).

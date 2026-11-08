@@ -5062,6 +5062,9 @@ export const m3Like = {
       dividerColor: { kind: "role", role: "outlineVariant" },
       dividerSpace: 8,
       dividerThickness: 1,
+      entriesGap: 8,
+      entriesRowGap: 8,
+      entriesTypingMinWidth: 72,
       focusedOpacity: 1,
       groupTitleColor: { kind: "role", role: "onSurfaceVariant" },
       groupTitleTypescale: "labelSmall",
@@ -10906,6 +10909,129 @@ export const m3Like = {
         },
       },
     },
+    rating: {
+      containerShape: 9999,
+      disabledContainerShape: 9999,
+      disabledOpacity: 1,
+      focusedContainerShape: 9999,
+      focusedOpacity: 1,
+      hoveredContainerShape: 9999,
+      hoveredOpacity: 1,
+      motionFeedbackDuration: 450,
+      motionSelectionDuration: 150,
+      motionSelectionEasing: [0.2, 0, 0, 1],
+      motionStateDuration: 150,
+      motionStateEasing: [0.2, 0, 0, 1],
+      pressedContainerShape: 9999,
+      pressedOpacity: 1,
+      sizes: {
+        small: { markSize: 20, containerSize: 28 },
+        medium: { markSize: 24, containerSize: 32 },
+        large: { markSize: 32, containerSize: 40 },
+      },
+      conditions: {
+        unselected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.08,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            markColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        selected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.08,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            markColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+      },
+    },
     resizableFrame: {
       containerMinHeight: 200,
       containerMinWidth: 320,
@@ -12319,6 +12445,13 @@ export const m3Like = {
           },
         },
       },
+    },
+    splitView: {
+      dividerColor: { kind: "role", role: "outlineVariant" },
+      dividerWidth: 1,
+      motionCollapseDuration: 500,
+      motionCollapseEasing: [0.27, 1.06, 0.18, 1],
+      motionResizeDuration: 200,
     },
     stepper: {
       barColor: { kind: "role", role: "outlineVariant" },

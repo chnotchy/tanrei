@@ -144,6 +144,8 @@ Dragging is never the only way. The handle is a button: pressing it, or Enter, o
 
 The order is your data, so the list never changes it. Every way of moving fires `move` with `from`, the item's index, and `to`, the index it is to have, both counted from 0. Reorder your items in answer. The list then draws them changing place, keeps focus on the moved item's handle, and tells assistive technology where it now stands. If you change nothing within the time of `comp.list.motion.reorder-duration`, the move was refused: the items go back and nothing is announced.
 
+When you add an item to a reorderable list or take one away, the list shows it arriving or leaving. In a column or a line an arriving item grows along the list from nothing while it fades in, the gap beside it opening with it, and a leaving one fades out and closes to nothing; the items after it follow its edge, so nothing jumps. In a list that wraps, the item fades in or out at its place while the others move to their new places. The count and the positions the list exposes change at once: a leaving item is out of the count, hidden from assistive technology and takes no focus or press while it is drawn leaving. On the web it stays in the list as a child with `data-leaving` until it has gone, so a script that reads the items meanwhile selects `tanrei-list-item:not([data-leaving])`. Where motion is reduced, items arrive and leave at once.
+
 The words are yours: the handle's name (`dragHandleLabel`, with the place `{label}` the list fills with the item's name), its description (`dragHandleHint`), the four moves of the menu, and the three sentences that are announced (`liftedText`, `movedText`, `cancelledText`, with the places `{label}`, `{position}` and `{count}`). Give them on the list, or once for the product with `setWords()`. In a line, write "Move left" and "Move right" where a column says "Move up" and "Move down".
 
 <Tabs syncKey="platform">
@@ -166,7 +168,7 @@ The words are yours: the handle's name (`dragHandleLabel`, with the place `{labe
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
-        const items = [...list.children];
+        const items = [...list.querySelectorAll(':scope > tanrei-list-item:not([data-leaving])')];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
       });
     </script>

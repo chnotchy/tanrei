@@ -1,0 +1,5 @@
+---
+'@tanrei/web': minor
+---
+
+`--tanrei-icon-visibility`: a product's switch for the icons it draws in the light DOM. Set to `hidden` on the root (or a subtree) while the icon font cannot draw, every glyph the package's stylesheets draw in the light DOM — `.tanrei-icon`, a slotted one too, and the glyphs `link.css`, `breadcrumbs.css`, `prose.css`, `accordion.css`, `tree-view.css`, `table.css`, `timeline.css`, `link-card.css` and `previous-next-links.css` generate — keeps its box and is not painted, so a slow line never shows an icon's name in letters after `font-display: block`'s block period, and nothing moves when the switch comes off. Unset, a glyph inherits its parent's visibility, as before. The accordion's and the tree view's own rule for a glyph the icon set cannot draw yet (ACC-33, TRV-40) now hides a slotted `.tanrei-icon` through the same switch. The README's "Fonts" section shows the script that sets it. The docs site uses it: its icons stay hidden until their font draws them, and a page whose icon font fails to load says so in the console.

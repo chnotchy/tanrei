@@ -3,8 +3,8 @@ import type { OpenAxis } from '../../primitives/index.js';
 
 // Every value is a token (tokens/comp/tag-group.tokens.json): two distances for each spacing, and the time and curve of
 // a member's move. The group draws nothing of its own (TGR-1) — no container, no fill, no edge, no padding, no label —
-// and has no state, so there is no state rule, no focus indicator and no target here; the move (TGR-10) is the
-// element's script, which reads its timing from the list.
+// and has no state, so there is no state rule, no focus indicator and no target here; the moves and fades (TGR-10) are
+// the element's script, which reads their timing from the list.
 export const PREFIX = '--tanrei-comp-tag-group';
 /** The values of `spacing` every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_SPACINGS = ['tags', 'chips'] as const;
@@ -67,6 +67,21 @@ export const styles = css`
     transition-property: none;
     transition-duration: var(--tanrei-comp-tag-group-motion-move-duration);
     transition-timing-function: var(--tanrei-comp-tag-group-motion-move-easing);
+  }
+  /* TGR-10: a member the product took away is put back while it fades out, outside the flow at the box it was drawn
+     in, which the element writes; the list is the box it is placed in only while one leaves, so that nothing else is
+     drawn differently at rest. It takes no press (and is inert). */
+  :host(:state(leaving)) .list {
+    position: relative;
+  }
+  ::slotted([data-leaving]) {
+    position: absolute;
+    left: var(--_tgr-leave-x);
+    top: var(--_tgr-leave-y);
+    inline-size: var(--_tgr-leave-inline);
+    block-size: var(--_tgr-leave-block);
+    margin: 0;
+    pointer-events: none;
   }
   /* TGR-5: the distance between two lines is handed on only while there are two lines — the custom state the element
      sets when its members wrap — so that the chips of a set on one line keep their whole target above and below. A

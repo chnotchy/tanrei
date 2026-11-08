@@ -1940,6 +1940,59 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(down.x, 'the steppers after the line').toBeGreaterThanOrEqual(line.x + line.width - 0.6);
   });
 
+  test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const watched = await page.evaluate(async () => {
+      const frames = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      // What every resize observer of the page watches now, by observer.
+      const targets = new Map<ResizeObserver, Set<Element>>();
+      const proto = ResizeObserver.prototype;
+      const { observe, unobserve, disconnect } = proto;
+      proto.observe = function (this: ResizeObserver, target: Element, options?: ResizeObserverOptions) {
+        if (!targets.has(this)) targets.set(this, new Set());
+        targets.get(this)!.add(target);
+        return observe.call(this, target, options);
+      };
+      proto.unobserve = function (this: ResizeObserver, target: Element) {
+        targets.get(this)?.delete(target);
+        return unobserve.call(this, target);
+      };
+      proto.disconnect = function (this: ResizeObserver) {
+        targets.get(this)?.clear();
+        return disconnect.call(this);
+      };
+      // The number inputs' own containers and lines among them.
+      const watching = () =>
+        [...targets.values()].flatMap((set) => [...set]).filter((target) => (target.getRootNode() as ShadowRoot).host?.localName === 'tanrei-number-input' && (target.classList.contains('container') || target.classList.contains('body'))).length;
+      const make = () => Object.assign(document.createElement('tanrei-number-input'), { label: 'Quantity', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      const pane = document.body.appendChild(document.createElement('div'));
+      const counts: Record<string, number> = {};
+      const input = make();
+      pane.append(input);
+      await frames();
+      counts.drawn = watching();
+      input.remove();
+      await frames();
+      counts['taken away'] = watching();
+      pane.append(input);
+      await frames();
+      counts['put back'] = watching();
+      input.remove();
+      await frames();
+      counts['taken away again'] = watching();
+      // Added and taken away in one task: its first update ends after it left the page.
+      const brief = make();
+      pane.append(brief);
+      brief.remove();
+      await frames();
+      counts['taken away before its first update ended'] = watching();
+      Object.assign(proto, { observe, unobserve, disconnect });
+      pane.remove();
+      return counts;
+    });
+    expect(watched).toEqual({ drawn: 2, 'taken away': 0, 'put back': 2, 'taken away again': 0, 'taken away before its first update ended': 0 });
+  });
+
   test('NMI-38: in forced colors the number, the prefix, the suffix and the floating label with its asterisk are drawn in the text color; the container has an edge outline.width wide in the control text color in every variant, in the highlight color at the focused width while focused; an error is told by the invalid state alone, with no color of its own; a disabled input takes the disabled text color, and the steppers are drawn as Buttons are', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
