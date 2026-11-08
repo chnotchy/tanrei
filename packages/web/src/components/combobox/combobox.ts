@@ -1602,7 +1602,7 @@ export class TanreiCombobox extends TanreiElement {
                   .label=${label}
                   .removeLabel=${sentence ? this.removeName(sentence, label) : ''}
                   .disabled=${inert}
-                  .removable=${!this.readOnly}
+                  .notRemovable=${this.readOnly}
                   @keydown=${this.#onEntryKey}
                   @click=${this.#onEntryClick}
                   @remove=${this.#onEntryRemove}
