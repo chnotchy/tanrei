@@ -27,4 +27,6 @@ pictures are unchanged: no baseline was re-recorded.
 upload's children in that time sees it: select `tanrei-file-item:not([data-leaving])`. A test that read a row's place or
 height in the frame after a row was added or removed now reads it mid-motion: wait for the motion to end. The List gains
 an internal channel (not a prop) that lets a component that arranges its own items in it show their arrivals and leaves
-while it is not reorderable; a List the product writes is unchanged.
+while it is not reorderable; a List the product writes is unchanged but for one fix: an item's arrival and leave, in a
+reorderable List too, begin in the first frame drawn after the change. WebKit dated them from the frame before it, so a
+change that took longer to render than the motion lasts drew the items whole at once.
