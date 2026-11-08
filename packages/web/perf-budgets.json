@@ -531,13 +531,13 @@
       "allowedComponents": []
     },
     "slider": {
-      "budget": 26600,
-      "measured": 25278,
+      "budget": 28900,
+      "measured": 27493,
       "allowedComponents": []
     },
     "slider-field": {
-      "budget": 47200,
-      "measured": 45358,
+      "budget": 49900,
+      "measured": 47519,
       "allowedComponents": [
         "field",
         "slider",

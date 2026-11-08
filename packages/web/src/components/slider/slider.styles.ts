@@ -410,20 +410,27 @@ export const styles = css`
   /* SLD-13: the rail carries press-hold for PressController; it has no transition of its own. */
   ${pressHold('.rail')}
 
-  /* SLD-17: the value indicator — value-indicator.offset beyond the handle's outer edge across the axis, half the
-     handle's height from the midline (the top of a round handle, its outline included: the outline is inside the edge),
-     above a horizontal slider's handle and at the inline start of a vertical one's; centered on the handle and shifted
-     to stay inside the window (--_shift, set by the element). A read overlay: no focus, no input, hidden from assistive
-     technology, drawn above the handle, its container and its neighbours, and not clipped by the slider. */
+  /* SLD-17, SLD-28: the value indicator — value-indicator.offset beyond the handle's outer edge across the axis, half
+     the handle's height from the midline (the top of a round handle, its outline included: the outline is inside the
+     edge), above a horizontal slider's handle and at the inline start of a vertical one's; centered on the handle and
+     shifted to stay inside the window. A read overlay: no focus, no input, hidden from assistive technology. It is a
+     popover in the top layer, with none of the browser's popover defaults, so that no ancestor clips it and no
+     neighbour covers it: the element writes the point it stands against (the middle of the handle's edge on its side,
+     data-side) from each edge of the window (--_x, --_y from the left and the top, --_r, --_b from the right and the
+     bottom), and the shift (--_shift). */
   .value-indicator {
-    position: absolute;
-    z-index: 1;
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    border: 0;
+    overflow: visible;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
     min-block-size: ${unsafeCSS(T('value-indicator-container-height'))};
     min-inline-size: ${unsafeCSS(T('value-indicator-container-height'))};
+    padding-block: 0;
     padding-inline: ${unsafeCSS(T('value-indicator-container-padding-inline'))};
     ${unsafeCSS(cornerRadius(`${PREFIX}-value-indicator-container-shape`))}
     background: ${unsafeCSS(T('value-indicator-container-color'))};
@@ -442,14 +449,23 @@ export const styles = css`
      none — isolated from what is around it, so "40 %", "−5" and "1,000 km" keep their order in right-to-left. It is
      one line, centred in the indicator, and the indicator is placed by the handle (SLD-17). */
   ${productText('.value-text')}
-  .root[data-orientation='horizontal'] .value-indicator {
-    left: 0;
-    inset-block-end: calc(var(--_hh) / 2 + ${unsafeCSS(T('value-indicator-offset'))});
+  /* Out of the top layer it is not drawn (the popover's own rule, which its display above would undo). */
+  .value-indicator:not(:popover-open) {
+    display: none;
+  }
+  .value-indicator[data-side='top'] {
+    left: var(--_x, 0px);
+    bottom: calc(var(--_b, 0px) + ${unsafeCSS(T('value-indicator-offset'))});
     translate: calc(-50% + var(--_shift, 0px)) 0;
   }
-  .root[data-orientation='vertical'] .value-indicator {
-    top: 0;
-    inset-inline-end: calc(var(--_hh) / 2 + ${unsafeCSS(T('value-indicator-offset'))});
+  .value-indicator[data-side='left'] {
+    right: calc(var(--_r, 0px) + ${unsafeCSS(T('value-indicator-offset'))});
+    top: var(--_y, 0px);
+    translate: 0 calc(-50% + var(--_shift, 0px));
+  }
+  .value-indicator[data-side='right'] {
+    left: calc(var(--_x, 0px) + ${unsafeCSS(T('value-indicator-offset'))});
+    top: var(--_y, 0px);
     translate: 0 calc(-50% + var(--_shift, 0px));
   }
   .root[data-value-indicator='always'] .value-indicator,

@@ -42832,7 +42832,7 @@
               "name": "handle"
             },
             {
-              "description": "A handle's value indicator.",
+              "description": "A handle's value indicator, drawn in the top layer (`popover=\"manual\"`) and placed against its handle (SLD-28).",
               "name": "value-indicator"
             }
           ],
@@ -43769,7 +43769,7 @@
               "name": "handle"
             },
             {
-              "description": "A handle's value indicator.",
+              "description": "A handle's value indicator, drawn in the top layer (`popover=\"manual\"`) and placed against its handle (SLD-28).",
               "name": "value-indicator"
             }
           ],

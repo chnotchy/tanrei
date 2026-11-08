@@ -144,8 +144,10 @@ const SUBJECTS = [
   // outer corners (pills in m3-like and m3-expressive-like, 10 in cupertino) and the joined gap.
   subject('button-group', (fixture) => fixture.id === 'connected'),
   // Stepped with stops: the track's thickness and color, the active track, the handle's size, color and elevation (cupertino's
-  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino).
-  subject('slider', (fixture) => fixture.id === 'discrete-stops'),
+  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino). Drawn alone: the value-indicator
+  // fixture holds its value indicator open in the top layer (SLD-28), and in m3-like and m3-expressive-like it rises
+  // 6 px above that fixture's stage.
+  subject('slider', (fixture) => fixture.id === 'discrete-stops', { alone: true }),
   // Filled with an icon: both halves' fill, height, paddings and label role, the icon and the chevron, the preset's outer
   // corners (pills in m3-like and m3-expressive-like) against its inner corners, and the gap between the halves.
   subject('button-with-menu', (fixture) => fixture.id === 'filled-icon', { icons: true }),
@@ -495,21 +497,33 @@ async function axe(page: Page, spec: Spec, unit: string, system: string, contras
 
 /**
  * The fixtures other than `own` that hold an element open in the top layer (an open popover, a modal dialog), in the
- * light DOM or any shadow root; `(page)` for one outside every stage.
+ * light DOM or any shadow root, where it may be drawn into `own`'s picture; `(page)` for one outside every stage. A
+ * popover that lies wholly inside its own fixture's stage and draws no backdrop (a value indicator placed against its
+ * handle) is drawn inside that stage, wherever the shot scrolls to, so in no other stage's picture; a modal dialog's
+ * backdrop covers the window, and a surface placed against the window may stand anywhere once the shot has scrolled.
  */
 async function othersInTopLayer(page: Page, own: string): Promise<string[]> {
   return page.evaluate((id) => {
     const found = new Set<string>();
-    const fixtureOf = (el: Element) => {
+    const stageOf = (el: Element) => {
       for (let node: Element | undefined = el; node; node = (node.getRootNode() as ShadowRoot).host) {
         const stage = node.closest('[data-fixture]');
-        if (stage) return stage.getAttribute('data-fixture')!;
+        if (stage) return stage;
       }
-      return '(page)';
+      return null;
+    };
+    const fixtureOf = (el: Element) => stageOf(el)?.getAttribute('data-fixture') ?? '(page)';
+    const inOwnStage = (el: Element) => {
+      const stage = stageOf(el);
+      if (!stage || !el.matches(':popover-open')) return false;
+      const backdrop = getComputedStyle(el, '::backdrop');
+      if (!/^(transparent|rgba\(.*,\s*0\))$/.test(backdrop.backgroundColor) || backdrop.backdropFilter !== 'none') return false;
+      const [r, s] = [el.getBoundingClientRect(), stage.getBoundingClientRect()];
+      return r.left >= s.left && r.right <= s.right && r.top >= s.top && r.bottom <= s.bottom;
     };
     const walk = (root: Document | ShadowRoot) => {
       for (const el of root.querySelectorAll('*')) {
-        if (el.matches(':popover-open, dialog:modal') && fixtureOf(el) !== id) found.add(fixtureOf(el));
+        if (el.matches(':popover-open, dialog:modal') && fixtureOf(el) !== id && !inOwnStage(el)) found.add(fixtureOf(el));
         if (el.shadowRoot) walk(el.shadowRoot);
       }
     };
@@ -563,7 +577,7 @@ for (const system of presets) {
           await mountFixtures(page, spec, { system, icons, ...(reducedMotion ? { reducedMotion } : {}), ...(window || alone ? { fixtures: [fixture] } : {}) });
           const shot = ['systems', system, spec.name, `${fixture.id}.png`];
           // The top layer is drawn over the whole window, wherever the shot scrolls to: another fixture's open surface
-          // there is drawn into this fixture's picture.
+          // there is drawn into this fixture's picture, unless it stays inside its own stage.
           expect(await othersInTopLayer(page, fixture.id), 'fixtures with a surface open in the top layer').toEqual([]);
           if (wholeWindow) await expect(page).toHaveScreenshot(shot);
           else await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot(shot);
