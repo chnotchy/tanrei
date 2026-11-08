@@ -3,7 +3,7 @@
 // No component and no token is used: the pages state their own styles, so the helper is proved apart from what it
 // will be used on.
 import { type Page, expect, test } from '@playwright/test';
-import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../test/frames.js';
+import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, frameAtRest, freezeFirstFrame, sampleFrames } from '../test/frames.js';
 import { motionEnded } from '../test/motions.js';
 import { holdClock } from '../test/page-clock.js';
 import { decodePng } from '../test/png.js';
@@ -318,5 +318,39 @@ test.describe('freezeFirstFrame', () => {
     await motionEnded(page.locator('#stage'));
     await expect(page.locator('#panel')).toHaveCSS('opacity', '1');
     expect(await centre()).toBe('rgb(255, 0, 0)');
+  });
+});
+
+test.describe('frameAtRest', () => {
+  test('reads a page in the middle of a motion as it rests, and leaves nothing behind', async ({ page }) => {
+    await stage(page, BAR);
+    await widen(page);
+    await twoFrames(page);
+    const rest = await frameAtRest(page.locator('#stage'), { probe: barWidth });
+    expect(rest.probe.width).toBe(200);
+    expect(rest.elements['div#stage:0/div#bar:0']).toMatchObject({ rect: [0, 0, 200, 10], moving: false, endless: false });
+    expect(await page.evaluate(() => ({ sampler: 'window.__tanreiFrames' in window && (window as { __tanreiFrames?: unknown }).__tanreiFrames !== undefined, children: document.documentElement.children.length }))).toEqual({ sampler: false, children: 2 });
+  });
+
+  // The page a sweep mounts can hold thousands of elements, and one reading of them takes a few hundred milliseconds in
+  // Firefox: a frame before the change, the frames drawn while the test asks for the rest, and the first frame of
+  // motion time — read by `sampleFrames` and of no use to a rest — made the first test of a large spec in
+  // first-frame-all.test.ts outlast its timeout on a runner.
+  test('reads the root only in the frames it settles in: once to finish its motions, then three frames the same', async ({ page }) => {
+    await stage(page, `${BAR}<div style="block-size: 10px; background: rgb(0, 0, 0)"></div>`);
+    await widen(page);
+    // Counted by the readings of the root itself: each reads every element in it once (and its two pseudo-elements).
+    await page.evaluate(() => {
+      const w = window as unknown as { readings: number };
+      const root = document.querySelector('#stage');
+      const real = window.getComputedStyle;
+      w.readings = 0;
+      window.getComputedStyle = function (this: Window, el: Element, pseudo?: string | null) {
+        if (el === root && !pseudo) w.readings++;
+        return real.call(this, el, pseudo);
+      };
+    });
+    await frameAtRest(page.locator('#stage'));
+    expect(await page.evaluate(() => (window as unknown as { readings: number }).readings)).toBe(4);
   });
 });
