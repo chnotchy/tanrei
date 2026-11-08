@@ -704,6 +704,91 @@ test.describe('host', () => {
     expect(await isModal(page, '#sheet'), 'the sheet stays open').toBe(true);
   });
 
+  test('SNK-39, SNK-3, SNK-11: F6 takes focus from the page to the snackbar’s first control, with its focus indicator, and F6 or Shift+F6 from inside gives it back where it was; closing after it gives focus back there too', async ({ page }) => {
+    await mountHost(page);
+    await show(page, { message: 'Archived', action: 'Undo', closable: true, closeLabel: 'Close' });
+    await expect.poll(() => showing(page)).toEqual(['Archived']);
+    await tabTo(page, page.locator('#before'));
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('action');
+    expect(await shown(page).locator('.action').evaluate((el) => el.matches(':focus-visible')), 'with its focus indicator').toBe(true);
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    await page.keyboard.press('Shift+F6');
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('Shift+F6');
+    await expect(page.locator('#before')).toBeFocused();
+    expect(await showing(page), 'moving focus closes nothing').toEqual(['Archived']);
+    await page.keyboard.press('F6');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => results(page)).toEqual([{ message: 'Archived', result: 'action' }]);
+    await expect(page.locator('#before')).toBeFocused();
+  });
+
+  test('SNK-39, SNK-11, SNK-25: F6 goes to the first stop in SNK-11’s order — the close button where there is no action, the text while it scrolls — and leaves the key alone with no snackbar, with a snackbar that has no control, and once the product has handled it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 320 });
+    await mountHost(page);
+    // Whether the key was taken, read after the host has heard it (a listener on the window added after the host's).
+    await page.evaluate(() => {
+      const w = window as unknown as { taken: boolean[] };
+      w.taken = [];
+      addEventListener('keydown', (event) => event.key === 'F6' && w.taken.push(event.defaultPrevented));
+    });
+    const taken = () => page.evaluate(() => (window as unknown as { taken: boolean[] }).taken);
+    await tabTo(page, page.locator('#before'));
+    await page.keyboard.press('F6');
+    await show(page, { message: 'Saved', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Saved']);
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    expect(await taken(), 'no snackbar, then one with no control: the key is left').toEqual([false, false]);
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+    await show(page, { message: 'Saved', closable: true, closeLabel: 'Close', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Saved']);
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('close');
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    // A product that gives F6 a meaning of its own handles it first: the host leaves it.
+    await page.evaluate(() => document.addEventListener('keydown', (event) => event.key === 'F6' && event.preventDefault(), { once: true }));
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+    await show(page, { title: TITLE, message: LONG, action: 'Review', closable: true, closeLabel: 'Close', expandLabel: 'Show full message', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual([LONG]);
+    await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
+    await host(page).evaluate((h) => ((h as unknown as { snackbar: { expanded: boolean } }).snackbar.expanded = true));
+    await expect(shown(page).locator('.text')).toHaveAttribute('tabindex', '0');
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('text');
+    expect(await taken()).toEqual([false, false, true, true, true, true]);
+  });
+
+  test('SNK-39, SNK-38: inside a modal dialog F6 takes focus from the dialog’s control to the snackbar shown in it and back; focusCurrent() moves it there from a shortcut of the product’s own and says whether it did', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'modal', '<button id="keep">Keep editing</button>');
+    await setOpen(page, '#modal', true);
+    await show(page, { message: 'Archived', action: 'Undo' });
+    await expect.poll(() => whereShown(page)).toBe('modal');
+    await tabTo(page, page.locator('#keep'));
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('F6');
+    await expect(page.locator('#keep')).toBeFocused();
+    const focusCurrent = () => host(page).evaluate((h) => (h as unknown as { focusCurrent(): boolean }).focusCurrent());
+    expect(await focusCurrent()).toBe(true);
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('Shift+F6');
+    await expect(page.locator('#keep')).toBeFocused();
+    expect(await showingAnywhere(page)).toEqual(['Archived']);
+    await dismissShown(page);
+    await expect.poll(() => showingAnywhere(page)).toEqual([]);
+    expect(await focusCurrent(), 'with no snackbar shown').toBe(false);
+    await expect(page.locator('#keep')).toBeFocused();
+  });
+
 
   test('SNK-13: at the bottom of the window, centred, the margin above the bottom edge and from the sides, above the content', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });

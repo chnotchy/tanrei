@@ -44786,7 +44786,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,\nwith `placement=\"top-end\"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it\nreads from `--tanrei-app-shell-scroll-offset` on the document's root.\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\nWhile a Tanrei modal surface is open (a dialog, a modal sheet or drawer, an image preview…), everything outside it is\ninert, the host's live regions and its snackbar too; so the host shows its snackbar inside the topmost one, in a box of\nits own with two live regions of its own, drawn above that surface and its scrim and reached by Tab after the\nsurface's controls (SNK-38). There it is in that surface's shadow tree: listen to the snackbar itself, or use what\n`show()` resolves with, and style it through its tokens.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.",
+          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,\nwith `placement=\"top-end\"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it\nreads from `--tanrei-app-shell-scroll-offset` on the document's root.\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\nWhile a Tanrei modal surface is open (a dialog, a modal sheet or drawer, an image preview…), everything outside it is\ninert, the host's live regions and its snackbar too; so the host shows its snackbar inside the topmost one, in a box of\nits own with two live regions of its own, drawn above that surface and its scrim and reached by Tab after the\nsurface's controls (SNK-38). There it is in that surface's shadow tree: listen to the snackbar itself, or use what\n`show()` resolves with, and style it through its tokens.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.\n\nF6 or Shift+F6 moves keyboard focus to the showing snackbar's first control from wherever it is, and from inside it back\nto where it was (SNK-39); `focusCurrent()` moves it there from a shortcut of the product's own. A product that gives F6\na meaning of its own keeps it by handling the key first (`preventDefault()`): the host leaves a key that is handled.",
           "name": "TanreiSnackbarHost",
           "slots": [
             {
@@ -44834,6 +44834,16 @@
               "kind": "method",
               "name": "clear",
               "description": "SNK-12: drops every waiting snackbar and closes the showing one, each resolved with dismiss and the reason host."
+            },
+            {
+              "kind": "method",
+              "name": "focusCurrent",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "SNK-39: moves keyboard focus to the showing snackbar's first control — the text while it scrolls, the action, the\nexpand button or the close button — as F6 does, for a shortcut of the product's own. Returns whether focus moved\nthere: false while no snackbar is shown or the one shown has no control. Focus goes back to where it was with F6, or\nwhen the snackbar closes (SNK-11)."
             },
             {
               "kind": "field",
