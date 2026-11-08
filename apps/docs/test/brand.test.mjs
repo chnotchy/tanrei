@@ -23,7 +23,7 @@ describe('the header', () => {
   const css = read(docs, 'src/styles/frame.css');
 
   test('the header’s brand is the app bar’s: a link to the first page named by the site’s name', () => {
-    assert.match(header, /<tanrei-app-bar class="docs-app-bar" brand-href=\{homeHref\(route\)\} brand-label=\{route\.siteTitle\}>/);
+    assert.match(header, /<tanrei-app-bar class="docs-app-bar" brand-href=\{homeHref\(route\)\} brand-label=\{route\.siteTitle\} overflow="hide">/);
     assert.doesNotMatch(header, /<a slot="(?:navigation|brand)/, 'the link is the bar’s, not one written by the page');
   });
 
