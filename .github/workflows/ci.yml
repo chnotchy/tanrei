@@ -661,8 +661,8 @@ jobs:
   # The docs run in the web jobs' Playwright image (see `web` above for the image, `--ipc=host` and `--user 1001`): its
   # browsers and their system libraries are already installed, so no job downloads them from the Ubuntu mirrors (two of
   # three jobs that installed them were cut at their limit while apt crawled). The site is built once, in docs-build,
-  # which also runs the docs' Node tests; three docs-browser jobs then each download that build and run a third of the
-  # site's browser tests by time (`TEST_SHARD`, split by the seconds in apps/docs/test/browser/durations.json,
+  # which also runs the docs' Node tests; the docs-browser jobs then each download that build and run a share of the site's
+  # browser tests by time (`TEST_SHARD`, split by the seconds in apps/docs/test/browser/durations.json,
   # packages/tools/src/run-node-tests.js): one job ran them all for 11–16 minutes of its 20, and every third file of
   # the sorted list once put the three longest files in one job, whose pages then waited out their timeouts.
   docs-build:
@@ -735,10 +735,11 @@ jobs:
     strategy:
       fail-fast: false # every shard reports, as the single job did
       matrix:
-        # The fixture gallery runs in a job of its own (`$alone` in apps/docs/test/browser/durations.json): beside it
-        # the other files' pages loaded too slowly in WebKit. The other three share the rest by time.
-        shard: [1, 2, 3, 4]
-        shards: [4]
+        # The fixture gallery and the two previews files each run in a job of their own (`$alone` in
+        # apps/docs/test/browser/durations.json): beside any of them the other files' pages loaded too slowly in WebKit
+        # and Firefox. The other three share the rest by time.
+        shard: [1, 2, 3, 4, 5, 6]
+        shards: [6]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
