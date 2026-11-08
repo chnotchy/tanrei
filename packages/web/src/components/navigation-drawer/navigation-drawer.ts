@@ -24,7 +24,6 @@ import {
   lineArrow,
   linkAttributes,
   markConditionChange,
-  modalLayer,
   notifyDestinationUpdate,
   readDestination,
   report,
@@ -3120,7 +3119,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
       openModal(dialog, { keep: focus });
     }
     this.shown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     // NVD-40: its items stand where its column's did.
     this.carryOffset();
@@ -3146,7 +3144,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private withdraw(restore = true, notify = true) {
     if (!this.shown) return;
     this.shown = false;
-    modalLayer.delete(this);
     const dialog = this.dialog;
     const run = ++this.leaveRun;
     // A drag the product's close interrupted ends where the drawer is drawn: it leaves from there.

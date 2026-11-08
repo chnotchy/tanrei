@@ -1,36 +1,53 @@
 /**
- * The Tanrei modal overlays open in this window (a `<tanrei-dialog>` shown modally), for the overlays that wait for them
- * or pause under them: a snackbar that is not shown yet waits until the last one closes (SNK-12), and a showing one
- * pauses its timeout while one covers it (SNK-9). A modal overlay adds itself when it opens and removes itself when it
- * closes; anyone may subscribe to the change.
+ * The modal `<dialog>`s of Tanrei's surfaces open in this window, the topmost last: every surface opened with
+ * `openModal()` (src/primitives/modal-exit.ts) — a dialog, a modal layer, a modal side or bottom sheet, a modal navigation
+ * drawer, an image preview, a popover's sheet, a search's dialog and full-screen views, a modal date-time picker — is
+ * added when `showModal()` has made it modal and deleted when it is no longer modal (`closeModal()`). Everything outside
+ * the topmost is inert (HTML: "blocked by a modal dialog"), so a snackbar host shows its snackbar inside it (SNK-38);
+ * anyone may subscribe to the change.
  */
-const open = new Set<Element>();
+const open: HTMLDialogElement[] = [];
 const listeners = new Set<() => void>();
+const notify = () => {
+  for (const listener of [...listeners]) listener();
+};
 
 export const modalLayer = {
-  /** Whether a Tanrei modal overlay is open in this window. */
-  get covered(): boolean {
-    return open.size > 0;
+  /**
+   * The topmost modal `<dialog>` of a Tanrei surface, or null. One taken out of the document, or closed by other means
+   * than `closeModal()`, no longer counts.
+   */
+  get top(): HTMLDialogElement | null {
+    for (let index = open.length - 1; index >= 0; index--) {
+      const dialog = open[index];
+      if (dialog.isConnected && dialog.matches(':modal')) return dialog;
+    }
+    return null;
   },
-  add(element: Element) {
-    if (open.has(element)) return;
-    // The overlays already open are now under this one, and inert: the platform says so of everything outside the
+  /** `dialog` has just been made modal (`showModal()`): it is now the topmost. */
+  add(dialog: HTMLDialogElement) {
+    const at = open.indexOf(dialog);
+    if (at >= 0) open.splice(at, 1);
+    // The surfaces already open are now under this one, and inert: the platform says so of everything outside the
     // topmost modal dialog. WebKit keeps the style it computed for a `<dialog>` while it was the topmost — "not
     // inert" — when another opens above it, so a script could still focus what is inside the lower one (it
     // does the same with two bare `<dialog>`s).
-    // Its shadow tree is styled again — the same sheets, given again — and the engine then reads it as it is.
+    // The shadow tree it is in is styled again — the same sheets, given again — and the engine then reads it as it is.
     for (const under of open) {
-      const root = under.shadowRoot;
-      if (root) root.adoptedStyleSheets = [...root.adoptedStyleSheets];
+      const root = under.getRootNode();
+      if (root instanceof ShadowRoot) root.adoptedStyleSheets = [...root.adoptedStyleSheets];
     }
-    open.add(element);
-    for (const listener of [...listeners]) listener();
+    open.push(dialog);
+    notify();
   },
-  delete(element: Element) {
-    if (!open.delete(element)) return;
-    for (const listener of [...listeners]) listener();
+  /** `dialog` is no longer modal (`close()`, or taken out of the document). */
+  delete(dialog: HTMLDialogElement) {
+    const at = open.indexOf(dialog);
+    if (at < 0) return;
+    open.splice(at, 1);
+    notify();
   },
-  /** Calls `listener` whenever a modal overlay opens or closes; returns the unsubscribe. */
+  /** Calls `listener` whenever a modal surface opens or closes; returns the unsubscribe. */
   subscribe(listener: () => void): () => void {
     listeners.add(listener);
     return () => listeners.delete(listener);

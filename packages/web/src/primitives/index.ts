@@ -110,7 +110,7 @@
 //                 separator, period names and preferred cycle (DTM-14, DTM-16, DTM-38)
 //   system-watch — SystemWatchController: renders its host again when the document's root switches the design system,
 //                 for a choice of kind drawn from script (a calendar's arrows, a picker's actions)
-//   modal       — modalLayer: the Tanrei modal overlays open in the window, which a snackbar waits and pauses for (SNK-9, SNK-12);
+//   modal       — modalLayer: the modal `<dialog>`s of Tanrei's surfaces open in the window (openModal adds, closeModal deletes), the topmost of which a snackbar is shown in (SNK-38);
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
