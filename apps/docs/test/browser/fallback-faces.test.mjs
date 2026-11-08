@@ -11,23 +11,34 @@
 // that moment until the faces are ready are summed. Each page is measured again with the fallback faces taken out of
 // the stacks (the platform's faces at their own size, as before there were any).
 //
+// The faces are put in the page at one moment, all of them in one frame. Let through as they come, a page's files
+// (36 of them on the Japanese page at a desktop's width: Inter's cuts and Noto Sans JP's slices) are drawn in as each
+// is ready, in whatever order the machine finishes them, and a line can wrap one way while Inter is in and Noto Sans
+// JP is not, and back once both are: the Japanese getting-started page at 1440 moved by 0.0332 in two shifts ("0.1.0"
+// going down a line and coming back) in some runs and by 0 in others, in the CI's image idle and under a docs job's
+// load alike, and the six measures together came to between 0.165 and 0.243 of what they moved without the fallback
+// faces (12 runs). What is held to the line is where the faces leave the page, not the order the files happened to
+// finish in: before the files are let through, the text faces are taken out of the stacks (the text is drawn in the
+// same fallbacks, so nothing moves), the files load and are decoded with nothing drawn in them, and then the stacks
+// are given back in one change of style, which the browser lays out, and reports shifts for, in one frame.
+//
 // Why not nothing at all: a face drawn at another face's AVERAGE width sets a given line a little wider or narrower,
 // and now and then a paragraph wraps into one line more or less. Measured on macOS (Arial, Hiragino Sans), the English
 // getting-started page at a phone's width still moves by 0.0100 (a paragraph above a callout takes a line less in
 // Inter), where without the fallback faces it moved by 0.0216; the typography page by 0.0002 at that width, where it
-// moved by 0.1047; the Japanese getting-started page by 0, where it moved by 0.0922; the six measures together by
-// 0.0115, where they moved by 0.3279.
+// moved by 0.1047; the Japanese getting-started page by 0, where it moved by 0.0940; the six measures together by
+// 0.0115, where they moved by 0.2975 (0.039 of it).
 //
 // Chromium on Linux (the CI's image, Liberation Sans) draws a face registered from `local()` hinted, at a whole pixel
 // size: "Inter Fallback" at 16 px with `size-adjust: 107.3469%` is drawn at 17 px, not 17.18 (a line of English 6.15%
 // wider than Liberation Sans at 16 px where 7.23% was asked for), while Inter is drawn at its own fractional advances.
 // Its text is about 1% narrower than Inter's, and the typography page at a phone's width moves by 0.0675 there (a
 // word of its first paragraph goes down a line as Inter arrives; the paragraph keeps its height), where without the
-// fallback faces it moved by 0.1289; the six measures together by 0.0768, where they moved by 0.4899. With
-// `text-rendering: geometricPrecision` the same image draws the fallback at 17.18 px and measures what macOS does,
-// but that would redraw every text of the site in each engine; no descriptor of a face asks for it. How far a line
-// wraps differently follows the platform's drawing and the page's words, so a page is held to BUDGET, the line Core
-// Web Vitals call good, and what the faces prevent is held by the pages together: at most SHARE of what they move
+// fallback faces it moved by 0.1289; the six measures together by 0.0768, where they moved by 0.4556 (0.169 of
+// it). With `text-rendering: geometricPrecision` the same image draws the fallback at 17.18 px and measures what macOS
+// does, but that would redraw every text of the site in each engine; no descriptor of a face asks for it. How far a
+// line wraps differently follows the platform's drawing and the page's words, so a page is held to BUDGET, the line
+// Core Web Vitals call good, and what the faces prevent is held by the pages together: at most SHARE of what they move
 // without them.
 //
 // Chromium only: it is the engine that reports layout shifts.
@@ -105,6 +116,20 @@ function withoutFallbacks() {
 }
 
 /**
+ * The tokens' text stacks as they stand, with the text faces taken out: the text is drawn as it is while their files
+ * are on their way, and stays so as they arrive, until the style this adds (`#fallback-faces-held`) is removed.
+ */
+function withoutTextFaces() {
+  const style = document.createElement('style');
+  style.id = 'fallback-faces-held';
+  const root = getComputedStyle(document.documentElement);
+  const props = ['brand', 'plain', 'mono'].map((name) => `--tanrei-ref-typeface-${name}`);
+  const textFace = /^\s*['"]?(Inter|Roboto Mono|Noto Sans JP|Noto Sans JP Cut)['"]?\s*$/;
+  style.textContent = `:root:root:root { ${props.map((prop) => `${prop}: ${root.getPropertyValue(prop).split(',').filter((family) => !textFace.test(family)).join(',')} !important;`).join(' ')} }`;
+  document.head.append(style);
+}
+
+/**
  * Loads `url` with the text faces held, lets them through, and returns the layout shifts from that moment on.
  * @param {{ fallbacks: boolean }} options
  */
@@ -138,15 +163,27 @@ async function shiftsAsFacesArrive(url, viewport, { fallbacks }) {
     assert.ok(held > 0, 'no text face was asked for');
     assert.equal(before.loaded, 0, 'a text face arrived while it was held');
     if (fallbacks) assert.equal(before.fallbacks['Inter Fallback'], 'loaded', `the platform has none of the faces "Inter Fallback" is drawn from: ${JSON.stringify(before.fallbacks)}`);
+    // The files arrive with nothing drawn in them, and are put in the page at one moment (above).
+    await page.evaluate(withoutTextFaces);
     release();
-    const shifts = await page.evaluate(async (from) => {
+    const arrived = await page.evaluate(async (from) => {
+      await document.fonts.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const faces = [...document.fonts].filter((face) => /^"?(Inter|Roboto Mono|Noto Sans JP|Noto Sans JP Cut)"?$/.test(face.family));
+      const moved = window.__docsLayoutShifts.filter((shift) => shift.at > from);
+      const at = performance.now();
+      document.getElementById('fallback-faces-held').remove();
+      return { at, loaded: faces.filter((face) => face.status === 'loaded').map((face) => face.family), loading: faces.filter((face) => face.status === 'loading').length, moved };
+    }, before.at);
+    assert.equal(arrived.loaded.length, held, `${held} files of the text faces were asked for, and ${arrived.loaded.length} faces loaded`);
+    assert.equal(arrived.loading, 0, 'a text face was still loading when the stacks were given back');
+    assert.ok(arrived.loaded.includes('Inter'), 'Inter never arrived');
+    assert.deepEqual(arrived.moved, [], 'the page moved while the text faces were out of its stacks');
+    return await page.evaluate(async (from) => {
       await document.fonts.ready;
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return window.__docsLayoutShifts.filter((shift) => shift.at > from);
-    }, before.at);
-    const loaded = await page.evaluate(() => [...document.fonts].filter((face) => /^"?Inter"?$/.test(face.family) && face.status === 'loaded').length);
-    assert.ok(loaded > 0, 'Inter never arrived');
-    return shifts;
+    }, arrived.at);
   } finally {
     await context.close();
   }
