@@ -8113,6 +8113,9 @@ class TanreiComboboxTokens {
     required this.dividerColor,
     required this.dividerSpace,
     required this.dividerThickness,
+    required this.entriesGap,
+    required this.entriesRowGap,
+    required this.entriesTypingMinWidth,
     required this.groupTitleColor,
     required this.groupTitleTypescale,
     required this.groupGap,
@@ -8159,6 +8162,12 @@ class TanreiComboboxTokens {
   final double dividerSpace;
   /// `comp.combobox.divider-thickness`
   final double dividerThickness;
+  /// `comp.combobox.entries-gap`
+  final double entriesGap;
+  /// `comp.combobox.entries-row-gap`
+  final double entriesRowGap;
+  /// `comp.combobox.entries-typing-min-width`
+  final double entriesTypingMinWidth;
   /// `comp.combobox.group-title-color`
   final TanreiPaint groupTitleColor;
   /// `comp.combobox.group-title-typescale`
@@ -8238,6 +8247,9 @@ class TanreiComboboxTokens {
     TanreiPaint? dividerColor,
     double? dividerSpace,
     double? dividerThickness,
+    double? entriesGap,
+    double? entriesRowGap,
+    double? entriesTypingMinWidth,
     TanreiPaint? groupTitleColor,
     TanreiTextStyle? groupTitleTypescale,
     double? groupGap,
@@ -8279,6 +8291,9 @@ class TanreiComboboxTokens {
         dividerColor: dividerColor ?? this.dividerColor,
         dividerSpace: dividerSpace ?? this.dividerSpace,
         dividerThickness: dividerThickness ?? this.dividerThickness,
+        entriesGap: entriesGap ?? this.entriesGap,
+        entriesRowGap: entriesRowGap ?? this.entriesRowGap,
+        entriesTypingMinWidth: entriesTypingMinWidth ?? this.entriesTypingMinWidth,
         groupTitleColor: groupTitleColor ?? this.groupTitleColor,
         groupTitleTypescale: groupTitleTypescale ?? this.groupTitleTypescale,
         groupGap: groupGap ?? this.groupGap,

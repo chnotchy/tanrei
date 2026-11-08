@@ -2472,6 +2472,9 @@
     --tanrei-comp-combobox-divider-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-combobox-divider-space: var(--tanrei-sys-space-space100);
     --tanrei-comp-combobox-divider-thickness: var(--tanrei-sys-border-hairline);
+    --tanrei-comp-combobox-entries-gap: var(--tanrei-comp-text-input-entries-gap);
+    --tanrei-comp-combobox-entries-row-gap: var(--tanrei-comp-text-input-entries-row-gap);
+    --tanrei-comp-combobox-entries-typing-min-width: var(--tanrei-comp-text-input-entries-typing-min-width);
     --tanrei-comp-combobox-filled-disabled-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
     --tanrei-comp-combobox-filled-disabled-option-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-combobox-filled-disabled-option-leading-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
