@@ -450,8 +450,11 @@ export const styles = css`
   ${rippleStyles({ color: '--_ripple', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
 
   /* SRC-7: the docked view — a popover in the top layer placed under the bar by script, or in place with inline — as wide
-     as the bar, on its color, elevation and corners (eased), its content clipped to that shape and inset by the padding. */
+     as the bar, on its color, elevation and corners (eased), its content clipped to that shape and inset by the padding.
+     Drawn only while open: in place (inline) it is no popover, so nothing else would hide it, and a 0 × 0 box would
+     still paint its elevation while another view is shown or the search is collapsed. */
   .view {
+    display: none;
     box-sizing: border-box;
     position: fixed;
     inset: auto;
