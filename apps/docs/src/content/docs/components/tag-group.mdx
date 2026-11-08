@@ -224,6 +224,14 @@ Two things stay yours:
 - When no chip is left to take focus, move focus to the control the set belongs to: the field that adds items, or the button that opens the filters. Otherwise the browser drops it.
 - The group announces nothing. Where a removal must be heard, such as a filter removed far from the list it changes, report it in a live region or a [snackbar](/components/snackbar/).
 
+### When the set changes
+
+When you add, remove or reorder members, or one of them changes its size, each member that changes place moves to its new place in one motion, along its line or onto another line. A member you add fades in where it will stand, and one you remove fades out where it stood. When the reader asks for less motion, the members take their new places at once and only the fades remain.
+
+Assistive technology and the keyboard get the change at once: the new order of the list and of focus holds from the moment you make it. A chip you move keeps its focus.
+
+On the web, while a member you removed fades out, the group puts your element back where it stood, inert, hidden from assistive technology and marked `data-leaving`. A script that reads the group's children in that time selects `:not([data-leaving])`.
+
 ### Do
 
 - Set `spacing="tags"` for a set of static tags.

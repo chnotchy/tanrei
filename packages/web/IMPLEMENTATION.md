@@ -880,9 +880,21 @@ focus, and observes its child list. When that member is among the removed nodes 
 fallen to the body, it calls `focus()` on the members that followed, then on those before, until one takes it: a chip
 takes it on its own button or link (the first focusable thing in its shadow root, never the remove action), a tag and a
 disabled chip do not. If the product has already moved focus, or nothing takes it, the group does nothing. Two cases
-beyond the spec's words: a member that was only moved inside the group is focused again; and where the product wrote
-the whole set again (no former member is left), the member that now stands at the removed one's place is tried first —
-chips written a moment ago are waited for (`updateComplete`).
+beyond the spec's words: where the product wrote the whole set again (no former member is left), the member that now
+stands at the removed one's place is tried first — chips written a moment ago are waited for (`updateComplete`); and a
+member the product moved inside the group is focused again (TGR-10). Chromium fires `focusout` while it removes the
+focused element, and the group's check of that event runs before its observer is told of the move, so the check first
+reads the change of the child list still to be reported (`takeRecords()`).
+
+**Changes of the set (TGR-10).** A member that changes place moves by a `translate` animation added to its own
+(`composite: 'add'`), from where it was drawn. A member that is added fades in by an opacity animation; one that is
+removed is put back as the group's child, before the member that followed it, for the length of its fade-out — `inert`,
+`aria-hidden="true"`, `data-leaving`, and absolutely placed at the box it was drawn in, the list being its containing
+block only while the custom state `leaving` is set — then removed, its own `inert` and `aria-hidden` given back. An
+element given anew in place of a removed one with the same tag, kind, label and text moves as that member, without a
+fade. All of it reads its time and curve from the list's computed transition, which carries the two motion tokens. The
+first frames, an empty group's first member and its last, and a new width, direction or gap draw at once; reduced
+motion places at once and keeps the fades.
 
 **Debug reports.** A `tanrei-chip` while `spacing` is `tags` (TGR-4); content that is not a tag or a chip (TGR-11); an
 unknown `spacing` (TGR-16). An empty group reports nothing.
