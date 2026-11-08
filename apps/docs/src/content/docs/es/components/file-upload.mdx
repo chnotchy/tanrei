@@ -2,7 +2,7 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: 97b893d5ef403669cb63454d2181b9f8e794b956
+sourceHash: de2bc53ab8ccfee3d6e2d84bb371e8cb3969c534
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -396,6 +396,7 @@ Con `rows="given"`, cada fila es un [elemento de archivo](/es/components/file-it
 - Da tú formato al tamaño y dalo como `sizeText`, o como la función `formatSize` con `rows="own"`. Si un megabyte son 1000 o 1024 kilobytes es decisión de tu producto.
 - `progress` es tu informe de tu propio envío. El componente nunca mueve la barra por sí mismo.
 - No definas en una fila lo que el control de subida da a todas las filas: su forma, su vista previa, los dos nombres de acción, `disabled`.
+- Una fila que quitas se dibuja mientras se va. El componente vuelve a poner tu elemento donde estaba, con `inert`, oculto a las tecnologías de apoyo y marcado con `data-leaving`, y lo quita cuando se ha desvanecido y cerrado. Deja de ser una fila en el momento en que lo quitas: mientras tanto, lee tus filas como `tanrei-file-item:not([data-leaving])`.
 
 ### En un campo
 
@@ -469,6 +470,7 @@ En un diseño de derecha a izquierda, el activador y los glifos de las filas est
 - Con `rows="own"`, una elección es un mensaje: el nombre de cada archivo que se conservó y después el nombre de cada archivo rechazado con tu frase. El control de subida no añade ninguna palabra ni ningún recuento. Define `announcement` en tu listener de `change` para decir en su lugar una frase tuya.
 - Una fila que se quita no se anuncia. Después de quitar una fila, el foco va a la acción de quitar de la fila siguiente, a la de la anterior donde no sigue ninguna, o al activador cuando no queda ninguna fila. Con `rows="own"`, el control de subida lo hace él mismo.
 - Con el texto al 200%, todos los textos saltan de línea y nada se corta. En colores forzados, la zona conserva un borde, una zona que está recibiendo un arrastre tiene uno más grueso y la barra de una fila sigue siendo visible.
+- Una fila que se añade se abre desde cero y aparece con un fundido, y una fila que se quita se desvanece y se cierra, mientras las filas de debajo se mueven con ella. Un cambio de estado que cambia la altura de una fila también la mueve. Lo que leen las tecnologías de apoyo, el recuento y el foco cambian al instante, no al final del movimiento. Con movimiento reducido, todo cambio se dibuja al instante.
 
 Cómo está construido en la web: el selector de archivos es un miembro del control de subida, en su shadow root, y el selector que hay dentro de él es un `<input type="file">` real, apartado de la vista, del orden del foco y de la tecnología de apoyo. El activador se queda en tu DOM, y también los elementos de archivo que das tú. El grupo, la lista, la región activa y los elementos de archivo que el control de subida crea él mismo están en el shadow root.
 

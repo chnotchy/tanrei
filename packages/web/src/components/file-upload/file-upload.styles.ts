@@ -1,8 +1,9 @@
 import { css, unsafeCSS } from 'lit';
 
 // The file upload draws nothing of its own (FUP-1): it arranges its two members — its file picker above, its file
-// items below — and the only values it reads are its own two distances (tokens/comp/file-upload.tokens.json). Nothing
-// here reads a token of a member or writes a custom property.
+// items below — and the only values it reads are its own distance (tokens/comp/file-upload.tokens.json). Nothing here
+// reads a token of a member or writes a custom property: the room above the rows, which comes and goes with them, moves
+// by the List's resize motion, whose time and curve the script asks of the List (FUP-29).
 const PREFIX = '--tanrei-comp-file-upload';
 const t = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 
@@ -40,8 +41,11 @@ export const styles = css`
   .list {
     margin-block-start: ${t('list-gap')};
   }
-  .list[hidden] {
-    display: none;
+  /* FUP-17, FUP-29: the rows arrive and leave as the List's items do (LST-41), and the room above them opens with the
+     first and closes with the last, over the List's resize motion: a list that holds no row is empty, so it takes no
+     room once that room has closed. At once where motion is reduced, and in the first frames. */
+  .list[data-empty] {
+    margin-block-start: 0;
   }
   /* A file item is given a font size again — a length of the root's — and not for its drawing: every text of a file
      item sets its own role. It is for WebKit, which does not follow a change of the root's font size into the shadow
