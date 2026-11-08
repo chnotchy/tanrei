@@ -1423,6 +1423,22 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-split-view",
+        "import": "@tanrei/web/m3-expressive-like",
+        "module": "@tanrei/web/components/split-view"
+      },
+      "react": {
+        "name": "SplitView",
+        "import": "@tanrei/react/m3-expressive-like"
+      }
+    },
+    {
       "name": "stepper",
       "title": "Stepper",
       "level": "base",

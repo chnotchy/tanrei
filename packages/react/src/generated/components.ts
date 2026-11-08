@@ -99,6 +99,7 @@ export { Slider, type SliderMarks } from './wrappers/slider.js';
 export { SliderField, type SliderFieldMarks } from './wrappers/slider-field.js';
 export { Snackbar } from './wrappers/snackbar.js';
 export { SnackbarHost } from './wrappers/snackbar-host.js';
+export { SplitView } from './wrappers/split-view.js';
 export { Stepper } from './wrappers/stepper.js';
 export { StepperStep } from './wrappers/stepper-step.js';
 export { Submenu } from './wrappers/submenu.js';

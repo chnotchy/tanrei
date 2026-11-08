@@ -80653,6 +80653,60 @@
           }
         }
       },
+      "split-view": {
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                1,
+                1,
+                1
+              ],
+              "alpha": 0.48,
+              "hex": "#ffffff"
+            },
+            "$description": "The line between the two panes: decoration that shows where one ends, in the color a divider draws its line in. What a person drags is the Handle on it, which is held to the 3:1 boundary of a control (WCAG 1.4.11)."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The line's thickness across the axis of the split; the panes share what is left of the region."
+          }
+        },
+        "motion": {
+          "collapse-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long a pane takes to fold away or come back, and the divider to reach the share a press on the Handle gives: a large change a person follows with the eye, slower than a small one."
+          },
+          "collapse-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of every motion of the divider: a change of place within the layout."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the divider takes to reach a share the product set. A drag and a key are followed without a motion."
+          }
+        }
+      },
       "stepper": {
         "bar": {
           "color": {

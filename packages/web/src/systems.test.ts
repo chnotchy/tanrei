@@ -25,6 +25,8 @@ const SUBJECTS = [
   // Outlined with its size indicator drawn: each preset's corners and edge for the box, and the indicator's height,
   // padding, corners, inverse colors and monospaced digits.
   subject('resizable-frame', (fixture) => fixture.id === 'indicator-always'),
+  // Side by side at rest: each preset's divider color and width between the two panes (the handle is out of sight).
+  subject('split-view', (fixture) => fixture.id === 'horizontal'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.

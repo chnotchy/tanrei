@@ -8399,6 +8399,14 @@ private let acmeSnackbarTokens = TanreiSnackbarTokens(
   )
 )
 
+private let acmeSplitViewTokens = TanreiSplitViewTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerWidth: 1,
+  motionCollapseDuration: 400,
+  motionCollapseEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 300
+)
+
 private let acmeStepperTokens = TanreiStepperTokens(
   barColor: .role(.outlineVariant),
   barFilledColor: .role(.primary),
@@ -10176,6 +10184,7 @@ extension TanreiSystem {
     skeleton: acmeSkeletonTokens,
     slider: acmeSliderTokens,
     snackbar: acmeSnackbarTokens,
+    splitView: acmeSplitViewTokens,
     stepper: acmeStepperTokens,
     steps: acmeStepsTokens,
     swatch: acmeSwatchTokens,
