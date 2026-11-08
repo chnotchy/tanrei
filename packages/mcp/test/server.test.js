@@ -249,7 +249,8 @@ test('search_tokens: substring, glob, filters and pagination', async () => {
   const mine = (await server.call('search_tokens', { query: 'acme.comp.*', layerFile: extendedFile })).data;
   assert.deepEqual(mine.tokens.map((t) => [t.id, t.extension, t.declaredBy]), [['acme.comp.rating.gap', true, 'acme'], ['acme.comp.rating.star.color', true, 'acme'], ['acme.comp.rating.star.size', true, 'acme']]);
   assert.equal(mine.tokens[2].description, 'The rating component\'s star.', 'the rationale of the declaration');
-  assert.equal((await server.call('search_tokens', { query: 'rating', layerFile: extendedFile })).data.total, 3, 'substring search too');
+  // A substring, not a glob: the layer's own namespace (the core has a rating of its own, so `rating` alone finds both).
+  assert.equal((await server.call('search_tokens', { query: 'acme.comp.rat', layerFile: extendedFile })).data.total, 3, 'substring search too');
   const sizes = (await server.call('search_tokens', { query: 'comp.button.container.height.*', layerFile: extendedFile })).data.tokens;
   assert.deepEqual(sizes.map((t) => [t.id.split('.').at(-1), t.extension ?? false]), [['3x', true], ['large', false], ['medium', false], ['small', false]]);
   // One declared size makes one token per member of the size axis — whatever the axis has (gap and outline width included).

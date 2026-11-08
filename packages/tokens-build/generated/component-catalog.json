@@ -1792,6 +1792,20 @@
       "react": {
         "name": "MarqueeText"
       }
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-rating",
+        "module": "@tanrei/web/components/rating"
+      },
+      "react": {
+        "name": "Rating"
+      }
     }
   ]
 }

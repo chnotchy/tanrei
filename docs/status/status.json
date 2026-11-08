@@ -1973,19 +1973,37 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "rating",
+      "title": "Rating",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/rating/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 14,
+      "alpha": 15,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 68,
+      "planned": 69,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1993,7 +2011,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 68,
+      "planned": 69,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -2001,7 +2019,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 68,
+      "planned": 69,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -2009,7 +2027,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 68,
+      "planned": 69,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

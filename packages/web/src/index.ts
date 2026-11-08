@@ -353,6 +353,7 @@ export {
   type TanreiNumberTickerTrend,
 } from './components/number-ticker/number-ticker.js';
 export { TanreiRadioButton, type TanreiRadioButtonChangeDetail, type TanreiRadioButtonOwner } from './components/radio-button/radio-button.js';
+export { TanreiRating, type TanreiRatingChangeDetail, type TanreiRatingPreviewDetail, type TanreiRatingSize } from './components/rating/rating.js';
 export {
   TanreiRadioGroup,
   type TanreiRadioGroupChangeDetail,

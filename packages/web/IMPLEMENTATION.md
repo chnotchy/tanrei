@@ -2419,6 +2419,66 @@ Limits: `aria-*` attributes the product writes on the host do not reach the elem
 inside a shadow root of the product's own, inside the group, is not found (`closest()` and `querySelectorAll()` stop
 at the root).
 
+## `<tanrei-rating>`
+
+A score out of a few marks, given or shown (specs/rating.spec.json). One element, form-associated; every mark is drawn
+in its shadow root.
+
+```html
+<tanrei-rating name="score" label="Your rating of this recipe"></tanrei-rating>
+<tanrei-rating label="Your rating" allow-half value="3.5"></tanrei-rating>
+<tanrei-rating label="Average rating" value="4.3" read-only value-text="4.3 out of 5 stars, 128 reviews"></tanrei-rating>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `value` | number | `0` | the score, 0 to `max`; 0 is none. Drawn and exposed clamped and at the nearest score it can show (RAT-14) |
+| `max` | number | `5` | how many marks; the whole number below it, at least 1 |
+| `allowHalf` / `allow-half` | boolean | `false` | halves can be given; reflected |
+| `size` | `small` \| `medium` \| `large` (+ added) | `medium` | the mark (`mark.size`) and the round container behind it (`container.size`); reflected |
+| `icon` | string | `""` | a glyph of the icon set; empty draws `star` |
+| `label` | string | `""` | the accessible name, never drawn; required |
+| `optionLabels` / `option-labels` | string[] | `[]` | each score's name, lowest first; the attribute is a JSON array |
+| `valueText` / `value-text` | string | `""` | how a read-only score is read |
+| `readOnly` / `read-only` | boolean | `false` | one image with a name; reflected |
+| `disabled`, `name` | | | the platform's; `form` is the platform's attribute |
+
+`change` and `preview` are `CustomEvent`s whose `detail.value` is the new score, or the score a fine pointer would give
+(`null` when it leaves). Neither fires for a value the product sets.
+
+**What it is to assistive technology** follows the number of choices (WAI-ARIA APG: a radio group suits up to seven,
+a slider more). The shadow root holds one `.row` — `role="radiogroup"` with one `role="radio"` span per mark and a
+roving `tabindex` (not `<input type="radio">`, whose name group cannot reach across shadow roots); `role="slider"`
+with `aria-valuemin="0"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` from `optionLabels`; or `role="img"`
+with `aria-label` and `aria-description` (read-only). `focus()` on the host focuses the stop: the checked radio, the
+first, or the slider. The radio group's keys are the radio group's (RGP-5, RGP-6); the slider's are the slider's; Enter
+submits the form through its default button (`pressDefaultButton()`), as Enter in the platform's radio does. Space
+on the checked mark changes nothing: no input takes a score back to 0 (as a radio group has none; a product that needs it
+places a Button that sets `value` to 0).
+
+**The drawing.** Each mark is a `.item` (the `container` part: the state layer, the ripple, the radio's focus ring)
+holding a `.mark` (the `mark` part) of two `.layer`s in one grid cell: `.off`, the icon set's unselected family and
+fill in `unselected.mark.color`, and `.on`, its selected family and fill in `selected.mark.color`. `data-fill`
+(`full`, `half`, `empty`) shows one of them or both; a half clips each layer to its half with `clip-path: inset()`,
+the halves swapped under `:dir(rtl)`. The clip is on the layer, the mirroring (`data-tanrei-mirrored`, by
+`GlyphMirrorController`) on the glyph inside it, so a mirrored glyph keeps its halves where the direction puts them.
+A change of score fades the layers' opacity over `motion.selection-duration`; a fade, so it stays under reduced
+motion (MOT-6). A mark with any of the score in it is in the selected condition: its container reads the selected
+condition's state tokens.
+
+**The hit area** (RAT-8) is the row's `::before`, reaching the minimum target above, below and past both ends; a point
+is read against the row (`scoreAt()`): the containers touch, so the mark whose slot of the row holds the point is the
+nearer one, and the end marks take what lies past the ends. Hover is `data-hovered`, written by the element on the mark
+the pointer would press — `:hover` on a container would miss the target's band above and below it. Each mark has its
+own `PressController`, so a press-hold on one mark is not cut short by a press on the next.
+
+**Forms.** Submits `value` under `name` while it is above 0 (a read-only rating too); disabled — by itself or a
+disabled `<fieldset>` — nothing. Resets to the value it had when first connected; restores the state the browser keeps.
+
+Limits: the web cannot tell a glyph name the icon set lacks from a font still loading, so an unknown `icon` draws its
+name in place of `star` and is not reported (RAT-18's last clause). `aria-*` the product writes on the host do not
+reach the element with the role.
+
 ## `<tanrei-select>`, `<tanrei-option>` and `<tanrei-option-group>`
 
 One value chosen from a closed list: a trigger that looks and measures like a text input's box and shows the chosen

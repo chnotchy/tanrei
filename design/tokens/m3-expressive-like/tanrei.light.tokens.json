@@ -73720,6 +73720,641 @@
           }
         }
       },
+      "rating": {
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corner of each mark's container: round in the default system."
+          },
+          "size": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "focused": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "hovered": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "mark": {
+          "size": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "motion": {
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long a mark takes to fade between its unselected and its selected form when the score changes."
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            }
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "pressed": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#6750a4"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#6750a4"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4039,
+                  0.3137,
+                  0.6431
+                ],
+                "hex": "#6750a4",
+                "alpha": 1
+              },
+              "$description": "A mark within the score, drawn in the icon set's selected (filled) form."
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#6750a4"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4039,
+                    0.3137,
+                    0.6431
+                  ],
+                  "hex": "#6750a4",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4039,
+                  0.3137,
+                  0.6431
+                ],
+                "hex": "#6750a4",
+                "alpha": 1
+              }
+            }
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4745,
+                  0.4549,
+                  0.4941
+                ],
+                "hex": "#79747e",
+                "alpha": 1
+              },
+              "$description": "A mark beyond the score, drawn in the icon set's unselected (outlined) form: at least 3:1 against the surface, so that the marks not given can be counted."
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4745,
+                  0.4549,
+                  0.4941
+                ],
+                "hex": "#79747e",
+                "alpha": 1
+              }
+            }
+          }
+        }
+      },
       "resizable-frame": {
         "container": {
           "min-height": {

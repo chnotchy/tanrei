@@ -10912,6 +10912,129 @@ export const m3ExpressiveLike = {
         },
       },
     },
+    rating: {
+      containerShape: 9999,
+      disabledContainerShape: 9999,
+      disabledOpacity: 1,
+      focusedContainerShape: 9999,
+      focusedOpacity: 1,
+      hoveredContainerShape: 9999,
+      hoveredOpacity: 1,
+      motionFeedbackDuration: 450,
+      motionSelectionDuration: 150,
+      motionSelectionEasing: [0.2, 0, 0, 1],
+      motionStateDuration: 150,
+      motionStateEasing: [0.2, 0, 0, 1],
+      pressedContainerShape: 9999,
+      pressedOpacity: 1,
+      sizes: {
+        small: { markSize: 20, containerSize: 28 },
+        medium: { markSize: 24, containerSize: 32 },
+        large: { markSize: 32, containerSize: 40 },
+      },
+      conditions: {
+        unselected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.08,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            markColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        selected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.08,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "primary" },
+              amount: 0.12,
+            },
+            markColor: { kind: "role", role: "primary" },
+            stateLayerColor: { kind: "role", role: "primary" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            markColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+      },
+    },
     resizableFrame: {
       containerMinHeight: 200,
       containerMinWidth: 320,
