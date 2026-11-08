@@ -105,6 +105,23 @@ studioTest('a font stack is a reorderable list: lifted and carried by the keyboa
   assert.deepEqual(onDisk().tokens[BRAND].$value, ['system-ui', 'sans-serif']);
 });
 
+// A family removed stays the list's child while it is drawn leaving (LST-41), counted in nothing: a family removed
+// during that motion is still found among the list's items, not the list's children.
+studioTest('a family removed while the one removed before it is still drawn leaving is the one removed', {}, async ({ page, section, saved }) => {
+  await section('typeface');
+  const list = page.locator('[data-typeface="brand"] [data-stack-list]');
+  const leaving = await list.evaluate(async (el) => {
+    const remove = (family) => el.querySelector(`:scope > [data-family="${family}"] [data-act="remove"]`).click();
+    remove('Inter');
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const drawn = el.querySelector(':scope > [data-family="Inter"]')?.hasAttribute('data-leaving') ?? false;
+    remove('Noto Sans');
+    return drawn;
+  });
+  assert.equal(leaving, true, 'Inter is still drawn leaving when Noto Sans is removed');
+  await saved((layer) => JSON.stringify(layer.tokens?.[BRAND]?.$value) === JSON.stringify(['Noto Sans JP', 'system-ui', 'sans-serif']), 'Inter and Noto Sans removed, Noto Sans JP kept');
+});
+
 studioTest('ar, 390px: a family is moved by the handle’s menu with a pointer and removed — the list says it in Arabic, focus stays, nothing scrolls sideways, axe passes', { locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, section, saved, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
   await section('typeface');
