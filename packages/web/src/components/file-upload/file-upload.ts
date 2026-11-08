@@ -26,6 +26,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
 import { LIST_MOTION, LIST_PRESENCE } from '../../primitives/list-presence.js';
+import { startFromNextFrame } from '../../primitives/motion.js';
 import type { TanreiList, TanreiListMoveDetail } from '../list/list.js';
 import '../list/list.js';
 import { styles } from './file-upload.styles.js';
@@ -1231,6 +1232,10 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     } catch {
       motion = list.animate(keyframes, { duration, id: 'file-upload-room' });
     }
+    // From the first frame drawn after the change, with the rows' own motions (the List's `showPresence`): WebKit dates
+    // a motion begun in a task from the frame drawn before it, and rows that take longer to render than the motion
+    // lasts would have it over before its first frame.
+    startFromNextFrame([motion]);
     this.roomMotion = motion;
     const done = () => {
       if (this.roomMotion === motion) this.roomMotion = null;

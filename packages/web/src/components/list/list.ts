@@ -42,6 +42,7 @@ import { AXES, itemStyles, listStyles } from './list.styles.js';
 import type { TanreiListDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { SETTLING } from '../../styles/motion.js';
+import { startFromNextFrame } from '../../primitives/motion.js';
 import { delegatedAria, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
@@ -511,6 +512,11 @@ export class TanreiListItem extends TanreiElement {
       animations.push(animateSafely(row, [held(from), held(to)], { ...resize, fill, id: 'list-item-content' }));
     }
     animations.push(animateSafely(this, [{ opacity: from.opacity }, { opacity: to.opacity }], { ...fade, fill, id: 'list-item-fade' }));
+    // Begun in the task of the change, they begin in the first frame drawn after it: WebKit dates them from the frame
+    // drawn before that task, and a change whose rows take longer to render than the motion lasts would draw them over
+    // before their first frame. A leave is played there even where a page clock holds frame callbacks: the list waits
+    // for it to take the item away.
+    startFromNextFrame(animations, { leaving: !arrive });
     this.presenceMotions = animations;
     return animations;
   }
@@ -530,6 +536,8 @@ export class TanreiListItem extends TanreiElement {
     const from = divider && (to === 0 || this.dividerFade) ? Number(getComputedStyle(divider).opacity) : 0;
     this.dividerFade?.cancel();
     this.dividerFade = divider ? animateSafely(divider, [{ opacity: from }, { opacity: to }], { ...fade, fill: to ? 'none' : 'forwards', id: 'list-divider-fade' }) : null;
+    // With the items it fades with: from the first frame drawn after the change (`showPresence`).
+    if (this.dividerFade) startFromNextFrame([this.dividerFade], { leaving: to === 0 });
   }
 
   /** @internal The element that takes focus: an interactive item's box, a link item's anchor, an option's host. */
