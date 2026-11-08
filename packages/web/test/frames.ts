@@ -143,9 +143,15 @@ export interface SampleOptions {
   maxFrames?: number;
 }
 
+/**
+ * What the in-page sampler answers: what was seen; or, for `frameAtRest` (`restOnly`), the rest alone, as its JSON text
+ * (what `serial` already made of it to compare it with the frame before); or why the sampling failed.
+ */
+type Answer = (Frames & { failure?: undefined; restText?: undefined }) | { restText: string; failure?: undefined } | { failure: string };
+
 /** The in-page side, on `window.__tanreiFrames` while it runs. */
 interface Sampler {
-  go(): Promise<(Frames & { failure?: undefined }) | { failure: string }>;
+  go(): Promise<Answer>;
   release(keep?: boolean): void;
 }
 
@@ -157,6 +163,12 @@ interface InPage {
   step: number;
   frames: number | null;
   maxFrames: number;
+  /**
+   * Only the rest is asked for (`frameAtRest`): there is no act, so no frame before it and none while the test acts;
+   * every motion is finished from the first frame, the root is read only as it settles, and only the rest crosses to
+   * the test, as text.
+   */
+  restOnly: boolean;
   /** Frames in a row that must be the same for rest (and, frozen, for the first frame to be complete). */
   settleFrames: number;
   freeze: boolean;
@@ -208,6 +220,8 @@ function install(root: Element, o: InPage): void {
   let lastSeen = '';
   let complete = true;
   let released = false;
+  /** `go()` has been asked (an answer found before it stays on the page until it is). */
+  let gone = false;
   let before!: Frame;
   let resolve!: (value: Awaited<ReturnType<Sampler['go']>>) => void;
   const done = new Promise<Awaited<ReturnType<Sampler['go']>>>((r) => (resolve = r));
@@ -494,8 +508,9 @@ function install(root: Element, o: InPage): void {
         settling++;
         stable = text === lastSeen && !caught && !running ? stable + 1 : 0;
         if (stable >= o.settleFrames) {
-          release();
-          resolve({ before, frames, rest: frame, motions, complete });
+          // The root may settle (`restOnly`) before the test asks: the sampler then stays until it does.
+          release(!gone);
+          resolve(o.restOnly ? { restText: text } : { before, frames, rest: frame, motions, complete });
         } else if (settling > 120) fail('the root did not come to rest in 120 frames after its motions ended');
       }
       lastSeen = text;
@@ -506,6 +521,7 @@ function install(root: Element, o: InPage): void {
 
   const sampler: Sampler = {
     go: () => {
+      gone = true;
       if (phase === 'act') phase = o.freeze ? 'frozen' : 'motion';
       else if (phase === 'done' && w.__tanreiFrames === sampler) delete w.__tanreiFrames;
       return done;
@@ -516,14 +532,21 @@ function install(root: Element, o: InPage): void {
   // What already moves is held where it is; the root as it stands is what a first frame is told apart from.
   listen();
   catchNew(true);
-  before = { ...take(), index: -1 };
-  lastKept = lastSeen = serial(before);
+  if (o.restOnly) {
+    // Nothing to tell a first frame apart from: the root is read first in the frame that finishes its motions. (On a
+    // page of thousands of elements one reading takes a few hundred milliseconds in Firefox, and a frame of them is
+    // megabytes to send to the test.)
+    phase = 'settle';
+  } else {
+    before = { ...take(), index: -1 };
+    lastKept = lastSeen = serial(before);
+  }
   clock.observe(mover);
 }
 
 const rootOf = (target: Locator | Page): Locator => ('keyboard' in target ? target.locator(':root') : target);
 
-async function run(target: Locator | Page, act: () => Promise<unknown>, options: SampleOptions, freeze: boolean) {
+async function run(target: Locator | Page, act: () => Promise<unknown>, options: SampleOptions, freeze: boolean, restOnly = false): Promise<Exclude<Answer, { failure: string }>> {
   const root = rootOf(target);
   await root.evaluate(install, {
     every: EVERY_ANIMATION,
@@ -535,6 +558,7 @@ async function run(target: Locator | Page, act: () => Promise<unknown>, options:
     maxFrames: options.maxFrames ?? 600,
     settleFrames: 3,
     freeze,
+    restOnly,
   });
   try {
     await act();
@@ -547,12 +571,18 @@ async function run(target: Locator | Page, act: () => Promise<unknown>, options:
   return seen;
 }
 
+/** What was seen, where all of it was asked for (not `restOnly`). */
+function seenWhole(seen: Exclude<Answer, { failure: string }>): Frames {
+  if (seen.restText !== undefined) throw new Error('sampleFrames: the sampler answered the rest alone');
+  return seen;
+}
+
 /**
  * Samples the frames of a change: installs the sampler on `root` (a container the change happens in, or the page),
  * runs `act` (the change: an input, an element inserted), and reads frame by frame, one frame of motion time each,
  * until every motion has ended and the root has come to rest (or for `frames` frames). Begin with the root at rest.
  */
-export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, options: SampleOptions = {}): Promise<Frames> => run(root, act, options, false);
+export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, options: SampleOptions = {}): Promise<Frames> => run(root, act, options, false).then(seenWhole);
 
 /**
  * The root as it rests now, read as a frame of `sampleFrames` is: every motion in it finished, then read once nothing
@@ -560,8 +590,10 @@ export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, 
  * rest apart from it.
  */
 export async function frameAtRest(root: Locator | Page, options: Pick<SampleOptions, 'probe' | 'elements' | 'properties'> = {}): Promise<Frame> {
-  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false);
-  return seen.rest;
+  const seen = await run(root, () => Promise.resolve(), { ...options, frames: 0 }, false, true);
+  if (seen.restText === undefined) throw new Error('frameAtRest: the sampler answered more than the rest');
+  const [elements, probe] = JSON.parse(seen.restText) as [Frame['elements'], Frame['probe']];
+  return { index: 0, time: 0, elements, probe };
 }
 
 /** A first frame held still: every motion stands at its start until `release()`. */
@@ -579,7 +611,7 @@ export interface FrozenFrame {
  * `toHaveScreenshot` is configured with `animations: 'disabled'`, which would run them to their end).
  */
 export async function freezeFirstFrame(root: Locator | Page, act: () => Promise<unknown>, options: Pick<SampleOptions, 'probe' | 'elements' | 'properties'> = {}): Promise<FrozenFrame> {
-  const seen = await run(root, act, options, true);
+  const seen = seenWhole(await run(root, act, options, true));
   const page = rootOf(root).page();
   return { frame: seen.rest, release: () => page.evaluate(() => (window as unknown as { __tanreiFrames?: Sampler }).__tanreiFrames?.release()) };
 }
