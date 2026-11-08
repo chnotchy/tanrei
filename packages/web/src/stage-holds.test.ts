@@ -41,11 +41,7 @@ const WINDOW: Record<string, { pick: Pick; reason: string }> = {
  * by `[<system>/]<spec>/<fixture>`, with what is painted. Each must still be found: once it is not, the test fails
  * until it leaves the list. The list only shrinks.
  */
-const SEARCH_VIEW_RING =
-  "the docked view's box (`.view`, position: fixed) is 0 × 0 at the stage's start corner while the full-screen or dialog view is shown, and still paints its elevation's 1 px ring there";
-const KNOWN: Record<string, string> = Object.fromEntries(
-  ['full-screen', 'full-screen-results', 'dialog-results', 'dialog-results-rtl', 'dialog-loading', 'dialog-none', 'dialog-error'].map((id) => [`search/${id}`, SEARCH_VIEW_RING]),
-);
+const KNOWN: Record<string, string> = {};
 
 /** How far around a stage is looked at, in CSS pixels: a fixture that paints as far as this is reported as reaching it. */
 const AROUND = 64;

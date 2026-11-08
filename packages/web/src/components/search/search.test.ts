@@ -2747,6 +2747,27 @@ test.describe('shortcut', () => {
 });
 
 test.describe('dialog view', () => {
+  test('SRC-7: nothing of the docked view is drawn while it is not shown — in every fixture whose view is dialog or full-screen, collapsed or empty, its box is not rendered and paints no elevation; in the docked fixtures it is drawn', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true });
+    const shown = ['docked', 'docked-query-row-none', 'docked-results'];
+    const hidden = ['full-screen', 'full-screen-results', 'dialog-results', 'dialog-results-rtl', 'dialog-loading', 'dialog-none', 'dialog-error'];
+    for (const f of spec.fixtures) {
+      const v = view(page, f.id);
+      if ((await v.count()) === 0) continue;
+      const drawn = await v.evaluate((el) => el.classList.contains('inline') || el.matches(':popover-open'));
+      const [display, box] = [await css(v, 'display'), await v.boundingBox()];
+      if (drawn) {
+        expect(display, f.id).toBe('flex');
+        continue;
+      }
+      // Not rendered: no box, so its box-shadow (the elevation ring) paints nothing.
+      expect(display, f.id).toBe('none');
+      expect(box, f.id).toBeNull();
+    }
+    for (const id of shown) expect(await css(view(page, id), 'display'), id).toBe('flex');
+    for (const id of hidden) expect([await css(view(page, id), 'display'), await view(page, id).boundingBox()], id).toEqual(['none', null]);
+  });
+
   test('SRC-40: the dialog fixtures draw the view in a 720 × 480 stage — a scrim over it, the container 640 wide, 64 below the top, on the view’s color, elevation and corners; a header with the back button of the full-screen header, the input and the medium clear button and no search glyph; a divider, then the content', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     const [maxWidth, offset, headerHeight, pad, headerPad, gap] = await Promise.all(
