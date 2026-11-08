@@ -6,7 +6,7 @@
 // - a Markdown table's first header cell says what its column holds: an empty header cell names nothing, and no
 //   page is excused;
 // - the Skeleton page's "Load" demo holds its box: the content that arrives is as many lines as its placeholders say;
-// - every page is in the sidebar: the sidebar lists the pages outside components/ by hand (astro.config.mjs), so a
+// - every page is in the sidebar: the sidebar lists the pages outside components/ by hand (src/lib/sidebar.mjs), so a
 //   page added without its line is reachable only by search.
 //
 //   pnpm --filter @tanrei/docs test:node
@@ -130,7 +130,7 @@ describe('the Skeleton page’s "Load" demo', () => {
 
 describe('the sidebar', () => {
   test('lists every page written by hand: each English page outside components/, but the home page, has its line', () => {
-    const config = fs.readFileSync(fileURLToPath(new URL('../astro.config.mjs', import.meta.url)), 'utf8');
+    const config = read('lib/sidebar.mjs');
     const english = pages.filter((file) => !folders.slice(1).some((folder) => file.startsWith(folder)) && !file.startsWith('components/'));
     const slugs = english.map((file) => file.replace(/\.mdx?$/, '').replace(/(^|\/)index$/, '')).filter(Boolean);
     assert.ok(slugs.includes('getting-started/ai-agents'));

@@ -8,7 +8,7 @@ sourceHash: cae040b44f8e42012e32aac5d132b7c76dcd0b81
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
-为你的产品编写界面的编程代理，需要的东西和团队里的人一样：有哪些组件，每个组件接受什么，每个值从哪里来。Tanrei 把这三样都放在它的包所附带的文件和一个 MCP 服务器里，代理可以直接查，不必去猜。本页说明如何把它们接上，并给出一份可以复制到你仓库里的规则文件。
+为你的产品编写界面的编程代理，需要的东西和团队里的人一样：有哪些组件，每个组件接受什么，每个值从哪里来。Tanrei 把这三样都放在它的包所附带的文件和一个 MCP 服务器里，本站也以供程序读取的文本提供它们，代理可以直接查，不必去猜。本页说明如何把它们接上，并给出一份可以复制到你仓库里的规则文件。
 
 ## 代理能在包里读到什么
 
@@ -16,9 +16,15 @@ import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 - **值。** 每个令牌都是 `@tanrei/web/tokens.css` 中的一个 CSS 自定义属性，名字来自它的路径：`tanrei.sys.color.primary` 就是 `--tanrei-sys-color-primary`。如果你的产品有自己的层，`tanrei build` 的 `tokens` 输出是一个 DTCG 包，其中每个组都在 `$extensions["dev.tanrei.llm"]` 里写有给代理的用法说明（见[你自己的设计系统](/zh-cn/getting-started/your-design-system/)）。
 - **哪里出了错。** 用错的组件仍会渲染，并在开发构建中向控制台写一条以 `[tanrei]` 开头的警告，指出元素、问题和它违反的规则：既没有标签也没有图标的按钮、产品没有提供的文字、系统未包含的组件。生产构建（`NODE_ENV=production`）什么也不写。
 
+## 代理能在本站读到什么
+
+- **索引。** [llms.txt](/llms.txt) 按侧边栏的顺序、以 [llms.txt](https://llmstxt.org/) 格式列出本站的页面，并以默认系统为准：列出它提供的组件，并把它不提供的组件单独列出，附上应改用什么。每个随附的系统都有自己的索引，位于 `/systems/<id>/llms.txt`。
+- **每个页面的 Markdown 版。** 每个页面都另有 Markdown 版，地址就是把页面地址末尾的斜杠换成 `.md`，例如 `/zh-cn/components/button/` 的 Markdown 版是 `/zh-cn/components/button.md`，各语言都一样。组件的 Markdown 版包含页面正文和完整的规范。在每个页面的 Markdown 版中，指向其他页面的链接都指向那个页面的 Markdown 版。每个页面都在 head 中标明自己的 Markdown 版和索引。
+- **所有规范合成一个文件。** [llms-full.txt](/llms-full.txt) 把默认系统提供的每个组件的规范放在一个文件里，供只读一个文件并留存下来的代理使用。
+
 ## 连接 MCP 服务器
 
-`@tanrei/mcp` 是面向 Tanrei 令牌和设计系统层的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。代理可以问它：有哪些令牌，某个令牌在某个系统中解析成什么、为什么，层可以改什么、怎么改，以及对层的一处修改在写入之前是否有效。所有工具都是只读的：层文件由代理自己编辑，服务器用与 `tanrei build` 相同的构建来检查这次修改。它不回答关于组件的问题；组件的契约就是上面的清单。
+`@tanrei/mcp` 是面向 Tanrei 组件、令牌和设计系统层的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。代理可以问它：某个系统提供哪些组件、每个组件接受什么，代码是否只用了这些组件，有哪些令牌，某个令牌在某个系统中解析成什么、为什么，层可以改什么、怎么改，以及对层的一处修改在写入之前是否有效。所有工具都是只读的：层文件由代理自己编辑，服务器用与 `tanrei build` 相同的构建来检查这次修改。
 
 <ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
 

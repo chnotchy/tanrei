@@ -1,8 +1,9 @@
 // Every page of the built site as Markdown (src/lib/page-markdown.mjs): each page the search reads, in every
 // language, has its `<path>.md` beside it and names it in its head; no other page does; each file opens with its front
 // matter — the page's title, description, address and the date the sitemap gives the page — and holds no broken
-// markup; a component's page holds its spec, every requirement by id, in every language. No browser: it reads the
-// files.
+// markup; a component's page holds its spec, every requirement by id, in every language; a link to a page that has its
+// Markdown leads to that Markdown; and every page and the indexes for language models link to files the site has. No
+// browser: it reads the files.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -30,6 +31,7 @@ const pages = files
       file,
       pathname: `/${file.replace(/(^|\/)index\.html$/, '$1')}`,
       searched: /<main\b[^>]*\sdata-pagefind-body[\s>]/.test(html),
+      describedBy: [...head.matchAll(/<link rel="describedby" href="([^"]*)"/g)].map(([, href]) => href),
       alternates: [...head.matchAll(/<link rel="alternate" type="text\/markdown" href="([^"]*)"/g)].map(([, href]) => href),
       canonical: /<link rel="canonical" href="([^"]*)"/.exec(head)?.[1],
     };
@@ -117,6 +119,43 @@ describe("every page's Markdown", () => {
       for (const [entity] of text.matchAll(/&(?:[a-z]+|#x?[0-9a-f]+);/gi)) wrong.push(`${address}: ${entity}`);
     }
     assert.deepEqual(wrong.slice(0, 20), []);
+  });
+  test('a link to a page of the site leads to its Markdown where it has one, and to a file the site has', () => {
+    const origin = new URL(searched[0].canonical).origin;
+    const withMarkdown = new Set(searched.map((page) => page.pathname));
+    /** Whether the site has a file at an address of its own (a folder by its index page). */
+    const exists = (pathname) => {
+      const file = path.join(dist, decodeURIComponent(pathname));
+      return fs.existsSync(file) && (fs.statSync(file).isFile() || fs.existsSync(path.join(file, 'index.html')));
+    };
+    const wrong = [];
+    let led = 0;
+    for (const page of searched) {
+      const address = markdownPathOf(page.pathname, languages);
+      for (const [, href] of split(read(address)).text.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)) {
+        const url = new URL(href);
+        if (url.origin !== origin) continue;
+        if (withMarkdown.has(url.pathname) || withMarkdown.has(`${url.pathname}/`)) wrong.push(`${address}: ${href} is a page with its Markdown`);
+        else if (!exists(url.pathname)) wrong.push(`${address}: ${href} is no file of the site`);
+        else if (url.pathname.endsWith('.md')) led++;
+      }
+    }
+    assert.deepEqual(wrong.slice(0, 20), []);
+    assert.ok(led > 1000, `only ${led} links lead to a page's Markdown`);
+  });
+  test('every page names the index for language models in its head, and each index links to files the site has', () => {
+    assert.deepEqual(searched.filter((page) => page.describedBy.join() !== '/llms.txt').map((page) => page.file).slice(0, 20), []);
+    const origin = new URL(searched[0].canonical).origin;
+    const indexes = files.filter((file) => /(^|\/)llms(-full)?\.txt$/.test(file));
+    assert.ok(indexes.length >= 3, indexes.join());
+    const wrong = [];
+    for (const file of indexes) {
+      for (const [, href] of read(file).matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)) {
+        const url = new URL(href);
+        if (url.origin === origin && !fs.existsSync(path.join(dist, decodeURIComponent(url.pathname)))) wrong.push(`${file}: ${href}`);
+      }
+    }
+    assert.deepEqual(wrong, []);
   });
   test("a component's page holds its spec in every language, with every requirement by id", () => {
     const wrong = [];

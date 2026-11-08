@@ -98,10 +98,10 @@ describe('the brand page', () => {
   const page = (dir) => read(docs, `src/content/docs/${dir ? `${dir}/` : ''}foundations/brand.mdx`);
 
   test('it takes the place of the principles page in every language: in the sidebar, and at the old address', () => {
-    const config = read(docs, 'astro.config.mjs');
-    assert.match(config, /'foundations\/brand',/);
-    assert.doesNotMatch(config, /'foundations\/principles',/);
-    assert.match(config, /redirects: moved/);
+    const sidebar = read(docs, 'src/lib/sidebar.mjs');
+    assert.match(sidebar, /'foundations\/brand',/);
+    assert.doesNotMatch(sidebar, /'foundations\/principles',/);
+    assert.match(read(docs, 'astro.config.mjs'), /redirects: moved/);
     for (const dir of languages) {
       assert.ok(page(dir), `${dir || 'en'}: the brand page`);
       assert.ok(!fs.existsSync(new URL(`src/content/docs/${dir ? `${dir}/` : ''}foundations/principles.mdx`, docs)), `${dir || 'en'}: the principles page is gone`);
