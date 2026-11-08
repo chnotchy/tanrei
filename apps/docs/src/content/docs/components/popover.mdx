@@ -1,6 +1,6 @@
 ---
 title: Popover
-description: Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page; in a compact window, in a modal surface with the bottom sheet's appearance.
+description: Shows content a person can read and operate on a small surface that opens beside a control — when it is pressed, or as a pointer or keyboard focus rests on it — and stays with it, without dimming or blocking the rest of the page; in a compact window, in a modal surface with the bottom sheet's appearance.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -14,15 +14,22 @@ import Example from '../../../components/visuals/Example.astro';
 <ComponentAvailability name="popover" />
 
 <Example label="Press a button: a note with a link, and a short form with actions">
-  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">Storage</tanrei-button>
-  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Storage" closable close-label="Close storage" arrow placement="bottom" onclose="this.open = false">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined">Storage</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Storage" closable close-label="Close storage" arrow placement="bottom" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     Files in the trash still count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a>
   </tanrei-popover>
-  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">Rename</tanrei-button>
-  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="Rename the folder" onclose="this.open = false">
+  <tanrei-button id="popover-demo-form-opener" variant="outlined">Rename</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="Rename the folder" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <tanrei-text-field label="Name" value="Reports" autofocus></tanrei-text-field>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">Rename</tanrei-button>
+  </tanrei-popover>
+</Example>
+
+<Example label="Rest the pointer on a name, or Tab to it: a preview of the person">
+  <p>Shared by <a class="tanrei-link" id="popover-demo-person" href="#triggers">Ada Lovelace</a> on Monday.</p>
+  <tanrei-popover id="popover-demo-preview" anchor="popover-demo-person" label="Ada Lovelace" trigger="hover focus" placement="bottom-start" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    Ada Lovelace, Analytical Engines team. Owns 12 shared folders. <a class="tanrei-link" href="#triggers">Open the profile</a>
   </tanrei-popover>
 </Example>
 
@@ -32,9 +39,32 @@ Use a popover for content a person works with beside the control that opened it:
 
 The control is yours. On the web you name it with `anchor`, the id of the element the popover stands beside. That element is also the opener: the popover tells assistive technology that it opens a dialog and whether that dialog is open, and gives focus back to it. Where a field anchors the surface and a button inside the field opens it, name the button with `opener`.
 
-A popover is controlled, as a menu is. You set `open` when the opener is pressed and set it back to false when the popover emits `close`. It never opens by itself, on hover, on focus or after a time. `close` carries a reason: `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. As a sheet in a compact window it sends `outside` for a press on its scrim, and never `focus-out` or `anchor-hidden`. An action never closes the popover; your handler does.
+A popover is controlled, as a menu is. It asks to open or close with `toggle`, whose `detail.open` is the value it asks for, and you set `open` to it. By default a press on the opener asks to open it and a second press asks to close it, so you write no handler on the opener. It asks to be closed with `close` for everything else, and you set `open` back to false. `close` carries a reason: `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. As a sheet in a compact window it sends `outside` for a press on its scrim, and never `focus-out` or `anchor-hidden`. An action never closes the popover; your handler does.
 
 Give it a name: `headline` where it draws one, `label` where it does not.
+
+### Triggers
+
+`trigger` says what opens the popover: one or more of `press`, `hover` and `focus`, in any combination. On the web the attribute lists them separated by spaces, as in `trigger="hover focus"`.
+
+| Trigger | Opens the popover when | Where focus goes |
+| --- | --- | --- |
+| `press` (the default) | The opener is pressed, or Enter or Space is pressed on it. A second press asks to close it | Into the popover |
+| `hover` | A mouse, a trackpad or a pen that hovers rests on the anchor for `showDelay`. Never by touch | Nowhere: it stays where it was |
+| `focus` | Keyboard focus rests on the anchor for `showDelay`. Focus from a press or a tap does not count | Nowhere: it stays on the anchor, and the next Tab moves into the popover |
+
+`toggle` carries the trigger as `detail.reason`. A popover opened by hover or focus:
+
+- waits before it opens, so that a pointer passing over the anchor or Tab passing along a row of them opens nothing. `showDelay` takes `comp.popover.motion.show-delay` (700 ms in the default system) when you leave it out.
+- stays open while the pointer is on the anchor, on the gap between the anchor and the popover, or on the popover, and while focus is in it. Keyboard focus on the anchor keeps it open too, when `focus` is among the triggers. The pointer can cross the gap at any `hideDelay`.
+- asks to close with `toggle`, reason `leave`, once none of these has held for `hideDelay`. That takes `comp.popover.motion.hide-delay` (300 ms in the default system) when you leave it out. It never closes on a timer while one of them holds.
+- closes on Escape wherever focus is, and leaves focus where it is. After Escape it does not open again until the pointer or focus leaves the anchor and comes back.
+- stands beside its anchor in every window, also in a compact one, because a sheet would take focus while the person has only pointed at the anchor.
+- appears with the same motion as any popover.
+
+With `press` among the triggers, a press on the opener of a popover opened by hover keeps it open as if the press had opened it: focus moves in, and the pointer leaving no longer closes it. Without `press`, the opener's own action runs, such as a link's navigation, and the opener does not say that it opens a dialog.
+
+The waits are times, not motion: they stay the same where motion is reduced.
 
 SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
 
@@ -54,13 +84,16 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
     <tanrei-text-field id="city" label="City"></tanrei-text-field>
     <tanrei-popover anchor="city" label="Suggestions" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
 
+    <!-- A preview of a link: opened by hover or keyboard focus, not by a press. -->
+    <a id="author" href="/people/ada">Ada Lovelace</a>
+    <tanrei-popover id="author-preview" anchor="author" label="Ada Lovelace" trigger="hover focus">…</tanrei-popover>
+
     <script type="module">
       import '@tanrei/web/components/popover';
 
-      const opener = document.querySelector('#share');
       const panel = document.querySelector('#share-panel');
-      // The opener toggles it. A press on the opener is never "outside", so one press never closes and reopens it.
-      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // A press on the opener asks to open it, and a second press asks to close it.
+      panel.addEventListener('toggle', (e) => (panel.open = e.detail.open));
       // Escape, a press outside, focus leaving, the close button, the anchor out of sight.
       panel.addEventListener('close', (e) => {
         console.log(e.detail.reason);
@@ -81,8 +114,8 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
     const [open, setOpen] = useState(false);
 
-    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>Share</Button>
-    <Popover anchor="share" open={open} headline="Share this page" closable closeLabel="Close sharing" onClose={() => setOpen(false)}>
+    <Button id="share" variant="outlined">Share</Button>
+    <Popover anchor="share" open={open} headline="Share this page" closable closeLabel="Close sharing" onToggle={(e) => setOpen(e.detail.open)} onClose={() => setOpen(false)}>
       Anyone with the link can read it.
       <Button slot="actions" dismissive onClick={stopSharing}>Stop sharing</Button>
       <Button slot="actions" confirming onClick={copyLink}>Copy link</Button>
@@ -94,12 +127,12 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 ## Specs
 
 <Example label="Placement, an arrow, and a popover as wide as its anchor">
-  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">Above, centred</tanrei-button>
-  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Storage" placement="top" arrow onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
-  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">Beside, at the end</tanrei-button>
-  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Storage" placement="end-top" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
-  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">As wide as this button</tanrei-button>
-  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Storage" width="anchor" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined">Above, centred</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Storage" placement="top" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined">Beside, at the end</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Storage" placement="end-top" ontoggle="this.open = event.detail.open" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem">As wide as this button</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Storage" width="anchor" ontoggle="this.open = event.detail.open" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
 </Example>
 
 ### Where it stands
@@ -173,6 +206,9 @@ Menus are not popovers here: a menu, a select's or a combobox's list and a butto
 - The web has no back gesture of its own, so `close` never carries the reason `back`.
 - `anchorElement` and `openerElement` are properties for an element that an id cannot reach, such as one in another shadow root.
 - `arrow` is unset, true or false: the attribute is absent, `arrow`, or `arrow="false"`.
+- `trigger` is a list property. Its attribute is the values separated by spaces. `showDelay` and `hideDelay` are the `show-delay` and `hide-delay` attributes, in milliseconds.
+- `toggle` is a `CustomEvent` with `detail.open` and `detail.reason`. In markup, `ontoggle="this.open = event.detail.open"` answers it.
+- Hover is heard from a pointer whose `pointerType` is `mouse` or `pen`, and keyboard focus is focus that matches `:focus-visible`.
 - Mark the element that takes focus on opening with `autofocus`.
 - Under forced colors the container and its arrow take an outline in the text color.
 
@@ -182,9 +218,9 @@ Menus are not popovers here: a menu, a select's or a combobox's list and a butto
 
 | Aspect | Tooltip | Popover | Menu | Dialog |
 | --- | --- | --- | --- | --- |
-| Opened by | Hover, keyboard focus, long-press | A press on its opener | A press on its anchor | The product |
+| Opened by | Hover, keyboard focus, long-press | A press on its opener, or hover or keyboard focus where its `trigger` says | A press on its anchor | The product |
 | Holds | A description of its anchor | Content a person operates | Items only | A decision |
-| Takes focus | Never | Yes, and returns it | Yes, and returns it | Yes, and keeps it |
+| Takes focus | Never | When pressed open, and returns it | Yes, and returns it | Yes, and keeps it |
 | Blocks the page | No | No (yes as a sheet in a compact window) | No | Yes |
 
 1. If it only says what the control is, and nothing in it can be pressed, it is a tooltip.
@@ -201,13 +237,15 @@ A toggletip is a short note behind a small info button, beside the thing it expl
 - **Not instead of the page.** What a person must read before going on belongs in the field's supporting text or the page itself, where nobody has to ask for it.
 
 <Example label="A toggletip: press the info button">
-  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="About storage" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
-  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="About storage" arrow onclose="this.open = false">Files in the trash count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a></tanrei-popover>
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="About storage"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="About storage" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">Files in the trash count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a></tanrei-popover>
 </Example>
 
 ### Do
 
-- Open it from a press on a control, and close it when that control is pressed again.
+- Open it from a press on a control by default. The popover closes it when that control is pressed again.
+- Use `trigger="hover focus"` for a preview of where a link goes, such as a person or a document, that the person can also reach by following the link.
+- Add `press` to the triggers of a popover opened by hover when its content holds something to operate, so that a keyboard or touch user can open it on purpose and land in it.
 - Keep the content short. One task, a few fields at most.
 - Add `closable` when the popover is large enough to cover what a person would press outside it, and for touch, where there is no Escape.
 - Use `width="anchor"` and `initialFocus="anchor"` for a surface under a field the person is typing in.
@@ -216,7 +254,8 @@ A toggletip is a short note behind a small info button, beside the thing it expl
 
 ### Don't
 
-- Don't open a popover on hover or on focus. It cannot be reached by touch, and a surface that takes focus because the pointer passed is a trap.
+- Don't put anything a person needs only in a popover opened by hover. Hover does not exist on touch, so give the same information another way: the link's destination, or `press` among the triggers.
+- Don't shorten `showDelay` to make a hover popover feel quick. A popover is larger than a tooltip, and it would cover the page under every passing pointer.
 - Don't put in a popover what a person would lose by one stray press outside it. A long form belongs in a dialog or a sheet.
 - Don't nest more than one popover inside a popover. Each level is one more press of Escape.
 - Don't use a popover for something the person must answer before going on. That is a dialog.
@@ -229,7 +268,8 @@ A toggletip is a short note behind a small info button, beside the thing it expl
 
 - The container is a dialog that is not modal, named by `headline` or by `label`. Nothing outside it is hidden or made inert.
 - As a sheet in a compact window, the container is a modal dialog: everything outside it is inert, and Tab and Shift+Tab wrap inside it. Closing returns focus to the opener.
-- The opener exposes that it opens a dialog and whether that dialog is open. Its own name and role do not change.
+- The opener exposes that it opens a dialog and whether that dialog is open, when `press` is among the triggers. An anchor that opens it only by hover or focus exposes neither. Its own name and role do not change.
+- A popover opened by hover or focus meets WCAG 1.4.13 (content on hover or focus). Escape dismisses it without moving the pointer or focus, the pointer can move onto it across the gap, and it stays until the pointer and focus leave it.
 - Opening moves focus to the element you marked, or to the container, so that the popover's name is read first. The focus indicator shows on the container only when the popover was opened from the keyboard.
 - The popover comes directly after its opener in the Tab order, wherever it is in the document. Tab from its last element moves on to what follows the opener, which closes it. Focus is never kept in.
 - Escape closes only the topmost overlay, and goes no further: a dialog the popover stands in stays open.
@@ -240,6 +280,7 @@ A toggletip is a short note behind a small info button, beside the thing it expl
 ### What you need to do
 
 - Give the popover a `headline` or a `label`, and a `closeLabel` while it is `closable`.
-- Set `open` from the opener's press and set it to false on `close`.
+- Set `open` to what `toggle` asks for, and set it to false on `close`.
+- With `hover` alone, make sure what the popover shows can be reached another way, because a person on touch never sees it.
 - On the web, place the popover element directly after its opener in the document where you can, so that a screen reader's reading order follows the Tab order.
 - Mark the first field of a short form for initial focus. Leave a popover of text without a mark.

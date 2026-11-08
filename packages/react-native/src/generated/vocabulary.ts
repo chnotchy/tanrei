@@ -3942,8 +3942,10 @@ export interface TanreiPopoverTokens {
   readonly headlineTypescale: TanreiTypescaleRole;
   readonly motionCloseDuration: number;
   readonly motionCloseEasing: TanreiCubicBezier;
+  readonly motionHideDelay: number;
   readonly motionOpenDuration: number;
   readonly motionOpenEasing: TanreiCubicBezier;
+  readonly motionShowDelay: number;
   readonly offset: number;
   readonly windowMargin: number;
 }

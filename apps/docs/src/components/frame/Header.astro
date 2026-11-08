@@ -191,14 +191,19 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   let panelDefined: Promise<unknown> | undefined;
   const definePanel = () =>
     (panelDefined ??= Promise.all([import('@tanrei/web/components/popover'), import('@tanrei/web/components/tabs'), import('@tanrei/web/components/list'), import('@tanrei/web/components/list-row'), import('@tanrei/web/components/swatch')]).then(() => customElements.whenDefined('tanrei-popover')));
-  // A panel opens from its button and closes when it asks to (the popover never closes itself, POP-14).
+  // A panel opens and closes when it asks to (a press on its button asks through toggle, POP-18; Escape and a press
+  // outside through close, POP-21). A panel not drawn yet hears no press: the press that defines it opens it.
   for (const panel of document.querySelectorAll<Panel>('tanrei-popover.docs-appearance-panel')) {
     const button = document.getElementById(panel.getAttribute('anchor') ?? '');
     button?.addEventListener('pointerenter', definePanel, { once: true });
     button?.addEventListener('focusin', definePanel, { once: true });
     button?.addEventListener('click', async () => {
+      if ((panel as Panel & { hasUpdated?: boolean }).hasUpdated) return;
       await definePanel();
-      panel.open = !panel.open;
+      panel.open = true;
+    });
+    panel.addEventListener('toggle', (event) => {
+      panel.open = (event as unknown as CustomEvent<{ open: boolean }>).detail.open;
     });
     panel.addEventListener('close', () => {
       panel.open = false;

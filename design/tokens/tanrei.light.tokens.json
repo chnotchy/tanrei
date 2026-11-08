@@ -66757,6 +66757,14 @@
               1
             ]
           },
+          "hide-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long a popover opened by hover or focus stays once the pointer has left its anchor, the gap and the popover and focus has left them, so the pointer can slip off an edge and come back (WCAG 1.4.13, hoverable). A waiting time, kept where motion is reduced."
+          },
           "open-duration": {
             "$type": "duration",
             "$value": {
@@ -66773,6 +66781,14 @@
               0,
               1
             ]
+          },
+          "show-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 700,
+              "unit": "ms"
+            },
+            "$description": "Where trigger has hover or focus and showDelay is not set: how long a fine pointer or keyboard focus rests on the anchor before the popover asks to open, so that a pointer passing over an anchor, or Tab passing along a row of them, opens no surface. Longer than the tooltip's, because the surface is larger and covers more of what the person is reading. A waiting time, kept where motion is reduced."
           }
         },
         "offset": {
