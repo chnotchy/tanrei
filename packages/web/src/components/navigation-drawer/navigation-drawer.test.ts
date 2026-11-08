@@ -3712,8 +3712,17 @@ test.describe('accessibility', () => {
   // A responsive fixture is what its window makes it: each alone, in its window (`drawerWindow`).
   const responsive = spec.fixtures.filter((f) => f.props.responsive);
   const inline = spec.fixtures.filter((f) => !f.props.responsive && (f.props.variant !== 'modal' || !f.props.open));
+  // The fixtures drawn in place, a few to a test: axe's contrast rule reads every node of a page, and the forty-odd
+  // drawers of the whole set took WebKit on a CI runner past a test's time in two analyses.
+  const PER_TEST = 11;
+  const inlineGroups = Array.from({ length: Math.ceil(inline.length / PER_TEST) }, (_, i) => inline.slice(i * PER_TEST, (i + 1) * PER_TEST));
   // A test per group of fixtures, in both themes: two mounts a page, not one page that mounts every group twice.
-  const groups: [string, Fixture[]][] = [['standard and collapsed', inline], ['modal', only('modal')], ['modal-collapsible-open', only('modal-collapsible-open')], ...responsive.map((f): [string, Fixture[]] => [f.id, [f]])];
+  const groups: [string, Fixture[]][] = [
+    ...inlineGroups.map((fixtures): [string, Fixture[]] => [`${fixtures[0].id} to ${fixtures.at(-1)!.id}`, fixtures]),
+    ['modal', only('modal')],
+    ['modal-collapsible-open', only('modal-collapsible-open')],
+    ...responsive.map((f): [string, Fixture[]] => [f.id, [f]]),
+  ];
   for (const [label, fixtures] of groups) {
     test(`no axe violations in light and dark: ${label}`, async ({ page }) => {
       for (const theme of ['light', 'dark'] as const) {
