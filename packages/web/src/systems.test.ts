@@ -140,8 +140,10 @@ const SUBJECTS = [
   // outer corners (pills in m3-like and m3-expressive-like, 10 in cupertino) and the joined gap.
   subject('button-group', (fixture) => fixture.id === 'connected'),
   // Stepped with stops: the track's thickness and color, the active track, the handle's size, color and elevation (cupertino's
-  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino).
-  subject('slider', (fixture) => fixture.id === 'discrete-stops'),
+  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino). Drawn alone: the value-indicator
+  // fixture holds its value indicator open in the top layer (SLD-28), and in m3-like and m3-expressive-like it rises
+  // 6 px above that fixture's stage.
+  subject('slider', (fixture) => fixture.id === 'discrete-stops', { alone: true }),
   // Filled with an icon: both halves' fill, height, paddings and label role, the icon and the chevron, the preset's outer
   // corners (pills in m3-like and m3-expressive-like) against its inner corners, and the gap between the halves.
   subject('button-with-menu', (fixture) => fixture.id === 'filled-icon', { icons: true }),
