@@ -37558,15 +37558,7 @@
             },
             {
               "kind": "method",
-              "name": "formDisabledCallback",
-              "parameters": [
-                {
-                  "name": "disabled",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
+              "name": "formDisabledCallback"
             }
           ],
           "events": [

@@ -8,6 +8,6 @@ less their own attribute), and draw again only when the platform's word changes 
 own reflected `disabled` attribute draws nothing. A change of `disabled` — their own, or a fieldset's around them — is
 now drawn in one update instead of two by the text, number, color and one-time-code inputs and fields, the select and
 select field, the combobox and combobox field, the chip field, the embedded text input, the chat composer, the search,
-the file upload, the checkbox, the checkbox group, the switch, the slider and the slider field; the radio button and the
-radio group drew three times for some changes and now draw at most twice. A select and a combobox no longer read their
+the file upload, the checkbox, the checkbox group, the switch, the slider, the slider field and the rating; the radio
+button and the radio group drew three times for some changes and now draw at most twice. A select and a combobox no longer read their
 options again when an attribute of their own changes.
