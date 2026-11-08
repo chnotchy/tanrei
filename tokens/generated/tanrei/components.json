@@ -1368,6 +1368,22 @@
       }
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-split-view",
+        "import": "@tanrei/web",
+        "module": "@tanrei/web/components/split-view"
+      },
+      "react": {
+        "name": "SplitView",
+        "import": "@tanrei/react"
+      }
+    },
+    {
       "name": "stepper",
       "title": "Stepper",
       "level": "base",

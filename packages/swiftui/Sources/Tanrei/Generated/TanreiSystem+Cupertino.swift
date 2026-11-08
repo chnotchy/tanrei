@@ -8227,6 +8227,14 @@ private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   )
 )
 
+private let cupertinoSplitViewTokens = TanreiSplitViewTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerWidth: 1,
+  motionCollapseDuration: 400,
+  motionCollapseEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 300
+)
+
 private let cupertinoStepperTokens = TanreiStepperTokens(
   barColor: .role(.outlineVariant),
   barFilledColor: .role(.primary),
@@ -9995,6 +10003,7 @@ extension TanreiSystem {
     skeleton: cupertinoSkeletonTokens,
     slider: cupertinoSliderTokens,
     snackbar: cupertinoSnackbarTokens,
+    splitView: cupertinoSplitViewTokens,
     stepper: cupertinoStepperTokens,
     steps: cupertinoStepsTokens,
     swatch: cupertinoSwatchTokens,

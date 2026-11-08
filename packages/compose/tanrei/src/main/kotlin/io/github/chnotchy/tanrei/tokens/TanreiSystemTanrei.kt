@@ -119,6 +119,7 @@ private object TanreiSystemSource {
             skeleton = skeleton(typescale, elevation),
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
+            splitView = splitView(typescale, elevation),
             stepper = stepper(typescale, elevation),
             steps = steps(typescale, elevation),
             swatch = swatch(typescale, elevation),
@@ -7702,6 +7703,16 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun splitView(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSplitViewTokens =
+        TanreiSplitViewTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerWidth = 1.dp,
+            motionCollapseDuration = 400,
+            motionCollapseEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionResizeDuration = 300,
         )
 
     @Suppress("UNUSED_PARAMETER")

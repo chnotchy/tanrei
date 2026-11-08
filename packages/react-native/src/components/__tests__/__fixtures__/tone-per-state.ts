@@ -14848,6 +14848,13 @@ export const tonePerState = {
         },
       },
     },
+    splitView: {
+      dividerColor: { kind: "role", role: "outlineVariant" },
+      dividerWidth: 1,
+      motionCollapseDuration: 400,
+      motionCollapseEasing: [0.2, 0, 0, 1],
+      motionResizeDuration: 300,
+    },
     stepper: {
       barColor: { kind: "role", role: "outlineVariant" },
       barFilledColor: { kind: "role", role: "primary" },

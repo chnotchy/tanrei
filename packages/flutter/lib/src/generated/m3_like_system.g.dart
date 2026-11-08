@@ -8344,6 +8344,13 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  splitView: TanreiSplitViewTokens(
+    dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    dividerWidth: 1.0,
+    motionCollapseDuration: 500,
+    motionCollapseEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
+    motionResizeDuration: 200,
+  ),
   stepper: TanreiStepperTokens(
     barColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     barFilledColor: TanreiPaint.role(TanreiColorRole.primary),

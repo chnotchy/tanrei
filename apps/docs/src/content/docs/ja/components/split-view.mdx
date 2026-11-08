@@ -1,0 +1,152 @@
+---
+title: 分割ビュー
+description: 横に並んだ、または上下に積んだ 2 つのペインと、その間の線の上にあるハンドルです。人はハンドルをドラッグし、キーボードで動かし、または押して、片方のペインに広さを与えます。許可すれば、片方のペインを畳んで戻すこともできます。
+translationOf: components/split-view.mdx
+sourceHash: e428b8f30e48da20e1f63c4265b6b7fd7f0f92d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import Example from '../../../../components/visuals/Example.astro';
+
+## 概要
+
+<ComponentAvailability name="split-view" />
+
+<Example label="メッセージの一覧と、開いたメッセージ。一覧は Enter かハンドルの押下で畳めます">
+  <tanrei-split-view collapsible value="35" min-size="160" label="メッセージ一覧の大きさを変更" style="inline-size: 100%; block-size: 240px">
+    <div slot="start" style="box-sizing: border-box; block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">受信トレイ — 24 件</div>
+    <div slot="end" style="box-sizing: border-box; block-size: 100%; padding: 1rem; color: var(--tanrei-sys-color-on-surface)">ペインの間の線をドラッグするか、Tab で線に移動して矢印キーを使ってください。</div>
+  </tanrei-split-view>
+</Example>
+
+分割ビューは、1 つの領域に 2 つのものを置き、その間の広さを人が配り直せるようにします。メッセージの一覧と開いたメッセージ、クエリとその結果、キャンバスとその設定などです。ペインの間の区切り線には[ハンドル](/ja/components/handle/)があります。ドラッグすると線が動き、キーボードで動かすと 1 刻みずつ動きます。ドラッグせずに押すと、**主のペイン**（primary）を畳んで戻します。畳めないペインでは、指定した割合へ線を動かし、もう一度押すと元に戻します。
+
+分割ビューは主のペインが領域に占める割合を `value`（パーセント）として保ち、人が割合を変えたことを知らせ、支援技術が読めるように、その割合をハンドルの値として渡します。
+
+Web では `<tanrei-split-view>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 一覧と詳細。一覧は 240 ピクセルより狭くならず、畳むこともできます。 -->
+    <tanrei-split-view id="mail" collapsible min-size="240" label="メッセージ一覧の大きさを変更" style="block-size: 100dvh">
+      <nav slot="start" aria-label="メッセージ">…</nav>
+      <main slot="end">…</main>
+    </tanrei-split-view>
+
+    <!-- クエリとその下の結果。 -->
+    <tanrei-split-view axis="vertical" value="40" label="エディターの大きさを変更" style="block-size: 600px">
+      <div slot="start">…</div>
+      <div slot="end">…</div>
+    </tanrei-split-view>
+
+    <script type="module">
+      import '@tanrei/web/components/split-view';
+      const mail = document.querySelector('#mail');
+      // 次に訪れたときも、その人の割合を保ちます。
+      mail.value = Number(localStorage.getItem('mail-list')) || 30;
+      mail.addEventListener('change', (e) => localStorage.setItem('mail-list', String(e.detail.value)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SplitView } from '@tanrei/react';
+
+    <SplitView
+      collapsible
+      value={share}
+      collapsed={collapsed}
+      minSize={240}
+      label="メッセージ一覧の大きさを変更"
+      onChange={(e) => setShare(e.detail.value)}
+      onToggle={(e) => setCollapsed(e.detail.collapsed)}
+    >
+      <nav slot="start" aria-label="メッセージ">…</nav>
+      <main slot="end">…</main>
+    </SplitView>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<ComponentSpecs name="split-view" />
+
+## ガイドライン
+
+### 使う場面
+
+2 つのものを一緒に使い、それぞれにどれだけ広さを与えるかを人が決めるべきところで使います。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| 縁で大きさを変える箱が 1 つだけで、広さを譲る相手がない | [サイズ変更できる枠](/ja/components/resizable-frame/)。 |
+| ページの横に出入りする補足の内容で、幅はそれ自身が持つ | [サイドシート](/ja/components/side-sheet/)。 |
+| ページの横のナビゲーションで、配置はページの骨組みが決める | [アプリシェル](/ja/components/app-shell/)のナビゲーション領域。 |
+| 3 つ以上のペイン | 分割ビューのペインの中に、もう 1 つの分割ビューを入れます。それぞれの線が自分のハンドルを持ちます。 |
+
+### 主のペイン
+
+`primary` は、`value` が測り、畳まれるペインを指します。`start`（既定）は詳細の横の一覧やページの横のナビゲーション、`end` はキャンバスの後ろのインスペクターです。もう一方のペインは領域の残りを取ります。`axis="horizontal"`（既定）ではペインが横に並び、先頭のペインは行の先頭側にあります（右から左のレイアウトでは右）。`axis="vertical"` では先頭のペインが上になります。
+
+分割ビューはレイアウトが与える大きさを取ります。縦の分割ビューには分ける高さが必要です。高さを与えるか、高さのある箱に入れてください。
+
+### 割合とその限度
+
+`value` は、主のペインが区切り線を除いた領域に占める割合で、単位はパーセントです。`min` と `max`（既定は 10 と 90）は、どちら向きにも行き過ぎないようにします。`minSize` と `maxSize` はピクセルでもペインを抑えます（「一覧は 240 ピクセルより狭くしない」）。広いウィンドウでも狭いウィンドウでもペインが読めるようにするためです。領域が狭くて両方を守れないときは、CSS で `min-width` が `max-width` に勝つのと同じく、`minSize` が勝ちます。領域の大きさが変わっても、設定した割合は保たれ、限度だけが数え直されます。イベントは発火しません。
+
+矢印キーは線を領域の `step` パーセント（5）ずつ動かし、Shift と矢印、Page Up と Page Down は `largeStep`（20）ずつ動かします。ドラッグとキーにはすぐに追従します。畳む操作、線を動かす押下、利用者側が設定した割合や畳み状態は短いモーションで動き、視差効果を減らす設定ではすぐに動きます。
+
+### ペインを畳む
+
+`collapsible` を付けると、Enter、Space、またはハンドルの押下で主のペインが畳まれ、同じ操作でもう一度、元の割合で戻ります。ペインの最小の割合の半分を越えるドラッグでも畳まれます。畳まれている間、中身は描かれず、届かず、線は領域の端に立ちます。畳んだどの操作でもペインを戻せるようにするためです。`collapsed` が畳み状態で、`value` はペインが戻るときの割合です。
+
+`collapsible` がないとき、ハンドルを押すと線は `resetValue`（50）へ動き、もう一度押すと元の場所へ戻ります。ドラッグできない人も、1 回ずつの押下で 2 つの大きさに届きます。
+
+### 知らせること
+
+| イベント | いつ |
+| --- | --- |
+| `resize` | ドラッグで線が動く描画のたびに。描かれている割合の `value`（畳まれている間は 0）と `collapsed` を運びます。 |
+| `change` | 人が割合を変え終えたとき。ドラッグが終わった、キーで線を動かした、押して線を動かした、のいずれかです。その人の割合を保つなら、ここで保存します。 |
+| `toggle` | 人がペインを畳んだとき、または戻したとき。 |
+
+利用者側が設定した `value` や `collapsed` では、どれも発火しません。
+
+### 推奨
+
+- ハンドルには、何の大きさを変えるかを言う名前を `label` で付けます（「メッセージ一覧の大きさを変更」）。主のペイン自身の見出しがよい名前になります。
+- ペインの中身がまだ使える最小の大きさを設定します。割合だけで足りないところでは `minSize` を使います。
+- その人の割合と畳み状態は、また戻ってくる場所に保ちます。`change` と `toggle` から保存します。
+
+### 非推奨
+
+- 畳んだときに中身へ届くほかの手段がないペインを、畳めるようにしない。
+- 自前のハンドルや溝を描かない。分割ビューの区切り線とハンドルは、それぞれのトークンで見た目を変えます。
+- 2 つのペインには狭すぎるウィンドウで分割ビューを使わない。そこでは 1 つずつ見せます。それはページが決めることです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="split-view" />
+
+### コンポーネントが担うこと
+
+- ハンドルはフォーカスできる区切り（ARIA Authoring Practices のウィンドウスプリッター）で、`label` で名前が付き、主のペインの割合を整数のパーセントで値として持ちます（ペインが畳まれている間は 0）。最小値は最小の割合（ペインを畳めるときは 0）、最大値は最大の割合で、主のペインを操作対象として指します。
+- フォーカス順では、先頭のペインの中身と末尾のペインの中身の間にあります。
+- ハンドルの軸の矢印キーは、右から左のレイアウトでも、キーの指す向きに線を動かします。Home は主のペインに最小の割合を、End は最大の割合を与えます。キーのうち畳むのは Enter だけなので、押し続けたキーでペインが不意に畳まれることはありません。パターンが任意とする F6 は、ブラウザーが自分のツールバーへの移動に使うため、ブラウザーに任せます。
+- Enter、Space、またはドラッグなしの押下でペインを畳んで戻すか、線を `resetValue` へ動かして戻すので、ドラッグせずに大きさに届きます。
+- ドラッグの間は、どちらのペインの埋め込み文書もポインターを受け取らないので、ポインターがその上を通ってもドラッグは途切れません。
+- 畳まれたペインは inert です。中の何もフォーカスを受け取らず、支援技術も読みません。
+- 強制カラーモードでは、区切り線はテキストの色になります。ハンドルはハンドル自身の規則で描かれます。
+
+### 利用者側で行うこと
+
+- 分割ビューに `label` を付けます。ないときもハンドルは描かれて動きますが、デバッグビルドで報告されます。
+- ペインはそれ自体ではランドマークではありません。ペインがページの領域であるときは、ランドマークをその中に置きます（`<nav aria-label="メッセージ">`、`<main>`）。
+- 許可するすべての割合で、最小の大きさから上まで、各ペインの中身が使えることを確かめます。

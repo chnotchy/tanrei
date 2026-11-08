@@ -179,6 +179,17 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
 | `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
 
+## Split view
+
+| Fixture | Web Components |
+| --- | --- |
+| `horizontal` | <img src="../../packages/web/snapshots/split-view/horizontal.png" alt="web horizontal" width="160"> |
+| `vertical` | <img src="../../packages/web/snapshots/split-view/vertical.png" alt="web vertical" width="160"> |
+| `primary-end` | <img src="../../packages/web/snapshots/split-view/primary-end.png" alt="web primary-end" width="160"> |
+| `collapsed` | <img src="../../packages/web/snapshots/split-view/collapsed.png" alt="web collapsed" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/split-view/disabled.png" alt="web disabled" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/split-view/rtl.png" alt="web rtl" width="160"> |
+
 ## Stepper
 
 | Fixture | Web Components |

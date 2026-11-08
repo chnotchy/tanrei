@@ -661,6 +661,13 @@
       "listing": "default"
     },
     {
+      "name": "split-view",
+      "title": "Split view",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "category": "containment",

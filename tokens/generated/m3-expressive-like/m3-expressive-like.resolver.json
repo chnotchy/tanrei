@@ -169,6 +169,9 @@
           "$ref": "comp/resizable-frame.tokens.json"
         },
         {
+          "$ref": "comp/split-view.tokens.json"
+        },
+        {
           "$ref": "comp/scroll-area.tokens.json"
         },
         {
