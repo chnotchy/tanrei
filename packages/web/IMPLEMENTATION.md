@@ -6167,6 +6167,7 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 | `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its exit follows) |
 | `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its exit |
 | `clear()` | also drops every waiting one, each resolved with reason `host` |
+| `focusCurrent(): boolean` | moves keyboard focus to the showing snackbar's first control, as F6 does (SNK-39), for a shortcut of the product's own; whether it moved (false with no snackbar, or one without a control) |
 | `snackbar` | the `<tanrei-snackbar>` being shown, or `null` (set its `expanded` to expand it from the product) |
 
 | Event (on `<tanrei-snackbar>`) | When |
@@ -6211,7 +6212,12 @@ default, info and success forms, `role="alert"` `aria-live="assertive"` for warn
 title, the whole message and the action's label into one of them once per snackbar; the snackbar itself is not a live
 region, and nothing moves focus. **Focus (SNK-11)**: the scrolling text (while it scrolls), the action, the expand button and
 the close button are reached by Tab, in that order, where the host is in the document; Escape inside dismisses; closing with
-focus inside returns it to the element that had it before, or blurs it when that is gone.
+focus inside returns it to the element that had it before, or blurs it when that is gone. **F6 (SNK-39)**: the host listens
+for `keydown` on the window, in the bubbling phase, so that a key the product has handled first (`defaultPrevented`) is
+left to it; F6 or Shift+F6 with no modifier, while a snackbar with a control is shown, takes focus to its first stop
+(`focusFirst()`, `focusVisible: true`) and remembers the deepest element it came from, and from inside the snackbar gives
+focus back there — or blurs it where that element is gone or inert. Without such a snackbar the key is not prevented, and
+the browser's F6 goes on. The box in a modal surface lets F6 out, as it does Tab (SNK-38).
 
 **The ten forms (SNK-21, SNK-30).** A snackbar's form is its status — default, info, warning, error, success — on a surface
 of the scheme or drawn inverse, and each form reads tokens of its own by a one-word prefix: none, `<status>`, `inverse`,
