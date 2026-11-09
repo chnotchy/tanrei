@@ -11,6 +11,7 @@ import { type StudioStrings, studioDirection, studioLanguage, studioStrings } fr
 import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
 import { sectionPanels } from './ui/panels';
 import { createExportSheet } from './ui/export';
+import { createShareMenu, type DocsTheme } from './ui/share';
 import { createPreview } from './ui/preview';
 import { createRail, shuffle } from './ui/rail';
 import { createStartPoint } from './ui/start';
@@ -53,7 +54,14 @@ export interface StudioOptions {
    * that layer. Without an adapter only: a file is where a layer that has one is kept.
    */
   address?: boolean;
+  /**
+   * The documentation that hosts the Studio: the bar's Share menu then offers to show the documentation in the layer
+   * this browser keeps — off until the person turns it on, in this browser only — and, while it is on, gives the
+   * documentation the layer again as it is edited (./ui/share.ts).
+   */
+  docs?: DocsTheme;
 }
+export type { DocsTheme } from './ui/share';
 type SaveState = 'saved' | 'unsaved' | 'saving' | 'invalid' | 'conflict' | 'error' | 'loading';
 
 const STORE = `${studio.namespace}-theme-studio`;
@@ -65,7 +73,7 @@ const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo' };
 const CLOSE_GLYPH = 'close';
 const NS = studio.namespace;
 
-export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false }: StudioOptions = {}) {
+export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false, docs }: StudioOptions = {}) {
   // The language the Studio speaks: the one asked for when it is translated, English otherwise (./strings/index.ts).
   const speaks = studioLanguage(lang);
   const t: StudioStrings = studioStrings(speaks);
@@ -111,11 +119,15 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
    * until the person edits the link's layer or keeps it, and they can go back to it.
    */
   let mine: Layer | null = null;
+  /** The bar's Share menu, where there is something to share (./ui/share.ts). */
+  let share: ReturnType<typeof createShareMenu> = null;
   function remember() {
     try {
       const view = { section, inspect, locks: [...locks], contrast, draft, panel: panelWidths };
       localStorage.setItem(STORE, JSON.stringify(adapter ? view : { layer: mine ?? layer, ...view }));
     } catch {}
+    // The documentation shows the layer this browser keeps, when it shows one of the Studio's.
+    share?.follow(() => mine ?? committed);
   }
   function recall() {
     try {
@@ -217,6 +229,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
   const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
   const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
+  // Share: the link to the Studio with this layer, and the documentation shown in it (./ui/share.ts).
+  share = createShareMenu(ctx, { linked, docs: adapter ? undefined : docs, glyph });
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
   const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton(HISTORY_GLYPHS.undo, t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
@@ -231,7 +245,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
     h('div', { class: 'ts-bar-tools' }, shuffleButton),
     file,
-    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton, exportButton),
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton, share?.el ?? null, exportButton),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
