@@ -14,7 +14,7 @@ import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWo
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
@@ -314,6 +314,13 @@ const BYTES = (name: string) => Buffer.from(fixturePicture(`fixtures/image-previ
 const ADDRESS = (name: string) => `http://pictures.test/${name}.png`;
 
 test.describe('the modal layer', () => {
+  test('IMP-2, IMP-33: opened at the end of a task that outlasts its motions, it fades in and its controls take their states from the first frame drawn after that task — none of them over before a frame draws it', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
+    // controls' state motions last, they were drawn in their end state at once, as no other engine draws them.
+    await mount(page, fx({ open: false }));
+    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-image-preview dialog.container opacity', 'tanrei-image-preview div.pages scale'], 'opened');
+  });
+
   test('IMP-1: open, the container is presented by a native modal dialog above everything, over the whole window and filled with container.color; everything outside is inert, the page does not scroll, and no scrim is drawn', async ({ page }) => {
     await mount(page, fx({ open: false }), { lead: '<button id="behind">Behind</button><p style="block-size: 2000px; margin: 0">A page</p>' });
     expect((await look(page)).modal, 'closed: nothing is presented').toBe(false);
