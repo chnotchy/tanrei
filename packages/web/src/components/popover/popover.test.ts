@@ -2749,6 +2749,9 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { theme, icons: true, fixtures: real });
       await expect.poll(() => fixtureHost(page, 'top-layer').evaluate((el) => el.shadowRoot!.querySelector('.surface')!.matches(':popover-open'))).toBe(true);
       await settle(page);
+      // Mounted open into a page painted before (the mount above), it plays its entrance (POP-26, MOT-4), still running
+      // when it is seen open: read mid-fade, its text is measured through a translucent surface. Axe reads it at rest.
+      await motionEnded(fixtureHost(page, 'top-layer'));
       const overlay = await new AxeBuilder({ page }).analyze();
       expect(overlay.violations, `${theme}, top layer: ${overlay.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
