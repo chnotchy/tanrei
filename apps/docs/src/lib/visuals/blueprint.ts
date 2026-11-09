@@ -20,6 +20,8 @@
 //   does not have. Each line, and each row of the table under the figure, carries what was measured (`data-measured`)
 //   and what the token says (`data-value`); a row whose length is not drawn says in words what was found instead. The
 //   table is written again when the system changes.
+// - **It is drawn once the stage is at rest**: its elements have drawn, the fonts have arrived, and the motions that
+//   end (an entrance, a fade) have ended.
 // - **It is drawn again** when the stage changes size or direction, when the fonts arrive, and when the frame is drawn
 //   under another system (lib/visuals/frame.ts, `SYSTEM_EVENT`).
 import type { PartTarget } from './anatomy';
@@ -174,11 +176,18 @@ function focusReach(element: Element): { reach: number; radius: number } {
   return { reach, radius: Math.max(0, radius + reach) };
 }
 
-/** Every Tanrei element under `root`, its shadow trees included, has drawn. */
+/**
+ * Every Tanrei element under `root`, its shadow trees included, has drawn, and what it was moving has come to rest: a
+ * figure measures the component as it stands, not part of the way through an entrance (a part still faded out is not
+ * drawn for the figure). A motion that never ends (a spinner's turn) or that stands still is not waited for.
+ */
 async function settled(root: Element): Promise<void> {
-  const elements = [root, ...root.querySelectorAll('*'), ...shadowRootsIn(root).flatMap((shadow) => [...shadow.querySelectorAll('*')])];
-  await Promise.all(elements.map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete).filter(Boolean));
+  const all = () => [root, ...root.querySelectorAll('*'), ...shadowRootsIn(root).flatMap((shadow) => [...shadow.querySelectorAll('*')])];
+  await Promise.all(all().map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete).filter(Boolean));
   await document.fonts.ready;
+  const moving = new Set(all().flatMap((element) => element.getAnimations({ subtree: true })));
+  const ending = [...moving].filter((animation) => animation.playState === 'running' && Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+  await Promise.all(ending.map((animation) => animation.finished.catch(() => undefined)));
 }
 
 // ── Drawing ──────────────────────────────────────────────────────────────────────────────────────────────────────────
