@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, FollowController, OpenAxesController, PressController, anchorGone, layoutSize, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, FollowController, OpenAxesController, PressController, anchorGone, cssZoom, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
@@ -694,14 +694,10 @@ export class TanreiSlider extends TanreiElement {
       const limit = vertical ? view.height : view.width;
       const start = center - size / 2;
       const shift = start < 0 ? -start : start + size > limit ? limit - (start + size) : 0;
-      // Lengths are written in the indicator's own pixels, measured in the window's: under a `zoom` one of its pixels is
-      // not one of the window's, so each is turned into its own by what the box is drawn at over what it is laid out
-      // at. (A transform around the slider does not reach the top layer.)
-      const laid = layoutSize(indicator);
-      const own = vertical ? laid.height : laid.width;
-      // (A laid-out size is serialized to three decimals: a ratio that near 1 is no scale at all.)
-      const ratio = own > 0 && size > 0 ? size / own : 1;
-      const drawn = Math.abs(ratio - 1) < 0.001 ? 1 : ratio;
+      // Lengths are written in the indicator's own pixels, measured in the window's: under an ancestor's `zoom`, which
+      // reaches the top layer, one of its pixels is not one of the window's (`cssZoom()`). (A transform around the
+      // slider does not reach the top layer.)
+      const drawn = cssZoom(indicator);
       if (indicator.dataset.side !== side) {
         indicator.dataset.side = side;
         changed = true;
