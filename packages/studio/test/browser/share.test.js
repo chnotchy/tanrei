@@ -1,12 +1,13 @@
 // Share: the bar's menu of what the Studio can share of the layer, in a host that is a documentation (host/): the link
 // to the Studio that holds the layer, and the switch that shows the documentation in it — off until it is turned on,
 // on given the layer this browser keeps (and shown), given it again once edits rest without changing the reader's look,
-// off taking it away. The menu passes axe and keeps every target at 24 by 24. The page sheet the documentation draws
-// the layer with comes from a worker, under the CLI's policy, and is the core's own (core.pageSheet).
+// off taking it away; only a layer the Studio accepts as a file (the schema's) is given. The menu passes axe and keeps
+// every target at 24 by 24. The page sheet the documentation draws the layer with comes from a worker, under the CLI's
+// policy, and is the core's own (core.pageSheet).
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { studioTest, until } from './harness.js';
-import { studio } from '../studio-node.js';
+import { studio, workerPageSheet } from '../studio-node.js';
 
 const hostDir = process.env.TANREI_STUDIO_HOST;
 const hosted = { server: { appDir: hostDir }, ready: false };
@@ -53,6 +54,34 @@ studioTest('the Share menu: the link, and the documentation shown in the layer �
   await page.locator('[data-shuffle]').click();
   await page.waitForTimeout(600); // longer than the menu's rest (src/ui/share.ts, 300 ms): a call would have come
   assert.equal((await calls(page)).length, 3);
+});
+
+studioTest('the documentation is given only a layer the Studio accepts as a file: one the schema refuses reaches no sheet, and the last one given stays', hosted, async ({ page, section }) => {
+  // What the edit below makes: a layer whose attribution names a source without its name, licence and address. The
+  // schema refuses it, though the token engine computes it (the page sheet's worker would draw it, src/sheet.js).
+  const refused = { id: 'acme', extends: 'tanrei', attribution: { inspiredBy: '', sources: [{}], disclaimer: '' } };
+  assert.throws(() => studio.fromLayer(refused), /sources/, 'the schema refuses it');
+  const { sheets } = workerPageSheet();
+  assert.equal(typeof (await sheets.pageSheet(refused)), 'string', 'the engine alone would give it a sheet');
+
+  await open(page);
+  await share(page).locator('[data-share-docs]').click();
+  await until(async () => (await calls(page)).length === 1, 'the documentation is given the layer');
+  const [on] = await calls(page);
+  await page.keyboard.press('Escape');
+  await section('about');
+  await page.locator('[data-about-more] > summary').click();
+  const sources = page.locator('[data-about-more] tanrei-text-field[type="code"] textarea');
+  await sources.fill('[{}]');
+  await until(async () => (await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? 'null')?.layer, `${studio.namespace}-theme-studio`))?.attribution?.sources?.length === 1, 'the Studio keeps the edit');
+  await page.waitForTimeout(600); // longer than the menu's rest (src/ui/share.ts, 300 ms): a call would have come
+  assert.equal((await calls(page)).length, 1, 'the documentation is not given the layer the schema refuses');
+  assert.deepEqual(await page.evaluate(() => window.docsKept), on.layer, 'it keeps the last layer it was given');
+
+  // Accepted again, the edit is given once it rests.
+  await sources.fill('[]');
+  await until(async () => (await calls(page)).length === 2, 'the accepted layer given');
+  assert.deepEqual((await calls(page))[1].layer.attribution, { inspiredBy: '', sources: [], disclaimer: '' });
 });
 
 studioTest('the page sheet from the worker is the core’s, for any layer; a layer that cannot be computed is refused', hosted, async ({ page, requests }) => {

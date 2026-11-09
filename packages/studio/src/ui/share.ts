@@ -1,8 +1,9 @@
 // The bar's Share menu: a button that opens a popover with what the Studio can share of the layer — the link to the
 // Studio that holds it, where the page's address holds the layer (`address`), and, where the documentation hosts the
 // Studio (`docs`), a switch that shows the documentation in the layer: off until the person turns it on, and kept in
-// this browser only. While it is on, the documentation follows the layer this browser keeps as it is edited; turned
-// off, the documentation keeps no layer and shows its own look again.
+// this browser only. While it is on, the documentation follows the layer this browser keeps as it is edited, each
+// state of it the Studio accepts as a file (the schema's): one it does not leaves the documentation with the last one
+// that was. Turned off, the documentation keeps no layer and shows its own look again.
 import { packLayer, withLayer } from '../address.js';
 import { stringifyLayer } from '../core.js';
 import { type Ctx, type Json, type Layer, button, h } from './dom';
@@ -61,11 +62,33 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
   let resting: number | undefined;
   /** The layer this browser keeps, given to the documentation now (and shown there, with `show`). */
   let keeping: () => Layer = () => ctx.layer();
+  /**
+   * The documentation draws only a layer the Studio accepts as a file (`fromLayer`: the schema, and a shipped system to
+   * extend): while the layer being edited is not one, it keeps the last one that was. The Studio holds no other kind
+   * at the start (it loads a layer through `fromLayer`), so there is always one.
+   */
+  const acceptedNow = (layer: Layer) => {
+    try {
+      studio.fromLayer(layer);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  let accepted: Layer | null = acceptedNow(keeping()) ? keeping() : null;
+  /** The layer this browser keeps, or the last one it kept that the Studio accepts. */
+  const latest = () => {
+    const layer = keeping();
+    if (acceptedNow(layer)) accepted = layer;
+    return accepted;
+  };
   toggle?.addEventListener('change', () => {
     if (!docs || !toggle) return;
     window.clearTimeout(resting);
     if (toggle.checked) {
-      const layer = keeping();
+      const layer = latest();
+      // (None has ever been accepted: nothing can be shown.)
+      if (!layer) return void (toggle.checked = false);
       given = stringifyLayer(layer);
       docs.keep(layer, { show: true });
       ctx.announce(words.docsOn);
@@ -101,18 +124,22 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
     el: [opener, popover],
     /**
      * The layer this browser keeps (`keeping()`) changed, or may have: while the documentation keeps one of the
-     * Studio's, it is given this one once the edits rest. The documentation's look is the reader's: it is not changed.
+     * Studio's, it is given this one once the edits rest — or, while the Studio does not accept it as a file, nothing,
+     * and the documentation keeps the last one it was given. The documentation's look is the reader's: it is not changed.
      */
     follow(next: () => Layer) {
       keeping = next;
-      if (!docs || !docs.kept()) return;
-      const text = stringifyLayer(next());
-      if (text === given) return;
+      if (!docs) return;
+      const layer = latest();
+      if (!docs.kept() || !layer || stringifyLayer(layer) === given) return;
       window.clearTimeout(resting);
       resting = window.setTimeout(() => {
-        if (!docs.kept()) return;
+        const now = latest();
+        if (!docs.kept() || !now) return;
+        const text = stringifyLayer(now);
+        if (text === given) return;
         given = text;
-        docs.keep(next());
+        docs.keep(now);
       }, REST);
     },
   };
