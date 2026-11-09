@@ -19,6 +19,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the figures of every page,
+// took 122 s in CI.
+const LIMIT = { timeout: 360_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -49,7 +53,7 @@ test('the figures are drawn on the pages of the components whose specs say where
   assert.ok(pages.includes('button') && pages.includes('tabs') && pages.includes('slider'), `pages with a figure: ${pages.join(', ')}`);
 });
 
-test('every figure: each number once, inside and clear; each line its token’s length, or none and the table says why', async () => {
+test('every figure: each number once, inside and clear; each line its token’s length, or none and the table says why', LIMIT, async () => {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', colorScheme: 'light' });
   const page = await context.newPage();
   const errors = [];

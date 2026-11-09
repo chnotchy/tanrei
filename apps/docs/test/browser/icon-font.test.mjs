@@ -16,6 +16,10 @@ import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the icons of the Text
+// field page, took 18 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -117,7 +121,7 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   const STUDIO = '[data-theme-studio]';
   const STUDIO_DRAWN = '[data-studio][data-pane] [data-rail] [data-row]';
   for (const [url] of rootPages.filter(([, file]) => !redirect(file))) {
-    test(`drawn on ${url}`, async () => {
+    test(`drawn on ${url}`, LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
@@ -196,7 +200,7 @@ async function transfer(url) {
 
 describe('what a page transfers', () => {
   for (const url of ['/', '/components/button/']) {
-    test(`${url}: at most ${PAGE_BUDGET / 1024} KB, its icon file one of the small ones`, async (t) => {
+    test(`${url}: at most ${PAGE_BUDGET / 1024} KB, its icon file one of the small ones`, LIMIT, async (t) => {
       const { total, icons, largest } = await transfer(url);
       t.diagnostic(`${url}: ${Math.round(total / 1024)} KB, the icon files ${Math.round(icons / 1024)} KB`);
       assert.ok(total <= PAGE_BUDGET, `${url} transferred ${Math.round(total / 1024)} KB: ${largest.join('; ')}`);
@@ -211,13 +215,13 @@ describe('what a page transfers', () => {
 describe('the Japanese a page quotes', () => {
   const slice = /^noto-sans-jp-\d+-wght-normal\./;
   const cut = /^noto-sans-jp-cut-\d+\.generated\./;
-  test('on a page not in Japanese, is drawn from the cut: none of the family’s own files', async () => {
+  test('on a page not in Japanese, is drawn from the cut: none of the family’s own files', LIMIT, async () => {
     const { files, drawn } = await transfer('/components/button/');
     assert.deepEqual(files.filter((file) => slice.test(file)), []);
     assert.ok(files.some((file) => cut.test(file)), files.join(', '));
     assert.ok(drawn.includes('Noto Sans JP Cut'), drawn.join(', '));
   });
-  test('on a page in Japanese, is drawn from the family’s own files, and the cut is not asked for', async () => {
+  test('on a page in Japanese, is drawn from the family’s own files, and the cut is not asked for', LIMIT, async () => {
     const { files } = await transfer('/ja/components/button/');
     assert.deepEqual(files.filter((file) => cut.test(file)), []);
     assert.ok(files.some((file) => slice.test(file)), files.join(', '));
@@ -225,7 +229,7 @@ describe('the Japanese a page quotes', () => {
 });
 
 describe('the Theme Studio page', () => {
-  test('takes the full icon files once it has loaded, and from then on draws any glyph', async () => {
+  test('takes the full icon files once it has loaded, and from then on draws any glyph', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     try {
       const page = await context.newPage();

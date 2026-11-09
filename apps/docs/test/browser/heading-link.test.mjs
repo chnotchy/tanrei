@@ -20,6 +20,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the anchor of the
+// accessibility page, in WebKit, took 14 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 
@@ -76,7 +80,7 @@ for (const engine of ENGINES) {
     };
 
     for (const [url, lang] of [['/foundations/accessibility/', 'en'], ['/ja/foundations/accessibility/', 'ja']]) {
-      test(`${url}: named as a copy, Enter copies the section's address, goes there, and the copy is announced`, async () => {
+      test(`${url}: named as a copy, Enter copies the section's address, goes there, and the copy is announced`, LIMIT, async () => {
         const { context, page } = await open(url);
         const words = strings(lang).headingLink;
         const anchor = page.locator(ANCHOR);
@@ -101,7 +105,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('a copy the browser refuses is said through the assertive live region, and the link still goes to its section', async () => {
+    test('a copy the browser refuses is said through the assertive live region, and the link still goes to its section', LIMIT, async () => {
       const { context, page } = await open('/foundations/accessibility/', { refuse: true });
       const anchor = page.locator(ANCHOR);
       const id = (await anchor.getAttribute('href')).slice(1);
@@ -115,7 +119,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('without script the anchor is the link to its heading, named by Starlight’s words, and goes there', async () => {
+    test('without script the anchor is the link to its heading, named by Starlight’s words, and goes there', LIMIT, async () => {
       const { context, page } = await open('/foundations/accessibility/', { javaScriptEnabled: false });
       const anchor = page.locator(ANCHOR);
       const [href, label, text] = await anchor.evaluate((a) => [a.getAttribute('href'), a.getAttribute('aria-label'), a.previousElementSibling.textContent.trim()]);

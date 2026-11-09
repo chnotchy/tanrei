@@ -22,6 +22,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the reader’s day in Arabic
+// and Japanese, took 31 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 const { dayText } = await import('../../src/lib/reader-day.mjs');
@@ -134,7 +138,7 @@ for (const engine of ENGINES) {
     }
 
     for (const { address, lang, rtl } of PAGES) {
-      test(`${address}: the last part of the head's text is when the page last changed, the date its sitemap gives`, async () => {
+      test(`${address}: the last part of the head's text is when the page last changed, the date its sitemap gives`, LIMIT, async () => {
         const seen = await head(address, WIDE);
         assert.deepEqual(seen.parts.slice(-2), ['meta', 'actions'], `parts: ${seen.parts.join(', ')}`);
         assert.deepEqual(seen.items, ['time']);
@@ -148,7 +152,7 @@ for (const engine of ENGINES) {
       });
 
       for (const [name, viewport] of [['wide', WIDE], ['compact', COMPACT]]) {
-        test(`${address}, a ${name} window: the date stands below the title and the description, from the head's start edge, inside the head`, async () => {
+        test(`${address}, a ${name} window: the date stands below the title and the description, from the head's start edge, inside the head`, LIMIT, async () => {
           const seen = await head(address, viewport);
           assert.equal(seen.dir, rtl ? 'rtl' : 'ltr');
           const above = Math.max(seen.title.bottom, seen.description?.bottom ?? -Infinity);
@@ -224,7 +228,7 @@ for (const engine of ENGINES) {
     const MONTH_END = '2026-09-30T20:00:00.000Z';
     const firstFrameHolds = (seen) => assert.ok(seen.firstFrame === null || seen.firstFrame === seen.text, `the first frame held “${seen.firstFrame}”, not “${seen.text}”`);
 
-    test('one instant, two readers: Tokyo sees 23 October and Los Angeles 22 October, from the first frame', async () => {
+    test('one instant, two readers: Tokyo sees 23 October and Los Angeles 22 October, from the first frame', LIMIT, async () => {
       const tokyo = await readerSees('/components/button/', { timezoneId: 'Asia/Tokyo', datetime: EVENING });
       const losAngeles = await readerSees('/components/button/', { timezoneId: 'America/Los_Angeles', datetime: EVENING });
       assert.equal(tokyo.datetime, EVENING);
@@ -235,7 +239,7 @@ for (const engine of ENGINES) {
       firstFrameHolds(losAngeles);
     });
 
-    test('the reader’s day in the page’s language and direction: Arabic, Japanese', async () => {
+    test('the reader’s day in the page’s language and direction: Arabic, Japanese', LIMIT, async () => {
       for (const [address, lang] of [['/ar/components/button/', 'ar'], ['/ja/components/button/', 'ja']]) {
         const tokyo = await readerSees(address, { timezoneId: 'Asia/Tokyo', datetime: EVENING });
         const losAngeles = await readerSees(address, { timezoneId: 'America/Los_Angeles', datetime: EVENING });
@@ -258,7 +262,7 @@ for (const engine of ENGINES) {
       }
     }
 
-    test('a day of another month takes other room, and nothing in the head shifts', async () => {
+    test('a day of another month takes other room, and nothing in the head shifts', LIMIT, async () => {
       const seen = await readerSees('/components/button/', { timezoneId: 'Asia/Tokyo', datetime: MONTH_END });
       assert.equal(seen.text, SENTENCE.replace('{date}', 'October 1, 2026'));
       firstFrameHolds(seen);
@@ -271,14 +275,14 @@ for (const engine of ENGINES) {
     const BUILT = sitemapDates.get(ADDRESS);
     const ZONE = new Date(BUILT).getUTCHours() >= 10 ? 'Pacific/Kiritimati' : 'Pacific/Pago_Pago';
 
-    test(`${ADDRESS} as built, in ${ZONE}: the reader's day of the sitemap's date`, async () => {
+    test(`${ADDRESS} as built, in ${ZONE}: the reader's day of the sitemap's date`, LIMIT, async () => {
       const seen = await readerSees(ADDRESS, { timezoneId: ZONE });
       assert.equal(seen.datetime, BUILT);
       assert.notEqual(dayText(BUILT, 'en', ZONE), dayText(BUILT, 'en', 'UTC'));
       assert.equal(seen.text, SENTENCE.replace('{date}', dayText(BUILT, 'en', ZONE)));
     });
 
-    test(`${ADDRESS} without script, in ${ZONE}: the build's UTC day, the day the sitemap names`, async () => {
+    test(`${ADDRESS} without script, in ${ZONE}: the build's UTC day, the day the sitemap names`, LIMIT, async () => {
       const seen = await readerSees(ADDRESS, { timezoneId: ZONE, javaScriptEnabled: false });
       assert.equal(seen.datetime, BUILT);
       assert.equal(seen.day, dayText(BUILT, 'en', 'UTC'));

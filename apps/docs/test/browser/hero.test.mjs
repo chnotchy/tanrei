@@ -14,6 +14,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Arabic home page at
+// 390, took 9 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -67,13 +71,13 @@ describe('the hero holds its place while its elements are defined', { concurrenc
   test('there is a home page in every language', () => assert.ok(homes.length >= 6, homes.join(', ')));
   for (const url of homes) {
     // Two columns: the copy beside the specimen. The specimen is given the rows its Buttons take once drawn (Hero.astro).
-    test(`${url} at 1440: the title and what stands under the specimen`, async () => {
+    test(`${url} at 1440: the title and what stands under the specimen`, LIMIT, async () => {
       const { stopped, defined } = await places(url, 1440);
       assert.ok(Math.abs(stopped.title - defined.title) <= 0.5, `the title stood at ${stopped.title} with no script and at ${defined.title} once defined`);
       assert.ok(Math.abs(stopped.under - defined.under) <= 0.5, `the platform list stood at ${stopped.under} with no script and at ${defined.under} once defined`);
     });
     // One column: the specimen is under the copy.
-    test(`${url} at 390: the title`, async () => {
+    test(`${url} at 390: the title`, LIMIT, async () => {
       const { stopped, defined } = await places(url, 390);
       assert.ok(Math.abs(stopped.title - defined.title) <= 0.5, `the title stood at ${stopped.title} with no script and at ${defined.title} once defined`);
     });
@@ -82,7 +86,7 @@ describe('the hero holds its place while its elements are defined', { concurrenc
 
 describe('the primary action, in every frame it is drawn as a Button', () => {
   for (const width of [1440, 390]) {
-    test(`at ${width}: its label stands out from its fill (4.5:1), the plain anchor gone`, async () => {
+    test(`at ${width}: its label stands out from its fill (4.5:1), the plain anchor gone`, LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' });
       try {
         // Every frame from the first: is the action defined, does it still hold its anchor, and the contrast of the

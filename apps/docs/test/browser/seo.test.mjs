@@ -16,6 +16,10 @@ import sharp from 'sharp';
 import { source, translations } from '../../i18n/locales.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Hindi Button page’s
+// image, took 7 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 const repo = path.join(docs, '../..');
@@ -60,7 +64,7 @@ describe('every page’s head', () => {
     assert.ok(pages.length >= 6 * 100, `${pages.length} pages`);
   });
 
-  test('names one image of a shared link, which the site serves as a PNG of 1200 × 630', async () => {
+  test('names one image of a shared link, which the site serves as a PNG of 1200 × 630', LIMIT, async () => {
     const sizes = new Map();
     for (const page of pages) {
       const images = page.all('og:image');
@@ -209,7 +213,7 @@ after(async () => {
 
 describe('the image a page names, in a browser', () => {
   for (const address of ['/', '/components/button/', '/ja/components/button/', '/ar/', '/hi/components/button/', '/getting-started/swiftui/']) {
-    test(address, async () => {
+    test(address, LIMIT, async () => {
       const context = await browser.newContext();
       const page = await context.newPage();
       try {
