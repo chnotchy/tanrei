@@ -1240,6 +1240,13 @@
         "overflowLabel": "overflowLabel",
         "separation": "separation"
       },
+      "parts": {
+        "container": "container",
+        "items": "slot",
+        "separator": "separator",
+        "overflow-button": "overflow-button",
+        "outline": "container@outline"
+      },
       "notes": "The items are `<tanrei-button>` children, icon-only and labelled, `<tanrei-button-with-menu>` children, `<tanrei-toolbar-group>` children holding them, and `<tanrei-divider>` separators; a `<tanrei-menu anchor>` child anchored to an item's id is that item's Menu and is not laid out. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`; a group with a label has `role=\"group\"` and `aria-label`. The toolbar assigns each of its children, and a group each of its items, to a slot of its own (manual slot assignment), so that the toolbar draws the separations between them and leaves a hidden item unassigned: a hidden item is not drawn and keeps its place, its listeners and its state in the page. The overflow button and its menu are elements of the toolbar's shadow root. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): an item delegates focus to the button in its shadow root, and a host whose tabindex is -1 takes that button out of the Tab order; a Button with menu is told which of its halves is the Tab stop through the internal channel (SPB-33). A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4, TBR-6 and TBR-18.",
       "items": {
         "action": {

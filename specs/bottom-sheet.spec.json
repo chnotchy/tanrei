@@ -441,6 +441,18 @@
         "close": "close",
         "detentChange": "detentchange"
       },
+      "parts": {
+        "scrim": "container@backdrop",
+        "container": "container",
+        "drag-handle": "handle",
+        "drag-handle.grip": "grip",
+        "header": "header",
+        "headline": "headline",
+        "close-button": "close-button",
+        "divider": "divider",
+        "content": "content",
+        "focus-ring": "handle@focus-ring"
+      },
       "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are their inverses, the boolean properties `noHandle` and `flush` (attributes `no-handle` and `flush`), false by default: an HTML boolean attribute cannot default to true, and a property has its attribute's name. `handleLabel` is the `handle-label` attribute, `closeLabel` the `close-label` attribute and `dividerVisibility` the `divider-visibility` attribute (`auto` reads `--tanrei-comp-bottom-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders). The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.bottom-sheet.close-button.variant through the internal channel a Button reads from its host; the headline is an `<h2>`. `close` is a CustomEvent whose `detail.reason` is `close`, `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer. The drag handle is a `<tanrei-handle>` in the shadow root, its `container` and `line` exported as the parts `handle` and `grip`; the sheet sets the Handle's custom properties to its own tokens on it (BSH-12), answers its `activate`, and keeps it `inert` while the sheet has one height (BSH-11)."
     },
     "swiftui": {
