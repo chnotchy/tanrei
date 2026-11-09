@@ -15,6 +15,7 @@ import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -2150,6 +2151,17 @@ test.describe('loading and failure', () => {
 });
 
 test.describe('motion', () => {
+  test('IMP-33: an image preview in the page’s markup with open is there in its first frame — neither its container nor its image plays its entrance — and one mounted open after the first paint opens with its motion (MOT-4)', async ({ page }) => {
+    await page.setViewportSize(WINDOW);
+    const atLoad = await loadOpen(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'caption') });
+    expect(entrances(atLoad), 'in the page’s markup').toEqual([]);
+    expect(await host(page).locator('dialog').evaluate((el) => [(el as HTMLDialogElement).open, getComputedStyle(el).opacity])).toEqual([true, '1']);
+    await mountOpenAgain(page);
+    // The container fades (with its scrim, which WebKit counts as the container's), and the pages fade and grow.
+    const late = entrances(await runsAtRest(page)).map((run) => `${run.on.split('.')[0]} ${run.name}`);
+    expect(late, 'mounted after the first paint').toEqual(expect.arrayContaining(['dialog opacity', 'div opacity', 'div scale']));
+  });
+
   test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image appears as every modal surface does — from opacity 0 and scale 0.96 under the default system, about the centre of the fit area — over the enter motion; closing, all of it fades out over the exit motion while the image goes back the same way; the image is never flown from anywhere', async ({ page }) => {
     await mount(page, fx({ open: false, index: 1 }));
     await override(page, { [T('motion-enter-duration')]: '2000ms', [T('motion-exit-duration')]: '1500ms' });
