@@ -79,6 +79,7 @@ import type { LinkedTabView, TanreiTabs } from '../tabs/tabs.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { startFromNextFrame } from '../../primitives/motion.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -2297,6 +2298,10 @@ export class TanreiDateTimePicker extends TanreiElement {
         if (documentPainted()) {
           void surface.offsetWidth; // restart the animation
           surface.classList.add('entering');
+          // From the first frame drawn after this task, as an appearance's entrance (startFromNextFrame): WebKit dates
+          // an animation begun in a task from the frame drawn before it, and where opening took longer than the
+          // entrance lasts the picker was drawn whole at once.
+          startFromNextFrame(surface.getAnimations());
         }
       }
     } finally {
@@ -2390,6 +2395,9 @@ export class TanreiDateTimePicker extends TanreiElement {
         if (surface.matches(':popover-open')) surface.hidePopover();
       };
       const running = surface.getAnimations();
+      // DTM-35: the exit too begins in the first frame drawn after this task (startFromNextFrame), played there even
+      // where a page clock holds frame callbacks: the picker leaves the top layer only once it has ended.
+      startFromNextFrame(running, { leaving: true });
       if (running.length === 0) finish();
       else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
     }
