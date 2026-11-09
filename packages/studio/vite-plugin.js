@@ -4,6 +4,8 @@
 //    /invariants). Those modules import only pure helpers and the JSON config, so they bundle as they are.
 // 2. The layer schema is compiled to a validator at build time (Ajv standalone). `tanrei studio` serves the app
 //    under a Content-Security-Policy without 'unsafe-eval', and Ajv's runtime compiler needs `new Function`.
+// 3. material-color-utilities' Hct and TonalPalette, from their own modules (`virtual:tanrei-studio/hct`): the
+//    package's entry imports every scheme and the quantizers too, and a bundler keeps them all.
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,17 +14,23 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const schemaFile = path.resolve(here, '../../tokens/schema/system.schema.json');
 const VALIDATOR = 'virtual:tanrei-studio/validate-layer';
+const HCT = 'virtual:tanrei-studio/hct';
 
 export function tanreiStudio() {
   const require = createRequire(import.meta.url);
   return {
     name: 'tanrei-studio',
     enforce: 'pre',
-    resolveId(source, importer) {
+    resolveId(source) {
       if (source === VALIDATOR) return `\0${VALIDATOR}`;
+      if (source === HCT) return `\0${HCT}`;
       return null;
     },
     load(id) {
+      if (id === `\0${HCT}`) {
+        const root = path.dirname(require.resolve('@material/material-color-utilities'));
+        return `export { Hct } from ${JSON.stringify(path.join(root, 'hct/hct.js'))};\nexport { TonalPalette } from ${JSON.stringify(path.join(root, 'palettes/tonal_palette.js'))};\n`;
+      }
       if (id !== `\0${VALIDATOR}`) return null;
       this.addWatchFile?.(schemaFile);
       const Ajv2020 = require('ajv/dist/2020.js');
