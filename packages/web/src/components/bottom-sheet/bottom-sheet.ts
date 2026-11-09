@@ -142,7 +142,8 @@ export class TanreiBottomSheet extends TanreiElement {
   private readonly words = new WordsController(this);
   /**
    * BSH-1: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
-   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   * open before the document's first paint, played where it is mounted open after it (MOT-4), turned round from what it
+   * shows (MOT-2). The `<dialog>` is the surface that slides.
    */
   private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
@@ -268,7 +269,7 @@ export class TanreiBottomSheet extends TanreiElement {
     super.connectedCallback();
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
-    // Moved in the document while open: presented again, in place (as mounted).
+    // Moved in the document while open: presented again, in place, without motion.
     if (this.hasUpdated && this.open && this.modal) this.present(true);
     // A Button that reconnects lets go of the variant its host gave it; the next update gives it again (BSH-29).
     if (this.hasUpdated) this.requestUpdate();
@@ -644,21 +645,25 @@ export class TanreiBottomSheet extends TanreiElement {
     return focusWithin(this);
   }
 
-  /** BSH-1, BSH-2, BSH-3: in the top layer, the page held, focus in. Mounted open, it appears in place without motion. */
-  private present(mounted: boolean) {
+  /**
+   * BSH-1, BSH-2, BSH-3: in the top layer, the page held, focus in. `instant`: in place, without motion (moved in the
+   * document, or turned modal while open). Mounted open, it slides in as it opens, unless the document has not been
+   * painted yet — `openModal()` and the appearance then draw it open at once (MOT-4).
+   */
+  private present(instant: boolean) {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
     watchEscape();
     this.cancelSettle();
     this.clearPlacement();
     this.opener = deepActive();
-    if (mounted) {
+    if (instant) {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
     // BSH-1: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
-    this.appear.enter(mounted);
+    this.appear.enter(instant);
     this.shown = true;
     holdPageScroll(this, true);
     this.onViewport();
@@ -736,7 +741,8 @@ export class TanreiBottomSheet extends TanreiElement {
       const mounted = changed.has('open') && changed.get('open') === undefined;
       const was = changed.has('open') ? changed.get('open') === true : this.open;
       if (this.modal) {
-        if (this.open) this.present(mounted || variantChanged);
+        // BSH-1: mounted open, it appears as MOT-4 says (`present`); turned modal while open, in place.
+        if (this.open) this.present(variantChanged);
         else if (this.shown) this.withdraw(true);
       } else if (changed.has('open') && !mounted) {
         // BSH-3: a standard sheet opened moves focus in; closed with focus inside, it gives it back. Mounted open, it

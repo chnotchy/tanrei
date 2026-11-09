@@ -73,7 +73,7 @@ export const RULES = {
       'src/components/accordion/accordion.test.ts': 5,
       'src/components/app-bar/app-bar.test.ts': 1,
       'src/components/avatar/avatar.test.ts': 4,
-      'src/components/bottom-sheet/bottom-sheet.test.ts': 3,
+      'src/components/bottom-sheet/bottom-sheet.test.ts': 2,
       'src/components/breadcrumbs/breadcrumbs.test.ts': 2,
       'src/components/button-group/button-group.test.ts': 2,
       'src/components/button-with-menu/button-with-menu.test.ts': 4,

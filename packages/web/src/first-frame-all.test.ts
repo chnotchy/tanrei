@@ -77,6 +77,8 @@ const opened: Pick = (f) => f.props.open === true;
 
 /** The overlays written open that play their entrance when they appear after the page's first paint (MOT-4). */
 const ENTERS: Record<string, Pick> = {
+  // BSH-1, SSH-2: a modal sheet (a standard one is a layout region, drawn at rest).
+  'bottom-sheet': (f) => opened(f) && f.props.variant !== 'standard',
   dialog: opened,
   'date-time-picker': (f) => opened(f) && f.props.presentation !== 'docked',
   'image-preview': opened,
