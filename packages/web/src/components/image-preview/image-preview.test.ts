@@ -14,6 +14,7 @@ import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWo
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -62,13 +63,14 @@ const doublePress = async (page: P, at: { x: number; y: number }) => {
   }
 };
 
-/** Nothing of the preview is in transition any more (the Skeleton's own stir goes on by design). */
+/**
+ * Nothing of the preview moves any more: every motion of it that has an end has ended — its entrance, which is held
+ * paused at its start for a frame and so is not "running" yet, its transitions, its controls' — in its shadow root and
+ * in each one inside (test/motions.ts). The Skeleton's own stir has no end and goes on by design.
+ */
 const rest = async (page: P) => {
   await settled(page);
-  await page.waitForFunction(() => {
-    const root = document.querySelector('tanrei-image-preview')?.shadowRoot;
-    return !!root && root.getAnimations().every((animation) => !(animation instanceof CSSTransition) || animation.playState !== 'running');
-  });
+  await motionEnded(host(page).first());
   await settled(page);
 };
 

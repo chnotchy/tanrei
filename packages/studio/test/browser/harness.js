@@ -33,6 +33,48 @@ export const until = async (condition, what = 'condition', ms = 15_000) => {
 };
 
 /**
+ * Runs in the page: the motions of `selector`'s element (the whole document without one) that have an end and have not
+ * reached it, in its own tree and in every shadow root inside it, at any depth — each named by what it moves.
+ * `getAnimations()` of a document or an element lists only its own tree's, never a shadow root's, and a Tanrei
+ * component moves in its shadow root. With `ended`, whether none is left, for a wait.
+ * @param {{ selector: string | null, ended?: boolean }} asked
+ */
+function unfinishedMotions({ selector, ended = false }) {
+  const given = selector ? document.querySelector(selector) : document;
+  if (!given) return ended ? false : [`nothing matches ${selector}`];
+  const every = (root) => {
+    const own = root.nodeType === Node.ELEMENT_NODE ? root.getAnimations({ subtree: true }) : root.getAnimations();
+    const inside = [...(root.nodeType === Node.ELEMENT_NODE ? [root] : []), ...root.querySelectorAll('*')].flatMap((el) => (el.shadowRoot ? every(el.shadowRoot) : []));
+    return [...own, ...inside];
+  };
+  const left = every(given).filter((animation) => animation.playState !== 'finished' && Number.isFinite(animation.effect?.getComputedTiming().endTime));
+  if (ended) return left.length === 0;
+  return left.map((animation) => {
+    const target = animation.effect?.target;
+    const name = animation.animationName ?? animation.transitionProperty ?? animation.id ?? 'an animation';
+    return `${name} of ${target ? `${target.localName}${target.className && typeof target.className === 'string' ? `.${target.className.trim().split(/\s+/).join('.')}` : ''}` : 'no element'} (${animation.playState})`;
+  });
+}
+
+/**
+ * Waits until every motion of `selector`'s element (the whole page without one) that has an end has ended, in every
+ * shadow root inside it as well. Not until none is running: the web's components hold an entrance paused at its start
+ * until the next frame (AppearController), and a wait for none running is met in that frame, before the surface has
+ * moved at all. A motion without an end (a spinner's) is not waited for. A wait that runs out names what still moves.
+ * @param {import('@playwright/test').Page} page
+ * @param {string} [selector]
+ */
+export async function motionsEnded(page, selector) {
+  // A function, not an expression: Playwright polls an expression with `eval` in the page, which its policy refuses.
+  try {
+    await page.waitForFunction(unfinishedMotions, { selector: selector ?? null, ended: true });
+  } catch (error) {
+    const moving = await page.evaluate(unfinishedMotions, { selector: selector ?? null }).catch((cause) => [`not read: ${String(cause).split('\n')[0]}`]);
+    throw new Error(`the motions of ${selector ?? 'the page'} did not all end: ${moving.join(', ') || 'none is left now'} (${String(error.message).split('\n')[0]})`);
+  }
+}
+
+/**
  * Runs in the page. Every pointer target that is the Studio's own — the light DOM outside the preview; a Tanrei
  * component keeps its own minimum — with the size a pointer lands on: the element's box, or what extends it (the
  * input laid over a segment's label, the `::after` laid under a fold's row). `ok` when that is `min` by `min` CSS
