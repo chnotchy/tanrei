@@ -3,11 +3,12 @@
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
 import { type Turn, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing } from '../../../test/appear.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Frame, type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -1353,21 +1354,16 @@ test.describe('the appearance', () => {
   });
 
   test('SNK-17: a snackbar shown before the document is first painted is there at once — its bar plays no entrance — and is announced; one shown after the first paint appears with its motion (MOT-4)', async ({ page }) => {
-    // Every animation and transition that starts in a shadow root, counted from before the first element is made.
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); const note = (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + (event.animationName || event.propertyName)); root.addEventListener('animationstart', note); root.addEventListener('transitionrun', note); return root; };</script>`;
-    const written = await fixturesDocument(spec, { icons: true, fixtures: [], lead: count });
     // The host, and a module that asks it for a snackbar as the page is read: it runs after the bundle, before the
     // document is first painted.
-    const at = written.lastIndexOf('</body>');
-    const markup = `${written.slice(0, at)}<tanrei-snackbar-host></tanrei-snackbar-host><script type="module">document.querySelector('tanrei-snackbar-host').show({ message: 'Loaded', duration: 'indefinite' });</script>${written.slice(at)}`;
-    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
-    await page.route('http://snackbar.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://snackbar.test/');
+    await loadOpen(page, spec, {
+      icons: true,
+      tail: `<tanrei-snackbar-host></tanrei-snackbar-host><script type="module">document.querySelector('tanrei-snackbar-host').show({ message: 'Loaded', duration: 'indefinite' });</script>`,
+    });
     await expect.poll(() => showing(page)).toEqual(['Loaded']);
-    await motionEnded(page);
+    const atLoad = await runsAtRest(page);
     expect(await css(shown(page).locator('.bar'), 'opacity')).toBe('1');
-    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => /^tanrei-snackbar \S*\bbar\b/.test(run));
-    expect(runs, 'the bar plays no entrance').toEqual([]);
+    expect([...entrances(atLoad), ...atLoad.filter((run) => run.host === 'tanrei-snackbar' && /(^|\.)bar(\.|$)/.test(run.on))], 'the bar plays no entrance').toEqual([]);
     await expect(host(page).locator('.announce[role="status"]')).toHaveText('Loaded');
     // After the first paint: the next one appears with its motion (40 s: read while it runs).
     await override(page, { [T('motion-enter-duration')]: '40s' });

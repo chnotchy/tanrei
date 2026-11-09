@@ -12,6 +12,7 @@ import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
@@ -350,21 +351,13 @@ test.describe('presentation and focus', () => {
     const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-dialog id="late" headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>')), { probe: appearProbe });
     expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
     expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
-    // In the page's markup, open before the first paint: there at once, and no entrance runs on the container (every
-    // transition that starts in a shadow root is counted from before the first element is made).
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.localName + event.pseudoElement + ' ' + event.propertyName)); return root; };</script>`;
-    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}<tanrei-dialog headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>` });
-    await page.route('http://dialog.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://dialog.test/');
-    await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
+    // In the page's markup, open before the first paint: there at once. The entrance would move the scale (0.96 under
+    // the default system) and the opacity; the scrim does not fade in either.
+    const atLoad = await loadOpen(page, spec, { icons: true, lead: '<tanrei-dialog headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>' });
     const native = page.locator('tanrei-dialog').locator('dialog');
-    await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
-    await motionEnded(native);
+    expect(await native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
     expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
-    // The entrance would move the scale (0.96 under the default system) and the opacity; the scrim does not fade in
-    // either (WebKit names no pseudo-element for its fade, which is counted here as the container's).
-    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog'));
-    expect(runs).toEqual([]);
+    expect(entrances(atLoad)).toEqual([]);
   });
 
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {

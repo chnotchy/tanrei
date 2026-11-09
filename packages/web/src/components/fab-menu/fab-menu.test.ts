@@ -7,9 +7,10 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain } from '../../../test/mounted-open.js';
 import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
@@ -923,28 +924,15 @@ test.describe('behavior', () => {
   });
 
   test('FBM-19: a FAB menu in the page’s markup with open has its items whole in its first frame — none plays its entrance — and one mounted open after the first paint brings them in with it (MOT-4)', async ({ page }) => {
-    // Every animation and transition that starts in a shadow root, counted from before the first element is made.
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); const note = (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + (event.animationName || event.propertyName)); root.addEventListener('animationstart', note); root.addEventListener('transitionrun', note); return root; };</script>`;
-    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
-    const markup = await fixturesDocument(spec, { icons: true, fixtures: [fixture('files', { open: true })], lead: count });
-    await page.route('http://fab-menu.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://fab-menu.test/');
-    await page.waitForFunction(() => !!customElements.get('tanrei-fab-menu'));
-    await motionEnded(page);
+    const atLoad = await loadOpen(page, spec, { icons: true, fixtures: [fixture('files', { open: true })] });
     expect(await shown(page, 'files')).toBe(true);
     for (const label of ['Document', 'Folder', 'Upload']) expect(await cssOf(item(page, 'files', label).locator('.appear'), 'opacity'), label).toBe('1');
-    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => /^tanrei-fab-menu-item /.test(run));
-    expect(runs.filter((run) => /appear/.test(run)), 'no item plays its entrance').toEqual([]);
+    expect(entrances(atLoad), 'no item plays its entrance').toEqual([]);
     // Mounted open after the document was painted: the items appear with their motion (40 s: read while it runs).
     await override(page, { [T('motion-open-duration')]: '40s' });
-    await page.evaluate(() => {
-      const stage = document.querySelector('[data-fixture="files"]')!;
-      const again = stage.cloneNode(true) as HTMLElement;
-      again.dataset.fixture = 'late';
-      stage.replaceWith(again);
-    });
+    await mountOpenAgain(page);
     for (const label of ['Document', 'Folder', 'Upload']) {
-      const motion = item(page, 'late', label).locator('.appear');
+      const motion = item(page, 'files-again', label).locator('.appear');
       await expect.poll(() => motion.evaluate((el) => el.classList.contains('open') && Number(getComputedStyle(el).opacity) < 1), label).toBe(true);
       expect(await motionCount(motion), label).toBeGreaterThan(0);
     }
