@@ -1,5 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
-import { documentPainted, startFromNextFrame } from './motion.js';
+import { afterFirstPaint, documentPainted, startFromNextFrame } from './motion.js';
 import { deepActive, modalLayer } from './modal.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
@@ -288,12 +288,24 @@ export function openModal(dialog: HTMLDialogElement, { instant = !documentPainte
   if (dialog.open && !leaving.has(dialog)) return;
   if (instant) {
     atOnce(dialog, () => show(dialog, keep));
+    if (!documentPainted()) quietUntilPainted(dialog);
     return;
   }
   const taken = leaving.get(dialog)?.moves ?? [];
   show(dialog, keep);
   // Asking flushes style: the transitions the open state starts exist now.
   startFromNextFrame([...turning(dialog, [...moves, ...taken]), ...scrimMotions(dialog)]);
+}
+
+/**
+ * MOT-4: a dialog opened before the document's first paint keeps its scrim from starting a transition until that paint.
+ * WebKit can start the `::backdrop`'s entrance from its `@starting-style` again after the dialog was drawn open at once,
+ * when the component lays the dialog out anew in the task that opened it — seen where the actions do not fit in a row
+ * and are stacked (a dialog's, a side sheet's), whose scrim then faded in as the page loaded.
+ */
+function quietUntilPainted(dialog: HTMLDialogElement) {
+  dialog.setAttribute(QUIET, '');
+  void afterFirstPaint().then(() => dialog.removeAttribute(QUIET));
 }
 
 /** Modal: shown, or taken back from leaving; `keep` keeps focus (`openModal()`). */
