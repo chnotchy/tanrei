@@ -28,8 +28,9 @@ const FLAVOR_KEY = 'tanrei-docs-example-code';
 type Flavor = 'html' | 'react';
 type Choice = HTMLElement & { value: string | null };
 
-// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: the one the reader chose is loaded once.
-const sheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: the one the reader chose is loaded once. Not
+// the root's (core.css), which a reader cannot choose.
+const sheets = import.meta.glob<string>(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { query: '?url', import: 'default', eager: true });
 const sheetOf = (system: string) => Object.entries(sheets).find(([path]) => path.endsWith(`/${system}.css`))?.[1];
 
 const stageOf = (frame: HTMLElement) => frame.querySelector<HTMLElement>(':scope > figure > [data-part="frame"] > [data-example-stage]');

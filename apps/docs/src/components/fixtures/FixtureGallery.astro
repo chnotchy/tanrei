@@ -40,7 +40,8 @@ const named = (template: string, values: Record<string, string | number>) => tem
 const scope = { [STAGE_SCOPE]: '' };
 // A component that lives in a layer is drawn under that layer's system, as its tests draw it: the stages are scoped to
 // it, and its opt-in stylesheet is loaded.
-const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+// Not the root's sheet (core.css): a component that lives in the root is drawn under the default system.
+const stylesheets = import.meta.glob<string>(['../../../../../packages/web/src/generated/systems/*.css', '!../../../../../packages/web/src/generated/systems/core.css'], { eager: true, query: '?url', import: 'default' });
 const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
 const systemSheet = system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1] : undefined;
 if (system && !systemSheet) throw new Error(`FixtureGallery: no generated stylesheet for the system "${system}"`);

@@ -107,7 +107,8 @@ export interface ShippedSystem {
 }
 /**
  * The default system first, then the presets by id. The root layer (the one without `extends`) is the first layer of
- * every chain and has no output of its own, so it is not one of them.
+ * every chain and ships as no system — its one output is the grey starting point's stylesheet — so it is not one of
+ * them.
  */
 export const shippedSystems: ShippedSystem[] = Object.values(layerFiles)
   .filter((layer) => layer.extends)

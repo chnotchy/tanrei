@@ -7,8 +7,9 @@ import { getSpec } from '../lib/repo';
 import { shippedSystems, systemValue, ns } from '../lib/tokens';
 import { figureId } from '../lib/figure-id';
 
-// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"].
-import.meta.glob('../../../../packages/web/src/generated/systems/*.css', { eager: true });
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Not the root's (core.css): it is shown
+// nowhere a system is chosen, and would add its megabyte to every page.
+import.meta.glob(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { eager: true });
 
 interface Props {
   label: string;
