@@ -105,8 +105,12 @@ function turning(dialog: HTMLDialogElement, moves: ModalMoves = []): Animation[]
   });
 }
 
-/** Runs `change` with no transition on the dialog or its scrim (one under way is finished first), and draws the result. */
-function atOnce(dialog: HTMLDialogElement, change: () => void) {
+/**
+ * Runs `change` with no transition on the dialog or its scrim (one under way is finished first), and draws the result.
+ * Exported for a dialog drawn in place, opened by its `open` attribute and never modal (a view drawn inline for tests
+ * and documentation): before the document's first paint it too is drawn open at once (MOT-4).
+ */
+export function atOnce(dialog: HTMLDialogElement, change: () => void) {
   const own: Own = [];
   hold(dialog, 'transition-property', 'none', own);
   dialog.setAttribute(QUIET, '');
