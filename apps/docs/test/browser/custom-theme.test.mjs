@@ -20,7 +20,7 @@ import { bounded, engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
-const { APPEARANCE_KEY, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, MISSING_ATTR, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -288,24 +288,79 @@ for (const engine of ENGINES) {
       const page = await tabs.newPage();
       // When the page was hidden (before its body was parsed?) and when it was shown: with the sheet in, or not before
       // REVEAL_AFTER from when it was hidden (a slow engine on a loaded machine may take longer than that to compute it).
-      await page.addInitScript(({ pending, style }) => {
+      // And where the time went, from navigation (`performance.now()`, ms): the head's IndexedDB read answered (`missing`:
+      // the root marked), the theme's module run (`moduleRan`: the mark taken away), its script elements put in
+      // (`early`: the parser's and the head's), the worker made and its answer heard, the sheet put in, the first
+      // animation frame, the document's milestones, the fetches of the theme's scripts and the worker's
+      // (`resources`: start–end), and the main thread's long tasks before the page was shown (Chromium only).
+      await page.addInitScript(({ pending, style, missing }) => {
         window.cloak = { hidden: null, bodyThen: null, shown: null, sheetThen: null };
-        new MutationObserver(() => {
-          const now = performance.now();
+        const now = () => Math.round(performance.now());
+        const at = (window.timings = { missing: null, moduleRan: null, early: [], workerMade: null, workerAnswered: null, sheetIn: null, firstFrame: null, longTasks: [] });
+        const Made = window.Worker;
+        window.Worker = class extends Made {
+          constructor(...args) {
+            super(...args);
+            at.workerMade ??= now();
+            this.addEventListener('message', () => (at.workerAnswered ??= now()));
+          }
+        };
+        requestAnimationFrame(() => (at.firstFrame = now()));
+        try {
+          new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) at.longTasks.push([Math.round(entry.startTime), Math.round(entry.duration)]);
+          }).observe({ type: 'longtask', buffered: true });
+        } catch {
+          // Only Chromium reports long tasks.
+        }
+        new MutationObserver((records) => {
+          const time = performance.now();
           const on = document.documentElement.hasAttribute(pending);
-          if (on && window.cloak.hidden === null) Object.assign(window.cloak, { hidden: now, bodyThen: Boolean(document.body) });
-          if (!on && window.cloak.hidden !== null && window.cloak.shown === null) Object.assign(window.cloak, { shown: now, sheetThen: Boolean(document.getElementById(style)) });
-        }).observe(document, { subtree: true, attributes: true, attributeFilter: [pending] });
-      }, { pending: PENDING_ATTR, style: CUSTOM_STYLE_ID });
+          if (on && window.cloak.hidden === null) Object.assign(window.cloak, { hidden: time, bodyThen: Boolean(document.body) });
+          if (!on && window.cloak.hidden !== null && window.cloak.shown === null) Object.assign(window.cloak, { shown: time, sheetThen: Boolean(document.getElementById(style)) });
+          for (const record of records) {
+            if (record.attributeName === missing) {
+              if (document.documentElement.hasAttribute(missing)) at.missing ??= now();
+              else if (at.missing !== null) at.moduleRan ??= now();
+            }
+            for (const node of record.addedNodes) {
+              if (node.localName === 'script' && /ThemeProvider/.test(node.getAttribute('src') ?? '')) at.early.push(now());
+              if (node.id === style) at.sheetIn ??= now();
+            }
+          }
+        }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: [pending, missing] });
+      }, { pending: PENDING_ATTR, style: CUSTOM_STYLE_ID, missing: MISSING_ATTR });
       await page.goto(`${origin}${PAGE}`);
       await page.waitForFunction(() => window.cloak.shown !== null, undefined, { timeout: 60_000 });
       const cloak = await page.evaluate(() => window.cloak);
       assert.ok(cloak.hidden !== null && cloak.bodyThen === false, `hidden by the head’s script, before the body (${JSON.stringify(cloak)})`);
+      // The worker answers whether or not the page waited for it.
+      await page.waitForFunction(() => window.timings.workerAnswered !== null, undefined, { timeout: 60_000 });
+      const timings = await page.evaluate((shown) => {
+        const nav = performance.getEntriesByType('navigation')[0];
+        const resources = performance
+          .getEntriesByType('resource')
+          .filter((entry) => /ThemeProvider|custom-theme|appearance\.|sheet-worker/.test(entry.name))
+          .map((entry) => `${entry.name.replace(/^.*\//, '')} ${Math.round(entry.startTime)}–${Math.round(entry.responseEnd)}`);
+        const { longTasks, ...rest } = window.timings;
+        const before = longTasks.filter(([start]) => start < shown);
+        return {
+          ...rest,
+          response: Math.round(nav.responseEnd),
+          interactive: Math.round(nav.domInteractive),
+          parsed: Math.round(nav.domContentLoadedEventStart),
+          loaded: Math.round(nav.loadEventStart),
+          resources,
+          longTasksBeforeShown: { count: before.length, ms: before.reduce((sum, [, ms]) => sum + ms, 0), longest: before.sort((a, b) => b[1] - a[1]).slice(0, 3) },
+        };
+      }, cloak.shown);
+      const measured = JSON.stringify({ hidden: Math.round(cloak.hidden), shown: Math.round(cloak.shown), sheetThen: cloak.sheetThen, ...timings });
       t.diagnostic(`hidden for ${Math.round(cloak.shown - cloak.hidden)} ms, ${cloak.sheetThen ? 'shown in the theme' : 'shown in the default system: the sheet was not in after REVEAL_AFTER'}`);
+      t.diagnostic(`${engine} first load, ms from navigation: ${measured}`);
       // The worker is asked for as soon as the head's script finds no sheet kept, without waiting for the page's other
       // modules: where an engine computes the sheet well within REVEAL_AFTER on a developer's machine, the first page is
       // shown in the theme.
-      if (IN_TIME.includes(engine)) assert.ok(cloak.sheetThen, `${engine} shows the first page in the theme, its sheet computed within ${REVEAL_AFTER} ms (${JSON.stringify(cloak)})`);
+      if (IN_TIME.includes(engine)) assert.ok(cloak.sheetThen, `${engine} shows the first page in the theme, its sheet computed within ${REVEAL_AFTER} ms (${measured})`);
       if (!cloak.sheetThen) {
         // A sheet the page could not wait for: shown after REVEAL_AFTER, in the default system, which it keeps; the sheet
         // is computed all the same and kept, and the next page is drawn in the theme.
