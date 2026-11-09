@@ -1239,6 +1239,39 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     expect((await page.evaluate(() => (window as any).log as string[])).filter((entry) => entry.startsWith('leak:'))).toEqual([]);
   });
 
+  test('TBR-20, TBR-9, BTN-40: a destructive action draws its own destructive in the bar, and hidden is a destructive row of the overflow menu; a toggle (BTN-41) and a link (BTN-43) given destructive are not', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        spec.fixtures.find((f) => f.id === 'docked-destructive-item')!,
+        {
+          id: 'folding',
+          props: { label: 'Files', overflowLabel: 'More actions' },
+          content: [B('Undo', 'undo'), B('Archive', 'archive'), B('Pin', 'push_pin', 'toggle destructive'), B('Open trash', 'delete_forever', 'destructive href="#trash"'), B('Delete', 'delete', 'destructive')].join(''),
+        },
+      ],
+    });
+    // In the bar: the Delete action is the text Button's destructive look, the others its plain look.
+    const glyph = (id: string, n: number) => item(page, id, n).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.icon')!).color);
+    const docked = 'docked-destructive-item';
+    expect(await glyph(docked, 1)).toBe(await resolveColor(page, '--tanrei-comp-button-text-destructive-icon-color'));
+    for (const n of [0, 2, 3]) expect(await glyph(docked, n), `item ${n}`).toBe(await resolveColor(page, '--tanrei-comp-button-text-icon-color'));
+    // Hidden: the overflow menu's rows.
+    await page.addStyleTag({ content: `.stage[data-fixture='folding'] { inline-size: 120px; margin-inline-start: 400px; }` });
+    const id = 'folding';
+    await expect(overflowButton(page, id)).toBeVisible();
+    const hidden = await bar(page, id).evaluate((el) => [...el.querySelectorAll('tanrei-button')].filter((b) => b.getBoundingClientRect().width === 0).map((b) => b.getAttribute('label')));
+    expect(hidden).toEqual(expect.arrayContaining(['Pin', 'Open trash', 'Delete']));
+    await overflowButton(page, id).click();
+    const menu = overflowMenu(page, id);
+    await expect(menu).toHaveAttribute('open', '');
+    const rows = await menu.evaluate((el) => Object.fromEntries([...el.querySelectorAll('[label]')].map((row) => [row.getAttribute('label'), `${row.localName}:${row.hasAttribute('destructive') ? 'destructive' : ''}`])));
+    expect(rows['Delete']).toBe('tanrei-menu-item:destructive');
+    expect(rows['Pin']).toBe('tanrei-menu-checkbox-item:');
+    expect(rows['Open trash']).toBe('tanrei-menu-item:');
+    if (hidden.includes('Archive')) expect(rows['Archive']).toBe('tanrei-menu-item:');
+  });
+
   test('TBR-21: the item that was the Tab stop, or had focus, hands both to the overflow button when it is hidden; the overflow button is the last stop of the arrow keys', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('narrowing', GLYPHS.map((g) => a(g)), { overflowLabel: 'More actions' })] });
     await page.addStyleTag({ content: `.stage[data-fixture='narrowing'] { inline-size: 600px; }` });

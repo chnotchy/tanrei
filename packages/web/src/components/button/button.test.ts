@@ -2595,6 +2595,21 @@ test.describe('destructive', () => {
   /** The layers of a box-shadow after the outline's ring: the elevation. */
   const elevation = (value: string) => value.split(/,\s*(?![^(]*\))/).slice(1).join(', ');
   const glyphColor = (page: P, id: string) => page.locator(button(id)).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.icon')!).color);
+  /** The spec's fixtures that set destructive and draw it: no toggle (BTN-41), no link (BTN-43), not disabled (BTN-6). */
+  const drawnDestructive = (): Fixture[] => spec.fixtures.filter((f) => f.props.destructive === true && !f.props.toggle && !f.props.href && !f.props.disabled);
+  /** The destructive cross-product beyond each variant at medium: sizes, icon places, icon-only variants and widths, busy, full width. */
+  const CROSS_PRODUCT = [
+    'filled-destructive-small',
+    'filled-destructive-large',
+    'outlined-destructive-trailing-icon',
+    'tonal-icon-destructive',
+    'outlined-icon-destructive',
+    'filled-icon-destructive-narrow',
+    'text-icon-destructive-narrow',
+    'outlined-icon-destructive-wide',
+    'filled-destructive-busy',
+    'filled-destructive-full-width',
+  ];
 
   test('BTN-40: a destructive button renders from the destructive parts of its variant — the error role at the variant’s emphasis — with the elevation of its variant; an icon-only one draws its glyph in them', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
@@ -2625,6 +2640,39 @@ test.describe('destructive', () => {
     expect(await glyphColor(page, 'filled-destructive-leading-icon')).toBe(onError);
     expect(await glyphColor(page, 'text-icon-destructive')).toBe(await resolveColor(page, T('text-destructive-icon-color')));
     expect(await glyphColor(page, 'text-icon-destructive')).toBe(error);
+    // Every fixture of the spec that sets destructive and draws it — no toggle, no link, not disabled — is drawn from the
+    // destructive parts of its variant: each size, a leading and a trailing icon, icon-only in each variant and at each
+    // width, busy and full width.
+    const destructive = drawnDestructive();
+    expect(destructive.map((f) => f.id)).toEqual(expect.arrayContaining(CROSS_PRODUCT));
+    for (const f of destructive) {
+      const variant = String(f.props.variant);
+      const drawn = await look(page, f.id);
+      expect(drawn.background, f.id).toBe(await resolveColor(page, T(`${variant}-destructive-container-color`)));
+      expect(drawn.color, f.id).toBe(await resolveColor(page, T(`${variant}-destructive-label-color`)));
+      expect(drawn.shadow, f.id).toContain(await resolveColor(page, T(`${variant}-destructive-outline-color`)));
+      if (f.slots?.icon) expect(await glyphColor(page, f.id), f.id).toBe(await resolveColor(page, T(`${variant}-destructive-icon-color`)));
+    }
+  });
+
+  test('BTN-40, BTN-42: destructive adds a color and moves nothing — every destructive fixture keeps the size and the place of every part of the same fixture without it', async ({ page }) => {
+    // Each fixture beside its twin without destructive, in one document.
+    const destructive = drawnDestructive();
+    const twins = destructive.map((f) => ({ ...f, id: `${f.id}--plain`, props: { ...f.props, destructive: false } }));
+    await mountFixtures(page, spec, { icons: true, fixtures: [...destructive, ...twins] });
+    const boxes = (id: string) =>
+      page.locator(button(id)).evaluate((host) => {
+        const rect = (el: Element | null | undefined) => {
+          const r = el?.getBoundingClientRect();
+          // A part that is not drawn (the icon box of a button without one) has no place to compare.
+          if (!r || (!r.width && !r.height)) return null;
+          const origin = host.getBoundingClientRect();
+          return [r.x - origin.x, r.y - origin.y, r.width, r.height].map((n) => Math.round(n * 100) / 100);
+        };
+        const root = host.shadowRoot!;
+        return { host: rect(host)!.slice(2), container: rect(root.querySelector('[part~="container"]')), label: rect(root.querySelector('.label')), icon: rect(root.querySelector('.icon')) };
+      });
+    for (const f of destructive) expect(await boxes(f.id), f.id).toEqual(await boxes(`${f.id}--plain`));
   });
 
   test('BTN-40, BTN-3: hovered, pressed and keyboard-focused, a destructive button renders from the destructive parts of that state', async ({ page }) => {

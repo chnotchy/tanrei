@@ -287,6 +287,7 @@
     "minimumTarget": true,
     "notes": [
       "Focus: the FAB menu is an operated overlay that is not modal, like the menu. It moves focus in when it opens and returns it to the toggle when it closes, but does not keep it: Tab from an item closes it.",
+      "Don't put an action that deletes or discards something in a FAB menu. Its items are the screen's main actions, the ones that create or start something, and an item has no destructive look. Put it beside what it acts on as a Button with destructive, or in a menu as a destructive item.",
       "Its place in the focus and reading order is where the layout puts the toggle in the element tree, not where it is drawn, as for the main action button.",
       "Compose has no menu role: the items are buttons in a traversal group named by label, with their position in their collection info.",
       "Text size does not change the toggle: an icon is not text. The items grow with enlarged text and wrap their labels.",

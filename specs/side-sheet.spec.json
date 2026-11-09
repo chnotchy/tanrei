@@ -124,6 +124,12 @@
           "description": "As the Button's disabled. A disabled action keeps its place and its share of the width."
         },
         {
+          "name": "destructive",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's destructive: the action deletes or discards something a person may not get back (Delete, Discard, Remove member). The sheet leaves it as set and gives it no look of its own (SSH-17): the Button draws it in the error role at its variant's emphasis (BTN-40). Its label still says what it deletes (BTN-42)."
+        },
+        {
           "name": "confirming",
           "type": "boolean",
           "default": false,
@@ -436,6 +442,34 @@
           "content": "Apply"
         }
       ]
+    },
+    {
+      "id": "destructive-action",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "headline": "Saved filter",
+        "closable": true,
+        "closeLabel": "Close saved filter"
+      },
+      "content": "“Overdue invoices” is shown in the sidebar of everyone on the team.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "destructive": true,
+            "confirming": true
+          },
+          "content": "Delete filter"
+        }
+      ]
     }
   ],
   "platforms": {
@@ -471,6 +505,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "destructive",
             "confirming": "confirming",
             "dismissive": "dismissive"
           },
@@ -502,6 +537,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "role",
             "confirming": "tanreiGroupPlacement(.confirming)",
             "dismissive": "tanreiGroupPlacement(.dismissive)"
           },
@@ -533,6 +569,7 @@
           "props": {
             "variant": "variant",
             "disabled": "enabled",
+            "destructive": "destructive",
             "confirming": "Modifier.confirming()",
             "dismissive": "Modifier.dismissive()"
           },
@@ -564,6 +601,7 @@
           "props": {
             "variant": "variant",
             "disabled": "onPressed",
+            "destructive": "isDestructiveAction",
             "confirming": "TanreiButtonGroupItem.placement",
             "dismissive": "TanreiButtonGroupItem.placement"
           },
@@ -595,6 +633,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "destructive",
             "confirming": "confirming",
             "dismissive": "dismissive"
           },
