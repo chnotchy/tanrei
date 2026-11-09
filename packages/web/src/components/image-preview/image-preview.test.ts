@@ -15,7 +15,7 @@ import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { motionEnded } from '../../../test/motions.js';
-import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
+import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -2161,6 +2161,33 @@ test.describe('motion', () => {
     // The container fades (with its scrim, which WebKit counts as the container's), and the pages fade and grow.
     const late = entrances(await runsAtRest(page)).map((run) => `${run.on.split('.')[0]} ${run.name}`);
     expect(late, 'mounted after the first paint').toEqual(expect.arrayContaining(['dialog opacity', 'div opacity', 'div scale']));
+  });
+
+  test('IMP-33, IMP-13, MOT-3: an image preview in the page’s markup with open starts no motion at all as it loads; its zoom-in control, disabled until the image has loaded, is enabled without one while it settles, and moves to enabled only once it has settled (MOT-1)', async ({ page }) => {
+    await page.setViewportSize(WINDOW);
+    // Whether the zoom-in control still settled when it was enabled — the image's load is the browser's to time: in a
+    // task between two frames, it may come while the control settles, after it, or in the gap before the frame that
+    // lets it go, where its change was once styled with the end of settling and moved.
+    const lead = `<script>(() => {
+      const enabled = (window.__enabled = []);
+      const attach = Element.prototype.attachShadow;
+      Element.prototype.attachShadow = function (init) {
+        const root = attach.call(this, init);
+        new MutationObserver((records) => {
+          for (const { target } of records) if (target.classList.contains('zoom-in') && !target.hasAttribute('disabled')) enabled.push(target.hasAttribute('data-tanrei-settling'));
+        }).observe(root, { subtree: true, attributes: true, attributeFilter: ['disabled'] });
+        return root;
+      };
+    })();</script>`;
+    await loadOpen(page, spec, { icons: true, lead, fixtures: spec.fixtures.filter((f) => f.id === 'caption') });
+    const enabled = () => page.evaluate(() => (window as unknown as { __enabled: boolean[] }).__enabled);
+    await expect.poll(enabled, 'the image has loaded').toHaveLength(1);
+    const runs = await runsAtRest(page);
+    const [settling] = await enabled();
+    // Only an icon-only Button of the bar changes its colors: the zoom-in control, enabled after it settled.
+    const enabling = (run: MotionRun) => run.host === 'tanrei-button' && run.on === 'button.has-icon.icon-only' && ['color', 'background-color'].includes(run.name);
+    expect(runs.filter((run) => !enabling(run)), 'nothing else moves').toEqual([]);
+    if (settling) expect(runs, 'enabled while it settled: at once').toEqual([]);
   });
 
   test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image appears as every modal surface does — from opacity 0 and scale 0.96 under the default system, about the centre of the fit area — over the enter motion; closing, all of it fades out over the exit motion while the image goes back the same way; the image is never flown from anywhere', async ({ page }) => {
