@@ -66,6 +66,7 @@ import '../button/button.js';
 import type { TanreiTextInput } from '../text-input/text-input.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -3125,6 +3126,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
     this.focusInside(shower);
+    // NVD-19, NVD-40: the colors of the cell that took focus, and a collapsible drawer's rows widening from its column,
+    // begin in the first frame drawn after this task, as the surface's slide does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /**
@@ -3165,6 +3169,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
         void left.then((done) => done && this.takeColumn(run));
       }
     }
+    // NVD-22, NVD-40: a collapsible drawer's rows narrowing to its column, and the colors of what focus went back to,
+    // begin in the first frame drawn after this task, as the surface's exit does (statesFromNextFrame).
+    statesFromNextFrame([this]);
     if (notify) this.dispatchEvent(new Event('close'));
   }
 
