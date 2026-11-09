@@ -84,6 +84,7 @@ const ENTERS: Record<string, Pick> = {
   'image-preview': opened,
   'modal-layer': opened,
   'navigation-drawer': (f) => f.id === 'modal' || f.id === 'responsive-narrow',
+  'side-sheet': (f) => opened(f) && f.props.variant === 'modal',
   // POP-26, POP-41: the compact- fixtures are the real overlay (the others are drawn in place, whole at once).
   popover: (f) => opened(f) && f.id.startsWith('compact'),
   search: (f) => f.props.expanded === true && (f.props.presentation === 'full-screen' || f.props.presentation === 'dialog'),

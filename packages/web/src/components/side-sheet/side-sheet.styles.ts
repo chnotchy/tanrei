@@ -304,8 +304,8 @@ export const styles = css`
   }
   ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'inline-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: 'var(--_drag, 0px) 0' })}
   ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
-  /* SSH-4: while the sheet follows a drag, nothing transitions; mounted open, it and its scrim appear in place. (After
-     the appearance, whose open rule weighs as much.) */
+  /* SSH-4: while the sheet follows a drag, nothing transitions; presented in place (moved in the document, or turned
+     modal while open), it and its scrim appear there at once. (After the appearance, whose open rule weighs as much.) */
   dialog.sheet.dragging {
     user-select: none;
     -webkit-user-select: none;
