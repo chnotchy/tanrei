@@ -1280,29 +1280,82 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })));
     }
     const theirs = new Map(baseSheets.get(key).map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
-    const lines = [];
-    let changed = 0;
-    let printed = [];
     const ours = sheetRules(view.css(scope));
     const present = new Map(ours.map((rule) => [JSON.stringify(rule.path), new Set(rule.declarations.map(([property]) => property))]));
     let removed = 0;
     for (const [path, declarations] of theirs) for (const property of declarations.keys()) if (!present.get(path)?.has(property)) removed += 1;
-    for (const rule of ours) {
-      const was = theirs.get(JSON.stringify(rule.path)) ?? new Map();
-      const own = rule.declarations.filter(([property, value]) => was.get(property) !== value);
-      if (!own.length) continue;
-      // The at-rules and selectors around the rule, opened where they differ from the last ones printed.
+    const own = ours.map((rule) => ({ path: rule.path, declarations: rule.declarations.filter(([property, value]) => (theirs.get(JSON.stringify(rule.path)) ?? new Map()).get(property) !== value) }));
+    return { css: printRules(own), changed: own.reduce((sum, rule) => sum + rule.declarations.length, 0), removed };
+  }
+
+  /** Rules as a sheet: each with its at-rules and selectors around it, opened where they differ from the last ones printed; a rule with nothing in it is left out. */
+  function printRules(rules) {
+    const lines = [];
+    let printed = [];
+    for (const rule of rules) {
+      if (!rule.declarations.length) continue;
       let common = 0;
       while (common < printed.length && common < rule.path.length - 1 && printed[common] === rule.path[common]) common += 1;
       for (let depth = printed.length; depth > common; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
       for (let depth = common; depth < rule.path.length; depth += 1) lines.push(`${'  '.repeat(depth)}${rule.path[depth]} {`);
-      for (const [property, value] of own) lines.push(`${'  '.repeat(rule.path.length)}${property}: ${value};`);
+      for (const [property, value] of rule.declarations) lines.push(`${'  '.repeat(rule.path.length)}${property}: ${value};`);
       lines.push(`${'  '.repeat(rule.path.length - 1)}}`);
       printed = rule.path.slice(0, -1);
-      changed += own.length;
     }
     for (let depth = printed.length; depth > 0; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
-    return { css: lines.length ? `${lines.join('\n')}\n` : '', changed, removed };
+    return lines.length ? `${lines.join('\n')}\n` : '';
+  }
+
+  let defaultRules = null;
+  /**
+   * The layer's sheet for a page whose root already holds the default system's sheet — the one `tanrei build` writes
+   * unscoped, on `:root` (the web package's tokens.css) — to be applied after it, in the same cascade layer: then the
+   * page draws the layer. It holds only what the page needs of the layer: the custom properties whose value differs
+   * from the default system's in any rule of the sheet (on the root, at a contrast level, under `prefers-contrast`),
+   * written by the build's emitter with only those (`emitCss`'s `used`, which brings along what their values read).
+   * Where the default sheet declares one of them again in a rule the layer's sheet leaves it out of (the layer's
+   * value is the same at that level), it is declared there too, with the layer's value, so that the default
+   * system's never shows through. null for a layer that cannot be computed.
+   */
+  function pageSheet(view) {
+    const computed = view?.computation?.computed;
+    if (!computed) return null;
+    if (!defaultRules) {
+      const fallback = base(defaultId);
+      defaultRules = sheetRules(emitCss(fallback.model, sheetAvailability(fallback.chain, homes, standIns)));
+    }
+    const availability = sheetAvailability(computed.chain, homes, standIns);
+    const byPath = (rules) => new Map(rules.map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
+    const theirs = byPath(defaultRules);
+    const ours = byPath(sheetRules(emitCss(computed.model, availability)));
+    // What a property is in a rule: its own declaration there, else the root's (the token block, then the system's own block).
+    const ROOT = [`@layer ${NS}.tokens`, `:root, [data-${NS}-contrast]`];
+    const OWN = [`@layer ${NS}.tokens`, ':root'];
+    const valueIn = (rules, path, property) => rules.get(path)?.get(property) ?? rules.get(JSON.stringify(ROOT))?.get(property) ?? rules.get(JSON.stringify(OWN))?.get(property);
+    const paths = new Set([...theirs.keys(), ...ours.keys()]);
+    const used = new Set();
+    for (const path of paths) {
+      for (const property of new Set([...(theirs.get(path)?.keys() ?? []), ...(ours.get(path)?.keys() ?? [])])) {
+        if (property.startsWith('--') && valueIn(theirs, path, property) !== valueIn(ours, path, property)) used.add(property);
+      }
+    }
+    const rules = sheetRules(emitCss(computed.model, { ...availability, used }));
+    const kept = byPath(rules);
+    for (const rule of defaultRules) {
+      const path = JSON.stringify(rule.path);
+      const missing = rule.declarations.filter(([property]) => used.has(property) && !kept.get(path)?.has(property));
+      if (!missing.length) continue;
+      let own = rules.find((each) => JSON.stringify(each.path) === path);
+      if (!own) {
+        own = { path: rule.path, declarations: [] };
+        // In the default sheet's order: after the last rule that comes before it there.
+        const before = defaultRules.slice(0, defaultRules.indexOf(rule)).map((each) => JSON.stringify(each.path));
+        const at = rules.findLastIndex((each) => before.includes(JSON.stringify(each.path)));
+        rules.splice(at + 1, 0, own);
+      }
+      for (const [property] of missing) own.declarations.push([property, valueIn(ours, path, property)]);
+    }
+    return printRules(rules);
   }
 
   /** Import: anything that is a JSON object is a layer the Studio can hold; what is wrong with it is reported, not refused… */
@@ -1328,6 +1381,6 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
     applyOperation, addExtension, removeExtension, setDeclaration, setRules,
     describe, rows, aliasTargets, series, pairs,
-    examplesOf, writeOut, check, sheetChanges,
+    examplesOf, writeOut, check, sheetChanges, pageSheet,
   };
 }

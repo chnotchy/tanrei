@@ -117,8 +117,10 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     const look = root.getAttribute('data-docs-system');
     if (look) {
       for (const button of frame.querySelectorAll('.docs-look')) {
-        button.querySelector('.docs-look-name').textContent = look;
-        button.setAttribute('label', button.dataset.label.replace('{look}', look));
+        // The reader's own theme is named by its word ("My theme"), not by its look's id.
+        const name = look === 'custom' ? button.dataset.customName : look;
+        button.querySelector('.docs-look-name').textContent = name;
+        button.setAttribute('label', button.dataset.label.replace('{look}', name));
       }
       for (const list of frame.querySelectorAll('.docs-appearance-look')) list.setAttribute('value', look);
     }
@@ -143,7 +145,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
   import '../../lib/list-filter';
-  import { isShared, keepShared, linkTo, onAppearance, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
+  import { CUSTOM_LOOK, isShared, keepShared, linkTo, onAppearance, placeCustomChoices, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
   type Choice = HTMLElement & { value: string | null };
   type Panel = HTMLElement & { open: boolean };
@@ -158,10 +160,12 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     else control.setAttribute('value', value);
   };
   const say = (appearance: Appearance) => {
+    placeCustomChoices();
     for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-look')) {
+      const look = appearance.look === CUSTOM_LOOK ? (button.dataset.customName ?? appearance.look) : appearance.look;
       const name = button.querySelector('.docs-look-name');
-      if (name) name.textContent = appearance.look;
-      button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', appearance.look));
+      if (name) name.textContent = look;
+      button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', look));
     }
     for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-mode')) choose(tabs, appearance.mode);
     for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-contrast')) choose(tabs, appearance.contrast);
@@ -171,6 +175,8 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   };
   say(shownAppearance());
   onAppearance(({ appearance }) => say(appearance));
+  // Whether this browser keeps a theme of the reader's own may change in another tab (Theme Studio's Share menu).
+  addEventListener('storage', () => queueMicrotask(placeCustomChoices));
 
   // A choice in any panel is the reader's appearance from here on.
   document.addEventListener('change', (event) => {

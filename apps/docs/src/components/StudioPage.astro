@@ -6,7 +6,8 @@
 //
 // The Studio lives in @tanrei/studio; this page only hosts it. Its chrome is drawn with Tanrei's default tokens on
 // :root, so nothing a visitor edits restyles the page: edits apply inside the Studio's preview. The layer is kept in
-// this browser and in the page's address (`address`), so that a link to the page opens it on the same layer.
+// this browser and in the page's address (`address`), so that a link to the page opens it on the same layer. The
+// documentation itself is drawn in the layer only when the reader asks for it, in the Studio's Share menu (`docs`).
 //
 // The page's language is passed as it is: the Studio speaks the languages it has a dictionary for
 // (packages/studio/src/strings/) and hosts any other in English. The scheme and the contrast are the ones the
@@ -56,10 +57,14 @@ const languages = [source, ...translations];
     <script>
       import '../lib/register-web';
       import { mountStudio } from '@tanrei/studio';
+      import { keepCustomTheme, keptCustomTheme } from '../lib/custom-theme';
       import fullIcons from '../styles/icons-full.generated.css?url';
       const root = document.querySelector<HTMLElement>('[data-theme-studio]')!;
       const items = (place: string) => [...document.querySelectorAll<HTMLElement>(`[data-studio-bar="${place}"]`)];
-      mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers, start: root.dataset.start }, address: true, bar: { start: items('start'), end: items('end') } });
+      // The Share menu's switch shows the documentation in the layer, as the reader's own theme ("My theme"), in this
+      // browser only (lib/custom-theme.ts).
+      const docs = { kept: keptCustomTheme, keep: keepCustomTheme };
+      mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers, start: root.dataset.start }, address: true, bar: { start: items('start'), end: items('end') }, docs });
       // The site's icon families are registered from files cut down to the glyphs its pages draw. A layer edited here
       // may draw its icons at any weight, which only the full files hold: they are registered too — once the page has
       // loaded, so that their 5 MB is not part of its load — and, registered last, they are the faces the icons are

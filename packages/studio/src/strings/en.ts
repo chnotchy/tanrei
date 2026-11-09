@@ -723,6 +723,17 @@ const en = {
     edited: 'You edited the shared layer, so this browser keeps it now, in place of the one you had.',
     back: 'Back to your layer.',
   },
+  // The bar's Share menu (ui.ts `shareMenu`): the link to the Studio with this layer, and — where the documentation
+  // hosts the Studio — the documentation shown in this layer, in this browser. "My theme" is the documentation's own
+  // word for it (its header's choice of design system); `system` is the default system's name.
+  sharing: {
+    open: 'Share',
+    close: 'Close',
+    docs: 'Show the documentation in this theme',
+    docsHelp: (system: string) => `In this browser only. The documentation’s choice of design system gains “My theme”, and choosing ${system} there goes back.`,
+    docsOn: 'The documentation shows this theme now, in this browser.',
+    docsOff: (system: string) => `The documentation is back to ${system}.`,
+  },
   app: {
     language: 'Language',
     theme: 'Theme',

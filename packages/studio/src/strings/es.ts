@@ -692,6 +692,14 @@ const es: Dictionary = {
     edited: 'Editaste la capa compartida, así que ahora este navegador la guarda en lugar de la que tenías.',
     back: 'Has vuelto a tu capa.',
   },
+  sharing: {
+    open: 'Compartir',
+    close: 'Cerrar',
+    docs: 'Mostrar la documentación con este tema',
+    docsHelp: (system: string) => `Solo en este navegador. La elección de sistema de diseño de la documentación suma «Mi tema», y elegir ${system} allí la devuelve a su aspecto.`,
+    docsOn: 'La documentación se muestra ahora con este tema, en este navegador.',
+    docsOff: (system: string) => `La documentación vuelve a ${system}.`,
+  },
   app: {
     language: 'Idioma',
     theme: 'Tema',

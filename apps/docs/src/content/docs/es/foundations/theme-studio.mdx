@@ -2,7 +2,7 @@
 title: Theme Studio
 description: Mueve unos pocos controles, observa cómo los siguen componentes reales y exporta una capa de sistema de diseño válida que puedes compilar para todas las plataformas.
 translationOf: foundations/theme-studio.mdx
-sourceHash: 668ab389eb184f2c3ccc4709f5ebb8007e755166
+sourceHash: 405003b153a1bbf937bdeae983fcb114a29b586d
 ---
 
 import { LinkCard } from '../../../../components/cards';
@@ -16,6 +16,8 @@ Nada de lo que contiene es una maqueta. La vista previa es un ámbito de sistema
 Muestra tu tema en cinco pantallas hechas con esos componentes —un resumen con todos los tipos de componente, un panel, un formulario de ajustes, una lista con su detalle y una página de documentación—, en claro, en oscuro o en ambos uno al lado del otro, y en cada uno de los tres niveles de contraste. Qué pantalla miras y cómo no forma parte de tu tema: nada de eso se guarda en el archivo.
 
 La capa que estás creando se queda en este navegador y en la dirección de la página: un enlace al Studio lo abre con la misma capa. Abrir un enlace no sobrescribe la capa que guardaba el navegador: un banner sobre el Studio indica qué capa llegó con el enlace y sobre qué sistema está hecha, y el Studio conserva la tuya hasta que edites la del enlace o decidas quedártela; también puedes volver a la tuya.
+
+**Compartir**, en la barra del Studio, copia ese enlace y ofrece algo más: **Mostrar la documentación con este tema**. Está desactivado hasta que lo actives, y solo se guarda en este navegador. Activado, toda la documentación —su cabecera, su navegación y cada ejemplo— se dibuja con la capa que guardas aquí y la sigue mientras la editas; la elección de sistema de diseño de su cabecera la ofrece como **Mi tema**, y elegir Tanrei allí devuelve la documentación a su aspecto propio. Desactivado, la documentación no guarda nada de tu capa.
 
 La barra del Studio empieza por **el punto de partida de tu capa**: Tanrei, el sistema predeterminado, o uno de los ejemplos que aparecen en **Empezar desde la galería** —m3-like, cupertino y m3-expressive-like—, cada uno una muestra de lo que una capa puede imitar, no el diseño oficial de ese sistema. Core, la capa raíz de Tanrei, aparece en la lista pero aún no se puede elegir: sus valores ya son neutros —gris, sin color de acento—, y será un punto de partida en blanco cuando la línea de comandos también pueda empezar una capa desde ella (`tanrei init --extends core`). El mismo menú importa un archivo de capa en lugar de la que estás haciendo, y es la única forma de traer una capa. Un archivo que el esquema rechaza no se carga, y el panel dice por qué; uno que acepta se carga, y el panel enumera lo que el motor de tokens encuentra en él. Si tu capa tiene cambios, el Studio pregunta antes de reemplazarlos, y **Deshacer** los recupera.
 

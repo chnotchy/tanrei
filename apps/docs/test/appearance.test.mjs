@@ -13,7 +13,9 @@ register('./vite-shim.mjs', import.meta.url);
 const appearance = await import('../src/lib/appearance.ts');
 const { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } = await import('../src/lib/listing.mjs');
 const { manifests } = await import('../src/lib/repo.ts');
-const { APPEARANCE_KEY, CONTRAST_ATTR, LOOK_ATTR, MODE_ATTR, SHARED_ATTR, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, linkTo, normalize, sharedFrom, standaloneBootstrap, withoutShared } = appearance;
+const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
+/** The key of a build, as lib/sheet-key.mjs gives one. */
+const BUILD = '0123456789abcdef';
 
 const read = (file) => fs.readFileSync(fileURLToPath(new URL(`../${file}`, import.meta.url)), 'utf8');
 const looks = manifests.map((manifest) => manifest.system);
@@ -24,18 +26,39 @@ const SHOWCASE = looks.find((id) => id !== DEFAULT);
  * The head's script, run with a storage that holds `stored` (or throws), an address, and the device's scheme: the
  * attributes it leaves on the root, and the rule it writes.
  */
-function boot({ stored = null, search = '', dark = false, script = appearanceBootstrap(bootConfig(looks)) } = {}) {
+function boot({ stored = null, custom = null, sheets = null, search = '', dark = false, script = appearanceBootstrap(bootConfig(looks, BUILD)) } = {}) {
   const attributes = {};
   const head = [];
+  const timers = [];
+  const element = () => {
+    const own = {};
+    return { setAttribute: (name, value) => (own[name] = String(value)), getAttribute: (name) => own[name] ?? null, attributes: own };
+  };
   const document = {
-    documentElement: { setAttribute: (name, value) => (attributes[name] = String(value)), removeAttribute: (name) => delete attributes[name] },
-    createElement: () => ({}),
+    documentElement: { setAttribute: (name, value) => (attributes[name] = String(value)), removeAttribute: (name) => delete attributes[name], getAttribute: (name) => attributes[name] ?? null, hasAttribute: (name) => name in attributes },
+    createElement: element,
+    getElementById: (id) => head.find((node) => node.id === id) ?? null,
     head: { appendChild: (node) => head.push(node) },
   };
-  const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === APPEARANCE_KEY ? stored : null) };
+  const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === APPEARANCE_KEY ? stored : key === CUSTOM_KEY ? custom : null) };
   const matchMedia = (query) => ({ matches: query.includes('dark') && dark });
-  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', script)(document, localStorage, { search }, matchMedia, URLSearchParams);
-  return { attributes, rule: head[0] };
+  // IndexedDB as the head's script uses it: one database, one store, a get by key, each answered at once. None where `sheets` is null.
+  const indexedDB = sheets && {
+    open: () => {
+      const request = { result: { createObjectStore() {}, close() {}, transaction: () => ({ objectStore: () => ({ get: (key) => {
+        const got = { result: sheets[key] };
+        queueMicrotask(() => got.onsuccess());
+        return got;
+      } }) }) } };
+      queueMicrotask(() => request.onsuccess());
+      return request;
+    },
+  };
+  const setTimeout = (run, ms) => timers.push({ run, ms });
+  // A frame is a turn of the microtasks here: what waits for two of them has waited when a test has waited for a task.
+  const requestAnimationFrame = (run) => queueMicrotask(run);
+  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame);
+  return { attributes, rule: head.find((node) => node.id === SYSTEM_RULE_ID), head, timers };
 }
 
 describe('the appearance', () => {
@@ -82,6 +105,73 @@ describe('the appearance', () => {
     assert.deepEqual(attributes, { [THEME_ATTR]: 'dark', [TANREI_THEME_ATTR]: 'dark', [MODE_ATTR]: 'dark', [CONTRAST_ATTR]: 'medium', [LOOK_ATTR]: SHOWCASE, [SHARED_ATTR]: '' });
     assert.equal(boot({ search: '?look=not-a-system' }).attributes[LOOK_ATTR], DEFAULT, 'an unknown look is the default');
     assert.equal(boot({ stored }).attributes[SHARED_ATTR], undefined);
+  });
+
+  test('the reader’s own theme is a look only while this browser keeps one; what is kept of it is read whole or not at all', () => {
+    assert.equal(normalize({ look: CUSTOM_LOOK }, looks, DEFAULT).look, DEFAULT, 'no theme kept: the default look');
+    assert.equal(normalize({ look: CUSTOM_LOOK }, looks, DEFAULT, true).look, CUSTOM_LOOK);
+    assert.ok(!looks.includes(CUSTOM_LOOK), 'no shipped system has the look’s name');
+    assert.deepEqual(customOf({ hash: 'k3x9', layer: { id: 'acme', extends: SHOWCASE } }, looks), { hash: 'k3x9', base: SHOWCASE });
+    assert.deepEqual(customOf({ hash: 'k3x9', layer: { id: 'acme', extends: 'a-local-parent' } }, looks), { hash: 'k3x9', base: DEFAULT }, 'a base the site does not ship: the lists are the default system’s');
+    for (const broken of [null, 'x', { hash: 'k3x9' }, { layer: {} }, { hash: '"]{}', layer: {} }, { hash: 'K', layer: {} }]) assert.equal(customOf(broken, looks), null, JSON.stringify(broken));
+    assert.equal(sheetKey(BUILD, 'k3x9'), `${BUILD}:k3x9`);
+  });
+
+  test('the head’s script under the reader’s theme: the look, the marks, the lists of the system it extends, and the page hidden until the sheet is in', async () => {
+    const custom = JSON.stringify({ hash: 'k3x9', layer: { id: 'acme', extends: SHOWCASE } });
+    const stored = JSON.stringify({ mode: 'dark', contrast: 'standard', look: CUSTOM_LOOK });
+    // No sheet yet (IndexedDB holds none): hidden, and shown after REVEAL_AFTER whatever happens — in the default system,
+    // which that page keeps: a sheet put in later would move everything drawn.
+    const waiting = boot({ stored, custom, sheets: {} });
+    assert.equal(waiting.attributes[LOOK_ATTR], CUSTOM_LOOK);
+    assert.equal(waiting.attributes[CUSTOM_ATTR], '');
+    assert.equal(waiting.attributes[CUSTOM_BASE_ATTR], SHOWCASE);
+    assert.equal(waiting.attributes[PENDING_ATTR], '');
+    assert.equal(waiting.rule.textContent, `[${ABSENT_ATTR}~="${SHOWCASE}"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`, 'the lists of the system it extends');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(waiting.attributes[PENDING_ATTR], '', 'still hidden: the modules compute the sheet');
+    assert.deepEqual(waiting.timers.map((timer) => timer.ms), [REVEAL_AFTER]);
+    waiting.timers[0].run();
+    assert.equal(waiting.attributes[PENDING_ATTR], undefined);
+    assert.equal(waiting.attributes[LOOK_ATTR], DEFAULT, 'drawn in the default system');
+    assert.equal(waiting.attributes[LATE_ATTR], '', 'and marked: the modules keep the sheet for the next page');
+    assert.equal(waiting.attributes[CUSTOM_BASE_ATTR], undefined);
+
+    // The sheet in IndexedDB, under this build's key and the theme's hash: put in place, and the page shown.
+    const css = '@layer tanrei.tokens { :root { --tanrei-sys-color-primary: #0b6e4f; } }';
+    const found = boot({ stored, custom, sheets: { [sheetKey(BUILD, 'k3x9')]: css } });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const style = found.head.find((node) => node.id === CUSTOM_STYLE_ID);
+    assert.equal(style?.textContent, css);
+    assert.equal(style.getAttribute('data-key'), sheetKey(BUILD, 'k3x9'));
+    assert.equal(found.attributes[PENDING_ATTR], undefined);
+    found.timers[0].run();
+    assert.deepEqual([found.attributes[LOOK_ATTR], found.attributes[LATE_ATTR]], [CUSTOM_LOOK, undefined], 'the time limit changes nothing once the sheet is in');
+    // Another build's sheet is not used.
+    const other = boot({ stored, custom, sheets: { [sheetKey('fedcba9876543210', 'k3x9')]: css } });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(other.head.find((node) => node.id === CUSTOM_STYLE_ID), undefined);
+    assert.equal(other.attributes[PENDING_ATTR], '');
+    // IndexedDB that fails, or is not there: hidden until the modules say, at most REVEAL_AFTER.
+    const none = boot({ stored, custom });
+    assert.equal(none.attributes[PENDING_ATTR], '');
+    assert.deepEqual(none.timers.map((timer) => timer.ms), [REVEAL_AFTER]);
+  });
+
+  test('the head’s script with a theme kept and another look: nothing hidden, the mark that one is kept; with none kept, the look `custom` is the default', () => {
+    const custom = JSON.stringify({ hash: 'k3x9', layer: { id: 'acme', extends: DEFAULT } });
+    const other = boot({ stored: JSON.stringify({ look: SHOWCASE }), custom, sheets: {} });
+    assert.equal(other.attributes[LOOK_ATTR], SHOWCASE);
+    assert.equal(other.attributes[CUSTOM_ATTR], '');
+    assert.equal(other.attributes[PENDING_ATTR], undefined);
+    assert.equal(other.attributes[CUSTOM_BASE_ATTR], undefined);
+    assert.deepEqual(other.timers, []);
+    const gone = boot({ stored: JSON.stringify({ look: CUSTOM_LOOK }), sheets: {} });
+    assert.equal(gone.attributes[LOOK_ATTR], DEFAULT);
+    assert.equal(gone.attributes[CUSTOM_ATTR], undefined);
+    assert.equal(gone.attributes[PENDING_ATTR], undefined);
+    // A shared link cannot name the reader's theme for someone who keeps none.
+    assert.equal(boot({ search: `?look=${CUSTOM_LOOK}` }).attributes[LOOK_ATTR], DEFAULT);
   });
 
   test('a document outside the frame reads the same key: the scheme the reader forced, and the contrast', () => {

@@ -48,10 +48,13 @@ export async function watchNetwork(page, cdp) {
     /**
      * Resolves once nothing has been in flight for `quiet` ms; rejects, naming what is still in flight, when the page is
      * still asking after `limit` ms. Call it after the load: a request the load did not wait for is waited for here.
+     * `worker`: the address of a worker's own script the page starts, which is not waited for — its end is told to the
+     * worker's session of the protocol, not to the page's, so it would stay in flight here for good.
      */
-    async quiet({ quiet = QUIET_MS, limit = LIMIT_MS } = {}) {
+    async quiet({ quiet = QUIET_MS, limit = LIMIT_MS, worker } = {}) {
       const start = Date.now();
-      while (open.size || Date.now() - last < quiet) {
+      const waited = () => [...open.values()].filter((url) => !worker?.test(url)).length;
+      while (waited() || Date.now() - last < quiet) {
         if (Date.now() - start > limit) {
           const asked = [...open.values()].map((url) => url.replace(/^https?:\/\/[^/]+/, ''));
           throw new Error(`${page.url()} still asks for files after ${limit / 1000} s, ${asked.length} in flight: ${asked.join(', ') || '(none; the last ended under 500 ms ago)'}`);

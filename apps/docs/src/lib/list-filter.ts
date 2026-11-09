@@ -8,7 +8,7 @@
 // among them, and must count what the reader sees. Each row is held, and put back in its place, by a comment that
 // keeps that place. The head's scripts said before the first paint what was asked for (`listingBootstrap`, and the
 // appearance's script); the rule the appearance's script wrote is taken away here, once the rows are held instead.
-import { APPEARANCE_EVENT } from './appearance';
+import { APPEARANCE_EVENT, CUSTOM_BASE_ATTR, CUSTOM_LOOK, CUSTOM_SHEET_EVENT } from './appearance';
 import { ABSENT_ATTR, LISTING_ATTR, ON_REQUEST_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 const root = document.documentElement;
@@ -17,8 +17,8 @@ const held = new Map<Comment, Element>();
 
 /** Whether the lists show every component, or only those listed by default. */
 export const showsEverything = () => root.getAttribute(LISTING_ATTR) !== 'listed';
-/** The system the lists show; null where the head's script did not run. */
-export const shownSystem = () => root.getAttribute(SYSTEM_ATTR);
+/** The system the lists show — under the reader's own theme, the system it extends; null where the head's script did not run. */
+export const shownSystem = () => (root.getAttribute(SYSTEM_ATTR) === CUSTOM_LOOK ? root.getAttribute(CUSTOM_BASE_ATTR) : root.getAttribute(SYSTEM_ATTR));
 
 /** Whether a row (a group of rows, or a line said under one system only) is not shown, as asked now. */
 const hidden = (row: Element, everything: boolean, system: string | null) =>
@@ -51,9 +51,12 @@ export function showEverything(everything: boolean): void {
 }
 
 // The lists follow the look wherever it is chosen: it is the root's attribute, announced with the appearance.
-document.addEventListener(APPEARANCE_EVENT, () => {
-  if (shownLook !== shownSystem()) apply();
-});
+// (A theme of the reader's own that Theme Studio replaced may extend another system: its sheet is announced too.)
+for (const type of [APPEARANCE_EVENT, CUSTOM_SHEET_EVENT]) {
+  document.addEventListener(type, () => {
+    if (shownLook !== shownSystem()) apply();
+  });
+}
 let shownLook = shownSystem();
 
 // What the head's scripts found before the first paint, once, whichever control's script loads this first.
