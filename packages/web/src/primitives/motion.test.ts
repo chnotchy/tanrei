@@ -798,6 +798,30 @@ test.describe('Settle', () => {
     await expect.poll(() => runs(twin)).toEqual(expect.arrayContaining(['mark:background-color', 'delayed:color']));
   });
 
+  test('MOT-3: a state written after the last frame drawn while the host settles — before the frame callback that lets it go, as an image that loads in a task between two frames — starts no transition', async ({ page }) => {
+    await open(page, '<div id="stage"></div>');
+    await painted(page);
+    const host = page.locator('x-settle');
+    await page.locator('#stage').evaluate((stage) => {
+      const el = document.createElement('x-settle');
+      // Asked for before the element is connected, these callbacks run before its own in each of the two frames it
+      // settles over: in the second, before the one that lets it go, and after the first was drawn with the mark on.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const mark = el.shadowRoot!.querySelector('.mark')!;
+          (el as HTMLElement & { written: unknown }).written = { settling: el.hasAttribute('data-tanrei-settling'), on: mark.hasAttribute('data-on') };
+          mark.removeAttribute('data-on');
+        }),
+      );
+      stage.append(el);
+    });
+    await expect.poll(() => host.evaluate((el) => (el as HTMLElement & { written?: unknown }).written)).toEqual({ settling: true, on: true });
+    await expect(host).not.toHaveAttribute('data-tanrei-settling');
+    await frames(page);
+    expect(await runs(host)).toEqual([]);
+    await expect(host.locator('.mark')).toHaveCSS('background-color', 'rgb(255, 0, 0)');
+  });
+
   test('connected again, the host settles again', async ({ page }) => {
     await open(page, '<div id="stage"><x-settle id="s"></x-settle></div><div id="elsewhere"></div>');
     await painted(page);

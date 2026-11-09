@@ -1088,6 +1088,19 @@ test.describe('opening and closing', () => {
     }
   });
 
+  test('SRC-23, SRC-41, MOT-3: a full-screen or dialog view drawn in place (inline, as the documentation draws it) in the page’s markup with expanded starts no motion at all as it loads — its view is not faded in from its starting style — and one mounted after the first paint fades in (MOT-4)', async ({ page }) => {
+    await page.setViewportSize({ width: 720, height: 480 });
+    for (const id of ['full-screen', 'dialog-results']) {
+      const fixture = spec.fixtures.find((f) => f.id === id)!;
+      expect(await loadOpen(page, spec, { icons: true, fixtures: [fixture] }), `${id} in the page’s markup`).toEqual([]);
+      const view = host(page, id).locator('dialog.full');
+      await expect(view).toHaveClass(/\binline\b/);
+      expect(await view.evaluate((el: HTMLDialogElement) => [el.open, el.matches(':modal'), getComputedStyle(el).opacity])).toEqual([true, false, '1']);
+      await mountOpenAgain(page);
+      expect(entrances(await runsAtRest(page)).map((run) => `${run.on.split('.')[0]} ${run.name}`), `${id} mounted after the first paint`).toContain('dialog opacity');
+    }
+  });
+
   test('SRC-23: the docked view fades and grows in over open-duration and fades out over close-duration; the full-screen view fades; focus moves when it opens, not when the motion ends; at once where motion is reduced', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' }), live('f', { presentation: 'full-screen', value: 'inv' })], { reducedMotion: false });
     // Every motion of the view is read as the engine announces it, from before it opens: the way out is the shortest of
