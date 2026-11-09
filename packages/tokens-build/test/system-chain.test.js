@@ -2,18 +2,21 @@
 // `m3-like` and `cupertino` (`m3-expressive-like` extends `m3-like`); a product extends one of them. What a system
 // ships is worked out down that chain.
 //
-// The root was cut out of the default system's layer: `core` holds the values the default system's layer held, and
-// `tanrei` keeps only its choice of components. The presets then moved from `tanrei` to `core`. So no resolved value
-// may have moved — in the default system, in a preset or in a product — and the first tests below hold exactly that,
-// for every system that ships and for the example products, in every scheme.
+// The root is grey: a neutral palette without chroma, the status palettes, a role table drawn from them and the
+// per-state rules — no accent, no tints of its own, no code colors. The default system's look is its own layer's: its
+// palettes, its role table, its inverse status bars and its code colors. The presets declare every color they draw,
+// so they do not move when the root's or the default system's colors do. The first tests below hold that, for every
+// system that ships and for the example products, in every scheme.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_SYSTEM, ROOT_SYSTEM, availabilityOf, layerChain, listSystems, shippedSystems, validateLayerFile } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, availabilityOf, buildBundle, layerChain, listSystems, shippedSystems, validateLayerFile } from '../src/bundle.js';
+import { auditInvariants } from '../src/invariants.js';
 import { componentChoiceProblems, componentChoices } from '../src/layers.js';
-import { REPO_ROOT } from '../src/model.js';
+import { REPO_ROOT, buildModelFromBundle } from '../src/model.js';
+import { readBundle } from '../src/reader.js';
 import { readSystemChain, resolveChain } from '../src/resolve.js';
 import { SCHEMES, loadSystem } from '../src/scheme.js';
 
@@ -42,6 +45,8 @@ function assertSameValues(actual, expected, what) {
   }
 }
 
+const NS = 'tanrei';
+
 test('core is the root and ships nothing of its own; the default system extends it and ships', () => {
   assert.equal(ROOT_SYSTEM, 'core');
   assert.equal(read(ROOT_SYSTEM).extends, undefined);
@@ -50,13 +55,46 @@ test('core is the root and ships nothing of its own; the default system extends 
   assert.deepEqual(shippedSystems(REPO_ROOT), listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM));
   assert.ok(shippedSystems(REPO_ROOT).includes(DEFAULT_SYSTEM));
   for (const id of shippedSystems(REPO_ROOT)) assert.equal(layerChain(id, read)[0].id, ROOT_SYSTEM, `${id} descends from the root`);
-  // The default system's own layer chooses components and values nothing: the root holds every value it had.
-  assert.ok(setsNoValue(read(DEFAULT_SYSTEM)), Object.keys(read(DEFAULT_SYSTEM)).join(', '));
+  // The default system's own layer chooses its components and declares its colors, and nothing else: its palettes,
+  // and tokens that are colors — color roles, and component colors valued by a color rule. No rule, no vocabulary.
+  const own = read(DEFAULT_SYSTEM);
+  assert.deepEqual(Object.keys(own).filter((key) => !NOT_VALUES.has(key)).sort(), ['palettes', 'tokens']);
+  for (const [id, op] of Object.entries(own.tokens)) assert.ok(id.startsWith(`${NS}.sys.color.`) || (id.startsWith(`${NS}.comp.`) && op.derive), id);
 });
 
-test('the default system resolves to exactly the root’s values, in every scheme', async () => {
-  // What `diff_systems tanrei core` answers: no token differs.
-  assertSameValues(await valuesOf(layerChain(DEFAULT_SYSTEM, read)), await valuesOf(layerChain(ROOT_SYSTEM, read)), `${DEFAULT_SYSTEM} against ${ROOT_SYSTEM}`);
+test('the root is grey: it declares no accent, no tints and no code colors, and its neutral palette has no chroma', () => {
+  const root = read(ROOT_SYSTEM);
+  assert.deepEqual(Object.keys(root.palettes), ['neutral', 'error', 'success', 'warning', 'info']);
+  assert.equal(root.palettes.neutral.source.chroma, 0);
+  // Every role it tones, and every rule it gives a component color, reads one of those palettes.
+  for (const [id, op] of Object.entries(root.tokens)) if (op.derive?.palette) assert.ok(op.derive.palette in root.palettes, `${id} reads ${op.derive.palette}`);
+  assert.ok(!Object.keys(root.tokens).some((id) => id.startsWith(`${NS}.comp.code-block.`)), 'code takes the text colors its document gives it');
+});
+
+test('the root holds the default system’s accessibility criteria, in every scheme', async () => {
+  const { files } = buildBundle(REPO_ROOT, layerChain(ROOT_SYSTEM, read));
+  const model = await buildModelFromBundle(files, ROOT_SYSTEM, readBundle(files, ROOT_SYSTEM));
+  assert.deepEqual(auditInvariants(model).failures, []);
+});
+
+/** The ids the default system's accent brings: its four roles and its palette's tones. */
+const isAccent = (id) => /^tanrei\.(sys\.color\.(on-)?accent(-container)?|ref\.palette\.accent\.\d+)$/.test(id);
+
+test('the default system differs from the root in its colors alone', async () => {
+  // What `diff_systems tanrei core` answers: colors, and nothing else.
+  const [tanrei, root] = [await valuesOf(layerChain(DEFAULT_SYSTEM, read)), await valuesOf(layerChain(ROOT_SYSTEM, read))];
+  for (const scheme of SCHEMES) {
+    // A palette publishes the tones its system's roles read, so each side has tones of its own; beyond those, the
+    // default system has its accent's roles alone.
+    const isTone = (id) => /^tanrei\.ref\.palette\.[a-z-]+\.\d+$/.test(id);
+    const onlyInRoot = Object.keys(root[scheme]).filter((id) => !(id in tanrei[scheme]));
+    assert.deepEqual(onlyInRoot.filter((id) => !isTone(id)), [], `${scheme}: the default system values every token the root does`);
+    const extra = Object.keys(tanrei[scheme]).filter((id) => !(id in root[scheme]));
+    assert.deepEqual(extra.filter((id) => !isTone(id) && !isAccent(id)), [], `${scheme}: no other token is the default system's own`);
+    const moved = Object.keys(root[scheme]).filter((id) => id in tanrei[scheme] && root[scheme][id] !== tanrei[scheme][id]);
+    assert.ok(moved.length > 0, `${scheme}: the two differ`);
+    assert.deepEqual(moved.filter((id) => JSON.parse(tanrei[scheme][id])[0] !== 'color'), [], `${scheme}: every token that differs is a color`);
+  }
 });
 
 const PRESETS = shippedSystems(REPO_ROOT).filter((system) => system !== DEFAULT_SYSTEM);
@@ -69,15 +107,19 @@ test('the presets extend the root, not the default system', () => {
   });
 });
 
-// Before, the default system's own layer stood between the root and each preset. It sets no value, so a preset must
-// resolve to the values it had with that layer put back in its chain.
+// A preset declares every color it draws: put the default system's own layer — Tanrei's colors — between the root
+// and the preset, and nothing the preset resolves moves. The one thing that layer brings is its accent, which no
+// preset declares: its roles and its palette's tones are the only tokens the chain gains.
 const withDefaultBetween = (chain) => [chain[0], read(DEFAULT_SYSTEM), ...chain.slice(1)];
+const withoutAccent = (values) => Object.fromEntries(Object.entries(values).map(([scheme, tokens]) => [scheme, Object.fromEntries(Object.entries(tokens).filter(([id]) => !isAccent(id)))]));
 
 for (const id of PRESETS) {
-  test(`${id}: resolves to the values it had when it extended the default system, in every scheme`, async () => {
+  test(`${id}: resolves alike over the grey root and over the default system's colors, in every scheme`, async () => {
     const chain = layerChain(id, read);
     assert.ok(!chain.some((layer) => layer.id === DEFAULT_SYSTEM), 'the default system is not in its chain');
-    assertSameValues(await valuesOf(chain), await valuesOf(withDefaultBetween(chain)), id);
+    const own = await valuesOf(chain);
+    assert.ok(!Object.keys(own.light).some(isAccent), `${id} declares no accent`);
+    assertSameValues(own, withoutAccent(await valuesOf(withDefaultBetween(chain))), id);
   });
 }
 

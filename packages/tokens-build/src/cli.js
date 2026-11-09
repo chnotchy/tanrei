@@ -10,7 +10,7 @@ import { KOTLIN_PACKAGE, emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitTs } from './emit/ts.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
-import { DEFAULT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, outsideStandIns, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, outsideStandIns, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
 import { nativeChain, sheetAvailability } from './layers.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
 import { PRESET_CRITERIA_NOTE, auditInvariants, checkedLine, defaultAccessibilityReport, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
@@ -158,6 +158,23 @@ function iconSetOf(ir, sets) {
   return set?.id ?? null;
 }
 
+/**
+ * The root layer built as a system of its own: the grey starting point every system extends. It is no shipped system —
+ * no bundle, no components manifest, no native constant, offered nowhere a system is chosen — but its stylesheet is
+ * written, scoped like a preset's, so that it can be drawn and compared. Its accessibility is held as the default
+ * system's is: any finding fails the build.
+ */
+async function rootSystem() {
+  const chain = layerChain(ROOT_SYSTEM, readLayer);
+  const { files } = buildBundle(REPO_ROOT, chain);
+  const reader = readBundle(files, ROOT_SYSTEM);
+  await lintValues(reader.tokens());
+  const model = await buildModelFromBundle(files, ROOT_SYSTEM, reader);
+  const { failures, checked } = auditInvariants(model);
+  failOn(`token invariant violation(s) in the root system "${ROOT_SYSTEM}", which is held to them as the default system is`, failures);
+  return { chain, model, checked };
+}
+
 async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
   for (const id of presetIds()) {
     const { files } = buildBundle(REPO_ROOT, layerChain(id, readLayer));
@@ -226,6 +243,11 @@ async function generate() {
     write(rel, content);
     outputs.push(rel);
   }
+  const root = await rootSystem();
+  const rootSheet = `packages/web/src/generated/systems/${ROOT_SYSTEM}.css`;
+  write(rootSheet, emitCss(root.model, { scope: ROOT_SYSTEM, ...sheetAvailability(root.chain, held(), standIns()) }));
+  outputs.push(rootSheet);
+  console.log(`✔ root system "${ROOT_SYSTEM}": ${Object.keys(root.model.tokens).length} tokens, all invariants hold — ${checkedLine(root.checked)}`);
   const systemIconSets = { [DEFAULT_SYSTEM]: iconSetOf(ir, iconSets) };
   const lockLayers = {};
   await generateSystems(outputs, iconSets, systemIconSets, lockLayers);
@@ -261,6 +283,8 @@ async function validate() {
     console.error(`✖ ${failures.length} token invariant violation(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`);
     process.exit(1);
   }
+  const root = await rootSystem();
+  console.log(`✔ root system "${ROOT_SYSTEM}" valid: all invariants hold — ${checkedLine(root.checked)}`);
   const iconSets = loadIconSets(REPO_ROOT);
   iconSetOf(buildIR(model), iconSets);
   for (const id of presetIds()) {

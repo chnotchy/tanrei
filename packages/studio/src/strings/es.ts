@@ -624,7 +624,7 @@ const es: Dictionary = {
     menu: 'Punto de partida',
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
-    notNeutral: 'Todavía no: la capa raíz de Tanrei aún tiene los valores del sistema predeterminado. Será un punto de partida en blanco cuando sus valores sean neutros.',
+    notInInit: 'Todavía no: la capa raíz de Tanrei ya es neutra —gris, sin color de acento—, pero la línea de comandos aún no puede empezar una capa desde ella (tanrei init --extends core). Se podrá elegir aquí cuando pueda.',
     gallery: 'Empezar desde la galería',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',

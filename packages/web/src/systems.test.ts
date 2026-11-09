@@ -310,7 +310,8 @@ const SUBJECTS = [
 const button = SUBJECTS[0].spec;
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 // The presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root (the one
-// layer without `extends`, which has no stylesheet of its own) — the rule the CLI and the MCP server offer systems by.
+// layer without `extends`, which ships no system: its stylesheet is the grey starting point, and the default system's
+// criteria are held on it in the token build) — the rule the CLI and the MCP server offer systems by.
 // A layer's folder (tokens/systems/m3-like/, the documents of the components that live in it) is no layer.
 const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
 const presets = fs

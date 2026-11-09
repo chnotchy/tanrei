@@ -53,6 +53,7 @@
     "packages/swiftui/Sources/Tanrei/Generated/TanreiSystem+Tanrei.swift",
     "packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift",
     "packages/web/src/generated/icon-sets.ts",
+    "packages/web/src/generated/systems/core.css",
     "packages/web/src/generated/systems/cupertino.css",
     "packages/web/src/generated/systems/m3-expressive-like.css",
     "packages/web/src/generated/systems/m3-like.css",

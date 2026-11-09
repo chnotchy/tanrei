@@ -4,8 +4,9 @@
 ---
 
 **Theme Studio: the start point, first in the bar.** It names what the layer starts from, and its menu offers the
-others: **Tanrei**, the default system; **Core**, Tanrei's root layer, listed and not offered yet — it still holds the
-default system's values, and becomes a blank start once they are neutral — with that reason on the item; and, under
+others: **Tanrei**, the default system; **Core**, Tanrei's root layer, listed and not offered yet — its values are
+neutral (grey, no accent), and it becomes a blank start once `tanrei init --extends core` can start a layer from it
+too — with that reason on the item; and, under
 **Theme gallery examples**, m3-like, cupertino and m3-expressive-like, each marked as an example, not an official
 design. Another start keeps the layer's id, name and description on that system's defaults.
 
