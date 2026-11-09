@@ -377,7 +377,7 @@
     {
       "id": "BTN-40",
       "text": "WHILE destructive is true and toggle is false THE button SHALL render its container, label, icon and outline from the destructive parts of its variant (comp.button.filled.destructive.container.color, and so on for each variant), in each state from the destructive parts of that state, and its elevation, shape and opacity as it would without destructive; WHILE destructive is false it SHALL render from the variant's own parts. In every shipped system the destructive parts are the error color role at the variant's emphasis — filled: the error color with the on-error color on it; tonal: the error container with the on-error-container color on it; elevated, outlined and text: the variant's own container with the label and the icon in the error color, and an outlined button's edge in it too — and disabled they are those of the variant's plain disabled look, so that a disabled destructive button looks like any disabled button of its variant. An icon-only button takes destructive as a labelled button does; a link button ignores it (BTN-43).",
-      "verify": "Under the default system: filled-destructive is error with an on-error label; tonal-destructive error-container with on-error-container; elevated-destructive, outlined-destructive and text-destructive keep their variant's container with an error label, outlined-destructive with an error edge; text-icon-destructive draws its glyph in error. filled-destructive-disabled and outlined-destructive-disabled render exactly as filled-disabled and an outlined disabled button. Hovered, pressed and keyboard-focused, outlined-destructive renders from that state's destructive parts, each unlike its rest. A destructive action without a variant in a dialog is drawn as a tonal destructive one."
+      "verify": "Under the default system: filled-destructive is error with an on-error label; tonal-destructive error-container with on-error-container; elevated-destructive, outlined-destructive and text-destructive keep their variant's container with an error label, outlined-destructive with an error edge; text-icon-destructive draws its glyph in error. filled-destructive-disabled and outlined-destructive-disabled render exactly as filled-disabled and an outlined disabled button. Hovered, pressed and keyboard-focused, outlined-destructive renders from that state's destructive parts, each unlike its rest. A destructive action without a variant in a dialog is drawn as a tonal destructive one. Every fixture that sets destructive, is no toggle and no link, and is not disabled — each size, a leading and a trailing icon, icon-only in each variant and at each width, busy and full width — draws its container, label, icon and outline from the destructive parts of its variant, and keeps the size and the place of every part of the same fixture without destructive."
     },
     {
       "id": "BTN-41",
@@ -1235,6 +1235,113 @@
         "variant": "outlined",
         "destructive": true,
         "disabled": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "filled-destructive-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "filled-destructive-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "outlined-destructive-trailing-icon",
+      "props": {
+        "variant": "outlined",
+        "iconPosition": "trailing",
+        "destructive": true
+      },
+      "content": "Delete",
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "tonal-icon-destructive",
+      "props": {
+        "variant": "tonal",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "outlined-icon-destructive",
+      "props": {
+        "variant": "outlined",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "filled-icon-destructive-narrow",
+      "props": {
+        "variant": "filled",
+        "width": "narrow",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "text-icon-destructive-narrow",
+      "props": {
+        "variant": "text",
+        "width": "narrow",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "outlined-icon-destructive-wide",
+      "props": {
+        "variant": "outlined",
+        "width": "wide",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "filled-destructive-busy",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "busy": true,
+        "busyLabel": "Deleting"
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "filled-destructive-full-width",
+      "props": {
+        "variant": "filled",
+        "fullWidth": true,
+        "destructive": true
       },
       "content": "Delete"
     }
