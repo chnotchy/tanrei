@@ -1442,7 +1442,10 @@ test.describe('items', () => {
       (window as any).ran = [];
       el.addEventListener('transitionrun', (e) => (window as any).ran.push((e as TransitionEvent).propertyName));
     });
-    // Focus first: it scrolls the item into view, which moves every box in the viewport's coordinates.
+    // The row brought into view first, then focused: a focus that scrolls would move every box in the viewport's
+    // coordinates, and WebKit scrolls to a focused element after `focus()` has returned (once it lays it out), so a box
+    // read straight after the focus could be read before that scroll. A row already in view is not scrolled to.
+    await row(page, 'checkbox-check-mark', 1).scrollIntoViewIfNeeded();
     await item(page, 'checkbox-check-mark', 1).focus();
     const before = await bounds(check(1));
     await page.keyboard.press('Space');
