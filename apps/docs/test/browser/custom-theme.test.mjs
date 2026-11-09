@@ -34,6 +34,14 @@ const LIMIT = { timeout: 180_000 };
 const INTERACTION = 150;
 
 const ENGINES = engines('chromium,firefox,webkit');
+/**
+ * The engines that have a theme's sheet well within REVEAL_AFTER on the first page, measured on a Mac from navigation to
+ * the sheet in (7 loads of the Button page each): Chromium in 0.7 to 0.9 s. Firefox (2.0 to 2.1 s; it fetches the
+ * worker's script only once the page's modules have run) and WebKit (1.2 to 2.5 s; its worker computes slowly while the
+ * page loads) had it in time on that Mac too, but too close to 3 s to be relied on, on CI's runners least of all: their
+ * first page may still be shown in the default system.
+ */
+const IN_TIME = ['chromium'];
 const WIDE = { width: 1440, height: 900 };
 const PAGE = '/components/button/';
 const en = strings('en');
@@ -191,7 +199,10 @@ for (const engine of ENGINES) {
       assert.equal(await reader.locator('#docs-appearance .docs-look-name').textContent(), en.frame.myTheme, 'the header names it');
       assert.equal(await reader.locator('#docs-appearance').getAttribute('label'), en.frame.appearanceOf.replace('{look}', en.frame.myTheme));
 
-      // The next page: the sheet from IndexedDB, before anything is shown, and no worker asked for.
+      // The next page: the sheet from IndexedDB, before anything is shown, and no worker asked for. (A page is shown in
+      // the theme as soon as its sheet is computed; the sheet is written to IndexedDB meanwhile, which an engine still
+      // loading the page's modules may finish only later: the next page is opened once it is kept.)
+      await until(reader, 'the theme’s sheet kept', sheetKept, { ...SHEET_STORE, hash: kept.theme.hash });
       const next = await tabs.newPage();
       await next.addInitScript(({ style, pending }) => {
         window.cloak = { hidden: null, shown: null, sheetThen: null };
@@ -267,7 +278,7 @@ for (const engine of ENGINES) {
       assert.deepEqual(problems, [], 'no console errors, page errors or refusals of the policy');
     });
 
-    test('a page opened under a theme whose sheet is not kept yet: hidden, computed in the worker, then shown in the theme', LIMIT, async () => {
+    test('a page opened under a theme whose sheet is not kept yet: hidden, computed in the worker, then shown in the theme', LIMIT, async (t) => {
       const { context: tabs, problems, requests } = await context();
       await tabs.addInitScript(({ key, appearance, layer, look }) => {
         if (location.protocol !== 'http:' || localStorage.getItem(key)) return;
@@ -290,6 +301,11 @@ for (const engine of ENGINES) {
       await page.waitForFunction(() => window.cloak.shown !== null, undefined, { timeout: 60_000 });
       const cloak = await page.evaluate(() => window.cloak);
       assert.ok(cloak.hidden !== null && cloak.bodyThen === false, `hidden by the head’s script, before the body (${JSON.stringify(cloak)})`);
+      t.diagnostic(`hidden for ${Math.round(cloak.shown - cloak.hidden)} ms, ${cloak.sheetThen ? 'shown in the theme' : 'shown in the default system: the sheet was not in after REVEAL_AFTER'}`);
+      // The worker is asked for as soon as the head's script finds no sheet kept, without waiting for the page's other
+      // modules: where an engine computes the sheet well within REVEAL_AFTER on a developer's machine, the first page is
+      // shown in the theme.
+      if (IN_TIME.includes(engine)) assert.ok(cloak.sheetThen, `${engine} shows the first page in the theme, its sheet computed within ${REVEAL_AFTER} ms (${JSON.stringify(cloak)})`);
       if (!cloak.sheetThen) {
         // A sheet the page could not wait for: shown after REVEAL_AFTER, in the default system, which it keeps; the sheet
         // is computed all the same and kept, and the next page is drawn in the theme.
