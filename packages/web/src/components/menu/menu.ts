@@ -1874,12 +1874,16 @@ export class TanreiMenu extends TanreiElement {
    * judged as the surface stands at rest: while a motion of the surface runs, once it has ended, and only if the item
    * still has focus then. The first item of the list brings the list's start with it (its padding, a group's title),
    * the last its end, and the first item of a titled group that title.
+   *
+   * A motion held at its start counts as one that runs: the entrance is paused at its first value until the first frame
+   * drawn after the menu opened (`startFromNextFrame()`, src/primitives/motion.ts), and a key that came before that
+   * frame found no running motion and measured the list through the surface's starting scale.
    */
   private reveal(item: TanreiMenuRowBase, level: Level) {
     const surface = this.surfaceOf(level);
     const scroll = this.scrollOf(level);
     if (!surface || !scroll) return;
-    const moving = surface.getAnimations().filter((animation) => animation.playState === 'running' || animation.pending);
+    const moving = surface.getAnimations().filter((animation) => animation.playState === 'running' || animation.playState === 'paused' || animation.pending);
     if (moving.length) {
       void Promise.allSettled(moving.map((animation) => animation.finished)).then(() => {
         const active = deepActive();
