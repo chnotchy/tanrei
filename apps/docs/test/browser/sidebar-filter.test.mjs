@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, Control+k from the filter,
+// in WebKit, took 10 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 
@@ -100,7 +104,7 @@ for (const engine of ENGINES) {
       return { context, page, errors };
     };
 
-    test('a wide window: "/" focuses the field, what is typed narrows the sidebar, Escape empties it and then gives focus back', async () => {
+    test('a wide window: "/" focuses the field, what is typed narrows the sidebar, Escape empties it and then gives focus back', LIMIT, async () => {
       const { context, page, errors } = await open(WIDE);
       try {
         const words = strings('en').sidebarFilter;
@@ -127,7 +131,7 @@ for (const engine of ENGINES) {
     });
 
     for (const chord of ['Control+k', 'Meta+k']) {
-      test(`${chord} stays the search, from the page and from the filter field; "/" in the search's view is the search's`, async () => {
+      test(`${chord} stays the search, from the page and from the filter field; "/" in the search's view is the search's`, LIMIT, async () => {
         const { context, page, errors } = await open(WIDE);
         const expanded = (open) => page.waitForFunction((open) => document.querySelector('tanrei-search.docs-search')?.expanded === open, open, { timeout: 15_000 });
         const filterText = () => page.evaluate(() => document.querySelector('tanrei-navigation-drawer.docs-sidebar').filterValue ?? '');
@@ -163,7 +167,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('a medium window: "/" expands the column and focuses the field', async () => {
+    test('a medium window: "/" expands the column and focuses the field', LIMIT, async () => {
       const { context, page, errors } = await open(MEDIUM);
       try {
         assert.equal(await page.evaluate(() => document.querySelector('tanrei-navigation-drawer.docs-sidebar').collapsed), true, 'the drawer is the column of glyphs');
@@ -178,7 +182,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a compact window: "/" opens the drawer over the content and focuses the field, in the page\'s language', async () => {
+    test('a compact window: "/" opens the drawer over the content and focuses the field, in the page\'s language', LIMIT, async () => {
       const { context, page, errors } = await open(COMPACT, '/ja/foundations/accessibility/');
       try {
         const words = strings('ja').sidebarFilter;

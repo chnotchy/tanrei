@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the table at 390, in
+// WebKit, took 15 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -54,7 +58,7 @@ for (const engine of ENGINES) {
     });
 
     for (const viewport of VIEWPORTS) {
-      test(`at ${viewport.width} wide it holds the room of its rows until it is near, its words are found while it is away, and the Table reads its sizes once it is drawn`, async () => {
+      test(`at ${viewport.width} wide it holds the room of its rows until it is near, its words are found while it is away, and the Table reads its sizes once it is drawn`, LIMIT, async () => {
         const context = await browser.newContext({ viewport, reducedMotion: 'reduce', colorScheme: 'light' });
         const page = await context.newPage();
         await page.goto(`${origin}${PAGE}`);

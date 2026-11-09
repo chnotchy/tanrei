@@ -18,6 +18,10 @@ import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the FAB menu’s page at
+// 1440, took 21 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -89,7 +93,7 @@ async function chooseInHeader(page, system, compact) {
 
 for (const width of [390, 1440]) {
   describe(`at ${width} px`, () => {
-    test('the header’s Appearance panel chooses the system the lists show, says it on its button, and keeps it', async () => {
+    test('the header’s Appearance panel chooses the system the lists show, says it on its button, and keeps it', LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       try {
         const page = await open(context, '/components/');
@@ -110,7 +114,7 @@ for (const width of [390, 1440]) {
       }
     });
 
-    test('the index shows the default system’s components until the reader chooses m3-like, which shows the FAB menu; the choice is kept', async () => {
+    test('the index shows the default system’s components until the reader chooses m3-like, which shows the FAB menu; the choice is kept', LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       try {
         const page = await open(context, '/components/');
@@ -148,7 +152,7 @@ for (const width of [390, 1440]) {
       }
     });
 
-    test('the FAB menu’s page, under the default system, keeps its row in the sidebar and names a main action button and a bottom sheet instead', async () => {
+    test('the FAB menu’s page, under the default system, keeps its row in the sidebar and names a main action button and a bottom sheet instead', LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       try {
         const page = await open(context, '/components/fab-menu/');
@@ -170,7 +174,7 @@ for (const width of [390, 1440]) {
       }
     });
 
-    test('the presets page holds the facts of every preset and fits the window', async () => {
+    test('the presets page holds the facts of every preset and fits the window', LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       try {
         const page = await open(context, '/getting-started/presets/');

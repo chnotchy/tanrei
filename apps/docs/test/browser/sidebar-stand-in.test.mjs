@@ -20,6 +20,10 @@ import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Japanese Button page
+// at 1000, took 13 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -88,7 +92,7 @@ const near = (a, b) => Math.abs(a - b) <= ROUNDING;
 for (const width of WIDTHS) {
   describe(`the sidebar before its drawer is defined, at ${width} px`, { concurrency: 2 }, () => {
     for (const url of PAGES) {
-      test(`${url}: the switch and the rows are where the drawer draws them`, async () => {
+      test(`${url}: the switch and the rows are where the drawer draws them`, LIMIT, async () => {
         const standIn = await measure(width, url, false);
         const drawn = await measure(width, url, true);
         // In a medium window the column holds the groups' glyphs only once the drawer is defined: nothing stands in, and

@@ -20,6 +20,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, their room in the six
+// languages, in WebKit, took 135 s in CI.
+const LIMIT = { timeout: 420_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 const { claudeCodeCommand, cursorInstallHref, vscodeInstallHref } = await import('../../src/lib/page-actions.ts');
@@ -104,7 +108,7 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('stand beside the title in a wide head and under its text in a narrow one, and nothing scrolls sideways', async () => {
+    test('stand beside the title in a wide head and under its text in a narrow one, and nothing scrolls sideways', LIMIT, async () => {
       for (const viewport of [WIDE, COMPACT]) {
         const { context, page } = await open({ viewport });
         try {
@@ -125,7 +129,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('hold their room before they are defined, in the six languages, at 1440 and 390', async () => {
+    test('hold their room before they are defined, in the six languages, at 1440 and 390', LIMIT, async () => {
       for (const { lang, page: url } of LANGUAGES) {
         for (const viewport of [WIDE, COMPACT]) {
           const held = await open({ viewport, url, scripts: false });
@@ -141,7 +145,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('are named in the page’s language, and their menu holds the links and the command', async () => {
+    test('are named in the page’s language, and their menu holds the links and the command', LIMIT, async () => {
       for (const { lang, page: url } of LANGUAGES) {
         const { context, page } = await open({ url });
         try {
@@ -176,7 +180,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('copy the page’s Markdown with the main action, and say so in a snackbar loaded on first use', async () => {
+    test('copy the page’s Markdown with the main action, and say so in a snackbar loaded on first use', LIMIT, async () => {
       const { context, page } = await open();
       try {
         const asked = [];
@@ -196,7 +200,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('say that a copy failed, and where to go instead', async () => {
+    test('say that a copy failed, and where to go instead', LIMIT, async () => {
       const { context, page } = await open();
       try {
         await page.route(`${origin}${MARKDOWN}`, (route) => route.fulfill({ status: 404, body: '' }));
@@ -210,7 +214,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('are used with the keyboard alone: the menu opens, its items are reached, the command is copied and focus comes back', async () => {
+    test('are used with the keyboard alone: the menu opens, its items are reached, the command is copied and focus comes back', LIMIT, async () => {
       const { context, page } = await open();
       try {
         const leading = page.getByRole('button', { name: en.copy, exact: true });
@@ -249,7 +253,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('where no script runs, are a link to the page’s Markdown', async () => {
+    test('where no script runs, are a link to the page’s Markdown', LIMIT, async () => {
       const { context, page } = await open({ javaScriptEnabled: false });
       try {
         assert.equal(await page.locator('.docs-page-actions').boundingBox(), null, 'the menu, which can do nothing without script, is not drawn');

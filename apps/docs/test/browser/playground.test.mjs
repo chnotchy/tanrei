@@ -22,6 +22,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a control setting its
+// prop, in WebKit, took 23 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 
@@ -90,7 +94,7 @@ for (const engine of ENGINES) {
       await browser?.close();
     });
 
-    test('a control sets its prop on the live element; the code and the address follow', async () => {
+    test('a control sets its prop on the live element; the code and the address follow', LIMIT, async () => {
       const context = await browser.newContext({ viewport: WIDE });
       const page = await context.newPage();
       await page.goto(`${origin}/components/button/`);
@@ -123,7 +127,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('an address opens the playground as it was left, and the reset takes it back', async () => {
+    test('an address opens the playground as it was left, and the reset takes it back', LIMIT, async () => {
       const context = await browser.newContext({ viewport: WIDE });
       const page = await context.newPage();
       await page.goto(`${origin}/components/button/#play-button=variant:tonal,busy:true,size:huge`);
@@ -142,7 +146,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('a control is named by its prop and used from the keyboard; on a page that reads right to left its words are the page’s', async () => {
+    test('a control is named by its prop and used from the keyboard; on a page that reads right to left its words are the page’s', LIMIT, async () => {
       const context = await browser.newContext({ viewport: WIDE });
       const page = await context.newPage();
       await page.goto(`${origin}/ar/components/slider/`);
@@ -167,7 +171,7 @@ for (const engine of ENGINES) {
     });
 
     for (const viewport of VIEWPORTS) {
-      test(`at ${viewport.width}: the stage and the controls take the same room before anything is defined as once drawn`, async () => {
+      test(`at ${viewport.width}: the stage and the controls take the same room before anything is defined as once drawn`, LIMIT, async () => {
         // Every script is held until the document is parsed and its faces are in, as test/browser/visuals.test.mjs
         // holds them: the first frame is the page before any element is defined.
         const context = await browser.newContext({ viewport });

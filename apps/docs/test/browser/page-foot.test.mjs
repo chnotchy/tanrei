@@ -15,6 +15,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the foot of the Button
+// page, in WebKit, took 29 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 
@@ -54,7 +58,7 @@ for (const engine of ENGINES) {
     });
 
     for (const { url, lang, source, component } of PAGES) {
-      test(`${url}: its source${component ? ', its spec' : ''}, a report of a problem and the repository`, async () => {
+      test(`${url}: its source${component ? ', its spec' : ''}, a report of a problem and the repository`, LIMIT, async () => {
         const context = await browser.newContext({ viewport: { width: 1440, height: 800 } });
         const page = await context.newPage();
         await page.goto(`${origin}${url}`);

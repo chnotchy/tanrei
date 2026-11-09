@@ -51,6 +51,10 @@ import { setTimeout as wait } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Web getting-started
+// page at 1440, took 9 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -197,7 +201,7 @@ const totals = { with: 0, without: 0 };
 describe(`a page hardly moves when its text faces arrive ${DELAY_MS / 1000} s late`, { concurrency: 2 }, () => {
   for (const url of PAGES) {
     for (const viewport of VIEWPORTS) {
-      test(`${url} at ${viewport.width}`, async (t) => {
+      test(`${url} at ${viewport.width}`, LIMIT, async (t) => {
         const shifts = await shiftsAsFacesArrive(url, viewport, { fallbacks: true });
         const before = sum(await shiftsAsFacesArrive(url, viewport, { fallbacks: false }));
         totals.with += sum(shifts);

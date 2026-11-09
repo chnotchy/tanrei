@@ -20,6 +20,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the repository’s link, in
+// Firefox, took 81 s in CI.
+const LIMIT = { timeout: 240_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 const config = JSON.parse(fs.readFileSync(new URL('../../../../tanrei.config.json', import.meta.url), 'utf8'));
@@ -103,7 +107,7 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('a wide window: the site’s menu button, the appearance beside the brand, and four actions', async () => {
+    test('a wide window: the site’s menu button, the appearance beside the brand, and four actions', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       const seen = await items(page);
       assert.equal(seen.windowClass, 'expanded');
@@ -117,7 +121,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('a compact window: the shell’s menu button, the wordmark, the three actions that stay; the appearance is in the drawer; nothing scrolls sideways at 390 and 320', async () => {
+    test('a compact window: the shell’s menu button, the wordmark, the three actions that stay; the appearance is in the drawer; nothing scrolls sideways at 390 and 320', LIMIT, async () => {
       for (const viewport of [COMPACT, NARROWEST]) {
         const { context, page } = await open(viewport);
         const seen = await items(page);
@@ -137,7 +141,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a window that changes its class changes the menu button the bar holds, each way', async () => {
+    test('a window that changes its class changes the menu button the bar holds, each way', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       await page.setViewportSize(COMPACT);
       await windowClass(page, 'compact');
@@ -148,7 +152,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the site’s menu button collapses and expands the drawer beside the content, and opens its column over it', async () => {
+    test('the site’s menu button collapses and expands the drawer beside the content, and opens its column over it', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       const toggle = page.locator('#docs-drawer-toggle');
       const drawer = page.locator('#docs-sidebar');
@@ -180,7 +184,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the appearance’s panel links Theme Studio, from the bar and from the drawer', async () => {
+    test('the appearance’s panel links Theme Studio, from the bar and from the drawer', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       for (const id of ['docs-appearance', 'docs-appearance-drawer']) {
         assert.equal(await page.locator(`tanrei-popover[anchor="${id}"] tanrei-button[slot="actions"][href="/foundations/theme-studio/"]`).count(), 1, id);
@@ -188,7 +192,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the language’s menu links this page in the six languages, the current one marked', async () => {
+    test('the language’s menu links this page in the six languages, the current one marked', LIMIT, async () => {
       const { context, page } = await open(WIDE, '/ja/foundations/accessibility/');
       const links = await page.locator('tanrei-menu[anchor="docs-language"] tanrei-menu-item').evaluateAll((all) => all.map((item) => ({ href: item.getAttribute('href'), current: item.hasAttribute('current') })));
       assert.equal(links.length, 6);
@@ -197,7 +201,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the icon-only buttons and the appearance’s button are named in the page’s language', async () => {
+    test('the icon-only buttons and the appearance’s button are named in the page’s language', LIMIT, async () => {
       for (const [dir, lang] of LANGUAGES) {
         const { context, page } = await open(WIDE, `/${dir}foundations/accessibility/`);
         const words = strings(lang).frame;
@@ -209,7 +213,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the repository’s link: named in the page’s language, to the configured repository, said to leave the site; drawn where the row has room and hidden where it has none, at 390, 768, 1024 and 1440 in the six languages; nothing else moves or is cut for it', async () => {
+    test('the repository’s link: named in the page’s language, to the configured repository, said to leave the site; drawn where the row has room and hidden where it has none, at 390, 768, 1024 and 1440 in the six languages; nothing else moves or is cut for it', LIMIT, async () => {
       for (const [dir, lang] of LANGUAGES) {
         const words = strings(lang);
         for (const width of [390, 768, 1024, 1440]) {

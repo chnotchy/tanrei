@@ -21,6 +21,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the debug reports, in
+// WebKit, took 101 s in CI.
+const LIMIT = { timeout: 300_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { exampleMarkup, exampleReports } = await import('../../src/lib/examples.ts');
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -69,7 +73,7 @@ for (const engine of ENGINES) {
       await browser?.close();
     });
 
-    test("every example writes the debug reports its first line names, and no other: a Don't the one it illustrates, a Do none", async () => {
+    test("every example writes the debug reports its first line names, and no other: a Don't the one it illustrates, a Do none", LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width: 1024, height: 768 } });
       await context.route(`${ALONE}/**`, (route) => {
         const url = new URL(route.request().url());
@@ -140,7 +144,7 @@ for (const engine of ENGINES) {
       );
 
     for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
-      test(`the button's pairs at ${viewport.width}: named by their verdicts, their stages pictures, ${viewport.width >= 1024 ? 'side by side' : 'one under the other'}`, async () => {
+      test(`the button's pairs at ${viewport.width}: named by their verdicts, their stages pictures, ${viewport.width >= 1024 ? 'side by side' : 'one under the other'}`, LIMIT, async () => {
         const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
         const page = await context.newPage();
         await page.goto(`${origin}/components/button/`);
@@ -173,7 +177,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test("the Japanese page draws the same examples in its own words", async () => {
+    test("the Japanese page draws the same examples in its own words", LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
       const page = await context.newPage();
       await page.goto(`${origin}/components/button/`);

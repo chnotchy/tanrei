@@ -23,6 +23,10 @@ import { fileURLToPath } from 'node:url';
 import { watchNetwork } from './network-quiet.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Button page at 390,
+// took 16 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -125,7 +129,7 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
   for (const url of PAGES) {
     for (const viewport of VIEWPORTS) {
       const name = `${url} at ${viewport.width}`;
-      test(name, async (t) => {
+      test(name, LIMIT, async (t) => {
         const context = await browser.newContext({ viewport });
         try {
           const page = await context.newPage();

@@ -21,6 +21,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the frames under the
+// reader’s system, in WebKit, took 34 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 
@@ -97,7 +101,7 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('its code is closed until it is opened, under the stage, in HTML or React as the reader chose, and the copy copies it', async () => {
+    test('its code is closed until it is opened, under the stage, in HTML or React as the reader chose, and the copy copies it', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, FIRST);
       const frame = page.locator(FIRST).first();
@@ -145,7 +149,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('its stage is drawn in the other direction when that is turned, and as wide as its handle says', async () => {
+    test('its stage is drawn in the other direction when that is turned, and as wide as its handle says', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, FIRST);
       const frame = page.locator(FIRST).first();
@@ -171,7 +175,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('on a page that reads right to left, the direction turned is left to right', async () => {
+    test('on a page that reads right to left, the direction turned is left to right', LIMIT, async () => {
       const { context, page } = await open('/ar/components/button/');
       await drawn(page, FIRST);
       const toggle = page.locator(FIRST).first().locator('[data-example-direction]');
@@ -180,7 +184,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('every frame follows the design system and the scheme the reader chose for the page', async () => {
+    test('every frame follows the design system and the scheme the reader chose for the page', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, FIRST);
       const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
@@ -197,7 +201,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('what a stage holds is defined when it comes near the view, not with the page', async () => {
+    test('what a stage holds is defined when it comes near the view, not with the page', LIMIT, async () => {
       const { context, page } = await open();
       await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const far = await page.evaluate(() => {
