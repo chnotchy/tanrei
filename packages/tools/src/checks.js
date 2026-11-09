@@ -5,7 +5,7 @@ import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, heldComponents, l
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { forwards, fromProblems, resolveAll, resolveFrom, twinProblems } from './from.js';
 import { levelProblems, listingProblems } from './levels.js';
-import { partsProblems } from './parts.js';
+import { PARTS_PENDING, partsProblems } from './parts.js';
 import { placesProblems } from './places.js';
 
 const IMPLEMENTED = new Set(['alpha', 'beta', 'stable', 'deprecated']);
@@ -102,11 +102,11 @@ const webStylesheets = (name) =>
   [PLATFORMS.web.implementation(name), PLATFORMS.web.stylesheet(name)].filter((file) => file?.endsWith('.css') && exists(file)).map(read).join('\n');
 
 /**
- * Where each part of the anatomy is drawn on the web, held for every spec that writes it against the element manifest
- * and the light-DOM stylesheets: see `partsProblems`.
+ * Where each part of the anatomy is drawn on the web, required of every spec the web draws but those of `PARTS_PENDING`,
+ * and held for every spec that writes it against the element manifest and the light-DOM stylesheets: see `partsProblems`.
  */
 export function validateWebParts(specs = loadSpecs()) {
-  return partsProblems(specs, JSON.parse(read('packages/web/custom-elements.json')), webStylesheets);
+  return partsProblems(specs, JSON.parse(read('packages/web/custom-elements.json')), webStylesheets, Object.keys(PARTS_PENDING));
 }
 
 /** The levels of the components, held across every spec and the inventory: see `levelProblems`. */
