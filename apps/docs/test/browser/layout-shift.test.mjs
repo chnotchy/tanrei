@@ -218,14 +218,15 @@ describe(`under the reader's own theme, the layout shifts by no more than ${BUDG
         }, THEME);
         // The page shown in the theme: its sheet in, and the head's mark taken away. The first load may show it in the
         // default system instead, once REVEAL_AFTER has passed without the sheet (a machine too slow to compute it in
-        // time: CI's runners, WebKit), and keep the sheet for the next load; the next load reads it before its first paint.
+        // time: CI's runners), and keep the sheet for the next load; the next load reads it before its first paint. The
+        // first load's sheet is written to IndexedDB while the page goes on: the next load waits until it is kept.
         const marks = { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR, late: LATE_ATTR };
         const shown = ({ style, pending, late }) => (Boolean(document.getElementById(style)) || document.documentElement.hasAttribute(late)) && !document.documentElement.hasAttribute(pending);
         for (const load of ['computed', 'kept']) {
           let late = false;
           const shifts = await loadShifts(context, '/components/button/', [shown, marks], async (page) => {
             late = await page.evaluate((mark) => document.documentElement.hasAttribute(mark), LATE_ATTR);
-            if (late) await until(page, 'the sheet computed after the page was shown, kept for the next load', sheetKept, { ...SHEET_STORE, hash: 'shift1' });
+            await until(page, late ? 'the sheet computed after the page was shown, kept for the next load' : 'the sheet kept for the next load', sheetKept, { ...SHEET_STORE, hash: 'shift1' });
           });
           assert.ok(load === 'computed' || !late, 'the kept sheet is read before the first paint: the page is shown in the theme');
           const total = shifts.reduce((sum, { value }) => sum + value, 0);

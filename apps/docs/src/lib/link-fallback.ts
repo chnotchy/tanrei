@@ -7,8 +7,8 @@
 // this module takes the anchor away — in the same task as the element is defined, before the frame that draws it — and
 // leaves its content where it stood. Where the script does not load, nothing is taken away.
 //
-// It is the first module of every page (components/frame/Head.astro), so it is waiting for each element before any
-// module defines one. Imported by a module that defines elements, it would run only once that module's whole graph had
+// It is the first module of every page that defines or waits for elements (components/frame/Head.astro), so it is
+// waiting for each element before any module defines one. Imported by a module that defines elements, it would run only once that module's whole graph had
 // arrived, and an element another script defines sooner (the header's Buttons define the hero's) would be drawn with the
 // anchor still in it: the anchor's own color over the Button's fill.
 import { linkAttribute } from './link';

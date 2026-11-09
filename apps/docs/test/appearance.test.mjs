@@ -13,7 +13,7 @@ register('./vite-shim.mjs', import.meta.url);
 const appearance = await import('../src/lib/appearance.ts');
 const { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } = await import('../src/lib/listing.mjs');
 const { manifests } = await import('../src/lib/repo.ts');
-const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
+const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
 /** The key of a build, as lib/sheet-key.mjs gives one. */
 const BUILD = '0123456789abcdef';
 
@@ -24,17 +24,38 @@ const SHOWCASE = looks.find((id) => id !== DEFAULT);
 
 /**
  * The head's script, run with a storage that holds `stored` (or throws), an address, and the device's scheme: the
- * attributes it leaves on the root, and the rule it writes.
+ * attributes it leaves on the root, and the rule it writes. `after` is what the parser has put after the script in the
+ * head so far (`{ localName, type, src }`); the head's observers are kept in `observers`.
  */
-function boot({ stored = null, custom = null, sheets = null, search = '', dark = false, script = appearanceBootstrap(bootConfig(looks, BUILD)) } = {}) {
+function boot({ stored = null, custom = null, sheets = null, search = '', dark = false, after = null, script = appearanceBootstrap(bootConfig(looks, BUILD)) } = {}) {
   const attributes = {};
   const head = [];
   const timers = [];
-  const element = () => {
+  const element = (localName) => {
     const own = {};
-    return { setAttribute: (name, value) => (own[name] = String(value)), getAttribute: (name) => own[name] ?? null, attributes: own };
+    const made = { localName, setAttribute: (name, value) => (own[name] = String(value)), getAttribute: (name) => own[name] ?? null, attributes: own };
+    Object.defineProperty(made, 'nextElementSibling', { get: () => siblings()[siblings().indexOf(made) + 1] ?? null });
+    return made;
   };
+  // The script itself, in the head: its next siblings are what the parser has put after it, then what it appended.
+  const parsed = after ?? [];
+  const siblings = () => [...parsed, ...head];
+  const me = after && { get parentNode() { return document.head; }, get nextElementSibling() { return siblings()[0] ?? null; } };
+  for (const node of parsed) Object.defineProperty(node, 'nextElementSibling', { configurable: true, get: () => siblings()[siblings().indexOf(node) + 1] ?? null });
+  const observers = [];
+  class MutationObserver {
+    constructor(callback) {
+      this.callback = callback;
+    }
+    observe(target, options) {
+      observers.push({ observer: this, target, options });
+    }
+    disconnect() {
+      observers.splice(observers.findIndex((entry) => entry.observer === this), 1);
+    }
+  }
   const document = {
+    currentScript: me,
     documentElement: { setAttribute: (name, value) => (attributes[name] = String(value)), removeAttribute: (name) => delete attributes[name], getAttribute: (name) => attributes[name] ?? null, hasAttribute: (name) => name in attributes },
     createElement: element,
     getElementById: (id) => head.find((node) => node.id === id) ?? null,
@@ -57,8 +78,8 @@ function boot({ stored = null, custom = null, sheets = null, search = '', dark =
   const setTimeout = (run, ms) => timers.push({ run, ms });
   // A frame is a turn of the microtasks here: what waits for two of them has waited when a test has waited for a task.
   const requestAnimationFrame = (run) => queueMicrotask(run);
-  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame);
-  return { attributes, rule: head.find((node) => node.id === SYSTEM_RULE_ID), head, timers };
+  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', 'MutationObserver', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame, MutationObserver);
+  return { attributes, rule: head.find((node) => node.id === SYSTEM_RULE_ID), head, timers, parsed, observers };
 }
 
 describe('the appearance', () => {
@@ -130,6 +151,7 @@ describe('the appearance', () => {
     assert.equal(waiting.rule.textContent, `[${ABSENT_ATTR}~="${SHOWCASE}"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`, 'the lists of the system it extends');
     await new Promise((resolve) => setTimeout(resolve, 0));
     assert.equal(waiting.attributes[PENDING_ATTR], '', 'still hidden: the modules compute the sheet');
+    assert.equal(waiting.attributes[MISSING_ATTR], sheetKey(BUILD, 'k3x9'), 'and told that IndexedDB holds none, under the key it is computed under');
     assert.deepEqual(waiting.timers.map((timer) => timer.ms), [REVEAL_AFTER]);
     waiting.timers[0].run();
     assert.equal(waiting.attributes[PENDING_ATTR], undefined);
@@ -145,6 +167,7 @@ describe('the appearance', () => {
     assert.equal(style?.textContent, css);
     assert.equal(style.getAttribute('data-key'), sheetKey(BUILD, 'k3x9'));
     assert.equal(found.attributes[PENDING_ATTR], undefined);
+    assert.equal(found.attributes[MISSING_ATTR], undefined);
     found.timers[0].run();
     assert.deepEqual([found.attributes[LOOK_ATTR], found.attributes[LATE_ATTR]], [CUSTOM_LOOK, undefined], 'the time limit changes nothing once the sheet is in');
     // Another build's sheet is not used.
@@ -156,6 +179,32 @@ describe('the appearance', () => {
     const none = boot({ stored, custom });
     assert.equal(none.attributes[PENDING_ATTR], '');
     assert.deepEqual(none.timers.map((timer) => timer.ms), [REVEAL_AFTER]);
+  });
+
+  test('the head’s script under the reader’s theme with no sheet kept: the module after it run at once, as a script of its own, once the parser has put it there', async () => {
+    const custom = JSON.stringify({ hash: 'k3x9', layer: { id: 'acme', extends: SHOWCASE } });
+    const stored = JSON.stringify({ look: CUSTOM_LOOK });
+    const module = { localName: 'script', type: 'module', src: '/_astro/ThemeProvider.js' };
+    const started = (run) => run.head.filter((node) => node.localName === 'script').map((node) => [node.type, node.src]);
+    // Parsed already (after the rule the script appended): asked for at once.
+    const ready = boot({ stored, custom, sheets: {}, after: [module] });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.deepEqual(started(ready), [['module', module.src]]);
+    assert.deepEqual(ready.observers, []);
+    // Not parsed yet: asked for once the parser puts it in the head.
+    const later = boot({ stored, custom, sheets: {}, after: [] });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.deepEqual(started(later), []);
+    assert.equal(later.observers.length, 1);
+    later.parsed.push(module);
+    later.observers[0].observer.callback();
+    assert.deepEqual(started(later), [['module', module.src]]);
+    assert.deepEqual(later.observers, [], 'and the head no longer watched');
+    // A sheet kept: nothing asked for (the module runs in its turn), and no mark.
+    const kept = boot({ stored, custom, sheets: { [sheetKey(BUILD, 'k3x9')]: 'x' }, after: [module] });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.deepEqual(started(kept), []);
+    assert.equal(kept.attributes[MISSING_ATTR], undefined);
   });
 
   test('the head’s script with a theme kept and another look: nothing hidden, the mark that one is kept; with none kept, the look `custom` is the default', () => {

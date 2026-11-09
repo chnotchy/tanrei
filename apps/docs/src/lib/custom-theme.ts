@@ -10,10 +10,12 @@
 //                    computed is not used) and the layer's hash; IndexedDB keeps one sheet, the last.
 //
 // The head's script reads the sheet from IndexedDB before the first paint where it can (lib/appearance.ts); what it
-// cannot is done here, once the page's modules run: `showCustomSheet`.
+// cannot is done here, by the page's first module (components/frame/ThemeProvider.astro): `showCustomSheet`, which
+// asks the worker for a sheet IndexedDB does not hold as soon as the document is parsed, without waiting for the rest
+// of the page's modules, whose graphs take a second or more to arrive in some engines.
 import build from 'virtual:tanrei-docs/sheet-key';
 import { pageSheetInWorker } from '@tanrei/studio/page-sheet';
-import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, PENDING_ATTR, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
+import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, PENDING_ATTR, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
 
 /** The theme as it is kept. */
 interface Kept {
@@ -102,15 +104,64 @@ function finishMotions(): void {
   }
 }
 
-/** The theme's stylesheet: IndexedDB's, else computed in the worker and kept there. */
-async function sheetOf(theme: Kept): Promise<string> {
-  const key = sheetKey(build, theme.hash);
-  const cached = await new Promise<string | null>((resolve) => readSheet(SHEET_STORE.db, SHEET_STORE.store, key, resolve));
-  if (cached !== null) return cached;
-  const css = await pageSheetInWorker(theme.layer);
-  await writeSheet(key, css);
-  return css;
+/**
+ * The sheet IndexedDB keeps under `key`, or null. The head's script asks IndexedDB first: where it finds the sheet it
+ * puts it in, and where it finds none it marks the root (`MISSING_ATTR`). Its answer is taken, before or while IndexedDB
+ * is asked again here — an engine busy loading the page's modules (WebKit) answers a second time a second or two later.
+ */
+function keptSheet(key: string): Promise<string | null> {
+  const root = document.documentElement;
+  return new Promise((resolve) => {
+    const told = new MutationObserver(() => heard());
+    const answer = (css: string | null) => {
+      told.disconnect();
+      if (root.getAttribute(MISSING_ATTR) === key) root.removeAttribute(MISSING_ATTR);
+      resolve(css);
+    };
+    const heard = () => {
+      const style = document.getElementById(CUSTOM_STYLE_ID);
+      if (style?.getAttribute('data-key') === key) answer(style.textContent);
+      else if (root.getAttribute(MISSING_ATTR) === key) answer(null);
+      else return false;
+      return true;
+    };
+    if (heard()) return;
+    told.observe(root, { attributes: true, attributeFilter: [MISSING_ATTR] });
+    told.observe(document.head, { childList: true });
+    readSheet(SHEET_STORE.db, SHEET_STORE.store, key, answer);
+  });
 }
+
+/** The stylesheets being had now, by their key: a sheet asked for again meanwhile is had once, not computed twice. */
+const asked = new Map<string, Promise<string>>();
+
+/**
+ * The theme's stylesheet: IndexedDB's, else computed in the worker — and kept there, while the page goes on: an engine
+ * busy loading the page's modules (WebKit) writes to IndexedDB only seconds later, and the page does not wait for that.
+ */
+function sheetOf(theme: Kept): Promise<string> {
+  const key = sheetKey(build, theme.hash);
+  const asking = asked.get(key);
+  if (asking) return asking;
+  let writing = Promise.resolve();
+  const sheet = (async () => {
+    const cached = await keptSheet(key);
+    if (cached !== null) return cached;
+    const css = await pageSheetInWorker(theme.layer);
+    writing = writeSheet(key, css);
+    return css;
+  })();
+  asked.set(key, sheet);
+  // Asked for again once it is kept, it is read.
+  sheet.then(
+    () => void writing.then(() => asked.delete(key)),
+    () => asked.delete(key),
+  );
+  return sheet;
+}
+
+/** The sheet being put in place now, by its key: a call made meanwhile (the head's module, then lib/appearance.ts) waits for it. */
+let showing: { key: string; done: Promise<void> } | null = null;
 
 /**
  * The theme's stylesheet in place, while the look is the reader's theme — then the page is shown, if the head's script
@@ -118,12 +169,23 @@ async function sheetOf(theme: Kept): Promise<string> {
  * system: the sheet is only computed and kept, for the next page. A sheet that cannot be had (the worker failed)
  * leaves the page in the default system, and says why in the console.
  */
-export async function showCustomSheet(): Promise<void> {
-  const root = document.documentElement;
+export function showCustomSheet(): Promise<void> {
   const theme = kept();
+  const key = theme ? sheetKey(build, theme.hash) : '';
+  if (showing?.key === key) return showing.done;
+  const done = placeCustomSheet(theme, key);
+  const now = { key, done };
+  showing = now;
+  void done.then(() => {
+    if (showing === now) showing = null;
+  });
+  return done;
+}
+
+async function placeCustomSheet(theme: Kept | null, key: string): Promise<void> {
+  const root = document.documentElement;
   try {
     if (!theme || (root.getAttribute(LOOK_ATTR) !== CUSTOM_LOOK && !root.hasAttribute(LATE_ATTR))) return;
-    const key = sheetKey(build, theme.hash);
     if (document.getElementById(CUSTOM_STYLE_ID)?.getAttribute('data-key') === key) return;
     const css = await sheetOf(theme);
     // Still asked for: the look, or the theme, may have changed meanwhile.
