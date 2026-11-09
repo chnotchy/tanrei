@@ -21,6 +21,7 @@ import {
   type TanreiLinkTarget,
   ambientConvention,
   assignSlot,
+  atOnce,
   chordsConverter,
   chordsOf,
   containedWheel,
@@ -2269,7 +2270,12 @@ export class TanreiSearch extends TanreiElement {
       else if (isLeaving(dialog)) void closeModal(dialog, { instant: true });
       // Drawn in place, the view is marked open and takes no focus of its own (`show()` would run the dialog's
       // focusing steps, in a view the page drew and nobody opened): the input keeps it where the person's act put it.
-      if (wanted && !dialog.open) dialog.open = true;
+      // MOT-4: marked open before the document's first paint (written `expanded` in the page's markup), it is there in
+      // its first frame, not faded in from its starting style; later, it fades in as it opens.
+      if (wanted && !dialog.open) {
+        if (documentPainted()) dialog.open = true;
+        else atOnce(dialog, () => (dialog.open = true));
+      }
       else if (!wanted && dialog.open) dialog.open = false;
       return;
     }

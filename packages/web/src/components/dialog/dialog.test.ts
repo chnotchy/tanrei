@@ -361,6 +361,16 @@ test.describe('presentation and focus', () => {
     expect(entrances(atLoad)).toEqual([]);
   });
 
+  test('DLG-13, DLG-10, MOT-3: a dialog in the page\'s markup with open whose actions are stacked (laid out again as it opens) starts no motion at all as the page loads — its scrim does not fade in either', async ({ page }) => {
+    for (const id of ['stacked', 'compact-stacked']) {
+      await page.setViewportSize(dialogWindow(id));
+      const atLoad = await loadOpen(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
+      expect(atLoad, `${id} in the page’s markup`).toEqual([]);
+      const scrim = await dialog(page, id).evaluate((el) => getComputedStyle(el, '::backdrop').opacity);
+      expect(scrim, `${id}: the scrim is drawn whole`).toBe('1');
+    }
+  });
+
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {
     const seen = reports(page);
     await mount(page, [f('d'), f('alert', { alert: true, headline: 'Connection lost' }), f('nameless', { headline: '' })]);
