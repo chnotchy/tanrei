@@ -15,6 +15,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
@@ -1302,6 +1303,15 @@ test.describe('behavior: the list', () => {
     expect(await log()).toEqual(['select:toggle false anchor-hidden']);
     // The list holds options and nothing that opens anything.
     expect(await select.evaluate((el) => el.shadowRoot!.querySelectorAll('.list [popover], .list [aria-haspopup], .list a, .list button').length)).toBe(0);
+  });
+
+  test('SEL-30: a select in the page’s markup with open has its list there in its first frame, playing no entrance, and one mounted open after the first paint brings its list in with it (POP-26, MOT-4)', async ({ page }) => {
+    const fixture = spec.fixtures.find((f) => f.id === 'stacked-open')!;
+    const atLoad = await loadOpen(page, spec, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, inline: false } }] });
+    expect(entrances(atLoad), 'in the page’s markup').toEqual([]);
+    expect(await host(page, 'stacked-open').evaluate((el) => (el as HTMLElement & { open: boolean }).open)).toBe(true);
+    await mountOpenAgain(page);
+    expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), 'mounted after the first paint').toEqual(['opacity', 'scale']);
   });
 
   test('SEL-30: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {
