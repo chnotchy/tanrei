@@ -1,5 +1,5 @@
 // The start point, first in the bar: what the layer starts from — the default system, the root (listed, and offered
-// once it is a blank start: core.startPoints), an example of the gallery — and a layer file to load in its
+// once the command line can start a layer from it too: core.startPoints), an example of the gallery — and a layer file to load in its
 // place. A button that opens a menu: a radio item for each start, the import as an item of its own.
 import { type Ctx, type Json, h } from './dom';
 
@@ -17,7 +17,7 @@ export function createStartPoint(ctx: Ctx, { onstart, onfile }: { onstart: (id: 
     const point = points.find((each) => each.id === id);
     return point ? (point.kind === 'example' ? point.id : point.name) : id;
   };
-  const note = (point: Point) => (point.kind === 'default' ? t.start.defaultNote : point.kind === 'root' ? (point.offered ? '' : t.start.notNeutral) : t.start.exampleNote(point.name));
+  const note = (point: Point) => (point.kind === 'default' ? t.start.defaultNote : point.kind === 'root' ? (point.offered ? '' : t.start.notInInit) : t.start.exampleNote(point.name));
   const item = (point: Point) => h('tanrei-menu-radio-item', { value: point.id, label: nameOf(point.id), 'supporting-text': note(point), disabled: !point.offered, 'data-start': point.id });
   const id = ctx.uid('ts-start');
   const label = h('span', { 'data-start-label': true });

@@ -559,9 +559,10 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   function startPoints() {
     const of = (id, kind, extra = {}) => ({ id, name: layers[id].name ?? id, description: layers[id].description ?? '', kind, offered: true, ...extra });
     const out = [of(defaultId, 'default')];
-    // TODO: the root is offered as a blank start once it holds neutral values of its own instead of the default
-    // system's, and the command line's `tanrei init --extends` takes it; until then it is listed, and cannot be chosen.
-    if (rootId !== defaultId) out.push(of(rootId, 'root', { offered: false, reason: 'not-neutral' }));
+    // TODO: the root holds neutral values now (grey, no accent); it is offered as a blank start once the command line's
+    // `tanrei init --extends` takes it too, which it refuses today ("is not a shipped system"). Until then it is listed,
+    // and cannot be chosen.
+    if (rootId !== defaultId) out.push(of(rootId, 'root', { offered: false, reason: 'not-in-init' }));
     for (const system of shippedSystems) if (system.id !== defaultId) out.push(of(system.id, 'example'));
     return out;
   }
