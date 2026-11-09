@@ -5894,6 +5894,17 @@ above the on-screen keyboard, and only what a visual viewport scrolled or zoomed
 events, no frame at rest — and keeps the side it is on while that side has room. The anchor removed, hidden or wholly
 out of sight (also inside a scrolling ancestor): `close`, reason `anchor-hidden`, once each time it goes.
 
+**Under an ancestor's CSS `zoom`.** The top layer takes the zoom of the surface's ancestors in the page (no transform of
+theirs reaches it), so the surface is drawn that much larger, and so is every length it is given. It is placed in the
+window's pixels: what it reads from its own style and layout (the offset, the margin, the arrow's measures, its least
+size, a laid-out size) is multiplied by its zoom (`cssZoom()`, `src/primitives/layout-scale.ts`: `currentCSSZoom`, else
+the computed `zoom` of the surface and its ancestors in the flat tree multiplied together — never what its box is drawn
+at over what it is laid out at, which would take its entrance's scale for a zoom), and what it writes back (`top`,
+`left`, its limits, the anchor's width, the arrow's place) is divided by it. It then stands at its anchor as it does with no zoom, every distance at the zoom.
+The tooltip, the menu and a submenu, the docked date-time picker, the search's docked view, the FAB menu's items and the
+slider's value indicator place themselves the same way, and a row of actions (`ActionPlacement`) is measured in its own
+pixels; `src/zoom.test.ts` checks each.
+
 **Size (POP-7, POP-8).** The container is as wide as its widest part — its actions counted as one row at their own
 widths, also while they are a column — between the least and greatest width, and never wider than the window less the
 margins. As tall as its parts, up to `container.max-height` and the room. Beyond that the header and the actions stay

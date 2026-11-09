@@ -6,6 +6,7 @@ import {
   BOUND_CHORDS,
   type Binding,
   FollowController,
+  cssZoom,
   GlyphDrawnController,
   KeptLengths,
   GlyphMirrorController,
@@ -2118,14 +2119,17 @@ export class TanreiSearch extends TanreiElement {
     const bar = this.barElement;
     if (!view || !bar || !this.viewShown) return;
     const style = getComputedStyle(view);
-    const offset = Number.parseFloat(style.scrollMarginBlockStart) || 0;
-    const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
+    // Placed in the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the
+    // view's style and layout is turned into them and what is written on it back into its own (`cssZoom()`).
+    const zoom = cssZoom(view);
+    const offset = (Number.parseFloat(style.scrollMarginBlockStart) || 0) * zoom;
+    const margin = (Number.parseFloat(style.scrollMarginBlockEnd) || 0) * zoom;
     const box = bar.getBoundingClientRect();
-    view.style.inlineSize = `${box.width}px`;
+    view.style.inlineSize = `${box.width / zoom}px`;
     const at = placeMenu({
       anchor: box,
       // SRC-14: measured capped, so following the bar never loses the active suggestion.
-      surface: { width: box.width, height: naturalHeight(view, view.querySelector<HTMLElement>('.scroll')) },
+      surface: { width: box.width, height: naturalHeight(view, view.querySelector<HTMLElement>('.scroll')) * zoom },
       // The visible part of the window: above the on-screen keyboard.
       viewport: visibleViewport(),
       placement: 'bottom-start',
@@ -2133,9 +2137,9 @@ export class TanreiSearch extends TanreiElement {
       margin,
       rtl: false,
     });
-    view.style.top = `${at.top}px`;
-    view.style.left = `${box.left}px`;
-    view.style.maxBlockSize = `${at.maxHeight}px`;
+    view.style.top = `${at.top / zoom}px`;
+    view.style.left = `${box.left / zoom}px`;
+    view.style.maxBlockSize = `${at.maxHeight / zoom}px`;
     view.classList.toggle('side-top', at.side === 'top');
   }
 

@@ -1,3 +1,5 @@
+import { flatParent } from './flat-tree.js';
+
 /**
  * How much larger an element is drawn than it is laid out, along each axis: 1 at rest, 0.9 while an ancestor scales it
  * in from 0.9 (a dialog or a popover growing over its open motion), any number under a transformed ancestor.
@@ -30,4 +32,36 @@ export function layoutScale(element: Element, drawn: DOMRectReadOnly = element.g
     return Math.abs(scale - 1) < 1e-4 ? 1 : scale;
   };
   return { x: ratio(drawn.width, laid.x), y: ratio(drawn.height, laid.y) };
+}
+
+/**
+ * The CSS `zoom` an element is drawn at: its own times its ancestors'. An element in the top layer takes the zoom of
+ * its ancestors in the page — its box is that much larger — though no transform of theirs reaches it. 1 where no zoom
+ * is set.
+ *
+ * Under a zoom the element's pixels are not the window's: `getBoundingClientRect()` answers in the window's pixels,
+ * while a length the element is given (`top`, `left`, a custom property its rules size it by) is drawn at the zoom
+ * times its value, and a length read from its computed style or its layout (`offsetHeight`, `layoutSize()`) is in its
+ * own pixels. A component that places an element against another by script measures in the window's pixels: it turns
+ * what it reads from the element into them (times the zoom) and what it writes back into the element's own (divided by
+ * it), so that the element stands against what it is placed by, the distances between them drawn at the zoom as the
+ * element is.
+ *
+ * `Element.currentCSSZoom` where the engine has it; elsewhere the product of the computed `zoom` of the element and of
+ * each of its ancestors in the flat tree (`flatParent()`: its slot, its parent, its shadow root's host), which is what
+ * `currentCSSZoom` answers. The zoom is never found by measuring the element's box: a surface is measured while its
+ * entrance scales it (a menu's from 0.96), and what it is drawn at over what it is laid out at would take that scale
+ * for a zoom (`layoutScale()` is for that scale).
+ */
+export function cssZoom(element: Element): number {
+  const current = (element as Element & { currentCSSZoom?: number }).currentCSSZoom;
+  if (typeof current === 'number' && current > 0) return current;
+  let zoom = 1;
+  for (let at: Element | null = element; at; at = flatParent(at)) {
+    // The computed value is a number; a percentage is turned into one all the same. `normal`, and a zoom of 0, are 1.
+    const value = getComputedStyle(at).zoom;
+    const own = Number.parseFloat(value) / (value.trim().endsWith('%') ? 100 : 1);
+    if (own > 0) zoom *= own;
+  }
+  return zoom;
 }
