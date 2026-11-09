@@ -24,5 +24,8 @@ sheet in a compact window move the same way.
   `sheetLookStyles()` takes `motion`: the dialog's selector for its motion, where `sheet` names the dialog through the
   shadow host.
 
+The shared motion costs about 2 kB gzip in each sheet's bundle: the bottom sheet's budget goes from 48,200 to 50,700
+bytes (measured 48,222) and the side sheet's from 44,900 to 47,400 (measured 45,058), each the measured size and 5 %.
+
 BSH-1 and SSH-2 now say how the sheet and its scrim move. The SwiftUI, Compose, Flutter and React Native platforms are
 paused, and their sheets were not changed or checked against the new wording.

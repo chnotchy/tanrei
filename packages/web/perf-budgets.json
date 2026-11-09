@@ -36,8 +36,8 @@
       "allowedComponents": []
     },
     "bottom-sheet": {
-      "budget": 48200,
-      "measured": 46252,
+      "budget": 50700,
+      "measured": 48222,
       "allowedComponents": [
         "button",
         "handle"
@@ -519,8 +519,8 @@
       ]
     },
     "side-sheet": {
-      "budget": 44900,
-      "measured": 43093,
+      "budget": 47400,
+      "measured": 45058,
       "allowedComponents": [
         "button"
       ]
