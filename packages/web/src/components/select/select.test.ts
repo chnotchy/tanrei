@@ -19,7 +19,7 @@ import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/m
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('select');
@@ -1313,6 +1313,19 @@ test.describe('behavior: the list', () => {
     expect(await host(page, 'stacked-open').evaluate((el) => (el as HTMLElement & { open: boolean }).open)).toBe(true);
     await mountOpenAgain(page);
     expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), 'mounted after the first paint').toEqual(['opacity', 'scale']);
+  });
+
+  test('SEL-30, MOT-3: a select in the page’s markup with open starts no motion at all as it loads, and the check of its chosen option appears without one when the icon face arrives after the select has settled (SEL-39)', async ({ page }) => {
+    const fixture = spec.fixtures.find((f) => f.id === 'stacked-open')!;
+    expect(await loadOpen(page, spec, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, inline: false } }] }), 'in the page’s markup').toEqual([]);
+    // The icon face goes missing and arrives again long after the select has settled, as a page loaded cold gets it.
+    const check = host(page, 'stacked-open').locator('.row.selected .check');
+    await withoutIconFont(page);
+    await expect(check).not.toHaveAttribute('data-drawn');
+    await iconFaceArrives(page);
+    await expect(check).toHaveAttribute('data-drawn', '');
+    await expect(check).toHaveCSS('visibility', 'visible');
+    expect(await runsAtRest(page), 'when the face goes and comes back').toEqual([]);
   });
 
   test('SEL-30: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {

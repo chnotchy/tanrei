@@ -852,6 +852,13 @@ test.describe('forms, focus and dismissal', () => {
     expect((await runsAtRest(page)).filter((run) => run.host === 'tanrei-side-sheet'), 'mounted after the first paint').toEqual([]);
   });
 
+  test('SSH-2, SSH-11, MOT-3: a modal sheet in the page’s markup with open whose actions are stacked (laid out again as it opens) starts no motion at all as the page loads — its scrim does not fade in either', async ({ page }) => {
+    await page.setViewportSize(WINDOW);
+    expect(await loadOpen(page, spec, { icons: true, fixtures: [fixtureOf('modal-stacked')] }), 'in the page’s markup').toEqual([]);
+    const sheet = page.locator('[data-fixture="modal-stacked"] tanrei-side-sheet').locator('dialog');
+    expect(await sheet.evaluate((el) => getComputedStyle(el, '::backdrop').opacity), 'the scrim is drawn whole').toBe('1');
+  });
+
   test('SSH-3: opening moves focus to the element marked autofocus, else the sheet; closing with focus inside returns it (or drops it when that element is gone) — when it opens and closes, not when the motion ends; mounted open, only a modal sheet moves focus', async ({ page }) => {
     for (const variant of ['modal', 'standard']) {
       await mount(page, [fx('s', { open: false, variant }, '<button id="a">A</button> <button id="marked" autofocus>B</button>'), fx('plain', { open: false, variant, headline: 'Plain' })]);

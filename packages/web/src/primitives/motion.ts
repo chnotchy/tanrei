@@ -780,6 +780,14 @@ export class AnimatedSize implements ReactiveController {
 
 // Every element settles, so the hosts that ask in one frame are let go by one pair of frame callbacks between them: a
 // page that draws two thousand elements asks for two frames, not four thousand callbacks.
+//
+// Before they are let go the page is styled, once for the batch: a state written after the last frame drawn while they
+// settled — in a task between it and this one (an image preview's zoom-in control, enabled when its image has loaded),
+// or in an earlier callback of this frame — would otherwise be styled in the same pass as the attribute that turns
+// transitions back on, and move from the state before it. The flush is a layout's: asking for one element's style is
+// answered without styling the others (every engine skips a flush that element's own style does not need), and the
+// state may be anywhere in a shadow tree. It is a layout the frame was about to make; letting go then changes only
+// `transition-property`, which lays nothing out.
 let settlingNow: (() => void)[] | null = null;
 const afterTwoFrames = (done: () => void) => {
   if (typeof requestAnimationFrame !== 'function') return done();
@@ -789,6 +797,7 @@ const afterTwoFrames = (done: () => void) => {
     requestAnimationFrame(() => {
       settlingNow = null;
       requestAnimationFrame(() => {
+        void document.documentElement.offsetWidth;
         for (const settled of batch) settled();
       });
     });

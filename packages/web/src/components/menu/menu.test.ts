@@ -1517,20 +1517,21 @@ test.describe('items', () => {
     expect(await css(indicator, 'visibility')).toBe('hidden');
     expect((await bounds(indicator)).width).toBeCloseTo(await resolveToken(page, T('trailing-icon-size-regular')), 1);
     await expect(labelled(page, 'submenu-open', 'Open recent')).toHaveAttribute('aria-expanded', 'true');
-    // The face can draw it: the glyphs are there at once, with no fade.
-    await check.evaluate((el) => {
-      (window as any).ran = [];
-      el.addEventListener('transitionrun', (e) => (window as any).ran.push((e as TransitionEvent).propertyName));
-    });
+    // The face can draw it: the glyphs are there at once, starting no transition — neither the fade nor the change of
+    // visibility that ends the box's hidden state (MOT-3).
+    await page.evaluate(() => ((window as unknown as { ran: string[] }).ran = []));
+    for (const mark of [check, boxed.locator('.box-check')]) {
+      await mark.evaluate((el) => el.addEventListener('transitionrun', (e) => (window as unknown as { ran: string[] }).ran.push(`${(e.target as Element).className} ${(e as TransitionEvent).propertyName}`)));
+    }
     await iconFaceArrives(page);
     await expect(check).toHaveAttribute('data-drawn', '');
     expect(await css(check, 'visibility')).toBe('visible');
     expect(await css(check, 'opacity')).toBe('1');
-    expect(await page.evaluate(() => (window as any).ran)).not.toContain('opacity');
     await expect(boxed.locator('.box-check')).toHaveAttribute('data-drawn', '');
     expect(await css(boxed.locator('.box-check'), 'visibility')).toBe('visible');
     await expect(indicator).toHaveAttribute('data-drawn', '');
     expect(await css(indicator, 'visibility')).toBe('visible');
+    expect(await page.evaluate(() => (window as unknown as { ran: string[] }).ran), 'no transition as the glyphs appear').toEqual([]);
     // A face that does not load at all (the items are mounted without the icon faces, and the family is one no machine
     // has — the default's may be installed locally): nothing, never the word.
     await mountFixtures(page, spec);
