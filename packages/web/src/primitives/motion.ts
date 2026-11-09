@@ -263,6 +263,9 @@ export function appearStyles(options: AppearOptions): CSSResult {
 const appearing = (element: Element) =>
   element.getAnimations().filter((animation) => APPEAR_PROPERTIES.has((animation as CSSTransition).transitionProperty ?? '') && animation.playState !== 'finished');
 
+/** The motions `startFromNextFrame()` has held: each is held once. */
+const heldOnce = new WeakSet<Animation>();
+
 /**
  * The motions that a change of state just started, in the task that made it, begin in the first frame drawn after it,
  * in every engine. WebKit dates a transition from the timeline's time, which is the time of the frame drawn last and
@@ -275,13 +278,16 @@ const appearing = (element: Element) =>
  * replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden document
  * draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the motions are
  * an exit, which the surface waits for before it goes, and so are played even where a page clock holds frame callbacks
- * (`nextFrame`).
+ * (`nextFrame`). A motion is held once: played from that frame, it waits there for its start time, and held again then
+ * Chromium never gave it one — it stood at its start, pending, for good (a submenu item's colors, held as its submenu
+ * opened and again by the key that opened the next one before a frame had started them).
  */
 export function startFromNextFrame(motions: readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
   if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
-  const started = motions.filter((animation) => animation.playState === 'running');
+  const started = motions.filter((animation) => animation.playState === 'running' && !heldOnce.has(animation));
   if (!started.length) return;
   for (const animation of started) {
+    heldOnce.add(animation);
     animation.pause();
     animation.currentTime = 0;
   }
