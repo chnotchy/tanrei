@@ -2126,11 +2126,14 @@ test.describe('accessibility', () => {
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
-    // Reduced motion: the surface is whole at once, not measured mid-fade.
+    // With the menu open. Even under reduced motion the surface does not appear at once: it cross-fades over
+    // sys.motion.role.reduced (MOT-6), and axe reading it mid-fade measures its text against the page through a
+    // translucent surface. So axe reads it once the motion has ended.
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [withMenu('menu')] });
     await wire(page);
     await trailing(page, 'menu').click();
     await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
+    await motionEnded(host(page, 'menu'));
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations, results.violations.map((v) => v.id).join(', ')).toEqual([]);
   });
