@@ -1804,7 +1804,17 @@ test.describe('the bar', () => {
     // Its indicator is drawn by the box over it, exactly on it, which does not scroll with the text.
     await expect(part(page, 'expanded-scrolls', 'focus')).toHaveCSS('outline-style', 'solid');
     await expect(text).toHaveCSS('outline-style', 'none');
-    expect(await part(page, 'expanded-scrolls', 'focus').boundingBox()).toEqual(await text.boundingBox());
+    // Both boxes are read in one task, from one layout. Read one after the other they straddled a frame where the page
+    // still scrolled: Firefox on Linux brings the text into view at a scroll position one pixel past where it settles
+    // a frame later (1370, then 1369, in each of 25 runs of scripts/ci-like.sh), and the box read in the first frame
+    // stood a pixel above the one read in the next — while in every frame the two were one box.
+    const boxes = await bar(page, 'expanded-scrolls').evaluate((el) =>
+      ['focus', 'text'].map((name) => {
+        const { x, y, width, height } = el.shadowRoot!.querySelector(`.${name}`)!.getBoundingClientRect();
+        return { x, y, width, height };
+      }),
+    );
+    expect(boxes[0], 'the focus box is the text box').toEqual(boxes[1]);
     // Each key is pressed on text at rest — its last scroll ended (`scrollend`) and five frames without a move — and
     // placed where the key has room to scroll it: at its start for Arrow Down and Page Down, at its end for Page Up (a
     // key scrolls over some frames, and read on its way, the next key's start would be wrong). The text is placed only
