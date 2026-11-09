@@ -15,6 +15,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
+import { sheetKept, until } from './kept-sheet.mjs';
 import { bounded, engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
@@ -294,16 +295,7 @@ for (const engine of ENGINES) {
         assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsSystem, document.documentElement.hasAttribute(late)], LATE_ATTR), [DEFAULT, true]);
         assert.equal(await page.evaluate((style) => Boolean(document.getElementById(style)), CUSTOM_STYLE_ID), false, 'the late sheet is not put in on that page');
         // The next page: the sheet kept by then is read before the page is shown.
-        await bounded('the late sheet kept', page.waitForFunction(async ({ db, store }) => {
-          const open = indexedDB.open(db, 1);
-          const base = await new Promise((resolve) => (open.onsuccess = () => resolve(open.result)));
-          const keys = await new Promise((resolve) => {
-            const all = base.transaction(store, 'readonly').objectStore(store).getAllKeys();
-            all.onsuccess = () => resolve(all.result);
-          });
-          base.close();
-          return keys.some((key) => String(key).endsWith(':fresh1'));
-        }, SHEET_STORE, { timeout: 60_000, polling: 250 }));
+        await until(page, 'the late sheet kept', sheetKept, { ...SHEET_STORE, hash: 'fresh1' });
         await page.reload();
       }
       await drawn(page);

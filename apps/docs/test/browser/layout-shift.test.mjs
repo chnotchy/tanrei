@@ -21,11 +21,12 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { register } from 'node:module';
+import { sheetKept, until } from './kept-sheet.mjs';
 import { watchNetwork } from './network-quiet.mjs';
 import { launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
-const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_STYLE_ID, PENDING_ATTR } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_STYLE_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Button page at 390,
 // took 16 s in CI.
@@ -131,9 +132,10 @@ async function shiftsAtRest() {
 
 /**
  * The shifts of one load of `url` in `context`, every script held until the page has been drawn without them; with
- * `settled` (a function run in the page, and its argument), also once the page says it is.
+ * `settled` (a function run in the page, and its argument), also once the page says it is. `done`, given the page once
+ * its shifts are read, says what it wants of it before it is closed.
  */
-async function loadShifts(context, url, settled) {
+async function loadShifts(context, url, settled, done) {
   const page = await context.newPage();
   await page.addInitScript(observeShifts);
   // Every script (the page's and its windows') is held until the page has been drawn without them.
@@ -151,6 +153,7 @@ async function loadShifts(context, url, settled) {
   await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
   if (settled) await page.waitForFunction(settled[0], settled[1], { timeout: 60_000 });
   const shifts = await page.evaluate(shiftsAtRest);
+  await done?.(page);
   await page.close();
   return shifts;
 }
@@ -213,12 +216,20 @@ describe(`under the reader's own theme, the layout shifts by no more than ${BUDG
           localStorage.setItem(key, JSON.stringify({ hash: 'shift1', layer }));
           localStorage.setItem(appearance, JSON.stringify({ look: 'custom' }));
         }, THEME);
-        // The page shown in the theme: its sheet in, and the head's mark taken away.
-        const inTheme = ({ style, pending }) => document.getElementById(style) && !document.documentElement.hasAttribute(pending);
+        // The page shown in the theme: its sheet in, and the head's mark taken away. The first load may show it in the
+        // default system instead, once REVEAL_AFTER has passed without the sheet (a machine too slow to compute it in
+        // time: CI's runners, WebKit), and keep the sheet for the next load; the next load reads it before its first paint.
+        const marks = { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR, late: LATE_ATTR };
+        const shown = ({ style, pending, late }) => (Boolean(document.getElementById(style)) || document.documentElement.hasAttribute(late)) && !document.documentElement.hasAttribute(pending);
         for (const load of ['computed', 'kept']) {
-          const shifts = await loadShifts(context, '/components/button/', [inTheme, { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR }]);
+          let late = false;
+          const shifts = await loadShifts(context, '/components/button/', [shown, marks], async (page) => {
+            late = await page.evaluate((mark) => document.documentElement.hasAttribute(mark), LATE_ATTR);
+            if (late) await until(page, 'the sheet computed after the page was shown, kept for the next load', sheetKept, { ...SHEET_STORE, hash: 'shift1' });
+          });
+          assert.ok(load === 'computed' || !late, 'the kept sheet is read before the first paint: the page is shown in the theme');
           const total = shifts.reduce((sum, { value }) => sum + value, 0);
-          t.diagnostic(`${load}: layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+          t.diagnostic(`${load}${late ? ' (shown in the default system: the sheet was not in after REVEAL_AFTER)' : ''}: layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
           const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
           assert.ok(total <= BUDGET, `the sheet ${load}: shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
         }
