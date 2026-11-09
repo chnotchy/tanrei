@@ -17,3 +17,8 @@ frame drawn after the task. Each one was seen dropped in WebKit when the opening
 
 The FAB menu's toggle turn and its first item's colors use the same shared rule (`statesFromNextFrame`) as these. Nothing
 changes where opening is quick, or in Chromium and Firefox, which already start these motions in the next frame.
+
+A motion held this way is now played from the next frame by giving it that frame's time as its start. Played with
+`play()` from that frame, a motion Chromium was already waiting to start when it was held (begun by the key before, with
+no frame drawn since) never got a start time, and stood at its start for good: a menu item's colors, as a key opened a
+submenu right after the key that moved focus off the item.
