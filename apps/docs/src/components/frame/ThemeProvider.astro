@@ -5,6 +5,16 @@
 // that hides from the lists of components what the look does not have; under the reader's own theme, it puts the
 // theme's stylesheet in from IndexedDB, under the key of this build (lib/sheet-key.mjs). The framework's theme picker
 // is not drawn (Header.astro replaces the header that held it), so nothing else of its script is needed.
+//
+// And a module right after it, which asks for the reader's theme's stylesheet where the look is the reader's theme
+// (lib/custom-theme.ts `showCustomSheet`): read from IndexedDB, else computed in a worker. Module scripts run in the
+// order they stand, each once its whole graph has arrived, and only once the document is parsed; this one stands before
+// every module that defines an element. And where the head's script finds no sheet kept, it does not wait for the
+// parse: it asks for this module at once, as a script of its own (which runs as soon as it arrives), and marks the root
+// so that IndexedDB is not asked again. Left to the page's other modules, the worker was asked for only once all of them
+// had run — 0.7 s after navigation in Chromium, 1.4 s in Firefox and 2.4 s in WebKit on a Mac, by when a page hidden for
+// the sheet (at most three seconds) was often shown without it; asked for here, it is 0.05 to 0.5 s. Nothing in the
+// module's graph defines an element.
 import build from 'virtual:tanrei-docs/sheet-key';
 import { appearanceBootstrap, bootConfig } from '../../lib/appearance';
 import { manifests } from '../../lib/repo';
@@ -14,3 +24,9 @@ const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manife
 ---
 
 <script is:inline set:html={script} />
+
+<script>
+  import { showCustomSheet } from '../../lib/custom-theme';
+
+  void showCustomSheet();
+</script>
