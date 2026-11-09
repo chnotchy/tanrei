@@ -458,7 +458,7 @@ form-associated by its own `ElementInternals`.
 | | What it is | Clause |
 |---|---|---|
 | `ComposedElement` | The base class of every composed element. Gives: `focus()` and `blur()` passed to `control`; a click that arrives on the host itself (a page's `<label for>`) focusing the control; `autofocus` on the host; `pass(name)` for a slot passed on; `updateComplete` that waits for the members; the frame's "ask again" passed to the members (`FIELD_CONTROL`); the debug report for an ARIA name on the host (`hostNameSentence`) of a composed element that is not a field. The subclass says `control`. Styles: `[composedHost, hiddenHost]` — the host is a block | W1, W7, W8, W9 |
-| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset, or the host's own attribute). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` | W5, W6 |
+| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset around the host, `FormDisabledController`). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` | W5, W6 |
 | `forward(this, NAMES)` | A directive on a member's tag: each named property of the element set on that member, as a property, on every render | W2 |
 | `exported(Member, collisions?)` | `{ attribute, names }`: the member's `exportparts` and the names `::part()` can then use, made from the member's `static parts`. For a part name two members share: `{ label: { as: 'field-label', bare: true } }` — the prefixed name always, the bare one only where the spec has the sentence by which the two are never drawn at once | W4 |
 | `FormSays` | What a form-associated **member** calls where it called `internals.setFormValue()` and `internals.setValidity()`: `says.value(value, state)`, `says.validity(flags, message, anchor)`. Each does that call, and tells the element composed around it | W6, items 2 and 3 |
@@ -594,7 +594,7 @@ test):
 - **`exportparts` twice.** `label, label: field-label` exports one part under both names in all three.
 - **A disabled host.** No `mousedown` and no `click` is dispatched on a disabled form-associated host, whatever is
   pressed inside it; `formDisabledCallback` is called for the host's own `disabled` attribute and for a fieldset's
-  alike, and unsetting the one leaves the other (`takeFormDisabled`).
+  alike, and unsetting the one leaves the other (`FormDisabledController` reads the fieldset's part from `:disabled`, less the host's own attribute).
 
 **Splitting a field that draws its own frame: the guide** (the text field, the number field, the color field, the
 select and the combobox are built this way). Do it in four steps, each green before the next:
@@ -880,9 +880,21 @@ focus, and observes its child list. When that member is among the removed nodes 
 fallen to the body, it calls `focus()` on the members that followed, then on those before, until one takes it: a chip
 takes it on its own button or link (the first focusable thing in its shadow root, never the remove action), a tag and a
 disabled chip do not. If the product has already moved focus, or nothing takes it, the group does nothing. Two cases
-beyond the spec's words: a member that was only moved inside the group is focused again; and where the product wrote
-the whole set again (no former member is left), the member that now stands at the removed one's place is tried first —
-chips written a moment ago are waited for (`updateComplete`).
+beyond the spec's words: where the product wrote the whole set again (no former member is left), the member that now
+stands at the removed one's place is tried first — chips written a moment ago are waited for (`updateComplete`); and a
+member the product moved inside the group is focused again (TGR-10). Chromium fires `focusout` while it removes the
+focused element, and the group's check of that event runs before its observer is told of the move, so the check first
+reads the change of the child list still to be reported (`takeRecords()`).
+
+**Changes of the set (TGR-10).** A member that changes place moves by a `translate` animation added to its own
+(`composite: 'add'`), from where it was drawn. A member that is added fades in by an opacity animation; one that is
+removed is put back as the group's child, before the member that followed it, for the length of its fade-out — `inert`,
+`aria-hidden="true"`, `data-leaving`, and absolutely placed at the box it was drawn in, the list being its containing
+block only while the custom state `leaving` is set — then removed, its own `inert` and `aria-hidden` given back. An
+element given anew in place of a removed one with the same tag, kind, label and text moves as that member, without a
+fade. All of it reads its time and curve from the list's computed transition, which carries the two motion tokens. The
+first frames, an empty group's first member and its last, and a new width, direction or gap draw at once; reduced
+motion places at once and keeps the fades.
 
 **Debug reports.** A `tanrei-chip` while `spacing` is `tags` (TGR-4); content that is not a tag or a chip (TGR-11); an
 unknown `spacing` (TGR-16). An empty group reports nothing.
@@ -2419,6 +2431,66 @@ Limits: `aria-*` attributes the product writes on the host do not reach the elem
 inside a shadow root of the product's own, inside the group, is not found (`closest()` and `querySelectorAll()` stop
 at the root).
 
+## `<tanrei-rating>`
+
+A score out of a few marks, given or shown (specs/rating.spec.json). One element, form-associated; every mark is drawn
+in its shadow root.
+
+```html
+<tanrei-rating name="score" label="Your rating of this recipe"></tanrei-rating>
+<tanrei-rating label="Your rating" allow-half value="3.5"></tanrei-rating>
+<tanrei-rating label="Average rating" value="4.3" read-only value-text="4.3 out of 5 stars, 128 reviews"></tanrei-rating>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `value` | number | `0` | the score, 0 to `max`; 0 is none. Drawn and exposed clamped and at the nearest score it can show (RAT-14) |
+| `max` | number | `5` | how many marks; the whole number below it, at least 1 |
+| `allowHalf` / `allow-half` | boolean | `false` | halves can be given; reflected |
+| `size` | `small` \| `medium` \| `large` (+ added) | `medium` | the mark (`mark.size`) and the round container behind it (`container.size`); reflected |
+| `icon` | string | `""` | a glyph of the icon set; empty draws `star` |
+| `label` | string | `""` | the accessible name, never drawn; required |
+| `optionLabels` / `option-labels` | string[] | `[]` | each score's name, lowest first; the attribute is a JSON array |
+| `valueText` / `value-text` | string | `""` | how a read-only score is read |
+| `readOnly` / `read-only` | boolean | `false` | one image with a name; reflected |
+| `disabled`, `name` | | | the platform's; `form` is the platform's attribute |
+
+`change` and `preview` are `CustomEvent`s whose `detail.value` is the new score, or the score a fine pointer would give
+(`null` when it leaves). Neither fires for a value the product sets.
+
+**What it is to assistive technology** follows the number of choices (WAI-ARIA APG: a radio group suits up to seven,
+a slider more). The shadow root holds one `.row` — `role="radiogroup"` with one `role="radio"` span per mark and a
+roving `tabindex` (not `<input type="radio">`, whose name group cannot reach across shadow roots); `role="slider"`
+with `aria-valuemin="0"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` from `optionLabels`; or `role="img"`
+with `aria-label` and `aria-description` (read-only). `focus()` on the host focuses the stop: the checked radio, the
+first, or the slider. The radio group's keys are the radio group's (RGP-5, RGP-6); the slider's are the slider's; Enter
+submits the form through its default button (`pressDefaultButton()`), as Enter in the platform's radio does. Space
+on the checked mark changes nothing: no input takes a score back to 0 (as a radio group has none; a product that needs it
+places a Button that sets `value` to 0).
+
+**The drawing.** Each mark is a `.item` (the `container` part: the state layer, the ripple, the radio's focus ring)
+holding a `.mark` (the `mark` part) of two `.layer`s in one grid cell: `.off`, the icon set's unselected family and
+fill in `unselected.mark.color`, and `.on`, its selected family and fill in `selected.mark.color`. `data-fill`
+(`full`, `half`, `empty`) shows one of them or both; a half clips each layer to its half with `clip-path: inset()`,
+the halves swapped under `:dir(rtl)`. The clip is on the layer, the mirroring (`data-tanrei-mirrored`, by
+`GlyphMirrorController`) on the glyph inside it, so a mirrored glyph keeps its halves where the direction puts them.
+A change of score fades the layers' opacity over `motion.selection-duration`; a fade, so it stays under reduced
+motion (MOT-6). A mark with any of the score in it is in the selected condition: its container reads the selected
+condition's state tokens.
+
+**The hit area** (RAT-8) is the row's `::before`, reaching the minimum target above, below and past both ends; a point
+is read against the row (`scoreAt()`): the containers touch, so the mark whose slot of the row holds the point is the
+nearer one, and the end marks take what lies past the ends. Hover is `data-hovered`, written by the element on the mark
+the pointer would press — `:hover` on a container would miss the target's band above and below it. Each mark has its
+own `PressController`, so a press-hold on one mark is not cut short by a press on the next.
+
+**Forms.** Submits `value` under `name` while it is above 0 (a read-only rating too); disabled — by itself or a
+disabled `<fieldset>` — nothing. Resets to the value it had when first connected; restores the state the browser keeps.
+
+Limits: the web cannot tell a glyph name the icon set lacks from a font still loading, so an unknown `icon` draws its
+name in place of `star` and is not reported (RAT-18's last clause). `aria-*` the product writes on the host do not
+reach the element with the role.
+
 ## `<tanrei-select>`, `<tanrei-option>` and `<tanrei-option-group>`
 
 One value chosen from a closed list: a trigger that looks and measures like a text input's box and shows the chosen
@@ -3263,10 +3335,12 @@ product sets, `picked` for what the browser's picker reports, `channels` / `from
 - **No words** (CLI-42). The element supplies no text of its own and reads none of the product's:
   `invalidText`, `pickerLabel` and `label` are empty until the product gives them. An entry error without words still
   marks the input, and is reported in a debug build — by the Field when one frames it (FLD-28).
-- **`disabled` unset** is drawn at once: the platform's `formDisabledCallback` answers the element's own attribute too,
-  in the middle of the update that writes it, and is taken after that update — `takeFormDisabled()`
-  (`src/primitives/form-disabled.ts`), which every form-associated element of the package calls from its
-  `formDisabledCallback` (`src/primitives/form-disabled.test.ts` lists them and fails when one is added without it).
+- **`disabled` unset** is drawn at once, in one update: the element reads a fieldset's part from the platform where it
+  renders — `:disabled`, less its own attribute, which follows the property one step late — and the platform's
+  `formDisabledCallback`, which answers the element's own attribute too, in the middle of the update that writes it,
+  draws again only when it changes what was drawn — `FormDisabledController` (`src/primitives/form-disabled.ts`),
+  which every form-associated element of the package but the Button composes (`src/primitives/form-disabled.test.ts`
+  lists them, and counts the updates of each).
 
 What a browser does differently:
 
@@ -3477,7 +3551,7 @@ second, with the field group in its radio-group kind):
 - **The form is the host's own** — it has no value member to repeat (`ComposedControl` is not its base):
   `setFormValue(FormData, state)` with one entry per value under `name`, `null` while disabled, empty or unnamed;
   reset to the list given before the first render, else to the children's `checked` attributes; restore from the
-  state; `takeFormDisabled`; `valueMissing` while required and empty, with `error-text`, else the required text (the
+  state; `FormDisabledController`; `valueMissing` while required and empty, with `error-text`, else the required text (the
   instance's or the product's words), else `label`, anchored on the first enabled checkbox's native element. Inside a
   field group it also follows that group's `disabled` (its own `FieldControlController`, `takes: 'disabled'`), because
   what a form is told is the host's to say.
@@ -4165,7 +4239,7 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 | The value member | None: it is a feature. `value` is the typing area's at every moment (an accessor over the member), and the form value is its own — a `FormData` with the text under `name` and each kept file under `files-name` |
 | Focus (W7) | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
 | The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
-| No custom property (W3) | The capsule holds its members, and a custom property on it would be inherited by each. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as a rule of a constructed stylesheet of the element's own (`measured()`), after its static sheet and in no cascade layer |
+| No custom property (W3) | The capsule holds its members, and a custom property on it would be inherited by each. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
 | What can be sent (CCM-9) | `reasons()`, read on demand; `sendablechange` after each update in which the answer or the reasons changed. The element's own `disabled` is read with the platform's present answer (`:disabled`), so that unsetting it says one change and not two |
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
@@ -5741,8 +5815,9 @@ name and role are never touched. Parts: `container`, `arrow`, `title`, `supporti
 
 ## `<tanrei-popover>`
 
-Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays
-with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…38).
+Shows content a person can read and operate on a small surface that opens beside a control — when it is pressed, or as a
+pointer or keyboard focus rests on it — and stays with it, without dimming or blocking the rest of the page
+(`specs/popover.spec.json`, POP-1…51).
 
 ```html
 <tanrei-button id="share" variant="outlined">Share</tanrei-button>
@@ -5753,16 +5828,21 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 </tanrei-popover>
 <!-- Under a field: as wide as it, focus stays in it, the list reaches the edges. -->
 <tanrei-popover anchor="city" label="Suggestions" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+<!-- A preview of a link: opened by hover or keyboard focus, not by a press (POP-45, POP-46). -->
+<tanrei-popover anchor="author" label="Ada Lovelace" trigger="hover focus">…</tanrei-popover>
 <script type="module">
-  const [opener, panel] = [document.querySelector('#share'), document.querySelector('#panel')];
-  opener.addEventListener('click', () => (panel.open = !panel.open)); // the product toggles it (POP-18)
-  panel.addEventListener('close', () => (panel.open = false)); // …and closes it, whatever the reason (POP-21)
+  const panel = document.querySelector('#panel');
+  panel.addEventListener('toggle', (e) => (panel.open = e.detail.open)); // the opener's press asks (POP-18)
+  panel.addEventListener('close', () => (panel.open = false)); // …and so does everything else (POP-21)
 </script>
 ```
 
 | `<tanrei-popover>` | Type | Default | |
 |---|---|---|---|
-| `open` | boolean | `false` | whether it is shown; reflected. Controlled: it never opens or closes itself |
+| `open` | boolean | `false` | whether it is shown; reflected. Controlled: it asks with `toggle` and `close`, and never sets it itself |
+| `trigger` | (`press` \| `hover` \| `focus`)[] | `['press']` | what asks to open it, in any combination; the attribute is the values separated by spaces (`trigger="hover focus"`). A value it does not define is ignored, and a list with none is `press` (reported, POP-37) |
+| `showDelay` / `show-delay` | number \| `null` | `null` | ms a mouse or pen, or keyboard focus, rests on the anchor before it asks to open on hover or focus; `null` takes `motion.show-delay`. Not a number of 0 or more takes the token (reported, POP-51) |
+| `hideDelay` / `hide-delay` | number \| `null` | `null` | ms a popover opened by hover or focus waits once the pointer and focus have left it before it asks to close (`leave`); `null` takes `motion.hide-delay` |
 | `anchor` | string | `""` | the id of the element it stands beside, in the popover's own tree (its document or shadow root). That element is also the opener unless `opener` names one. No anchor found when `open` becomes true: it stays closed, reported (POP-29) |
 | `anchorElement` | `HTMLElement` \| `null` | `null` | the anchor as an element, for one an id cannot reach (another shadow root); it wins over `anchor`. A property only |
 | `opener` / `openerElement` | string / `HTMLElement` \| `null` | `""` / `null` | the element that is pressed, carries the ARIA states and takes focus back, where it is not the anchor (a field anchors, a button in it opens) |
@@ -5788,6 +5868,7 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 | Event | When |
 |---|---|
 | `close` | `CustomEvent<{ reason }>`, not bubbling: `escape`, `outside`, `focus-out`, `close` (the close button) or `anchor-hidden`. Once for one act of the person (a press outside that also moves focus is one). Set `open` to false; a product that declines is asked again at the next act. The web has no back of its own, so `back` is never sent |
+| `toggle` | `CustomEvent<{ open, reason }>`, not bubbling: a trigger asks — `press` (the opener's `click`: true while closed, false while open), `hover`, `focus` (true), or `leave` (false: a popover opened by hover or focus, the pointer and focus gone for `hideDelay`). Set `open` to `detail.open`. It is not the popover element's `ToggleEvent`, which never leaves the shadow root |
 
 Parts: `container` (the dialog), `arrow`, `header`, `headline`, `close-button`, `content`, `divider`, `actions`.
 
@@ -5813,6 +5894,17 @@ above the on-screen keyboard, and only what a visual viewport scrolled or zoomed
 events, no frame at rest — and keeps the side it is on while that side has room. The anchor removed, hidden or wholly
 out of sight (also inside a scrolling ancestor): `close`, reason `anchor-hidden`, once each time it goes.
 
+**Under an ancestor's CSS `zoom`.** The top layer takes the zoom of the surface's ancestors in the page (no transform of
+theirs reaches it), so the surface is drawn that much larger, and so is every length it is given. It is placed in the
+window's pixels: what it reads from its own style and layout (the offset, the margin, the arrow's measures, its least
+size, a laid-out size) is multiplied by its zoom (`cssZoom()`, `src/primitives/layout-scale.ts`: `currentCSSZoom`, else
+the computed `zoom` of the surface and its ancestors in the flat tree multiplied together — never what its box is drawn
+at over what it is laid out at, which would take its entrance's scale for a zoom), and what it writes back (`top`,
+`left`, its limits, the anchor's width, the arrow's place) is divided by it. It then stands at its anchor as it does with no zoom, every distance at the zoom.
+The tooltip, the menu and a submenu, the docked date-time picker, the search's docked view, the FAB menu's items and the
+slider's value indicator place themselves the same way, and a row of actions (`ActionPlacement`) is measured in its own
+pixels; `src/zoom.test.ts` checks each.
+
 **Size (POP-7, POP-8).** The container is as wide as its widest part — its actions counted as one row at their own
 widths, also while they are a column — between the least and greatest width, and never wider than the window less the
 margins. As tall as its parts, up to `container.max-height` and the room. Beyond that the header and the actions stay
@@ -5831,8 +5923,8 @@ what follows the opener — focus goes to the opener and the key's own move goes
 overlay opened from inside it, or was lost with it (a press outside on nothing focusable); it stays where the person
 put it otherwise. The opener's own indicator is the browser's `:focus-visible`: it shows after a key, not after a press.
 
-**Dismissal (POP-21, POP-23, POP-24).** A press on the opener or the anchor is never outside: the product's handler
-toggles. **A press outside also reaches the element under it.** Escape is answered by the topmost popover alone, and only
+**Dismissal (POP-21, POP-23, POP-24).** A press on the opener or the anchor is never outside: on the opener it is
+`toggle` (with `press` among the triggers). **A press outside also reaches the element under it.** Escape is answered by the topmost popover alone, and only
 when the key reaches the popover's edge: a menu, a tooltip or a field inside it that takes the key keeps it; the popover
 then stops it, so a dialog it stands in stays open. An overlay opened from inside — a menu or another popover anywhere in
 the document whose anchor is inside, a tooltip, a modal dialog opened after the person acted inside — is the popover's
@@ -5841,9 +5933,24 @@ inside closes at once, a popover opened from inside fires its own `close` (reaso
 its own rule as focus returns to the popover's opener (`focus-out`). A docked picker or a search view opened from inside
 is not closed with it yet.
 
-**The opener (POP-18).** The popover writes `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` (its own id,
-generated when it has none, and only where the opener is in the popover's tree) on the opener — on the `<button>` a
-`<tanrei-button>` draws — and removes them when it is disconnected.
+**The opener (POP-18).** While `trigger` has `press`, the popover writes `aria-haspopup="dialog"`, `aria-expanded` and
+`aria-controls` (its own id, generated when it has none, and only where the opener is in the popover's tree) on the
+opener — on the `<button>` a `<tanrei-button>` draws — and removes them when it is disconnected or `press` leaves
+`trigger`. It hears the opener's `click`: closed, it asks `toggle` true; open, false.
+
+**Hover and focus (POP-45 to POP-51).** It listens on the anchor and the opener: `pointerenter` and `pointerleave` from a
+pointer whose `pointerType` is `mouse` or `pen` (touch never), and `focusin` on an element that matches `:focus-visible`
+(focus from a press or a tap is not keyboard focus). Entering starts the wait — `showDelay`, else the token, read from
+the `.timing` probe's `transition-delay` as each wait starts — and leaving or a `pointerdown` ends it; at its end it asks
+`toggle` true with `hover` or `focus`. When `open` then becomes true it is **open by hover or focus**: it moves no focus,
+is never a sheet, and while it is so a window `pointermove` listener follows the pointer. It is held while the pointer is
+on the anchor, the opener, the popover (the host hears `pointerenter`/`pointerleave` from its top-layer surface) or the
+**gap** — the strip between the anchor's edge and the placed box on its side (`data-side`), measured, not drawn — or
+focus is in it, or keyboard focus is on the anchor under `focus`; held by none of them for `hideDelay` (the probe's
+`transition-duration`) it asks `toggle` false with `leave`. `focus-out` from the dismissal is one of those ends, not a
+close. Escape (the dismissal's, wherever focus is) and a press outside close it as any popover; focus it gives back to
+the opener opens nothing by focus. A `click` on the opener while it is open by hover or focus, with `press`, adopts it:
+no event, focus moves in, a compact window draws it as a sheet.
 
 ## `<tanrei-callout>`
 
@@ -6071,6 +6178,7 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 | `show(options): Promise<{ result: 'action' } \| { result: 'dismiss', reason }>` | asks for a snackbar; it resolves when that snackbar closes (at the moment it is closed; its exit follows) |
 | `dismissCurrent()` | closes the showing snackbar (reason `host`); the next waiting one shows after its exit |
 | `clear()` | also drops every waiting one, each resolved with reason `host` |
+| `focusCurrent(): boolean` | moves keyboard focus to the showing snackbar's first control, as F6 does (SNK-39), for a shortcut of the product's own; whether it moved (false with no snackbar, or one without a control) |
 | `snackbar` | the `<tanrei-snackbar>` being shown, or `null` (set its `expanded` to expand it from the product) |
 
 | Event (on `<tanrei-snackbar>`) | When |
@@ -6079,12 +6187,26 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 | `dismiss` | `CustomEvent<{ reason }>`, bubbling: `close`, `escape` (Escape with focus inside), `timeout` or `host` |
 | `expandedchange` | `CustomEvent<{ expanded }>`, bubbling: the person toggled the expand button (the spec's `toggle`; a popover already fires a native `toggle` when shown and hidden). Not fired when the product sets `expanded` |
 
-**The host (SNK-8…13, SNK-17).** One snackbar at a time, in the order asked for; a snackbar not yet shown waits while a
-`<tanrei-dialog>` is open modally (`src/primitives/modal.ts`). The host appends each as a `<tanrei-snackbar popover="manual">`
-child and shows it in the top layer, fixed at the bottom of the window, centred, `container.margin` above the bottom edge
-(plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard, measured from `visualViewport`) and at
-least that far from the sides; a dialog opened later is above it, and while it holds the page's scroll the snackbar's
-sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does not move. Its bar appears as every surface does
+**The host (SNK-8…13, SNK-17).** One snackbar at a time, in the order asked for. The host appends each as a
+`<tanrei-snackbar popover="manual">` child and shows it in the top layer, fixed at the bottom of the window, centred,
+`container.margin` above the bottom edge (plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard,
+measured from `visualViewport`) and at least that far from the sides; while a modal surface holds the page's scroll the
+snackbar's sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does
+not move. **Over a modal surface (SNK-38)**: a modal `<dialog>` makes everything outside it inert, a top-layer popover
+too, so a snackbar shown from the host behind it could be neither pressed nor heard. `modalLayer` (`src/primitives/modal.ts`)
+lists the modal `<dialog>`s open in the window, the topmost last — `openModal()` adds one once `showModal()` has made it
+modal and `closeModal()` deletes it once it is not (`src/primitives/modal-exit.ts`), so every modal surface counts with no
+code of its own. While one is open the host puts a box of its own in the topmost `<dialog>` — a `div` with a shadow root:
+two live regions and a slot, out of the surface's flow (`mouthStyles`) — and shows the snackbar there: a flat-tree
+descendant of the modal dialog is not inert, and as a popover it is still in the top layer, above the surface and its
+scrim, at the same place. A snackbar asked for then shows at once; one already showing is moved there when the surface
+opens, and back (or into the surface below) when it closes — after the task that opened or closed it, at once
+(`appearIn(true)`), still open, not announced again, its timeout started again from its whole length. A surface's focus
+trap counts its controls after the surface's own (`tabbables()` looks through the box's shadow root and slot). The box
+stops a key other than Tab, a press and a wheel from bubbling into the surface, so that none of them reads as the
+surface's (a press on its scrim, an image preview's arrow keys); Escape is the snackbar's own. Inside the surface the
+snackbar is in its shadow tree: a page's rules for `tanrei-snackbar` do not reach it there, and its events bubble no
+further than that tree. Its bar appears as every surface does
 (`appearStyles()` and `AppearController`, `src/primitives/motion.ts`, role `toast`): from `sys.motion.appear.*`, grown from
 the middle of the window's edge it stands at — the bottom one, or the top one at the top end (SNK-36) — and that far toward
 it, over `motion.enter-*`; closed, it goes back the same way over `motion.exit-*`, turned round from where it is, and stays
@@ -6093,15 +6215,20 @@ cross-fades over `sys.motion.role.reduced`; shown before the document's first pa
 is the motion element (`data-edge`, `.open`), so a measure of it while it moves reads its layout (`laidHeight()`), never its
 drawn box. The announcement does not wait for the motion.
 The timeout runs only while the snackbar is not hovered, holds no focus, is not expanded, the page is visible and focused
-(`visibilityState`, `document.hasFocus()`) and no Tanrei modal dialog is open; each time those hold again it starts from its
-whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither
+(`visibilityState`, `document.hasFocus()`); each time those hold again, and each time it moves into or out of a modal
+surface, it starts from its whole length. The web cannot tell that a screen reader is running and has no platform accessibility timeout, so neither
 lengthens it here: `auto` (indefinite with an action) is what keeps an action reachable. **Announcements (SNK-10)**: the host
 draws two visually hidden live regions in its shadow root from the start — `role="status"` `aria-live="polite"` for the
 default, info and success forms, `role="alert"` `aria-live="assertive"` for warning and error — and writes statusLabel, the
 title, the whole message and the action's label into one of them once per snackbar; the snackbar itself is not a live
 region, and nothing moves focus. **Focus (SNK-11)**: the scrolling text (while it scrolls), the action, the expand button and
 the close button are reached by Tab, in that order, where the host is in the document; Escape inside dismisses; closing with
-focus inside returns it to the element that had it before, or blurs it when that is gone.
+focus inside returns it to the element that had it before, or blurs it when that is gone. **F6 (SNK-39)**: the host listens
+for `keydown` on the window, in the bubbling phase, so that a key the product has handled first (`defaultPrevented`) is
+left to it; F6 or Shift+F6 with no modifier, while a snackbar with a control is shown, takes focus to its first stop
+(`focusFirst()`, `focusVisible: true`) and remembers the deepest element it came from, and from inside the snackbar gives
+focus back there — or blurs it where that element is gone or inert. Without such a snackbar the key is not prevented, and
+the browser's F6 goes on. The box in a modal surface lets F6 out, as it does Tab (SNK-38).
 
 **The ten forms (SNK-21, SNK-30).** A snackbar's form is its status — default, info, warning, error, success — on a surface
 of the scheme or drawn inverse, and each form reads tokens of its own by a one-word prefix: none, `<status>`, `inverse`,
@@ -6609,8 +6736,8 @@ closed at once — focus and the page are given back — and kept drawn in the t
 scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
 it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
 there at once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Focus moves when it opens and
-closes, not when the motion ends. A snackbar waits for, and
-pauses under, an open dialog (`src/primitives/modal.ts`).
+closes, not when the motion ends. A snackbar shown while it is open is shown inside it (SNK-38, `modalLayer` in
+`src/primitives/modal.ts`).
 
 **Holding the page's scroll (MDL-2)** is `holdPageScroll()` (`src/primitives/modal.ts`), shared by every modal surface:
 `overflow: hidden` on the root from the first holder until the last lets go. Where a classic scroll bar took room, the
@@ -6706,9 +6833,13 @@ lay it out). Mark the element that should take focus when the sheet opens with `
 inside (Tab wraps), and returns on closing to where it was (or is dropped when that element is gone). Escape is answered
 on `keydown` and only by the topmost overlay; a native `cancel` becomes `close` with `escape` when an Escape key was just
 pressed and `back` otherwise; the browser's own close is always cancelled, and should it close the dialog anyway the
-sheet asks and shows itself again unless you close it. It slides up from below the bottom edge over `motion.enter-*`
-(`@starting-style`) with the scrim fading in, and down over `motion.exit-*`, kept drawn in the top layer until it has,
-in every engine (`closeModal()`, as the dialog). Where motion is reduced it fades in place. Mounted open, it appears in place without motion.
+sheet asks and shows itself again unless you close it. It appears as every sheet does (`appearStyles()` with role
+`sheet` from the block end, `AppearController`, as the dialog appears): it slides up from its own height below the
+bottom edge over `motion.enter-*`, whole and unscaled under every appearance, and down the same way over `motion.exit-*`
+from wherever it is drawn (a drag's offset is the appearance's `offset`), kept drawn in the top layer until it has, in
+every engine (`closeModal()`); turned round, it goes on from where it is. The scrim fades in step, over the same
+duration and curve (`sheetScrimStyles()`). Where motion is reduced it and the scrim only fade, in place, over
+`sys.motion.role.reduced` (a standard sheet too). Mounted open, it appears in place without motion.
 
 **Standard (BSH-3, BSH-4).** A `<section>` named by `label` (a region landmark). The host fills its nearest
 positioned ancestor (`position: absolute; inset: 0`, letting every press through), so give the parent that holds the
@@ -6901,6 +7032,63 @@ Handle's own rule.
 
 The fixtures are drawn by the test harness in a room 640 wide, their content a block in `surface-container-low`.
 
+## `<tanrei-split-view>`
+
+Two panes, side by side or one above the other, and a Handle on the line between them that shares the room
+(`specs/split-view.spec.json`, SPV-1…16). It is built from `<tanrei-handle>`: one, in its shadow root, given its `axis`,
+`value`, `min`, `max`, `label`, `valueText` and `disabled` by the split view on every render.
+
+```html
+<tanrei-split-view collapsible min-size="240" label="Resize the message list" style="block-size: 100dvh">
+  <nav slot="start" aria-label="Messages">…</nav>
+  <main slot="end">…</main>
+</tanrei-split-view>
+```
+
+| `<tanrei-split-view>` | Type | Default | |
+|---|---|---|---|
+| `axis` | `horizontal` \| `vertical` | `horizontal` | side by side, or one above the other; any other value is `horizontal`, reported (SPV-15); reflected |
+| `primary` | `start` \| `end` | `start` | the pane `value` measures and that folds away; reflected |
+| `value` | number | `50` | the primary pane's share of the region less the divider, in percent; drawn held between the least and the greatest share, kept as given |
+| `min` / `max` | number | `10` / `90` | percent; a range outside 0–100 or upside down is both defaults, reported |
+| `minSize` / `min-size`, `maxSize` / `max-size` | number \| null | `null` | pixels, on top of `min` and `max`; the least wins where both cannot hold (SPV-16) |
+| `step` / `largeStep` (`large-step`) | number | `5` / `20` | percent per arrow key, and with Shift or Page Up/Down |
+| `resetValue` / `reset-value` | number | `50` | where a press moves the line while the pane cannot fold (SPV-7) |
+| `collapsible`, `collapsed` | boolean | `false` | reflected; `collapsed` is ignored while `collapsible` is false |
+| `label`, `valueText` (`value-text`), `disabled` | | | the Handle's |
+
+| Event | When |
+|---|---|
+| `resize` | each frame a drag moves the line: `detail.value` (the share drawn, 0 while folded), `detail.collapsed` |
+| `change` | once a person has changed the share: a drag ended, a key, a press |
+| `toggle` | once a person has folded or restored the pane |
+
+All three are composed and bubble; the Handle's own events stay in the shadow root, where the split view hears them.
+
+**Layout (SPV-1, SPV-2, SPV-11).** The host is a block that takes the size its layout gives; `.split` is a flex row (a
+column while `axis` is vertical) of the start pane, the divider and the end pane, so the focus order is the start
+pane's content, the Handle, the end pane's. The primary pane's box is `calc((100% - divider.width) * share / 100)`
+along the axis, the share written as `--_spv-share` on that box; the other pane is `flex: 1 1 0`. Both panes are
+`overflow: clip`. The Handle is absolutely centred on the divider (`translate: -50% -50%`, which needs no mirroring), at
+`z-index: 1` within the host's `isolation: isolate`. The split view sets `aria-controls` on the Handle to the primary
+pane box's id; the Handle moves it to its separator by element reference (HDL-26). A `ResizeObserver` on `.split`
+measures the region along the axis less the divider, which the drag's percentages and the pixel bounds count against.
+
+**A drag, keys, a press (SPV-3…7).** `resizestart` stops a motion under way, takes the share drawn and sets
+`pointer-events: none` on every slotted `<iframe>`, `<object>` and `<embed>`; each `resize` sets `value` from the
+distance (taken the other way while the end pane is primary), or folds the pane past half the least share; `resizeend`
+sends one `change` and one `toggle` where each changed. `step` moves the share the way the key points (Home the least,
+End the greatest, whichever pane is primary); `activate` folds and restores, or moves to `resetValue` and back.
+
+**Motion (SPV-6, SPV-7, SPV-9, SPV-10).** `AnimatedSize` (src/primitives/motion.ts) on the primary pane's box, on its
+inline axis (its block axis while vertical): `motion.collapse-duration` for a fold, a restore and a press,
+`motion.resize-duration` for a share the product sets, both on `motion.collapse-easing`; a drag, a key and the first
+frame are drawn at once. The other pane follows in the layout at every frame. A folded pane's box is `inert` at once,
+and its content `visibility: hidden` after the fold's duration (a transition delay), at once where motion is reduced.
+
+The fixtures are drawn by the test harness in a region 480 × 200, each pane's content a block in
+`surface-container-low`.
+
 ## `<tanrei-side-sheet>`
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and
@@ -6958,10 +7146,13 @@ never wider than the window less `sys.target.touch`, so a strip of scrim stays p
 element marked `autofocus`, else the sheet itself (`tabindex="-1"`, so its headline is read first) — also when it is
 mounted open — stays inside (Tab wraps), and returns on closing to where it was (or is dropped when that element is gone).
 Escape is answered on `keydown` and only by the topmost overlay; a native `cancel` becomes `close` with `escape` when an
-Escape key was just pressed and `back` otherwise (`src/primitives/sheet.ts`, shared with the bottom sheet). It slides in
-from the end edge over `motion.enter-*` (`@starting-style`) with the scrim fading in, and out over `motion.exit-*` from
-wherever it is, kept drawn in the top layer until it has, in every engine (`closeModal()`, as the dialog); where motion
-is reduced it fades in place. A drag (pointer events, followed
+Escape key was just pressed and `back` otherwise (`src/primitives/sheet.ts`, shared with the bottom sheet). It appears
+as every sheet does (`appearStyles()` with role `sheet` from the inline end, `AppearController`, as the bottom sheet):
+it slides in from its own width beyond the end edge over `motion.enter-*`, whole and unscaled under every appearance,
+and out the same way over `motion.exit-*` from wherever it is drawn (a drag's offset is the appearance's `offset`),
+kept drawn in the top layer until it has, in every engine (`closeModal()`); turned round, it goes on from where it is.
+The scrim fades in step, over the same duration and curve (`sheetScrimStyles()`); where motion is reduced both only
+fade, in place, over `sys.motion.role.reduced`. A drag (pointer events, followed
 through the window) starts past an 8 px slop along the horizontal axis (a vertical move first is the content's scroll)
 and follows the pointer toward the end edge, never past where the sheet rests; released past half its width, or flung
 that way (0.5 px/ms), it asks to close, holds for a frame and then slides out from there if you closed it, or slides back
@@ -7478,7 +7669,7 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 
 **Modal (NVD-19…22, NVD-40).** A native `<dialog>` in the shadow root opened with `showModal()`: the top layer,
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
-waiting (`modalLayer`). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
+shown inside it (`modalLayer`, SNK-38). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
 the exit motion. It opens and closes with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts, MDL-7): closed,
 it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out over its
 fading scrim until their transitions have finished (no timer, and no `overlay` transition, which Firefox and WebKit do not
@@ -8457,7 +8648,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `DismissController`, `registerOverlay()`, `logicalAncestors()`, `overlayDepth()` (`dismiss.ts`) | Escape (the topmost surface alone, at the surface's edge, after everything inside heard the key), a press outside and focus leaving ask the host to close, once for one act; an overlay knows what opened it, so that "inside" follows the opener and not the document (POP-21, POP-23, POP-24) | the anchor and opener (`related`), `request(reason)`, `tab(event)`; each overlay's `openers`, `open`, `close` |
 | `focusOverlay()`, `tabThroughOverlay()`, `returnOverlayFocus()`, `keepOverlayFocusAfterPress()`, `quietFocus()`, `watchInput()` (`overlay-focus.ts`) | focus into an operated overlay that is not modal, through it as if it stood directly after its opener, and back to the opener when it closes; no indicator of its own when it was opened by a press (POP-19, POP-20, POP-22) | the focusable box, the host, the opener |
 | `FollowController` (`follow.ts`) | an overlay placed by script follows what it is placed against without asking in every frame: it checks on a scroll (captured, any scroller), a resize of the window or the visual viewport, a size (`ResizeObserver` on what is followed, what is sized and the root), a place that changed with no event (an `IntersectionObserver` cut down to the followed element's box, set again after each move), a transition or animation beginning on an ancestor, an attribute changed on an ancestor (`dir`, a theme), the colour scheme, and the host's own render — and then in every frame for as long as a check finds a change (and three frames more). At rest it asks for no frame and runs no check (`src/primitives/follow.test.ts`): a size is compared only with one the `ResizeObserver` reported — never with `getBoundingClientRect()`, which gives the box after its transform and, in Firefox, at another precision — and a followed element that did not move keeps its place observer. Given `anchor()` and `undrawn()`, it tells the overlay once each time its anchor is no longer drawn (`anchorUndrawn()`: out of the page — the one last found, when its id finds nothing — no box, `visibility: hidden`, skipped by `content-visibility`), and places nothing against it meanwhile (MNU-65, DTM-51). Not seen until the next of those: a move of less than a pixel with no event, a move while wholly outside the viewport or without area, an inherited value changed by a replaced style sheet alone, the anchor moved to another parent | `followed()` (the anchor; a submenu's item), `sized()` (the surface, what scrolls in it), and `check()`: read what the placement depends on, place again if it differs, return whether it did; `start()` when shown and placed, `stop()` when hidden, `request()` after a change of its own it cannot see |
-| `appearStyles({ motion, open, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens, its `appear` prefix and `unfold: false` (both axes under `unfold` too, for a surface that grows beside what opened it: a FAB menu's item). `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
+| `appearStyles({ motion, open, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens, its `appear` prefix, `unfold: false` (both axes under `unfold` too, for a surface that grows beside what opened it: a FAB menu's item) and `offset` (a translate the open surface stands at in place of none, where a gesture moves it: a sheet's drag; a sheet's scrim fades in step with `sheetScrimStyles()`, `scrim.ts`). `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
 | `AnimatedSize` (`motion.ts`) | MOT-5: a box whose size follows its content as one motion, in its layout, clipped with `overflow: clip` (never `hidden`: a box that is a scroll container is scrolled by a caret), its content fixed to the start, the end or — `auto` — the edge that stays; it moves from the size the last frame drew (a resize observer of the box: by the time it is told, a box at rest already stands at its new size), and a change mid-motion goes on from the size shown; the end of a motion is its own transitions' `finished`, matched to its run, so a replaced transition's late `transitioncancel` ends nothing; at once for `fit(false)`, `still()`, reduced motion, a role of zero. The successor of the text inputs' `AutoHeight` box, whose users have not moved to it | the box, the content element (for the end anchor and the inline axis), the axis, the anchor, the role's duration and curve as CSS values (by default `role.resize.default` and `easing.spatial`); `fit(true)` after the content changed. It writes the box's inline size, `overflow`, transition and `data-resizing` only while it moves |
 | `TanreiElement`, `TanreiLightElement` (`element.ts`) | the base of every element: `TanreiElement` for one with a shadow root, `TanreiLightElement` for one that draws in the light DOM (a tree view, a table). Each settles (`Settle`, below) from each connection; `TanreiElement` composes `settleStyles` after the element's own styles, and the build writes `settleRule('<tag>')` at the end of a light-DOM element's stylesheet (`scripts/build.js`). `test/settling.test.mjs` refuses a class that extends `LitElement` or `ReactiveElement` itself, and a light-DOM stylesheet without the rule | nothing: extend the base |
 | `Settle` (`motion.ts`), `settleStyles`, `settleRule(host)` (`src/styles/motion.ts`) | MOT-3: `data-tanrei-settling` on the host from each connection until the second frame after its first update, and no transition in it meanwhile — `transition-property: none`, so a delayed transition does not start either and the press-hold carrier keeps its delay — except on the element that appears (`data-tanrei-appear`: an overlay's surface, so an overlay mounted open, or opened, right after it was connected still enters) | nothing beyond the base class; `data-tanrei-appear` on the element a surface's entrance moves, until `AppearController` writes it. It makes a late state arrive without a motion, not on time: the first state is still written where the element renders. `src/first-frame-all.test.ts` holds every fixture of every spec to its first frame at rest |
@@ -8489,7 +8680,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `isDisabledControl(control)` (`form-disabled.ts`) | whether a control a container walks is disabled now: by its own `disabled` or by a disabled fieldset around it (a Button answers for itself: a link button is disabled by none) — what a toolbar's one Tab stop and a dialog's count of enabled actions read (TBR-10, DLG-19); `GROUP_AVAILABILITY` (`group-item.ts`) is how an item tells its group that the platform's word changed | which items it walks |
 | `NativeTextController` (`native-text.ts`) | a component's `value` and its native text element kept in step around an input method (TXF-1, TXF-4, SRC-4): the element's own `input` is the component's, nothing is written into a composition, a value set meanwhile waits for its end, and a committed composition always ends with one `input` that is not composing, sent in a later task where the browser sent none — `ending` is true until then, so a component can tell that `input` from typing (a view closed in that gap stays closed: SRC-5, CMB-21); a composition that ends with the value as it began is not committed and ends with no `input` (TXI-4: none is sent, and Firefox's own is stopped at the element by `composingInput`) | the element, the value's getter and setter; optional `reported` (the value the component's `input` reports, where the element shows another text: a search's suggestion or completion), `commit` (what a composition may leave: the text field's limit) and `settled(closed)` (whether an `input` closes the composition) hooks; `composingInput(event)` first in the `input` listener, `show()` from `updated()`; `ending` where the closing `input` must not undo what happened since the composition ended |
 | `CompositionEnd`, `isCompositionInput()`, `COMPOSITION_INPUT_TYPES` (`composition-end.ts`) | what an engine still reports for an input method's composition once it has ended, told by what it is and never by a timer (a timer runs after input on a busy page, so a key or a digit typed next was lost): an `input` whose inputType names a composition (Firefox's last one comes after the end), and the committing key WebKit reports after the end — key code 229, or pressed no later than the end (TXI-45, ETI-4, OTC-6, OTC-13) | `ended(event)` from `compositionend`, `tookKey(event)` in a `keydown` listener, `reset()` when the element leaves |
-| `modalLayer` (`modal.ts`) | the Tanrei modal overlays open in the window: a dialog adds and removes itself; a snackbar host waits for them and pauses under them | `add(el)` / `delete(el)`, `covered`, `subscribe(fn)` |
+| `modalLayer` (`modal.ts`) | the modal `<dialog>`s of Tanrei's surfaces open in the window, the topmost last: `openModal()` adds one, `closeModal()` deletes it, no component does; a snackbar host shows its snackbar inside the topmost (SNK-38) | `top`, `add(dialog)` / `delete(dialog)`, `subscribe(fn)` |
 | `deepActive()`, `tabbables()`, `trapFocus()`, `holdPageScroll()`, `SCROLL_HOLD_INSET` (`modal.ts`) | what every modal overlay does (dialog, modal drawer): the focused element through shadow roots, the Tab order through shadow roots and slots, Tab wrapping inside, the page's scroll held while any holder is open, and the room the window gains on each side while it is held (MDL-2), which a part fixed against the window's edge adds to its insets | the container; the holder; `var(${SCROLL_HOLD_INSET.right}, 0px)` in the part's insets |
 | `containWheel(event, scroller)`, `containedWheel` (`contained-wheel.ts`) | a box that keeps its scroll from the page (`overscroll-behavior: contain`) also does in Gecko, which keeps to `contain` only within one wheel transaction (`mousewheel.transaction.timeout`, 1.5 s) that an event scrolling nothing neither begins nor prolongs: a wheel turned toward an end the box already stands at is cancelled, along the axis the wheel is turned (the larger part; sideways for Shift with a vertical wheel), and only along an axis the box scrolls and contains. Not cancelled: Ctrl (zoom, a pinch), a wheel the box or a scroller inside it can still take. Bound by the navigation drawer, the menu, the option list (select, combobox), the popover, the search's view, the calendar's year view, the tabs, the toolbar, the carousel (from its own wheel listener), the compact table of contents, the snackbar's text, the date-time picker's body, the side and bottom sheets' content and the app shell's navigation and aside. Not bound where a modal overlay holds the page's scroll (`holdPageScroll()`: the dialog, the image preview): nothing behind can scroll | `@wheel=${containedWheel}` on the box that scrolls, or `addEventListener('wheel', containedWheel, containedWheel)` for a light-DOM child; never on a box as large as the page, since a listener that can cancel makes every wheel over it wait for script |
 | `DestinationsController`, `NavigationDestination`, `destinationStyles(prefix, { lines })` (`destination.ts`) | the destinations of a navigation region: the first destination with the region's value is selected, an activation sets `value` and fires `change` (or `reselect`), the context each destination is told, the debug reports; a bar's destination (a `<button>` or `<a href>` cell, the item container that is the state layer and the indicator, the grow of a new indicator, label visibility, badge and description) | the items, the behaviour ids, the range, which labels show, what more each destination is told (`context`: the drawer's form and nesting); a subclass with its tag and prefix |

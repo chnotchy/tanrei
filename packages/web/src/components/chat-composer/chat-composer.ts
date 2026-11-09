@@ -25,13 +25,13 @@ import { ComposedElement, composedHost, exported } from '../../primitives/compos
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter, fileKind } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiButton } from '../button/button.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
-import { measured, styles } from './chat-composer.styles.js';
+import { measuredSheet, styles } from './chat-composer.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The members' own types are the chat composer's where an item's prop or an event's detail is the member's.
@@ -360,7 +360,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     receiving: { state: true },
     narrow: { state: true },
     count: { state: true },
-    formDisabled: { state: true },
   };
 
   /** @from tanrei-embedded-text-input.value */
@@ -477,8 +476,11 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   protected narrow = false;
   /** CCM-43: how many File items the product gave. */
   protected count = 0;
-  /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (`formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -531,9 +533,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private sendHeld = false;
   /** CCM-4: focus was on a Button the layout is about to draw again. */
   private startHeld = false;
-  /** CCM-41: one line of the typing area's text, as its native element computes it, and the rule that is written from it. */
+  /** CCM-41: one line of the typing area's text, as its native element computes it, and the shared rules written from it. */
   private line = '';
-  private readonly sheet = typeof CSSStyleSheet === 'undefined' ? null : new CSSStyleSheet();
+  private lineSheet: CSSStyleSheet | null = null;
   private sizes: ResizeObserver | undefined;
   private watched: Element[] = [];
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
@@ -616,9 +618,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   /** Disabled by its own `disabled`, by a field around it, or by its form (CCM-26, CCM-28, CCM-36). */
   private get isDisabled(): boolean {
-    // The platform's word arrives a turn after the element's own `disabled` was unset (src/primitives/form-disabled.ts):
-    // until then it is the platform's present answer that is read, so that nothing is said twice (CCM-9).
-    return this.disabled || this.field.disabled || (this.formDisabled && this.matches(':disabled'));
+    // A fieldset's part is the platform's present answer, less the element's own attribute (src/primitives/form-disabled.ts),
+    // so that the element unset by its property is enabled by that update and nothing is said twice (CCM-9).
+    return this.disabled || this.field.disabled || this.formDisabled;
   }
 
   /** CCM-18, CCM-27, CCM-28: the capsule is in its error condition, and the typing area is invalid — by `error`, by a field's, or over the limit. */
@@ -1559,8 +1561,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.value = typeof state === 'string' ? state : '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   override attributeChangedCallback(name: string, old: string | null, value: string | null) {
@@ -1604,8 +1606,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   /**
    * CCM-41: one line of the typing area's text — the member's computed line height, never its token — from which the
-   * capsule's corners and the least height of its groups are written, as a rule of the element's own. CCM-4: whether
-   * the capsule is narrower than `layout.inline-min-width`, by its own width.
+   * capsule's corners and the least height of its groups are drawn, by the stylesheet of that line, which every
+   * instance that measured it shares (`measuredSheet()`), adopted after the element's stylesheet and in no cascade
+   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width.
    */
   private measure() {
     const capsule = this.capsule;
@@ -1614,7 +1617,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const line = typed ? getComputedStyle(typed).lineHeight : '';
     if (/^[\d.]+px$/.test(line) && line !== this.line) {
       this.line = line;
-      this.sheet?.replaceSync(measured(line));
+      const root = this.renderRoot;
+      const sheet = measuredSheet(line);
+      if (sheet && root instanceof ShadowRoot && 'adoptedStyleSheets' in root) {
+        root.adoptedStyleSheets = [...root.adoptedStyleSheets.filter((adopted) => adopted !== this.lineSheet), sheet];
+        this.lineSheet = sheet;
+      }
     }
     const probe = capsule.querySelector('.probe');
     const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];
@@ -1633,13 +1641,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────────────────────────────────────────
-
-  protected override createRenderRoot() {
-    const root = super.createRenderRoot();
-    // The rule it writes from what it measures stands after its stylesheet, and in no cascade layer.
-    if (this.sheet && root instanceof ShadowRoot && 'adoptedStyleSheets' in root) root.adoptedStyleSheets = [...root.adoptedStyleSheets, this.sheet];
-    return root;
-  }
 
   override connectedCallback() {
     super.connectedCallback();

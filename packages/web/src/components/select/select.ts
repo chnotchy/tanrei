@@ -42,7 +42,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import '../option/option.js';
 import '../loading-indicator/loading-indicator.js';
 import '../button/button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { AXES, INSET, PREFIX, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -214,7 +214,6 @@ export class TanreiSelect extends TanreiElement {
     spoken: { state: true },
     hasLeading: { state: true },
     focused: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The look, as the text inputs beside it: `stacked` is a filled box whose label is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the select does not know by name is laid out as stacked. Reflected. */
@@ -294,8 +293,11 @@ export class TanreiSelect extends TanreiElement {
   protected hasLeading = false;
   /** SEL-20: the container has focus, however it was gained. */
   protected focused = false;
-  /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
   /** SEL-69: the list has been shown, so the status row's live regions hold its text; empty while it is closed. */
   protected spoken = false;
 
@@ -574,8 +576,8 @@ export class TanreiSelect extends TanreiElement {
     this.value = typeof state === 'string' ? state : '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   // ── SEL-23, SEL-27, SEL-34: opening, closing and choosing ─────────────────────────────────────────────────────

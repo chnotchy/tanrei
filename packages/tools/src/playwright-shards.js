@@ -3,9 +3,15 @@
 // project (packages/web/test/durations.json), not by Playwright's `--shard`, which deals out equal counts of tests in
 // file order: its first shard of each engine came near the job's 60-minute limit while the last ones took 5–8 minutes.
 //
-//   playwright test --list --reporter=json <the shard's --project flags> > list.json     (every test the run would run)
-//   node packages/tools/src/playwright-shards.js <durations.json> list.json <index>/<total> <test-list.txt>
-//   playwright test <the same --project flags> --test-list <test-list.txt>
+//   playwright test --list --reporter=json <the shard's --project flags> [--grep …] > list.json   (the tests the run runs)
+//   node packages/tools/src/playwright-shards.js <durations.json> list.json <index>/<total> <test-list.txt> [--every=every.json] [--first=<seconds>]
+//   playwright test <the same --project flags> --test-list <test-list.txt> [the same --grep]
+//
+// A selection (a `--grep` of the changed components and files) is split the same way: its list holds only the tests the
+// grep matches, and `--every` names the list of every test, so that a file the grep matches in part weighs its share of
+// its seconds (its matching tests over all of its tests) and not the whole file. The run gives the same `--grep` with
+// the test list, and Playwright runs the tests both select. `--first` is the seconds of tests the first shard is
+// counted as holding before any file: the work it does besides its Playwright tests.
 //
 // The files are dealt as the docs' browser files are (run-node-tests.js, balance): longest first, each to the shard
 // with the least so far. A file that weighs more than a shard's even share is dealt by its top-level blocks (each
@@ -54,8 +60,10 @@ const median = (values) => {
  * @param {ReturnType<typeof testsOf>} tests
  * @param {Record<string, unknown>} durations seconds by project, then by file (relative to the test directory)
  * @param {number} total
+ * @param {{ every?: ReturnType<typeof testsOf>, first?: number }} [options] every test of the suite, when `tests` is a
+ *   part of it (a file then weighs the part of its seconds its listed tests are); the seconds the first shard starts with
  */
-export function split(tests, durations, total) {
+export function split(tests, durations, total, { every, first = 0 } = {}) {
   const projects = [...new Set(tests.map((t) => t.project))].sort();
   for (const project of projects) {
     if (typeof durations[project] !== 'object' || durations[project] === null) throw new Error(`the durations name no seconds for the project "${project}": measure them (playwright-durations.js), or add the project with {}`);
@@ -71,10 +79,18 @@ export function split(tests, durations, total) {
     const block = f.blocks.get(t.titles[0]);
     block.set(t.project, (block.get(t.project) ?? 0) + 1);
   }
-  /** The seconds of a file in a project. */
+  /** How many tests each file has in each project, in the whole suite (`every`), when the tests are a part of it. */
+  const whole = new Map();
+  for (const t of every ?? []) {
+    const key = `${t.project}\n${t.file}`;
+    whole.set(key, (whole.get(key) ?? 0) + 1);
+  }
+  /** The seconds of a file in a project: the part of them its listed tests are, when the tests are a part of the suite. */
   const secondsOf = (file, project) => {
     const known = durations[project][file];
-    return typeof known === 'number' ? known : null;
+    if (typeof known !== 'number') return null;
+    const all = whole.get(`${project}\n${file}`);
+    return all ? (known * files.get(file).count.get(project)) / all : known;
   };
   for (const [file, f] of files) {
     for (const project of f.count.keys()) {
@@ -84,7 +100,7 @@ export function split(tests, durations, total) {
     }
   }
   const sum = [...files.values()].reduce((a, f) => a + f.seconds, 0);
-  const share = sum / total;
+  const share = (sum + first) / total;
   /** @type {Record<string, number>} */
   const weights = {};
   /** @type {Map<string, { file: string, top: string | null }>} */
@@ -103,8 +119,8 @@ export function split(tests, durations, total) {
       weights[key] = seconds;
     }
   }
-  const dealt = balance([...units.keys()], weights, total);
-  return dealt.map((s) => {
+  const dealt = balance([...units.keys()], weights, total, [first]);
+  return dealt.map((s, k) => {
     const own = new Set(s.files);
     const lines = new Set();
     for (const key of s.files) {
@@ -119,7 +135,8 @@ export function split(tests, durations, total) {
       if (own.has(unit)) lines.add(`${t.at}${SEPARATOR}${t.titles[0]}`);
     }
     const guessed = [...new Set(s.files.map((key) => units.get(key).file))].filter((file) => files.get(file).guessed);
-    return { units: s.files, seconds: s.seconds, guessed, lines: [...lines].sort() };
+    const before = k === 0 ? first : 0;
+    return { units: s.files, seconds: s.seconds - before, before, guessed, lines: [...lines].sort() };
   });
 }
 
@@ -158,16 +175,21 @@ export function describeSplit(shards, index) {
   const lines = [`Shards by measured time (packages/web/test/durations.json; a file it does not name weighs its project's median):`];
   shards.forEach((s, k) => {
     const mark = k + 1 === index ? '→' : ' ';
-    lines.push(`${mark} ${k + 1}/${shards.length}: ${Math.round(s.seconds)} s of tests — ${s.units.join(', ') || 'none'}${s.guessed.length ? ` (median for ${s.guessed.join(', ')})` : ''}`);
+    const before = s.before ? ` (and ${Math.round(s.before)} s counted for its other work)` : '';
+    lines.push(`${mark} ${k + 1}/${shards.length}: ${Math.round(s.seconds)} s of tests${before} — ${s.units.join(', ') || 'none'}${s.guessed.length ? ` (median for ${s.guessed.join(', ')})` : ''}`);
   });
   return lines.join('\n');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const [durationsFile, listFile, which, out] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const [durationsFile, listFile, which, out] = args.filter((arg) => !arg.startsWith('--'));
+  const option = (name) => args.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
+  const everyFile = option('every');
+  const first = Number(option('first') ?? 0);
   const m = /^(\d+)\/(\d+)$/.exec(which ?? '');
-  if (!durationsFile || !listFile || !m || !out || +m[1] < 1 || +m[1] > +m[2]) {
-    console.error('usage: playwright-shards.js <durations.json> <list.json> <index>/<total> <test-list.txt>');
+  if (!durationsFile || !listFile || !m || !out || +m[1] < 1 || +m[1] > +m[2] || !(first >= 0) || args.some((arg) => arg.startsWith('--') && !/^--(every|first)=./.test(arg))) {
+    console.error('usage: playwright-shards.js <durations.json> <list.json> <index>/<total> <test-list.txt> [--every=<list of every test.json>] [--first=<seconds>]');
     process.exit(2);
   }
   const tests = testsOf(JSON.parse(fs.readFileSync(listFile, 'utf8')));
@@ -175,7 +197,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.error(`✖ ${listFile} lists no test`);
     process.exit(1);
   }
-  const shards = split(tests, JSON.parse(fs.readFileSync(durationsFile, 'utf8')), +m[2]);
+  const every = everyFile ? testsOf(JSON.parse(fs.readFileSync(everyFile, 'utf8'))) : undefined;
+  const shards = split(tests, JSON.parse(fs.readFileSync(durationsFile, 'utf8')), +m[2], { every, first });
   console.log(describeSplit(shards, +m[1]));
   const { none, several } = coverage(tests, shards.map((s) => s.lines));
   if (none.length || several.length) {
@@ -185,6 +208,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     process.exit(1);
   }
   const mine = shards[+m[1] - 1];
-  fs.writeFileSync(out, `${mine.lines.join('\n')}\n`);
+  // No line, no file content: the job then runs nothing rather than an empty test list.
+  fs.writeFileSync(out, mine.lines.length ? `${mine.lines.join('\n')}\n` : '');
   console.log(`Every one of the ${tests.length} listed tests is in exactly one shard; this one's test list (${mine.lines.length} line${mine.lines.length === 1 ? '' : 's'}) is ${out}.`);
 }

@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
@@ -17,7 +18,6 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -140,6 +140,11 @@ export class TanreiBottomSheet extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'bottom-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
+  /**
+   * BSH-1: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
+   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
 
   static override properties: PropertyDeclarations = {
@@ -147,18 +152,11 @@ export class TanreiBottomSheet extends TanreiElement {
     open: { type: Boolean, reflect: true },
     detent: { type: String },
     closedBy: { type: String, attribute: 'closedby', reflect: true },
-    // An HTML boolean attribute cannot default to true: the attributes are the inverses, `no-handle` and `flush`.
-    handle: {
-      attribute: 'no-handle',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `handle` and `inset`, which default to true, are their inverses here, `noHandle` and `flush`: an HTML
+    // boolean attribute cannot default to true, and each property has its attribute's name (the spec's web notes).
+    noHandle: { type: Boolean, attribute: 'no-handle', reflect: true },
     handleLabel: { type: String, attribute: 'handle-label' },
-    inset: {
-      attribute: 'flush',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    flush: { type: Boolean, reflect: true },
     label: { type: String },
     headline: { type: String },
     closable: { type: Boolean, reflect: true },
@@ -183,14 +181,14 @@ export class TanreiBottomSheet extends TanreiElement {
   /** The spec's `dismissible`, as HTML's own attribute: `none` ignores a drag below the lowest height, Escape, back and the scrim; any other value is `any`. Reflected. */
   closedBy: TanreiBottomSheetClosedBy = 'any';
 
-  /** Draws the drag handle. False (the `no-handle` attribute) draws none; the sheet can still be dragged by its content. */
-  handle = true;
+  /** Draws no drag handle; the sheet can still be dragged by its content. False (the default) draws it. */
+  noHandle = false;
 
   /** The drag handle's accessible name ("Resize sheet"), required while it is a button (BSH-11). */
   handleLabel = '';
 
-  /** Insets the content by `container.padding`. False (the `flush` attribute) lets it reach the edges (a list with its own padding). */
-  inset = true;
+  /** Lets the content reach the edges (a list with its own padding). False (the default) insets it by `container.padding`. */
+  flush = false;
 
   /** Names the modal dialog, or the standard sheet's region ("Share photo"). Required unless `headline` names it (BSH-22). */
   label = '';
@@ -251,7 +249,7 @@ export class TanreiBottomSheet extends TanreiElement {
 
   /** BSH-11: the handle is a control only while the sheet has two heights. */
   private get interactive(): boolean {
-    return this.handle && this.two;
+    return !this.noHandle && this.two;
   }
 
   private get sheet(): HTMLElement | null {
@@ -658,9 +656,10 @@ export class TanreiBottomSheet extends TanreiElement {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
+    // BSH-1: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
+    this.appear.enter(mounted);
     this.shown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.onViewport();
     this.measure();
@@ -677,11 +676,13 @@ export class TanreiBottomSheet extends TanreiElement {
       this.cancelSettle();
       this.placeDrawn(drawn);
     }
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
+    // BSH-1: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
+    // and its scrim's have played (closeModal), in every engine.
     if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }
@@ -714,7 +715,7 @@ export class TanreiBottomSheet extends TanreiElement {
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
       report(this, 'BSH-29', 'close-label is empty, so the close button has no accessible name; give it a close-label');
     }
-    if ((changed.has('handle') || changed.has('closedBy') || changed.has('closable')) && !this.handle && this.dismissible && !this.closable) {
+    if ((changed.has('noHandle') || changed.has('closedBy') || changed.has('closable')) && this.noHandle && this.dismissible && !this.closable) {
       report(this, 'BSH-30', 'it has no drag handle and no close button, so it shows no way out a person can see; set closable (with a close-label) or put a Close button in its content');
     }
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
@@ -723,7 +724,7 @@ export class TanreiBottomSheet extends TanreiElement {
     // BSH-29: the variant its token names, read at each update (a system switch is seen at the next one).
     giveVariant(this.renderRoot.querySelector('tanrei-button.close'), compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
     this.syncHeaderDivider();
-    if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('handle')) && this.interactive && this.words.lacks('handleLabel', this.handleLabel)) {
+    if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('noHandle')) && this.interactive && this.words.lacks('handleLabel', this.handleLabel)) {
       report(this, 'BSH-11', 'handle-label is empty, so the drag handle has no accessible name; give it a handle-label');
     }
     if (changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BSH-25', `variant "${this.variant}" is not defined; the sheet is drawn as modal`);
@@ -752,7 +753,7 @@ export class TanreiBottomSheet extends TanreiElement {
       }
       if (this.open) this.onViewport();
     }
-    if (changed.has('handle') || changed.has('inset') || changed.has('headline') || changed.has('closable')) this.measure();
+    if (changed.has('noHandle') || changed.has('flush') || changed.has('headline') || changed.has('closable')) this.measure();
     if (this.choosing) this.choosing = false;
     else if (changed.has('detent')) {
       const from = this.movingFrom;
@@ -807,10 +808,10 @@ export class TanreiBottomSheet extends TanreiElement {
 
   private body() {
     return html`
-      ${this.handle ? html`<div class="row" @click=${this.onClickCapture}>${this.handleTemplate()}</div>` : nothing}
+      ${!this.noHandle ? html`<div class="row" @click=${this.onClickCapture}>${this.handleTemplate()}</div>` : nothing}
       ${this.headerTemplate()}
       <div class="middle">
-        <div part="content" class=${classMap({ content: true, inset: this.inset })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture} @wheel=${containedWheel}>
+        <div part="content" class=${classMap({ content: true, inset: !this.flush })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture} @wheel=${containedWheel}>
           <div class="inner"><slot @slotchange=${() => this.measure()}></slot></div>
         </div>
         <span class="focus" data-tanrei-shape></span>
@@ -821,7 +822,7 @@ export class TanreiBottomSheet extends TanreiElement {
   protected override render() {
     // BSH-22, BSH-28: named by label, or by the headline where label is empty.
     const label = this.label || this.headline.trim();
-    const classes = classMap({ sheet: true, standard: !this.modal, 'has-handle': this.handle, 'has-header': !!this.headline.trim() || this.closable });
+    const classes = classMap({ sheet: true, standard: !this.modal, 'has-handle': !this.noHandle, 'has-header': !!this.headline.trim() || this.closable });
     const area = html`<div class="area" aria-hidden="true"><div class="cap partial"></div><div class="cap full"></div></div>
       <div class="timing" aria-hidden="true"></div>`;
     if (this.modal) {

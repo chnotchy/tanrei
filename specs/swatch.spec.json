@@ -309,6 +309,14 @@
         "size": "size",
         "shape": "shape"
       },
+      "parts": {
+        "container": "sample",
+        "checkerboard": "sample",
+        "fill": "sample",
+        "outline": "sample@outline",
+        "label": "label",
+        "supporting-text": "supporting-text"
+      },
       "notes": "`<tanrei-swatch color=\"#0f766e\" label=\"Teal 700\" supporting-text=\"#0f766e\" size shape label-hidden decorative>`. The host is `display: inline-flex`, `vertical-align: middle`, with no `tabindex`, no listeners and `pointer-events` left as they are (SWC-13). The sample is a `span` in the shadow root whose background is two layers: the color as a `linear-gradient` of one color over a `conic-gradient` checkerboard, both clipped by the shared corner rule; the edge is an inset `box-shadow`, drawn over the background. `color` is set as a custom property through `style.setProperty`, so any CSS color the browser resolves where the swatch stands is drawn (`var(--tanrei-sys-color-primary)` included), and a value `CSS.supports('color', …)` refuses is drawn as empty (SWC-6). The sample is `aria-hidden` while the text is drawn; while `label-hidden` it is `role=\"img\"` with `aria-label` and `aria-description`; while decorative or nameless the host is `aria-hidden`. Under `forced-colors: active` the sample keeps `forced-color-adjust: none` and takes a `CanvasText` edge (SWC-16)."
     },
     "swiftui": {

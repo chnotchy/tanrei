@@ -622,7 +622,7 @@ const zhCN: Dictionary = {
     menu: '起点',
     starts: '从这里开始',
     defaultNote: '默认系统',
-    notNeutral: '暂不可选：Tanrei 的根层仍带有默认系统的值。等它的值变为中性后，它就会成为空白起点。',
+    notInInit: '暂不可选：Tanrei 的根层现在已是中性的——灰色，没有强调色——但命令行还不能从它开始一个层（tanrei init --extends core）。等命令行可以了，这里也就能选了。',
     gallery: '从主题示例开始',
     exampleNote: (name) => `${name}。这是示例，不是官方设计。`,
     file: '导入文件…',
@@ -685,6 +685,14 @@ const zhCN: Dictionary = {
     kept: '这个浏览器现在保存的是共享的层，它取代了你之前的层。',
     edited: '你编辑了共享的层，所以这个浏览器现在保存它，取代了你之前的层。',
     back: '已回到你的层。',
+  },
+  sharing: {
+    open: '分享',
+    close: '关闭',
+    docs: '用此主题显示文档',
+    docsHelp: (system: string) => `仅保存在此浏览器中。文档的设计系统选项中会多出“我的主题”，在那里选择 ${system} 即可恢复。`,
+    docsOn: '文档现在以此主题显示（仅限此浏览器）。',
+    docsOff: (system: string) => `文档已恢复为 ${system}。`,
   },
   app: {
     language: '语言',

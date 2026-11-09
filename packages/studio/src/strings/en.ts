@@ -650,7 +650,7 @@ const en = {
     starts: 'Start from',
     defaultNote: 'The default system',
     // The root, listed but not offered: why it cannot be chosen yet.
-    notNeutral: 'Not yet: Tanrei’s root layer still holds the default system’s values. It becomes a blank start once its values are neutral.',
+    notInInit: 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.',
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
     gallery: 'From the gallery',
@@ -722,6 +722,17 @@ const en = {
     kept: 'This browser keeps the shared layer now, in place of the one you had.',
     edited: 'You edited the shared layer, so this browser keeps it now, in place of the one you had.',
     back: 'Back to your layer.',
+  },
+  // The bar's Share menu (ui.ts `shareMenu`): the link to the Studio with this layer, and — where the documentation
+  // hosts the Studio — the documentation shown in this layer, in this browser. "My theme" is the documentation's own
+  // word for it (its header's choice of design system); `system` is the default system's name.
+  sharing: {
+    open: 'Share',
+    close: 'Close',
+    docs: 'Show the documentation in this theme',
+    docsHelp: (system: string) => `In this browser only. The documentation’s choice of design system gains “My theme”, and choosing ${system} there goes back.`,
+    docsOn: 'The documentation shows this theme now, in this browser.',
+    docsOff: (system: string) => `The documentation is back to ${system}.`,
   },
   app: {
     language: 'Language',

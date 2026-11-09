@@ -268,6 +268,7 @@
       "name": "tanrei-resizable-frame",
       "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
       "events": { "resize": "resize", "change": "change" },
+      "parts": { "container": "container", "content": "slot", "start-handle": "start-handle", "end-handle": "end-handle", "bottom-handle": "bottom-handle", "corner-handle": "corner-handle", "size-indicator": "size-indicator" },
       "notes": "`<tanrei-resizable-frame variant handles=\"end bottom-end\" width height min-width max-width min-height max-height snap-widths=\"360 600 1024\" step large-step size-indicator width-label height-label corner-label>` with the content in the default slot. `handles` and `snapWidths` are array properties; their attributes are space-separated or a JSON array. The handles are `<tanrei-handle>` in the shadow root. RSF-6 sets `pointer-events: none` on every slotted `<iframe>`, `<object>` and `<embed>` (and every one inside the slotted content) between the handles' resizestart and resizeend. `resize` and `change` are composed, bubbling `CustomEvent`s with `{ width, height }`; the Handle's own events stay in the shadow root."
     },
     "swiftui": {

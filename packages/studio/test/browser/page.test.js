@@ -1,7 +1,7 @@
 // The page as a whole: every section of the rail and both tabs of Inspect, in light and dark, pass axe; nothing scrolls
 // sideways on a phone; the chrome is translated and the vocabulary is not.
 import assert from 'node:assert/strict';
-import { VIEWS, studioTest, until } from './harness.js';
+import { VIEWS, motionsEnded, studioTest, until } from './harness.js';
 
 // A layer with something in every panel: a fixed tone, a pin, an added size and an own token ("Yours", the preview's own rows).
 const layer = {
@@ -16,8 +16,11 @@ const layer = {
   tokens: { 'tanrei.sys.behavior.pressed-feedback': { $value: 2, reason: 'How this product behaves.' } },
 };
 
-/** An accordion's item opens over a few frames: what is measured, pressed or read next waits for the page to stand still. */
-const still = (page) => page.waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== 'running' || animation.effect?.getComputedTiming().iterations === Infinity));
+/**
+ * An accordion's item opens over a few frames: what is measured, pressed or read next waits for the page to stand
+ * still — every motion that has an end ended, in the document and in every component's shadow root (harness.js).
+ */
+const still = (page) => motionsEnded(page);
 
 /** Open what a person would open, so that axe, the overflow check and the measure of the targets look at it too. */
 async function unfold(page, view) {
@@ -262,7 +265,8 @@ studioTest('ar: Arabic text is drawn in Noto Sans Arabic, Latin in Inter; a labe
     await Promise.all(arabic.map((face) => face.load()));
     return { stack, faces: arabic.length, ranges: arabic.map((face) => face.unicodeRange), loaded: document.fonts.check("16px 'Noto Sans Arabic'", 'ع') };
   });
-  assert.match(faces.stack, /^Inter, "?Noto Sans Arabic"?,/, `the stack: Inter for Latin, then the Arabic face: ${faces.stack}`);
+  // Inter's fallback face (the platform's, at Inter's width) stands for it until its file arrives, and draws no Arabic.
+  assert.match(faces.stack, /^Inter, "?Inter Fallback"?, "?Noto Sans Arabic"?,/, `the stack: Inter for Latin, its fallback face, then the Arabic face: ${faces.stack}`);
   assert.equal(faces.faces, 1, 'one face, the Arabic subset');
   assert.match(faces.ranges[0], /U\+600-6FF/i, `its range is Arabic's: ${faces.ranges[0]}`);
   assert.ok(!/U\+0?0?00-00FF|U\+0-FF/i.test(faces.ranges[0]), 'it does not take Latin');

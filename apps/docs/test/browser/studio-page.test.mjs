@@ -18,6 +18,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the preview’s five
+// screens, took 64 s in CI.
+const LIMIT = { timeout: 240_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'studio', 'index.html'))) throw new Error('apps/docs/dist holds no Theme Studio page: run `pnpm --filter @tanrei/docs build` first');
@@ -78,7 +82,7 @@ for (const engine of ENGINES) {
     before(async () => (browser = await launch(engine)));
     after(async () => browser?.close());
 
-    test('1440 wide: the Studio is the whole window — its bar, then the rail, the preview and the panel side by side, each scrolling by itself', async () => {
+    test('1440 wide: the Studio is the whole window — its bar, then the rail, the preview and the panel side by side, each scrolling by itself', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
         assert.equal(await page.locator('tanrei-app-shell, .docs-app-bar').count(), 0, 'none of the documentation’s frame');
@@ -101,7 +105,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('1440 wide: the handle resizes the panel, from the keyboard, between its least and what leaves the preview its own', async () => {
+    test('1440 wide: the handle resizes the panel, from the keyboard, between its least and what leaves the preview its own', LIMIT, async () => {
       const { page, close } = await open(browser);
       try {
         const handle = page.locator('[data-panel-handle]');
@@ -124,7 +128,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('390 wide: one column under the bar — the rail, the preview, the panel — and nothing scrolls sideways', async () => {
+    test('390 wide: one column under the bar — the rail, the preview, the panel — and nothing scrolls sideways', LIMIT, async () => {
       const { page, problems, close } = await open(browser, { viewport: NARROW });
       try {
         const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
@@ -140,7 +144,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the layer is in the address: a link opens the Studio on the same layer, in a browser that kept nothing, under a banner that says where it came from', async () => {
+    test('the layer is in the address: a link opens the Studio on the same layer, in a browser that kept nothing, under a banner that says where it came from', LIMIT, async () => {
       const first = await open(browser);
       let link;
       try {
@@ -175,7 +179,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a link opened in a browser that kept a layer of its own: the link’s layer is shown, the kept one is not written over, and the notice leads back to it or keeps the link’s', async () => {
+    test('a link opened in a browser that kept a layer of its own: the link’s layer is shown, the kept one is not written over, and the notice leads back to it or keeps the link’s', LIMIT, async () => {
       const kept = () => page.evaluate(() => JSON.parse(localStorage.getItem('tanrei-theme-studio')).layer.extends);
       const first = await open(browser);
       let link;
@@ -229,7 +233,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('undo and redo: from the bar’s buttons and from the keyboard, the address following', async () => {
+    test('undo and redo: from the bar’s buttons and from the keyboard, the address following', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
         const undo = page.locator('[data-undo]');
@@ -261,7 +265,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the start point: an example of the theme gallery, undone; the root listed and not offered; a layer file loaded, and one refused with the reason in the panel', async () => {
+    test('the start point: an example of the theme gallery, undone; the root listed and not offered; a layer file loaded, and one refused with the reason in the panel', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
         const menu = page.locator('[data-start-menu]');
@@ -297,7 +301,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('every part is within reach of the Tab key, in the order it is drawn: the bar, the rail, the preview, the handle, the panel', async () => {
+    test('every part is within reach of the Tab key, in the order it is drawn: the bar, the rail, the preview, the handle, the panel', LIMIT, async () => {
       const { page, close } = await open(browser);
       try {
         await page.locator('body').focus();
@@ -320,7 +324,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the preview’s five screens, from its bar: light, dark and side by side; axe finds nothing on any; each switch is drawn at once', async (t) => {
+    test('the preview’s five screens, from its bar: light, dark and side by side; axe finds nothing on any; each switch is drawn at once', LIMIT, async (t) => {
       const { page, problems, close } = await open(browser);
       try {
         const screens = ['overview', 'dashboard', 'settings', 'list', 'docs'];
@@ -360,7 +364,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('Export: the file, the next steps as the CLI takes them, and a link to the layer', async () => {
+    test('Export: the file, the next steps as the CLI takes them, and a link to the layer', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
         await chooseBase(page, 'cupertino');
@@ -400,7 +404,7 @@ for (const engine of ENGINES) {
     });
 
     for (const [name, viewport] of [['1440', WIDE], ['390', NARROW]]) {
-      test(`${name} wide, Export open: axe finds nothing`, async () => {
+      test(`${name} wide, Export open: axe finds nothing`, LIMIT, async () => {
         const { page, close } = await open(browser, { viewport });
         try {
           await page.locator('[data-export-open]').click();
@@ -414,20 +418,26 @@ for (const engine of ENGINES) {
           await close();
         }
       });
-      test(`${name} wide, the start point open: axe finds nothing`, async () => {
+      test(`${name} wide, the start point open: axe finds nothing`, LIMIT, async () => {
         const { page, close } = await open(browser, { viewport });
         try {
           await page.locator('[data-start-open]').click();
           await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
-          // Grown in: a surface still fading in is no color to measure.
-          await page.waitForFunction(() => document.querySelector('[data-start-menu]').shadowRoot.getAnimations({ subtree: true }).every((animation) => animation.playState !== 'running'));
+          // Grown in: a surface still fading in is no color to measure. The entrance is held paused at its start until
+          // the next frame (the web's AppearController), so the wait is for every motion that has an end to have
+          // ended — in the menu's shadow root and in each item's — not for none to be running.
+          await page.waitForFunction(() => {
+            const menu = document.querySelector('[data-start-menu]');
+            const roots = [menu, ...menu.querySelectorAll('*')].flatMap((el) => (el.shadowRoot ? [el.shadowRoot] : []));
+            return roots.flatMap((root) => root.getAnimations()).every((animation) => animation.playState === 'finished' || !Number.isFinite(animation.effect?.getComputedTiming().endTime));
+          });
           const report = await new AxeBuilder({ page }).include('[data-start-menu]').analyze();
           assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), []);
         } finally {
           await close();
         }
       });
-      test(`${name} wide: axe finds nothing`, async () => {
+      test(`${name} wide: axe finds nothing`, LIMIT, async () => {
         const { page, close } = await open(browser, { viewport });
         try {
           const report = await new AxeBuilder({ page }).analyze();
@@ -438,7 +448,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('each language has its page, in its language and direction, with the Studio speaking it', async () => {
+    test('each language has its page, in its language and direction, with the Studio speaking it', LIMIT, async () => {
       for (const [url, lang, dir, undo] of [['/ja/studio/', 'ja', 'ltr', '元に戻す'], ['/ar/studio/', 'ar', 'rtl', 'تراجع']]) {
         const { page, problems, close } = await open(browser, { url });
         try {

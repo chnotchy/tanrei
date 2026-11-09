@@ -230,6 +230,32 @@ const outsideValue = (outside) => JSON.stringify(Object.entries(outside).map(([c
 /** What the system uses instead: `component=replacement,replacement`, space-separated, in one string. */
 const replacementValue = (replacements) => JSON.stringify(Object.entries(replacements).map(([entry, uses]) => `${entry}=${uses.join(',')}`).join(' '));
 
+/**
+ * The custom properties a sheet keeps for `used`: each one named, and each one a kept value reads, to the end — so that
+ * the sheet, applied where nothing else declares its tokens, resolves every value it holds.
+ * @param {Iterable<string>} used
+ * @param {[string, string][][]} rules
+ */
+function kept(used, rules) {
+  const reads = new Map();
+  for (const decls of rules) {
+    for (const [name, value] of decls) {
+      if (!name.startsWith('--')) continue;
+      const names = reads.get(name) ?? new Set();
+      for (const [, read] of String(value).matchAll(/var\(\s*(--[A-Za-z0-9_-]+)/g)) names.add(read);
+      reads.set(name, names);
+    }
+  }
+  const keep = new Set();
+  const visit = (name) => {
+    if (keep.has(name)) return;
+    keep.add(name);
+    for (const read of reads.get(name) ?? []) visit(read);
+  };
+  for (const name of used) visit(name);
+  return keep;
+}
+
 const block = (selector, decls, indent = '') =>
   `${indent}${selector} {\n${decls.map(([n, v]) => `${indent}  ${n}: ${v};`).join('\n')}\n${indent}}`;
 
@@ -246,9 +272,12 @@ function colorValue(token) {
  *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
  *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
  *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
- *   way, so that the report names them.
+ *   way, so that the report names them. `used` = the custom properties a page reads from this sheet: the sheet then
+ *   declares only those and every custom property their values read (`var()`, followed to the end), and leaves out a
+ *   rule that is left with nothing. Off by default: without it the sheet declares every token. A declaration that is
+ *   not a custom property (`color-scheme`) is kept either way.
  */
-export function emitCss(model, { scope, unavailable, outside, replacements } = {}) {
+export function emitCss(model, { scope, unavailable, outside, replacements, used } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
@@ -298,6 +327,25 @@ export function emitCss(model, { scope, unavailable, outside, replacements } = {
     ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []),
     ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : []),
   ];
+  // `used`: what is kept of each rule, and a rule left with nothing is not written.
+  const keep = used ? kept(used, [own, base, standard, medium, high]) : null;
+  const only = (decls) => (keep ? decls.filter(([name]) => !name.startsWith('--') || keep.has(name)) : decls);
+  const rule = (selector, decls, indent) => (only(decls).length ? [block(selector, only(decls), indent)] : []);
+  if (keep) {
+    return [
+      `/* ${GENERATED_HEADER.join(' ')} */`,
+      `@layer ${NS}.tokens {`,
+      ...rule(S, own, '  '),
+      ...rule(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
+      block(attr('theme', 'light'), [['color-scheme', 'light']], '  '),
+      block(attr('theme', 'dark'), [['color-scheme', 'dark']], '  '),
+      ...(only(high).length ? ['  @media (prefers-contrast: more) {', block(`${S}:not([data-${NS}-contrast])`, only(high), '    '), '  }'] : []),
+      ...rule(scope ? scoped('medium') : attr('contrast', 'medium'), medium, '  '),
+      ...rule(scope ? scoped('high') : attr('contrast', 'high'), high, '  '),
+      '}',
+      '',
+    ].join('\n');
+  }
   return [
     `/* ${GENERATED_HEADER.join(' ')} */`,
     `@layer ${NS}.tokens {`,

@@ -82,6 +82,9 @@
           "$ref": "comp/radio-button.tokens.json"
         },
         {
+          "$ref": "comp/rating.tokens.json"
+        },
+        {
           "$ref": "comp/switch.tokens.json"
         },
         {
@@ -167,6 +170,9 @@
         },
         {
           "$ref": "comp/resizable-frame.tokens.json"
+        },
+        {
+          "$ref": "comp/split-view.tokens.json"
         },
         {
           "$ref": "comp/scroll-area.tokens.json"

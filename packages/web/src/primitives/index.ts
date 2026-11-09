@@ -49,7 +49,8 @@
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
-//                 measured on the page and written in the element's own pixels
+//                 measured on the page and written in the element's own pixels; cssZoom(): the CSS zoom it is drawn at,
+//                 which reaches the top layer, for an overlay placed against its anchor by script
 //   selection   — SelectionController and the styles of a form-associated selection control (checkbox, radio, switch),
 //                 and conditionStates(): the state rules of any component whose conditions are its state variants
 //   item-row    — the row of a column of items (list, menu): its states, paints, ripple and target height
@@ -110,7 +111,7 @@
 //                 separator, period names and preferred cycle (DTM-14, DTM-16, DTM-38)
 //   system-watch — SystemWatchController: renders its host again when the document's root switches the design system,
 //                 for a choice of kind drawn from script (a calendar's arrows, a picker's actions)
-//   modal       — modalLayer: the Tanrei modal overlays open in the window, which a snackbar waits and pauses for (SNK-9, SNK-12);
+//   modal       — modalLayer: the modal `<dialog>`s of Tanrei's surfaces open in the window (openModal adds, closeModal deletes), the topmost of which a snackbar is shown in (SNK-38);
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
@@ -123,7 +124,8 @@
 //                 its scrim's have played, in every engine (MDL-7); opened before the document's first paint, it and
 //                 its scrim are drawn open at once (MOT-4)
 //   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
-//                 a blur to draw (MDL-1)
+//                 a blur to draw (MDL-1); sheetScrimStyles(): a sliding sheet's scrim, fading in step with its slide
+//                 (MDL-7), over the cross-fade that replaces it where motion is reduced (MOT-6)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
@@ -177,8 +179,9 @@
 //                 every component that is a field itself) and `primitives/field-group-frame.ts` (a set: the field group
 //                 and the radio group); they draw the requirement tag with the Tag component, so they are imported by
 //                 path and are not part of this file
-//   form-disabled — takeFormDisabled(): a form-associated element takes the platform's word that it is disabled (a
-//                 fieldset's, or its own attribute's) where it is not lost: after the update under way
+//   form-disabled — FormDisabledController: a form-associated element reads a fieldset's part of its disabled state
+//                 from the platform where it renders, and draws again only when the platform's word changes what was
+//                 drawn; takeFormDisabled(): the Button's own, after the update under way
 //   disabled-while-focused — waitsWhileFocused(): the `disabled` attribute of a form-associated element that holds focus
 //                 waits until focus has left it, at most a frame, so focus leaves when the platform's own control's
 //                 would in every engine (the Button)
@@ -193,7 +196,7 @@ export { iconGlyph } from '../styles/icons.js';
 export { cornerRadius, shape } from '../styles/shape.js';
 export { type OpenAxis, OpenAxesController, type OpenAxesOptions } from './axes.js';
 export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedback } from './behavior.js';
-export { isDisabledControl, takeFormDisabled } from './form-disabled.js';
+export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
 export { focusedAtFirst, wantsAutofocus } from './autofocus.js';
 export { type FocusRingOptions, type FocusSelector, focusGlow, focusGlowEnds, focusRing, syncFocusStyle } from './focus-ring.js';
@@ -304,11 +307,11 @@ export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
-export { layoutScale } from './layout-scale.js';
+export { cssZoom, layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
-export { SCRIM_FILTER, scrimFilter } from './scrim.js';
+export { SCRIM_FILTER, type SheetScrimOptions, scrimFilter, sheetScrimStyles } from './scrim.js';
 export {
   POINTER_STOPPED_TIME,
   SHEET_FLING_VELOCITY,
@@ -396,7 +399,7 @@ export {
   styledAsAnchorToo,
 } from './link.js';
 export { layoutSize, naturalHeight } from './natural-height.js';
-export { inverseBoolean, parseValues } from './values.js';
+export { parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
 export { type PhaseRead, cancelPhaseRead, readInPhase } from './read-phase.js';
 export { countWork } from './work-count.js';

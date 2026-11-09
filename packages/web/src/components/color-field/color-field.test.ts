@@ -129,7 +129,7 @@ test.describe('behavior', () => {
     expect(await one(page, 'bare').evaluate((el) => el.shadowRoot!.querySelectorAll('slot').length)).toBe(0);
     // It has no state and no prop of its own: seventeen properties, each a member's (and the form's `name`).
     expect(await one(page, 'bare').evaluate((el) => [...(el.constructor as unknown as { elementProperties: Map<string, unknown> }).elementProperties.keys()].sort())).toEqual(
-      ['disabled', 'error', 'errorText', 'formDisabled', 'invalidText', 'label', 'labelHidden', 'name', 'optional', 'optionalText', 'picker', 'pickerLabel', 'required', 'requiredMark', 'requiredText', 'size', 'supportingText', 'value', 'variant'],
+      ['disabled', 'error', 'errorText', 'invalidText', 'label', 'labelHidden', 'name', 'optional', 'optionalText', 'picker', 'pickerLabel', 'required', 'requiredMark', 'requiredText', 'size', 'supportingText', 'value', 'variant'],
     );
   });
 

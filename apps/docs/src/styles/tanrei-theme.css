@@ -18,6 +18,14 @@
   color-scheme: dark;
 }
 
+/* The reader's own theme, until its stylesheet is in (src/lib/appearance.ts): nothing of the page is drawn, so that it
+ * is never drawn in the default system first. The page keeps its room; the head's script takes the mark away once the
+ * sheet is in, and after three seconds whatever happens. */
+:root[data-docs-appearance-pending] body,
+:root[data-docs-appearance-pending] body * {
+  visibility: hidden !important;
+}
+
 :root,
 :root[data-theme='light'],
 :root[data-theme='dark'] {

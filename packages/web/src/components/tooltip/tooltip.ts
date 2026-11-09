@@ -8,6 +8,7 @@ import {
   type ShadowLayer,
   SystemWatchController,
   anchorGone,
+  cssZoom,
   choiceAttribute as choiceConverter,
   chordsConverter,
   chordsOf,
@@ -120,7 +121,7 @@ function warmFor(duration: number) {
  * `-rich-container-inverse` (off). `shortcut` writes the keys of the anchor's command after a plain tooltip's text and
  * gives them to the anchor as `aria-keyshortcuts`.
  *
- * While `describes` is true (the default; the attribute `no-describe` turns it off) the text — after the title, for a
+ * Unless `noDescribe` (the attribute `no-describe`), the text — after the title, for a
  * rich tooltip — is the anchor's `aria-description`, set on the first focusable element slotted in (a Tanrei component
  * forwards it from its host to its native element), whether or not the tooltip is open.
  *
@@ -149,12 +150,9 @@ export class TanreiTooltip extends TanreiElement {
     crossOffset: { attribute: 'cross-offset', converter: crossNumeric },
     arrow: { reflect: true, converter: choiceConverter },
     inverse: { reflect: true, converter: choiceConverter },
-    describes: {
-      type: Boolean,
-      attribute: 'no-describe',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `describes`, which defaults to true, is its inverse here, `noDescribe`: an HTML boolean attribute cannot
+    // default to true, and the property has the attribute's name (the spec's web notes).
+    noDescribe: { type: Boolean, attribute: 'no-describe', reflect: true },
     open: { type: Boolean, reflect: true },
     showDelay: { attribute: 'show-delay', converter: numeric },
     hideDelay: { attribute: 'hide-delay', converter: numeric },
@@ -209,8 +207,8 @@ export class TanreiTooltip extends TanreiElement {
    */
   inverse: boolean | null = null;
 
-  /** Whether the text is the anchor's accessible description. Set `no-describe` when the text repeats the anchor's name. */
-  describes = true;
+  /** Keeps the text from being the anchor's accessible description: set it when the text repeats the anchor's name. False (the default): the text describes the anchor. */
+  noDescribe = false;
 
   /** Whether the tooltip is showing. It opens and closes itself and fires `toggle`; set it to show a tooltip on your own. */
   open = false;
@@ -616,7 +614,11 @@ export class TanreiTooltip extends TanreiElement {
       return;
     }
     const style = getComputedStyle(surface);
-    const px = (value: string) => Number.parseFloat(value) || 0;
+    // In the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the surface's
+    // style is turned into them and what is written on it back into its own (`cssZoom()`, src/primitives/layout-scale.ts).
+    const zoom = cssZoom(surface);
+    const own = (value: number) => `${value / zoom}px`;
+    const px = (value: string) => (Number.parseFloat(value) || 0) * zoom;
     const margin = px(style.scrollMarginBlockEnd);
     // Its drawn size, not `offsetWidth` / `offsetHeight`: those are rounded to whole pixels, which puts the centre up to
     // half a pixel off the anchor's (the surface is never transformed, so this is its layout box, whatever its motion).
@@ -640,22 +642,22 @@ export class TanreiTooltip extends TanreiElement {
       viewport,
       placement,
       // TIP-24: the prop as given, or the token.
-      offset: usable(this.offset) ? this.offset : px(style.scrollMarginBlockStart),
-      crossOffset: this.crossOffset,
+      offset: usable(this.offset) ? this.offset * zoom : px(style.scrollMarginBlockStart),
+      crossOffset: this.crossOffset * zoom,
       margin,
       rtl,
       arrow,
       keep: this.side,
     });
     this.side = at.side;
-    surface.style.top = `${at.top}px`;
-    surface.style.left = `${at.left}px`;
+    surface.style.top = own(at.top);
+    surface.style.left = own(at.left);
     // TIP-15: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
     surface.toggleAttribute('data-held', at.held);
     // TIP-25: the arrow on the edge that faces the anchor, and the elevation round the container and the arrow together.
     if (at.arrow) {
-      surface.style.setProperty('--_arrow-at', `${at.point}px`);
+      surface.style.setProperty('--_arrow-at', own(at.point));
       const shade = getComputedStyle(this.renderRoot.querySelector('.shade')!).boxShadow;
       if (shade !== this.shade) {
         this.shade = shade;
@@ -863,7 +865,7 @@ export class TanreiTooltip extends TanreiElement {
     const stated = [element, target].some((each) => !!each && ariaAttribute(each, 'aria-keyshortcuts') !== null && !ours(each));
     this.key(stated ? null : target, stated ? null : keys);
     const spoken = stated && drawn ? drawn.spokenKeys : '';
-    this.describe(this.describes && this.hasText ? [this.description(), spoken].filter(Boolean).join(', ') : null);
+    this.describe(!this.noDescribe && this.hasText ? [this.description(), spoken].filter(Boolean).join(', ') : null);
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -926,7 +928,7 @@ export class TanreiTooltip extends TanreiElement {
         class="surface"
         popover="manual"
         role="tooltip"
-        aria-hidden=${(this.describes && this.hasText) || this.confirming ? 'true' : nothing}
+        aria-hidden=${(!this.noDescribe && this.hasText) || this.confirming ? 'true' : nothing}
         @pointerenter=${() => clearTimeout(this.hideTimer)}
         @click=${this.swallow}
         @mousedown=${this.swallow}

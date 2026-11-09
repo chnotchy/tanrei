@@ -12,6 +12,10 @@ import { fileURLToPath } from 'node:url';
 import { QUIET_MS, watchNetwork } from './network-quiet.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a page that goes on
+// asking, took 2 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 // A document whose parser has nothing in flight for longer than 500 ms, then asks for a script it makes itself (the
 // preload scanner does not see it) that ends before DOMContentLoaded, then parses on. The parser is held by scripts that
 // run for a time on the clock, not by the document's length: a parse slowed by length leaves a gap that shrinks on a
@@ -49,7 +53,7 @@ after(async () => {
 });
 
 describe('a page that has stopped asking for files', () => {
-  test('a document whose parse leaves the network quiet: after its load and its late script', async () => {
+  test('a document whose parse leaves the network quiet: after its load and its late script', LIMIT, async () => {
     const page = await browser.newPage();
     try {
       const network = await watchNetwork(page);
@@ -82,7 +86,7 @@ describe('a page that has stopped asking for files', () => {
     }
   });
 
-  test('a page that goes on asking: never, and the wait names what is in flight', async () => {
+  test('a page that goes on asking: never, and the wait names what is in flight', LIMIT, async () => {
     const page = await browser.newPage();
     try {
       const network = await watchNetwork(page);

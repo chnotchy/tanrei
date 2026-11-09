@@ -5,7 +5,7 @@ import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges 
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { browserMissingMessage } from '../../primitives/missing-value.js';
 import { AXES, INSET, styles } from './color-input.styles.js';
@@ -153,7 +153,6 @@ export class TanreiColorInput extends TanreiElement {
     text: { state: true },
     entryError: { state: true },
     focused: { state: true },
-    formDisabled: { state: true },
   };
 
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label of the Field that frames it stands above it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the color input does not know by name is laid out as stacked. Reflected. */
@@ -223,8 +222,11 @@ export class TanreiColorInput extends TanreiElement {
   protected entryError = false;
   /** CLI-22: the input has focus, however it was gained. The picker button's focus is its own. */
   protected focused = false;
-  /** Set by the platform (the element's `formDisabledCallback`): an ancestor `<fieldset disabled>`, or its own `disabled` attribute. */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals: ElementInternals;
   /** What it tells its form, said where an element composed around it hears it (src/primitives/form-says.ts). */
@@ -423,8 +425,8 @@ export class TanreiColorInput extends TanreiElement {
    * `disabled` attribute too. Lit writes that attribute in the middle of an update, where a change of state would not
    * be drawn: it is taken once that update is over, so an input whose `disabled` was unset is drawn enabled again.
    */
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**

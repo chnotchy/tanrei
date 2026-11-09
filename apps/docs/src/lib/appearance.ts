@@ -1,6 +1,7 @@
 // How the docs look to the reader, in one place: the color mode (the device's, light or dark), the contrast
-// (standard, medium, high) and the look — Tanrei's own design system, or one of the showcase systems that imitate
-// another design system. One type, one key of the origin's storage, one set of attributes on `<html>`, one event.
+// (standard, medium, high) and the look — Tanrei's own design system, one of the showcase systems that imitate
+// another design system, or the reader's own theme ("My theme"), made in Theme Studio and kept in this browser. One
+// type, one key of the origin's storage, one set of attributes on `<html>`, one event.
 //
 //   `<html>`            data-theme             the scheme drawn, light or dark (the framework's styles and
 //                                              styles/tanrei-theme.css, which turns it into `color-scheme`)
@@ -8,10 +9,24 @@
 //                       data-docs-mode         what the reader chose: system, light or dark
 //                       data-tanrei-contrast   medium or high; absent for standard (the tokens are resolved at :root)
 //                       data-docs-system       the look: a shipped system's id, which every frame draws its stage under
-//                                              (lib/example.ts) and the lists of components follow (lib/list-filter.ts)
+//                                              (lib/example.ts) and the lists of components follow (lib/list-filter.ts),
+//                                              or `custom`: the reader's own theme, which the whole page is drawn in
+//                       data-docs-custom       present while this browser keeps a theme of the reader's own
+//                       data-docs-custom-base  while the look is the reader's theme: the shipped system it extends, whose
+//                                              components the lists show
+//                       data-docs-appearance-pending  while the look is the reader's theme and its stylesheet is not in
+//                                              yet: nothing of the page is drawn (styles/tanrei-theme.css)
+//                       data-docs-custom-late  on a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the
+//                                              page is drawn in the default system, and the sheet is kept for the next
 //                       data-docs-appearance-shared   present while the page shows an appearance from its address
 //   storage             `tanrei-docs-appearance`: `{ mode, contrast, look }` as JSON. Nothing else is read: a choice
 //                       kept under an older key is not carried over.
+//                       `tanrei-docs-custom-theme`: the reader's own theme, `{ hash, layer }` — the layer file Theme
+//                       Studio gave the docs (its Share menu; lib/custom-theme.ts writes it) and a hash of its text. The
+//                       look `custom` is one only while it is there.
+//   IndexedDB           `tanrei-docs`, store `sheets`: the stylesheet of the reader's theme — what differs from the
+//                       default system's on the root (Theme Studio's page sheet) — under the build's key and the
+//                       layer's hash; computed in a worker where it is not there (lib/custom-theme.ts).
 //   the page            `docs-appearance` (a CustomEvent on `document`, its detail the appearance shown) whenever it
 //                       changes — here, in another tab of the site (the `storage` event), or with the device's scheme
 //                       while the mode is the device's.
@@ -22,7 +37,9 @@
 // The head's script (`appearanceBootstrap`, written by components/frame/ThemeProvider.astro in place of the framework's
 // own theme script) applies the stored or shared appearance before the first paint. It is made of the same functions
 // as the module below — each written as a function of its arguments alone, so that its text is the script — and never
-// a second copy of them.
+// a second copy of them. Under the reader's own theme it hides the page until the theme's stylesheet is in: read from
+// IndexedDB at once, else computed by lib/custom-theme.ts once the page's modules run. After `REVEAL_AFTER` it shows
+// the page whatever happens — without the sheet, in the default system, which that page keeps.
 import { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 export type Mode = 'system' | 'light' | 'dark';
@@ -33,7 +50,7 @@ export type Scheme = 'light' | 'dark';
 export interface Appearance {
   mode: Mode;
   contrast: Contrast;
-  /** A shipped system's id: the default system, or a showcase system. */
+  /** A shipped system's id — the default system, or a showcase system — or `custom`: the reader's own theme. */
   look: string;
 }
 
@@ -54,6 +71,28 @@ export const SHARED_ATTR = 'data-docs-appearance-shared';
 /** The address's names. */
 export const PARAMS = { look: 'look', mode: 'mode', contrast: 'contrast' } as const;
 
+/** The look of the reader's own theme. A shipped system is never so named: its id is a layer's, and no layer of the repository is. */
+export const CUSTOM_LOOK = 'custom';
+/** Where the reader's own theme is kept: `{ hash, layer }`. */
+export const CUSTOM_KEY = 'tanrei-docs-custom-theme';
+export const CUSTOM_ATTR = 'data-docs-custom';
+export const CUSTOM_BASE_ATTR = 'data-docs-custom-base';
+export const PENDING_ATTR = 'data-docs-appearance-pending';
+/** On a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the page is drawn in the default system, and the sheet is kept for the next. */
+export const LATE_ATTR = 'data-docs-custom-late';
+/** The `<style>` that holds the reader's theme while it is the look. */
+export const CUSTOM_STYLE_ID = 'docs-custom-system';
+/** Where the theme's stylesheet is kept (IndexedDB). */
+export const SHEET_STORE = { db: 'tanrei-docs', store: 'sheets' } as const;
+/**
+ * The longest the page stays hidden for the theme's stylesheet, in milliseconds. A sheet not in by then is not put in
+ * on that page — it would move everything drawn: the page is drawn in the default system, its look says so, and the
+ * sheet, once computed, is kept for the next page (`LATE_ATTR`).
+ */
+export const REVEAL_AFTER = 3000;
+/** Sent on `document` once the reader's theme's stylesheet is in, or another took its place. */
+export const CUSTOM_SHEET_EVENT = 'docs-custom-sheet';
+
 /** What `docs-appearance` carries. */
 export interface AppearanceDetail {
   appearance: Appearance;
@@ -66,13 +105,70 @@ export interface AppearanceDetail {
 /**
  * An appearance from anything: what storage held (parsed JSON, or nothing) with what the address asked for over it.
  * A value that is not one of the allowed ones is the default's: the device's mode, standard contrast, the default look.
+ * The reader's own theme (`custom`) is a look only where this browser keeps one (`custom` is true).
  */
-export function normalize(value: unknown, looks: readonly string[], defaultLook: string): Appearance {
+export function normalize(value: unknown, looks: readonly string[], defaultLook: string, custom?: boolean): Appearance {
   const given = (value && typeof value === 'object' ? value : {}) as Record<string, unknown>;
   const mode = given.mode === 'light' || given.mode === 'dark' ? given.mode : 'system';
   const contrast = given.contrast === 'medium' || given.contrast === 'high' ? given.contrast : 'standard';
-  const look = typeof given.look === 'string' && looks.indexOf(given.look) >= 0 ? given.look : defaultLook;
+  const look = typeof given.look === 'string' && (looks.indexOf(given.look) >= 0 || (custom === true && given.look === 'custom')) ? given.look : defaultLook;
   return { mode, contrast, look };
+}
+
+/**
+ * The reader's own theme as storage keeps it (parsed JSON, or nothing): its hash, and the shipped system it extends —
+ * the default where it extends another — or null where there is none, or none that can be read.
+ */
+export function customOf(value: unknown, looks: readonly string[]): { hash: string; base: string } | null {
+  const given = (value && typeof value === 'object' ? value : {}) as Record<string, unknown>;
+  const layer = (given.layer && typeof given.layer === 'object' ? given.layer : null) as Record<string, unknown> | null;
+  if (typeof given.hash !== 'string' || !/^[0-9a-z]{1,32}$/.test(given.hash) || !layer) return null;
+  const base = typeof layer.extends === 'string' && looks.indexOf(layer.extends) >= 0 ? layer.extends : looks[0] || '';
+  return { hash: given.hash, base };
+}
+
+/** The stylesheet IndexedDB keeps under `key`, given to `done` — or null where it keeps none, or fails. */
+export function readSheet(db: string, store: string, key: string, done: (css: string | null) => void): void {
+  try {
+    const open = indexedDB.open(db, 1);
+    open.onupgradeneeded = () => {
+      open.result.createObjectStore(store);
+    };
+    open.onsuccess = () => {
+      const base = open.result;
+      try {
+        const get = base.transaction(store, 'readonly').objectStore(store).get(key);
+        get.onsuccess = () => {
+          base.close();
+          done(typeof get.result === 'string' ? get.result : null);
+        };
+        get.onerror = () => {
+          base.close();
+          done(null);
+        };
+      } catch (e) {
+        base.close();
+        done(null);
+      }
+    };
+    open.onerror = () => done(null);
+  } catch (e) {
+    done(null);
+  }
+}
+
+/** The reader's theme's stylesheet put in place: one `<style>` at the end of the head, named by its key, in the place of any before it. */
+export function placeSheet(css: string, key: string, id: string): void {
+  let style = document.getElementById(id);
+  if (!style) {
+    style = document.createElement('style');
+    style.id = id;
+    document.head.appendChild(style);
+  }
+  if (style.getAttribute('data-key') !== key) {
+    style.textContent = css;
+    style.setAttribute('data-key', key);
+  }
 }
 
 /** What the address asks for (`?look=&mode=&contrast=`), or null where it names none of the three. */
@@ -120,31 +216,42 @@ export interface BootConfig {
   names: { theme: string; tanreiTheme: string; mode: string; contrast: string; look: string };
   shared: string;
   rule: { id: string; absent: string; only: string };
+  /** The reader's own theme: where it is kept, its marks on the root, where its stylesheet is kept, and the build that computes it. */
+  custom: { key: string; look: string; available: string; base: string; pending: string; late: string; style: string; db: string; store: string; build: string; wait: number };
 }
 
-/** The configuration of a site whose shipped systems are `looks`, the first the default. */
-export const bootConfig = (looks: string[]): BootConfig => ({
+/**
+ * The configuration of a site whose shipped systems are `looks`, the first the default. `build` names what a theme's
+ * stylesheet is computed from (lib/sheet-key.mjs): a sheet that another build computed is not used.
+ */
+export const bootConfig = (looks: string[], build = ''): BootConfig => ({
   key: APPEARANCE_KEY,
   looks,
   defaultLook: looks[0] ?? '',
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
   shared: SHARED_ATTR,
   rule: { id: SYSTEM_RULE_ID, absent: ABSENT_ATTR, only: SYSTEM_ONLY_ATTR },
+  custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, base: CUSTOM_BASE_ATTR, pending: PENDING_ATTR, late: LATE_ATTR, style: CUSTOM_STYLE_ID, db: SHEET_STORE.db, store: SHEET_STORE.store, build, wait: REVEAL_AFTER },
 });
+
+/** Where a theme's stylesheet is kept: under the build's key and the layer's hash. */
+export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
 
 /**
  * The script of every page's head: before the first paint it shows the appearance the address shares, over the
  * stored one, else the stored one, else the default; and writes the rule that hides what the look does not have in
- * the lists of components. Storage that is blocked or throws is a reader who has chosen nothing.
+ * the lists of components. Storage that is blocked or throws is a reader who has chosen nothing. Under the reader's
+ * own theme the lists are those of the system it extends, and the page is hidden until the theme's stylesheet is in,
+ * and two frames more: what was measured under the default system's tokens is measured again before it is drawn.
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf};var stored=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(shown.look,c.rule.absent,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
+  return `(function(c){var normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);readSheet(c.custom.db,c.custom.store,key,function(css){if(css===null||root.getAttribute(c.names.look)!==c.custom.look)return;placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})})}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.absent,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
 }
 
 /**
  * The script of a document that stands outside the site's frame (Theme Studio's page): the scheme
  * the reader forced, and the contrast, on its root as Tanrei's tokens read them. The device's mode writes no scheme:
- * the tokens follow the device there by themselves.
+ * the tokens follow the device there by themselves. Its own chrome stays in the default system, whatever the look.
  */
 export const standaloneBootstrap = `(function(key){var normalize=${normalize},a;try{a=normalize(JSON.parse(localStorage.getItem(key)||'null'),[],'')}catch(e){a=normalize(null,[],'')}var root=document.documentElement;if(a.mode!=='system')root.setAttribute(${JSON.stringify(TANREI_THEME_ATTR)},a.mode);if(a.contrast!=='standard')root.setAttribute(${JSON.stringify(CONTRAST_ATTR)},a.contrast)})(${JSON.stringify(APPEARANCE_KEY)})`;
 
@@ -174,23 +281,74 @@ const looksOnPage = (): string[] => {
 
 const deviceDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 
+/** The reader's own theme this browser keeps, or null. */
+export function keptCustom(looks: string[] = looksOnPage()): { hash: string; base: string } | null {
+  try {
+    return customOf(JSON.parse(localStorage.getItem(CUSTOM_KEY) ?? 'null'), looks);
+  } catch {
+    return null;
+  }
+}
+
 function readStored(looks: string[]): Appearance {
   let stored: unknown = null;
   try {
     stored = JSON.parse(localStorage.getItem(APPEARANCE_KEY) ?? 'null');
   } catch {}
-  return normalize(stored, looks, looks[0] ?? '');
+  return normalize(stored, looks, looks[0] ?? '', keptCustom(looks) !== null);
 }
 
 /** The appearance shown now, read from `<html>` (the head's script wrote it). */
 export function shownAppearance(): Appearance {
   const root = document.documentElement;
   const looks = looksOnPage();
-  return normalize({ mode: root.getAttribute(MODE_ATTR), contrast: root.getAttribute(CONTRAST_ATTR) ?? 'standard', look: root.getAttribute(LOOK_ATTR) }, looks.length ? looks : [root.getAttribute(LOOK_ATTR) ?? ''], looks[0] ?? '');
+  const look = root.getAttribute(LOOK_ATTR);
+  return normalize({ mode: root.getAttribute(MODE_ATTR), contrast: root.getAttribute(CONTRAST_ATTR) ?? 'standard', look }, looks.length ? looks : [look ?? ''], looks[0] ?? '', look === CUSTOM_LOOK);
 }
 
 /** Whether the page shows the appearance its address shares. */
 export const isShared = () => document.documentElement.hasAttribute(SHARED_ATTR);
+
+/** Each choice of the reader's own theme the page has, and where it stands. */
+const customChoices = new Map<Element, Element>();
+/**
+ * The choices of the reader's own theme (`[data-docs-look-custom]`: the Appearance panel's item, the index's option)
+ * in their place while this browser keeps a theme, and out of the document while it keeps none: a list counts what it
+ * holds, and offers only what can be chosen.
+ */
+export function placeCustomChoices(): void {
+  const kept = document.documentElement.hasAttribute(CUSTOM_ATTR);
+  for (const choice of document.querySelectorAll('[data-docs-look-custom]')) if (!customChoices.has(choice) && choice.parentElement) customChoices.set(choice, choice.parentElement);
+  for (const [choice, parent] of customChoices) {
+    if (kept && !choice.isConnected) parent.append(choice);
+    else if (!kept && choice.isConnected) choice.remove();
+  }
+}
+
+/** The reader's theme's stylesheet, put in place once it is in (lib/custom-theme.ts, loaded when it is first needed). */
+const drawCustom = () => import('./custom-theme').then((module) => module.showCustomSheet());
+
+/**
+ * The marks of the reader's own theme on the root, and its stylesheet: in place while it is the look, taken away
+ * when it is not — the page is drawn in the default system's tokens again.
+ */
+function showCustom(look: string): void {
+  const root = document.documentElement;
+  const custom = keptCustom();
+  root.toggleAttribute(CUSTOM_ATTR, custom !== null);
+  if (custom && look === CUSTOM_LOOK) {
+    root.setAttribute(CUSTOM_BASE_ATTR, custom.base);
+    root.removeAttribute(LATE_ATTR);
+    void drawCustom();
+    return;
+  }
+  root.removeAttribute(CUSTOM_BASE_ATTR);
+  root.removeAttribute(PENDING_ATTR);
+  if (document.getElementById(CUSTOM_STYLE_ID)) {
+    document.getElementById(CUSTOM_STYLE_ID)?.remove();
+    document.dispatchEvent(new CustomEvent(CUSTOM_SHEET_EVENT));
+  }
+}
 
 function show(appearance: Appearance, shared: boolean): void {
   const root = document.documentElement;
@@ -201,6 +359,7 @@ function show(appearance: Appearance, shared: boolean): void {
     else if (root.getAttribute(name) !== value) root.setAttribute(name, value);
   }
   root.toggleAttribute(SHARED_ATTR, shared);
+  showCustom(appearance.look);
   const changed = before.mode !== appearance.mode || before.contrast !== appearance.contrast || before.look !== appearance.look || scheme !== root.getAttribute(THEME_ATTR);
   if (changed) document.dispatchEvent(new CustomEvent<AppearanceDetail>(APPEARANCE_EVENT, { detail: { appearance, shared } }));
 }
@@ -211,7 +370,7 @@ function show(appearance: Appearance, shared: boolean): void {
  */
 export function setAppearance(change: Partial<Appearance>): Appearance {
   const looks = looksOnPage();
-  const next = normalize({ ...shownAppearance(), ...change }, looks, looks[0] ?? '');
+  const next = normalize({ ...shownAppearance(), ...change }, looks, looks[0] ?? '', keptCustom(looks) !== null);
   try {
     localStorage.setItem(APPEARANCE_KEY, JSON.stringify(next));
   } catch {}
@@ -234,10 +393,17 @@ if (typeof document !== 'undefined' && typeof matchMedia === 'function') {
     const shown = shownAppearance();
     if (shown.mode === 'system') show(shown, isShared());
   });
-  // A choice made in another tab of the site; a page that shows a shared appearance keeps showing it.
+  // A choice made in another tab of the site, or a theme Theme Studio gave the docs there; a page that shows a shared
+  // appearance keeps showing it.
   addEventListener('storage', (event) => {
-    if (event.key !== APPEARANCE_KEY && event.key !== null) return;
-    if (isShared()) return;
+    if (event.key !== APPEARANCE_KEY && event.key !== CUSTOM_KEY && event.key !== null) return;
+    if (isShared()) {
+      document.documentElement.toggleAttribute(CUSTOM_ATTR, keptCustom() !== null);
+      return;
+    }
     show(readStored(looksOnPage()), false);
   });
+  // The reader's theme, where the head's script found it the look: its stylesheet, if IndexedDB did not hold it (and,
+  // where the page could not wait for it, kept for the next page).
+  if (document.documentElement.getAttribute(LOOK_ATTR) === CUSTOM_LOOK || document.documentElement.hasAttribute(LATE_ATTR)) void drawCustom();
 }

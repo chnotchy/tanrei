@@ -272,6 +272,67 @@ const show = (page: P, options: Record<string, unknown>) =>
 const results = (page: P) => page.evaluate(() => (window as any).results as Record<string, string>[]);
 const showing = (page: P) => page.evaluate(() => [...document.querySelectorAll<any>('tanrei-snackbar-host tanrei-snackbar')].filter((s) => s.matches(':popover-open')).map((s) => s.message));
 
+// ── Over a modal surface (SNK-38) ──────────────────────────────────────────────────────────────────────────────────────
+
+/** The snackbars a host shows, wherever they are: in the host, or inside a modal surface (a locator looks into shadow roots). */
+const anywhere = (page: P) => page.locator('tanrei-snackbar[popover]');
+/** The messages of the snackbars shown now, wherever they are. */
+const showingAnywhere = (page: P) => anywhere(page).evaluateAll((list) => list.filter((s) => s.matches(':popover-open')).map((s) => (s as unknown as { message: string }).message));
+/** Where the host's snackbar is shown: the id of the surface whose tree it is in, or the host's name. */
+const whereShown = (page: P) =>
+  host(page).evaluate((h) => {
+    const snackbar = (h as unknown as { snackbar: Element | null }).snackbar;
+    if (!snackbar) return null;
+    const root = snackbar.getRootNode();
+    return root instanceof ShadowRoot ? root.host.id || root.host.localName : (snackbar.parentElement?.localName ?? null);
+  });
+/** A `<tanrei-dialog>` with an action (and `content`), closed, first in the page. */
+const addDialog = (page: P, id: string, content = '') =>
+  page.evaluate(
+    ([id, content]) => document.querySelector('main')!.insertAdjacentHTML('afterbegin', `<tanrei-dialog id="${id}" headline="Discard draft?">${content}<tanrei-button slot="actions" variant="text">OK</tanrei-button></tanrei-dialog>`),
+    [id, content] as const,
+  );
+const setOpen = (page: P, selector: string, open: boolean) =>
+  page.locator(selector).evaluate(async (el, to) => {
+    const surface = el as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+    surface.open = to;
+    await surface.updateComplete;
+  }, open);
+/** Whether the surface's own `<dialog>` is modal. */
+const isModal = (page: P, selector: string) => page.locator(selector).evaluate((el) => !!el.shadowRoot!.querySelector('dialog')?.matches(':modal'));
+/** What a point over `box` (4 px in, half way down) is in the surface's own tree: the snackbar, where it is drawn above the surface. */
+const hitInSurface = (page: P, selector: string, box: { x: number; y: number; height: number }) =>
+  page.locator(selector).evaluate((el, [x, y]) => el.shadowRoot!.elementFromPoint(x, y)?.localName ?? null, [box.x + 4, box.y + box.height / 2] as const);
+/** Records the surface's cancel and close events in window.surfaceLog. */
+const logSurface = (page: P, selector: string) =>
+  page.locator(selector).evaluate((el) => {
+    const log: string[] = ((window as unknown as { surfaceLog: string[] }).surfaceLog = []);
+    for (const type of ['cancel', 'close']) el.addEventListener(type, () => log.push(type));
+  });
+const surfaceLog = (page: P) => page.evaluate(() => (window as unknown as { surfaceLog: string[] }).surfaceLog);
+/** Counts the writes into the host's own shadow tree (its live regions) from now; returns the reader. */
+async function watchHostRegions(page: P) {
+  await host(page).evaluate((h) => {
+    const w = window as unknown as { regionWrites: number };
+    w.regionWrites = 0;
+    new MutationObserver((records) => (w.regionWrites += records.length)).observe(h.shadowRoot!, { subtree: true, childList: true, characterData: true });
+  });
+  return () => page.evaluate(() => (window as unknown as { regionWrites: number }).regionWrites);
+}
+/**
+ * What has keyboard focus: a snackbar's part (`action`, `close`) where it is in a snackbar, else the deepest focused
+ * element of the page's own tree, by its id or its text.
+ */
+const focused = (page: P) =>
+  page.evaluate(() => {
+    const chain: Element[] = [];
+    for (let active: Element | null = document.activeElement; active; active = active.shadowRoot?.activeElement ?? null) chain.push(active);
+    const at = chain.findIndex((el) => el.localName === 'tanrei-snackbar');
+    if (at >= 0) return chain[at + 1]?.getAttribute('part') ?? 'tanrei-snackbar';
+    const light = chain.filter((el) => el.getRootNode() === document).pop();
+    return light ? light.id || light.textContent?.trim() || light.localName : null;
+  });
+
 test.describe('host', () => {
   test('SNK-1: the action emits action once and closes; the close button emits dismiss with close once and closes; by pointer, Enter and Space', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
@@ -520,45 +581,215 @@ test.describe('host', () => {
     await expect.poll(() => showing(page)).toEqual([]);
   });
 
-  test('SNK-9, SNK-12, SNK-13: under a Tanrei modal dialog the showing snackbar pauses and is drawn below the dialog and its scrim; one not yet shown waits until the dialog closes', async ({ page }) => {
+  test('SNK-38, SNK-13, SNK-9: a snackbar showing when a modal dialog opens moves inside it — drawn above the dialog and its scrim, where it stood, still open, not announced again — its timeout starts again from its whole length, and it moves back to the host when the dialog closes', async ({ page }) => {
     await mountHost(page);
-    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-dialog headline="Discard draft?"><tanrei-button slot="actions" variant="text">OK</tanrei-button></tanrei-dialog>'));
-    const dialog = page.locator('tanrei-dialog');
-    const setOpen = (open: boolean) =>
-      dialog.evaluate(async (el: any, to) => {
-        el.open = to;
-        await el.updateComplete;
-      }, open);
+    await addDialog(page, 'modal');
     // The timeout runs on the page's clock, held still and moved on by the test.
     await holdClock(page);
     await show(page, { message: 'Saved' });
-    await expect.poll(() => showing(page)).toEqual(['Saved']);
-    await page.clock.runFor(599); // all but the last millisecond is spent, and none of it counts after the pause
-    await setOpen(true);
-    await page.clock.runFor(10_000); // far longer than the timeout: paused
-    expect(await showing(page)).toEqual(['Saved']);
-    // Measured at rest, as the point is tested later: the snackbar's entrance and the dialog's opening have ended (a box
-    // read while the bar still rises in from below names a point under the window's edge, where nothing is hit).
+    await expect.poll(() => showingAnywhere(page)).toEqual(['Saved']);
+    await page.clock.runFor(20); // past the frame its announcement is written in
+    await expect(host(page).locator('.announce[role="status"]')).toHaveText('Saved');
+    // At rest before it is measured: its entrance has ended.
     await motionEnded(page);
-    const b = await bounds(shown(page).locator('.bar'));
-    expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.localName, [b.x + 4, b.y + b.height / 2])).toBe('tanrei-dialog');
-    await show(page, { message: 'Next', action: 'Undo' });
-    await setOpen(false);
-    await page.clock.runFor(599); // the whole timeout again, from the dialog's closing
-    expect(await showing(page)).toEqual(['Saved']);
+    const before = await bounds(anywhere(page).locator('.bar'));
+    const writes = await watchHostRegions(page);
+    await page.clock.runFor(579); // all but the last millisecond is spent, and none of it counts after the move
+    await setOpen(page, '#modal', true);
+    await expect.poll(() => whereShown(page)).toBe('modal');
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    await page.clock.runFor(599); // the whole timeout again, from the move: not yet
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    // Where it stood, and above the dialog and its scrim: the point over the bar is the snackbar, in the dialog's tree.
+    await motionEnded(page);
+    const inside = await bounds(anywhere(page).locator('.bar'));
+    for (const side of ['x', 'y', 'width', 'height'] as const) expect(inside[side], side).toBeCloseTo(before[side], 0);
+    expect(await hitInSurface(page, '#modal', inside)).toBe('tanrei-snackbar');
+    // Not announced again: the dialog's own regions stay empty.
+    expect(await page.locator('#modal .announce').allTextContents()).toEqual(['', '']);
+    await setOpen(page, '#modal', false);
+    await expect.poll(() => whereShown(page)).toBe('tanrei-snackbar-host');
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    await page.clock.runFor(599); // the whole timeout again, from the move back
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    expect(await writes(), 'the host’s regions were not written again').toBe(0);
     await page.clock.runFor(1);
-    await expect.poll(() => showing(page)).toEqual(['Next']);
-    await host(page).evaluate((h: any) => h.dismissCurrent());
-    await expect.poll(() => showing(page)).toEqual([]);
-    // Asked for while a dialog is open: it waits for the dialog, however long.
-    await setOpen(true);
-    await show(page, { message: 'Third', action: 'Undo' });
-    await page.clock.runFor(10_000);
-    expect(await showing(page)).toEqual([]);
+    await expect.poll(() => results(page)).toEqual([{ message: 'Saved', result: 'dismiss', reason: 'timeout' }]);
     await releaseClock(page);
-    await setOpen(false);
-    await expect.poll(() => showing(page)).toEqual(['Third']);
   });
+
+  test('SNK-38, SNK-12, SNK-10, SNK-1: asked for while a modal dialog is open, a snackbar shows at once inside it, is announced from a live region inside the dialog, and its action can be pressed — a press on it is no press on the scrim', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'modal');
+    await logSurface(page, '#modal');
+    await setOpen(page, '#modal', true);
+    await show(page, { message: 'Link copied', action: 'Undo' });
+    await expect.poll(() => showingAnywhere(page)).toEqual(['Link copied']);
+    expect(await whereShown(page)).toBe('modal');
+    await expect(page.locator('#modal .announce[role="status"]')).toHaveText('Link copied. Undo');
+    expect(await host(page).locator('.announce').allTextContents()).toEqual(['', '']);
+    await motionEnded(page);
+    const action = anywhere(page).locator('.action');
+    const box = await bounds(action);
+    const surface = await bounds(page.locator('#modal').locator('dialog'));
+    expect(box.y, 'the action lies over the scrim, below the dialog').toBeGreaterThan(surface.y + surface.height);
+    expect(await hitInSurface(page, '#modal', box)).toBe('tanrei-snackbar');
+    await action.click();
+    await expect.poll(() => results(page)).toEqual([{ message: 'Link copied', result: 'action' }]);
+    expect(await isModal(page, '#modal'), 'the dialog stays open').toBe(true);
+    expect(await surfaceLog(page)).toEqual([]);
+  });
+
+  test('SNK-38, SNK-11: inside a modal dialog the snackbar’s controls come after the dialog’s own in its focus trap, no key but Tab reaches the dialog from it, and Escape closes the snackbar, leaves the dialog open and gives focus back inside it', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'modal', '<button id="keep">Keep editing</button>');
+    await logSurface(page, '#modal');
+    await setOpen(page, '#modal', true);
+    await show(page, { message: 'Archived', action: 'Undo', closable: true, closeLabel: 'Close' });
+    await expect.poll(() => showingAnywhere(page)).toEqual(['Archived']);
+    await tabTo(page, page.locator('#keep'));
+    // The keys the dialog's own <dialog> hears from inside the snackbar.
+    await page.locator('#modal').evaluate((el) => {
+      const seen: string[] = ((window as unknown as { heard: string[] }).heard = []);
+      el.shadowRoot!.querySelector('dialog')!.addEventListener('keydown', (event) => {
+        if (event.composedPath().some((node) => (node as Element).localName === 'tanrei-snackbar')) seen.push(event.key);
+      });
+    });
+    const order: (string | null)[] = [];
+    for (let i = 0; i < 4; i++) {
+      await tab(page);
+      order.push(await focused(page));
+    }
+    expect(order, 'the dialog’s controls, then the snackbar’s, then round to the first').toEqual(['OK', 'action', 'close', 'keep']);
+    await tab(page, { back: true });
+    expect(await focused(page)).toBe('close');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => results(page)).toEqual([{ message: 'Archived', result: 'dismiss', reason: 'escape' }]);
+    expect(await isModal(page, '#modal'), 'the dialog stays open').toBe(true);
+    expect(await surfaceLog(page)).toEqual([]);
+    await expect(page.locator('#keep')).toBeFocused();
+    expect(await page.evaluate(() => (window as unknown as { heard: string[] }).heard), 'only the two Tabs pressed in the snackbar').toEqual(['Tab', 'Tab']);
+  });
+
+  test('SNK-38: with two modal dialogs open the snackbar shows in the topmost; it moves into the one below as that closes, and back to the host after it, leaving no box behind', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'outer');
+    await addDialog(page, 'inner');
+    await setOpen(page, '#outer', true);
+    await setOpen(page, '#inner', true);
+    await show(page, { message: 'Saved', action: 'Undo' });
+    await expect.poll(() => whereShown(page)).toBe('inner');
+    await setOpen(page, '#inner', false);
+    await expect.poll(() => whereShown(page)).toBe('outer');
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    await motionEnded(page);
+    expect(await hitInSurface(page, '#outer', await bounds(anywhere(page).locator('.bar')))).toBe('tanrei-snackbar');
+    await setOpen(page, '#outer', false);
+    await expect.poll(() => whereShown(page)).toBe('tanrei-snackbar-host');
+    expect(await showingAnywhere(page)).toEqual(['Saved']);
+    await expect(page.locator('tanrei-dialog .announce')).toHaveCount(0);
+  });
+
+  test('SNK-38: every Tanrei modal surface counts — over a modal bottom sheet a snackbar shows inside it, and its action can be pressed', async ({ page }) => {
+    await mountHost(page);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-bottom-sheet id="sheet" label="Share"><p>Share with</p></tanrei-bottom-sheet>'));
+    await setOpen(page, '#sheet', true);
+    await expect.poll(() => isModal(page, '#sheet')).toBe(true);
+    await show(page, { message: 'Link copied', action: 'Undo' });
+    await expect.poll(() => whereShown(page)).toBe('sheet');
+    await motionEnded(page);
+    expect(await hitInSurface(page, '#sheet', await bounds(anywhere(page).locator('.action')))).toBe('tanrei-snackbar');
+    await anywhere(page).locator('.action').click();
+    await expect.poll(() => results(page)).toEqual([{ message: 'Link copied', result: 'action' }]);
+    expect(await isModal(page, '#sheet'), 'the sheet stays open').toBe(true);
+  });
+
+  test('SNK-39, SNK-3, SNK-11: F6 takes focus from the page to the snackbar’s first control, with its focus indicator, and F6 or Shift+F6 from inside gives it back where it was; closing after it gives focus back there too', async ({ page }) => {
+    await mountHost(page);
+    await show(page, { message: 'Archived', action: 'Undo', closable: true, closeLabel: 'Close' });
+    await expect.poll(() => showing(page)).toEqual(['Archived']);
+    await tabTo(page, page.locator('#before'));
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('action');
+    expect(await shown(page).locator('.action').evaluate((el) => el.matches(':focus-visible')), 'with its focus indicator').toBe(true);
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    await page.keyboard.press('Shift+F6');
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('Shift+F6');
+    await expect(page.locator('#before')).toBeFocused();
+    expect(await showing(page), 'moving focus closes nothing').toEqual(['Archived']);
+    await page.keyboard.press('F6');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => results(page)).toEqual([{ message: 'Archived', result: 'action' }]);
+    await expect(page.locator('#before')).toBeFocused();
+  });
+
+  test('SNK-39, SNK-11, SNK-25: F6 goes to the first stop in SNK-11’s order — the close button where there is no action, the text while it scrolls — and leaves the key alone with no snackbar, with a snackbar that has no control, and once the product has handled it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 320 });
+    await mountHost(page);
+    // Whether the key was taken, read after the host has heard it (a listener on the window added after the host's).
+    await page.evaluate(() => {
+      const w = window as unknown as { taken: boolean[] };
+      w.taken = [];
+      addEventListener('keydown', (event) => event.key === 'F6' && w.taken.push(event.defaultPrevented));
+    });
+    const taken = () => page.evaluate(() => (window as unknown as { taken: boolean[] }).taken);
+    await tabTo(page, page.locator('#before'));
+    await page.keyboard.press('F6');
+    await show(page, { message: 'Saved', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Saved']);
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    expect(await taken(), 'no snackbar, then one with no control: the key is left').toEqual([false, false]);
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+    await show(page, { message: 'Saved', closable: true, closeLabel: 'Close', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Saved']);
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('close');
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    // A product that gives F6 a meaning of its own handles it first: the host leaves it.
+    await page.evaluate(() => document.addEventListener('keydown', (event) => event.key === 'F6' && event.preventDefault(), { once: true }));
+    await page.keyboard.press('F6');
+    await expect(page.locator('#before')).toBeFocused();
+    await dismissShown(page);
+    await expect.poll(() => showing(page)).toEqual([]);
+    await show(page, { title: TITLE, message: LONG, action: 'Review', closable: true, closeLabel: 'Close', expandLabel: 'Show full message', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual([LONG]);
+    await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
+    await host(page).evaluate((h) => ((h as unknown as { snackbar: { expanded: boolean } }).snackbar.expanded = true));
+    await expect(shown(page).locator('.text')).toHaveAttribute('tabindex', '0');
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('text');
+    expect(await taken()).toEqual([false, false, true, true, true, true]);
+  });
+
+  test('SNK-39, SNK-38: inside a modal dialog F6 takes focus from the dialog’s control to the snackbar shown in it and back; focusCurrent() moves it there from a shortcut of the product’s own and says whether it did', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'modal', '<button id="keep">Keep editing</button>');
+    await setOpen(page, '#modal', true);
+    await show(page, { message: 'Archived', action: 'Undo' });
+    await expect.poll(() => whereShown(page)).toBe('modal');
+    await tabTo(page, page.locator('#keep'));
+    await page.keyboard.press('F6');
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('F6');
+    await expect(page.locator('#keep')).toBeFocused();
+    const focusCurrent = () => host(page).evaluate((h) => (h as unknown as { focusCurrent(): boolean }).focusCurrent());
+    expect(await focusCurrent()).toBe(true);
+    expect(await focused(page)).toBe('action');
+    await page.keyboard.press('Shift+F6');
+    await expect(page.locator('#keep')).toBeFocused();
+    expect(await showingAnywhere(page)).toEqual(['Archived']);
+    await dismissShown(page);
+    await expect.poll(() => showingAnywhere(page)).toEqual([]);
+    expect(await focusCurrent(), 'with no snackbar shown').toBe(false);
+    await expect(page.locator('#keep')).toBeFocused();
+  });
+
 
   test('SNK-13: at the bottom of the window, centred, the margin above the bottom edge and from the sides, above the content', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
@@ -1574,7 +1805,17 @@ test.describe('the bar', () => {
     // Its indicator is drawn by the box over it, exactly on it, which does not scroll with the text.
     await expect(part(page, 'expanded-scrolls', 'focus')).toHaveCSS('outline-style', 'solid');
     await expect(text).toHaveCSS('outline-style', 'none');
-    expect(await part(page, 'expanded-scrolls', 'focus').boundingBox()).toEqual(await text.boundingBox());
+    // Both boxes are read in one task, from one layout. Read one after the other they straddled a frame where the page
+    // still scrolled: Firefox on Linux brings the text into view at a scroll position one pixel past where it settles
+    // a frame later (1370, then 1369, in each of 25 runs of scripts/ci-like.sh), and the box read in the first frame
+    // stood a pixel above the one read in the next — while in every frame the two were one box.
+    const boxes = await bar(page, 'expanded-scrolls').evaluate((el) =>
+      ['focus', 'text'].map((name) => {
+        const { x, y, width, height } = el.shadowRoot!.querySelector(`.${name}`)!.getBoundingClientRect();
+        return { x, y, width, height };
+      }),
+    );
+    expect(boxes[0], 'the focus box is the text box').toEqual(boxes[1]);
     // Each key is pressed on text at rest — its last scroll ended (`scrollend`) and five frames without a move — and
     // placed where the key has room to scroll it: at its start for Arrow Down and Page Down, at its end for Page Up (a
     // key scrolls over some frames, and read on its way, the next key's start would be wrong). The text is placed only
@@ -2763,6 +3004,18 @@ test.describe('accessibility', () => {
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
+  });
+
+  test('SNK-38: no axe violations with a snackbar shown inside an open modal dialog', async ({ page }) => {
+    await mountHost(page);
+    await addDialog(page, 'modal');
+    await setOpen(page, '#modal', true);
+    await show(page, { status: 'error', statusLabel: 'Error', title: 'Message not sent', message: 'Check your connection and try again.', action: 'Retry', closable: true, closeLabel: 'Close' });
+    await expect.poll(() => whereShown(page)).toBe('modal');
+    await expect(page.locator('#modal .announce[role="alert"]')).not.toHaveText('');
+    await motionEnded(page);
+    const results = await new AxeBuilder({ page }).include('main').analyze();
+    expect(results.violations, results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')).toEqual([]);
   });
 
   test('the close button is named by close-label, the expand button by expand-label, the action by its label; the bar is not a tab stop, and its text is one only while it scrolls', async ({ page }) => {

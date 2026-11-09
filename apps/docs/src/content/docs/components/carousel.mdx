@@ -71,7 +71,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
     ```tsx
     import { Carousel, CarouselItem } from '@tanrei/react';
 
-    <Carousel label="Recently viewed" itemWidth={120} fluidWidth={false} snap={false}>
+    <Carousel label="Recently viewed" itemWidth={120} fixedWidth freeScroll>
       {walks.map((walk) => (
         <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
           <img src={walk.image} alt="" />

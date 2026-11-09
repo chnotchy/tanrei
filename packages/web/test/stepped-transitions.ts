@@ -9,7 +9,7 @@
 // its script plays, is held the same way by `carousel.test.ts`.)
 //
 //   await holdTransitions(host, ['inline-size', 'width']);   // before the change
-//   await host.evaluate((el) => (el.extended = false));      // the change, by any means
+//   await host.evaluate((el) => (el.collapsed = true));      // the change, by any means
 //   const { held, moments, rest } = await stepTransitions(host, read);
 import { type Locator, expect } from '@playwright/test';
 import { EVERY_ANIMATION } from './motions.js';

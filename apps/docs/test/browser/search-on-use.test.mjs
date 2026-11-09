@@ -16,6 +16,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, focus on the trigger, took
+// 7 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -83,7 +87,7 @@ for (const engine of ENGINES) {
       return { context, page, errors };
     }
 
-    test('the page loads no module of the search, and the trigger it draws is a button with the search’s name', async () => {
+    test('the page loads no module of the search, and the trigger it draws is a button with the search’s name', LIMIT, async () => {
       const { context, page, errors } = await open();
       try {
         const seen = await page.evaluate((selector) => {
@@ -100,7 +104,7 @@ for (const engine of ENGINES) {
     });
 
     for (const chord of ['Control+k', 'Meta+k']) {
-      test(`${chord} before anything defined it opens the view, and what is typed at once goes into its field`, async (t) => {
+      test(`${chord} before anything defined it opens the view, and what is typed at once goes into its field`, LIMIT, async (t) => {
         const { context, page, errors } = await open();
         try {
           await page.keyboard.press(chord);
@@ -119,7 +123,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('a pointer over the trigger defines it, and a press opens the view', async (t) => {
+    test('a pointer over the trigger defines it, and a press opens the view', LIMIT, async (t) => {
       const { context, page, errors } = await open();
       try {
         await page.hover(SEARCH);
@@ -133,7 +137,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a press on the trigger before it is defined opens the view', async (t) => {
+    test('a press on the trigger before it is defined opens the view', LIMIT, async (t) => {
       const { context, page, errors } = await open();
       try {
         // A click with no pointer moved there first (as a touch screen's tap may come): nothing defined it before.
@@ -149,7 +153,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('focus on the trigger defines it and stays on its button; Enter opens the view; the compact trigger too', async (t) => {
+    test('focus on the trigger defines it and stays on its button; Enter opens the view; the compact trigger too', LIMIT, async (t) => {
       for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
         const { context, page, errors } = await open(viewport);
         try {

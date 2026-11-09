@@ -11,7 +11,7 @@ const MainActionButtonElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const MainActionButtonAttributes = { variant: ['variant', 'filled'], size: ['size', 'medium'], extended: ['collapsed', true], fullWidth: ['full-width', false], iconPosition: ['icon-position', 'leading'], disabled: ['disabled', false], label: ['label', ''] } as const;
+const MainActionButtonAttributes = { variant: ['variant', 'filled'], size: ['size', 'medium'], collapsed: ['collapsed', false], fullWidth: ['full-width', false], iconPosition: ['icon-position', 'leading'], disabled: ['disabled', false], label: ['label', ''] } as const;
 /**
  * Performs the single most important action of a screen on a raised container that floats above the content, showing its icon and its written name (extended), or collapsing to its icon alone.
  *

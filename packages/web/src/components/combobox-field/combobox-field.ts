@@ -16,7 +16,6 @@ import {
   type TanreiComboboxVariant,
 } from '../combobox/combobox.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
-import { inverseBoolean } from '../../primitives/values.js';
 
 // The members' own types are the combobox field's: it has no detail type and no type for a prop of its own.
 export type {
@@ -50,7 +49,7 @@ const COMBOBOX = [
   'open',
   'allowCustomValue',
   'filter',
-  'wrap',
+  'noWrap',
   'noChevron',
   'clearable',
   'clearLabel',
@@ -72,7 +71,9 @@ const COMBOBOX = [
  * `counter` is left out: a combobox keeps no count (CMB-61), so the part is never drawn in a combobox field.
  */
 const FIELD_PARTS = exported(TanreiField, { label: { as: 'field-label', bare: true }, 'requirement-label': { as: 'field-requirement-label', bare: true } }, ['counter', 'value-text']);
-const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label', bare: true }, 'requirement-label': { as: 'combobox-requirement-label', bare: true } });
+// The chosen values of a combobox of several are left out: a combobox field forwards no `selection`, so its combobox
+// holds one value and draws no entry.
+const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label', bare: true }, 'requirement-label': { as: 'combobox-requirement-label', bare: true } }, ['entry', 'entry-container', 'entry-label', 'entry-remove']);
 
 /**
  * Lets people find one value by typing, as one complete field of a form. Built from a Field (`<tanrei-field>`) and
@@ -127,7 +128,7 @@ const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label',
  * @csspart field - The frame: the `<tanrei-field>` it is built from.
  * @csspart combobox - The control: the `<tanrei-combobox>` it is built from.
  * @exportparts tanrei-field label: field-label, label, requirement-label: field-requirement-label, requirement-label, -counter, -value-text
- * @exportparts tanrei-combobox label: combobox-label, label, requirement-label: combobox-requirement-label, requirement-label
+ * @exportparts tanrei-combobox label: combobox-label, label, requirement-label: combobox-requirement-label, requirement-label, -entry, -entry-container, -entry-label, -entry-remove
  * @attr {string} form - The id of the form the combobox field belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires input - => tanrei-combobox
  * @fires change - => tanrei-combobox
@@ -178,7 +179,7 @@ export class TanreiComboboxField extends ComposedControl<string> {
     open: { type: Boolean, reflect: true },
     allowCustomValue: { type: Boolean, attribute: 'allow-custom-value', reflect: true },
     filter: { type: String, reflect: true },
-    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
+    noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     noChevron: { type: Boolean, attribute: 'no-chevron', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
@@ -276,8 +277,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
   /** @from tanrei-combobox.filter */
   filter: TanreiComboboxFilter = 'contains';
 
-  /** @from tanrei-combobox.wrap */
-  wrap = true;
+  /** @from tanrei-combobox.noWrap */
+  noWrap = false;
 
   /** @from tanrei-combobox.noChevron */
   noChevron = false;

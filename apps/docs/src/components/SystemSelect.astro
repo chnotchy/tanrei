@@ -11,6 +11,7 @@
 // that system does not have, as it does for the switch beside it.
 //
 // Without script nothing is hidden and nothing could be chosen: the control is not drawn.
+import { CUSTOM_LOOK } from '../lib/appearance';
 import { manifests } from '../lib/repo';
 import { strings } from '../lib/i18n';
 
@@ -23,21 +24,25 @@ const t = strings(Astro.props.lang);
 
 <tanrei-select-field class="docs-system" size="small" label={t.system.choice} value={manifests[0]?.system} data-docs-system-select>
   {manifests.map((manifest) => <tanrei-option value={manifest.system} supporting-text={manifest.name}>{manifest.system}</tanrei-option>)}
+  {/* The reader's own theme, while this browser keeps one (lib/appearance.ts `placeCustomChoices`). */}
+  <tanrei-option value={CUSTOM_LOOK} supporting-text={t.frame.myThemeNote} data-docs-look-custom>{t.frame.myTheme}</tanrei-option>
 </tanrei-select-field>
 
 <script>
   import '@tanrei/web/components/select-field';
   import '../lib/list-filter';
-  import { onAppearance, setAppearance, shownAppearance } from '../lib/appearance';
+  import { onAppearance, placeCustomChoices, setAppearance, shownAppearance } from '../lib/appearance';
 
   type Select = HTMLElement & { value: string };
   const controls = () => document.querySelectorAll<Select>('[data-docs-system-select]');
   const say = (look: string) => {
+    placeCustomChoices();
     for (const control of controls()) if (control.value !== look) control.value = look;
   };
   // What the head's script found before the first paint, and every later choice wherever it is made.
   say(shownAppearance().look);
   onAppearance(({ appearance }) => say(appearance.look));
+  addEventListener('storage', () => queueMicrotask(placeCustomChoices));
   document.addEventListener('change', (event) => {
     const control = event.target as Select;
     if (control instanceof HTMLElement && control.matches('[data-docs-system-select]') && control.value) setAppearance({ look: control.value });

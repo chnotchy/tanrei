@@ -641,6 +641,8 @@ test.describe('one line, and what is folded away', () => {
     const surface = menu(page, 'places').locator('.surface');
     await expect(surface).toBeVisible();
     await expect.poll(() => focusedRow(page)).toMatchObject({ row: 'Documentation' });
+    // The rows' starts are read from their drawn boxes, so after the surface has arrived (while it scales they differ by a tenth).
+    await motionEnded(surface);
     // The glyph: drawn in the leading icon column of its row, hidden; the other rows keep the column, so the labels align.
     const docs = rowAnchor(page, 'places', 'Documentation');
     const glyph = docs.locator('.leading-icon');

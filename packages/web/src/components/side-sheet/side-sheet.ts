@@ -3,6 +3,7 @@ import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/d
 import { classMap } from 'lit/directives/class-map.js';
 import {
   ActionPlacement,
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
@@ -22,7 +23,6 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -69,7 +69,7 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * action (SSH-16).
  *
  * Contract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's
- * accessible name, a heading) and, while `closable` (the default; the attribute `not-closable` turns it off), an
+ * accessible name, a heading) and, unless `notClosable` (the attribute `not-closable`), an
  * icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant
  * `comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.
  *
@@ -119,6 +119,11 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private readonly availability = new AvailabilityController(this, 'side-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
+  /**
+   * SSH-2: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
+   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
 
   // The children are assigned by hand: the content to the default slot, the actions to three slots in the order the
@@ -129,14 +134,9 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     variant: { type: String, reflect: true },
     open: { type: Boolean, reflect: true },
     headline: { type: String },
-    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `not-closable` (as the chip's
-    // `not-removable`).
-    closable: {
-      type: Boolean,
-      attribute: 'not-closable',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `closable`, which defaults to true, is its inverse here, `notClosable` (as the chip's `notRemovable`): an
+    // HTML boolean attribute cannot default to true, and the property has the attribute's name (the spec's web notes).
+    notClosable: { type: Boolean, attribute: 'not-closable', reflect: true },
     closeLabel: { type: String, attribute: 'close-label' },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     hasActions: { state: true },
@@ -151,10 +151,10 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   /** What the sheet is about ("Filters"), drawn in its header and used as its accessible name. Required (SSH-12). */
   headline = '';
 
-  /** Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected. */
-  closable = true;
+  /** Draws no close button at the end of the header (SSH-5): only where your own control or one of the sheet's actions closes it. False (the default) draws it. Reflected. */
+  notClosable = false;
 
-  /** The close button's accessible name ("Close filters"). Required while `closable`, the default (SSH-5). */
+  /** The close button's accessible name ("Close filters"). Required unless `notClosable` (SSH-5). */
   closeLabel = '';
 
   /**
@@ -514,11 +514,12 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
         report(this, 'SSH-16', 'a modal side sheet opened with no action; it must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
       }
     };
+    // SSH-2: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
+    this.appear.enter(mounted);
     this.shown = true;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.layout();
     this.onViewport();
@@ -531,12 +532,14 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     this.shown = false;
     this.drag = null;
     this.listenToDrag(false);
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const hadFocus = focusWithin(this);
     const dialog = this.dialog;
     dialog?.classList.remove('dragging');
+    // SSH-2: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
+    // and its scrim's have played (closeModal), in every engine.
     if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }
@@ -565,7 +568,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     if ((changed.has('headline') || changed.has('variant')) && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'SSH-12', `headline is empty, so the ${this.modal ? 'modal dialog' : 'complementary region'} has no accessible name; give it a headline`);
     }
-    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
+    if ((changed.has('notClosable') || changed.has('closeLabel')) && !this.notClosable && this.words.lacks('closeLabel', this.closeLabel)) {
       report(this, 'SSH-5', 'close-label is empty, so the close button has no accessible name; give it a close-label');
     }
     // SSH-23: a divider visibility the sheet does not define is drawn as auto (no rule matches it).
@@ -603,7 +606,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     }
     // A footer drawn anew, a close button, or the sheet opening: observed, laid out and given the variants the tokens
     // name now.
-    if (changed.has('hasActions' as keyof TanreiSideSheet) || changed.has('closable') || changed.has('headline') || changed.has('open') || variantChanged) {
+    if (changed.has('hasActions' as keyof TanreiSideSheet) || changed.has('notClosable') || changed.has('headline') || changed.has('open') || variantChanged) {
       this.observe();
       this.layout();
     }
@@ -612,13 +615,13 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
 
   private body() {
     const headline = this.headline.trim() ? this.headline : '';
-    const header = !!headline || this.closable;
+    const header = !!headline || !this.notClosable;
     return html`
       <div part="outline" class="edge" aria-hidden="true"></div>
       ${header
-        ? html`<div part="header" class=${classMap({ header: true, closable: this.closable })}>
+        ? html`<div part="header" class=${classMap({ header: true, closable: !this.notClosable })}>
             ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
-            ${this.closable
+            ${!this.notClosable
               ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
               : nothing}
             <div part="divider" class="divider below-header" aria-hidden="true"></div>

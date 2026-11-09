@@ -357,6 +357,17 @@
         "trailingIcon": "trailingIcon",
         "density": "density"
       },
+      "parts": {
+        "container": "container",
+        "leading": "leading",
+        "overline": "overline",
+        "headline": "headline",
+        "supporting-text": "supporting-text",
+        "trailing-text": "trailing-text",
+        "trailing": "trailing",
+        "trailing-icon": "trailing-icon",
+        "tooltip": "tanrei-tooltip container"
+      },
       "notes": "`<tanrei-list-row headline=\"Wi-Fi\" supporting-text=\"Connected\" leading-icon=\"wifi\">`, placed as the direct child of a `tanrei-list-item` or on its own. The attributes are `supporting-text`, `supporting-lines`, `leading-icon`, `trailing-text` and `trailing-icon`. The slots are `leading` and `trailing` (`slot=\"leading\"` on the product's element). The item tells the row what it is through an internal property it sets on its direct children; a row nested deeper in an item's content draws itself as standing alone. The tooltip is a `tanrei-tooltip` in the row's shadow root, made when it first opens."
     },
     "swiftui": {

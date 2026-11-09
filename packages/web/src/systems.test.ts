@@ -26,6 +26,8 @@ const SUBJECTS = [
   // Outlined with its size indicator drawn: each preset's corners and edge for the box, and the indicator's height,
   // padding, corners, inverse colors and monospaced digits.
   subject('resizable-frame', (fixture) => fixture.id === 'indicator-always'),
+  // Side by side at rest: each preset's divider color and width between the two panes (the handle is out of sight).
+  subject('split-view', (fixture) => fixture.id === 'horizontal'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
@@ -45,6 +47,8 @@ const SUBJECTS = [
   subject('checkbox', (fixture) => fixture.id === 'selected', { icons: true }),
   // Selected: the ring's size and stroke, the dot, and the round container's size at once.
   subject('radio-button', (fixture) => fixture.id === 'selected'),
+  // A score with a half: the mark's size, the round container's size, the two forms of the glyph (the icon set's family and fill) and both mark colors at once.
+  subject('rating', (fixture) => fixture.id === 'half', { icons: true }),
   // On: the track's size and fill, the handle's size, color and elevation at the far end (m3-like's grows, cupertino's is raised).
   subject('switch', (fixture) => fixture.id === 'selected', { icons: true }),
   // Elevated: the container's color, corner (and its smoothing) and each preset's own elevation at rest, around body text.
@@ -141,8 +145,10 @@ const SUBJECTS = [
   // outer corners (pills in m3-like and m3-expressive-like, 10 in cupertino) and the joined gap.
   subject('button-group', (fixture) => fixture.id === 'connected'),
   // Stepped with stops: the track's thickness and color, the active track, the handle's size, color and elevation (cupertino's
-  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino).
-  subject('slider', (fixture) => fixture.id === 'discrete-stops'),
+  // white thumb on its shadow), and the stop dots on both tracks (none in cupertino). Drawn alone: the value-indicator
+  // fixture holds its value indicator open in the top layer (SLD-28), and in m3-like and m3-expressive-like it rises
+  // 6 px above that fixture's stage.
+  subject('slider', (fixture) => fixture.id === 'discrete-stops', { alone: true }),
   // Filled with an icon: both halves' fill, height, paddings and label role, the icon and the chevron, the preset's outer
   // corners (pills in m3-like and m3-expressive-like) against its inner corners, and the gap between the halves.
   subject('button-with-menu', (fixture) => fixture.id === 'filled-icon', { icons: true }),
@@ -184,8 +190,9 @@ const SUBJECTS = [
   subject('figure', (fixture) => fixture.id === 'docs-demo-code' || fixture.id === 'filled-title-caption', { icons: true }),
   // Open below its anchor with an arrow, a headline, a close button and two actions: the preset's sheet (its color,
   // corners and elevation, drawn round the arrow as one shape), the headline's text style, its own small Button for the
-  // close glyph of its icon set, and its Buttons at the foot.
-  subject('popover', (fixture) => fixture.id === 'arrow-actions', { icons: true }),
+  // close glyph of its icon set, and its Buttons at the foot. Drawn alone: the compact fixtures open real popovers in the
+  // top layer, kept inside the window, so they would be drawn over it.
+  subject('popover', (fixture) => fixture.id === 'arrow-actions', { icons: true, alone: true }),
   // A required slider in error: the label's text style and color, the required mark the preset chooses (its filled tag,
   // or its asterisk), the preset's own slider untouched between the rows, and the error text in its error role. Axe
   // checks its fixtures in parts: its 368 fields on one page are about 15 000 elements.
@@ -304,7 +311,8 @@ const SUBJECTS = [
 const button = SUBJECTS[0].spec;
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 // The presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root (the one
-// layer without `extends`, which has no stylesheet of its own) — the rule the CLI and the MCP server offer systems by.
+// layer without `extends`, which ships no system: its stylesheet is the grey starting point, and the default system's
+// criteria are held on it in the token build) — the rule the CLI and the MCP server offer systems by.
 // A layer's folder (tokens/systems/m3-like/, the documents of the components that live in it) is no layer.
 const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
 const presets = fs
@@ -489,6 +497,43 @@ async function axe(page: Page, spec: Spec, unit: string, system: string, contras
   }
 }
 
+/**
+ * The fixtures other than `own` that hold an element open in the top layer (an open popover, a modal dialog), in the
+ * light DOM or any shadow root, where it may be drawn into `own`'s picture; `(page)` for one outside every stage. A
+ * popover that lies wholly inside its own fixture's stage and draws no backdrop (a value indicator placed against its
+ * handle) is drawn inside that stage, wherever the shot scrolls to, so in no other stage's picture; a modal dialog's
+ * backdrop covers the window, and a surface placed against the window may stand anywhere once the shot has scrolled.
+ */
+async function othersInTopLayer(page: Page, own: string): Promise<string[]> {
+  return page.evaluate((id) => {
+    const found = new Set<string>();
+    const stageOf = (el: Element) => {
+      for (let node: Element | undefined = el; node; node = (node.getRootNode() as ShadowRoot).host) {
+        const stage = node.closest('[data-fixture]');
+        if (stage) return stage;
+      }
+      return null;
+    };
+    const fixtureOf = (el: Element) => stageOf(el)?.getAttribute('data-fixture') ?? '(page)';
+    const inOwnStage = (el: Element) => {
+      const stage = stageOf(el);
+      if (!stage || !el.matches(':popover-open')) return false;
+      const backdrop = getComputedStyle(el, '::backdrop');
+      if (!/^(transparent|rgba\(.*,\s*0\))$/.test(backdrop.backgroundColor) || backdrop.backdropFilter !== 'none') return false;
+      const [r, s] = [el.getBoundingClientRect(), stage.getBoundingClientRect()];
+      return r.left >= s.left && r.right <= s.right && r.top >= s.top && r.bottom <= s.bottom;
+    };
+    const walk = (root: Document | ShadowRoot) => {
+      for (const el of root.querySelectorAll('*')) {
+        if (el.matches(':popover-open, dialog:modal') && fixtureOf(el) !== id && !inOwnStage(el)) found.add(fixtureOf(el));
+        if (el.shadowRoot) walk(el.shadowRoot);
+      }
+    };
+    walk(document);
+    return [...found];
+  }, own);
+}
+
 test('presets are discovered from tokens/systems/', () => {
   expect([...presets].sort()).toEqual(['cupertino', 'm3-expressive-like', 'm3-like']);
 });
@@ -533,6 +578,9 @@ for (const system of presets) {
           if (window) await page.setViewportSize(window);
           await mountFixtures(page, spec, { system, icons, ...(reducedMotion ? { reducedMotion } : {}), ...(window || alone ? { fixtures: [fixture] } : {}) });
           const shot = ['systems', system, spec.name, `${fixture.id}.png`];
+          // The top layer is drawn over the whole window, wherever the shot scrolls to: another fixture's open surface
+          // there is drawn into this fixture's picture, unless it stays inside its own stage.
+          expect(await othersInTopLayer(page, fixture.id), 'fixtures with a surface open in the top layer').toEqual([]);
           if (wholeWindow) await expectBaseline(page, shot);
           else await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), shot);
         });

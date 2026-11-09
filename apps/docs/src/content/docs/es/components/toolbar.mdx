@@ -2,7 +2,7 @@
 title: Barra de herramientas
 description: Reúne un conjunto de controles relacionados en una sola parada de tabulación, en línea donde su contenido la necesita, acoplada a lo largo del borde inferior o flotando sobre el contenido. Las teclas de flecha mueven el foco entre sus controles, y lo que no cabe pasa a un menú de desbordamiento.
 translationOf: components/toolbar.mdx
-sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
+sourceHash: 143ac10ad1060e6880626356b277939a462728f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,14 +45,20 @@ import Example from '../../../../components/visuals/Example.astro';
 
 Una barra de herramientas reúne un conjunto de controles relacionados: acciones, conmutadores, un botón que abre un menú, un [botón con menú](/es/components/button-with-menu/). Sus elementos son tus propios [Buttons](/es/components/button/) y botones con menú de Tanrei, cada uno con su etiqueta, su clic y su estado. La barra de herramientas los dispone en el orden de lectura, separa los grupos, mueve el foco del teclado entre ellos y oculta en un menú de desbordamiento lo que no cabe. Nunca les cambia el estilo, así que un Button de solo icono en una barra de herramientas se ve y se comporta como en cualquier otro lugar.
 
-Tiene seis tipos de elemento:
+Tiene diez tipos de elemento:
 
 - `action`: un Button de solo icono. Un conmutador como Negrita es uno con `toggle` activado.
 - `button`: un Button con etiqueta, que también puede ser un conmutador, como un filtro que está activado o desactivado.
 - `menu-button`: un Button con un [Menu](/es/components/menu/) de Tanrei anclado a él, como Ordenar o Insertar. El menú es tuyo y está junto a su Button. La barra de herramientas no lo dispone.
 - `button-with-menu`: una acción principal con un menú de acciones relacionadas. Cada mitad es su propia parada de las teclas de flecha.
-- `group`: una serie de elementos relacionados, como Negrita, Cursiva y Subrayado. No dibuja nada propio. Dale un `label` cuando la agrupación signifique algo para la persona, como «Estilo del texto».
+- `select`: un [Select](/es/components/select/), como un nivel de encabezado o una tipografía.
+- `number-input`: un [Number input](/es/components/number-input/), como un tamaño de fuente.
+- `text-input`: un [Text input](/es/components/text-input/), como Buscar. Solo puede ser el último elemento.
+- `slider`: un [Slider](/es/components/slider/), como un tamaño de pincel. Solo puede ser el último elemento.
+- `group`: una serie de elementos relacionados, como Negrita, Cursiva y Subrayado. No dibuja nada propio. Dale un `label` cuando la agrupación signifique algo para la persona, como «Estilo del texto». Con `selection`, sus conmutadores pasan a ser una sola opción, como la alineación del texto, o un conjunto de opciones, como el formato (consulta [Grupos de selección](#grupos-de-selección)).
 - `separator`: una línea entre dos elementos que no están en grupos. En la web es un [divisor](/es/components/divider/), que la barra de herramientas dibuja igual que la línea entre dos grupos.
+
+Los cuatro campos son solo para una barra de herramientas horizontal.
 
 **En línea (predeterminada).** Una barra de herramientas en línea está donde la pone tu diseño, en el contenido sobre el que actúa: encima de una tabla, en la parte superior de un editor, junto a una lista como una fila de filtros. Es tan larga como necesitan sus elementos y nunca más larga de lo que permite el diseño. En el sistema predeterminado no tiene superficie, sombra ni borde propios, y sus extremos se alinean con el contenido que la rodea.
 
@@ -290,7 +296,7 @@ Para el título de la pantalla, el camino de vuelta y una o dos acciones globale
 
 Una barra de herramientas acoplada siempre es horizontal. Una en línea o una flotante puede ser vertical, junto al contenido. Un mismo producto puede poner una barra de herramientas en línea en una pantalla, acoplar otra en una segunda y hacer flotar otra en una tercera. Una variante que añade un sistema de diseño toma la estructura de la barra en línea con sus propios valores.
 
-Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). Los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
+Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). En una barra de herramientas flotante los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. En una en línea, los medianos y los pequeños quedan a la misma distancia, y los grandes a la separación de 4. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
 
 <Example label="Flotante: elementos small, medium y large, y elementos narrow y wide" column>
   <tanrei-toolbar variant="floating" label="Formato, small">
@@ -332,11 +338,77 @@ Pon los elementos relacionados en un grupo: Negrita, Cursiva y Subrayado; Deshac
 
 La barra de herramientas nunca dibuja una línea en ninguno de sus extremos, ni dos seguidas. Da a un grupo un `label` cuando la agrupación signifique algo para la persona («Estilo del texto»), para que un lector de pantalla le dé nombre. Sin etiqueta, el grupo separa sus elementos y no dice nada.
 
+### Grupos de selección
+
+Un grupo puede guardar la elección que hacen sus conmutadores. Dale al grupo `selection` y a cada uno de sus conmutadores un `value`:
+
+- `single` convierte los conmutadores en una sola opción, como la alineación del texto: al elegir uno, se desmarcan los demás. El grupo es un grupo de botones de opción y cada conmutador un botón de opción. El grupo guarda en `value` el valor del conmutador elegido.
+- `multiple` los mantiene como conmutadores, cada uno activado o desactivado, como Negrita, Cursiva y Subrayado. El grupo guarda en `values` los valores de los que están activados, en su orden.
+
+El grupo emite un `change` por cada elección que hace una persona, con `value` y `values`. El `change` propio de un conmutador se detiene en el grupo, así que escuchas en un solo sitio. Para elegir desde tu código, define tú `value` o `values`. Eso no emite nada.
+
+Los grupos de selección son para herramientas que actúan sobre el contenido, como la alineación y el formato. Para cambiar entre vistas de una página, o para que una persona elija una de unas pocas opciones que no son herramientas, usa [Tabs](/es/components/tabs/).
+
+<Example label="Un conjunto de opciones y una sola opción">
+  <tanrei-toolbar label="Formato">
+    <tanrei-toolbar-group label="Estilo del texto" selection="multiple" values="bold">
+      <tanrei-button variant="text" toggle value="bold" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="italic" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="underline" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group label="Alineación" selection="single" value="left">
+      <tanrei-button variant="text" toggle value="left" label="Alinear a la izquierda"><span slot="icon">format_align_left</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="center" label="Centrar"><span slot="icon">format_align_center</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="right" label="Alinear a la derecha"><span slot="icon">format_align_right</span></tanrei-button>
+    </tanrei-toolbar-group>
+  </tanrei-toolbar>
+</Example>
+
+```html
+<tanrei-toolbar-group label="Alineación" selection="single" value="left">
+  <tanrei-button variant="text" toggle value="left" label="Alinear a la izquierda"><span slot="icon">format_align_left</span></tanrei-button>
+  <tanrei-button variant="text" toggle value="center" label="Centrar"><span slot="icon">format_align_center</span></tanrei-button>
+  <tanrei-button variant="text" toggle value="right" label="Alinear a la derecha"><span slot="icon">format_align_right</span></tanrei-button>
+</tanrei-toolbar-group>
+
+<script type="module">
+  document.querySelector('[label="Alineación"]').addEventListener('change', (event) => align(event.detail.value));
+</script>
+```
+
+### Campos
+
+Una barra de herramientas horizontal también acepta un Select y un Number input en cualquier punto de su fila, y un Text input o un Slider como su último elemento. Cada uno se dibuja como en cualquier otro sitio. Dale a cada uno un `label` y una longitud tuya, porque un campo no tiene longitud propia en una fila. La barra de herramientas nunca oculta un campo en su menú de desbordamiento.
+
+- Un Select y un Number input son paradas de las teclas de flecha como cualquier otro elemento. Conservan sus propias teclas: Flecha arriba y Flecha abajo abren la lista del Select o cambian el número paso a paso. Flecha izquierda y Flecha derecha mueven el cursor en un Number input, y pasan al elemento siguiente solo desde el final de su texto.
+- El último Text input o Slider necesita todas las teclas de flecha, así que es una parada de tabulación propia, después de la de la barra de herramientas. Las teclas de flecha nunca llegan a él, y Mayús+Tab vuelve a la barra de herramientas. El botón de desbordamiento queda delante de él.
+
+<Example label="Un Select, un Number input, conmutadores y un Text input al final" column>
+  <tanrei-toolbar label="Formato">
+    <tanrei-select label="Nivel de encabezado" value="p" style="inline-size: 10rem">
+      <tanrei-option label="Texto normal" value="p"></tanrei-option>
+      <tanrei-option label="Encabezado 1" value="h1"></tanrei-option>
+      <tanrei-option label="Encabezado 2" value="h2"></tanrei-option>
+    </tanrei-select>
+    <tanrei-number-input label="Tamaño de fuente" value="14" min="8" max="96" style="inline-size: 10rem"></tanrei-number-input>
+    <tanrei-toolbar-group label="Estilo del texto">
+      <tanrei-button variant="text" toggle label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-text-input label="Buscar" placeholder="Buscar" style="inline-size: 9rem"></tanrei-text-input>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Herramientas de dibujo">
+    <tanrei-button variant="text" label="Lápiz"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Goma de borrar"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-slider label="Tamaño del pincel" value="40" style="inline-size: 9rem"></tanrei-slider>
+  </tanrei-toolbar>
+</Example>
+
 ### Cuando los elementos no caben
 
 La barra de herramientas nunca hace saltar de línea ni encoge un elemento. Cuando sus elementos necesitan más sitio del que tiene, oculta elementos desde el final, de uno en uno, y muestra un botón de desbordamiento después del último elemento que queda. El botón abre un menú con los elementos ocultos, en su orden, con sus etiquetas, iconos y estados: una acción es un elemento de menú, un conmutador un elemento de casilla de verificación, un botón de menú un submenú, y un botón con menú su acción principal seguida de un submenú. Elegir uno hace exactamente lo que hace el elemento oculto. Da nombre al botón de desbordamiento con `overflow-label` («Más acciones»), o una sola vez para todo el producto con `setWords({ toolbarOverflowLabel: … })`.
 
-Marca el elemento que debe quedarse, como Enviar o Listo, con `toolbar-overflow="never"`: la barra de herramientas oculta en su lugar los elementos que tiene delante. Si lo que nunca se oculta sigue sin caber, el resto de la fila se desplaza. Para mantener todos los elementos en la fila y desplazarlos en lugar de ocultar ninguno, define `overflow="scroll"`.
+Marca el elemento que debe quedarse, como Enviar o Listo, con `toolbar-overflow="never"`: la barra de herramientas oculta en su lugar los elementos que tiene delante. Si lo que nunca se oculta sigue sin caber, el resto de la fila se desplaza. Para mantener todos los elementos en la fila y desplazarlos en lugar de ocultar ninguno, define `overflow="scroll"`. Entonces los elementos marcados con `toolbar-overflow="never"` al final de la fila, y un último Text input o Slider, se quedan en su sitio al final mientras se desplazan los elementos que tienen delante.
 
 Lo que se oculta se decide antes de dibujar la barra de herramientas, y de nuevo en el fotograma en el que cambia su longitud, así que un elemento nunca se dibuja para ocultarse después, y la fila nunca salta.
 
@@ -349,7 +421,8 @@ Lo que se oculta se decide antes de dibujar la barra de herramientas, y de nuevo
 
 ### Evita
 
-- No pongas un campo de texto, un control deslizante ni un conjunto de chips en una barra de herramientas. Cada uno necesita las teclas de flecha que la barra de herramientas usa para mover el foco. La búsqueda va en la barra de la aplicación o en la página.
+- No pongas un Text input ni un Slider en otro lugar que no sea el último, ni dos en una misma barra de herramientas, ni pongas un conjunto de chips en una barra de herramientas. Cada uno necesita las teclas de flecha que la barra de herramientas usa para mover el foco. La búsqueda de toda la aplicación va en la barra de la aplicación o en la página.
+- No uses un grupo de selección para cambiar de vista ni para elegir una de unas pocas opciones que no son herramientas. Usa [Tabs](/es/components/tabs/).
 - No uses una barra de herramientas acoplada y una barra de navegación en la misma pantalla.
 - No cambies el estilo de los elementos para que la barra de herramientas parezca destacada. Elige en su lugar la variante tonal o filled para los botones.
 - No pongas destinos de navegación en una barra de herramientas. Sus elementos son controles que actúan sobre el contenido.
@@ -369,17 +442,20 @@ Lo que se oculta se decide antes de dibujar la barra de herramientas, y de nuevo
 - El foco itinerante es el mismo que usan la lista, el menú y las pestañas en cada plataforma.
 - La barra de herramientas se expone como una barra de herramientas que recibe su nombre de `label`, con su orientación, donde la plataforma tiene un rol de barra de herramientas (la web, React Native). SwiftUI, Compose y Flutter no lo tienen: allí es un grupo que recibe su nombre de `label` y contiene sus elementos en orden.
 - Un grupo con `label` se expone como un grupo con ese nombre. Las líneas entre grupos se exponen como separadores.
+- Un grupo cuyo `selection` es `single` se expone como un grupo de botones de opción que recibe su nombre de `label`, y sus conmutadores como botones de opción, marcados o no. Uno cuyo `selection` es `multiple` mantiene sus conmutadores como botones conmutables, pulsados o no. En ambos, las teclas de flecha solo mueven el foco, como en el patrón de barra de herramientas de WAI-ARIA, y Espacio o Enter eligen.
+- Un Select y un Number input conservan Flecha arriba y Flecha abajo. Un Number input conserva también Flecha izquierda y Flecha derecha mientras mueven su cursor. El último Text input o Slider conserva todas las teclas y es una parada de tabulación propia, así que los controles que necesitan las teclas de flecha nunca se las quitan a la barra de herramientas.
 - El botón de desbordamiento se expone como un botón que abre un menú, con su estado expandido, y su menú contiene cada elemento oculto con su propio nombre y estado.
 - Cada elemento conserva su propio nombre, rol, estado y objetivo. La barra de herramientas no les añade nada y nunca les cambia el estilo.
+- Cuando se cambia un conmutador, su aspecto cambia como el de su botón en cualquier otro sitio, con el movimiento de estado del tamaño del botón. Su estado seleccionado cambia de inmediato para la tecnología de apoyo, no al terminar el movimiento. Cuando el movimiento está reducido, y en los fotogramas en los que la barra de herramientas se dibuja por primera vez, el aspecto también cambia de inmediato. La barra de herramientas no añade ningún movimiento propio.
 - Entre dos elementos, las áreas de pulsación nunca se solapan. En una barra de herramientas acoplada se encuentran en la mitad de la separación, y la separación del sistema predeterminado (16) es lo bastante ancha para que cada elemento conserve también allí su objetivo táctil completo de 48; un sistema de diseño con una separación más estrecha estrecha los objetivos entre elementos. En una barra de herramientas en línea o flotante, los elementos se separan justo lo necesario para que cada uno conserve a lo largo de la fila la longitud de un objetivo táctil propio, sea cual sea el puntero, de modo que sus vecinos nunca aprietan un botón estrecho o pequeño. En un lado sin vecino, un elemento conserva su objetivo completo.
-- Cuando `overflow` es `scroll` y un elemento que recibe el foco del teclado está fuera de la vista por el desplazamiento, la barra de herramientas lo desplaza hasta dejarlo completamente a la vista.
+- Cuando `overflow` es `scroll` y un elemento que recibe el foco del teclado está fuera de la vista por el desplazamiento, la barra de herramientas lo desplaza hasta dejarlo completamente a la vista. Los elementos que se quedan al final nunca salen de la vista.
 - Con tamaños de texto mayores, la barra de herramientas crece en perpendicular a su eje para contener sus elementos. No los escala.
-- Las compilaciones de depuración notifican un `label` que falta, una barra de herramientas sin elementos, un elemento que no es de ninguno de sus tipos, una barra de herramientas acoplada definida como vertical, un nombre que falta para el botón de desbordamiento y una variante, una orientación, un `overflow` o una `separation` desconocidos.
+- Las compilaciones de depuración notifican un `label` que falta, una barra de herramientas sin elementos, un elemento que no es de ninguno de sus tipos (un campo en una barra de herramientas vertical, un Text input o un Slider que no es el último), una barra de herramientas acoplada definida como vertical, un nombre que falta para el botón de desbordamiento y una variante, una orientación, un `overflow` o una `separation` desconocidos. En un grupo de selección notifican un grupo de botones de opción sin nombre, un elemento que no es un conmutador y un conmutador sin valor o con el mismo valor que otro.
 
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose y Flutter no tienen rol de barra de herramientas. Un lector de pantalla oye un grupo con nombre, no una barra de herramientas, y el README de cada paquete lo dice. El grupo no expone su orientación.
-- SwiftUI, Compose, Flutter y React Native van rezagados: no tienen la variante en línea, ni grupos ni separadores, ni menú de desbordamiento, y solo aceptan Buttons como elementos.
+- SwiftUI, Compose, Flutter y React Native van rezagados: no tienen la variante en línea, ni grupos, grupos de selección ni separadores, ni menú de desbordamiento, y solo aceptan Buttons como elementos.
 - Web: una barra de herramientas acoplada lee `env(safe-area-inset-bottom)`, que es cero salvo que la etiqueta meta viewport de la página tenga `viewport-fit=cover`.
 - Web: el menú de desbordamiento de una barra de herramientas vertical se abre debajo del botón de desbordamiento, no a su lado, porque el menú no tiene colocación lateral.
 - Web: una barra de herramientas en línea o flotante mide el sitio que puede ocupar a partir de su elemento padre. Una barra de herramientas cuyo sitio lo fijan sus hermanos en una fila flex, y no su padre, decide lo que cabe solo cuando cambia de tamaño su padre o sus elementos.
@@ -389,12 +465,13 @@ Carencias conocidas por plataforma:
 - En React Native, la parada de tabulación y las teclas de flecha funcionan solo donde hay un teclado físico conectado, como en la fila de pestañas.
 - React Native tiene el rol de barra de herramientas pero no tiene forma de exponer una orientación, así que una barra de herramientas vertical no se anuncia como vertical.
 - React Native: el ancho de la barra de herramientas flotante, las teclas en un teclado físico, el desplazamiento de un elemento con foco hasta dejarlo a la vista y si VoiceOver y TalkBack anuncian la barra de herramientas se han comprobado solo en Jest, no en un dispositivo.
-- Con `m3-like`, la barra de herramientas dibuja los valores del sistema predeterminado: los valores de la barra de herramientas de Material esperan a que la referencia de fidelidad la cubra. La barra de herramientas vibrante de Material, que cambia el color de sus elementos, no se puede dibujar, porque la barra de herramientas nunca cambia el estilo de sus elementos (laguna de imitación `toolbar-vibrant-color`).
+- Con `m3-like`, solo las separaciones de la barra de herramientas y el relleno de los extremos de una flotante (8, como en Material) son valores propios del preset. Lo demás se dibuja con los valores del sistema predeterminado: los valores de la barra de herramientas de Material esperan a que la referencia de fidelidad la cubra. La barra de herramientas vibrante de Material, que cambia el color de sus elementos, no se puede dibujar, porque la barra de herramientas nunca cambia el estilo de sus elementos (laguna de imitación `toolbar-vibrant-color`).
 
 ### Qué debes hacer tú
 
 - Da a la barra de herramientas un `label`, a cada elemento su propia etiqueta en el idioma de tu producto, incluidas las acciones de solo icono, y al botón de desbordamiento un nombre con `overflow-label` o con las palabras de tu producto.
-- Pon en ella solo Buttons y botones con menú de Tanrei, sueltos, en grupos o con menús anclados a ellos.
+- Pon en ella solo Buttons y botones con menú de Tanrei, sueltos, en grupos o con menús anclados a ellos, y, en una barra de herramientas horizontal, Selects, Number inputs y un último Text input o Slider. Dale a cada campo un `label` y una longitud.
+- Dale a un grupo de selección un `label` y a cada uno de sus conmutadores un `value` propio.
 - Cuando una acción no se pueda aplicar, deshabilítala, y di por qué cerca de ella cuando el motivo no sea evidente.
 - Abre y cierra tú el menú de un botón de menú, como haces con cualquier menú.
 - Coloca una barra de herramientas flotante de modo que no tape contenido que todavía se necesita mientras la barra de herramientas está abierta.

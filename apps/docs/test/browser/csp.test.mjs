@@ -16,6 +16,10 @@ import { fileURLToPath } from 'node:url';
 import { headerRules, headersFor, serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the file item’s picture,
+// took 14 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -93,7 +97,7 @@ for (const engine of ENGINES) {
     }
 
     for (const address of ['/', '/ja/', '/ar/components/button/', '/components/table/', '/components/file-item/', '/components/chat-composer/', '/404.html']) {
-      test(`${address} raises no violation`, async () => {
+      test(`${address} raises no violation`, LIMIT, async () => {
         const { page, refused } = await open(address);
         try {
           await page.waitForTimeout(300);
@@ -104,7 +108,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('a window’s document keeps the page’s policy: its module runs, and an inline script is refused', async () => {
+    test('a window’s document keeps the page’s policy: its module runs, and an inline script is refused', LIMIT, async () => {
       const { page, refused } = await open('/components/dialog/');
       try {
         const frame = page.locator('iframe.docs-window-frame').first();
@@ -129,7 +133,7 @@ for (const engine of ENGINES) {
     // A file item draws the picture of an image file it is handed from an address it makes of the file (a blob: URL),
     // once it is near the view. The file upload's gallery hands its stages files (the fixture `tiles-own` takes
     // pictures), so its stages are drawn one after another here and each picture is asked for.
-    test('a file item’s picture of its file (a blob: address) is drawn without a violation', async () => {
+    test('a file item’s picture of its file (a blob: address) is drawn without a violation', LIMIT, async () => {
       // The addresses the page makes of files, counted as it makes them (the call is passed through unchanged).
       const { page, refused } = await open('/components/file-upload/', () => {
         const make = URL.createObjectURL.bind(URL);
@@ -167,7 +171,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a demo’s event handler runs (it is held by its hash)', async () => {
+    test('a demo’s event handler runs (it is held by its hash)', LIMIT, async () => {
       const { page, refused } = await open('/components/callout/');
       try {
         await page.evaluate(() => customElements.whenDefined('tanrei-callout'));
@@ -181,7 +185,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the search loads its index and finds pages', async () => {
+    test('the search loads its index and finds pages', LIMIT, async () => {
       const { page, refused } = await open('/');
       try {
         const found = await page.evaluate(async () => {
@@ -196,7 +200,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('Theme Studio draws its system', async () => {
+    test('Theme Studio draws its system', LIMIT, async () => {
       const { page, refused } = await open('/studio/');
       try {
         await page.locator('[data-studio][data-pane] [data-rail] [data-row]').first().waitFor();
@@ -207,7 +211,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('an inline script the page does not hold by its hash is refused, and so is an event handler', async () => {
+    test('an inline script the page does not hold by its hash is refused, and so is an event handler', LIMIT, async () => {
       const { page, refused } = await open('/');
       try {
         const ran = await page.evaluate(async () => {

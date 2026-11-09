@@ -99,6 +99,14 @@ export interface AppearOptions {
    * opened it rather than away from it (a FAB menu's item, from its end edge beside the toggle).
    */
   unfold?: boolean;
+  /**
+   * A translate of the component's own that the open surface stands at, in place of none: where a gesture of the
+   * person's has moved it (a sheet's drag: `0 var(--_drag, 0px)`). The entrance ends there, the exit starts from
+   * wherever it is drawn, and under reduced motion the surface fades in and out where it stands. Changing it while the
+   * surface is open moves the surface over the entrance's duration and curve (a released drag going back), unless the
+   * component turns the transitions off meanwhile (while the drag follows the pointer).
+   */
+  offset?: string;
 }
 
 /** The properties an appearance moves; what an exit waits for. `transform` too, for a surface still drawn with it. */
@@ -125,7 +133,8 @@ const under = (condition: string, motion: string) => `:is(${condition}) :is(${mo
  * `center` (its side is still the one it starts toward). Under `sys.behavior.appearance: unfold` the scale applies along the one axis that leaves the anchor or the edge (both
  * axes from the centre), read with a style container query; a browser without them scales both axes (and so does a
  * surface that asks for no unfolding, `unfold: false`). A sheet slides
- * from its edge by its own size, unfaded and unscaled, whatever the appearance. Under reduced motion every appearance
+ * from its edge by its own size, unfaded and unscaled, whatever the appearance (and stands at its `offset` open, where a
+ * gesture of the person's moves it). Under reduced motion every appearance
  * is a cross-fade over `role.reduced`: no scale, no distance, no blur (WCAG 2.3.3 counts none of opacity as motion).
  *
  * It sets `opacity`, `scale`, `translate`, `filter`, `transform-origin` and the transition of the motion element: a
@@ -199,13 +208,16 @@ export function appearStyles(options: AppearOptions): CSSResult {
   const start = sheet
     ? `--_appear-opacity: 1; --_appear-scale: 1; --_appear-distance: 100%; --_appear-translate: ${offset}; --_appear-blur: 0px; --_appear-filter: none;`
     : `--_appear-opacity: var(${from}-opacity); --_appear-scale: var(${from}-scale); --_appear-distance: var(${from}-distance); --_appear-translate: ${offset}; --_appear-blur: var(${from}-blur); --_appear-filter: blur(var(--_appear-blur));`;
+  // A sheet is unscaled closed as open: `none` both ways, so no transition of `scale` runs (from `1 1` to `none`, which
+  // scales nothing, a transition every engine still runs beside the slide).
   const closed = `opacity: var(--_appear-opacity);
-    scale: var(--_appear-sx) var(--_appear-sy);
+    scale: ${sheet ? 'none' : 'var(--_appear-sx) var(--_appear-sy)'};
     translate: var(--_appear-translate);
     filter: var(--_appear-filter);`;
-  const whole = 'opacity: 1; scale: none; translate: none; filter: none;';
+  const stands = options.offset ?? 'none';
+  const whole = `opacity: 1; scale: none; translate: ${stands}; filter: none;`;
   const timing = (t: AppearTiming, properties = MOVED) => `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing};`;
-  const reducedClosed = `opacity: ${sheet ? 0 : 'var(--_appear-opacity)'}; scale: none; translate: none; filter: none;`;
+  const reducedClosed = `opacity: ${sheet ? 0 : 'var(--_appear-opacity)'}; scale: none; translate: ${stands}; filter: none;`;
   const reducedProperties = 'opacity';
   return unsafeCSS(`
   :is(${motion}) {

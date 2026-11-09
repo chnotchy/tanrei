@@ -3108,6 +3108,9 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
   dividerColor: .role(.surfaceContainerHigh),
   dividerSpace: 0,
   dividerThickness: 8,
+  entriesGap: 8,
+  entriesRowGap: 8,
+  entriesTypingMinWidth: 72,
   groupTitleColor: .role(.onSurfaceVariant),
   groupTitleTypescale: cupertinoTypescale.labelSmall,
   groupGap: 16,
@@ -6880,8 +6883,10 @@ private let cupertinoPopoverTokens = TanreiPopoverTokens(
   headlineTypescale: cupertinoTypescale.heading6,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionHideDelay: 300,
   motionOpenDuration: 300,
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionShowDelay: 700,
   offset: 4,
   windowMargin: 8
 )
@@ -7197,6 +7202,101 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
     opacity: 0.7
   ),
   disabled: TanreiRadioButtonStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  )
+)
+
+private let cupertinoRatingTokens = TanreiRatingTokens(
+  containerShape: 9999,
+  motionFeedbackDuration: 450,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiRatingSizes(
+    small: TanreiRatingSizeTokens(
+      markSize: 20,
+      containerSize: 28
+    ),
+    medium: TanreiRatingSizeTokens(
+      markSize: 24,
+      containerSize: 32
+    ),
+    large: TanreiRatingSizeTokens(
+      markSize: 32,
+      containerSize: 40
+    )
+  ),
+  conditions: TanreiRatingConditions(
+    unselected: TanreiRatingConditionTokens(
+      enabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiRatingConditionTokens(
+      enabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      hovered: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      focused: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      pressed: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      disabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  ),
+  focused: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  ),
+  pressed: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 0.7
+  ),
+  disabled: TanreiRatingStateTokens(
     containerShape: 9999,
     opacity: 1
   )
@@ -8225,6 +8325,14 @@ private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   pressed: TanreiSnackbarStateTokens(
     opacity: 0.7
   )
+)
+
+private let cupertinoSplitViewTokens = TanreiSplitViewTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerWidth: 1,
+  motionCollapseDuration: 400,
+  motionCollapseEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionResizeDuration: 300
 )
 
 private let cupertinoStepperTokens = TanreiStepperTokens(
@@ -9986,6 +10094,7 @@ extension TanreiSystem {
     progressIndicator: cupertinoProgressIndicatorTokens,
     prose: cupertinoProseTokens,
     radioButton: cupertinoRadioButtonTokens,
+    rating: cupertinoRatingTokens,
     resizableFrame: cupertinoResizableFrameTokens,
     scrollArea: cupertinoScrollAreaTokens,
     search: cupertinoSearchTokens,
@@ -9995,6 +10104,7 @@ extension TanreiSystem {
     skeleton: cupertinoSkeletonTokens,
     slider: cupertinoSliderTokens,
     snackbar: cupertinoSnackbarTokens,
+    splitView: cupertinoSplitViewTokens,
     stepper: cupertinoStepperTokens,
     steps: cupertinoStepsTokens,
     swatch: cupertinoSwatchTokens,

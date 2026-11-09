@@ -1250,6 +1250,25 @@ test.describe('skeleton', () => {
     }
   });
 
+  // The stage on surface-container-highest stands between text-lines and text-short; a picture is clipped to whole CSS
+  // pixels, and text-short's took in its grey bottom edge as a line along the top (src/stage-edges.test.ts).
+  // A picture's edge rows may hold the page's surface around the stage (the part of a pixel the clip adds), never the
+  // color of another stage.
+  test('a fixture’s picture holds nothing of a stage of another color above or below it', async ({ page }) => {
+    await mountFixtures(page, spec);
+    const surface = await resolveColor(page, '--tanrei-sys-color-surface');
+    const colors = await page.locator('.stage').evaluateAll((stages) => [...new Set(stages.map((el) => getComputedStyle(el).backgroundColor))]);
+    expect(colors.length, 'a stage of another color than the surface').toBeGreaterThan(1);
+    for (const f of spec.fixtures) {
+      const own = await stage(page, f.id).evaluate((el) => getComputedStyle(el).backgroundColor);
+      const others = colors.filter((color) => color !== own && color !== surface);
+      const shot = decodePng(await stage(page, f.id).screenshot({ animations: 'disabled' }));
+      const foreign = (y: number) => [...new Set(Array.from({ length: shot.width }, (_, x) => shot.at(x, y)))].filter((color) => others.includes(color));
+      expect(foreign(0), `${f.id}: top row`).toEqual([]);
+      expect(foreign(shot.height - 1), `${f.id}: bottom row`).toEqual([]);
+    }
+  });
+
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       // A fixture that keeps its show delay (`waiting`) is pictured while it waits (SKL-7): the page's clock is held

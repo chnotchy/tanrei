@@ -835,7 +835,9 @@ test.describe('behavior', () => {
     expect(changes).toBe(0);
     await host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' }).click();
     expect(await page.evaluate(() => (window as any).changes)).toEqual(['png']);
-    await expect(host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' })).toHaveAttribute('aria-checked', 'true');
+    // The press also closes the menu (below), and once it has faded out its items are hidden: the checked state is read
+    // whether or not the exit has ended.
+    await expect(host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG', includeHidden: true })).toHaveAttribute('aria-checked', 'true');
     // The radio item's activation asked to close the menu, and the product closed it: it is gone once it has faded out
     // (while it fades it still shows, so a closed menu is read only after that).
     expect(await log(page)).toEqual(['toggle:true', 'close:item']);
@@ -2127,11 +2129,14 @@ test.describe('accessibility', () => {
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
-    // Reduced motion: the surface is whole at once, not measured mid-fade.
+    // With the menu open. Even under reduced motion the surface does not appear at once: it cross-fades over
+    // sys.motion.role.reduced (MOT-6), and axe reading it mid-fade measures its text against the page through a
+    // translucent surface. So axe reads it once the motion has ended.
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [withMenu('menu')] });
     await wire(page);
     await trailing(page, 'menu').click();
     await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
+    await motionEnded(host(page, 'menu'));
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations, results.violations.map((v) => v.id).join(', ')).toEqual([]);
   });

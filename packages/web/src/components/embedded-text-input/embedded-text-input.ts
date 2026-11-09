@@ -3,7 +3,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { NativeTextController, delegatedAria, delegatesAria, report } from '../../primitives/index.js';
 import { AutoHeight } from '../../primitives/auto-height.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -145,7 +145,6 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     autocomplete: { type: String },
     name: { type: String, reflect: true },
-    formDisabled: { state: true },
   };
 
   /** What the value is: chooses the keyboard, autocorrection and autocapitalization, and nothing else. It never validates and never obscures. `search` makes the action key of an on-screen keyboard read as search. A value it does not know behaves as `text`. */
@@ -210,8 +209,11 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   /** Web only: the name the value is submitted under, in a form the input stands in itself. */
   name = '';
 
-  /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (`formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
   /** What it tells its form, said where an element composed around it could hear it (src/primitives/form-says.ts). */
@@ -417,8 +419,8 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     this.value = typeof state === 'string' ? state : '';
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /** ETI-19: what it submits and what it is restored from, and a missing value while it is required and empty. */

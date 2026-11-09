@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
-import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { appearingFixture } from '../../../test/first-frame.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
@@ -25,8 +26,8 @@ const TAG = 'tanrei-combobox';
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] ${TAG}`);
-/** A part of the combobox's own shadow root. The clear button has a container of its own, so the combobox's is named with its parent. */
-const OWN: Record<string, string> = { '.container': '.field > .container' };
+/** A part of the combobox's own shadow root. The clear button has a container of its own, so the combobox's is named with its parent; a chosen value's Chip has an `.input` of its own, so the combobox's is named by its element. */
+const OWN: Record<string, string> = { '.container': '.field > .container', '.input': 'input.input' };
 const part = (page: P, id: string, selector: string) => host(page, id).locator(OWN[selector] ?? selector);
 const container = (page: P, id: string) => part(page, id, '.container');
 const input = (page: P, id: string) => part(page, id, '.input');
@@ -354,7 +355,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     // No copy to hold equal: what the combobox reads of the box is the one set every input box is drawn from.
     expect(inputBoxCopies(sheets, 'combobox')).toEqual([]);
     const mine = declared(sheets[0]!, 'combobox').map((name) => name.replace('--tanrei-comp-combobox-', ''));
-    expect(mine.filter((name) => !/^(list|option|group|divider|separation|status|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['container-action-gap', 'disabled-opacity', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
+    expect(mine.filter((name) => !/^(list|option|group|divider|separation|status|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['container-action-gap', 'disabled-opacity', 'entries-gap', 'entries-row-gap', 'entries-typing-min-width', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
   });
 
   test('CMB-63: a custom property of the box set on one combobox changes that one alone; set on an ancestor, every combobox in it', async ({ page }) => {
@@ -1314,7 +1315,7 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'stop')).active, 'stops at the last').toBe('Toronto');
     for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowUp');
     expect((await read(page, 'stop')).active, 'stops at the first').toBe('Kyoto');
-    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as HTMLElement & { wrap: boolean }).wrap]), 'the attribute is the inverse').toEqual([true, false]);
+    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as HTMLElement & { noWrap: boolean }).noWrap]), 'the attribute and the property agree').toEqual([true, true]);
     await page.keyboard.press('Escape');
     await focusInput(page, 'custom-stop');
     await type(page, 'o');
@@ -2239,7 +2240,7 @@ test.describe('behavior: the list', () => {
     await expect(part(page, id, '.group-title')).toHaveCount(2);
     // Never active, and not matched by the filter: "asia" finds no option although a title is that word. (The arrow keys
     // stop at the ends here, so that Up Arrow pressed past the first stays there, CMB-26.)
-    await set(page, id, { inline: false, open: false, wrap: false });
+    await set(page, id, { inline: false, open: false, noWrap: true });
     await focusInput(page, id);
     await page.keyboard.press('ArrowDown');
     await shownList(page, id).toBe(true);
@@ -3585,50 +3586,457 @@ test.describe('accessibility', () => {
   }
 });
 
-test.describe('fixtures', () => {
-  test('every fixture is mounted and visible, with the floating label where its look has one, the text, the glyphs and — where it is open — the list, the rows and the status row the spec gives it, and with no row of a frame', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(53);
-    const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
-    const folded = (text: string) => text.normalize('NFKD').toLowerCase();
-    for (const f of spec.fixtures) {
-      await expect(host(page, f.id), f.id).toBeVisible();
-      await expect(container(page, f.id), f.id).toBeVisible();
-      const options = flat(f.items);
-      const chosen = options.find((o) => o.props.value !== '' && o.props.value === (f.props.value ?? ''));
-      // The text: what the fixture gives it, else the chosen option's label, else a custom value, else nothing.
-      const text = f.props.inputValue !== undefined ? String(f.props.inputValue) : chosen ? String(chosen.props.label) : f.props.allowCustomValue ? String(f.props.value ?? '') : '';
-      expect((await read(page, f.id)).text, `${f.id} text`).toBe(text);
-      if (f.props.placeholder) expect(await input(page, f.id).evaluate((el) => (el as HTMLInputElement).placeholder), f.id).toBe(String(f.props.placeholder));
-      // CMB-8, CMB-62: a filled or an outlined combobox floats its name; a stacked one draws no label, and none draws a row.
-      const variant = f.props.variant ?? 'stacked';
-      const floats = variant !== 'stacked' && !f.props.labelHidden;
-      expect(await part(page, f.id, '.floating').count(), `${f.id} floating label`).toBe(floats ? 1 : 0);
-      if (floats) await expect(part(page, f.id, '.floating'), f.id).toHaveText(String(f.props.label));
-      expect(await input(page, f.id).getAttribute('aria-label'), `${f.id} name`).toBe(String(f.props.label));
-      await expect(part(page, f.id, '.label-row, .requirement-tag, .asterisk, .supporting-text'), `${f.id}: no row of a frame`).toHaveCount(0);
-      expect(await part(page, f.id, '.chevron').count(), `${f.id} chevron`).toBe(f.props.readOnly || f.props.chevron === false ? 0 : 1);
-      expect(await part(page, f.id, '.clear').count(), `${f.id} clear button`).toBe(f.props.clearable && text && !f.props.disabled && !f.props.readOnly ? 1 : 0);
-      // The rows: every option, or under the combobox's own filter those whose label contains the text.
-      const filtered = f.props.inputValue && f.props.filter !== 'none' ? options.filter((o) => folded(String(o.props.label)).includes(folded(String(f.props.inputValue)))) : options;
-      const open = f.props.open === true && !f.props.disabled;
-      // …drawn while the list is shown, and at no other time.
-      expect((await read(page, f.id)).rows, `${f.id} options`).toEqual(open ? filtered.map((o) => String(o.props.label)) : []);
-      expect((await read(page, f.id)).shown, `${f.id} list`).toBe(open);
-      if (open) {
-        await expect(part(page, f.id, '.list'), f.id).toBeVisible();
-        const [s, l] = [await box(stage(page, f.id)), await box(part(page, f.id, '.list'))];
-        expect(l.y + l.height, `${f.id}: the list is inside its stage`).toBeLessThanOrEqual(s.y + s.height);
-        expect(l.x + l.width, `${f.id}: the list is inside its stage`).toBeLessThanOrEqual(s.x + s.width + 0.6);
-        const said = f.props.status === 'loading' ? ['', ''] : f.props.status === 'error' ? ['', String(f.props.statusText)] : [String(f.props.statusText ?? (filtered.length === 0 ? (f.props.emptyText ?? 'No matches') : '')), ''];
-        expect((await read(page, f.id)).status, `${f.id} status row`).toEqual(said);
-        await expect(part(page, f.id, '.status tanrei-loading-indicator'), f.id).toHaveCount(f.props.status === 'loading' ? 1 : 0);
-      }
-      if (f.slots?.['leading-icon']) await expect.poll(() => host(page, f.id).locator('[slot="leading-icon"]').evaluate((el) => el.getBoundingClientRect().width > 0), { message: f.id }).toBe(true);
-      near((await box(host(page, f.id))).width, 280, `${f.id}: as wide as its column`);
-      near((await box(host(page, f.id))).height, (await box(container(page, f.id))).height, `${f.id}: exactly as tall as its container`);
-    }
+// ── Several values (selection multiple) ──────────────────────────────────────────────────────────────────────────
+
+/** A combobox of several values, with the words of a product that gives them all (CMB-79). */
+const many = (id: string, props: Fixture['props'] = {}, inside: FixtureItem[] | string = CITIES): Fixture =>
+  fx(id, { label: 'Cities', selection: 'multiple', removeLabel: 'Remove {entry}', addedText: '{entry} added', removedText: '{entry} removed', ...props }, inside);
+const entries = (page: P, id: string) => part(page, id, '.entries tanrei-chip');
+/** What a combobox of several values is now: its values, its chips, its text, the chip with focus, and its list. */
+const readMany = (page: P, id: string) =>
+  host(page, id).evaluate((el) => {
+    const combobox = el as HTMLElement & { value: string; values: string[]; open: boolean };
+    const root = el.shadowRoot!;
+    const field = root.querySelector<HTMLInputElement>('.input')!;
+    const focused = root.activeElement as (HTMLElement & { label?: string }) | null;
+    const label = (r: Element) => r.querySelector('.option-label')!.textContent;
+    return {
+      value: combobox.value,
+      values: [...combobox.values],
+      chips: [...root.querySelectorAll<HTMLElement & { label: string }>('.entries tanrei-chip')].map((chip) => chip.label),
+      text: field.value,
+      inputFocused: focused === field,
+      chipFocused: focused?.localName === 'tanrei-chip' ? (focused.label ?? null) : null,
+      caret: field.selectionStart,
+      open: combobox.open,
+      expanded: field.getAttribute('aria-expanded'),
+      active: root.querySelector('.scroll .row.active .option-label')?.textContent ?? null,
+      selected: [...root.querySelectorAll('.row[aria-selected="true"]')].map(label),
+      rows: [...root.querySelectorAll('.scroll .row')].map(label),
+      multiselectable: root.querySelector('.scroll')!.getAttribute('aria-multiselectable'),
+      said: root.querySelector('.announcer')?.textContent ?? null,
+    };
   });
+/** Records `input`, `change`, `toggle` and `action` of a combobox of several values, with the values `change` carries. */
+const listenMany = (page: P, id: string) =>
+  host(page, id).evaluate((el) => {
+    const w = window as unknown as { __events: string[] };
+    w.__events = [];
+    const combobox = el as HTMLElement & { values: string[]; inputValue: string };
+    el.addEventListener('input', () => w.__events.push(`input ${combobox.inputValue}`));
+    el.addEventListener('change', (event) => {
+      const detail = (event as CustomEvent<{ values?: string[] }>).detail;
+      const same = JSON.stringify(detail.values) === JSON.stringify(combobox.values) && event.bubbles && event.composed;
+      w.__events.push(`change ${(detail.values ?? []).join(',')}${same ? '' : ' (detail differs)'}`);
+    });
+    el.addEventListener('toggle', (event) => {
+      const detail = (event as CustomEvent<{ open: boolean; reason?: string }>).detail;
+      w.__events.push(`toggle ${detail.open}${detail.reason ? ` ${detail.reason}` : ''}`);
+    });
+    el.addEventListener('action', () => w.__events.push('action'));
+  });
+
+test.describe('behavior: several values (selection multiple)', () => {
+  test('CMB-70: while selection is multiple the combobox holds values in place of value, which it keeps and ignores, and its input holds only what is typed; switching selection keeps both, shows the one the new selection names and says nothing', async ({ page }) => {
+    await mount(page, [many('m', { value: 'lisbon', values: ['kyoto', 'tokyo'] })]);
+    await listenMany(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ value: 'lisbon', values: ['kyoto', 'tokyo'], chips: ['Kyoto', 'Tokyo'], text: '' });
+    await set(page, 'm', { selection: 'single' });
+    expect(await readMany(page, 'm')).toMatchObject({ value: 'lisbon', chips: [], text: 'Lisbon' });
+    await set(page, 'm', { selection: 'multiple' });
+    expect(await readMany(page, 'm')).toMatchObject({ value: 'lisbon', values: ['kyoto', 'tokyo'], chips: ['Kyoto', 'Tokyo'], text: '' });
+    expect(await heard(page)).toEqual([]);
+  });
+
+  test('CMB-71: a press on an option or Enter on the active one adds its value at the end of values, or takes it out where it is chosen; the text empties without input, every option shows again, the list stays open with that option active and focus in the input, and change fires once — no toggle, no action, no submission', async ({ page }) => {
+    await mount(page, [many('m')]);
+    await inForm(page, 'm');
+    await listenMany(page, 'm');
+    await focusInput(page, 'm');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'm').toBe(true);
+    await pressOn(row(page, 'm', 'Kyoto'));
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['kyoto'], chips: ['Kyoto'], open: true, expanded: 'true', inputFocused: true, text: '', active: 'Kyoto' });
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['kyoto', 'lisbon'], chips: ['Kyoto', 'Lisbon'], open: true, active: 'Lisbon', inputFocused: true, text: '' });
+    // A second press takes it out.
+    await pressOn(row(page, 'm', 'Kyoto'));
+    await settle(page, 'm');
+    expect((await readMany(page, 'm')).values).toEqual(['lisbon']);
+    // Typed text filters; the choice empties it and every option shows again.
+    await type(page, 'tor');
+    await settle(page, 'm');
+    expect((await readMany(page, 'm')).rows).toEqual(['Toronto']);
+    await heard(page);
+    await page.keyboard.press('Enter');
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['lisbon', 'toronto'], text: '', rows: ALL, open: true });
+    expect(await heard(page), 'one change, no input, no toggle, no action, no submit').toEqual(['change lisbon,toronto']);
+  });
+
+  test('CMB-72: Enter with no option active resolves the typed text — a whole label adds its option, another text is a value of its own where a custom value is allowed and is kept otherwise — and only Enter on an empty text emits action and submits', async ({ page }) => {
+    await mount(page, [many('free', { allowCustomValue: true }), many('strict', { values: ['kyoto'] })]);
+    await inForm(page, 'free');
+    await listenMany(page, 'free');
+    await focusInput(page, 'free');
+    await type(page, ' Recursive ');
+    await page.keyboard.press('Enter');
+    await settle(page, 'free');
+    expect(await readMany(page, 'free')).toMatchObject({ values: ['Recursive'], chips: ['Recursive'], text: '' });
+    await type(page, 'Recursive');
+    await page.keyboard.press('Enter');
+    await settle(page, 'free');
+    expect(await readMany(page, 'free'), 'the same text adds nothing, and empties the text').toMatchObject({ values: ['Recursive'], text: '' });
+    // With nothing active (a custom value is allowed), a whole label adds its option.
+    await type(page, 'tokyo');
+    await page.keyboard.press('Enter');
+    await settle(page, 'free');
+    expect(await readMany(page, 'free')).toMatchObject({ values: ['Recursive', 'tokyo'], chips: ['Recursive', 'Tokyo'] });
+    const changes = (events: string[]) => others(events).filter((e) => !e.startsWith('toggle'));
+    expect(changes(await heard(page)), 'a change for each value added, no action and no submission').toEqual(['change Recursive', 'change Recursive,tokyo']);
+    // An empty text: action, and the form is asked to submit.
+    await page.keyboard.press('Enter');
+    await settle(page, 'free');
+    expect(changes(await heard(page))).toEqual(['action', 'submit']);
+    // No custom value: a text that names nothing is kept, and the list says so.
+    await listenMany(page, 'strict');
+    await focusInput(page, 'strict');
+    await type(page, 'zzz');
+    await page.keyboard.press('Enter');
+    await settle(page, 'strict');
+    expect(await readMany(page, 'strict')).toMatchObject({ values: ['kyoto'], text: 'zzz' });
+    expect((await read(page, 'strict')).status[0]).toBe('No matches');
+    expect(changes(await heard(page))).toEqual([]);
+  });
+
+  test('CMB-73: leaving closes the list with the reason tab, chooses nothing — neither the active option nor the text — and empties the text without input; Escape closes the list, then empties the text with one input; neither removes a value', async ({ page }) => {
+    // A second field for the Tab to reach: from the last one, focus would leave the page.
+    await mount(page, [many('m', { values: ['kyoto'] }), many('next')]);
+    await listenMany(page, 'm');
+    await focusInput(page, 'm');
+    await type(page, 'lis');
+    await shownList(page, 'm').toBe(true);
+    expect((await readMany(page, 'm')).active).toBe('Lisbon');
+    await heard(page);
+    await tab(page);
+    await closedList(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['kyoto'], text: '' });
+    expect(await heard(page)).toEqual(['toggle false tab']);
+    await focusInput(page, 'm');
+    await type(page, 'lis');
+    await shownList(page, 'm').toBe(true);
+    await heard(page);
+    await page.keyboard.press('Escape');
+    await closedList(page, 'm');
+    expect((await readMany(page, 'm')).text).toBe('lis');
+    await page.keyboard.press('Escape');
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['kyoto'], text: '' });
+    expect(await heard(page)).toEqual(['toggle false escape', 'input ']);
+    // With nothing typed, Escape is not the combobox's.
+    const passed = await input(page, 'm').evaluate((el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })));
+    expect(passed).toBe(true);
+  });
+
+  test('CMB-74: each value is an input Chip of size small in the box before the input, entries.gap apart on a line and entries.row-gap between lines; one line keeps the size’s height, more grow it by whole lines with every entry shown, the input is never narrower than entries.typing-min-width, and the list stays anchored below', async ({ page }) => {
+    const twelve = ['amsterdam', 'athens', 'bangkok', 'berlin', 'cairo', 'dakar', 'delhi', 'hanoi', 'kyoto', 'lagos', 'lima', 'lisbon'];
+    const cities = twelve.map((value) => option(value[0]!.toUpperCase() + value.slice(1), value));
+    await mount(page, [many('one', { values: ['kyoto'] }), many('none'), many('full', { values: twelve }, cities)]);
+    const chip = await entries(page, 'one').first().evaluate((el) => [(el as HTMLElement & { kind: string; size: string }).kind, (el as HTMLElement & { size: string }).size]);
+    expect(chip).toEqual(['input', 'small']);
+    near((await box(container(page, 'one'))).height, (await box(container(page, 'none'))).height, 'one line: the size’s height');
+    const boxes = await entries(page, 'full').evaluateAll((chips) => chips.map((c) => c.getBoundingClientRect().toJSON() as DOMRect));
+    expect(boxes).toHaveLength(12);
+    const gap = await resolveToken(page, '--tanrei-comp-combobox-entries-gap');
+    const rowGap = await resolveToken(page, '--tanrei-comp-combobox-entries-row-gap');
+    const lines = [...new Set(boxes.map((b) => Math.round(b.y)))];
+    expect(lines.length, 'the entries wrap').toBeGreaterThan(2);
+    near(boxes[1]!.x - (boxes[0]!.x + boxes[0]!.width), gap, 'entries.gap');
+    const second = boxes.find((b) => Math.round(b.y) === lines[1])!;
+    near(second.y - (boxes[0]!.y + boxes[0]!.height), rowGap, 'entries.row-gap');
+    const lineHeight = boxes[0]!.height + rowGap;
+    const grown = (await box(container(page, 'full'))).height - (await box(container(page, 'none'))).height;
+    near(grown / lineHeight, Math.round(grown / lineHeight), 'grown by whole lines', 0.05);
+    expect(Math.round(grown / lineHeight)).toBe(lines.length);
+    const typed = await box(input(page, 'full'));
+    expect(typed.width).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-comp-combobox-entries-typing-min-width')) - 0.6);
+    const c = await box(container(page, 'full'));
+    for (const b of boxes) expect(b.y + b.height, 'every entry is inside the container').toBeLessThanOrEqual(c.y + c.height + 0.6);
+    // The list opens below the grown container.
+    await focusInput(page, 'full');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'full').toBe(true);
+    await motionEnded(page);
+    expect((await box(part(page, 'full', '.list'))).y).toBeGreaterThanOrEqual(c.y + c.height - 0.6);
+  });
+
+  test('CMB-75: Backspace or the line-start arrow at the start of the text moves focus to the last entry and removes nothing; the arrows, Home and End move among entries, past the last back to the input; Backspace and Delete remove with focus to the neighbour; the remove action removes; a held key never reaches an entry; pressing an entry opens the list on its option', async ({ page }) => {
+    await mount(page, [many('m', { values: ['kyoto', 'lisbon', 'tokyo'] })]);
+    await listenMany(page, 'm');
+    await focusInput(page, 'm');
+    await page.keyboard.press('Backspace');
+    expect(await readMany(page, 'm')).toMatchObject({ chipFocused: 'Tokyo', values: ['kyoto', 'lisbon', 'tokyo'] });
+    await page.keyboard.press('ArrowLeft');
+    expect((await readMany(page, 'm')).chipFocused).toBe('Lisbon');
+    await page.keyboard.press('Home');
+    expect((await readMany(page, 'm')).chipFocused).toBe('Kyoto');
+    await page.keyboard.press('End');
+    expect((await readMany(page, 'm')).chipFocused).toBe('Tokyo');
+    await page.keyboard.press('ArrowRight');
+    expect(await readMany(page, 'm')).toMatchObject({ inputFocused: true, caret: 0 });
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    expect((await readMany(page, 'm')).chipFocused).toBe('Lisbon');
+    await heard(page);
+    await page.keyboard.press('Backspace');
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['kyoto', 'tokyo'], chipFocused: 'Kyoto', said: 'Lisbon removed' });
+    await page.keyboard.press('Delete');
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: ['tokyo'], chipFocused: 'Tokyo' });
+    await entries(page, 'm').first().locator('[part~="remove"]').click();
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: [], inputFocused: true });
+    expect(await heard(page)).toEqual(['change kyoto,tokyo', 'change tokyo', 'change ']);
+    // A held Backspace empties the text and stops there.
+    await set(page, 'm', { values: ['kyoto'] });
+    await focusInput(page, 'm');
+    await type(page, 'ab');
+    await page.keyboard.down('Backspace');
+    await page.keyboard.down('Backspace');
+    await page.keyboard.down('Backspace');
+    await page.keyboard.up('Backspace');
+    expect(await readMany(page, 'm')).toMatchObject({ text: '', inputFocused: true, values: ['kyoto'] });
+    // Escape and a typed character return to the input.
+    await page.keyboard.press('Backspace');
+    expect((await readMany(page, 'm')).chipFocused).toBe('Kyoto');
+    await page.keyboard.press('Escape');
+    expect((await readMany(page, 'm')).inputFocused).toBe(true);
+    await page.keyboard.press('Backspace');
+    await page.keyboard.type('n');
+    expect(await readMany(page, 'm')).toMatchObject({ inputFocused: true, text: 'n' });
+    await set(page, 'm', { inputValue: '' });
+    // Pressing an entry: focus to the input, the list open on its option, nothing removed.
+    await blurInput(page, 'm');
+    await entries(page, 'm').first().locator('[part~="label"]').click();
+    await shownList(page, 'm').toBe(true);
+    expect(await readMany(page, 'm')).toMatchObject({ inputFocused: true, active: 'Kyoto', values: ['kyoto'] });
+  });
+
+  test('CMB-76: every option values holds is drawn and exposed as selected, the listbox allows several, and the list opens on the first chosen option it shows', async ({ page }) => {
+    await mountSpec(page, ['multiple-open', 'stacked-open']);
+    expect(await readMany(page, 'multiple-open')).toMatchObject({ selected: ['Kyoto', 'Tokyo'], multiselectable: 'true' });
+    await expect(part(page, 'multiple-open', '.row.selected')).toHaveCount(2);
+    expect(await part(page, 'stacked-open', '.scroll').getAttribute('aria-multiselectable'), 'one value: no').toBeNull();
+    await mount(page, [many('m', { values: ['tokyo', 'nairobi'] })]);
+    await focusInput(page, 'm');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'm').toBe(true);
+    expect((await readMany(page, 'm')).active).toBe('Nairobi');
+  });
+
+  test('CMB-77: values the product sets are drawn as given, each once, a value that names no option by itself, with no event and nothing said; the clear button is drawn while text or values is not empty and empties both, with one input and one change', async ({ page }) => {
+    await mount(page, [many('m', { values: ['kyoto'], clearable: true, clearLabel: 'Clear cities' })]);
+    await listenMany(page, 'm');
+    await set(page, 'm', { values: ['tokyo', 'tokyo', 'kyoto', 'atlantis'] });
+    expect(await readMany(page, 'm')).toMatchObject({ chips: ['Tokyo', 'Kyoto', 'atlantis'], said: '' });
+    expect(await heard(page)).toEqual([]);
+    await expect(part(page, 'm', '.clear')).toHaveCount(1);
+    await part(page, 'm', '.clear').click();
+    await settle(page, 'm');
+    expect(await readMany(page, 'm')).toMatchObject({ values: [], chips: [], inputFocused: true, said: '' });
+    expect(await heard(page)).toEqual(['input ', 'change ']);
+    await expect(part(page, 'm', '.clear')).toHaveCount(0);
+  });
+
+  test('CMB-78: in a form it submits one entry for each value under its name, in order — none while values is empty, never the typed text — resets to the values attribute, follows a disabled fieldset, and reports a missing value while its Field says it is required and values is empty', async ({ page }) => {
+    await mount(page, [fx('base', {})]);
+    await page.evaluate(async () => {
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        `<form id="f"><fieldset id="set"><tanrei-field label="Cities" required required-text="Required"><tanrei-combobox id="c" name="city" selection="multiple" values="kyoto tokyo" remove-label="Remove {entry}">
+           <tanrei-option value="kyoto">Kyoto</tanrei-option><tanrei-option value="lisbon">Lisbon</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option></tanrei-combobox></tanrei-field></fieldset></form>`,
+      );
+      await (document.querySelector('#c') as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+    });
+    const combobox = page.locator('#c');
+    const done = () => combobox.evaluate(async (el) => {
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+    });
+    const data = () => page.evaluate(() => [...new FormData(document.querySelector<HTMLFormElement>('#f')!).entries()].map(([k, v]) => `${k}=${String(v)}`));
+    expect(await data()).toEqual(['city=kyoto', 'city=tokyo']);
+    await combobox.evaluate((el) => (el as HTMLElement).focus());
+    await type(page, 'lis');
+    await done();
+    expect(await data(), 'a typed text is never sent').toEqual(['city=kyoto', 'city=tokyo']);
+    await page.keyboard.press('Enter');
+    await done();
+    expect(await data()).toEqual(['city=kyoto', 'city=tokyo', 'city=lisbon']);
+    expect(await combobox.evaluate((el) => (el as unknown as HTMLInputElement).validity.valueMissing)).toBe(false);
+    await combobox.evaluate((el) => ((el as HTMLElement & { values: string[] }).values = []));
+    await done();
+    expect(await data()).toEqual([]);
+    expect(await combobox.evaluate((el) => (el as unknown as HTMLInputElement).validity.valueMissing), 'required, and nothing chosen').toBe(true);
+    await page.evaluate(() => document.querySelector<HTMLFormElement>('#f')!.reset());
+    await done();
+    expect(await data(), 'reset to the values attribute').toEqual(['city=kyoto', 'city=tokyo']);
+    await page.evaluate(() => (document.querySelector<HTMLFieldSetElement>('#set')!.disabled = true));
+    await done();
+    expect(await data(), 'a disabled fieldset').toEqual([]);
+  });
+
+  test('CMB-79: the entries are one list named by the combobox’s name, each item a Chip named by its label with a remove action named by removeLabel; a live region says what the person added or removed in the product’s words, and nothing for what the product sets; without a remove label the action works and is reported, and the product’s words stand in for the instance’s', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [many('m', { values: ['kyoto', 'tokyo'] }), fx('wordless', { label: 'Cities', selection: 'multiple', values: ['kyoto'] })]);
+    const list = part(page, 'm', '.entries');
+    await expect(list).toHaveAttribute('role', 'list');
+    await expect(list).toHaveAttribute('aria-label', 'Cities');
+    await expect(part(page, 'm', '.entries [role="listitem"]')).toHaveCount(2);
+    expect(await entries(page, 'm').first().locator('[part~="remove"]').getAttribute('aria-label')).toBe('Remove Kyoto');
+    await expect(entries(page, 'm').first().locator('[part~="label"]')).toHaveText('Kyoto');
+    await expect(part(page, 'm', '.announcer')).toHaveAttribute('aria-live', 'polite');
+    await focusInput(page, 'm');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'm').toBe(true);
+    await pressOn(row(page, 'm', 'Lisbon'));
+    await settle(page, 'm');
+    expect((await readMany(page, 'm')).said).toBe('Lisbon added');
+    await pressOn(row(page, 'm', 'Lisbon'));
+    await settle(page, 'm');
+    expect((await readMany(page, 'm')).said).toBe('Lisbon removed');
+    await set(page, 'm', { values: ['nairobi'] });
+    expect((await readMany(page, 'm')).said, 'nothing for what the product sets').toBe('Lisbon removed');
+    await page.keyboard.press('Escape');
+    await closedList(page, 'm');
+    // No words: the remove action is drawn, works and is reported.
+    await expect.poll(() => seen.filter((w) => w.includes('CMB-79') && w.includes('remove-label is empty')).length).toBeGreaterThanOrEqual(1);
+    const remove = entries(page, 'wordless').first().locator('[part~="remove"]');
+    expect(await remove.getAttribute('aria-label')).toBeNull();
+    await setWords(page, { entryRemoveLabel: 'Quitar {entry}' });
+    await settle(page, 'wordless');
+    expect(await remove.getAttribute('aria-label')).toBe('Quitar Kyoto');
+    await remove.click();
+    await settle(page, 'wordless');
+    expect((await readMany(page, 'wordless')).values).toEqual([]);
+  });
+
+  test('CMB-80: while a value is chosen no placeholder is shown and the label floats', async ({ page }) => {
+    await mount(page, [many('m', { placeholder: 'Choose cities' }), many('outlined', { variant: 'outlined', placeholder: 'Choose cities' })]);
+    expect(await input(page, 'm').evaluate((el) => (el as HTMLInputElement).placeholder)).toBe('Choose cities');
+    await expect(part(page, 'outlined', '.field')).not.toHaveAttribute('data-has-value', /.*/);
+    await set(page, 'm', { values: ['kyoto'] });
+    await set(page, 'outlined', { values: ['kyoto'] });
+    expect(await input(page, 'm').evaluate((el) => (el as HTMLInputElement).placeholder)).toBe('');
+    await expect(part(page, 'outlined', '.field')).toHaveAttribute('data-has-value', '');
+  });
+
+  test('CMB-80: the fixture multiple-outlined floats its label over its entries from its first frame, with nothing moving into place', async ({ page }) => {
+    expectFirstFrameAtRest(await appearingFixture(page, spec, 'multiple-outlined'));
+  });
+
+  test('CMB-81: disabled, every entry is a disabled Chip that takes no focus and nothing is submitted; read-only, each entry has no remove action, the keys reach it and remove nothing, and values is submitted', async ({ page }) => {
+    await mountSpec(page, ['multiple-read-only', 'multiple-disabled']);
+    expect(await entries(page, 'multiple-disabled').evaluateAll((chips) => chips.map((c) => (c as HTMLElement & { disabled: boolean }).disabled))).toEqual([true, true]);
+    await entries(page, 'multiple-disabled').first().evaluate((el) => (el as HTMLElement).focus());
+    expect((await readMany(page, 'multiple-disabled')).chipFocused).toBeNull();
+    await expect(entries(page, 'multiple-read-only').locator('[part~="remove"]:not([hidden])')).toHaveCount(0);
+    await focusInput(page, 'multiple-read-only');
+    await page.keyboard.press('Backspace');
+    expect((await readMany(page, 'multiple-read-only')).chipFocused).toBe('Tokyo');
+    await page.keyboard.press('Backspace');
+    await page.keyboard.press('Delete');
+    await settle(page, 'multiple-read-only');
+    expect((await readMany(page, 'multiple-read-only')).values).toEqual(['kyoto', 'tokyo']);
+    for (const id of ['multiple-read-only', 'multiple-disabled']) {
+      await inForm(page, id);
+      await set(page, id, { name: 'city' });
+    }
+    const data = (id: string) => host(page, id).evaluate((el) => [...new FormData(el.closest('form')!).getAll('city')].map(String));
+    expect(await data('multiple-read-only')).toEqual(['kyoto', 'tokyo']);
+    expect(await data('multiple-disabled')).toEqual([]);
+  });
+
+  test('CMB-82: in right-to-left the entries start at the right in the order they were chosen, and the arrows move the way they point', async ({ page }) => {
+    await mountSpec(page, ['multiple-rtl']);
+    const boxes = await entries(page, 'multiple-rtl').evaluateAll((chips) => chips.map((c) => c.getBoundingClientRect().toJSON() as DOMRect));
+    expect(boxes).toHaveLength(3);
+    expect(boxes[0]!.x, 'the first stands right of the second').toBeGreaterThan(boxes[1]!.x);
+    const c = await box(container(page, 'multiple-rtl'));
+    expect(c.x + c.width - (boxes[0]!.x + boxes[0]!.width), 'from the right edge').toBeLessThan(c.width / 4);
+    await set(page, 'multiple-rtl', { inputValue: '' });
+    await focusInput(page, 'multiple-rtl');
+    await page.keyboard.press('ArrowRight');
+    expect((await readMany(page, 'multiple-rtl')).chipFocused).toBe('القاهرة');
+    await page.keyboard.press('ArrowRight');
+    expect((await readMany(page, 'multiple-rtl')).chipFocused).toBe('الدوحة');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    expect((await readMany(page, 'multiple-rtl')).inputFocused).toBe(true);
+  });
+});
+
+test.describe('fixtures', () => {
+  // In two parts — the fixtures of one value and those of several — each a page of its own and a time of its own.
+  for (const [which, several] of [
+    ['of one value', false],
+    ['of several values', true],
+  ] as const) {
+    test(`every fixture ${which} is mounted and visible, with the floating label where its look has one, the text, the glyphs, the chosen values and — where it is open — the list, the rows and the status row the spec gives it, and with no row of a frame`, async ({ page }) => {
+      expect(spec.fixtures).toHaveLength(60);
+      const fixtures = spec.fixtures.filter((f) => (f.props.selection === 'multiple') === several);
+      await mountFixtures(page, spec, { icons: true, fixtures });
+      const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
+      const folded = (text: string) => text.normalize('NFKD').toLowerCase();
+      for (const f of fixtures) {
+        await expect(host(page, f.id), f.id).toBeVisible();
+        await expect(container(page, f.id), f.id).toBeVisible();
+        const options = flat(f.items);
+        const chosen = options.find((o) => o.props.value !== '' && o.props.value === (f.props.value ?? ''));
+        // The text: what the fixture gives it, else the chosen option's label, else a custom value, else nothing.
+        // CMB-70: while several values are chosen the input holds only what was typed.
+        const multiple = f.props.selection === 'multiple';
+        const chosenValues = multiple ? (f.props.values as string[]) : [];
+        const text = f.props.inputValue !== undefined ? String(f.props.inputValue) : multiple ? '' : chosen ? String(chosen.props.label) : f.props.allowCustomValue ? String(f.props.value ?? '') : '';
+        expect((await read(page, f.id)).text, `${f.id} text`).toBe(text);
+        if (f.props.placeholder) expect(await input(page, f.id).evaluate((el) => (el as HTMLInputElement).placeholder), f.id).toBe(String(f.props.placeholder));
+        // CMB-8, CMB-62: a filled or an outlined combobox floats its name; a stacked one draws no label, and none draws a row.
+        const variant = f.props.variant ?? 'stacked';
+        const floats = variant !== 'stacked' && !f.props.labelHidden;
+        expect(await part(page, f.id, '.floating').count(), `${f.id} floating label`).toBe(floats ? 1 : 0);
+        if (floats) await expect(part(page, f.id, '.floating'), f.id).toHaveText(String(f.props.label));
+        expect(await input(page, f.id).getAttribute('aria-label'), `${f.id} name`).toBe(String(f.props.label));
+        await expect(part(page, f.id, '.label-row, .requirement-tag, .asterisk, .supporting-text'), `${f.id}: no row of a frame`).toHaveCount(0);
+        expect(await part(page, f.id, '.chevron').count(), `${f.id} chevron`).toBe(f.props.readOnly || f.props.chevron === false ? 0 : 1);
+        expect(await part(page, f.id, '.clear').count(), `${f.id} clear button`).toBe(f.props.clearable && (text || chosenValues.length) && !f.props.disabled && !f.props.readOnly ? 1 : 0);
+        // CMB-74: each chosen value is a chip, in order, labelled by its option.
+        expect(await part(page, f.id, '.entries tanrei-chip').evaluateAll((chips) => chips.map((chip) => (chip as HTMLElement & { label: string }).label)), `${f.id} entries`).toEqual(
+          chosenValues.map((value) => String(options.find((o) => o.props.value === value)?.props.label ?? value)),
+        );
+        // The rows: every option, or under the combobox's own filter those whose label contains the text.
+        const filtered = f.props.inputValue && f.props.filter !== 'none' ? options.filter((o) => folded(String(o.props.label)).includes(folded(String(f.props.inputValue)))) : options;
+        const open = f.props.open === true && !f.props.disabled;
+        // …drawn while the list is shown, and at no other time.
+        expect((await read(page, f.id)).rows, `${f.id} options`).toEqual(open ? filtered.map((o) => String(o.props.label)) : []);
+        expect((await read(page, f.id)).shown, `${f.id} list`).toBe(open);
+        if (open) {
+          await expect(part(page, f.id, '.list'), f.id).toBeVisible();
+          const [s, l] = [await box(stage(page, f.id)), await box(part(page, f.id, '.list'))];
+          expect(l.y + l.height, `${f.id}: the list is inside its stage`).toBeLessThanOrEqual(s.y + s.height);
+          expect(l.x + l.width, `${f.id}: the list is inside its stage`).toBeLessThanOrEqual(s.x + s.width + 0.6);
+          const said = f.props.status === 'loading' ? ['', ''] : f.props.status === 'error' ? ['', String(f.props.statusText)] : [String(f.props.statusText ?? (filtered.length === 0 ? (f.props.emptyText ?? 'No matches') : '')), ''];
+          expect((await read(page, f.id)).status, `${f.id} status row`).toEqual(said);
+          await expect(part(page, f.id, '.status tanrei-loading-indicator'), f.id).toHaveCount(f.props.status === 'loading' ? 1 : 0);
+        }
+        if (f.slots?.['leading-icon']) await expect.poll(() => host(page, f.id).locator('[slot="leading-icon"]').evaluate((el) => el.getBoundingClientRect().width > 0), { message: f.id }).toBe(true);
+        near((await box(host(page, f.id))).width, 280, `${f.id}: as wide as its column`);
+        near((await box(host(page, f.id))).height, (await box(container(page, f.id))).height, `${f.id}: exactly as tall as its container`);
+      }
+    });
+  }
 
   // One fixture is mounted for its picture, drawn as on the page of all of them (`mountFixtureAsInAll`): that page is
   // mounted once for a worker, not once for each picture.

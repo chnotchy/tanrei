@@ -5,6 +5,9 @@ import config from '../../../../tanrei.config.json';
 import statusData from '../../../../docs/status/status.json';
 import inventoryData from '../../../../specs/inventory.json';
 import customElements from '@tanrei/web/custom-elements.json';
+// The glyph names Tanrei's components may draw (generated from the specs and the components' code): the icon font is
+// cut down to them, so any one of them is a glyph the site's icon families draw.
+import glyphList from '../../../../packages/web/src/generated/glyphs.json';
 // What a composed component takes from a member is written once, in the member's spec (`from`): the tools'
 // own resolver writes it out, so the site and the checks read a spec the same way.
 import { resolveFrom } from '../../../../packages/tools/src/from.js';
@@ -187,8 +190,6 @@ export function webModuleOf(tag: string): string | undefined {
 export interface WebAttribute {
   /** The attribute's name as HTML writes it (`readonly`, `supporting-text`, `flush`). */
   name: string;
-  /** True where the attribute says the opposite of its property: a boolean that defaults to true (`inset`) has an attribute that turns it off (`flush`). */
-  inverse: boolean;
 }
 const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
   (customElements.modules ?? []).flatMap((m: any) =>
@@ -199,7 +200,7 @@ const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
         new Map(
           (d.attributes ?? [])
             .filter((a: any) => a.fieldName)
-            .map((a: any) => [a.fieldName, { name: a.name, inverse: a.type?.text === 'boolean' && a.default === 'true' && a.name !== a.fieldName.replace(/[A-Z]/g, (c: string) => `-${c.toLowerCase()}`) }]),
+            .map((a: any) => [a.fieldName, { name: a.name }]),
         ),
       ]),
   ),
@@ -322,3 +323,6 @@ export const componentTokenSources: Record<string, TokenDocument> = {
 const RANK = Object.fromEntries(statuses.map((s, i) => [s, i]));
 /** True once a platform has anything shippable at the current spec (alpha or later; not lagging, not deprecated). */
 export const isImplemented = (status: Status) => RANK[status] > RANK.planned && status !== 'lagging' && status !== 'deprecated';
+
+/** A glyph name the site's icon families draw as one ligature: the first of the components' list. */
+export const sampleGlyph: string = glyphList.glyphs[0];

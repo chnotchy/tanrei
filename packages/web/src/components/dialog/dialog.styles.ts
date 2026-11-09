@@ -114,13 +114,9 @@ export const styles = css`
   /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
      keyboard), as wide as the window up to the bottom sheet's greatest width whatever width names, its color, elevation
      and top corners, square at the bottom, its parts inside the dialog's padding and above the bottom inset — sliding up
-     and down with the bottom sheet's motion over the dialog's own scrim (src/primitives/compact-sheet.ts). After the
-     rules above, which it overrides. */
+     and down with the bottom sheet's motion over the dialog's own scrim, as a modal bottom sheet does, unfaded, unscaled
+     and unblurred whatever the appearance (src/primitives/compact-sheet.ts). After the rules above, which it overrides. */
   ${sheetLookStyles({ sheet: 'dialog.compact', paddingBlockEnd: T('container-padding'), scrim: { color: T('scrim-color'), blur: T('scrim-blur') } })}
-  /* A sheet slides from its edge whatever the appearance: none of the appearance's blur, closed or leaving. */
-  dialog.compact {
-    filter: none;
-  }
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 

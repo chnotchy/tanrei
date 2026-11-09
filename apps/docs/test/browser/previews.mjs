@@ -22,6 +22,10 @@ import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Field page’s previews,
+// in the dark scheme, took 359 s in CI.
+const LIMIT = { timeout: 720_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 const webDist = path.join(docs, '../../packages/web/dist');
@@ -72,7 +76,7 @@ export function previewTests(colorScheme) {
   describe(`every live preview is drawn as the web package draws it, in the ${colorScheme} scheme`, { concurrency: 4 }, () => {
     test('there are pages with previews', () => assert.ok(pages.length > 50, `found ${pages.length} pages with previews`));
     for (const url of pages) {
-      test(url, async () => {
+      test(url, LIMIT, async () => {
         const found = [];
         const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme, reducedMotion: 'reduce' });
         try {

@@ -11,7 +11,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -61,13 +64,14 @@ const doublePress = async (page: P, at: { x: number; y: number }) => {
   }
 };
 
-/** Nothing of the preview is in transition any more (the Skeleton's own stir goes on by design). */
+/**
+ * Nothing of the preview moves any more: every motion of it that has an end has ended — its entrance, which is held
+ * paused at its start for a frame and so is not "running" yet, its transitions, its controls' — in its shadow root and
+ * in each one inside (test/motions.ts). The Skeleton's own stir has no end and goes on by design.
+ */
 const rest = async (page: P) => {
   await settled(page);
-  await page.waitForFunction(() => {
-    const root = document.querySelector('tanrei-image-preview')?.shadowRoot;
-    return !!root && root.getAnimations().every((animation) => !(animation instanceof CSSTransition) || animation.playState !== 'running');
-  });
+  await motionEnded(host(page).first());
   await settled(page);
 };
 
@@ -762,17 +766,12 @@ test.describe('the stage and the zoom', () => {
     await mount(page, fx({}, [LANDSCAPE]));
     const disabled = () => Promise.all(['zoom-out', 'zoom-in'].map((name) => control(page, name).evaluate((el: HTMLElement & { disabled: boolean }) => el.disabled)));
     expect(await disabled()).toEqual([true, false]);
-    await watchRuns(page);
-    await control(page, 'zoom-in').click();
-    await expect.poll(() => begun(page, SHOWN)).toEqual([{ property: 'transform', duration: await ms(page, T('motion-zoom-duration')) }]);
-    expect(await style(page, SHOWN, 'transition-timing-function')).toBe(await page.evaluate((name) => {
-      const probe = document.createElement('div');
-      probe.style.transitionTimingFunction = `var(${name})`;
-      document.body.append(probe);
-      const value = getComputedStyle(probe).transitionTimingFunction;
-      probe.remove();
-      return value;
-    }, T('motion-zoom-easing')));
+    // The step's own motion, held at its start and read from the motion itself: the image's live style would read the
+    // zoom motion only while it runs, and a step that has ended (on a loaded machine) has none.
+    const step = await sampleFrames(host(page), () => control(page, 'zoom-in').click(), { elements: false });
+    expect(step.motions.filter((motion) => motion.on.startsWith('img.image')).map(({ kind, name, duration, easing }) => ({ kind, name, duration, easing }))).toEqual([
+      { kind: 'transition', name: 'transform', duration: await ms(page, T('motion-zoom-duration')), easing: await resolveEasing(page, T('motion-zoom-easing')) },
+    ]);
     await rest(page);
     let seen = await look(page);
     expect(seen.zoom).toBe(2);
@@ -811,6 +810,31 @@ test.describe('the stage and the zoom', () => {
     expect(await disabled()).toEqual([true, true]);
     await mount(page, fixtureOf('error'));
     expect(await disabled()).toEqual([true, true]);
+  });
+
+  test('IMP-13: a step down from the greatest zoom of a captioned image moves the picture in every frame of the zoom motion, never by a third of the way at once', async ({ page }) => {
+    // The step that once read as a jump from 2372 to 1186 px in one frame: the picture at 4 times its fit stepping down
+    // to 2 below a caption that scrolls. Read on the motion's own clock (test/frames.ts), whatever the machine.
+    await mount(page, fixtureOf('long-caption'));
+    await set(page, { zoom: 4 });
+    await rest(page);
+    expect(await control(page, 'zoom-in').evaluate((el: HTMLElement & { disabled: boolean }) => el.disabled), 'zoom in is disabled: 4 is the greatest zoom').toBe(true);
+    const seen = await sampleFrames(host(page), () => control(page, 'zoom-out').click(), {
+      elements: false,
+      probe: (root) => {
+        const image = root.shadowRoot!.querySelector('.page[style="--_at: 0"] .image')!.getBoundingClientRect();
+        return { width: image.width, x: image.x, y: image.y };
+      },
+    });
+    const width = (frame: { probe: Record<string, unknown> }) => frame.probe.width as number;
+    near(width(seen.rest), width(seen.before) / 2, 'half the width at rest');
+    expect((await look(page)).zoom).toBe(2);
+    // A 250 ms motion is 15 frames: the width and the place change in most of them.
+    for (const followed of ['width', 'x', 'y']) expectAnimated(seen, followed, { minSteps: 8 });
+    const series = [seen.before, ...seen.frames, seen.rest].map(width);
+    const total = Math.abs(series.at(-1)! - series[0]!);
+    const largest = Math.max(...series.slice(1).map((value, i) => Math.abs(value - series[i]!)));
+    expect(largest / total, `the largest change of the width in one frame, of ${total.toFixed(1)} px in all: ${series.map((value) => value.toFixed(1)).join(' → ')}`).toBeLessThan(0.35);
   });
 
   test('IMP-14: two presses of a mouse on the stage within the interval enlarge the image from fit to its first step with the point under the pointer kept under it, and from any zoom return it to fit, over the zoom motion; the two presses are not also single presses', async ({ page }) => {
@@ -2656,10 +2680,10 @@ test.describe('the whole use', () => {
 });
 
 test.describe('accessibility', () => {
-  for (const theme of ['light', 'dark'] as const) {
-    test(`no axe violations in ${theme}, every fixture, open`, async ({ page }) => {
-      test.setTimeout(180_000);
-      for (const f of spec.fixtures) {
+  // A test per fixture, in both themes: two mounts a page, not one page that mounts every fixture.
+  for (const f of spec.fixtures) {
+    test(`no axe violations in light and dark, open: ${f.id}`, async ({ page }) => {
+      for (const theme of ['light', 'dark'] as const) {
         await mount(page, f, { theme, loaded: !f.id.startsWith('loading') });
         expect((await look(page)).modal, `${f.id} is open`).toBe(true);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();

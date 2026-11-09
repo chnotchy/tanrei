@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, adoptStyles, html, nothing, render } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -10,6 +10,8 @@ import {
   SystemWatchController,
   compChoice,
   containedWheel,
+  deepActive,
+  focusWithin,
   giveTone,
   giveVariant,
   modalLayer,
@@ -19,7 +21,7 @@ import {
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
-import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, styles } from './snackbar.styles.js';
+import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, mouthStyles, styles } from './snackbar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** How long a snackbar stays by itself: auto is short without an action and indefinite with one (WCAG 2.2.1). */
@@ -240,9 +242,15 @@ export class TanreiSnackbar extends TanreiElement {
     });
   }
 
+  /**
+   * @internal The host that shows it — in the host, or in the topmost modal surface (SNK-38) — or null: drawn in place
+   * (SNK-19).
+   */
+  holder: TanreiSnackbarHost | null = null;
+
   /** Whether a host shows it (else it is drawn in place, SNK-19). */
   get hosted(): boolean {
-    return this.parentElement instanceof TanreiSnackbarHost;
+    return this.holder !== null;
   }
 
   /** The status form it draws: an unknown value is the default. */
@@ -292,9 +300,9 @@ export class TanreiSnackbar extends TanreiElement {
    * @internal SNK-17: its host has shown it (in the top layer): the bar appears — at once before the document's first
    * paint (MOT-4), else from where the appearance starts it.
    */
-  appearIn() {
+  appearIn(instant = false) {
     this.shown = true;
-    this.appear.enter();
+    this.appear.enter(instant);
   }
 
   /**
@@ -304,6 +312,19 @@ export class TanreiSnackbar extends TanreiElement {
   leave(): Promise<boolean> {
     this.shown = false;
     return this.appear.exit(!this.isConnected);
+  }
+
+  /**
+   * @internal SNK-39: keyboard focus to its first focus stop in SNK-11's order — the text while it scrolls, the action,
+   * the expand button, the close button — with its focus indicator. Returns whether focus is now inside it; false where it
+   * has no stop, or where focus cannot land there (inert behind a modal dialog that is not Tanrei's).
+   */
+  focusFirst(): boolean {
+    const root = this.renderRoot;
+    const first = root?.querySelector<HTMLElement>('.text[tabindex="0"]') ?? root?.querySelector<HTMLElement>('.action') ?? root?.querySelector<HTMLElement>('tanrei-button.expand') ?? root?.querySelector<HTMLElement>('tanrei-button.close');
+    if (!first) return false;
+    first.focus({ focusVisible: true } as FocusOptions);
+    return focusWithin(this);
   }
 
   /** @internal The host closed it (dismissCurrent, clear): `dismiss` with the reason host. */
@@ -481,7 +502,7 @@ export class TanreiSnackbar extends TanreiElement {
       if (this.resizeFrom !== null) this.resize(this.resizeFrom);
       this.resizeFrom = null;
       // SNK-9: the host pauses the timeout while it is expanded.
-      if (this.hosted) (this.parentElement as TanreiSnackbarHost).refresh();
+      this.holder?.refresh();
     }
     // SNK-20: what a debug build tells the product.
     if (has('message') && !this.message.trim()) report(this, 'SNK-20', 'message is empty; give the snackbar a message');
@@ -570,6 +591,34 @@ interface Request {
 }
 
 /**
+ * SNK-38: what the person does in a snackbar shown inside a modal surface goes no further than the box it is in, so that
+ * the surface never reads it as its own: a press is not a press on its scrim, an arrow key does not move its content (an
+ * image preview's), a wheel does not zoom it. Tab goes on, so that the surface's focus trap counts the snackbar's controls
+ * with its own, and F6, which the host hears on the window (SNK-39); Escape is the snackbar's (SNK-11), which stops it
+ * itself.
+ */
+const KEPT_IN_MOUTH = ['keydown', 'keyup', 'keypress', 'pointerdown', 'pointerup', 'pointermove', 'pointercancel', 'mousedown', 'mouseup', 'click', 'dblclick', 'auxclick', 'contextmenu', 'wheel', 'touchstart', 'touchmove', 'touchend', 'touchcancel'] as const;
+/** The keys that go on out of the box (SNK-38): Tab, which the surface's focus trap answers, and F6 (SNK-39). */
+const KEYS_OUT_OF_MOUTH = new Set(['Tab', 'F6']);
+const keepInMouth = (event: Event) => {
+  if (event instanceof KeyboardEvent && KEYS_OUT_OF_MOUTH.has(event.key)) return;
+  event.stopPropagation();
+};
+
+/** The snackbar a host shows, and whether it has been shown yet (it is drawn first, then shown). */
+interface Current {
+  request: Request;
+  snackbar: TanreiSnackbar;
+  visible: boolean;
+}
+
+/** SNK-38: the box the host shows its snackbar in while a modal surface is open, inside that surface's `<dialog>`. */
+interface Mouth {
+  dialog: HTMLDialogElement;
+  box: HTMLElement;
+}
+
+/**
  * Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,
  * with `placement="top-end"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it
  * reads from `--tanrei-app-shell-scroll-offset` on the document's root.
@@ -578,8 +627,18 @@ interface Request {
  * default, info and success forms, assertive (`role="alert"`) for warning and error — so it must be in the document
  * before the first one.
  *
+ * While a Tanrei modal surface is open (a dialog, a modal sheet or drawer, an image preview…), everything outside it is
+ * inert, the host's live regions and its snackbar too; so the host shows its snackbar inside the topmost one, in a box of
+ * its own with two live regions of its own, drawn above that surface and its scrim and reached by Tab after the
+ * surface's controls (SNK-38). There it is in that surface's shadow tree: listen to the snackbar itself, or use what
+ * `show()` resolves with, and style it through its tokens.
+ *
  * `show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.
  * `dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.
+ *
+ * F6 or Shift+F6 moves keyboard focus to the showing snackbar's first control from wherever it is, and from inside it back
+ * to where it was (SNK-39); `focusCurrent()` moves it there from a shortcut of the product's own. A product that gives F6
+ * a meaning of its own keeps it by handling the key first (`preventDefault()`): the host leaves a key that is handled.
  *
  * @tag tanrei-snackbar-host
  * @slot - The snackbar being shown (the host puts it there).
@@ -598,7 +657,7 @@ export class TanreiSnackbarHost extends TanreiElement {
   placement: TanreiSnackbarPlacement = 'bottom';
 
   private readonly queue: Request[] = [];
-  private current: { request: Request; snackbar: TanreiSnackbar } | null = null;
+  private current: Current | null = null;
   /** A snackbar leaving: the next waits for it (SNK-17). */
   private closing: Promise<void> | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -607,10 +666,17 @@ export class TanreiSnackbarHost extends TanreiElement {
   /** SNK-11: where focus was before it entered the snackbar. */
   private returnFocus: Element | null = null;
   private unsubscribe: (() => void) | null = null;
+  /** SNK-38: where the snackbar is shown while a modal surface is open, in the topmost one. */
+  private mouth: Mouth | null = null;
+  /** SNK-38: a change of the modal surfaces is answered once, after the task that made it has done its own work. */
+  private placing = false;
+  /** The keyboard's height the visual viewport leaves (SNK-13), given to the box in a modal surface too. */
+  private keyboard = '';
 
   override connectedCallback() {
     super.connectedCallback();
-    this.unsubscribe = modalLayer.subscribe(this.onConditions);
+    this.unsubscribe = modalLayer.subscribe(this.onLayer);
+    window.addEventListener('keydown', this.onShortcut);
     document.addEventListener('visibilitychange', this.onConditions);
     window.addEventListener('blur', this.onConditions);
     window.addEventListener('focus', this.onConditions);
@@ -620,11 +686,17 @@ export class TanreiSnackbarHost extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.unsubscribe?.();
+    window.removeEventListener('keydown', this.onShortcut);
     document.removeEventListener('visibilitychange', this.onConditions);
     window.removeEventListener('blur', this.onConditions);
     window.removeEventListener('focus', this.onConditions);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     clearTimeout(this.timer);
+    // Taken away, it takes its snackbar with it, wherever that is shown.
+    const snackbar = this.current?.snackbar;
+    if (snackbar && snackbar.parentNode !== this) this.append(snackbar);
+    this.mouth?.box.remove();
+    this.mouth = null;
   }
 
   /** SNK-12: asks for a snackbar; resolves once it has closed. */
@@ -646,6 +718,44 @@ export class TanreiSnackbarHost extends TanreiElement {
     this.dismissCurrent();
   }
 
+  /**
+   * SNK-39: moves keyboard focus to the showing snackbar's first control — the text while it scrolls, the action, the
+   * expand button or the close button — as F6 does, for a shortcut of the product's own. Returns whether focus moved
+   * there: false while no snackbar is shown or the one shown has no control. Focus goes back to where it was with F6, or
+   * when the snackbar closes (SNK-11).
+   */
+  focusCurrent(): boolean {
+    const current = this.current;
+    if (!current?.visible) return false;
+    if (focusWithin(current.snackbar)) return true;
+    const from = deepActive();
+    if (!current.snackbar.focusFirst()) return false;
+    // Where it was, as deep as it was: an element inside another component's shadow root, not that component.
+    this.returnFocus = from && from !== document.body ? from : null;
+    return true;
+  }
+
+  /**
+   * SNK-39: F6 or Shift+F6 — to the showing snackbar's first control, or from inside it back to where focus was. Heard on
+   * the window as the key leaves the page, so that a key the product has handled (`defaultPrevented`) is left alone, as
+   * is the key while no snackbar with a control is shown: F6 then keeps the browser's own meaning.
+   */
+  private readonly onShortcut = (event: KeyboardEvent) => {
+    if (event.key !== 'F6' || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+    const current = this.current;
+    if (!current?.visible) return;
+    if (!focusWithin(current.snackbar)) {
+      if (this.focusCurrent()) event.preventDefault();
+      return;
+    }
+    event.preventDefault();
+    // Back to where focus was before it entered the snackbar or, where that is gone or cannot take it (inert behind the
+    // modal surface the snackbar now shows in), to the platform's default.
+    const back = this.returnFocus as HTMLElement | null;
+    if (back?.isConnected && typeof back.focus === 'function') back.focus({ focusVisible: true } as FocusOptions);
+    if (focusWithin(current.snackbar)) (deepActive() as HTMLElement | null)?.blur();
+  };
+
   /** The snackbar being shown, if any. */
   get snackbar(): TanreiSnackbar | null {
     return this.current?.snackbar ?? null;
@@ -656,35 +766,113 @@ export class TanreiSnackbarHost extends TanreiElement {
     this.onConditions();
   }
 
-  /** Shows the next waiting snackbar once nothing is showing or closing and no modal dialog covers the host. */
+  /**
+   * Shows the next waiting snackbar once nothing is showing or closing — in the host, or inside the topmost modal surface
+   * while one is open (SNK-38), without waiting for it to close.
+   */
   private async next() {
-    if (this.current || this.closing || modalLayer.covered || !this.isConnected) return;
+    if (this.current || this.closing || !this.isConnected) return;
     const request = this.queue.shift();
     if (!request) return;
     const snackbar = document.createElement('tanrei-snackbar');
     const { message, title = '', action = '', status = 'default', statusLabel = '', inverse = null, closable = false, closeLabel = '', expandLabel = '', duration = 'auto', placement = this.placement } = request.options;
     Object.assign(snackbar, { message, headline: title, action, status, statusLabel, inverse, closable, closeLabel, expandLabel, duration, placement });
     snackbar.setAttribute('popover', 'manual');
-    this.current = { request, snackbar };
+    snackbar.holder = this;
+    this.current = { request, snackbar, visible: false };
     snackbar.addEventListener('action', this.onSettled);
     snackbar.addEventListener('dismiss', this.onSettled);
     snackbar.addEventListener('pointerenter', this.onPointerEnter);
     snackbar.addEventListener('pointerleave', this.onPointerLeave);
     snackbar.addEventListener('focusin', this.onFocusIn);
     snackbar.addEventListener('focusout', this.onFocusOut);
-    this.append(snackbar);
+    this.layer().append(snackbar);
     await snackbar.updateComplete;
     if (this.current?.snackbar !== snackbar) return;
+    // A modal surface may have opened or closed while it was drawn: it is shown where the topmost one is now.
+    const layer = this.layer();
+    if (snackbar.parentNode !== layer) layer.append(snackbar);
     snackbar.showPopover();
+    this.current.visible = true;
     // SNK-17, SNK-36: the bar appears from the window's edge it stands at. The announcement does not wait for it.
     snackbar.appearIn();
     this.announce(snackbar.announcement, snackbar.assertive);
     this.onConditions();
   }
 
-  /** SNK-10: announced once, politely or assertively, through the host's live regions; focus is never moved. */
+  /**
+   * SNK-38: where a snackbar is shown now — the box inside the topmost modal surface while one is open (made there as it
+   * becomes the topmost, with its two live regions, so that they are in the document before a message is written into
+   * them), else the host itself. A box in a surface that is no longer the topmost is taken away.
+   */
+  private layer(): HTMLElement {
+    const top = this.isConnected ? modalLayer.top : null;
+    if ((this.mouth?.dialog ?? null) === top) return this.mouth?.box ?? this;
+    const old = this.mouth;
+    this.mouth = top ? { dialog: top, box: this.mouthIn(top) } : null;
+    const to = this.mouth?.box ?? this;
+    // What is shown in the old box moves out before it goes — also where its surface was taken out of the document
+    // with it, which hid it.
+    const current = this.current;
+    if (old && current && current.snackbar.parentNode === old.box) this.move(current, to);
+    old?.box.remove();
+    return to;
+  }
+
+  /** SNK-38: the box in `dialog`: out of its flow, with two live regions of its own and a slot for the snackbar. */
+  private mouthIn(dialog: HTMLDialogElement): HTMLElement {
+    const box = document.createElement('div');
+    const root = box.attachShadow({ mode: 'open' });
+    adoptStyles(root, [mouthStyles]);
+    render(this.regions(), root);
+    for (const type of KEPT_IN_MOUTH) box.addEventListener(type, keepInMouth);
+    if (this.keyboard) box.style.setProperty('--tanrei-snackbar-keyboard', this.keyboard);
+    dialog.append(box);
+    return box;
+  }
+
+  /**
+   * SNK-38: a modal surface opened or closed. Answered at the end of the task that did it, once the surface has done its
+   * own work (focus, its layout): the showing snackbar is moved to where snackbars are shown now, at once, still open.
+   */
+  private readonly onLayer = () => {
+    if (this.placing) return;
+    this.placing = true;
+    queueMicrotask(() => {
+      this.placing = false;
+      this.place();
+      this.onConditions();
+    });
+  };
+
+  /**
+   * SNK-38: the showing snackbar into the topmost modal surface, or back to the host where none is open — whole at once,
+   * with no entrance, keeping its open state and its expanded state, and not announced again. Taking it out of the
+   * document hides its popover (and ends a hover and a focus inside it); it is shown again where it now is. A snackbar
+   * that is leaving stays where it leaves from; one not shown yet is placed when it is (`next()`).
+   */
+  private place() {
+    const to = this.layer();
+    const current = this.current;
+    if (current && current.snackbar.parentNode !== to) this.move(current, to);
+  }
+
+  /** SNK-38: `current` into `to`; shown again at once there if it was shown. */
+  private move(current: Current, to: HTMLElement) {
+    const { snackbar } = current;
+    to.append(snackbar);
+    if (!current.visible) return;
+    if (!snackbar.matches(':popover-open')) snackbar.showPopover();
+    snackbar.appearIn(true);
+    this.hovered = false;
+    this.focusedInside = false;
+    this.returnFocus = null;
+  }
+
+  /** SNK-10: announced once, politely or assertively, through the live regions where it is shown; focus is never moved. */
   private announce(text: string, assertive: boolean) {
-    const region = this.renderRoot.querySelector(assertive ? '.announce[role="alert"]' : '.announce[role="status"]');
+    const root = this.mouth?.box.shadowRoot ?? this.renderRoot;
+    const region = root.querySelector(assertive ? '.announce[role="alert"]' : '.announce[role="status"]');
     this.clearAnnouncements();
     if (!region) return;
     // A frame later, so a message equal to the last one is announced again.
@@ -692,10 +880,13 @@ export class TanreiSnackbarHost extends TanreiElement {
   }
 
   private clearAnnouncements() {
-    for (const region of this.renderRoot.querySelectorAll('.announce')) region.textContent = '';
+    for (const root of [this.renderRoot, this.mouth?.box.shadowRoot]) for (const region of root?.querySelectorAll('.announce') ?? []) region.textContent = '';
   }
 
-  /** SNK-8, SNK-9: the timeout runs only while nothing holds it, and starts again from its whole length. */
+  /**
+   * SNK-8, SNK-9: the timeout runs only while nothing holds it, and starts again from its whole length — also when the
+   * snackbar has moved into or out of a modal surface (SNK-38).
+   */
   private readonly onConditions = () => {
     const current = this.current;
     clearTimeout(this.timer);
@@ -703,8 +894,7 @@ export class TanreiSnackbarHost extends TanreiElement {
       void this.next();
       return;
     }
-    const held =
-      this.hovered || this.focusedInside || current.snackbar.showsExpanded || document.visibilityState === 'hidden' || !document.hasFocus() || modalLayer.covered;
+    const held = this.hovered || this.focusedInside || current.snackbar.showsExpanded || document.visibilityState === 'hidden' || !document.hasFocus();
     const timeout = current.snackbar.timeout;
     if (held || timeout === null) return;
     this.timer = setTimeout(() => current.snackbar.dismissByTimeout(), timeout);
@@ -715,7 +905,9 @@ export class TanreiSnackbarHost extends TanreiElement {
     const viewport = window.visualViewport;
     if (!viewport) return;
     const covered = Math.max(0, document.documentElement.clientHeight - (viewport.offsetTop + viewport.height));
-    this.style.setProperty('--tanrei-snackbar-keyboard', `${covered}px`);
+    this.keyboard = `${covered}px`;
+    this.style.setProperty('--tanrei-snackbar-keyboard', this.keyboard);
+    this.mouth?.box.style.setProperty('--tanrei-snackbar-keyboard', this.keyboard);
   };
 
   private readonly onPointerEnter = () => {
@@ -778,10 +970,15 @@ export class TanreiSnackbarHost extends TanreiElement {
     });
   };
 
-  protected override render() {
+  /** SNK-10: the two live regions — the host's own, and those of its box in a modal surface (SNK-38) — and the slot. */
+  private regions() {
     return html`<div class="announce" role="status" aria-live="polite" aria-atomic="true"></div>
       <div class="announce" role="alert" aria-live="assertive" aria-atomic="true"></div>
       <slot></slot>`;
+  }
+
+  protected override render() {
+    return this.regions();
   }
 }
 

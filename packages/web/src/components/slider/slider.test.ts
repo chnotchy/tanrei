@@ -1,4 +1,4 @@
-// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…24) is cited by a test title, every
+// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…29) is cited by a test title, every
 // fixture has a baseline, and every part, state and choice of kind is read back from the tokens — never from a number
 // written here.
 // SLD-27: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -882,11 +882,11 @@ test.describe('press, feedback, corners, focus style and motion', () => {
         expect(cs).toBe(await resolveToken(page, T('container-size')));
         expect(cs / 2 - (mid - ind.bottom)).toBeCloseTo(cs / 2 - hh / 2 - offset, 1);
       }
-      // Above the handle and its container: a later sibling with a z-index, in the handle's own stacking context.
-      expect(await thumbOf(page, 'value-indicator').locator('.knob > *').evaluateAll((els) => els.map((e) => [e.className, getComputedStyle(e).zIndex])), label).toEqual([
-        ['container', 'auto'],
-        ['handle', 'auto'],
-        ['value-indicator', '1'],
+      // Above the handle and its container: in the top layer (SLD-28), with no level of its own or theirs.
+      expect(await thumbOf(page, 'value-indicator').locator('.knob > *').evaluateAll((els) => els.map((e) => [e.className, getComputedStyle(e).zIndex, e.matches(':popover-open')])), label).toEqual([
+        ['container', 'auto', false],
+        ['handle', 'auto', false],
+        ['value-indicator', 'auto', true],
       ]);
     }
   });
@@ -901,7 +901,8 @@ test.describe('press, feedback, corners, focus style and motion', () => {
     expect((await rect(indicatorOf(page, 'edge'))).x).toBeLessThan(1);
     // No room is taken: the stage is as tall as before.
     expect((await rect(page.locator('[data-fixture="edge"]'))).height).toBe(96);
-    expect(await css(indicatorOf(page, 'edge'), 'z-index')).toBe('1');
+    // Above its neighbours: in the top layer (SLD-28).
+    expect(await indicatorOf(page, 'edge').evaluate((el) => el.matches(':popover-open'))).toBe(true);
     const [ind, handle] = [await rect(indicatorOf(page, 'upright')), await rect(handleOf(page, 'upright'))];
     expect(handle.x - ind.right).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
     expect(ind.y + ind.height / 2).toBeCloseTo(handle.y + handle.height / 2, 1);
@@ -948,6 +949,239 @@ test.describe('press, feedback, corners, focus style and motion', () => {
       await put('left', { x: width / 2 }, scale);
       await expect.poll(async () => Math.abs((await center(indicatorOf(page, 'left'))).x - (await center(handleOf(page, 'left'))).x), `centred again, ${at}`).toBeLessThan(0.5);
     }
+  });
+});
+
+test.describe('the value indicator in the top layer', () => {
+  /**
+   * Puts each named stage's slider in a box that clips its content and is no taller than the slider, and lays a later
+   * neighbour at z-index 10 over the box and the room above it, where the indicator rises (or beside it, where a
+   * vertical one stands): a stacking context and a clip of the page's, which an indicator drawn in place is under.
+   */
+  const enclose = (page: P, ids: string[]) =>
+    page.evaluate((list) => {
+      for (const id of list) {
+        const stage = document.querySelector<HTMLElement>(`[data-fixture="${id}"]`)!;
+        const slider = stage.querySelector('tanrei-slider')!;
+        const clip = document.createElement('div');
+        clip.className = 'clip';
+        // As wide as the slider was: the stage's rule that sizes it names it as its child.
+        const { width, height } = slider.getBoundingClientRect();
+        clip.style.cssText = `overflow: hidden; inline-size: ${width}px; block-size: ${height}px`;
+        slider.replaceWith(clip);
+        clip.append(slider);
+        const cover = document.createElement('div');
+        cover.className = 'cover';
+        cover.style.cssText = 'position: relative; z-index: 10; block-size: 120px; margin-block-start: -120px; background: rgb(255, 0, 0)';
+        clip.after(cover);
+      }
+    }, ids);
+  /**
+   * What is drawn at the indicator's centre and at points 2 inside each of its corners, read in the slider's shadow root
+   * (the page's own `elementFromPoint` would name the host): the indicator itself at each, where it is whole and on top.
+   * It takes no pointer, so it is asked to for the reading.
+   */
+  const onTop = (page: P, id: string, which: Id = 'end') =>
+    indicatorOf(page, id, which).evaluate((el) => {
+      const root = el.getRootNode() as ShadowRoot;
+      (el as HTMLElement).style.pointerEvents = 'auto';
+      const r = el.getBoundingClientRect();
+      const points = [
+        [r.x + r.width / 2, r.y + r.height / 2],
+        [r.x + 2, r.y + 2],
+        [r.right - 2, r.y + 2],
+        [r.x + 2, r.bottom - 2],
+        [r.right - 2, r.bottom - 2],
+      ];
+      const hits = points.map(([x, y]) => {
+        const hit = root.elementFromPoint(x!, y!);
+        return hit?.closest('.value-indicator') === el || `${hit?.localName}.${hit?.className}`;
+      });
+      (el as HTMLElement).style.pointerEvents = '';
+      return hits;
+    });
+
+  test('SLD-28: in a box that clips its content and under a later neighbour at z-index 10, the value indicator is drawn whole and on top, placed against its handle — left to right and right to left, horizontal and vertical', async ({ page }) => {
+    const shown = { valueIndicator: 'always', valueText: 'A long value text' } as const;
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fixture('ltr', { value: 40, label: 'Volume', ...shown }),
+        fixture('rtl', { value: 40, label: 'Volume', ...shown }),
+        fixture('upright', { orientation: 'vertical', value: 50, label: 'Level', ...shown }),
+        fixture('upright-rtl', { orientation: 'vertical', value: 50, label: 'Level', ...shown }),
+      ],
+      // Room above the first slider for its indicator, inside the window.
+      lead: '<div style="block-size: 80px"></div>',
+    });
+    for (const id of ['rtl', 'upright-rtl']) await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'rtl'));
+    // Room beside a vertical one for its indicator, inside the window.
+    for (const id of ['upright', 'upright-rtl']) await page.locator(`[data-fixture="${id}"]`).evaluate((el) => (el.style.paddingInline = '240px'));
+    await enclose(page, ['ltr', 'rtl', 'upright', 'upright-rtl']);
+    const offset = await resolveToken(page, T('value-indicator-offset'));
+    for (const id of ['ltr', 'rtl']) {
+      // Above the box's top edge, which clips the slider's own content: drawn outside it.
+      const [ind, handle, clip] = [await rect(indicatorOf(page, id)), await rect(handleOf(page, id)), await rect(page.locator(`[data-fixture="${id}"] .clip`))];
+      expect(ind.y, id).toBeLessThan(clip.y);
+      expect(handle.y - ind.bottom, id).toBeCloseTo(offset, 1);
+      expect(ind.x + ind.width / 2, id).toBeCloseTo(handle.x + handle.width / 2, 0);
+      await expect.poll(() => onTop(page, id), id).toEqual([true, true, true, true, true]);
+    }
+    // A vertical one at its handle's inline start: the left, and the right in right-to-left.
+    const [up, upHandle] = [await rect(indicatorOf(page, 'upright')), await rect(handleOf(page, 'upright'))];
+    expect(upHandle.x - up.right).toBeCloseTo(offset, 1);
+    expect(up.y + up.height / 2).toBeCloseTo(upHandle.y + upHandle.height / 2, 1);
+    const [upRtl, upRtlHandle] = [await rect(indicatorOf(page, 'upright-rtl')), await rect(handleOf(page, 'upright-rtl'))];
+    expect(upRtl.x - upRtlHandle.right).toBeCloseTo(offset, 1);
+    expect(upRtl.y + upRtl.height / 2).toBeCloseTo(upRtlHandle.y + upRtlHandle.height / 2, 1);
+    for (const id of ['upright', 'upright-rtl']) await expect.poll(() => onTop(page, id), id).toEqual([true, true, true, true, true]);
+  });
+
+  test('SLD-28: the value indicator moves with its handle in the same frame — through the value motion, a drag and a scroll of an ancestor', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('moving', { value: 10, valueIndicator: 'always', label: 'Volume' })] });
+    await override(page, { [T('motion-value-duration')]: '400ms' });
+    /** How far the indicator's centre is off its handle's along the axis, in each of `frames` frames — read after the frame's callbacks, as drawn. */
+    const apart = (frames: number) =>
+      host(page, 'moving').evaluate(async (el, n) => {
+        const root = el.shadowRoot!;
+        const [ind, handle] = [root.querySelector('.value-indicator')!, root.querySelector('.handle')!];
+        const out: number[] = [];
+        for (let i = 0; i < n; i++) {
+          await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve)));
+          const [a, b] = [ind.getBoundingClientRect(), handle.getBoundingClientRect()];
+          out.push(Math.abs(a.x + a.width / 2 - (b.x + b.width / 2)));
+        }
+        return out;
+      }, frames);
+    // The value motion: a value the product sets moves the handle over the value duration.
+    const before = (await center(handleOf(page, 'moving'))).x;
+    const motion = apart(30);
+    await host(page, 'moving').evaluate((el) => ((el as any).value = 90));
+    expect(Math.max(...(await motion))).toBeLessThan(0.5);
+    expect((await center(handleOf(page, 'moving'))).x).toBeGreaterThan(before + 100);
+    // A drag.
+    const from = await at(page, 'moving', 90);
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    for (const value of [70, 50, 30]) {
+      const to = await at(page, 'moving', value);
+      await page.mouse.move(to.x, to.y, { steps: 4 });
+      expect(Math.max(...(await apart(2))), `dragged to ${value}`).toBeLessThan(0.5);
+    }
+    await page.mouse.up();
+    // A scroll of an ancestor that scrolls: the indicator follows, and goes once the handle is scrolled out of sight.
+    await page.locator('[data-fixture="moving"]').evaluate((stage) => {
+      const slider = stage.querySelector('tanrei-slider')!;
+      const box = document.createElement('div');
+      box.className = 'scroller';
+      box.style.cssText = `overflow: auto; inline-size: ${slider.getBoundingClientRect().width}px; block-size: 120px`;
+      const room = document.createElement('div');
+      room.style.cssText = 'padding-block: 60px 400px';
+      slider.replaceWith(box);
+      box.append(room);
+      room.append(slider);
+    });
+    const scroller = page.locator('[data-fixture="moving"] .scroller');
+    const vertical = async () => (await rect(handleOf(page, 'moving'))).y - (await rect(indicatorOf(page, 'moving'))).bottom;
+    await expect.poll(vertical).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
+    await scroller.evaluate((el) => (el.scrollTop = 30));
+    await expect.poll(vertical).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
+    expect(Math.max(...(await apart(2)))).toBeLessThan(0.5);
+    await scroller.evaluate((el) => (el.scrollTop = 200));
+    await expect.poll(() => indicatorOf(page, 'moving').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    await expect(indicatorOf(page, 'moving')).toBeHidden();
+    await scroller.evaluate((el) => (el.scrollTop = 0));
+    await expect(indicatorOf(page, 'moving')).toBeVisible();
+    await expect.poll(vertical).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
+  });
+
+  test('SLD-28: a slider not drawn draws no value indicator, and drawn again in a modal dialog opened since, its indicator stands above the dialog', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('kept', { value: 40, valueIndicator: 'always', label: 'Volume' })] });
+    const open = () => indicatorOf(page, 'kept').evaluate((el) => el.matches(':popover-open'));
+    expect(await open()).toBe(true);
+    await host(page, 'kept').evaluate((el) => el.setAttribute('hidden', ''));
+    await expect.poll(open).toBe(false);
+    await host(page, 'kept').evaluate((el) => el.removeAttribute('hidden'));
+    await expect.poll(open).toBe(true);
+    // Into a dialog that is closed (the stage and all), then opened as a modal: the indicator, shown again after it, is
+    // above it and its backdrop.
+    await page.locator('[data-fixture="kept"]').evaluate((stage) => {
+      const dialog = document.createElement('dialog');
+      dialog.style.cssText = 'inline-size: 400px; padding: 80px 24px 24px';
+      dialog.append(stage);
+      document.body.append(dialog);
+    });
+    await expect.poll(open).toBe(false);
+    await page.evaluate(() => document.querySelector('dialog')!.showModal());
+    await expect.poll(open).toBe(true);
+    await expect.poll(() => onTop(page, 'kept')).toEqual([true, true, true, true, true]);
+    const [ind, handle] = [await rect(indicatorOf(page, 'kept')), await rect(handleOf(page, 'kept'))];
+    expect(handle.y - ind.bottom).toBeCloseTo(await resolveToken(page, T('value-indicator-offset')), 1);
+    await page.evaluate(() => document.querySelector('dialog')!.close());
+    await expect.poll(open).toBe(false);
+  });
+
+  test('SLD-29: under an ancestor’s zoom the value indicator is magnified with the content — twice its size and twice the offset from its handle under zoom 2, centred on it, kept inside the window at its edge; under an ancestor’s transform: scale(2) it keeps its own size, centred on the handle drawn twice as large, the offset from it', async ({ page }) => {
+    const long = { valueIndicator: 'always', valueText: 'A long value text' } as const;
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fixture('plain', { value: 40, label: 'Plain', ...long }),
+        fixture('zoomed', { value: 40, label: 'Zoomed', ...long }),
+        fixture('zoomed-edge', { value: 100, label: 'Zoomed edge', ...long }),
+        fixture('scaled', { value: 40, label: 'Scaled', ...long }),
+      ],
+      // Room above the first slider for its indicator, inside the window.
+      lead: '<div style="block-size: 120px"></div>',
+    });
+    // The zoom and the transform are on the stage, the slider's parent; a stage that is moved is moved by a box around
+    // it that is not zoomed, so that its offset is in the window's pixels.
+    await page.evaluate(() => {
+      const stage = (id: string) => document.querySelector<HTMLElement>(`[data-fixture="${id}"]`)!;
+      for (const id of ['zoomed', 'zoomed-edge']) stage(id).style.zoom = '2';
+      const mover = document.createElement('div');
+      mover.className = 'mover';
+      mover.style.cssText = 'position: relative; inset-inline-start: 0px';
+      const edge = stage('zoomed-edge');
+      edge.replaceWith(mover);
+      mover.append(edge);
+      Object.assign(stage('scaled').style, { transformOrigin: '0 0', transform: 'scale(2)' });
+      window.dispatchEvent(new Event('resize'));
+    });
+    const offset = await resolveToken(page, T('value-indicator-offset'));
+    /** The indicator's and its handle's boxes as drawn in the window, once the indicator stands against the handle again. */
+    const placed = async (id: string, gap: number) => {
+      await expect.poll(async () => Math.abs((await rect(handleOf(page, id))).y - (await rect(indicatorOf(page, id))).bottom - gap), `${id}: placed against its handle`).toBeLessThan(0.5);
+      return { ind: await rect(indicatorOf(page, id)), handle: await rect(handleOf(page, id)) };
+    };
+    const plain = await placed('plain', offset);
+    // Under zoom 2: twice the size, twice the offset, centred on the handle (drawn twice as large too).
+    const zoomed = await placed('zoomed', offset * 2);
+    expect(zoomed.handle.width).toBeCloseTo(plain.handle.width * 2, 1);
+    // The width is the text's, whose advances an engine fits to each font size (Chromium on Linux drew the text 1 wider
+    // than twice its width at the plain size): twice as wide within 1 %, where an indicator the zoom missed is half as wide.
+    expect(Math.abs(zoomed.ind.width / plain.ind.width - 2), 'twice as wide').toBeLessThan(0.02);
+    expect(Math.abs(zoomed.ind.height - plain.ind.height * 2), 'twice as high').toBeLessThan(1);
+    expect(zoomed.handle.y - zoomed.ind.bottom).toBeCloseTo(offset * 2, 1);
+    expect(zoomed.ind.x + zoomed.ind.width / 2).toBeCloseTo(zoomed.handle.x + zoomed.handle.width / 2, 0);
+    // At the window's right edge under zoom 2: shifted only as far as it must, to the window's edge and not past it.
+    const width = await page.evaluate(() => document.documentElement.clientWidth);
+    const handleAt = await center(handleOf(page, 'zoomed-edge'));
+    await page.locator('[data-fixture="zoomed-edge"]').evaluate((stage, dx) => {
+      (stage.parentElement as HTMLElement).style.insetInlineStart = `${dx}px`;
+      window.dispatchEvent(new Event('resize'));
+    }, width - 4 - handleAt.x);
+    await expect.poll(async () => Math.abs((await center(handleOf(page, 'zoomed-edge'))).x - (width - 4)), 'the handle 4 inside the right edge').toBeLessThan(0.5);
+    await expect.poll(async () => Math.abs(width - (await rect(indicatorOf(page, 'zoomed-edge'))).right), 'kept inside the window, at its edge').toBeLessThan(0.5);
+    const edge = await placed('zoomed-edge', offset * 2);
+    expect(Math.abs(edge.ind.width / plain.ind.width - 2), 'still twice as wide').toBeLessThan(0.02);
+    // Under transform: scale(2): the handle is drawn twice as large; the indicator keeps its own size and stands the
+    // offset (not twice it) above the handle's drawn top, centred on it.
+    const scaled = await placed('scaled', offset);
+    expect(scaled.handle.width).toBeCloseTo(plain.handle.width * 2, 1);
+    expect(scaled.ind.width).toBeCloseTo(plain.ind.width, 1);
+    expect(scaled.ind.height).toBeCloseTo(plain.ind.height, 1);
+    expect(scaled.handle.y - scaled.ind.bottom).toBeCloseTo(offset, 1);
+    expect(scaled.ind.x + scaled.ind.width / 2).toBeCloseTo(scaled.handle.x + scaled.handle.width / 2, 0);
+    expect(await indicatorOf(page, 'scaled').evaluate((el) => el.matches(':popover-open'))).toBe(true);
   });
 });
 

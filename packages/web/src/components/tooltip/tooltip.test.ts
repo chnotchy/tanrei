@@ -1122,7 +1122,7 @@ test.describe('drawing', () => {
     await expect(button(page, 'a')).toHaveAttribute('aria-description', 'Move to trash');
     await tip(page, 'a').evaluate((el: any) => (el.text = 'Delete for good'));
     await expect(button(page, 'a')).toHaveAttribute('aria-description', 'Delete for good');
-    await tip(page, 'a').evaluate((el: any) => (el.describes = false));
+    await tip(page, 'a').evaluate((el: any) => (el.noDescribe = true));
     await expect(button(page, 'a')).not.toHaveAttribute('aria-description');
     await expect(tip(page, 'a')).toHaveAttribute('no-describe', '');
     // A plain button anchor carries it itself.

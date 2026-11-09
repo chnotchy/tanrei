@@ -1,0 +1,747 @@
+{
+  "$comment": "Budgets for @tanrei/web, held by test/bundle-budget.test.mjs (bundles: bytes, gzip -9) and src/perf-budget.test.ts (runtime: counts, in Chromium). Each budget is the value measured when it was set and 5 %: for bytes rounded up to the next 100 bytes, for counts rounded down, so a count under 20 has no slack (one more update or one more unshared sheet is the regression itself). A byte size and a count are the same on every machine, so the margin absorbs growth that is worth its cost, never noise; the date and the load are recorded so a later measurement can be compared with this one. Over a budget is a finding: make the component cheaper, or raise its budget in the same change and say why in the changeset. A count that falls takes its budget down with it. bundles[*].measured is rewritten by TANREI_MEASURE_BUDGETS=1 node --test test/bundle-budget.test.mjs; a budget only by hand.",
+  "bundlesMeasured": {
+    "date": "2026-11-08",
+    "machine": "darwin arm64, 11 CPUs",
+    "load": "load average 7.94 (byte sizes do not depend on it)"
+  },
+  "bundles": {
+    "accordion": {
+      "budget": 21900,
+      "measured": 20794,
+      "allowedComponents": []
+    },
+    "app-bar": {
+      "budget": 70900,
+      "measured": 67832,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "app-shell": {
+      "budget": 17100,
+      "measured": 16228,
+      "allowedComponents": []
+    },
+    "avatar": {
+      "budget": 26400,
+      "measured": 25478,
+      "allowedComponents": []
+    },
+    "badge": {
+      "budget": 13300,
+      "measured": 12602,
+      "allowedComponents": []
+    },
+    "bottom-sheet": {
+      "budget": 50700,
+      "measured": 48222,
+      "allowedComponents": [
+        "button",
+        "handle"
+      ]
+    },
+    "breadcrumbs": {
+      "budget": 62100,
+      "measured": 59510,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "button": {
+      "budget": 34700,
+      "measured": 33427,
+      "allowedComponents": []
+    },
+    "button-group": {
+      "budget": 16900,
+      "measured": 16030,
+      "allowedComponents": []
+    },
+    "button-with-menu": {
+      "budget": 61600,
+      "measured": 59012,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "calendar": {
+      "budget": 50700,
+      "measured": 48646,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "callout": {
+      "budget": 43200,
+      "measured": 41472,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "card": {
+      "budget": 21300,
+      "measured": 20226,
+      "allowedComponents": []
+    },
+    "carousel": {
+      "budget": 50300,
+      "measured": 48295,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "chat-composer": {
+      "budget": 78300,
+      "measured": 74953,
+      "allowedComponents": [
+        "button",
+        "embedded-text-input",
+        "file-item",
+        "file-picker",
+        "progress-indicator"
+      ]
+    },
+    "checkbox": {
+      "budget": 25600,
+      "measured": 24677,
+      "allowedComponents": []
+    },
+    "checkbox-group": {
+      "budget": 43300,
+      "measured": 41526,
+      "allowedComponents": [
+        "checkbox",
+        "field-group",
+        "tag"
+      ]
+    },
+    "chip": {
+      "budget": 30000,
+      "measured": 28890,
+      "allowedComponents": []
+    },
+    "chip-field": {
+      "budget": 85400,
+      "measured": 81669,
+      "allowedComponents": [
+        "button",
+        "chip",
+        "field",
+        "handle",
+        "tag",
+        "text-input"
+      ]
+    },
+    "code-block": {
+      "budget": 72300,
+      "measured": 69236,
+      "allowedComponents": [
+        "button",
+        "copy-button",
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "color-field": {
+      "budget": 58900,
+      "measured": 56470,
+      "allowedComponents": [
+        "button",
+        "color-input",
+        "field",
+        "tag"
+      ]
+    },
+    "color-input": {
+      "budget": 46100,
+      "measured": 44232,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "combobox": {
+      "budget": 82000,
+      "measured": 78093,
+      "allowedComponents": [
+        "button",
+        "chip",
+        "loading-indicator",
+        "option"
+      ]
+    },
+    "combobox-field": {
+      "budget": 95200,
+      "measured": 90595,
+      "allowedComponents": [
+        "button",
+        "chip",
+        "combobox",
+        "field",
+        "loading-indicator",
+        "option",
+        "tag"
+      ]
+    },
+    "copy-button": {
+      "budget": 54000,
+      "measured": 51797,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "date-time-picker": {
+      "budget": 110600,
+      "measured": 105665,
+      "allowedComponents": [
+        "button",
+        "calendar",
+        "keyboard-shortcut",
+        "tabs",
+        "tooltip"
+      ]
+    },
+    "description-list": {
+      "budget": 13100,
+      "measured": 12396,
+      "allowedComponents": []
+    },
+    "dialog": {
+      "budget": 31800,
+      "measured": 30654,
+      "allowedComponents": []
+    },
+    "divider": {
+      "budget": 14800,
+      "measured": 14014,
+      "allowedComponents": []
+    },
+    "drop-zone": {
+      "budget": 22300,
+      "measured": 21505,
+      "allowedComponents": []
+    },
+    "embedded-text-input": {
+      "budget": 18000,
+      "measured": 17103,
+      "allowedComponents": []
+    },
+    "empty-state": {
+      "budget": 19700,
+      "measured": 19127,
+      "allowedComponents": []
+    },
+    "fab-menu": {
+      "budget": 33500,
+      "measured": 32260,
+      "allowedComponents": []
+    },
+    "field": {
+      "budget": 33000,
+      "measured": 31755,
+      "allowedComponents": [
+        "tag"
+      ]
+    },
+    "field-group": {
+      "budget": 31600,
+      "measured": 30457,
+      "allowedComponents": [
+        "tag"
+      ]
+    },
+    "figure": {
+      "budget": 14100,
+      "measured": 13391,
+      "allowedComponents": []
+    },
+    "file-item": {
+      "budget": 39800,
+      "measured": 38233,
+      "allowedComponents": [
+        "progress-indicator"
+      ]
+    },
+    "file-picker": {
+      "budget": 29100,
+      "measured": 28097,
+      "allowedComponents": []
+    },
+    "file-upload": {
+      "budget": 107200,
+      "measured": 102466,
+      "allowedComponents": [
+        "button",
+        "file-item",
+        "file-picker",
+        "keyboard-shortcut",
+        "list",
+        "menu",
+        "progress-indicator"
+      ]
+    },
+    "handle": {
+      "budget": 19700,
+      "measured": 18761,
+      "allowedComponents": []
+    },
+    "image-preview": {
+      "budget": 60900,
+      "measured": 58379,
+      "allowedComponents": [
+        "button",
+        "skeleton"
+      ]
+    },
+    "keyboard-shortcut": {
+      "budget": 15500,
+      "measured": 14694,
+      "allowedComponents": []
+    },
+    "link-card": {
+      "budget": 24200,
+      "measured": 22979,
+      "allowedComponents": []
+    },
+    "list": {
+      "budget": 79600,
+      "measured": 76142,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "list-row": {
+      "budget": 39300,
+      "measured": 37727,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "loading-indicator": {
+      "budget": 15700,
+      "measured": 14860,
+      "allowedComponents": []
+    },
+    "main-action-button": {
+      "budget": 25100,
+      "measured": 24230,
+      "allowedComponents": []
+    },
+    "marquee-text": {
+      "budget": 40800,
+      "measured": 39197,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "menu": {
+      "budget": 53200,
+      "measured": 50981,
+      "allowedComponents": [
+        "keyboard-shortcut"
+      ]
+    },
+    "menubar": {
+      "budget": 64700,
+      "measured": 61939,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "meter": {
+      "budget": 17200,
+      "measured": 16295,
+      "allowedComponents": []
+    },
+    "modal-layer": {
+      "budget": 16800,
+      "measured": 15996,
+      "allowedComponents": []
+    },
+    "navigation-bar": {
+      "budget": 37300,
+      "measured": 35909,
+      "allowedComponents": [
+        "badge"
+      ]
+    },
+    "navigation-drawer": {
+      "budget": 118800,
+      "measured": 113461,
+      "allowedComponents": [
+        "badge",
+        "button",
+        "divider",
+        "handle",
+        "keyboard-shortcut",
+        "loading-indicator",
+        "text-input",
+        "tooltip"
+      ]
+    },
+    "number-field": {
+      "budget": 64000,
+      "measured": 61332,
+      "allowedComponents": [
+        "button",
+        "field",
+        "number-input",
+        "tag"
+      ]
+    },
+    "number-input": {
+      "budget": 51200,
+      "measured": 49128,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "number-ticker": {
+      "budget": 16300,
+      "measured": 15488,
+      "allowedComponents": []
+    },
+    "one-time-code-field": {
+      "budget": 42500,
+      "measured": 40812,
+      "allowedComponents": [
+        "field",
+        "one-time-code-input",
+        "tag"
+      ]
+    },
+    "one-time-code-input": {
+      "budget": 21800,
+      "measured": 20715,
+      "allowedComponents": []
+    },
+    "option": {
+      "budget": 8500,
+      "measured": 8067,
+      "allowedComponents": []
+    },
+    "page-header": {
+      "budget": 12400,
+      "measured": 11742,
+      "allowedComponents": []
+    },
+    "pagination": {
+      "budget": 31700,
+      "measured": 30510,
+      "allowedComponents": []
+    },
+    "popover": {
+      "budget": 57000,
+      "measured": 54572,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "progress-indicator": {
+      "budget": 17100,
+      "measured": 16252,
+      "allowedComponents": []
+    },
+    "radio-button": {
+      "budget": 21700,
+      "measured": 20598,
+      "allowedComponents": []
+    },
+    "radio-group": {
+      "budget": 42200,
+      "measured": 40549,
+      "allowedComponents": [
+        "field-group",
+        "radio-button",
+        "tag"
+      ]
+    },
+    "rating": {
+      "budget": 26400,
+      "measured": 25110,
+      "allowedComponents": []
+    },
+    "resizable-frame": {
+      "budget": 26200,
+      "measured": 24946,
+      "allowedComponents": [
+        "handle"
+      ]
+    },
+    "scroll-area": {
+      "budget": 17900,
+      "measured": 16977,
+      "allowedComponents": []
+    },
+    "search": {
+      "budget": 68000,
+      "measured": 65124,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "loading-indicator"
+      ]
+    },
+    "segmented-button": {
+      "budget": 29700,
+      "measured": 28615,
+      "allowedComponents": []
+    },
+    "select": {
+      "budget": 70500,
+      "measured": 67467,
+      "allowedComponents": [
+        "button",
+        "loading-indicator",
+        "option"
+      ]
+    },
+    "select-field": {
+      "budget": 83500,
+      "measured": 79924,
+      "allowedComponents": [
+        "button",
+        "field",
+        "loading-indicator",
+        "option",
+        "select",
+        "tag"
+      ]
+    },
+    "side-sheet": {
+      "budget": 47400,
+      "measured": 45058,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "skeleton": {
+      "budget": 15500,
+      "measured": 14758,
+      "allowedComponents": []
+    },
+    "slider": {
+      "budget": 28900,
+      "measured": 27493,
+      "allowedComponents": []
+    },
+    "slider-field": {
+      "budget": 49900,
+      "measured": 47519,
+      "allowedComponents": [
+        "field",
+        "slider",
+        "tag"
+      ]
+    },
+    "snackbar": {
+      "budget": 45900,
+      "measured": 44080,
+      "allowedComponents": [
+        "button"
+      ]
+    },
+    "split-view": {
+      "budget": 24300,
+      "measured": 23078,
+      "allowedComponents": [
+        "handle"
+      ]
+    },
+    "stepper": {
+      "budget": 27400,
+      "measured": 26389,
+      "allowedComponents": []
+    },
+    "swatch": {
+      "budget": 15100,
+      "measured": 14316,
+      "allowedComponents": []
+    },
+    "switch": {
+      "budget": 30600,
+      "measured": 29458,
+      "allowedComponents": []
+    },
+    "tab-view": {
+      "budget": 61700,
+      "measured": 59136,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tabs",
+        "tooltip"
+      ]
+    },
+    "table": {
+      "budget": 27000,
+      "measured": 25718,
+      "allowedComponents": []
+    },
+    "table-of-contents": {
+      "budget": 30400,
+      "measured": 29244,
+      "allowedComponents": []
+    },
+    "tabs": {
+      "budget": 57000,
+      "measured": 54604,
+      "allowedComponents": [
+        "keyboard-shortcut",
+        "tooltip"
+      ]
+    },
+    "tag": {
+      "budget": 17900,
+      "measured": 17394,
+      "allowedComponents": []
+    },
+    "tag-group": {
+      "budget": 18400,
+      "measured": 17463,
+      "allowedComponents": []
+    },
+    "text-field": {
+      "budget": 76800,
+      "measured": 73479,
+      "allowedComponents": [
+        "button",
+        "field",
+        "handle",
+        "tag",
+        "text-input"
+      ]
+    },
+    "text-input": {
+      "budget": 63100,
+      "measured": 60387,
+      "allowedComponents": [
+        "button",
+        "handle"
+      ]
+    },
+    "toolbar": {
+      "budget": 70000,
+      "measured": 66988,
+      "allowedComponents": [
+        "button",
+        "keyboard-shortcut",
+        "menu"
+      ]
+    },
+    "tooltip": {
+      "budget": 28900,
+      "measured": 27471,
+      "allowedComponents": [
+        "keyboard-shortcut"
+      ]
+    },
+    "tree-view": {
+      "budget": 111000,
+      "measured": 106101,
+      "allowedComponents": [
+        "button",
+        "embedded-text-input",
+        "handle",
+        "keyboard-shortcut",
+        "loading-indicator",
+        "text-input",
+        "tooltip"
+      ]
+    },
+    "all": {
+      "budget": 664500,
+      "measured": 643895
+    }
+  },
+  "runtimeMeasured": {
+    "date": "2026-11-07",
+    "machine": "darwin arm64, 11 CPUs (Apple M3 Pro), Chromium of @playwright/test 1.63",
+    "load": "load average 5.36 (counts do not depend on it: the same in 3 runs here and in the Linux container of scripts/ci-like.sh)"
+  },
+  "runtime": {
+    "reads": {
+      "button": {
+        "budget": 0,
+        "measured": 0
+      },
+      "text-field, in error": {
+        "budget": 283,
+        "measured": 270
+      },
+      "menu, items": {
+        "budget": 0,
+        "measured": 0
+      },
+      "list, items": {
+        "budget": 0,
+        "measured": 0
+      },
+      "dialog, closed": {
+        "budget": 1228,
+        "measured": 1170
+      },
+      "side-sheet, closed": {
+        "budget": 2457,
+        "measured": 2340
+      },
+      "popover, closed": {
+        "budget": 94,
+        "measured": 90
+      },
+      "chat-composer": {
+        "budget": 1417,
+        "measured": 1350
+      }
+    },
+    "updates": {
+      "button, disabled": {
+        "budget": 2,
+        "measured": 2
+      },
+      "text-field, value": {
+        "budget": 2,
+        "measured": 2
+      },
+      "text-field, error": {
+        "budget": 3,
+        "measured": 3
+      },
+      "menu item, label": {
+        "budget": 1,
+        "measured": 1
+      },
+      "list item, label": {
+        "budget": 1,
+        "measured": 1
+      },
+      "tabs, value": {
+        "budget": 3,
+        "measured": 3
+      }
+    },
+    "sheets": {
+      "button": {
+        "budget": 0,
+        "measured": 0
+      },
+      "text-field": {
+        "budget": 0,
+        "measured": 0
+      },
+      "chat-composer": {
+        "budget": 103,
+        "measured": 99
+      }
+    }
+  }
+}

@@ -9,8 +9,11 @@
 // spec (resolved, as every table of the site reads it), its tokens from its token documents as written, its status on
 // each platform from the status file. English only: a spec is written in English, and the site shows it as written in
 // every language.
+import { translations } from '../../i18n/locales.mjs';
 import { strings } from './i18n';
-import { usedIn } from './listing.mjs';
+import { componentPages, usedIn } from './listing.mjs';
+import { markdownPathOf } from './page-markdown.mjs';
+import { SIDEBAR_GROUPS } from './sidebar.mjs';
 import {
   componentTokenSources,
   config,
@@ -25,6 +28,7 @@ import {
   statuses,
   systemLayers,
   webAttribute,
+  webPropertyDefault,
   type ComponentsManifest,
   type ManifestOmission,
   type Spec,
@@ -44,10 +48,14 @@ export interface SitePage {
   title: string;
   description?: string;
 }
-/** A group of pages, under a heading of the index. */
+/**
+ * A group of the sidebar, under a heading of the index: its pages, or, for the Components group, none — the
+ * components are listed from the manifests where it stands.
+ */
 export interface PageGroup {
   title: string;
   pages: SitePage[];
+  components?: true;
 }
 
 /** The address of a component's page as Markdown, under the site. */
@@ -73,29 +81,23 @@ export function manifestOf(id: string): ComponentsManifest {
 }
 
 /**
- * The folders of the site whose pages the index lists, in the sidebar's order, under the sidebar's headings. The
- * components are listed from the manifests, and the status page under "Optional".
- */
-export const PAGE_FOLDERS: [folder: string, title: string][] = [
-  ['getting-started', 'Getting started'],
-  ['foundations', 'Foundations'],
-  ['tokens', 'Token reference'],
-  ['project', 'Project'],
-];
-
-/**
- * The English pages of the site's content (Starlight's `docs` collection) in the index's groups: a folder's own page
- * first, then its pages by title. `translations` are the folders of the other languages, whose pages are left out.
+ * The English pages of the site's content (Starlight's `docs` collection) in the sidebar's groups, in the sidebar's
+ * order (lib/sidebar.mjs). `translations` are the folders of the other languages, whose pages are left out. A page the
+ * sidebar names that the collection does not have stops the build.
  */
 export function pageGroups(entries: { id: string; data: { title: string; description?: string } }[], translations: string[]): PageGroup[] {
-  const english = entries.filter((entry) => !translations.includes(entry.id.split('/')[0]));
-  return PAGE_FOLDERS.map(([folder, title]) => ({
-    title,
-    pages: english
-      .filter((entry) => entry.id === folder || entry.id.startsWith(`${folder}/`))
-      .sort((a, b) => Number(b.id === folder) - Number(a.id === folder) || a.data.title.localeCompare(b.data.title))
-      .map((entry) => ({ href: `/${entry.id.replace(/\/index$/, '')}/`, title: entry.data.title, description: entry.data.description })),
-  }));
+  const english = new Map(entries.filter((entry) => !translations.includes(entry.id.split('/')[0])).map((entry) => [entry.id.replace(/\/index$/, ''), entry]));
+  return SIDEBAR_GROUPS.map((group) => {
+    if ('components' in group) return { title: group.label, pages: [], components: true as const };
+    return {
+      title: group.label,
+      pages: group.items.map((slug) => {
+        const entry = english.get(slug);
+        if (!entry) throw new Error(`The sidebar names the page "${slug}", and the site has no such page (src/lib/sidebar.mjs).`);
+        return { href: `/${slug}/`, title: entry.data.title, description: entry.data.description };
+      }),
+    };
+  });
 }
 
 // ── Markdown ─────────────────────────────────────────────────────────────
@@ -131,16 +133,23 @@ const fromNote = (entry: { from?: string; note?: string }) => {
   return member ? ` (From ${titleOf(member)}${entry.note ? `: ${line(entry.note)}` : '.'})` : '';
 };
 
-function propsTable(props: SpecProp[], tag?: string): string {
+/**
+ * The props, with the web attribute of each where `tag` is given: the attribute of the element's property the spec's web
+ * block maps the prop to (`mapping`), marked where that property is the prop's opposite — a prop on by default whose
+ * property is off by default (`inset`, the card's `flush`).
+ */
+function propsTable(props: SpecProp[], tag?: string, mapping: Record<string, string> = {}): string {
   const withAttribute = Boolean(tag);
   const head = ['Prop', 'Type', 'Default', ...(withAttribute ? ['Web attribute'] : []), 'Description'];
   const rows = props.map((prop) => {
-    const attribute = tag ? webAttribute(tag, prop.name) : undefined;
+    const property = mapping[prop.name] ?? prop.name;
+    const attribute = tag ? webAttribute(tag, property) : undefined;
+    const turnsOff = prop.type === 'boolean' && prop.default === true && property !== prop.name && webPropertyDefault(tag!, property) === 'false';
     return [
       code(prop.name),
       typeOf(prop),
       defaultOf(prop),
-      ...(withAttribute ? [attribute ? `${code(attribute.name)}${attribute.inverse ? ' (turns it off)' : ''}` : '—'] : []),
+      ...(withAttribute ? [attribute ? `${code(attribute.name)}${turnsOff ? ' (turns it off)' : ''}` : '—'] : []),
       `${line(prop.description)}${fromNote(prop)}`,
     ];
   });
@@ -305,7 +314,7 @@ export function componentMarkdown(name: string, site: URL): string {
   const out: string[] = [`# ${spec.title}`, '', `> ${line(spec.summary)}`, '', ...facts, '', ...availabilitySection(name), '', ...platformsSection(spec)];
 
   out.push('', '## Anatomy', '', ...spec.anatomy.map((part) => `- ${code(part.id)}${part.optional ? ' (optional)' : ''}: ${line(part.description)}`));
-  out.push('', '## Props', '', spec.props.length ? propsTable(spec.props, tag) : 'None.');
+  out.push('', '## Props', '', spec.props.length ? propsTable(spec.props, tag, spec.platforms.web?.props) : 'None.');
   if (spec.events?.length) out.push('', '## Events', '', table(['Event', 'Description'], spec.events.map((event) => [code(event.name), `${line(event.description)}${fromNote(event)}`])));
   if (spec.slots?.length) out.push('', '## Slots', '', table(['Slot', 'Description'], spec.slots.map((slot) => [code(slot.name), `${line(slot.description)}${fromNote(slot)}`])));
   for (const item of spec.items ?? []) {
@@ -314,7 +323,7 @@ export function componentMarkdown(name: string, site: URL): string {
     const names = platforms.filter((p) => spec.platforms[p]?.items?.[item.name]?.name).map((p) => `${en.platform[p] ?? p} ${code(spec.platforms[p].items![item.name].name)}`);
     if (names.length) out.push('', `Names: ${names.join(', ')}.`);
     const itemTag = spec.platforms.web?.items?.[item.name]?.name;
-    if (item.props?.length) out.push('', propsTable(item.props, itemTag && definedTags.has(itemTag) ? itemTag : undefined));
+    if (item.props?.length) out.push('', propsTable(item.props, itemTag && definedTags.has(itemTag) ? itemTag : undefined, spec.platforms.web?.items?.[item.name]?.props));
     if (item.events?.length) out.push('', table(['Event', 'Description'], item.events.map((event) => [code(event.name), line(event.description)])));
     if (item.slots?.length) out.push('', table(['Slot', 'Description'], item.slots.map((slot) => [code(slot.name), line(slot.description)])));
   }
@@ -332,7 +341,13 @@ export function componentMarkdown(name: string, site: URL): string {
 
 // ── Indexes ──────────────────────────────────────────────────────────────
 
-const pageLine = (site: URL, page: SitePage) => `- [${page.title}](${absolute(site, page.href)})${page.description ? `: ${line(page.description)}` : ''}`;
+/** The address of a page of the site as Markdown (lib/page-markdown.mjs): what the index links to. */
+export const pageMarkdownPath = (href: string) => markdownPathOf(href, translations.map(({ dir }: { dir: string }) => dir));
+const pageLine = (site: URL, page: SitePage) => `- [${page.title}](${absolute(site, pageMarkdownPath(page.href))})${page.description ? `: ${line(page.description)}` : ''}`;
+/** Components in the sidebar's order: category by category, each category's in the inventory's order. */
+const sidebarOrder = new Map(componentPages(statusComponents).map((row: { name: string }, i: number) => [row.name, i]));
+const bySidebar = <T extends { name: string }>(rows: T[]) =>
+  [...rows].sort((a, b) => (sidebarOrder.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (sidebarOrder.get(b.name) ?? Number.MAX_SAFE_INTEGER));
 const componentLine = (site: URL, name: string, note?: string) => {
   const spec = specs[name];
   return `- [${titleOf(name)}](${absolute(site, markdownPath(name))}): ${[line(spec?.summary), note].filter(Boolean).join(' ')}`;
@@ -340,7 +355,7 @@ const componentLine = (site: URL, name: string, note?: string) => {
 
 /** What the index says of the components a system does not ship, one line each. */
 function omittedLines(site: URL, manifest: ComponentsManifest): string[] {
-  return manifest.omitted.map((omitted) => {
+  return bySidebar(manifest.omitted).map((omitted) => {
     const carriers = manifests.filter((other) => other.components.some((component) => component.name === omitted.name)).map((other) => code(other.system));
     const place = omitted.providedBy ? `It lives in the ${code(omitted.providedBy)} layer, which ${manifest.name} does not extend.` : `${manifest.name} leaves it out.`;
     return componentLine(site, omitted.name, [place, ...standIns(omitted), `Only in: ${carriers.join(', ') || 'none of the shipped systems'}.`].join(' '));
@@ -356,15 +371,17 @@ function choosing(manifest: ComponentsManifest): string {
 
 /**
  * An index of the site for one shipped design system (`/llms.txt` for the default one, `/systems/<id>/llms.txt` for
- * each): its components first — those its lists show, then those shown on request — then the components it does not
- * ship, the other systems, the site's pages, and the rest under "Optional".
+ * each), its sections the sidebar's groups in the sidebar's order (lib/sidebar.mjs). Where the sidebar has its
+ * Components group, the index has the components the system ships — those its lists show, then those shown on request
+ * — then the components it does not ship and the shipped systems, each list in the sidebar's order of components. The
+ * rest is under "Optional", last, as the llms.txt form has it.
  */
 export function llmsIndex(site: URL, groups: PageGroup[], id: string = ns): string {
   const manifest = manifestOf(id);
   const isDefault = id === ns;
   const layer = systemLayers[id];
-  const listed = manifest.components.filter((component) => component.listing !== listings.onRequest);
-  const onRequest = manifest.components.filter((component) => component.listing === listings.onRequest);
+  const listed = bySidebar(manifest.components.filter((component) => component.listing !== listings.onRequest));
+  const onRequest = bySidebar(manifest.components.filter((component) => component.listing === listings.onRequest));
   const variantsNote = (name: string) => (manifest.omittedVariants[name]?.length ? `(Variants ${manifest.name} leaves out: ${manifest.omittedVariants[name].join(', ')}.)` : undefined);
   const out: string[] = [
     `# ${config.name}${isDefault ? '' : `: ${manifest.name}`}`,
@@ -372,42 +389,39 @@ export function llmsIndex(site: URL, groups: PageGroup[], id: string = ns): stri
     `> ${summary}`,
     '',
     isDefault
-      ? `This index follows the default design system, ${manifest.name} (${code(manifest.system)}): the components listed first are the ones it ships. A component it does not ship is listed apart, with what to use instead; it is only in the systems named there. Each other system has an index of its own (below).`
-      : `This index follows the ${manifest.name} design system (${code(manifest.system)})${layer?.extends ? `, which extends ${code(layer.extends)}` : ''}: the components listed first are the ones it ships. ${line(layer?.description)}`,
+      ? `This index follows the default design system, ${manifest.name} (${code(manifest.system)}): the components listed under "Components in ${manifest.name}" are the ones it ships. A component it does not ship is listed apart, with what to use instead; it is only in the systems named there. Each other system has an index of its own (under "Design systems").`
+      : `This index follows the ${manifest.name} design system (${code(manifest.system)})${layer?.extends ? `, which extends ${code(layer.extends)}` : ''}: the components listed under "Components in ${manifest.name}" are the ones it ships. ${line(layer?.description)}`,
     '',
-    `${choosing(manifest)} Each component link is its page as Markdown: the page's own text, then what the component's spec says — its props, events, slots, states, accessibility, every requirement with its id, its tokens, and its name and status on each platform. The version is ${code(config.version)}, a 0.x prerelease: names and APIs may change between releases.`,
-    '',
-    `## Components in ${manifest.name}`,
-    '',
-    ...listed.map((component) => componentLine(site, component.name, variantsNote(component.name))),
+    `${choosing(manifest)} Each link is the page as Markdown; the sections follow the site's sidebar. A component's page holds its own text, then what the component's spec says — its props, events, slots, states, accessibility, every requirement with its id, its tokens, and its name and status on each platform. The version is ${code(config.version)}, a 0.x prerelease: names and APIs may change between releases.`,
   ];
-  if (onRequest.length) {
-    out.push(
-      '',
-      `## Advanced components in ${manifest.name}`,
-      '',
-      'Parts a product usually reaches through a component built from them.',
-      '',
-      ...onRequest.map((component) => {
-        const users = usedIn(statusComponents, component.name).map((other: { name: string }) => other.name);
-        return componentLine(site, component.name, [users.length ? `Used in: ${list(users)}.` : '', variantsNote(component.name)].filter(Boolean).join(' ') || undefined);
-      }),
-    );
+  const components = () => {
+    out.push('', `## Components in ${manifest.name}`, '', ...listed.map((component) => componentLine(site, component.name, variantsNote(component.name))));
+    if (onRequest.length) {
+      out.push(
+        '',
+        `## Advanced components in ${manifest.name}`,
+        '',
+        'Parts a product usually reaches through a component built from them.',
+        '',
+        ...onRequest.map((component) => {
+          const users = usedIn(statusComponents, component.name).map((other: { name: string }) => other.name);
+          return componentLine(site, component.name, [users.length ? `Used in: ${list(users)}.` : '', variantsNote(component.name)].filter(Boolean).join(' ') || undefined);
+        }),
+      );
+    }
+    if (manifest.omitted.length) out.push('', `## Components not in ${manifest.name}`, '', `Do not use these with ${manifest.name}: they are documented for the systems that ship them.`, '', ...omittedLines(site, manifest));
+    out.push('', '## Design systems', '', ...manifests.map((each) => `- [${each.name}](${absolute(site, systemIndexPath(each.system))}): ${line(systemLayers[each.system]?.description)}`));
+  };
+  if (!groups.some((group) => group.components)) throw new Error('The sidebar has no Components group, where the index lists the components (src/lib/sidebar.mjs).');
+  for (const group of groups) {
+    if (group.components) components();
+    else if (group.pages.length) out.push('', `## ${group.title}`, '', ...group.pages.map((page) => pageLine(site, page)));
   }
-  if (manifest.omitted.length) out.push('', `## Components not in ${manifest.name}`, '', `Do not use these with ${manifest.name}: they are documented for the systems that ship them.`, '', ...omittedLines(site, manifest));
-  out.push(
-    '',
-    '## Design systems',
-    '',
-    ...manifests.map((each) => `- [${each.name}](${absolute(site, systemIndexPath(each.system))}): ${line(systemLayers[each.system]?.description)}`),
-  );
-  for (const group of groups) if (group.pages.length) out.push('', `## ${group.title}`, '', ...group.pages.map((page) => pageLine(site, page)));
   out.push(
     '',
     '## Optional',
     '',
     ...(isDefault ? [`- [llms-full.txt](${absolute(site, '/llms-full.txt')}): The spec of every component ${manifest.name} ships, as Markdown, in one file.`] : []),
-    `- [Status](${absolute(site, '/status/')}): Which component exists on which platform, generated from the repository.`,
     `- [Source repository](${repository}): The tokens (${code('tokens/')}), the specs (${code('specs/')}) and every platform's package.`,
   );
   return `${out.join('\n')}\n`;

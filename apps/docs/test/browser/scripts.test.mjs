@@ -14,6 +14,10 @@ import { fileURLToPath } from 'node:url';
 import { watchNetwork } from './network-quiet.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Japanese Button page,
+// took 8 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -85,7 +89,7 @@ async function open(url) {
 // ── The tests ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('a built page’s scripts', { concurrency: 2 }, () => {
-  test(`the home page transfers at most ${HOME_SCRIPT_BUDGET / 1024} KB of script`, async () => {
+  test(`the home page transfers at most ${HOME_SCRIPT_BUDGET / 1024} KB of script`, LIMIT, async () => {
     const { context, scripts } = await open('/');
     try {
       const bytes = scripts.reduce((sum, script) => sum + script.bytes, 0);
@@ -96,7 +100,7 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
   });
 
   for (const url of PAGES) {
-    test(`${url} defines every element it draws, in the document and in every shadow root`, async () => {
+    test(`${url} defines every element it draws, in the document and in every shadow root`, LIMIT, async () => {
       const { context, page, errors } = await open(url);
       try {
         // The modules a page asks for are all in once it is quiet; an element is upgraded when its module is evaluated.
@@ -132,7 +136,7 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
 
   // A window's document runs one module (lib/fixture-window.ts), which defines what the window draws: a date-time
   // picker's window holds Buttons in its shadow root that its fixture does not write.
-  test('a window of the fixtures’ gallery defines every element it draws, in its document and in every shadow root', async () => {
+  test('a window of the fixtures’ gallery defines every element it draws, in its document and in every shadow root', LIMIT, async () => {
     const { context, page, errors } = await open('/components/date-time-picker/');
     try {
       const frame = page.locator('iframe.docs-window-frame').first();

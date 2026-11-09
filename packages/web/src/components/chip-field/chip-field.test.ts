@@ -880,7 +880,7 @@ test.describe('behavior', () => {
   test('CHF-20: while read-only no entry is made, removed or taken back — each entry is an input Chip without a remove action, a press or a key on it moves focus and does nothing else, and check, reject and change are not emitted; the entries stay reachable by the keys and the list is submitted', async ({ page }) => {
     await mountField(page, `value='["a@example.com","b@example.com"]' readonly`);
     await expect(typing(page)).toHaveAttribute('readonly', '');
-    expect(await chips(page).evaluateAll((all) => all.map((one) => [(one as unknown as { removable: boolean }).removable, getComputedStyle(one.shadowRoot!.querySelector('.remove')!).display]))).toEqual([[false, 'none'], [false, 'none']]);
+    expect(await chips(page).evaluateAll((all) => all.map((one) => [(one as unknown as { notRemovable: boolean }).notRemovable, getComputedStyle(one.shadowRoot!.querySelector('.remove')!).display]))).toEqual([[true, 'none'], [true, 'none']]);
     await expect(f(page).getByRole('button', { name: /^Remove/ })).toHaveCount(0);
     await focusTyping(page);
     await page.keyboard.press('Backspace');

@@ -2,7 +2,7 @@
 // case is a list of changed paths on the repository as it is.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { CANARY, affected, grepFor, importsOf } from '../src/affected.js';
+import { CANARY, EVERY_COMPONENT, affected, grepFor, importsOf } from '../src/affected.js';
 
 test('a change outside the web selects nothing', () => {
   assert.deepEqual(affected(['docs/architecture/overview.md', 'apps/docs/astro.config.mjs', 'packages/compose/README.md', 'packages/flutter/lib/x.dart']), { all: false, units: [], files: [], reasons: [] });
@@ -77,4 +77,17 @@ test("a change to a component's own tests or baselines selects that component an
   const r = affected(['packages/web/src/components/switch/switch.test.ts', 'packages/web/snapshots/switch/x.png']);
   assert.deepEqual(r.units, ['switch']);
   assert.ok(affected(['packages/web/src/components/switch/switch.ts']).units.length > 1, 'its implementation still reaches what is built on it');
+});
+
+test('a test that draws the whole package from disk runs for a change to any component, and not for its own tests alone', () => {
+  assert.deepEqual(EVERY_COMPONENT, ['packages/web/src/perf-budget.test.ts']);
+  for (const file of ['packages/web/src/components/dialog/dialog.ts', 'specs/dialog.spec.json', 'tokens/comp/dialog.tokens.json', 'packages/web/src/primitives/focus-ring.ts', 'packages/web/src/styles/link.css']) {
+    const r = affected([file]);
+    assert.equal(r.all, false, file);
+    assert.ok(r.files.includes('packages/web/src/perf-budget.test.ts'), file);
+    assert.match(grepFor(r), /perf-budget\\\.test\\\.ts/, file);
+  }
+  for (const file of ['packages/web/src/components/dialog/dialog.test.ts', 'packages/web/snapshots/dialog/x.png', 'docs/architecture/overview.md']) {
+    assert.equal(affected([file]).files.includes('packages/web/src/perf-budget.test.ts'), false, file);
+  }
 });

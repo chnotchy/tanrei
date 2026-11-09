@@ -221,7 +221,8 @@ test('explain, systems, init, help', () => {
   assert.match(help, /tanrei audit <file\|dir\|glob…> \[--system <id\|layer file>\]/);
   // The help names every system this version ships, the default first, and each of them is one `init` takes
   // (the list was a literal and fell behind tokens/systems/).
-  // The root layer `core` is in tokens/systems/ for every chain to start from; it has no output of its own and is not offered.
+  // The root layer `core` is in tokens/systems/ for every chain to start from; it ships as no system (its one output is
+  // the grey starting point's stylesheet) and `init` does not offer it yet.
   const shipped = fs.readdirSync(path.resolve(pkg, '../../tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => f.replace('.system.json', '')).filter((id) => id !== 'core').sort();
   const offered = /tanrei init <id> \[--extends ([^\]]+)\]/.exec(help)?.[1].split('|') ?? [];
   assert.ok(shipped.length > 1, 'more than the default system ships');

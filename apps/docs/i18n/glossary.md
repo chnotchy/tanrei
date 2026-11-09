@@ -238,6 +238,7 @@ As common nouns: page titles, headings, running text.
 | Skeleton | スケルトン | 骨架屏 |
 | Slider | スライダー | 滑块 |
 | Snackbar | スナックバー | 消息条（Snackbar） |
+| Split view | 分割ビュー — the pane is ペイン, the line between the panes 区切り線 | 分割视图 — the pane is 窗格, the line between the panes 分隔线 |
 | Steps | ステップ | 步骤 |
 | Switch | スイッチ | 开关 |
 | Tab view | タブビュー | 标签页视图 |

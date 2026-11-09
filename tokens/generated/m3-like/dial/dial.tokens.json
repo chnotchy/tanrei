@@ -139,11 +139,11 @@
           "$schema": "../schema/system.schema.json",
           "id": "core",
           "name": "Core",
-          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
+          "description": "The root layer every design system extends, and a neutral starting point. It values the vocabulary in grey: a neutral palette without chroma for surfaces, text, the primary and the focus ring; the four status palettes, a conventional red, green, amber and blue, whose containers are faint tints of their own palette; the color roles drawn from them; and the per-state rules of the components. It declares no accent, no tints of its own and no code colors — code is drawn in the text colors the code block's document gives it. It leaves no component out; a system chooses its components, and its look, in its own layer.",
           "specVersion": "tanrei-2026.2",
           "palettes": {
             "neutral": {
-              "description": "Surfaces, text and the monochrome primary. Zero chroma.",
+              "description": "Surfaces, text, the primary and the focus ring. Zero chroma: the root has no hue of its own.",
               "source": {
                 "hue": 0,
                 "chroma": 0
@@ -167,83 +167,6 @@
             "info": {
               "source": {
                 "seed": "#3b6fd4"
-              }
-            },
-            "accent": {
-              "description": "Tanrei's one chromatic voice: the keyboard focus ring. Declared by this system rather than fixed in the vocabulary, because which accent a product has — or whether it has one — is that product's choice.",
-              "source": {
-                "seed": "#30a3f0"
-              },
-              "roles": "intent"
-            },
-            "error-quiet": {
-              "description": "The hue of the error palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The error palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 22,
-                "chroma": 16
-              }
-            },
-            "success-quiet": {
-              "description": "The hue of the success palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The success palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 150,
-                "chroma": 16
-              }
-            },
-            "warning-quiet": {
-              "description": "The hue of the warning palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The warning palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 66,
-                "chroma": 16
-              }
-            },
-            "info-quiet": {
-              "description": "The hue of the info palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The info palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 268,
-                "chroma": 16
-              }
-            },
-            "syntax-keyword": {
-              "description": "A purple: the language's own words — its keywords, its modifiers, its at-rules. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 315,
-                "chroma": 64
-              }
-            },
-            "syntax-string": {
-              "description": "A green: text quoted in the code. It is near the hue of the success palette and is not that palette: a system that re-values success does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 145,
-                "chroma": 52
-              }
-            },
-            "syntax-constant": {
-              "description": "An orange: the values that are not text — numbers, booleans and null, named constants, units. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 55,
-                "chroma": 64
-              }
-            },
-            "syntax-function": {
-              "description": "A blue: the names of functions, and at a tone nearer the text, of properties. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 265,
-                "chroma": 64
-              }
-            },
-            "syntax-type": {
-              "description": "A blue-green: the names of types. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 200,
-                "chroma": 48
-              }
-            },
-            "syntax-tag": {
-              "description": "A red: what markup and style sheets address — an element's name, a selector. It is near the hue of the error palette and is not that palette: a system that re-values error does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 20,
-                "chroma": 70
               }
             }
           },
@@ -628,22 +551,8 @@
               }
             },
             "tanrei.sys.color.focus-ring": {
-              "derive": {
-                "fn": "tone",
-                "palette": "accent",
-                "tone": {
-                  "light": [
-                    45,
-                    38,
-                    30
-                  ],
-                  "dark": [
-                    72,
-                    80,
-                    87
-                  ]
-                }
-              }
+              "$value": "{tanrei.sys.color.primary}",
+              "reason": "The root has no accent: the keyboard focus ring is its strongest neutral, the primary, which stands apart from every surface, every tonal container and the resting outline of a field."
             },
             "tanrei.sys.color.focus-ring-inner": {
               "derive": {
@@ -656,7 +565,7 @@
             },
             "tanrei.sys.color.link": {
               "$value": "{tanrei.sys.color.primary}",
-              "reason": "A link takes the primary's color, so the accent is the keyboard focus ring's alone. A link is told from the text beside it by its underline, in every scheme."
+              "reason": "A link takes the primary's color, so that a system's accent, where it has one, is the keyboard focus ring's alone. A link is told from the text beside it by its underline, in every scheme."
             },
             "tanrei.sys.color.inverse-link": {
               "$value": "{tanrei.sys.color.inverse-primary}",
@@ -932,7 +841,7 @@
             "tanrei.sys.color.error-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "error-quiet",
+                "palette": "error",
                 "tone": {
                   "light": [
                     95
@@ -942,12 +851,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-error-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "error-quiet",
+                "palette": "error",
                 "tone": {
                   "light": [
                     16,
@@ -961,12 +870,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.success-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "success-quiet",
+                "palette": "success",
                 "tone": {
                   "light": [
                     95
@@ -976,12 +885,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-success-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "success-quiet",
+                "palette": "success",
                 "tone": {
                   "light": [
                     16,
@@ -995,12 +904,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.warning-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "warning-quiet",
+                "palette": "warning",
                 "tone": {
                   "light": [
                     95
@@ -1010,12 +919,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-warning-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "warning-quiet",
+                "palette": "warning",
                 "tone": {
                   "light": [
                     16,
@@ -1029,12 +938,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.info-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "info-quiet",
+                "palette": "info",
                 "tone": {
                   "light": [
                     95
@@ -1044,12 +953,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-info-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "info-quiet",
+                "palette": "info",
                 "tone": {
                   "light": [
                     16,
@@ -1063,7 +972,7 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.comp.menu.selected.container.color": {
               "derive": {
@@ -1180,294 +1089,6 @@
               },
               "reason": "Under a press the open title answers with the pressed layer alone."
             },
-            "tanrei.comp.snackbar.inverse-info.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.info-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-info-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.warning-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-warning-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.error-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-error-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.success-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-success-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
-            },
             "tanrei.comp.link.standard.disabled.container.color": {
               "$value": "{tanrei.comp.link.standard.container.color}",
               "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
@@ -1483,139 +1104,6 @@
             "tanrei.comp.link.inverse.disabled.current.container.color": {
               "$value": "{tanrei.comp.link.inverse.current.container.color}",
               "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
-            },
-            "tanrei.comp.code-block.syntax.color.keyword": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-keyword",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A keyword is a purple. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.constant": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-constant",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A number, a boolean or null is an orange. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.tag": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-tag",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "An element's name or a selector is a red, from a palette of its own and not the error color. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.string": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-string",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "Quoted text is a green, from a palette of its own and not the success color. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.function": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-function",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A function's name is a blue. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.property": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-function",
-                "tone": {
-                  "light": [
-                    36,
-                    30,
-                    22
-                  ],
-                  "dark": [
-                    80,
-                    85,
-                    91
-                  ]
-                }
-              },
-              "reason": "A property's name is the blue of a function's name, a step nearer the text in each scheme: the two are told by tone, and by where they stand. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.type": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-type",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A type's name is a blue-green. The default system draws code in a conventional, vivid scheme."
             },
             "tanrei.comp.select.stacked.disabled.selected-option.container.color": {
               "derive": {
@@ -2039,6 +1527,11 @@
               "match": "tanrei.comp.switch.*.disabled.container.color",
               "$value": "{tanrei.comp.switch.$1.container.color}",
               "reason": "The round state layer is not a fill; disabled, it stays invisible."
+            },
+            {
+              "match": "tanrei.comp.rating.*.disabled.container.color",
+              "$value": "{tanrei.comp.rating.$1.container.color}",
+              "reason": "The round state layer behind each mark is not a fill; disabled, it stays invisible."
             },
             {
               "match": "tanrei.comp.switch.*.disabled.track.color",
@@ -2560,6 +2053,146 @@
             "disclaimer": "Tanrei is not affiliated with, endorsed by, or sponsored by Google. \"Material Design\" is Google's; this preset is an independent approximation derived from publicly available, Apache-2.0 licensed design tokens."
           },
           "palettes": {
+            "neutral": {
+              "source": {
+                "hue": 298.98,
+                "chroma": 4,
+                "tones": {
+                  "0": "#000000",
+                  "4": "#0f0d13",
+                  "6": "#141218",
+                  "10": "#1d1b20",
+                  "12": "#211f26",
+                  "17": "#2b2930",
+                  "20": "#322f35",
+                  "22": "#36343b",
+                  "24": "#3b383e",
+                  "30": "#48464c",
+                  "40": "#605d64",
+                  "50": "#79767d",
+                  "60": "#938f96",
+                  "70": "#aea9b1",
+                  "80": "#cac5cd",
+                  "87": "#ded8e1",
+                  "90": "#e6e0e9",
+                  "92": "#ece6f0",
+                  "94": "#f3edf7",
+                  "95": "#f5eff7",
+                  "96": "#f7f2fa",
+                  "98": "#fef7ff",
+                  "99": "#fffbff",
+                  "100": "#ffffff"
+                }
+              }
+            },
+            "error": {
+              "source": {
+                "seed": "#B3261E",
+                "tones": {
+                  "0": "#000000",
+                  "10": "#410e0b",
+                  "20": "#601410",
+                  "30": "#8c1d18",
+                  "40": "#b3261e",
+                  "50": "#dc362e",
+                  "60": "#e46962",
+                  "70": "#ec928e",
+                  "80": "#f2b8b5",
+                  "90": "#f9dedc",
+                  "95": "#fceeee",
+                  "99": "#fffbf9",
+                  "100": "#ffffff"
+                }
+              }
+            },
+            "success": {
+              "description": "Material 3 has no success color: m3-like keeps the palette it drew when the root declared it.",
+              "source": {
+                "seed": "#1f883d"
+              }
+            },
+            "warning": {
+              "description": "Material 3 has no warning color: m3-like keeps the palette it drew when the root declared it.",
+              "source": {
+                "seed": "#b86e00"
+              }
+            },
+            "info": {
+              "description": "Material 3 has no info color: m3-like keeps the palette it drew when the root declared it.",
+              "source": {
+                "seed": "#3b6fd4"
+              }
+            },
+            "error-quiet": {
+              "description": "Read by none of m3-like's roles and rules, and with no counterpart in Material 3: declared so that the palettes m3-like publishes keep the tones they had when the root declared this one.",
+              "source": {
+                "hue": 22,
+                "chroma": 16
+              }
+            },
+            "success-quiet": {
+              "description": "Read by none of m3-like's roles and rules, and with no counterpart in Material 3: declared so that the palettes m3-like publishes keep the tones they had when the root declared this one.",
+              "source": {
+                "hue": 150,
+                "chroma": 16
+              }
+            },
+            "warning-quiet": {
+              "description": "Read by none of m3-like's roles and rules, and with no counterpart in Material 3: declared so that the palettes m3-like publishes keep the tones they had when the root declared this one.",
+              "source": {
+                "hue": 66,
+                "chroma": 16
+              }
+            },
+            "info-quiet": {
+              "description": "Read by none of m3-like's roles and rules, and with no counterpart in Material 3: declared so that the palettes m3-like publishes keep the tones they had when the root declared this one.",
+              "source": {
+                "hue": 268,
+                "chroma": 16
+              }
+            },
+            "syntax-keyword": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. A purple.",
+              "source": {
+                "hue": 315,
+                "chroma": 64
+              }
+            },
+            "syntax-string": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. A green.",
+              "source": {
+                "hue": 145,
+                "chroma": 52
+              }
+            },
+            "syntax-constant": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. An orange.",
+              "source": {
+                "hue": 55,
+                "chroma": 64
+              }
+            },
+            "syntax-function": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. A blue.",
+              "source": {
+                "hue": 265,
+                "chroma": 64
+              }
+            },
+            "syntax-type": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. A blue-green.",
+              "source": {
+                "hue": 200,
+                "chroma": 48
+              }
+            },
+            "syntax-tag": {
+              "description": "Material 3 has no code colors: m3-like keeps the palette it drew code with when the root declared it, without roles. A red.",
+              "source": {
+                "hue": 20,
+                "chroma": 70
+              }
+            },
             "primary": {
               "source": {
                 "seed": "#6750A4",
@@ -2624,38 +2257,6 @@
               },
               "roles": "intent"
             },
-            "neutral": {
-              "source": {
-                "hue": 298.98,
-                "chroma": 4,
-                "tones": {
-                  "0": "#000000",
-                  "4": "#0f0d13",
-                  "6": "#141218",
-                  "10": "#1d1b20",
-                  "12": "#211f26",
-                  "17": "#2b2930",
-                  "20": "#322f35",
-                  "22": "#36343b",
-                  "24": "#3b383e",
-                  "30": "#48464c",
-                  "40": "#605d64",
-                  "50": "#79767d",
-                  "60": "#938f96",
-                  "70": "#aea9b1",
-                  "80": "#cac5cd",
-                  "87": "#ded8e1",
-                  "90": "#e6e0e9",
-                  "92": "#ece6f0",
-                  "94": "#f3edf7",
-                  "95": "#f5eff7",
-                  "96": "#f7f2fa",
-                  "98": "#fef7ff",
-                  "99": "#fffbff",
-                  "100": "#ffffff"
-                }
-              }
-            },
             "neutral-variant": {
               "source": {
                 "hue": 298.98,
@@ -2676,28 +2277,7 @@
                   "100": "#ffffff"
                 }
               }
-            },
-            "error": {
-              "source": {
-                "seed": "#B3261E",
-                "tones": {
-                  "0": "#000000",
-                  "10": "#410e0b",
-                  "20": "#601410",
-                  "30": "#8c1d18",
-                  "40": "#b3261e",
-                  "50": "#dc362e",
-                  "60": "#e46962",
-                  "70": "#ec928e",
-                  "80": "#f2b8b5",
-                  "90": "#f9dedc",
-                  "95": "#fceeee",
-                  "99": "#fffbf9",
-                  "100": "#ffffff"
-                }
-              }
-            },
-            "accent": null
+            }
           },
           "vocabulary": {
             "tanrei.comp.fab-menu": {
@@ -3026,6 +2606,443 @@
             }
           },
           "tokens": {
+            "tanrei.sys.color.focus-ring-inner": {
+              "derive": {
+                "fn": "alpha",
+                "of": "black",
+                "amount": [
+                  0
+                ]
+              },
+              "reason": "Material 3 draws no inner stroke on its focus indicator: m3-like keeps none, as it did when the root held this."
+            },
+            "tanrei.sys.color.inverse-link": {
+              "$value": "{tanrei.sys.color.inverse-primary}",
+              "reason": "Material 3 has no link role: m3-like keeps the value it drew when the root held this. On an inverse surface a link takes the color a primary-colored action has there, as on a surface it takes the primary's. The role exists so that a layer can re-point links alone."
+            },
+            "tanrei.sys.color.shadow": {
+              "derive": {
+                "fn": "tone",
+                "palette": "neutral",
+                "tone": [
+                  0
+                ]
+              },
+              "reason": "Measured against Material 3 by m3-like's fidelity map."
+            },
+            "tanrei.comp.button.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.button.outlined.container.color}",
+              "reason": "Measured against Material 3 by m3-like's fidelity map."
+            },
+            "tanrei.comp.button.text.disabled.container.color": {
+              "$value": "{tanrei.comp.button.text.container.color}",
+              "reason": "Measured against Material 3 by m3-like's fidelity map."
+            },
+            "tanrei.comp.pagination.item.disabled.container.color": {
+              "$value": "{tanrei.comp.pagination.item.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.checkbox.unselected.disabled.box.color": {
+              "$value": "{tanrei.comp.checkbox.unselected.box.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.checkbox.error-unselected.disabled.box.color": {
+              "$value": "{tanrei.comp.checkbox.error-unselected.box.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.radio-button.unselected.disabled.fill.color": {
+              "$value": "{tanrei.comp.radio-button.unselected.fill.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.radio-button.error-unselected.disabled.fill.color": {
+              "$value": "{tanrei.comp.radio-button.error-unselected.fill.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.switch.selected.disabled.handle.color": {
+              "$value": "{tanrei.sys.color.surface}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.switch.unselected.disabled.icon.color": {
+              "$value": "{tanrei.sys.color.surface}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.hovered.container.color": {
+              "$value": "{tanrei.comp.input-box.outlined.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.hovered.error.container.color": {
+              "$value": "{tanrei.comp.input-box.outlined.error.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.hovered.outline.color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.filled.hovered.active-indicator.color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.focused.outline.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.focused.active-indicator.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.disabled.outline.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.disabled.error.outline.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.disabled.active-indicator.color": {
+              "$value": "{tanrei.comp.input-box.outlined.active-indicator.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.outlined.disabled.error.active-indicator.color": {
+              "$value": "{tanrei.comp.input-box.outlined.error.active-indicator.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.filled.disabled.error.outline.color": {
+              "$value": "{tanrei.comp.input-box.filled.error.outline.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.input-box.stacked.focused.outline.color": {
+              "$value": "{tanrei.sys.color.focus-ring}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A stacked field answers focus with a line inside its edge, in the focus-ring color (TXI-26)."
+            },
+            "tanrei.comp.input-box.stacked.disabled.outline.color": {
+              "$value": "{tanrei.comp.input-box.stacked.outline.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A stacked field has no edge at rest; disabled, it grows none."
+            },
+            "tanrei.comp.input-box.stacked.disabled.error.outline.color": {
+              "$value": "{tanrei.comp.input-box.stacked.outline.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled stacked field draws no edge, in error too: it cannot be corrected while disabled."
+            },
+            "tanrei.comp.input-box.stacked.disabled.active-indicator.color": {
+              "$value": "{tanrei.comp.input-box.stacked.active-indicator.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A stacked field has no active indicator; disabled, it grows none."
+            },
+            "tanrei.comp.input-box.stacked.disabled.error.active-indicator.color": {
+              "$value": "{tanrei.comp.input-box.stacked.error.active-indicator.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A stacked field has no active indicator; disabled, it grows none, in error too."
+            },
+            "tanrei.comp.button.text.disabled.unselected.container.color": {
+              "$value": "{tanrei.comp.button.text.unselected.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.button.text.disabled.selected.container.color": {
+              "$value": "{tanrei.comp.button.text.selected.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.button.outlined.disabled.unselected.container.color": {
+              "$value": "{tanrei.comp.button.outlined.unselected.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.button.outlined.disabled.destructive.container.color": {
+              "$value": "{tanrei.comp.button.outlined.disabled.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled destructive outlined button looks like any disabled outlined button: it has no fill."
+            },
+            "tanrei.comp.button.text.disabled.destructive.container.color": {
+              "$value": "{tanrei.comp.button.text.disabled.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled destructive text button looks like any disabled text button: it has no fill."
+            },
+            "tanrei.comp.chip.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.chip.outlined.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.tag.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.tag.outlined.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. An outlined tag has no fill; drawn inside something disabled it grows none, and keeps its hairline."
+            },
+            "tanrei.comp.menu.unselected.disabled.mark.color": {
+              "$value": "{tanrei.comp.menu.unselected.mark.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.menu.destructive.disabled.mark.color": {
+              "$value": "{tanrei.comp.menu.destructive.mark.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.segmented-button.unselected.disabled.container.color": {
+              "$value": "{tanrei.comp.segmented-button.unselected.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.button-with-menu.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.button-with-menu.outlined.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.search.focused.outline.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.chat-composer.focused.outline.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The focused edge is the capsule's focus indicator, drawn at the thick border as a field's and the search bar's are."
+            },
+            "tanrei.comp.calendar.selected.disabled.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.calendar.today.disabled.outline.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": "{tanrei.sys.state.disabled-content-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it."
+            },
+            "tanrei.comp.menu.current.disabled.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled current link item keeps a fill, so that where the person is still shows, but loses its tint as every disabled fill does."
+            },
+            "tanrei.comp.menu.selected.disabled.control-mark.color": {
+              "$value": "{tanrei.comp.menu.surface.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The check sits on the box's translucent disabled fill; faded like it, it would vanish (the checkbox's rule, for the menu's box)."
+            },
+            "tanrei.comp.menu.current.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menu.current.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The current link item has no mark: its fill alone tells the row the person is on from its neighbours, in every contrast scheme. It is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+            },
+            "tanrei.comp.tabs.tonal.selected.active-indicator.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.tabs.tonal.selected.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The tonal tabs' active indicator is a layer of the selected tab's own content color, twice the hover layer, laid over the track or over whatever surface a row without a track stands on, so that it is seen by the same step everywhere (1.36:1 to 1.37:1 in light and 1.38:1 to 1.55:1 in dark, on the track and on every surface role). The tonal container itself is a tone chosen against the page: on the page it is 1.16:1 in light, on a surface-container fill 1.07:1, and on the track, which is that same tone, it cannot be seen at all. It follows tanrei.comp.menu.current.container.color."
+            },
+            "tanrei.comp.menubar.expanded.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The title whose menu is open keeps the look it had under the pointer — the hover layer over whatever the bar stands on. A surface tone is chosen against one surface, and the bar has none of its own. It restates tanrei.comp.menu.expanded.container.color."
+            },
+            "tanrei.comp.menubar.expanded.hovered.container.color": {
+              "$value": "{tanrei.comp.menubar.expanded.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The open title already shows the hover layer; a pointer on it adds no second one."
+            },
+            "tanrei.comp.menubar.expanded.focused.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. Under keyboard focus the open title answers as a title at rest does, with the focus layer alone; the layers do not stack."
+            },
+            "tanrei.comp.menubar.expanded.pressed.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+              },
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. Under a press the open title answers with the pressed layer alone."
+            },
+            "tanrei.comp.link.standard.disabled.container.color": {
+              "$value": "{tanrei.comp.link.standard.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A link has no fill; disabled, the shape behind its text stays invisible."
+            },
+            "tanrei.comp.link.standard.disabled.current.container.color": {
+              "$value": "{tanrei.comp.link.standard.current.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A link has no fill; disabled, the shape behind its text stays invisible."
+            },
+            "tanrei.comp.link.inverse.disabled.container.color": {
+              "$value": "{tanrei.comp.link.inverse.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A link has no fill; disabled, the shape behind its text stays invisible."
+            },
+            "tanrei.comp.link.inverse.disabled.current.container.color": {
+              "$value": "{tanrei.comp.link.inverse.current.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A link has no fill; disabled, the shape behind its text stays invisible."
+            },
+            "tanrei.comp.code-block.syntax.color.keyword": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-keyword",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. A keyword is a purple. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.constant": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-constant",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. A number, a boolean or null is an orange. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.tag": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-tag",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. An element's name or a selector is a red, from a palette of its own and not the error color. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.string": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-string",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. Quoted text is a green, from a palette of its own and not the success color. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.function": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-function",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. A function's name is a blue. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.property": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-function",
+                "tone": {
+                  "light": [
+                    36,
+                    30,
+                    22
+                  ],
+                  "dark": [
+                    80,
+                    85,
+                    91
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. A property's name is the blue of a function's name, a step nearer the text in each scheme: the two are told by tone, and by where they stand. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.code-block.syntax.color.type": {
+              "derive": {
+                "fn": "tone",
+                "palette": "syntax-type",
+                "tone": {
+                  "light": [
+                    40,
+                    33,
+                    25
+                  ],
+                  "dark": [
+                    76,
+                    82,
+                    89
+                  ]
+                }
+              },
+              "reason": "Material 3 has no code colors: m3-like keeps the tone it drew when the root held it. A type's name is a blue-green. The default system draws code in a conventional, vivid scheme."
+            },
+            "tanrei.comp.one-time-code-input.standard.focused.outline.color": {
+              "$value": "{tanrei.sys.color.focus-ring}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The active cell answers focus with a line inside its edge, in the focus-ring color (OTC-7), as a stacked text field does."
+            },
+            "tanrei.comp.one-time-code-input.focused.outline.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The focused line is the thick border, as the text field's."
+            },
+            "tanrei.comp.one-time-code-input.standard.disabled.error.outline.color": {
+              "$value": "{tanrei.comp.one-time-code-input.standard.outline.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled code input draws no edge, in error too: it cannot be corrected while disabled. As the stacked text field."
+            },
+            "tanrei.comp.handle.standard.hovered.line.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A handle answers a pointer over it with a darker line (HDL-4): the line is the handle's answer itself, where the generic rule keeps a part at its resting color."
+            },
+            "tanrei.comp.handle.standard.pressed.line.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The line stays dark while a press or a drag holds the handle (HDL-4 draws the two alike)."
+            },
+            "tanrei.comp.handle.standard.disabled.container.color": {
+              "$value": "{tanrei.comp.handle.standard.container.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."
+            },
+            "tanrei.comp.bottom-sheet.drag-handle.hovered.grip.color": {
+              "$value": "{tanrei.comp.handle.standard.hovered.line.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The sheet's drag handle is a Handle (BSH-12): its grip answers a pointer as every handle's line does (HDL-4)."
+            },
+            "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {
+              "$value": "{tanrei.comp.handle.standard.pressed.line.color}",
+              "reason": "Not measured against Material 3 (m3-like's fidelity map covers its color roles, its text styles and Button): m3-like keeps the value it drew when the root held it. The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."
+            },
             "tanrei.sys.typescale.display": {
               "$value": {
                 "lineHeight": 1.1556,

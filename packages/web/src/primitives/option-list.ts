@@ -235,7 +235,9 @@ const OBSERVED: MutationObserverInit = { childList: true, subtree: true, charact
  */
 export class OptionsController implements ReactiveController {
   model: OptionModel = { entries: [], options: [], hasIcons: false, nested: [] };
-  private readonly observer = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
+  // An attribute of the host itself is no option's: its `disabled`, which its own update writes, reads nothing again.
+  private readonly observer =
+    typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => records.some((record) => record.type !== 'attributes' || record.target !== this.host) && this.read());
   /** O4: the elements observed because they reach the host through a slot. */
   private assigned: Element[] = [];
   private readonly onSlotChange = (event: Event) => {
@@ -790,6 +792,12 @@ export interface OptionListOptions {
   chosen: () => OptionData | null;
   /** The person confirmed `option` — a press, Enter or Space; never a disabled option. */
   choose: (option: OptionData, event: Event) => void;
+  /**
+   * The chosen values while several options can be chosen at once (a combobox whose selection is multiple, CMB-76):
+   * every option whose value it holds is drawn with the fill and the check and exposed as selected, and the list box
+   * says that it allows several. Null, or left out: the one option `chosen` names is.
+   */
+  selected?: () => ReadonlySet<string> | null;
   /** The field's iconSpace, read as a value it defines (SEL-66, CMB-67): which options keep the leading icon column, section by section. */
   iconSpace: () => OptionIconSpace;
   /**
@@ -1260,6 +1268,8 @@ export class OptionListController implements ReactiveController {
   render({ labelledBy, text: drawn, inline, after, tail, busy }: OptionListView): TemplateResult {
     const model = this.options.model();
     const chosen = this.options.chosen();
+    const values = this.options.selected?.() ?? null;
+    const several = values && ((option: OptionData) => option.value !== '' && values.has(option.value));
     const size = model.options.length;
     // SEL-66, CMB-67: which rows keep the leading icon column — by section of what is drawn, as the field's iconSpace says.
     const column = iconColumns(model, this.options.iconSpace());
@@ -1285,7 +1295,7 @@ export class OptionListController implements ReactiveController {
     const words = (dir: string, content: unknown) => (dir ? html`<span class="said" dir=${dir}>${content}</span>` : content);
     const row = (option: OptionData) => {
       const id = optionId(option);
-      const selected = !!chosen && chosen.element === option.element;
+      const selected = several ? several(option) : !!chosen && chosen.element === option.element;
       const active = this.running && this.active?.element === option.element;
       position += 1;
       return html`<div
@@ -1375,7 +1385,7 @@ export class OptionListController implements ReactiveController {
           @pointermove=${this.onPointerMove}
           @click=${this.onClick}
         >
-          <div class="scroll" role="listbox" id="list" aria-labelledby=${labelledBy} aria-busy=${busy ? 'true' : nothing} @scroll=${this.onScroll} @wheel=${containedWheel}>${entries}${rest}</div>
+          <div class="scroll" role="listbox" id="list" aria-labelledby=${labelledBy} aria-multiselectable=${several ? 'true' : nothing} aria-busy=${busy ? 'true' : nothing} @scroll=${this.onScroll} @wheel=${containedWheel}>${entries}${rest}</div>
           ${after ?? nothing}
         </div>
       </div>

@@ -43,14 +43,20 @@ import Example from '../../../components/visuals/Example.astro';
 
 A toolbar holds a set of related controls: actions, toggles, a button that opens a menu, a [button with menu](/components/button-with-menu/). Its items are your own Tanrei [Buttons](/components/button/) and buttons with menu, each with its own label, click and state. The toolbar lays them out in reading order, sets groups apart, moves keyboard focus among them and hides what does not fit into an overflow menu. It never restyles them, so an icon-only Button in a toolbar looks and behaves as it does anywhere else.
 
-It has six kinds of item:
+It has ten kinds of item:
 
 - `action`: an icon-only Button. A toggle such as Bold is one with `toggle` set.
 - `button`: a Button with a label, which may be a toggle too, such as a filter that is on or off.
 - `menu-button`: a Button with a Tanrei [Menu](/components/menu/) anchored to it, such as Sort or Insert. The menu is yours and stands beside its Button. The toolbar does not lay it out.
 - `button-with-menu`: a main action with a menu of related ones. Each half is its own stop of the arrow keys.
-- `group`: a run of related items, such as Bold, Italic and Underline. It draws nothing of its own. Give it a `label` when the grouping means something to the person, such as "Text style".
+- `select`: a [Select](/components/select/), such as a heading level or a typeface.
+- `number-input`: a [Number input](/components/number-input/), such as a font size.
+- `text-input`: a [Text input](/components/text-input/), such as Find. It can only be the last item.
+- `slider`: a [Slider](/components/slider/), such as a brush size. It can only be the last item.
+- `group`: a run of related items, such as Bold, Italic and Underline. It draws nothing of its own. Give it a `label` when the grouping means something to the person, such as "Text style". With `selection`, its toggles become one choice, such as text alignment, or a set of choices, such as formatting (see [Selection groups](#selection-groups)).
 - `separator`: a line between two items that are not in groups. On the web it is a [divider](/components/divider/), which the toolbar draws as it draws the line between two groups.
+
+The four fields are for a horizontal toolbar only.
 
 **Inline (default).** An inline toolbar stands where your layout puts it, in the content it acts on: above a table, at the top of an editor, beside a list as a row of filters. It is as long as its items need and never longer than the layout allows. In the default system it has no surface, shadow or edge of its own, and its ends line up with the content around it.
 
@@ -288,7 +294,7 @@ For the screen's title, the way back and one or two global actions, use the [app
 
 A docked toolbar is always horizontal. An inline or a floating one may be vertical, beside the content. One product can place a toolbar inline on one screen, dock one on another and float one on a third. A variant that a design system adds takes the inline structure with its own values.
 
-A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). Large buttons touch, medium ones end up 8 apart and small ones 16. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
+A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). In a floating toolbar large buttons touch, medium ones end up 8 apart and small ones 16. In an inline one, medium and small buttons stand as far apart, and large ones the gap of 4. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
 
 <Example label="Floating: small, medium and large items, and narrow and wide ones" column>
   <tanrei-toolbar variant="floating" label="Formatting, small">
@@ -330,11 +336,77 @@ Put related items in a group: Bold, Italic and Underline; Undo and Redo; Zoom in
 
 The toolbar never draws a line at either end, and never two side by side. Give a group a `label` when the grouping means something to the person ("Text style"), so that a screen reader names it. Without a label, the group sets its items apart and says nothing.
 
+### Selection groups
+
+A group can hold the choice its toggles make. Give the group `selection` and each of its toggles a `value`:
+
+- `single` makes the toggles one choice, such as text alignment: choosing one unchooses the others. The group is a radio group and each toggle a radio button. The group holds the chosen toggle's value in `value`.
+- `multiple` keeps them toggles, each on or off, such as Bold, Italic and Underline. The group holds the values of those that are on in `values`, in their order.
+
+The group fires one `change` for each choice a person makes, carrying `value` and `values`. A toggle's own `change` stops at the group, so you listen in one place. Set `value` or `values` yourself to choose from your code. That fires nothing.
+
+Selection groups are for tools that act on the content, such as alignment and formatting. To switch between views of a page, or to let a person pick one of a few options that are not tools, use [Tabs](/components/tabs/).
+
+<Example label="A set of choices and one choice">
+  <tanrei-toolbar label="Formatting">
+    <tanrei-toolbar-group label="Text style" selection="multiple" values="bold">
+      <tanrei-button variant="text" toggle value="bold" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="italic" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="underline" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group label="Alignment" selection="single" value="left">
+      <tanrei-button variant="text" toggle value="left" label="Align left"><span slot="icon">format_align_left</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="center" label="Align center"><span slot="icon">format_align_center</span></tanrei-button>
+      <tanrei-button variant="text" toggle value="right" label="Align right"><span slot="icon">format_align_right</span></tanrei-button>
+    </tanrei-toolbar-group>
+  </tanrei-toolbar>
+</Example>
+
+```html
+<tanrei-toolbar-group label="Alignment" selection="single" value="left">
+  <tanrei-button variant="text" toggle value="left" label="Align left"><span slot="icon">format_align_left</span></tanrei-button>
+  <tanrei-button variant="text" toggle value="center" label="Align center"><span slot="icon">format_align_center</span></tanrei-button>
+  <tanrei-button variant="text" toggle value="right" label="Align right"><span slot="icon">format_align_right</span></tanrei-button>
+</tanrei-toolbar-group>
+
+<script type="module">
+  document.querySelector('[label="Alignment"]').addEventListener('change', (event) => align(event.detail.value));
+</script>
+```
+
+### Fields
+
+A horizontal toolbar also takes a Select and a Number input anywhere in its row, and one Text input or one Slider as its last item. Each is drawn as it is anywhere else. Give each one a `label` and a length of your own, since a field has no length of its own in a row. The toolbar never hides a field into its overflow menu.
+
+- A Select and a Number input are stops of the arrow keys like any other item. They keep their own keys: Up and Down Arrow open the Select's list or step the number. Left and Right Arrow move the caret in a Number input, and move to the next item only from the end of its text.
+- The last Text input or Slider needs every arrow key, so it is a Tab stop of its own after the toolbar's. The arrow keys never reach it, and Shift+Tab goes back to the toolbar. The overflow button stands before it.
+
+<Example label="A Select, a Number input, toggles and a last Text input" column>
+  <tanrei-toolbar label="Formatting">
+    <tanrei-select label="Heading level" value="p" style="inline-size: 10rem">
+      <tanrei-option label="Normal text" value="p"></tanrei-option>
+      <tanrei-option label="Heading 1" value="h1"></tanrei-option>
+      <tanrei-option label="Heading 2" value="h2"></tanrei-option>
+    </tanrei-select>
+    <tanrei-number-input label="Font size" value="14" min="8" max="96" style="inline-size: 10rem"></tanrei-number-input>
+    <tanrei-toolbar-group label="Text style">
+      <tanrei-button variant="text" toggle label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-text-input label="Find" placeholder="Find" style="inline-size: 9rem"></tanrei-text-input>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Drawing tools">
+    <tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Eraser"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-slider label="Brush size" value="40" style="inline-size: 9rem"></tanrei-slider>
+  </tanrei-toolbar>
+</Example>
+
 ### When the items do not fit
 
 The toolbar never wraps or shrinks an item. When its items need more room than it has, it hides items from the end, one at a time, and shows an overflow button after the last item that remains. The button opens a menu of the hidden items, in their order, with their labels, icons and states: an action is a menu item, a toggle a checkbox item, a menu button a submenu, and a button with menu its main action followed by a submenu. Choosing one does exactly what the hidden item does. Name the overflow button with `overflow-label` ("More actions"), or once for the product with `setWords({ toolbarOverflowLabel: … })`.
 
-Mark the item that must stay, such as Send or Done, with `toolbar-overflow="never"`: the toolbar hides the items before it instead. If what is never hidden still does not fit, the rest of the row scrolls. To keep every item in the row and scroll them instead of hiding any, set `overflow="scroll"`.
+Mark the item that must stay, such as Send or Done, with `toolbar-overflow="never"`: the toolbar hides the items before it instead. If what is never hidden still does not fit, the rest of the row scrolls. To keep every item in the row and scroll them instead of hiding any, set `overflow="scroll"`. Then the items marked `toolbar-overflow="never"` at the end of the row, and a last Text input or Slider, stay in place at the end while the items before them scroll.
 
 What is hidden is decided before the toolbar is drawn, and again in the frame in which its length changes, so an item is never drawn and then hidden, and the row never jumps.
 
@@ -347,7 +419,8 @@ What is hidden is decided before the toolbar is drawn, and again in the frame in
 
 ### Don't
 
-- Don't put a text field, a slider or a set of chips in a toolbar. Each one needs the arrow keys that the toolbar uses to move focus. Search belongs in the app bar or the page.
+- Don't put a Text input or a Slider anywhere but last, or two of them in one toolbar, and don't put a set of chips in a toolbar. Each one needs the arrow keys that the toolbar uses to move focus. Search for the whole app belongs in the app bar or the page.
+- Don't use a selection group to switch views or to pick one of a few options that are not tools. Use [Tabs](/components/tabs/).
 - Don't use a docked toolbar and a navigation bar on the same screen.
 - Don't restyle the items to make the toolbar look emphasized. Choose the tonal or filled variant for the buttons instead.
 - Don't put navigation destinations in a toolbar. Its items are controls that act on the content.
@@ -367,17 +440,20 @@ What is hidden is decided before the toolbar is drawn, and again in the frame in
 - The roving focus is the same one the list, menu and tabs use on each platform.
 - The toolbar is exposed as a toolbar named by `label`, with its orientation, where the platform has a toolbar role (the web, React Native). SwiftUI, Compose and Flutter have none: there it is a group named by `label` that contains its items in order.
 - A group with a `label` is exposed as a group with that name. Lines between groups are exposed as separators.
+- A group whose `selection` is `single` is exposed as a radio group named by its `label`, and its toggles as radio buttons, checked or not. One whose `selection` is `multiple` keeps its toggles as toggle buttons, pressed or not. In both, the arrow keys only move focus, as in the WAI-ARIA toolbar pattern, and Space or Enter chooses.
+- A Select and a Number input keep Up and Down Arrow. A Number input also keeps Left and Right Arrow while they move its caret. The last Text input or Slider keeps every key and is a Tab stop of its own, so the controls that need the arrow keys never take them from the toolbar.
 - The overflow button is exposed as a button that opens a menu, with its expanded state, and its menu holds every hidden item with its own name and state.
 - Each item keeps its own name, role, state and target. The toolbar adds nothing to them and never restyles them.
+- When a toggle item is switched, its look changes as its Button's does anywhere else, over the Button's state motion for its size. Its selected state changes for assistive technology at once, not when the motion ends. Where motion is reduced, and in the frames in which the toolbar is first drawn, the look changes at once too. The toolbar adds no motion of its own.
 - Between two items the hit areas never overlap. In a docked toolbar they meet at the middle of the gap, and the default system's gap (16) is wide enough that every item keeps its whole 48 touch target there too; a design system with a narrower gap narrows the targets between items. In an inline or a floating toolbar the items stand just far enough apart for each to keep a touch target's length of its own along the row, whatever the pointer, so a narrow or a small button is never squeezed by its neighbours. On a side with no neighbour, an item keeps its whole target.
-- When `overflow` is `scroll` and an item that receives keyboard focus is scrolled out of view, the toolbar scrolls it fully into view.
+- When `overflow` is `scroll` and an item that receives keyboard focus is scrolled out of view, the toolbar scrolls it fully into view. The items kept at the end never scroll out of view.
 - At larger text sizes the toolbar grows across its axis to hold its items. It does not scale them.
-- Debug builds report a missing `label`, a toolbar with no items, an item that is none of its kinds, a docked toolbar set to vertical, a missing name for the overflow button, and an unknown variant, orientation, overflow or separation.
+- Debug builds report a missing `label`, a toolbar with no items, an item that is none of its kinds (a field in a vertical toolbar, a Text input or a Slider that is not last), a docked toolbar set to vertical, a missing name for the overflow button, and an unknown variant, orientation, overflow or separation. In a selection group they report an unnamed radio group, an item that is not a toggle, and a toggle with no value or the same value as another.
 
 Known platform gaps:
 
 - SwiftUI, Compose and Flutter have no toolbar role. A screen reader hears a named group, not a toolbar, and each package's README says so. The group does not expose its orientation.
-- SwiftUI, Compose, Flutter and React Native are lagging: they have no inline variant, no groups or separators, no overflow menu, and they take only Buttons as items.
+- SwiftUI, Compose, Flutter and React Native are lagging: they have no inline variant, no groups, selection groups or separators, no overflow menu, and they take only Buttons as items.
 - Web: a docked toolbar reads `env(safe-area-inset-bottom)`, which is zero unless the page's viewport meta has `viewport-fit=cover`.
 - Web: the overflow menu of a vertical toolbar opens below the overflow button, not beside it, because the menu has no side placement.
 - Web: an inline or a floating toolbar measures the room it may take from its parent element. A toolbar whose room is set by its siblings in a flex row, not by its parent, decides what fits only when its parent or its items change size.
@@ -387,12 +463,13 @@ Known platform gaps:
 - On React Native the Tab stop and the arrow keys work only where a hardware keyboard is attached, as in the tabs row.
 - React Native has the toolbar role but no way to expose an orientation, so a vertical toolbar is not announced as vertical.
 - React Native: the floating toolbar's width, the keys on a hardware keyboard, scrolling a focused item into view, and whether VoiceOver and TalkBack announce the toolbar have been checked in Jest only, not on a device.
-- Under `m3-like`, the toolbar draws the default system's values: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
+- Under `m3-like`, only the toolbar's gaps and a floating toolbar's padding at its ends (8, as Material's) are the preset's own. Its other values are the default system's: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
 
 ### What you need to do
 
 - Give the toolbar a `label`, every item its own label in your product's language, including icon-only actions, and the overflow button a name with `overflow-label` or your product's words.
-- Put only Tanrei Buttons and buttons with menu in it, alone, in groups, or with menus anchored to them.
+- Put only Tanrei Buttons and buttons with menu in it, alone, in groups, or with menus anchored to them, and in a horizontal toolbar Selects, Number inputs and one last Text input or Slider. Give each field a `label` and a length.
+- Give a selection group a `label` and each of its toggles a `value` of its own.
 - When an action cannot apply, disable it, and say why nearby when the reason is not obvious.
 - Open and close the menu of a menu button yourself, as you do for any menu.
 - Place a floating toolbar so that it does not cover content that is still needed while the toolbar is open.

@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./core": "./src/core.js",
     "./adapter-http": "./src/adapter-http.js",
+    "./page-sheet": "./src/page-sheet.ts",
     "./vite": "./vite-plugin.js",
     "./studio.css": "./src/studio.css"
   },

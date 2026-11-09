@@ -177,7 +177,7 @@
   "behavior": [
     {
       "id": "BSH-1",
-      "text": "WHEN open becomes true THE bottom sheet SHALL slide its container up from below the bottom edge of the area it covers to its height (BSH-6) — WHILE variant is modal over the whole window on its modal layer, fading the layer's scrim in comp.bottom-sheet.scrim.color and comp.bottom-sheet.scrim.blur in behind it in step (MDL-1, MDL-7); WHILE variant is standard over the bottom of the parent the product placed it in, with no scrim — over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing; WHEN open becomes false THE bottom sheet SHALL slide it down out of view from wherever it is and fade the scrim out, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A sheet that is mounted with open true SHALL appear in place without motion."
+      "text": "WHEN open becomes true THE bottom sheet SHALL slide its container up to its height (BSH-6) from its own height below the bottom edge of the area it covers, whole and unscaled whatever sys.behavior.appearance says (a sheet slides from its edge) — WHILE variant is modal over the whole window on its modal layer, fading the layer's scrim in comp.bottom-sheet.scrim.color and comp.bottom-sheet.scrim.blur in behind it in step, over the same duration and curve (MDL-1, MDL-7); WHILE variant is standard over the bottom of the parent the product placed it in, with no scrim — over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing; WHEN open becomes false THE bottom sheet SHALL slide it down the same way out of view from wherever it is drawn and fade the scrim out in step, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing, WHILE variant is modal keeping the container and the scrim drawn until the slide ends. A slide turned round SHALL go on from where it has got to. WHERE motion is reduced it SHALL only fade the container, and the scrim with it, in and out in place without sliding, over sys.motion.role.reduced, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A sheet that is mounted with open true SHALL appear in place without motion."
     },
     {
       "id": "BSH-2",
@@ -428,9 +428,9 @@
         "open": "open",
         "detent": "detent",
         "dismissible": "closedby",
-        "handle": "handle",
+        "handle": "noHandle",
         "handleLabel": "handleLabel",
-        "inset": "inset",
+        "inset": "flush",
         "label": "label",
         "headline": "headline",
         "closable": "closable",
@@ -441,7 +441,19 @@
         "close": "close",
         "detentChange": "detentchange"
       },
-      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are boolean properties that default to true; their attributes are the inverses `no-handle` and `flush` (an HTML boolean attribute cannot default to true). `handleLabel` is the `handle-label` attribute, `closeLabel` the `close-label` attribute and `dividerVisibility` the `divider-visibility` attribute (`auto` reads `--tanrei-comp-bottom-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders). The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.bottom-sheet.close-button.variant through the internal channel a Button reads from its host; the headline is an `<h2>`. `close` is a CustomEvent whose `detail.reason` is `close`, `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer. The drag handle is a `<tanrei-handle>` in the shadow root, its `container` and `line` exported as the parts `handle` and `grip`; the sheet sets the Handle's custom properties to its own tokens on it (BSH-12), answers its `activate`, and keeps it `inert` while the sheet has one height (BSH-11)."
+      "parts": {
+        "scrim": "container@backdrop",
+        "container": "container",
+        "drag-handle": "handle",
+        "drag-handle.grip": "grip",
+        "header": "header",
+        "headline": "headline",
+        "close-button": "close-button",
+        "divider": "divider",
+        "content": "content",
+        "focus-ring": "handle@focus-ring"
+      },
+      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are their inverses, the boolean properties `noHandle` and `flush` (attributes `no-handle` and `flush`), false by default: an HTML boolean attribute cannot default to true, and a property has its attribute's name. `handleLabel` is the `handle-label` attribute, `closeLabel` the `close-label` attribute and `dividerVisibility` the `divider-visibility` attribute (`auto` reads `--tanrei-comp-bottom-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders). The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.bottom-sheet.close-button.variant through the internal channel a Button reads from its host; the headline is an `<h2>`. `close` is a CustomEvent whose `detail.reason` is `close`, `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer. The drag handle is a `<tanrei-handle>` in the shadow root, its `container` and `line` exported as the parts `handle` and `grip`; the sheet sets the Handle's custom properties to its own tokens on it (BSH-12), answers its `activate`, and keeps it `inert` while the sheet has one height (BSH-11)."
     },
     "swiftui": {
       "status": "lagging",

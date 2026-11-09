@@ -11,7 +11,7 @@ const FigureElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const FigureAttributes = { headline: ['headline', ''], caption: ['caption', ''], label: ['label', ''], variant: ['variant', 'outlined'], inset: ['flush', true], separation: ['separation', 'auto'], pattern: ['pattern', 'none'] } as const;
+const FigureAttributes = { headline: ['headline', ''], caption: ['caption', ''], label: ['label', ''], variant: ['variant', 'outlined'], flush: ['flush', false], separation: ['separation', 'auto'], pattern: ['pattern', 'none'] } as const;
 /**
  * Sets one thing to look at — a picture, a chart, a specimen, a live example — on a stage of its own, framed or not, with a caption that says what it shows, and optionally a title with the product's controls above and a joined block beneath. It is never pressed and has no state; what stands in it stays as operable as it is anywhere else.
  *

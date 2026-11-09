@@ -1,6 +1,6 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { documentPainted, startFromNextFrame } from './motion.js';
-import { deepActive } from './modal.js';
+import { deepActive, modalLayer } from './modal.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
 // dialog, the modal layer, the side and bottom sheets, the image preview, the modal date-time picker, the popover's sheet,
@@ -184,6 +184,7 @@ export async function closeModal(
   if (!dialog.open) return true;
   if (instant || !dialog.isConnected || typeof dialog.showPopover !== 'function') {
     atOnce(dialog, () => dialog.close());
+    modalLayer.delete(dialog);
     return true;
   }
   const state: Leaving = { run: ++runs, own: [], moves };
@@ -206,6 +207,9 @@ export async function closeModal(
     },
     moves,
   );
+  // No longer modal, and back in the top layer as it leaves: what is shown in it moves out now (a snackbar, SNK-38), and
+  // is drawn above it.
+  modalLayer.delete(dialog);
   // Asking flushes style: the exit's transitions, and its scrim's, exist now. They begin in the first frame drawn after
   // this task, as an entrance does: WebKit dated them from the frame drawn before it, and where a long task outlasted
   // the exit the surface and its scrim were gone in that frame without a frame of their motion.
@@ -320,6 +324,7 @@ function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
     if (marked) keep.removeAttribute('autofocus');
   }
   if (keep && deepActive() !== keep) keep.focus({ preventScroll: true });
+  modalLayer.add(dialog);
 }
 
 /**

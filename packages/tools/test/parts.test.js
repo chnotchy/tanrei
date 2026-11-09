@@ -70,8 +70,13 @@ test('validate holds every anatomy id mapped, every key an id, and every target 
     caret: { noBox: 'The browser draws it.' },
   });
   assert.deepEqual(partsProblems([ok], manifest), []);
-  // A spec that writes no parts is not held to them.
-  assert.deepEqual(partsProblems([spec('thing', ['container'], undefined)], manifest), []);
+  // A component the web draws says where its parts are; one the web only plans is not held to them yet.
+  assert.match(partsProblems([spec('thing', ['container'], undefined)], manifest).join('\n'), /platforms\.web\.parts is not written — the web draws thing \(status "lagging"\)/);
+  assert.deepEqual(partsProblems([spec('thing', ['container'], undefined, { web: { status: 'planned' } })], manifest), []);
+  // A component whose parts cannot all be named yet is passed over while it writes none, and comes off the list once it does.
+  assert.deepEqual(partsProblems([spec('thing', ['container'], undefined)], manifest, undefined, ['thing']), []);
+  assert.match(partsProblems([spec('thing', ['container'], { container: 'container' })], manifest, undefined, ['thing']).join('\n'), /thing comes off PARTS_PENDING/);
+  assert.match(partsProblems([ok], manifest, undefined, ['nothing']).join('\n'), /PARTS_PENDING names nothing, which is no spec/);
 
   const problems = (parts, anatomy = ['container', 'label']) => partsProblems([spec('thing', anatomy, parts)], manifest);
   assert.match(problems({ container: 'container' }).join('\n'), /is missing label/);
@@ -89,7 +94,7 @@ test('validate holds every anatomy id mapped, every key an id, and every target 
 });
 
 test("a composed component's parts may map its members' parts, as `<member part>.<member's anatomy id>`", () => {
-  const member = spec('member', ['input'], undefined, { web: { name: 'tanrei-member' } });
+  const member = spec('member', ['input'], undefined, { web: { name: 'tanrei-member', status: 'planned' } });
   const whole = (parts, builtFrom = ['member']) => spec('whole', ['member'], parts, { web: { name: 'tanrei-whole' }, spec: { builtFrom } });
   assert.deepEqual(partsProblems([member, whole({ member: 'member', 'member.input': 'member-input' })], manifest), []);
   assert.match(partsProblems([member, whole({ member: 'member', 'member.label': 'member-input' })], manifest).join('\n'), /member has no anatomy id "label"/);
@@ -97,8 +102,9 @@ test("a composed component's parts may map its members' parts, as `<member part>
 });
 
 test('anatomyFixture names a fixture of the spec', () => {
-  assert.deepEqual(partsProblems([spec('thing', ['container'], undefined, { spec: { anatomyFixture: 'default' } })], manifest), []);
-  assert.match(partsProblems([spec('thing', ['container'], undefined, { spec: { anatomyFixture: 'other' } })], manifest).join('\n'), /anatomyFixture "other" is not a fixture/);
+  const planned = { status: 'planned' };
+  assert.deepEqual(partsProblems([spec('thing', ['container'], undefined, { web: planned, spec: { anatomyFixture: 'default' } })], manifest), []);
+  assert.match(partsProblems([spec('thing', ['container'], undefined, { web: planned, spec: { anatomyFixture: 'other' } })], manifest).join('\n'), /anatomyFixture "other" is not a fixture/);
 });
 
 test('a first parts maps the ids the element exports a part of, and is written just before the notes', () => {
@@ -115,6 +121,6 @@ test('a first parts maps the ids the element exports a part of, and is written j
   assert.equal(withParts(JSON.stringify(thing), {}), null, 'a spec not in canonical form is not rewritten');
 });
 
-test('every spec of the repository that writes parts maps every anatomy id to something that exists', () => {
+test('every spec of the repository the web draws maps every anatomy id to something that exists', () => {
   assert.deepEqual(validateWebParts(), []);
 });

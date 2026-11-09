@@ -34,10 +34,11 @@ import { neighbourTarget } from './target.js';
 // standard item that is both first and last — its hit area and everything it draws are its own — so that its label may
 // wrap where its line gives it less than one line needs, and the action does not run past the block.
 //
-// A toolbar uses the same channel for one thing only (TBR-9): its items are `row` items — not joined, their corners,
+// A toolbar uses the same channel for two things (TBR-9, TBR-28): its items are `row` items — not joined, their corners,
 // width and label their own — whose hit area stops at the middle of the gap to a neighbour. A toolbar spreads or packs
 // its items, so it measures each gap and tells the item how far it may reach on each side (`reachStart`, `reachEnd`),
-// along the row's axis.
+// along the row's axis. And a toggle in a group whose selection is single is told that it is one choice of it
+// (`choice`), which it exposes as a radio button (BTN-47).
 //
 // A component that draws a Button on a colored surface of its own (a status callout's, an inverse or status
 // snackbar's) gives it a tone through the same channel (BTN-45): the content color of that surface, and the color of
@@ -63,6 +64,11 @@ export interface GroupPlace {
   stretch?: boolean;
   reachStart?: number | null;
   reachEnd?: number | null;
+  /**
+   * BTN-47: a toolbar's item is one choice of a group whose selection is single (TBR-28): a toggle then exposes itself
+   * as a radio button, checked while selected, and activating it while it is selected leaves it selected.
+   */
+  choice?: boolean;
 }
 
 /** The item's controller, under this key on a Tanrei Button or icon button (internal between Tanrei elements). */
@@ -137,7 +143,8 @@ const same = (a: GroupPlace | null, b: GroupPlace | null) =>
     (a.axis ?? 'inline') === (b.axis ?? 'inline') &&
     !!a.stretch === !!b.stretch &&
     (a.reachStart ?? null) === (b.reachStart ?? null) &&
-    (a.reachEnd ?? null) === (b.reachEnd ?? null));
+    (a.reachEnd ?? null) === (b.reachEnd ?? null) &&
+    !!a.choice === !!b.choice);
 
 /**
  * An item's side: the place its group gave it (null outside a group), as classes on its container (`classes()`), and —

@@ -56,6 +56,37 @@ describe('the web shards split by measured time', () => {
     assert.deepEqual(coverage(tests, shards.map((s) => s.lines)), { none: [], several: [] });
   });
 
+  test('the first shard starts with the seconds of its other work, and the dealing counts them', () => {
+    const tests = testsOf(list({ 'a.test.ts': { A: { n: 1 } }, 'b.test.ts': { B: { n: 1 } }, 'c.test.ts': { C: { n: 1 } }, 'd.test.ts': { D: { n: 1 } } }));
+    const shards = split(tests, { chromium: { 'a.test.ts': 30, 'b.test.ts': 20, 'c.test.ts': 10, 'd.test.ts': 20 } }, 2, { first: 20 });
+    assert.deepEqual(
+      shards.map((s) => [s.seconds, s.before]),
+      [
+        [30, 20],
+        [50, 0],
+      ],
+    );
+    assert.deepEqual(coverage(tests, shards.map((s) => s.lines)), { none: [], several: [] });
+  });
+
+  test('a selection weighs a file it matches in part by its share of the file’s tests', () => {
+    const every = testsOf(list({ 'all.test.ts': { one: { n: 3 }, two: { n: 1 } }, 'own.test.ts': { O: { n: 2 } } }));
+    // The grep matches one test of all.test.ts (the block `two`) and the whole of own.test.ts.
+    const tests = every.filter((t) => t.file === 'own.test.ts' || t.titles[0] === 'two');
+    const durations = { chromium: { 'all.test.ts': 80, 'own.test.ts': 20 } };
+    const shards = split(tests, durations, 2, { every });
+    assert.deepEqual(
+      shards.map((s) => s.seconds).sort((a, b) => a - b),
+      [20, 20],
+    );
+    assert.deepEqual(coverage(tests, shards.map((s) => s.lines)), { none: [], several: [] });
+    assert.deepEqual(
+      split(tests, durations, 2).map((s) => s.seconds).sort((a, b) => a - b),
+      [20, 80],
+      'without the list of every test the part weighs the whole file',
+    );
+  });
+
   test('a test declared in a helper module is selected by the helper’s path, its file’s line loading the file', () => {
     const tests = testsOf(list({ 'bar.test.ts': { own: { n: 1 }, shared: { n: 2, at: '../test/helper.ts' } } }));
     const [only] = split(tests, { chromium: { 'bar.test.ts': 5 } }, 1);

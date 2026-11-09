@@ -4,7 +4,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
 import { ComposedElement, composedHost, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -222,7 +222,6 @@ export class TanreiChipField extends ComposedElement {
     removedText: { type: String, attribute: 'removed-text' },
     name: { type: String, reflect: true },
     refusal: { state: true },
-    formDisabled: { state: true },
   };
 
   /**
@@ -354,8 +353,11 @@ export class TanreiChipField extends ComposedElement {
   /** CHF-6: the entry error while it lasts — the first refused candidate of the last offer, and the words shown for it. */
   protected refusal: Refused | null = null;
 
-  /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -476,8 +478,8 @@ export class TanreiChipField extends ComposedElement {
     if (typeof state === 'string') this.value = STRINGS.fromAttribute(state);
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**
@@ -927,7 +929,7 @@ export class TanreiChipField extends ComposedElement {
                   .label=${entry}
                   .removeLabel=${this.removeName(sentence, entry)}
                   .disabled=${inert}
-                  .removable=${!this.readOnly}
+                  .notRemovable=${this.readOnly}
                   @keydown=${this.#onEntryKey}
                   @click=${this.#onEntryClick}
                   @remove=${this.#onEntryRemove}

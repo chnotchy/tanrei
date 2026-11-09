@@ -1,16 +1,34 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, GROUP_PLACE, type GroupPlace, type PlacingGroup, WordsController, CoalescedSync, countWork, missingValueMessage, report } from '../../primitives/index.js';
+import {
+  AnimatedSize,
+  type AnimatedSizeOptions,
+  AvailabilityController,
+  FieldControlController,
+  FieldProviderController,
+  type FieldState,
+  GROUP_PLACE,
+  type GroupPlace,
+  type PlacingGroup,
+  SETTLING,
+  WordsController,
+  CoalescedSync,
+  countWork,
+  missingValueMessage,
+  report,
+} from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
-import { takeFormDisabled } from '../../primitives/form-disabled.js';
+import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
+import { LIST_MOTION, LIST_PRESENCE } from '../../primitives/list-presence.js';
+import { startFromNextFrame } from '../../primitives/motion.js';
+import type { TanreiList, TanreiListMoveDetail } from '../list/list.js';
 import '../list/list.js';
-import type { TanreiListMoveDetail } from '../list/list.js';
 import { styles } from './file-upload.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
@@ -65,6 +83,28 @@ const PICKER_PARTS = exported(TanreiFilePicker);
 const ITEM_PARTS = exported(TanreiFileItem, Object.fromEntries(TanreiFileItem.parts.map((part) => [part, { as: `item-${part}` }])));
 /** FIT-18: what lies between two rows of the file upload's column — its own distance, given to each file item through the internal channel. */
 const BETWEEN = 'var(--tanrei-comp-list-gap-small)';
+/** FUP-29: what marks a product's row that leaves — drawn until its motion ends, and counted in nothing. */
+const LEAVING = 'data-leaving';
+
+/** Whether motion is reduced for this person. */
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** FUP-29: every element in `roots` and in the shadow roots inside them that has an update still to draw. */
+function pendingUpdates(roots: readonly Element[]): Promise<unknown>[] {
+  const pending: Promise<unknown>[] = [];
+  const visit = (element: Element) => {
+    const reactive = element as Element & { isUpdatePending?: boolean; updateComplete?: Promise<unknown> };
+    if (reactive.isUpdatePending && reactive.updateComplete) pending.push(reactive.updateComplete);
+    for (const child of element.children) visit(child);
+    if (element.shadowRoot) for (const child of element.shadowRoot.children) visit(child);
+  };
+  for (const root of roots) visit(root);
+  return pending;
+}
+/** FUP-29: waits until every element in `roots` has drawn what it has to draw. */
+async function drawn(roots: () => readonly Element[]) {
+  for (let pending = pendingUpdates(roots()); pending.length; pending = pendingUpdates(roots())) await Promise.all(pending);
+}
 
 /** FUP-38: a limit of the files it holds is a number above zero; anything else sets none. */
 const limit = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
@@ -84,6 +124,11 @@ interface Known {
 interface OwnRow {
   file: File;
   reason: TanreiFileUploadRejectReason | null;
+}
+/** FUP-29: a product's row that leaves, put back where it stood until its motion ends, with what was set on it to give back. */
+interface Departure {
+  inert: boolean;
+  hidden: string | null;
 }
 /** FUP-53: each reason's key of the product's words, and the attribute of the instance's own sentence. */
 const REASONS = [
@@ -126,7 +171,14 @@ const takeFocus = (row: Row): boolean => {
  *
  * `rows="given"`: the rows are `<tanrei-file-item>` children the product adds on `select` and removes on a row's
  * `remove`, each with its status, progress and error; the element adds, changes and removes none and keeps no file —
- * for a product that sends files itself.
+ * for a product that sends files itself. A row you take out is drawn leaving (FUP-29): the element puts your
+ * `<tanrei-file-item>` back where it stood, as its child, for the length of the motion — `inert`, `aria-hidden="true"`
+ * and `data-leaving` — then removes it and gives back what it had: read the rows as
+ * `tanrei-file-item:not([data-leaving])` meanwhile.
+ *
+ * A row that is added opens and fades in, one that is removed fades out and closes, and a change of status that changes
+ * a row's height moves it, as the List's items move (on its resize motion); what is exposed, counted, submitted and
+ * focused changes at once. Under reduced motion every change is drawn at once.
  *
  * Every row is of one form: `item-form` (`row`, `tile`), `item-preview`, `item-fit`, `item-name-hidden`, `item-width`,
  * `item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item it holds — the
@@ -229,7 +281,6 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     countErrorText: { type: String, attribute: 'count-error-text' },
     formatSize: { attribute: false },
     count: { state: true },
-    formDisabled: { state: true },
   };
 
   /** @from tanrei-file-picker.layout */
@@ -345,8 +396,11 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** FUP-17: how many rows the product gave. */
   protected count = 0;
-  /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (the element's `formDisabledCallback`). */
-  protected formDisabled = false;
+  private readonly fieldset = new FormDisabledController(this);
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  protected get formDisabled(): boolean {
+    return this.fieldset.byFieldset;
+  }
 
   private readonly internals = this.attachInternals();
 
@@ -402,8 +456,34 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     if (this.isConnected) this.readRows();
   });
 
-  /** FUP-17, FUP-30: a row that comes or goes is drawn at once; a row that left with focus on it hands focus on. */
+  /** FUP-17, FUP-29, FUP-30: a row that comes or goes is a row, or none, at once; a row that left with focus on it hands focus on. */
   private readonly children$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.rowsChanged(records));
+
+  /** FUP-29: the product's rows that leave — put back where they stood until the List has drawn them leaving — with what was set on them. */
+  private readonly leavingRows = new Map<Element, Departure>();
+  /** FUP-29: the product's rows the file upload took away itself at the end of their leave: no change of the product's. */
+  private readonly takenAway = new WeakSet<Element>();
+  /** FUP-29: the slot inside the List's item each of the product's rows was last drawn in — where a row that leaves is drawn until it has gone. */
+  private readonly rowSlots = new WeakMap<Element, HTMLSlotElement>();
+  /** FUP-29: the List's items the List put back to draw them leaving (LST-41). */
+  private readonly putBack = new WeakSet<Element>();
+  /** FUP-29: the List's items come and go: one drawn leaving that the List has taken away ends its row's leave. */
+  private readonly list$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.listChanged(records));
+  /** FUP-29: the status each of the product's rows was last read with: a row whose status changes may change its height. */
+  private readonly statuses = new WeakMap<Element, string>();
+  /** FUP-29: each of the product's rows' item of the List, whose height moves where a change of status changes it (MOT-5). */
+  private readonly rowSizes = new Map<HTMLElement, AnimatedSize>();
+  /** FUP-29: the strip of tiles, whose height moves where a tile that arrives or leaves adds or takes away a line (MOT-5). */
+  private readonly stripSize = new AnimatedSize(this, this.resizing(() => this.renderRoot?.querySelector<HTMLElement>('.list') ?? null));
+  /** FUP-29: the rows the last update drew, in order: a change of them moves the strip of tiles. */
+  private drawnRows: readonly unknown[] | null = null;
+  private stripFitting = false;
+  /** FUP-29: whether the list held no row when it was last drawn, the room above it as it was drawn before a change of that, and its motion. */
+  private shownEmpty: boolean | null = null;
+  private roomFrom: string | null = null;
+  private roomMotion: Animation | null = null;
+  /** FUP-29: the check, a frame after a change, of what the List still draws. */
+  private checkFrame = 0;
 
   constructor() {
     super();
@@ -449,7 +529,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** FUP-17: the rows the product gave, in the order it gave them — and none while `rows` is `own` (FUP-42). */
   private get givenRows(): Row[] {
-    return this.keeps ? [] : this.itemChildren;
+    return this.keeps ? [] : this.itemChildren.filter((row) => !this.leavingRows.has(row));
   }
 
   /** The `tanrei-file-item` children the product wrote, whatever `rows` says. */
@@ -554,8 +634,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     this.syncForm();
   }
 
-  formDisabledCallback(disabled: boolean) {
-    takeFormDisabled(this, disabled, (value) => (this.formDisabled = value));
+  formDisabledCallback() {
+    this.fieldset.formDisabledCallback();
   }
 
   /**
@@ -736,9 +816,9 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     }
   }
 
-  /** The file items it made itself, in the order they are drawn. */
+  /** The file items it made itself, in the order they are drawn — but for those the List draws leaving (FUP-29). */
   private get ownRows(): Row[] {
-    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.list > tanrei-list-item > ${ITEM}`) ?? [])];
+    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.list > tanrei-list-item:not([${LEAVING}]) > ${ITEM}`) ?? [])];
   }
 
   /**
@@ -819,11 +899,15 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
       slot?.assign(...[...this.children].filter((child) => child.slot === name));
     }
     const rows = this.givenRows;
-    root.querySelectorAll<HTMLSlotElement>('slot[data-row]').forEach((slot, index) => {
+    root.querySelectorAll<HTMLSlotElement>(`.list > tanrei-list-item:not([${LEAVING}]) > slot[data-row]`).forEach((slot, index) => {
       const row = rows[index];
-      if (row) slot.assign(row);
-      else slot.assign();
+      if (row) {
+        slot.assign(row);
+        this.rowSlots.set(row, slot);
+      } else slot.assign();
     });
+    // FUP-29: a row that leaves is drawn in the item it stood in, while the List draws that item leaving.
+    for (const row of this.leavingRows.keys()) this.rowSlots.get(row)?.assign(row);
   }
 
   // ─── The rows (FUP-17, FUP-26, FUP-30, FUP-58) ────────────────────────────────────────────────────────────────
@@ -841,6 +925,13 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     countWork('file-upload.sync');
     const rows = this.givenRows;
     this.count = rows.length;
+    // FUP-29: a row whose status changed changes its height in one motion, where the status changes it.
+    const changedStatus = rows.filter((row) => {
+      const [was, now] = [this.statuses.get(row), rowStatus(row)];
+      this.statuses.set(row, now);
+      return was !== undefined && was !== now;
+    });
+    if (changedStatus.length) void this.resizeRows(changedStatus);
     // FUP-17: the List draws the rows in the order they stand now — a new order of as many rows too.
     this.requestUpdate();
     this.tellRows(rows);
@@ -857,8 +948,26 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   }
 
   private rowsChanged(records: MutationRecord[]) {
+    const isRow = (node: Node): node is Element => node instanceof Element && node.localName === ITEM;
+    // The product's rows this change took away and added — not those the file upload took away itself at the end of
+    // their leave, and not one moved among the others.
+    const removed = new Set<Element>();
+    const added = new Set<Element>();
+    for (const record of records) {
+      for (const node of record.removedNodes) if (isRow(node) && !this.takenAway.delete(node)) removed.add(node);
+      for (const node of record.addedNodes) if (isRow(node)) added.add(node);
+    }
+    for (const node of removed) if (node.parentNode === this) removed.delete(node);
+    // FUP-29: a row that leaves and that the product takes away again is gone at once; one it gives back is a row again.
+    for (const node of removed) {
+      if (!this.leavingRows.has(node)) continue;
+      removed.delete(node);
+      this.depart(node);
+    }
+    for (const node of added) if (node.parentNode === this) this.giveBack(node);
+    if (removed.size && this.moves) this.leave(records, removed);
     // A file item that left is the product's alone again: what it was given goes back.
-    for (const record of records) for (const node of record.removedNodes) if (node instanceof Element && node.localName === ITEM) giveFileItem(node, null);
+    for (const node of removed) if (!this.leavingRows.has(node)) giveFileItem(node, null);
     const before = this.stood;
     this.rowSyncs.now();
     this.stood = this.givenRows;
@@ -896,12 +1005,13 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     if (!held || !records.some((record) => [...record.removedNodes].includes(held))) return;
     const active = this.ownerDocument.activeElement;
     const nowhere = !active || active === this.ownerDocument.body || active === this.ownerDocument.documentElement;
-    if (!nowhere || held.parentNode === this) {
+    // A row that leaves (FUP-29) stands here only to be drawn: it is no row.
+    const here = (node: Element) => node.parentNode === this && !this.leavingRows.has(node);
+    if (!nowhere || here(held)) {
       if (!holdsFocus(held)) this.held = null;
       return;
     }
     this.held = null;
-    const here = (node: Element) => node.parentNode === this;
     const at = before.indexOf(held);
     const now = this.givenRows;
     // The rows that were its neighbours, the following ones first. A product that writes the whole list again leaves
@@ -982,6 +1092,205 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     return (this.picker as (TanreiFilePicker & Partial<PlacingGroup>) | null)?.[GROUP_PLACE]?.(child) ?? null;
   }
 
+  // ─── The rows' motion (FUP-29) ────────────────────────────────────────────────────────────────────────────────
+
+  /** FUP-29: a change of the rows moves — not under reduced motion, and not while the file upload settles (MOT-3). */
+  private get moves(): boolean {
+    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+  }
+
+  /**
+   * FUP-29: the product took rows away, and the List draws them leaving (LST-41): each one that was drawn is put back
+   * where it stood, as the product's child — `inert`, `aria-hidden` and `data-leaving`, so that it is no row from now
+   * on — and is drawn in the List's item it stood in until the List has drawn that item leaving.
+   */
+  private leave(records: MutationRecord[], removed: Set<Element>) {
+    const back = [...removed].filter((node) => !node.parentNode && !!this.rowSlots.get(node)?.isConnected);
+    if (!back.length) return;
+    for (const record of [...records].reverse()) {
+      const nodes = [...record.removedNodes].filter((node): node is Element => node instanceof Element && back.includes(node) && !node.parentNode);
+      if (!nodes.length) continue;
+      const next = record.nextSibling?.parentNode === this ? record.nextSibling : null;
+      let after = !next && record.previousSibling?.parentNode === this ? (record.previousSibling as ChildNode) : null;
+      for (const node of nodes) {
+        if (next) this.insertBefore(node, next);
+        else if (after) after.after(node);
+        else this.append(node);
+        after = next ? null : node;
+      }
+    }
+    for (const node of back) {
+      this.leavingRows.set(node, { inert: (node as HTMLElement).inert, hidden: node.getAttribute('aria-hidden') });
+      (node as HTMLElement).inert = true;
+      node.setAttribute('aria-hidden', 'true');
+      node.setAttribute(LEAVING, '');
+    }
+    // What was put back is the file upload's doing, not the product's: it is not heard as a change.
+    this.children$?.takeRecords();
+  }
+
+  /** FUP-29: a row of the product's that was leaving is a row again, as it was before it left. */
+  private giveBack(node: Element) {
+    const was = this.leavingRows.get(node);
+    if (!was) return;
+    this.leavingRows.delete(node);
+    (node as HTMLElement).inert = was.inert;
+    if (was.hidden === null) node.removeAttribute('aria-hidden');
+    else node.setAttribute('aria-hidden', was.hidden);
+    node.removeAttribute(LEAVING);
+  }
+
+  /** FUP-29: a row of the product's has left: taken out of the file upload, as the product took it, and given back what it had. */
+  private depart(node: Element) {
+    if (!this.leavingRows.has(node)) return;
+    this.giveBack(node);
+    this.rowSlots.delete(node);
+    if (node.parentNode === this) {
+      // Heard as the file upload's own doing — while it is connected, and so heard at all.
+      if (this.isConnected) this.takenAway.add(node);
+      node.remove();
+    }
+    giveFileItem(node, null);
+  }
+
+  /** FUP-29: the List's items changed: an item it put back to draw leaving is noted, and one it has taken away ends its row's leave. */
+  private listChanged(records: MutationRecord[]) {
+    for (const record of records) for (const node of record.addedNodes) if (node instanceof Element && node.hasAttribute(LEAVING)) this.putBack.add(node);
+    this.checkLeaves(false);
+    this.scheduleCheck();
+  }
+
+  /**
+   * FUP-29: each row of the product's that leaves, whose item of the List is no longer drawn, has gone — once the List
+   * has drawn it leaving and taken it away, or (`settled`, a frame after the change) where the List did not draw it so.
+   */
+  private checkLeaves(settled: boolean) {
+    for (const row of [...this.leavingRows.keys()]) {
+      const item = this.rowSlots.get(row)?.parentElement ?? null;
+      if (item?.isConnected) continue;
+      if (settled || !item || this.putBack.has(item)) this.depart(row);
+    }
+  }
+
+  /**
+   * FUP-29: a frame after a change of the rows — by then the List has put back what it draws leaving — the rows that
+   * leave and that the List does not draw have gone.
+   */
+  private scheduleCheck() {
+    if (this.checkFrame || typeof requestAnimationFrame !== 'function') return;
+    this.checkFrame = requestAnimationFrame(() => {
+      this.checkFrame = 0;
+      this.checkLeaves(true);
+    });
+  }
+
+  /** FUP-29: every row that leaves has gone, at once. */
+  private endLeaves() {
+    for (const row of [...this.leavingRows.keys()]) this.depart(row);
+  }
+
+  /**
+   * FUP-29: the rows arrive, leave and change their height as the List's items do (LST-41): on the List's resize motion,
+   * whose time and curve the List gives (`LIST_MOTION`) when a change moves — the token is the List's, and the file
+   * upload reads none of a member's. A box of its own that moves with them (MOT-5), anchored at its top.
+   */
+  private resizing(box: () => HTMLElement | null): AnimatedSizeOptions {
+    const motion = () => this.renderRoot?.querySelector<TanreiList>('.list')?.[LIST_MOTION]('resize') ?? { duration: 0, easing: 'ease' };
+    return {
+      box,
+      anchor: () => 'start',
+      still: () => this.hasAttribute(SETTLING),
+      get duration() {
+        return `${motion().duration}ms`;
+      },
+      get easing() {
+        return motion().easing;
+      },
+    };
+  }
+
+  /**
+   * FUP-29: the room of list.gap above the list opens with the first row and closes with the last, over the List's
+   * resize motion, from the room drawn when the change came (MOT-2) — the time and the curve the List gives, as its
+   * cascade computes them (`LIST_MOTION`: a duration token is an expression). Started here, in the
+   * task of the change, and not by a transition, which WebKit does not start for a box whose children the same update
+   * changes.
+   */
+  private moveRoom() {
+    const list = this.renderRoot?.querySelector<TanreiList>('.list');
+    const from = this.roomFrom;
+    this.roomFrom = null;
+    this.shownEmpty = this.rowCount === 0;
+    if (!list || from === null) return;
+    this.roomMotion?.cancel();
+    this.roomMotion = null;
+    const to = getComputedStyle(list).marginBlockStart;
+    const { duration, easing } = list[LIST_MOTION]('resize');
+    if (!(duration > 0) || from === to || !this.moves) return;
+    const keyframes = [{ marginBlockStart: from }, { marginBlockStart: to }];
+    let motion: Animation;
+    try {
+      motion = list.animate(keyframes, { duration, easing, id: 'file-upload-room' });
+    } catch {
+      motion = list.animate(keyframes, { duration, id: 'file-upload-room' });
+    }
+    // From the first frame drawn after the change, with the rows' own motions (the List's `showPresence`): WebKit dates
+    // a motion begun in a task from the frame drawn before it, and rows that take longer to render than the motion
+    // lasts would have it over before its first frame.
+    startFromNextFrame([motion]);
+    this.roomMotion = motion;
+    const done = () => {
+      if (this.roomMotion === motion) this.roomMotion = null;
+    };
+    motion.finished.then(done, done);
+  }
+
+  /** FUP-29: each of the product's rows has its item's height followed, so that a change of status can move it. */
+  private syncRowSizes() {
+    const items = new Set(this.givenRows.map((row) => this.rowSlots.get(row)?.parentElement).filter((item): item is HTMLElement => !!item?.isConnected));
+    for (const [item, size] of this.rowSizes) {
+      if (items.has(item)) continue;
+      this.removeController(size);
+      size.hostDisconnected();
+      this.rowSizes.delete(item);
+    }
+    for (const item of items) {
+      if (this.rowSizes.has(item)) continue;
+      const size = new AnimatedSize(this, this.resizing(() => item));
+      size.hostUpdated();
+      this.rowSizes.set(item, size);
+    }
+  }
+
+  /**
+   * FUP-29: rows whose status changed: once each has drawn its new status, its item of the List moves from the height
+   * the last frame drew to its new one, anchored at its top, the rows after it moving with it in the layout — where the
+   * status changed its height, and at once where motion is reduced (`AnimatedSize`). A row that arrives or leaves
+   * meanwhile is the List's to draw.
+   */
+  private async resizeRows(rows: Row[]) {
+    await drawn(() => rows);
+    for (const row of rows) {
+      const item = this.rowSlots.get(row)?.parentElement;
+      const size = item ? this.rowSizes.get(item) : undefined;
+      if (!item || !size || !this.givenRows.includes(row) || item.getAnimations().some((motion) => motion.id.startsWith('list-item'))) continue;
+      size.fit(true);
+    }
+  }
+
+  /**
+   * FUP-29: a tile arrived or left and the strip of tiles may have another number of lines: once every tile has drawn
+   * itself, its height moves from the one the last frame drew to its new one, anchored at its top (MOT-5) — at once
+   * where motion is reduced or the file upload settles (`AnimatedSize`).
+   */
+  private async fitStrip() {
+    if (this.stripFitting) return;
+    this.stripFitting = true;
+    await drawn(() => [...(this.renderRoot?.querySelectorAll('.list > tanrei-list-item') ?? []), ...this.givenRows]);
+    this.stripFitting = false;
+    if (this.shownForm === 'tile') this.stripSize.fit(true);
+  }
+
   // ─── Lifecycle ────────────────────────────────────────────────────────────────────────────────────────────────
 
   override connectedCallback() {
@@ -996,6 +1305,10 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$?.disconnect();
+    // FUP-29: drawn again where it is connected next, at rest.
+    this.endLeaves();
+    cancelAnimationFrame(this.checkFrame);
+    this.checkFrame = 0;
     clearTimeout(this.turn);
     this.turn = undefined;
     this.held = null;
@@ -1003,6 +1316,11 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // FUP-29: the list comes to hold its first row or loses its last: the room above it as it is drawn now, which the
+    // update moves from.
+    const empty = this.rowCount === 0;
+    const list = this.renderRoot?.querySelector<HTMLElement>('.list');
+    if (list && this.shownEmpty !== null && empty !== this.shownEmpty && this.moves) this.roomFrom = getComputedStyle(list).marginBlockStart;
     // FUP-52: `rows` changed while it is shown. From own to given every kept file is let go and every row it made
     // leaves; from given to own it begins with none (it kept none) and the product's rows are no longer drawn. Nothing
     // is emitted or said, and focus that a leaving row held goes to the trigger. (Before it was first drawn the same
@@ -1018,6 +1336,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
           this.kept = [];
           this.refused = [];
         }
+        // FUP-29: the product's rows that leave have gone, at once.
+        this.endLeaves();
         this.arrived = [];
         this.held = null;
         this.stood = this.givenRows;
@@ -1036,6 +1356,12 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   protected override firstUpdated() {
     // FUP-26: the rows that are here now are the ones it was presented with.
     this.changed();
+    // FUP-29: the List shows a row arriving and leaving also while it is not reorderable, and is watched for the rows it draws leaving.
+    const list = this.renderRoot.querySelector<TanreiList>('.list');
+    if (list) {
+      list[LIST_PRESENCE](true);
+      this.list$?.observe(list, { childList: true });
+    }
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -1047,6 +1373,14 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     this.picker?.tellTrigger();
     this.tellRows();
     this.syncForm();
+    // FUP-29: what moves with a change of the rows — the height of each of the product's rows, and the strip of tiles.
+    this.syncRowSizes();
+    const rows = this.keeps ? [...this.kept, ...this.refused] : this.givenRows;
+    const was = this.drawnRows;
+    if (was && (rows.length !== was.length || rows.some((row, index) => row !== was[index])) && this.shownForm === 'tile') void this.fitStrip();
+    this.drawnRows = rows;
+    this.moveRoom();
+    if (this.leavingRows.size) this.scheduleCheck();
     if (this.leavingHeld) {
       this.leavingHeld = false;
       this.trigger?.focus();
@@ -1126,6 +1460,10 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   protected override render() {
     const name = this.groupName.trim();
     const tile = this.shownForm === 'tile';
+    const empty = this.rowCount === 0;
+    // FUP-17, FUP-29: the list stands list.gap below the file picker while it holds a row. While it holds none it is
+    // hidden from assistive technology — at once when the last row goes — and takes no room once it has drawn that row
+    // leaving: it is empty, and the room above it has closed.
     return html`
       <div class="group" role="group" ${delegatedAria(this, { 'aria-label': name })}>
         <tanrei-file-picker
@@ -1156,7 +1494,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
           .movedText=${this.movedText}
           .cancelledText=${this.cancelledText}
           data-form=${this.shownForm}
-          ?hidden=${this.rowCount === 0}
+          ?data-empty=${empty}
+          aria-hidden=${empty ? 'true' : nothing}
           @move=${this.onListMove}
           >${this.keeps
             ? repeat(

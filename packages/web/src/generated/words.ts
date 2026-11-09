@@ -60,15 +60,15 @@ export interface TanreiWords {
   endLabel?: string;
   /** Read by `chip-field.addedCountText`. A word with places: `{count}` (number). */
   entriesAddedText?: string;
-  /** Read by `chip-field.addedText`. A word with places: `{entry}` (text). */
+  /** Read by `chip-field.addedText`, `combobox.addedText`. A word with places: `{entry}` (text). */
   entryAddedText?: string;
   /** Read by `chip-field.limitText`. */
   entryLimitText?: string;
   /** Read by `date-time-picker.entryModeLabel`. */
   entryModeLabel?: string;
-  /** Read by `chip-field.removeLabel`. A word with places: `{entry}` (text, needed). */
+  /** Read by `chip-field.removeLabel`, `combobox.removeLabel`. A word with places: `{entry}` (text, needed). */
   entryRemoveLabel?: string;
-  /** Read by `chip-field.removedText`. A word with places: `{entry}` (text). */
+  /** Read by `chip-field.removedText`, `combobox.removedText`. A word with places: `{entry}` (text). */
   entryRemovedText?: string;
   /** Read by `snackbar.expandLabel`. */
   expandLabel?: string;
@@ -250,11 +250,11 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   emptyText: ['combobox.emptyText'],
   endLabel: ['calendar.endLabel', 'date-time-picker.endLabel'],
   entriesAddedText: ['chip-field.addedCountText'],
-  entryAddedText: ['chip-field.addedText'],
+  entryAddedText: ['chip-field.addedText', 'combobox.addedText'],
   entryLimitText: ['chip-field.limitText'],
   entryModeLabel: ['date-time-picker.entryModeLabel'],
-  entryRemoveLabel: ['chip-field.removeLabel'],
-  entryRemovedText: ['chip-field.removedText'],
+  entryRemoveLabel: ['chip-field.removeLabel', 'combobox.removeLabel'],
+  entryRemovedText: ['chip-field.removedText', 'combobox.removedText'],
   expandLabel: ['snackbar.expandLabel'],
   externalLabel: ['link.externalLabel', 'link-card.externalLabel'],
   fileCountErrorText: ['chat-composer.countErrorText', 'file-upload.countErrorText'],

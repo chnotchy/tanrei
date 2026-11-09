@@ -357,7 +357,7 @@ test.describe('behavior', () => {
       await iconCentered(page, id);
     }
     // A trailing icon is centered too.
-    await host(page, 'filled-icon-trailing').evaluate(async (el) => { (el as any).extended = false; await (el as any).updateComplete; });
+    await host(page, 'filled-icon-trailing').evaluate(async (el) => { (el as any).collapsed = true; await (el as any).updateComplete; });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect.poll(async () => (await bounds(inner(page, 'filled-icon-trailing'))).width).toBe(await resolveToken(page, T('container-height-medium')));
     await iconCentered(page, 'filled-icon-trailing');
@@ -367,12 +367,12 @@ test.describe('behavior', () => {
     expect((await bounds(host(page, id).locator('.label-clip'))).width).toBe(0);
     await expect(host(page, id).getByRole('button', { name: 'Compose' })).toHaveCount(1);
     expect(await host(page, id).ariaSnapshot()).toBe('- button "Compose"');
-    // The property and the attribute agree (the attribute is the inverse, `collapsed`).
-    expect(await host(page, id).evaluate((el) => (el as any).extended)).toBe(false);
-    await host(page, id).evaluate((el) => ((el as any).extended = true));
+    // The property and the attribute agree: both are `collapsed`.
+    expect(await host(page, id).evaluate((el) => (el as any).collapsed)).toBe(true);
+    await host(page, id).evaluate((el) => ((el as any).collapsed = false));
     await expect(host(page, id)).not.toHaveAttribute('collapsed');
     await host(page, 'filled-extended').evaluate((el) => el.setAttribute('collapsed', ''));
-    expect(await host(page, 'filled-extended').evaluate((el) => (el as any).extended)).toBe(false);
+    expect(await host(page, 'filled-extended').evaluate((el) => (el as any).collapsed)).toBe(true);
   });
 
   test('MAB-13: collapsed, it is a square of its height with the size’s corners and the icon centered in every shipped system', async ({ page }) => {
@@ -412,7 +412,7 @@ test.describe('behavior', () => {
     await holdClock(page);
     await holdTransitions(host(page, id));
     await host(page, id).evaluate(async (el) => {
-      (el as any).extended = false;
+      (el as any).collapsed = true;
       await (el as any).updateComplete;
     });
     // The paddings move with it, on the same motion (the collapsed form's own transition).
@@ -445,16 +445,16 @@ test.describe('behavior', () => {
     // While it resizes, the label keeps one line; once it is done, it may wrap again.
     expect(moments.map((s) => s.oneLine)).toEqual(moments.map(() => true));
     await expect(inner(page, id)).not.toHaveAttribute('data-resizing');
-    await host(page, id).evaluate((el) => ((el as any).extended = true));
+    await host(page, id).evaluate((el) => ((el as any).collapsed = false));
     await expect(inner(page, id)).toHaveAttribute('data-resizing', '');
     await expect(inner(page, id)).not.toHaveAttribute('data-resizing');
     await expect.poll(async () => (await bounds(inner(page, id))).width).toBe(wide);
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await host(page, id).evaluate((el) => ((el as any).extended = false));
+    await host(page, id).evaluate((el) => ((el as any).collapsed = true));
     expect((await bounds(inner(page, id))).width).toBe(side);
     await expect(inner(page, id)).not.toHaveAttribute('data-resizing');
-    await host(page, id).evaluate((el) => ((el as any).extended = true));
+    await host(page, id).evaluate((el) => ((el as any).collapsed = false));
     expect((await bounds(inner(page, id))).width).toBe(wide);
   });
 
@@ -464,7 +464,7 @@ test.describe('behavior', () => {
     expect(await bounds(inner(page, 'no-icon-collapsed'))).toMatchObject({ width: (await bounds(inner(page, 'plain'))).width });
     expect(await style(host(page, 'no-icon-collapsed').locator('.label-box'), 'opacity')).toBe('1');
     await expect.poll(() => seen.filter((w) => w.includes('MAB-15'))).toHaveLength(1);
-    expect(seen.find((w) => w.includes('MAB-15'))).toMatch(/<tanrei-main-action-button>: extended is false but there is no icon/);
+    expect(seen.find((w) => w.includes('MAB-15'))).toMatch(/<tanrei-main-action-button>: collapsed is true but there is no icon/);
     // Given an icon later, it collapses.
     await host(page, 'no-icon-collapsed').evaluate((el) => el.insertAdjacentHTML('beforeend', '<span slot="icon">edit</span>'));
     await expect.poll(async () => (await bounds(inner(page, 'no-icon-collapsed'))).width).toBe(await resolveToken(page, T('container-height-medium')));
@@ -476,7 +476,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [fixture('nameless', {}), fixture('nameless-empty', {}, null)] });
     const side = await resolveToken(page, T('container-height-medium'));
     for (const id of ['nameless', 'nameless-empty']) {
-      expect(await host(page, id).evaluate((el) => (el as any).extended), id).toBe(true);
+      expect(await host(page, id).evaluate((el) => (el as any).collapsed), id).toBe(false);
       const box = await bounds(inner(page, id));
       expect([box.width, box.height], id).toEqual([side, side]);
     }
@@ -515,7 +515,7 @@ test.describe('behavior', () => {
       expect(centred.before, id).toBeGreaterThan(0);
     }
     await expect.poll(() => seen.filter((w) => w.includes('MAB-24'))).toHaveLength(1);
-    expect(seen.find((w) => w.includes('MAB-24'))).toMatch(/<tanrei-main-action-button>: extended is false but the button is full width/);
+    expect(seen.find((w) => w.includes('MAB-24'))).toMatch(/<tanrei-main-action-button>: collapsed is true but the button is full width/);
     // Taken off, the collapsed one collapses to its square, and the other one is as wide as its content again.
     await host(page, 'filled-full-width-collapsed').evaluate((el) => ((el as any).fullWidth = false));
     await expect.poll(async () => (await bounds(inner(page, 'filled-full-width-collapsed'))).width).toBe(height);
@@ -581,7 +581,7 @@ test.describe('behavior', () => {
     const viewport = page.viewportSize()!;
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const extended of [true, false]) {
-      await host(page, id).evaluate((el, e) => ((el as any).extended = e), extended);
+      await host(page, id).evaluate((el, e) => ((el as any).collapsed = !e), extended);
       const placed = await bounds(inner(page, id));
       expect(placed.x + placed.width, `extended ${extended}`).toBe(viewport.width - 16);
       expect(placed.y + placed.height, `extended ${extended}`).toBe(viewport.height - 16);
@@ -639,7 +639,7 @@ test.describe('behavior', () => {
     expect(await host(page, id).evaluate((el) => el.shadowRoot!.querySelectorAll('[aria-live], [role="status"], [role="alert"]').length)).toBe(0);
     await tabTo(page, host(page, id));
     for (const extended of [false, true, false]) {
-      await host(page, id).evaluate(async (el, e) => { (el as any).extended = e; await (el as any).updateComplete; }, extended);
+      await host(page, id).evaluate(async (el, e) => { (el as any).collapsed = !e; await (el as any).updateComplete; }, extended);
       await expect(inner(page, id), `extended ${extended}`).toBeFocused();
       expect(await host(page, id).ariaSnapshot(), `extended ${extended}`).toBe('- button "Compose"');
       expect(await states(), `extended ${extended}`).toEqual([]);
@@ -648,9 +648,9 @@ test.describe('behavior', () => {
     await listen(host(page, id));
     await page.keyboard.press('Enter');
     expect((await events(page)).click).toBe(1);
-    expect(await host(page, id).evaluate((el) => (el as any).extended)).toBe(false);
+    expect(await host(page, id).evaluate((el) => (el as any).collapsed)).toBe(true);
     await host(page, 'filled-collapsed').click();
-    expect(await host(page, 'filled-collapsed').evaluate((el) => (el as any).extended)).toBe(false);
+    expect(await host(page, 'filled-collapsed').evaluate((el) => (el as any).collapsed)).toBe(true);
   });
 });
 

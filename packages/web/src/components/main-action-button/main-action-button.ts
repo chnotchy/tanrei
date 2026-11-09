@@ -18,7 +18,7 @@ export type TanreiMainActionButtonIconPosition = 'leading' | 'trailing';
  * MAB-13, MAB-15, MAB-16, MAB-24: the form it draws. No label: collapsed, whatever else; no icon, or full width:
  * extended; otherwise as asked.
  */
-const isCollapsed = (extended: boolean, hasIcon: boolean, label: string, fullWidth = false) => !label || (!extended && hasIcon && !fullWidth);
+const isCollapsed = (collapsed: boolean, hasIcon: boolean, label: string, fullWidth = false) => !label || (collapsed && hasIcon && !fullWidth);
 
 /**
  * Performs the single most important action of a screen on a raised container that floats above the content, showing
@@ -33,7 +33,7 @@ const isCollapsed = (extended: boolean, hasIcon: boolean, label: string, fullWid
  *
  * `label` is the visible text while extended and the accessible name in either form. The icon is the `icon` slot: a
  * glyph of the system's icon set, given as its ligature text (`<span slot="icon">edit</span>`), drawn in the label color
- * at the size's icon size, on the side `iconPosition` names. `extended = false` (the `collapsed` attribute) collapses the
+ * at the size's icon size, on the side `iconPosition` names. `collapsed` collapses the
  * button to a square holding only the icon, over the resize motion. Without an icon it stays extended; without a label
  * it never extends (both reported in debug builds). It is an action, never a toggle: it has no pressed, selected or
  * expanded state, and collapsing changes no role, name or focus.
@@ -57,12 +57,9 @@ export class TanreiMainActionButton extends TanreiElement {
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
-    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `collapsed` (the spec's web notes).
-    extended: {
-      attribute: 'collapsed',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `extended`, which defaults to true, is its inverse here, `collapsed`: an HTML boolean attribute cannot
+    // default to true, and the property has the attribute's name (the spec's web notes).
+    collapsed: { type: Boolean, reflect: true },
     iconPosition: { type: String, attribute: 'icon-position', reflect: true },
     fullWidth: { type: Boolean, attribute: 'full-width', reflect: true },
     disabled: { type: Boolean, reflect: true },
@@ -77,13 +74,13 @@ export class TanreiMainActionButton extends TanreiElement {
   /** Visual height (small 40 / medium 48 / large 64 in the default system), which is also the side of the collapsed form. The hit area always meets the minimum target. */
   size: TanreiMainActionButtonSize = 'medium';
 
-  /** Shows the label beside the icon. False (the `collapsed` attribute) collapses the button to its icon; the label stays the accessible name. Not a toggle. */
-  extended = true;
+  /** Collapses the button to its icon; the label stays the accessible name. False (the default) shows the label beside the icon. Not a toggle. */
+  collapsed = false;
 
   /**
    * Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the
    * one action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so
-   * `extended` is ignored while it is set (reported in debug builds).
+   * `collapsed` is ignored while it is set (reported in debug builds).
    */
   fullWidth = false;
 
@@ -124,8 +121,9 @@ export class TanreiMainActionButton extends TanreiElement {
     return this.renderRoot.querySelector('button') as HTMLButtonElement | null;
   }
 
-  private get collapsed() {
-    return isCollapsed(this.extended, this.hasIcon, this.label, this.fullWidth);
+  /** The form drawn: collapsed only where it can be (MAB-15, MAB-16, MAB-24). */
+  private get drawnCollapsed() {
+    return isCollapsed(this.collapsed, this.hasIcon, this.label, this.fullWidth);
   }
 
   constructor() {
@@ -189,11 +187,11 @@ export class TanreiMainActionButton extends TanreiElement {
       this.hasIcon = [...this.children].some((child) => child.slot === 'icon');
       return;
     }
-    // The form changes when `extended`, the icon or the label changes what it can be.
-    if (changed.has('extended') || changed.has('hasIcon') || changed.has('label') || changed.has('fullWidth')) {
+    // The form changes when `collapsed`, the icon or the label changes what it can be.
+    if (changed.has('collapsed') || changed.has('hasIcon') || changed.has('label') || changed.has('fullWidth')) {
       const before = <T>(key: string, now: T) => (changed.has(key) ? (changed.get(key) as T) : now);
-      const was = isCollapsed(before('extended', this.extended), before('hasIcon', this.hasIcon), before('label', this.label) ?? '', before('fullWidth', this.fullWidth) ?? false);
-      if (was !== this.collapsed) this.startResize();
+      const was = isCollapsed(before('collapsed', this.collapsed), before('hasIcon', this.hasIcon), before('label', this.label) ?? '', before('fullWidth', this.fullWidth) ?? false);
+      if (was !== this.drawnCollapsed) this.startResize();
     }
   }
 
@@ -201,12 +199,12 @@ export class TanreiMainActionButton extends TanreiElement {
     // MAB-16: the label is the name; without one it never extends. It still renders; a debug build says what is missing.
     if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MAB-16', 'label is empty, so the button has no accessible name and stays collapsed; give it a label');
     // MAB-15: without an icon there is nothing to collapse to — it stays extended, and a debug build says why.
-    if ((changed.has('extended') || changed.has('hasIcon') || changed.has('label')) && !this.extended && !this.hasIcon && this.label) {
-      report(this, 'MAB-15', 'extended is false but there is no icon, so it cannot collapse; it stays extended — give it an icon');
+    if ((changed.has('collapsed') || changed.has('hasIcon') || changed.has('label')) && this.collapsed && !this.hasIcon && this.label) {
+      report(this, 'MAB-15', 'collapsed is true but there is no icon, so it cannot collapse; it stays extended — give it an icon');
     }
     // MAB-24: a full-width button does not collapse — it stays extended, and a debug build says why.
-    if ((changed.has('extended') || changed.has('fullWidth')) && this.fullWidth && !this.extended && this.label) {
-      report(this, 'MAB-24', 'extended is false but the button is full width, which does not collapse; it stays extended — take off full-width to collapse it');
+    if ((changed.has('collapsed') || changed.has('fullWidth')) && this.fullWidth && this.collapsed && this.label) {
+      report(this, 'MAB-24', 'collapsed is true but the button is full width, which does not collapse; it stays extended — take off full-width to collapse it');
     }
   }
 
@@ -221,7 +219,7 @@ export class TanreiMainActionButton extends TanreiElement {
         part="container"
         type="button"
         data-tanrei-shape
-        class=${classMap({ [side]: this.hasIcon, collapsed: this.collapsed, 'full-width': this.fullWidth && !this.collapsed })}
+        class=${classMap({ [side]: this.hasIcon, collapsed: this.drawnCollapsed, 'full-width': this.fullWidth && !this.drawnCollapsed })}
         ?data-resizing=${this.resizing}
         ${delegatedAria(this, { 'aria-label': this.label })}
         ?disabled=${this.disabled}

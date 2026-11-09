@@ -15,7 +15,7 @@ const BottomSheetElement = /* @__PURE__ */ createComponent({
     onDetentChange: 'detentchange' as EventName<TanreiEvent<TanreiBottomSheetElement, CustomEvent<TanreiBottomSheetDetentChangeDetail>>>,
   },
 });
-const BottomSheetAttributes = { variant: ['variant', 'modal'], open: ['open', false], detent: ['detent', 'partial'], closedBy: ['closedby', 'any'], handle: ['no-handle', true], handleLabel: ['handle-label', ''], inset: ['flush', true], label: ['label', ''], headline: ['headline', ''], closable: ['closable', false], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'] } as const;
+const BottomSheetAttributes = { variant: ['variant', 'modal'], open: ['open', false], detent: ['detent', 'partial'], closedBy: ['closedby', 'any'], noHandle: ['no-handle', false], handleLabel: ['handle-label', ''], flush: ['flush', false], label: ['label', ''], headline: ['headline', ''], closable: ['closable', false], closeLabel: ['close-label', ''], dividerVisibility: ['divider-visibility', 'auto'] } as const;
 /**
  * Shows supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower part of its parent while the content above stays usable (a layout region), or `modal`, a modal step that dims and blocks everything else until it is dismissed (a modal overlay).
  *

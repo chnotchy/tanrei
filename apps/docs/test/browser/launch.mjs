@@ -5,7 +5,124 @@
 //
 // A file that runs in each engine reads them from `DOCS_ENGINES` (`engines`); one that runs in Chromium only launches
 // it alone (`launch()`).
+//
+// No test may hold its job without a word. Playwright gives its actions, its navigations and `waitForFunction` a limit
+// of their own (30 s), and none to a new context or page, to closing one or the browser, or to a script that awaits the
+// page (`evaluate`): a browser that stops answering any of those holds the test until the job's own limit, and
+// node:test, which reports a file's tests in their order, prints nothing more from any file of the shard (in CI, the
+// appearance test in WebKit stopped in one of those and printed nothing for twelve minutes, until the job's limit
+// cancelled it). So the browser `launch()` returns gives each new context, new page and close ANSWER, and fails saying
+// what it waited for; each file gives its tests a limit of their own, well above its slowest (node:test's
+// `--test-timeout` would limit the whole file, not each test), the backstop for anything else; and a test that fails
+// has the contexts it opened closed, and, if it ran out of time, its failure names what it was still waiting for
+// (below). `test:browser` runs with `--test-force-exit`, so that a file whose browser no longer answers ends once its
+// tests have reported, instead of being held open by its connection to that browser.
+import { afterEach, beforeEach } from 'node:test';
 import * as playwright from '@playwright/test';
+
+/** How long a browser has to answer what has no limit of Playwright's: a new context or page, closing one, a script. */
+export const ANSWER = 60_000;
+
+/** How long what is read for a failure's message may take: a browser that has stopped answering answers nothing. */
+const READ = 5_000;
+
+/** `promise`, or `otherwise` once `ms` have passed. */
+async function within(ms, promise, otherwise) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(otherwise), ms)))]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * `promise`, or a failure after ANSWER that says what was waited for, and what `more()` says then (given READ).
+ * @template T
+ * @param {string} what
+ * @param {Promise<T>} promise
+ * @param {() => Promise<string>} [more]
+ * @returns {Promise<T>}
+ */
+export async function bounded(what, promise, more = async () => '') {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(async () => {
+          const said = await within(READ, more().catch((cause) => `not read: ${String(cause).split('\n')[0]}`), `not read in ${READ / 1000} s`);
+          reject(new Error(`${what}: no answer within ${ANSWER / 1000} s${said ? `. ${said}` : ''}`));
+        }, ANSWER);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// The tests running now, and each context still open with the test that opened it: the one test running when it was
+// asked for, or none when several ran at once (a describe with `concurrency`, a test and its subtests), whose contexts
+// cannot be told apart and are left to the browser's close. node:test hands a test's hooks the context its function
+// is given, so a test is known by it.
+/** @type {Set<import('node:test').TestContext>} */
+const running = new Set();
+/** @type {Map<import('@playwright/test').BrowserContext, import('node:test').TestContext | null>} */
+const opened = new Map();
+/**
+ * The scripts each page is running for the test (`page.evaluate`), with when each was asked for.
+ * @type {WeakMap<import('@playwright/test').Page, Map<object, { what: string, started: number }>>} */
+const asked = new WeakMap();
+
+beforeEach((t) => {
+  running.add(t);
+});
+
+// A test that failed leaves nothing open behind it: the contexts it opened are closed, so that their pages do not go on
+// drawing beside the tests after it. One that ran out of its limit says first what it was still waiting for: the
+// scripts its pages were running and the state of each page. Neither may hide why the test failed: what cannot be read
+// or closed is added to its failure, never thrown.
+afterEach(async (t) => {
+  running.delete(t);
+  const own = [...opened].filter(([, owner]) => owner === t).map(([context]) => context);
+  for (const context of own) opened.delete(context);
+  if (t.passed || !t.error) return;
+  const notes = [];
+  if (t.error.failureType === 'testTimeoutFailure') {
+    // A test that ran beside others: its pages are among those opened while several ran, and each of them is named.
+    const shared = [...opened].filter(([, owner]) => owner === null).map(([context]) => context);
+    const pages = (own.length ? own : shared).flatMap((context) => context.pages());
+    const where = own.length ? 'its pages' : 'the pages open beside the tests it ran with (which are its own cannot be told)';
+    notes.push(`Still waiting when the limit ran out; ${where}: ${(await Promise.all(pages.map(standing))).join('; ') || 'none is open'}.`);
+  }
+  for (const context of own) {
+    await context.close().catch((cause) => notes.push(`Closing a context it opened failed too: ${String(cause).split('\n')[0]}`));
+  }
+  if (notes.length) amend(t.error, `\n${notes.join('\n')}`);
+});
+
+/**
+ * `failure` (node:test's, for a test) says `more` as well, wherever a reporter reads it: TAP its message, or its
+ * cause's for a failure of the test's own code; the spec reporter its cause, printed whole (an error by its stack).
+ */
+function amend(failure, more) {
+  failure.message += more;
+  const { cause } = failure;
+  if (typeof cause === 'string') failure.cause = cause + more;
+  else if (cause instanceof Error) {
+    const was = cause.message;
+    cause.message += more;
+    if (typeof cause.stack === 'string' && was) cause.stack = cause.stack.replace(was, cause.message);
+  }
+}
+
+/** What `page` is doing: its address, its document's state, and the scripts it is running that have not answered. */
+async function standing(page) {
+  const now = Date.now();
+  const scripts = [...(asked.get(page)?.values() ?? [])].map(({ what, started }) => `${what} (asked ${((now - started) / 1000).toFixed(1)} s ago)`);
+  const state = page.isClosed() ? 'closed' : await within(READ, page.mainFrame().evaluate(() => `${document.readyState}, ${document.visibilityState}`).catch((cause) => `not read: ${String(cause).split('\n')[0]}`), `not read in ${READ / 1000} s`);
+  return `${page.url()} (its document ${state}): ${scripts.length ? `running ${scripts.join(', ')}` : 'no script of the test running'}`;
+}
 
 /** The engines Playwright launches. */
 export const ENGINE_NAMES = ['chromium', 'firefox', 'webkit'];
@@ -83,11 +200,42 @@ export async function launch(engine = 'chromium') {
   }
   const newContext = browser.newContext.bind(browser);
   browser.newContext = async (...args) => {
-    const context = await newContext(...args);
-    context.on('page', sayWhatIsOutstanding);
+    const owner = running.size === 1 ? [...running][0] : null;
+    const context = await bounded(`${engine}: a new context`, newContext(...args));
+    opened.set(context, owner);
+    context.on('close', () => opened.delete(context));
+    const newPage = context.newPage.bind(context);
+    context.newPage = (...more) => bounded(`${engine}: a new page`, newPage(...more));
+    const close = context.close.bind(context);
+    context.close = (...more) => bounded(`${engine}: closing the context of ${context.pages().map((page) => page.url()).join(', ') || 'no page'}`, close(...more));
+    context.on('page', (page) => {
+      sayWhatIsOutstanding(page);
+      keepWhatIsAsked(page);
+      const closePage = page.close.bind(page);
+      page.close = (...more) => bounded(`${engine}: closing ${page.url()}`, closePage(...more));
+    });
     return context;
   };
+  const closeBrowser = browser.close.bind(browser);
+  browser.close = (...args) => bounded(`closing ${engine}`, closeBrowser(...args));
   return browser;
+}
+
+// The scripts a page runs for the test, kept while they run, so that a test that runs out of its limit names the one
+// it was waiting for (above).
+function keepWhatIsAsked(page) {
+  const scripts = new Map();
+  asked.set(page, scripts);
+  const evaluate = page.evaluate.bind(page);
+  page.evaluate = async (fn, ...args) => {
+    const key = {};
+    scripts.set(key, { what: `\`${String(fn).replace(/\s+/g, ' ').slice(0, 120)}\``, started: Date.now() });
+    try {
+      return await evaluate(fn, ...args);
+    } finally {
+      scripts.delete(key);
+    }
+  };
 }
 
 // A navigation that does not end says what it was waiting for. `goto` times out with only the address and the event it

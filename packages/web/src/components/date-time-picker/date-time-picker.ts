@@ -41,7 +41,7 @@ import {
   clockFor,
   localeHourCycle,
   minuteText,
-  modalLayer,
+  cssZoom,
   layoutSize,
   naturalHeight,
   numberText,
@@ -2164,20 +2164,23 @@ export class TanreiDateTimePicker extends TanreiElement {
     const surface = this.surface;
     if (!surface || this.inline || !this.shown || this.modal) return;
     const style = getComputedStyle(surface);
-    const offset = Number.parseFloat(style.scrollMarginBlockStart) || 0;
-    const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
+    // Placed in the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the
+    // surface's style and layout is turned into them and what is written on it back into its own (`cssZoom()`).
+    const zoom = cssZoom(surface);
+    const offset = (Number.parseFloat(style.scrollMarginBlockStart) || 0) * zoom;
+    const margin = (Number.parseFloat(style.scrollMarginBlockEnd) || 0) * zoom;
     // Measured as it stands, never by lifting the cap (which would lay the body out without overflow and send a scrolled
     // calendar back to its top on every placement): the body is the part that scrolls under the cap (DTM-36), or the
     // surface itself where everything scrolls together.
     const scroller = surface.classList.contains('whole') ? surface : surface.querySelector<HTMLElement>('.body');
-    const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroller) };
+    const size = { width: layoutSize(surface).width * zoom, height: naturalHeight(surface, scroller) * zoom };
     const viewport = visibleViewport();
     const box = this.anchorElement?.getBoundingClientRect() ?? { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 };
     const at = placeMenu({ anchor: box, surface: size, viewport, placement: 'bottom-start', offset, margin, rtl: getComputedStyle(this).direction === 'rtl' });
     const left = size.width > viewport.width - 2 * margin ? viewport.x + Math.max(0, (viewport.width - size.width) / 2) : at.left;
-    surface.style.top = `${at.top}px`;
-    surface.style.left = `${left}px`;
-    surface.style.maxBlockSize = `${at.maxHeight}px`;
+    surface.style.top = `${at.top / zoom}px`;
+    surface.style.left = `${left / zoom}px`;
+    surface.style.maxBlockSize = `${at.maxHeight / zoom}px`;
     surface.classList.toggle('side-top', at.side === 'top');
   }
 
@@ -2279,7 +2282,6 @@ export class TanreiDateTimePicker extends TanreiElement {
         // src/primitives/modal-exit.ts).
         openModal(surface);
         this.appear.enter();
-        modalLayer.add(this);
         holdPageScroll(this, true);
         window.visualViewport?.addEventListener('resize', this.onWindow);
       } else {
@@ -2368,7 +2370,6 @@ export class TanreiDateTimePicker extends TanreiElement {
     this.listen(false);
     window.removeEventListener('resize', this.onWindow);
     if (surface instanceof HTMLDialogElement) {
-      modalLayer.delete(this);
       holdPageScroll(this, false);
       window.visualViewport?.removeEventListener('resize', this.onWindow);
       // DTM-35: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its

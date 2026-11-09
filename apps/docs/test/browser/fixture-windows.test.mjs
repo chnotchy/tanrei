@@ -21,6 +21,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Arabic navigation
+// drawer’s page, in WebKit, took 40 s in CI.
+const LIMIT = { timeout: 150_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -59,7 +63,7 @@ async function drawnIn(frame) {
 for (const engine of engines('chromium,firefox,webkit')) {
   describe(`the gallery’s windows draw their fixtures (${engine})`, () => {
     for (const pathname of PAGES) {
-      test(pathname, async () => {
+      test(pathname, LIMIT, async () => {
         const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
         try {
           const page = await context.newPage();
@@ -119,7 +123,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
     // A modal fixture opens as its window draws, and each engine would move the page's focus into the window and scroll
     // the page to it — WebKit at its next frame, whether the frame is `inert` or not: a page of windows drawn as the
     // reader scrolls past them was scrolled back to each one, and the next one drawn in turn.
-    test('a window that draws a modal fixture neither scrolls the page nor takes its focus', async () => {
+    test('a window that draws a modal fixture neither scrolls the page nor takes its focus', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
@@ -157,7 +161,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
 
     // A fixture whose surface stands beside its anchor in the top layer is drawn closed in the page, and its stage's
     // action opens the real surface there and closes it again; the action shows whether it is open, however it closed.
-    test('an opener’s stage draws its fixture closed, and its action opens and closes it on the page', async () => {
+    test('an opener’s stage draws its fixture closed, and its action opens and closes it on the page', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
@@ -188,7 +192,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
       }
     });
 
-    test('a window is drawn in the page’s scheme, and follows the stage’s system and direction', async () => {
+    test('a window is drawn in the page’s scheme, and follows the stage’s system and direction', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'dark', reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();

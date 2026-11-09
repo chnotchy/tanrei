@@ -1,16 +1,16 @@
 // The start point, first in the bar: a menu of what the layer starts from — the default system, the root (listed, not
-// offered until it is a blank start, with the reason), the examples of the gallery — and a file to load in the
+// offered until the command line can start a layer from it, with the reason), the examples of the gallery — and a file to load in the
 // layer's place. A layer that holds changes asks first; a new start and a loaded file are each one step to undo. A file
 // the schema refuses is not loaded, and the panel says why; one it accepts is loaded, with what the engine says of it.
 import assert from 'node:assert/strict';
-import { studioTest, until } from './harness.js';
+import { motionsEnded, studioTest, until } from './harness.js';
 
 const menu = (page) => page.locator('[data-start-menu]');
 const openMenu = async (page) => {
   await page.locator('[data-start-open]').click();
   await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
   // Grown in: a surface still fading in is no color to measure.
-  await page.waitForFunction(() => document.querySelector('[data-start-menu]').shadowRoot.getAnimations({ subtree: true }).every((animation) => animation.playState !== 'running'));
+  await motionsEnded(page, '[data-start-menu]');
 };
 const label = (page) => page.locator('[data-start-label]').textContent();
 /** The dialogs the page opened, each answered as `answer` says (Playwright would dismiss one nobody listens for). */
@@ -38,7 +38,7 @@ studioTest('the bar’s start point: the default system, the root listed and not
   const rows = await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => [group.getAttribute('label'), group.value, [...group.querySelectorAll('tanrei-menu-radio-item')].map((item) => [item.value, item.label, item.supportingText, item.disabled])]));
   assert.deepEqual(rows[0], ['Start from', 'tanrei', [
     ['tanrei', 'Tanrei', 'The default system', false],
-    ['core', 'Core', 'Not yet: Tanrei’s root layer still holds the default system’s values. It becomes a blank start once its values are neutral.', true],
+    ['core', 'Core', 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.', true],
   ]]);
   assert.equal(rows[1][0], 'From the gallery');
   assert.equal(rows[1][1], null, 'no example is the start');

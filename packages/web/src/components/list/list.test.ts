@@ -493,6 +493,35 @@ test.describe('semantics and keyboard', () => {
     await expect.poll(() => seen.filter((w) => w.includes('(LST-19)')).length).toBeGreaterThan(0);
   });
 
+  test('LST-19, LST-32: an item named by the text of its content is drawn in one update when it is built, and drawn again when that text changes — its handle named by the new text', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const counted = await page.evaluate(async () => {
+      const frames = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const proto = customElements.get('tanrei-list-item')!.prototype as { updated: (...args: unknown[]) => unknown };
+      const updated = proto.updated;
+      let updates = 0;
+      proto.updated = function (...args: unknown[]) {
+        updates++;
+        return updated.apply(this, args);
+      };
+      const list = Object.assign(document.createElement('tanrei-list'), { label: 'Plans', reorderable: true, dragHandleLabel: 'Reorder {label}' });
+      list.innerHTML = '<tanrei-list-item>Basic</tanrei-list-item><tanrei-list-item>Pro</tanrei-list-item><tanrei-list-item>Team</tanrei-list-item>';
+      document.body.append(list);
+      await frames();
+      const built = updates;
+      updates = 0;
+      const first = list.querySelector('tanrei-list-item')!;
+      first.textContent = 'Starter';
+      await frames();
+      const renamed = updates;
+      const handle = first.shadowRoot!.querySelector('tanrei-button')!.getAttribute('label');
+      proto.updated = updated;
+      list.remove();
+      return { built, renamed, handle };
+    });
+    expect(counted).toEqual({ built: 3, renamed: 1, handle: 'Reorder Starter' });
+  });
+
   test('LST-20: an action’s, a link’s or an option’s content holds nothing interactive — a debug build reports one, on every change of it', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { fixtures: [fixture('nested', {}, [['Row <button>Edit</button>', { interactive: true }]])] });

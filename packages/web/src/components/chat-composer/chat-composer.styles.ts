@@ -10,7 +10,8 @@ import { heldRadius, heldShape } from '../../styles/shape.js';
 // Nothing here writes a custom property or reads a token of a member: the capsule
 // holds its members, and a custom property on it would be inherited by each of them. So every state is written out
 // from its own tokens, and the one length the stylesheet cannot know — a line of the typing area's text, which is the
-// member's — is measured by the element and written as a rule of its own (`measured()`), never as a property.
+// member's — is measured by the element and written as rules (`measured()`), never as a property: one constructed
+// stylesheet for each line measured, which every instance that measured that line shares (`measuredSheet()`).
 const PREFIX = '--tanrei-comp-chat-composer';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
@@ -36,9 +37,10 @@ const focusedCapsule = (focus: string) => (focus === ':focus-visible' ? '.capsul
  * the capsule's corners and its glow, which follow the one-line height, and the least height of each group of
  * Buttons, which is the typing area's with one line — so that a Button is centred on a single line and, as lines
  * grow, stays at the bottom edge at the distance it had. The stylesheet has it for a line of no height, which is
- * `container.height` alone; the element writes it again, as a rule of its own, once it has read the member's line.
+ * `container.height` alone; the element adopts it again, for the line it has read from the member, after its
+ * stylesheet and in no cascade layer (`measuredSheet()`).
  */
-export const measured = (line: string): string => `
+const measured = (line: string): string => `
   ${heldShape('.capsule', radius(line), PILL)}
   ${heldFocusGlow(focusedCapsule, { plain: radius(line), eased: heldRadius(radius(line), PILL) }).cssText}
   .group {
@@ -353,3 +355,22 @@ export const styles = css`
     }
   }
 `;
+
+/** The stylesheet of each line measured, shared by every instance that measured it. */
+const measuredSheets = new Map<string, CSSStyleSheet>();
+
+/**
+ * CCM-41: the rules of `measured()` for a line of `line` (a length in px), as one constructed stylesheet that every
+ * composer whose typing area has that line adopts — so a page of a hundred composers holds the sheets one holds. Null
+ * where a browser cannot construct a stylesheet: the line of no height then stands.
+ */
+export const measuredSheet = (line: string): CSSStyleSheet | null => {
+  if (typeof CSSStyleSheet === 'undefined') return null;
+  let sheet = measuredSheets.get(line);
+  if (!sheet) {
+    sheet = new CSSStyleSheet();
+    sheet.replaceSync(measured(line));
+    measuredSheets.set(line, sheet);
+  }
+  return sheet;
+};

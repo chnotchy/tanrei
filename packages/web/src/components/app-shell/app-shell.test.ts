@@ -1205,44 +1205,45 @@ test.describe('the skip link, landmarks and focus', () => {
     expect((await edges(region(page, 'header'))).width).toBe(1280);
   });
 
-  test('APS-22: the frame is not focusable and Tab walks its regions in reading order, the same in every class and in either direction — the skip link, the announcement, the header, the navigation, the aside while asideOrder is before, the main content, the aside while it is after, the footer, the navigation bar; a region that is not shown has no stop; no region in the layout keeps focus', async ({ page }) => {
-    const notice = '<div slot="announcement"><a id="notice" href="#n">Notice</a></div>';
-    const navigation = '<nav slot="navigation" aria-label="Documentation"><a id="nav-link" href="#s1">Tokens</a></nav>';
-    const bar = '<nav slot="navigation-bar" aria-label="Sections"><a id="bar-link" href="#b">Home</a></nav>';
-    const page1 = (order: 'before' | 'after') =>
-      own(
-        'order',
-        { asideOrder: order, asideLabel: 'On this page' },
-        `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">Skip</a>${notice}<header slot="header"><tanrei-button data-app-shell-menu variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button><a id="home" href="#h">Home</a></header>${navigation}${order === 'before' ? '<aside slot="aside"><a id="aside-link" href="#a">Aside</a></aside>' : ''}<main id="main" tabindex="-1"><a id="first" href="#f">First</a></main>${order === 'after' ? '<aside slot="aside"><a id="aside-link" href="#a">Aside</a></aside>' : ''}<footer slot="footer"><a id="footer-link" href="#t">Footer</a></footer>${bar}`,
-      );
-    const walk = async () => {
-      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-      await region(page, 'skip-link').evaluate((el) => (el as HTMLElement).focus());
-      const stops = [await active(page)];
-      for (let presses = 0; presses < 12; presses++) {
-        await tab(page);
-        const now = await active(page);
-        if (now === 'body' || now === stops.at(-1) || stops.includes(now)) break;
-        stops.push(now);
-      }
-      return stops;
-    };
-    const expected = {
-      1280: { after: ['a[skip-link]', '#notice', '#home', '#nav-link', '#first', '#aside-link', '#footer-link'], before: ['a[skip-link]', '#notice', '#home', '#nav-link', '#aside-link', '#first', '#footer-link'] },
-      // Medium: the navigation is not a drawer, so it is not shown, and the menu button is.
-      800: { after: ['a[skip-link]', '#notice', 'menu » button', '#home', '#first', '#aside-link', '#footer-link'], before: ['a[skip-link]', '#notice', 'menu » button', '#home', '#aside-link', '#first', '#footer-link'] },
-      400: { after: ['a[skip-link]', '#notice', 'menu » button', '#home', '#first', '#aside-link', '#footer-link', '#bar-link'], before: ['a[skip-link]', '#notice', 'menu » button', '#home', '#aside-link', '#first', '#footer-link', '#bar-link'] },
-    } as const;
-    for (const width of [1280, 800, 400] as const) {
+  // A test per window width (four mounts a page each), not one page that mounts all twelve documents.
+  for (const width of [1280, 800, 400] as const) {
+    test(`APS-22: the frame is not focusable and Tab walks its regions in reading order, the same in every class and in either direction — the skip link, the announcement, the header, the navigation, the aside while asideOrder is before, the main content, the aside while it is after, the footer, the navigation bar; a region that is not shown has no stop; no region in the layout keeps focus — ${width} wide`, async ({ page }) => {
+      const notice = '<div slot="announcement"><a id="notice" href="#n">Notice</a></div>';
+      const navigation = '<nav slot="navigation" aria-label="Documentation"><a id="nav-link" href="#s1">Tokens</a></nav>';
+      const bar = '<nav slot="navigation-bar" aria-label="Sections"><a id="bar-link" href="#b">Home</a></nav>';
+      const page1 = (order: 'before' | 'after') =>
+        own(
+          'order',
+          { asideOrder: order, asideLabel: 'On this page' },
+          `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">Skip</a>${notice}<header slot="header"><tanrei-button data-app-shell-menu variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button><a id="home" href="#h">Home</a></header>${navigation}${order === 'before' ? '<aside slot="aside"><a id="aside-link" href="#a">Aside</a></aside>' : ''}<main id="main" tabindex="-1"><a id="first" href="#f">First</a></main>${order === 'after' ? '<aside slot="aside"><a id="aside-link" href="#a">Aside</a></aside>' : ''}<footer slot="footer"><a id="footer-link" href="#t">Footer</a></footer>${bar}`,
+        );
+      const walk = async () => {
+        await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+        await region(page, 'skip-link').evaluate((el) => (el as HTMLElement).focus());
+        const stops = [await active(page)];
+        for (let presses = 0; presses < 12; presses++) {
+          await tab(page);
+          const now = await active(page);
+          if (now === 'body' || now === stops.at(-1) || stops.includes(now)) break;
+          stops.push(now);
+        }
+        return stops;
+      };
+      const expected = {
+        1280: { after: ['a[skip-link]', '#notice', '#home', '#nav-link', '#first', '#aside-link', '#footer-link'], before: ['a[skip-link]', '#notice', '#home', '#nav-link', '#aside-link', '#first', '#footer-link'] },
+        // Medium: the navigation is not a drawer, so it is not shown, and the menu button is.
+        800: { after: ['a[skip-link]', '#notice', 'menu » button', '#home', '#first', '#aside-link', '#footer-link'], before: ['a[skip-link]', '#notice', 'menu » button', '#home', '#aside-link', '#first', '#footer-link'] },
+        400: { after: ['a[skip-link]', '#notice', 'menu » button', '#home', '#first', '#aside-link', '#footer-link', '#bar-link'], before: ['a[skip-link]', '#notice', 'menu » button', '#home', '#aside-link', '#first', '#footer-link', '#bar-link'] },
+      } as const;
       for (const order of ['after', 'before'] as const) {
         for (const dir of ['ltr', 'rtl'] as const) {
           await mount(page, { ...page1(order), ...(dir === 'rtl' ? { direction: 'rtl' as const } : {}) }, { width });
           expect(await walk(), `${width} ${order} ${dir}`).toEqual(expected[width][order]);
         }
       }
-    }
-    expect(await shell(page).evaluate((el) => [el.tabIndex, el.hasAttribute('tabindex')])).toEqual([-1, false]);
-  });
+      expect(await shell(page).evaluate((el) => [el.tabIndex, el.hasAttribute('tabindex')])).toEqual([-1, false]);
+    });
+  }
 
   test('APS-23: a change of the window’s class is drawn at once, without a motion; scroll, headerPosition, mainWidth, asideOrder, footerHidden and separation stay as they are; and keyboard focus on something the new arrangement does not show — the menu button, a destination of the navigation bar — moves to the main region', async ({ page }) => {
     await mount(page, real({ bar: true, sections: 2, props: { mainWidth: 'full', asideOrder: 'before', separation: 'gap', headerPosition: 'static' } }), { width: 400 });
@@ -1551,10 +1552,13 @@ test.describe('the element and its stylesheet', () => {
 });
 
 test.describe('fixtures', () => {
-  test('every fixture of the spec is mounted, alone, in the window its id names', async ({ page }) => {
-    test.setTimeout(120_000);
+  test('the spec has its 20 fixtures', () => {
     expect(spec.fixtures).toHaveLength(20);
-    for (const f of spec.fixtures) {
+  });
+
+  // A test per fixture, so a page per mount: a page that mounts many documents grows the engine's memory with each.
+  for (const f of spec.fixtures) {
+    test(`the fixture is mounted, alone, in the window its id names: ${f.id}`, async ({ page }) => {
       await mount(page, f);
       const size = appShellWindow(f.id);
       await expect(shell(page), f.id).toHaveCount(1);
@@ -1570,26 +1574,23 @@ test.describe('fixtures', () => {
       expect((await edges(shell(page))).height, f.id).toBe(size.height);
       // The menu button, where the fixture has one: shown only while the navigation is presented over the content.
       if (f.items?.length) expect(await shown(menu(page)), f.id).toBe(!f.id.startsWith('expanded'));
-    }
-  });
+    });
+  }
 
-  for (const [name, size] of Object.entries(WINDOWS)) {
-    for (const theme of ['light', 'dark'] as const) {
-      test(`no axe violations at the ${name} width, ${theme}: every fixture alone, and the frame of real components`, async ({ page }) => {
-        test.setTimeout(180_000);
-        const check = async (label: string) => {
+  // A test per fixture (and one for the frame of real components), each alone at every width in both themes: six mounts
+  // a page. One page per width and theme that mounted all 21 grew WebKit's memory with every document it wrote.
+  for (const [label, one] of [...spec.fixtures.map((f) => [f.id, f] as const), ['the real frame', real({ bar: true, sections: 1 })] as const]) {
+    test(`no axe violations at every width, light and dark: ${label}`, async ({ page }) => {
+      test.setTimeout(60_000);
+      for (const [name, size] of Object.entries(WINDOWS)) {
+        for (const theme of ['light', 'dark'] as const) {
+          await mount(page, one, { ...size, theme });
           // (The stage is the whole page; what is asked of a page's content — a heading of level 1 — is the page header's.)
           const results = await new AxeBuilder({ page }).include('.stage').analyze();
-          expect(results.violations, `${label}: ${results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')}`).toEqual([]);
-        };
-        for (const f of spec.fixtures) {
-          await mount(page, f, { ...size, theme });
-          await check(`${f.id} at ${size.width}`);
+          expect(results.violations, `${label} at the ${name} width (${size.width}), ${theme}: ${results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')}`).toEqual([]);
         }
-        await mount(page, real({ bar: true, sections: 1 }), { ...size, theme });
-        await check(`the real frame at ${size.width}`);
-      });
-    }
+      }
+    });
   }
 
   for (const f of spec.fixtures) {

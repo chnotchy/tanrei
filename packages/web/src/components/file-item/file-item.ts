@@ -239,6 +239,8 @@ export class TanreiFileItem extends TanreiElement {
   private watched: Element[] = [];
   /** The box the lengths were read for. */
   private measuredFor = '';
+  /** FIT-7: each time it is taken out of the page and each time it is put back: a release waits until the turn is over. */
+  private placed = 0;
   /** FIT-23: the form last drawn. */
   private drawnForm: TanreiFileItemForm | null = null;
 
@@ -450,6 +452,8 @@ export class TanreiFileItem extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    // FIT-7: put back within the turn it was taken out in, it keeps what it had: nothing was released.
+    this.placed++;
     // Put back into the page: a picture of its file is made again when it is next in view (FIT-7).
     if (this.hasUpdated) this.requestUpdate();
     // A component that holds it reads it when it arrives.
@@ -458,13 +462,19 @@ export class TanreiFileItem extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    // FIT-7: taken out of the page, the address is released; put back, a new one is made when it is next in view.
-    this.unwatch();
-    this.release();
-    this.pictured = '';
-    this.resize?.disconnect();
-    this.resize = null;
-    this.watched = [];
+    // FIT-7: taken out of the page, the address is released; put back, a new one is made when it is next in view. An
+    // item moved — taken out and put back within one turn, as a component that draws a removed item leaving puts it
+    // back where it stood — is not taken out of the page, and keeps its picture.
+    const placed = ++this.placed;
+    queueMicrotask(() => {
+      if (placed !== this.placed || this.isConnected) return;
+      this.unwatch();
+      this.release();
+      this.pictured = '';
+      this.resize?.disconnect();
+      this.resize = null;
+      this.watched = [];
+    });
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {

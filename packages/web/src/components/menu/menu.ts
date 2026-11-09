@@ -29,6 +29,7 @@ import {
   deepActive,
   hostAria,
   linkAttributes,
+  cssZoom,
   layoutSize,
   type MenuBox,
   type MenuPlacement,
@@ -1873,12 +1874,16 @@ export class TanreiMenu extends TanreiElement {
    * judged as the surface stands at rest: while a motion of the surface runs, once it has ended, and only if the item
    * still has focus then. The first item of the list brings the list's start with it (its padding, a group's title),
    * the last its end, and the first item of a titled group that title.
+   *
+   * A motion held at its start counts as one that runs: the entrance is paused at its first value until the first frame
+   * drawn after the menu opened (`startFromNextFrame()`, src/primitives/motion.ts), and a key that came before that
+   * frame found no running motion and measured the list through the surface's starting scale.
    */
   private reveal(item: TanreiMenuRowBase, level: Level) {
     const surface = this.surfaceOf(level);
     const scroll = this.scrollOf(level);
     if (!surface || !scroll) return;
-    const moving = surface.getAnimations().filter((animation) => animation.playState === 'running' || animation.pending);
+    const moving = surface.getAnimations().filter((animation) => animation.playState === 'running' || animation.playState === 'paused' || animation.pending);
     if (moving.length) {
       void Promise.allSettled(moving.map((animation) => animation.finished)).then(() => {
         const active = deepActive();
@@ -1930,12 +1935,16 @@ export class TanreiMenu extends TanreiElement {
     const level = this.levelOf(submenu);
     const parent = this.surfaceOf(level);
     if (!own || !row || !parent || submenu.presentation !== 'overlay') return;
-    // The lengths are read through real properties (a custom property holds an expression).
+    // The lengths are read through real properties (a custom property holds an expression). Placed in the window's
+    // pixels: under an ancestor's zoom, which reaches the top layer, what is read from the surface's style and layout is
+    // turned into them and what is written on it back into its own (`cssZoom()`, src/primitives/layout-scale.ts).
     const style = getComputedStyle(own);
-    const offset = Number.parseFloat(style.scrollMarginBlockStart) || 0;
-    const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
-    const touch = Number.parseFloat(style.scrollMarginInlineStart) || 0;
-    const minWidth = Number.parseFloat(style.scrollMarginInlineEnd) || 0;
+    const zoom = cssZoom(own);
+    const length = (value: string) => (Number.parseFloat(value) || 0) * zoom;
+    const offset = length(style.scrollMarginBlockStart);
+    const margin = length(style.scrollMarginBlockEnd);
+    const touch = length(style.scrollMarginInlineStart);
+    const minWidth = length(style.scrollMarginInlineEnd);
     // The height is measured as the surface stands, never by lifting the cap (MNU-2's place() says why): uncapped, the
     // list would not scroll, and a scrolled submenu placed again — its item moving, the window resizing — would be sent
     // back to its top. Its width is measured free of the narrowing a last placement gave it: wider, its items may take
@@ -1951,22 +1960,22 @@ export class TanreiMenu extends TanreiElement {
     const input = { parent: parent.getBoundingClientRect(), row: row.getBoundingClientRect(), viewport, offset, margin, minWidth, touch, rtl, prefer };
     // The first row's distance from the surface's top as laid out. The surface is measured before its entrance, as it
     // starts (MNU-4): its boxes scaled about one origin, so the distance drawn is the one laid out times the scale shown.
-    const lead = () => (first ? (first.getBoundingClientRect().top - own.getBoundingClientRect().top) / shownScale(own) + (submenu.scrollElement?.scrollTop ?? 0) : 0);
+    const lead = () => (first ? (first.getBoundingClientRect().top - own.getBoundingClientRect().top) / shownScale(own) + (submenu.scrollElement?.scrollTop ?? 0) * zoom : 0);
     // The surface's size as laid out, fractional (layoutSize): a snapped width would end it up to a pixel off its edge.
-    const free = layoutSize(own).width;
+    const free = layoutSize(own).width * zoom;
     // MNU-46: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
     const cap = capOf(own);
-    const height = () => Math.min(naturalHeight(own, scroll), cap);
+    const height = () => Math.min(naturalHeight(own, scroll), cap) * zoom;
     let at = placeSubmenu({ ...input, surface: { width: free, height: height() }, lead: lead() });
     if (at.width < free) {
       // Narrowed, its items wrap: it is placed again at the height that gives.
-      own.style.inlineSize = `${at.width}px`;
-      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width, height: height() }, lead: lead() });
+      own.style.inlineSize = `${at.width / zoom}px`;
+      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width * zoom, height: height() }, lead: lead() });
     }
-    own.style.top = `${at.top}px`;
-    own.style.left = `${at.left}px`;
+    own.style.top = `${at.top / zoom}px`;
+    own.style.left = `${at.left / zoom}px`;
     // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
-    own.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
+    own.style.setProperty('max-block-size', `${Math.min(at.maxHeight / zoom, cap)}px`, 'important');
     if (scroll && scroll.scrollTop !== scrolled) scroll.scrollTop = scrolled;
     // MNU-50: the side it grows from, read by its appearance.
     own.dataset.side = at.side;
@@ -2490,13 +2499,16 @@ export class TanreiMenu extends TanreiElement {
     const scroll = this.scrollBox;
     if (!surface || !scroll || this.inline || !this.shown) return;
     const style = getComputedStyle(surface);
-    const offset = Number.parseFloat(style.scrollMarginBlockStart) || 0;
-    const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
+    // Placed in the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the
+    // surface's style and layout is turned into them and what is written on it back into its own (`cssZoom()`).
+    const zoom = cssZoom(surface);
+    const offset = (Number.parseFloat(style.scrollMarginBlockStart) || 0) * zoom;
+    const margin = (Number.parseFloat(style.scrollMarginBlockEnd) || 0) * zoom;
     // The surface's size as laid out, fractional and untouched by the enter motion's scale (layoutSize): a snapped
     // one would put an end-aligned or top-side surface up to a pixel off its anchor.
     // MNU-2: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
     const cap = capOf(surface);
-    const size = { width: layoutSize(surface).width, height: Math.min(naturalHeight(surface, scroll), cap) };
+    const size = { width: layoutSize(surface).width * zoom, height: Math.min(naturalHeight(surface, scroll), cap) * zoom };
     const viewport = visibleViewport();
     const against = this.placedAgainst() ?? { box: { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 }, point: false };
     const rtl = getComputedStyle(this).direction === 'rtl';
@@ -2504,10 +2516,10 @@ export class TanreiMenu extends TanreiElement {
     const at = against.point
       ? placeAtPoint({ point: against.box, surface: size, viewport, placement, margin, rtl })
       : placeMenu({ anchor: against.box, surface: size, viewport, placement, offset, margin, rtl });
-    surface.style.top = `${at.top}px`;
-    surface.style.left = `${at.left}px`;
+    surface.style.top = `${at.top / zoom}px`;
+    surface.style.left = `${at.left / zoom}px`;
     // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
-    surface.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
+    surface.style.setProperty('max-block-size', `${Math.min(at.maxHeight / zoom, cap)}px`, 'important');
     // MNU-4: the side it grows from, read by its appearance.
     surface.dataset.side = at.side;
   }

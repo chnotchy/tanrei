@@ -19,6 +19,13 @@ declare module 'virtual:tanrei-docs/last-updated' {
   export function sourcesOf(url: string): string[];
 }
 
+// The key of the build that computes the stylesheet of a reader's own theme (src/lib/sheet-key.mjs): a sheet kept in
+// the reader's browser under another key is not used.
+declare module 'virtual:tanrei-docs/sheet-key' {
+  const key: string;
+  export default key;
+}
+
 // Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
 // function for each tag that imports its module, and how many modules there are.
 declare module 'virtual:tanrei-element-modules' {

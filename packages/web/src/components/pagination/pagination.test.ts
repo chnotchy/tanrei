@@ -10,7 +10,7 @@ import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAl
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { settledCss } from '../../../test/motions.js';
-import { expectAnimated, sampleFrames } from '../../../test/frames.js';
+import { type Probe, expectAnimated, expectFirstFrameAtRest, frameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -906,6 +906,94 @@ test.describe('states', () => {
     expectAnimated(seen, 'first');
     const fourth = [seen.before, ...seen.frames, seen.rest].map((frame) => frame.probe.fourth).filter((value, i, all) => i === 0 || value !== all[i - 1]);
     expect(fourth).toEqual([`4 ${await resolveColor(page, T('item-container-color'))}`, `6 ${await resolveColor(page, T('current-container-color'))}`]);
+  });
+
+  /**
+   * PGN-18: what a pagination draws and exposes in one frame — each page's fill as one number, the previous control's
+   * colours, the compact sentence, and the page or pages that carry aria-current.
+   */
+  const currentFrame: Probe = (root) => {
+    const el = root.matches('tanrei-pagination') ? root : root.querySelector('tanrei-pagination');
+    if (!el?.shadowRoot) return {};
+    const seen: Record<string, number | string> = {};
+    for (const item of el.shadowRoot.querySelectorAll<HTMLElement>('.row .item:not(.control)')) {
+      const fill = (getComputedStyle(item).backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
+      seen[`fill${item.dataset.page}`] = fill.reduce((sum, n, i) => sum + n * (i + 1), 0);
+    }
+    // The compact form draws no pages: its previous control (enabled, or disabled on page 1) and its sentence change.
+    const previous = el.shadowRoot.querySelector('.row .item[data-control="previous"]');
+    if (previous) seen.previous = `${getComputedStyle(previous).backgroundColor} ${getComputedStyle(previous).color} ${getComputedStyle(previous).opacity}`;
+    seen.count = el.shadowRoot.querySelector('.count')?.textContent?.trim() ?? '';
+    seen.current = [...el.shadowRoot.querySelectorAll<HTMLElement>('[aria-current]')].map((item) => `${item.dataset.page}:${item.getAttribute('aria-current')}`).join(' ');
+    return seen;
+  };
+
+  test('PGN-18, PGN-4: what a new current page exposes changes at once, not at the end of the motion — in its first frame aria-current is on the new page alone, the fills where they were', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [fixture('default'), fixture('links')] });
+    await page.mouse.move(0, 0);
+    for (const id of ['default', 'links']) {
+      const el = host(page, id);
+      const from = (await el.evaluate((pagination: any) => pagination.page)) as number;
+      const to = from + 1;
+      const before = await frameAtRest(el, { elements: false, probe: currentFrame });
+      const frozen = await freezeFirstFrame(el, () => el.evaluate((pagination: any, n) => (pagination.page = n), to), { elements: false, probe: currentFrame });
+      try {
+        expect(frozen.frame.probe.current, id).toBe(`${to}:page`);
+        // The fills stand where they were: the motion has begun, not ended.
+        expect(frozen.frame.probe[`fill${from}`], `${id}: page ${from}`).toBe(before.probe[`fill${from}`]);
+        expect(frozen.frame.probe[`fill${to}`], `${id}: page ${to}`).toBe(before.probe[`fill${to}`]);
+        await expect(pageItem(page, id, to)).toHaveAttribute('aria-current', 'page');
+        await expect(pageItem(page, id, from)).not.toHaveAttribute('aria-current');
+      } finally {
+        await frozen.release();
+      }
+      await motionEnded(el);
+    }
+  });
+
+  test('PGN-18: where motion is reduced a new current page is drawn as it rests from the first frame — in every fixture', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true });
+    await page.mouse.move(0, 0);
+    for (const f of spec.fixtures) {
+      const el = host(page, f.id);
+      const count = (await el.evaluate((pagination: any) => pagination.count)) as number;
+      if (count < 2) continue;
+      const to = (await el.evaluate((pagination: any) => pagination.page)) === 1 ? 2 : 1;
+      const seen = await sampleFrames(stage(page, f.id), () => el.evaluate((pagination: any, n) => (pagination.page = n), to), { probe: currentFrame });
+      expect(seen.before.probe, `${f.id}: something changed`).not.toEqual(seen.rest.probe);
+      expectFirstFrameAtRest(seen);
+      expect(seen.motions, f.id).toEqual([]);
+    }
+  });
+
+  test('PGN-18: a pagination that is first drawn is at rest from its first frame — no motion, even where its page is set in the same frames', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [fixture('default')] });
+    await page.mouse.move(0, 0);
+    const seen = await sampleFrames(stage(page, 'default'), () =>
+      stage(page, 'default').evaluate(async (box) => {
+        box.insertAdjacentHTML('beforeend', '<tanrei-pagination id="late" label="Late" count="10" page="1" previous-label="Previous page" next-label="Next page"></tanrei-pagination>');
+        const late = box.querySelector('#late') as HTMLElement & { page: number; updateComplete: Promise<unknown> };
+        await late.updateComplete;
+        late.page = 3;
+        await late.updateComplete;
+      }),
+      { elements: false, probe: (root) => {
+        const late = root.querySelector('#late');
+        if (!late?.shadowRoot) return {};
+        const seen: Record<string, number | string> = {};
+        for (const item of late.shadowRoot.querySelectorAll<HTMLElement>('.row .item:not(.control)')) {
+          const fill = (getComputedStyle(item).backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
+          seen[`fill${item.dataset.page}`] = fill.reduce((sum, n, i) => sum + n * (i + 1), 0);
+        }
+        seen.current = late.shadowRoot.querySelector<HTMLElement>('[aria-current]')?.dataset.page ?? '';
+        return seen;
+      } },
+    );
+    expect(seen.rest.probe.current).toBe('3');
+    const drawn = [...seen.frames, seen.rest].filter((frame) => 'current' in frame.probe);
+    expect(drawn.length, 'the late pagination is drawn').toBeGreaterThan(1);
+    for (const frame of drawn) expect(frame.probe, `frame ${frame.index}`).toEqual(seen.rest.probe);
+    expect(seen.motions.filter((motion) => /item|glyph/.test(motion.on))).toEqual([]);
   });
 
   test('PGN-20: an item smaller than the minimum target reaches it on both axes — touch and fine pointer — without changing its size, and toward a neighbour no further than half the gap', async ({ page, browserName }) => {

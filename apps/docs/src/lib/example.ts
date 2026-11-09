@@ -4,7 +4,8 @@
 //
 // Nothing here moves what is drawn: the stage holds its markup from the first paint, the actions' room is held by the
 // stylesheet, and the code opens under the stage only when a reader asks for it.
-import { DEFAULT_SYSTEM_ATTR, drawUnder } from './visuals/frame';
+import { CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID } from './appearance';
+import { DEFAULT_SYSTEM_ATTR, SYSTEM_EVENT, drawUnder } from './visuals/frame';
 import './define-on-demand';
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { htmlOf, reactOf, type ReactNames } from './example-code';
@@ -28,8 +29,9 @@ const FLAVOR_KEY = 'tanrei-docs-example-code';
 type Flavor = 'html' | 'react';
 type Choice = HTMLElement & { value: string | null };
 
-// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: the one the reader chose is loaded once.
-const sheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: the one the reader chose is loaded once. Not
+// the root's (core.css), which a reader cannot choose.
+const sheets = import.meta.glob<string>(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { query: '?url', import: 'default', eager: true });
 const sheetOf = (system: string) => Object.entries(sheets).find(([path]) => path.endsWith(`/${system}.css`))?.[1];
 
 const stageOf = (frame: HTMLElement) => frame.querySelector<HTMLElement>(':scope > figure > [data-part="frame"] > [data-example-stage]');
@@ -37,14 +39,31 @@ const stageOf = (frame: HTMLElement) => frame.querySelector<HTMLElement>(':scope
 /** The design system the reader chose for the page (the header's menu, lib/listing.mjs), else the frame's default. */
 const pageSystem = (frame: HTMLElement) => document.documentElement.getAttribute(SYSTEM_ATTR) || frame.getAttribute(DEFAULT_SYSTEM_ATTR) || '';
 
-/** Draws a frame under the page's system, unless a page pinned it to a preset. */
+/** The system each frame was last drawn under, the reader's own theme included (`custom`, which has no scope of its own). */
+const drawnUnder = new WeakMap<HTMLElement, string>();
+
+/**
+ * Draws a frame under the page's system, unless a page pinned it to a preset. The reader's own theme is drawn on the
+ * root, the whole page with it (lib/custom-theme.ts): a frame under it has no scope, as under the default system.
+ */
 function follow(frame: HTMLElement) {
   if (frame.dataset.pinned) return;
   const stage = stageOf(frame);
+  if (!stage) return;
   const fallback = frame.getAttribute(DEFAULT_SYSTEM_ATTR) ?? '';
   const system = pageSystem(frame);
-  if (!stage || (stage.getAttribute('data-tanrei-system') ?? fallback) === system) return;
-  void drawUnder(frame, system, system === fallback ? undefined : sheetOf(system));
+  const was = drawnUnder.get(frame) ?? stage.getAttribute('data-tanrei-system') ?? fallback;
+  if (was === system) return;
+  drawnUnder.set(frame, system);
+  // Between the default system and the reader's own theme the stage has no scope either way: its tokens are the
+  // root's, and only the theme's stylesheet changes them, which says so when it is put in or taken away (below).
+  // Nothing is drawn again before then: the press that chose the look is answered by the next frame.
+  const unscoped = (look: string) => look === fallback || look === CUSTOM_LOOK;
+  if (unscoped(was) && unscoped(system) && !document.getElementById(CUSTOM_STYLE_ID)) return;
+  void drawUnder(frame, system, system === fallback || system === CUSTOM_LOOK ? undefined : sheetOf(system)).then((drawn) => {
+    // A stylesheet that could not be loaded: the frame is still drawn under what it was, and is asked again next time.
+    if (drawn !== system && drawnUnder.get(frame) === system) drawnUnder.delete(frame);
+  });
 }
 
 // ── The code ─────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -223,3 +242,8 @@ for (const frame of frames()) {
 new MutationObserver(() => {
   for (const frame of frames()) follow(frame);
 }).observe(document.documentElement, { attributes: true, attributeFilter: [SYSTEM_ATTR] });
+// The reader's own theme's stylesheet, in or replaced (or taken away): every frame drawn under it is drawn again by
+// what reads its values (a figure's measures), as under another system.
+document.addEventListener(CUSTOM_SHEET_EVENT, () => {
+  for (const frame of frames()) if (!frame.dataset.pinned && drawnUnder.get(frame) === CUSTOM_LOOK) frame.dispatchEvent(new CustomEvent(SYSTEM_EVENT, { detail: { system: CUSTOM_LOOK } }));
+});

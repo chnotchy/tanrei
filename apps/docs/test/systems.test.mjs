@@ -132,7 +132,7 @@ describe('the presets', () => {
       assert.match(page, /"include": \[\{ "name": "fab-menu", "from": "m3-like" \}, "segmented-button"\]/, `${dir}presets: the layer that takes a preset’s component`);
       assert.match(page, /"extends": "tanrei"/);
     }
-    assert.match(read('astro.config.mjs'), /'getting-started\/react-native',\n\s*'getting-started\/presets',\n\s*'getting-started\/your-design-system',/);
+    assert.match(read('src/lib/sidebar.mjs'), /'getting-started\/react-native',\n\s*'getting-started\/presets',\n\s*'getting-started\/your-design-system',/);
   });
   test('the page’s code names only what the packages export', () => {
     const exports = Object.keys(JSON.parse(read('../../packages/web/package.json')).exports);

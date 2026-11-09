@@ -323,7 +323,7 @@ export const styles = css`
     overflow: visible;
     color: ${t('content-color')};
   }
-  ${sheetLookStyles({ sheet: ':host dialog.container.sheet' })}
+  ${sheetLookStyles({ sheet: ':host dialog.container.sheet', motion: 'dialog.container.sheet' })}
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
   :host dialog.container.sheet:not([open]) {
@@ -341,6 +341,14 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-comp-bottom-sheet-container-shape'))}
     border-end-start-radius: 0;
     border-end-end-radius: 0;
+  }
+
+  /* POP-45, POP-46, POP-48: the show and hide delays, read through real properties by script; this element draws nothing. */
+  .timing {
+    display: none;
+    transition-property: none;
+    transition-delay: ${t('motion-show-delay')};
+    transition-duration: ${t('motion-hide-delay')};
   }
 
   /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */

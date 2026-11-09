@@ -1212,10 +1212,10 @@ test.describe('the collapsed form', () => {
     await mount(page, [fixture('d', [MENU, MAIN, { ...MAIN, props: { label: 'Other' } }, ...MAIL], { collapsible: true })], { reducedMotion: true });
     const column = await px(page, T('collapsed-container-width-regular'));
     const main = drawer(page, 'd').locator('tanrei-main-action-button').first();
-    expect(await main.evaluate((el: any) => el.extended)).toBe(true);
+    expect(await main.evaluate((el: any) => el.collapsed)).toBe(false);
     const expanded = await bounds(main);
     await setProps(page, 'd', { expanded: false });
-    await expect.poll(() => main.evaluate((el: any) => el.extended)).toBe(false);
+    await expect.poll(() => main.evaluate((el: any) => el.collapsed)).toBe(true);
     await expect(main).toHaveAttribute('collapsed', '');
     await expect.poll(async () => Math.round((await bounds(main)).width)).toBe(Math.round((await bounds(main)).height));
     const collapsed = await bounds(main);
@@ -1246,7 +1246,7 @@ test.describe('the collapsed form', () => {
           if (form === 'collapsed') for (const f of fixtures) await setProps(page, f.id, { expanded: false });
           for (const f of fixtures) {
             const main = drawer(page, f.id).locator('tanrei-main-action-button');
-            await expect.poll(() => main.evaluate((el: any) => el.extended)).toBe(form === 'expanded');
+            await expect.poll(() => main.evaluate((el: any) => el.collapsed)).toBe(form !== 'expanded');
             const where = `${system ?? 'tanrei'} ${direction} ${f.id} ${form}`;
             const [g, i] = [await glyph(f.id), await icon(f.id)];
             measured.push(`${where}: ${(g - i).toFixed(2)}`);
@@ -3691,7 +3691,7 @@ test.describe('the row model shared with the tree view', () => {
     await page.addStyleTag({ content: '* { margin: 0; padding: 0; }' });
     for (const expanded of [true, false]) {
       await setProps(page, 'reset', { expanded });
-      await expect.poll(() => drawer(page, 'reset').locator('tanrei-main-action-button').evaluate((el: any) => el.extended)).toBe(expanded);
+      await expect.poll(() => drawer(page, 'reset').locator('tanrei-main-action-button').evaluate((el: any) => el.collapsed)).toBe(!expanded);
       const glyph = centre(await bounds(drawer(page, 'reset').locator('tanrei-main-action-button').locator('.icon-box'))).x;
       const icon = centre(await bounds(item(page, 'reset', 0).locator('.icon'))).x;
       expect(Math.abs(glyph - icon), String(expanded)).toBeLessThanOrEqual(0.5);
@@ -3710,24 +3710,34 @@ test.describe('the row model shared with the tree view', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark (standard and collapsed, and modal)', async ({ page }) => {
-    test.setTimeout(120_000);
-    // A responsive fixture is what its window makes it: each alone, in its window (`drawerWindow`).
-    const responsive = spec.fixtures.filter((f) => f.props.responsive);
-    const inline = spec.fixtures.filter((f) => !f.props.responsive && (f.props.variant !== 'modal' || !f.props.open));
-    for (const theme of ['light', 'dark'] as const) {
-      for (const fixtures of [inline, only('modal'), only('modal-collapsible-open'), ...responsive.map((f) => [f])]) {
+  // A responsive fixture is what its window makes it: each alone, in its window (`drawerWindow`).
+  const responsive = spec.fixtures.filter((f) => f.props.responsive);
+  const inline = spec.fixtures.filter((f) => !f.props.responsive && (f.props.variant !== 'modal' || !f.props.open));
+  // The fixtures drawn in place, a few to a test: axe's contrast rule reads every node of a page, and the forty-odd
+  // drawers of the whole set took WebKit on a CI runner past a test's time in two analyses.
+  const PER_TEST = 11;
+  const inlineGroups = Array.from({ length: Math.ceil(inline.length / PER_TEST) }, (_, i) => inline.slice(i * PER_TEST, (i + 1) * PER_TEST));
+  // A test per group of fixtures, in both themes: two mounts a page, not one page that mounts every group twice.
+  const groups: [string, Fixture[]][] = [
+    ...inlineGroups.map((fixtures): [string, Fixture[]] => [`${fixtures[0].id} to ${fixtures.at(-1)!.id}`, fixtures]),
+    ['modal', only('modal')],
+    ['modal-collapsible-open', only('modal-collapsible-open')],
+    ...responsive.map((f): [string, Fixture[]] => [f.id, [f]]),
+  ];
+  for (const [label, fixtures] of groups) {
+    test(`no axe violations in light and dark: ${label}`, async ({ page }) => {
+      for (const theme of ['light', 'dark'] as const) {
         await page.setViewportSize(fixtures.length === 1 ? drawerWindow(fixtures[0].id) : { width: 1280, height: 720 });
         await mount(page, fixtures, { theme, reducedMotion: true });
-        // Every mount after the first writes its document into a window that was painted already, so an open modal
-        // drawer plays its entrance (MOT-4; under reduced motion, a cross-fade): axe reads it at rest, once every motion
-        // in the page has ended.
+        // The second mount writes its document into a window that was painted already, so an open modal drawer plays
+        // its entrance (MOT-4; under reduced motion, a cross-fade): axe reads it at rest, once every motion in the page
+        // has ended.
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
-        expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        expect(results.violations, `${label} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 });
 
 /**

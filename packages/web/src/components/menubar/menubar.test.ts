@@ -11,6 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -121,7 +122,7 @@ const state = (page: P, id: string) =>
 const focus = async (page: P, id: string) => (await state(page, id)).focus;
 const open = async (page: P, id: string) => (await state(page, id)).open;
 /** Whether a surface is shown: the menu a title opens, or a submenu's. */
-const surfaceShown = (host: Locator) => host.evaluate((el) => !!el.shadowRoot?.querySelector('.surface')?.matches(':popover-open, .inline'));
+const surfaceShown = async (host: Locator) => (await host.count()) > 0 && host.evaluate((el) => !!el.shadowRoot?.querySelector('.surface')?.matches(':popover-open, .inline'));
 const surfaceOf = (page: P, id: string, label: string) => menu(page, id, label).locator('tanrei-menu .surface');
 /** Keyboard focus to a title: the bar's Tab stop first, then along the bar. */
 async function focusTitle(page: P, id: string, label: string) {
@@ -831,8 +832,9 @@ test.describe('the keys', () => {
     await page.keyboard.press('Enter');
     await expect.poll(() => open(page, 'editor')).toEqual([]);
     expect(await log(page)).toEqual(['click:tanrei-menu-checkbox-item:Word wrap', 'change:tanrei-menu-checkbox-item:Word wrap', 'toggle:tanrei-menubar-menu:Edit']);
-    // No access key: no accesskey, no underlined letter, in any title.
-    expect(await bar(page, 'editor').evaluate((el) => [...el.querySelectorAll('*'), ...[...el.querySelectorAll('tanrei-menubar-menu')].flatMap((each) => [...each.shadowRoot!.querySelectorAll('*')])].some((node) => node.hasAttribute('accesskey') || node.localName === 'u' || getComputedStyle(node).textDecorationLine !== 'none'))).toBe(false);
+    // No access key: no accesskey, no underlined letter, in any title. (The items of a menu never shown are in no slot,
+    // drawn nowhere, and have no computed style at all: MBR-49.)
+    expect(await bar(page, 'editor').evaluate((el) => [...el.querySelectorAll('*'), ...[...el.querySelectorAll('tanrei-menubar-menu')].flatMap((each) => [...each.shadowRoot!.querySelectorAll('*')])].some((node) => node.hasAttribute('accesskey') || node.localName === 'u' || !['none', ''].includes(getComputedStyle(node).textDecorationLine)))).toBe(false);
     // A product may add one: by setting open, or by moving focus to a title.
     await menu(page, 'editor', 'Help').evaluate((el: any) => (el.open = true));
     await expect.poll(() => state(page, 'editor')).toMatchObject({ open: ['Help'], focus: 'item:About' });
@@ -2912,6 +2914,174 @@ test.describe('entries that act', () => {
     expect(await focus(page, 'mixed')).toBe('title:Run all');
     await item(page, 'mixed', 'Run all').evaluate((el) => el.remove());
     await expect.poll(() => state(page, 'mixed')).toMatchObject({ focus: 'title:View', stop: 'View' });
+  });
+});
+
+test.describe('a menu that has not been opened', () => {
+  /**
+   * A bar of `n` menus, each with the items an application's menu has (actions with shortcuts, a checkbox item, a
+   * submenu), built in one task; then the updates each element made, counted on its own class (a subclass's update is
+   * counted once, on its own tag), until two frames after.
+   */
+  const built = (page: P, n: number) =>
+    page.evaluate(async (n) => {
+      const tags = ['tanrei-menubar', 'tanrei-menubar-menu', 'tanrei-menu', 'tanrei-menu-item', 'tanrei-menu-checkbox-item', 'tanrei-submenu'];
+      const counts: Record<string, number> = Object.fromEntries(tags.map((tag) => [tag, 0]));
+      const restore: (() => void)[] = [];
+      for (const tag of tags) {
+        const own = customElements.get(tag)!;
+        const proto = own.prototype as { performUpdate(): void };
+        const before = Object.getOwnPropertyDescriptor(proto, 'performUpdate');
+        const inherited = proto.performUpdate;
+        Object.defineProperty(proto, 'performUpdate', {
+          configurable: true,
+          value(this: HTMLElement) {
+            if (customElements.get(this.localName) === own) counts[tag] += 1;
+            return inherited.call(this);
+          },
+        });
+        restore.push(() => (before ? Object.defineProperty(proto, 'performUpdate', before) : delete (proto as Partial<typeof proto>).performUpdate));
+      }
+      const items = (k: number) =>
+        `<tanrei-menu-item label="New ${k}" shortcut="mod+n"></tanrei-menu-item><tanrei-menu-item label="Open ${k}"></tanrei-menu-item>` +
+        `<tanrei-menu-checkbox-item label="Wrap ${k}"></tanrei-menu-checkbox-item><tanrei-submenu label="Recent ${k}"><tanrei-menu-item label="One ${k}"></tanrei-menu-item></tanrei-submenu>`;
+      const stage = document.body.appendChild(document.createElement('div'));
+      stage.style.inlineSize = '4000px';
+      stage.innerHTML = `<tanrei-menubar label="Application">${Array.from({ length: n }, (_, k) => `<tanrei-menubar-menu label="Menu ${k}">${items(k)}</tanrei-menubar-menu>`).join('')}</tanrei-menubar>`;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      for (const undo of restore) undo();
+      const menus = [...stage.querySelectorAll('tanrei-menubar-menu')];
+      const surfaces = menus.filter((each) => each.shadowRoot!.querySelector('tanrei-menu')).length;
+      stage.remove();
+      return { counts, surfaces };
+    }, n);
+
+  test('MBR-49: a bar of menus that have not been opened builds no menu — at mount each title updates once and the bar at most twice, whatever the menus hold and however many they are', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [editor()] });
+    const runs = [];
+    for (const n of [1, 7, 20]) {
+      const { counts, surfaces } = await built(page, n);
+      const line = `${n} menus: ${Object.entries(counts).map(([tag, count]) => `${tag} ${count}`).join(', ')}; menus built: ${surfaces}`;
+      console.log(`updates at mount, ${line}`);
+      test.info().annotations.push({ type: 'updates at mount', description: line });
+      runs.push({ n, counts, surfaces, line });
+    }
+    for (const { n, counts, surfaces, line } of runs) {
+      // No menu of the bar is built until it opens: no surface, and no update of one.
+      expect(surfaces, line).toBe(0);
+      expect(counts['tanrei-menu'], line).toBe(0);
+      // The bar's own: one update for each title, and the bar's (its first render, and the row laid out once its
+      // titles are measured, MBR-21) — the same at 1 menu as at 20.
+      expect(counts['tanrei-menubar-menu'], line).toBe(n);
+      expect(counts['tanrei-menubar'], line).toBeLessThanOrEqual(2);
+    }
+  });
+
+  test('MBR-49: a menu that has not been opened opens by every input as one that has — Enter, Space, Down Arrow, Up Arrow, a press, a pointer moving along the bar, the inline arrow keys and the product’s open — with focus where MBR-9 puts it', async ({ page }) => {
+    const inputs = ['enter', 'space', 'down', 'up', 'press', 'hover', 'arrow', 'product'];
+    await mountFixtures(page, spec, { fixtures: inputs.map((input) => editor(`first-${input}`)), reducedMotion: true });
+    const built = (id: string) => bar(page, id).evaluate((el) => [...el.querySelectorAll<HTMLElement & { label: string }>(':scope > tanrei-menubar-menu')].filter((each) => each.shadowRoot!.querySelector('tanrei-menu')).map((each) => each.label));
+    for (const input of inputs) expect(await built(`first-${input}`), input).toEqual([]);
+    const keyed = async (id: string, key: string, first: string) => {
+      await focusTitle(page, id, 'File');
+      await page.keyboard.press(key);
+      await expect.poll(() => state(page, id)).toMatchObject({ open: ['File'], focus: `item:${first}` });
+      expect(await quiet(page), `${key}: the ring shows`).toBe(false);
+      expect(await surfaceShown(menu(page, id, 'File').locator('tanrei-menu')), key).toBe(true);
+      expect(await built(id), key).toEqual(['File']);
+      // Closed again, so that its surface covers no other bar.
+      await page.keyboard.press('Escape');
+      await expect.poll(() => state(page, id)).toMatchObject({ open: [], focus: 'title:File' });
+    };
+    await keyed('first-enter', 'Enter', 'New');
+    await keyed('first-space', ' ', 'New');
+    await keyed('first-down', 'ArrowDown', 'New');
+    // Up Arrow: the last enabled item.
+    await keyed('first-up', 'ArrowUp', 'Print');
+    // A press: open, focus on the first enabled item without the ring.
+    await title(page, 'first-press', 'File').click();
+    await expect.poll(() => state(page, 'first-press')).toMatchObject({ open: ['File'], focus: 'item:New' });
+    expect(await quiet(page)).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => open(page, 'first-press')).toEqual([]);
+    // A pointer moving along the bar while a menu is open opens a menu never opened before (MBR-11).
+    await title(page, 'first-hover', 'File').click();
+    await expect.poll(() => open(page, 'first-hover')).toEqual(['File']);
+    await title(page, 'first-hover', 'Edit').hover();
+    await expect.poll(() => state(page, 'first-hover')).toMatchObject({ open: ['Edit'], focus: 'item:Undo' });
+    expect(await surfaceShown(menu(page, 'first-hover', 'Edit').locator('tanrei-menu'))).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => open(page, 'first-hover')).toEqual([]);
+    // The inline arrow key from an open menu to one never opened before (MBR-13).
+    await focusTitle(page, 'first-arrow', 'File');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => open(page, 'first-arrow')).toEqual(['File']);
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => state(page, 'first-arrow')).toMatchObject({ open: ['Edit'], focus: 'item:Undo' });
+    expect(await quiet(page)).toBe(false);
+    // Escape: focus back to the title; a menu once built is kept, closed.
+    await page.keyboard.press('Escape');
+    await expect.poll(() => state(page, 'first-arrow')).toMatchObject({ open: [], focus: 'title:Edit' });
+    expect(await built('first-arrow')).toEqual(['File', 'Edit']);
+    // The product's open (MBR-10).
+    await menu(page, 'first-product', 'Help').evaluate((el: any) => (el.open = true));
+    await expect.poll(() => open(page, 'first-product')).toEqual(['Help']);
+    await expect.poll(() => surfaceShown(menu(page, 'first-product', 'Help').locator('tanrei-menu'))).toBe(true);
+  });
+
+  /** The surface as each frame paints it: its motion element's opacity, scale and place, and the item that has focus. */
+  const opening: Probe = (root) => {
+    const find = (node: ParentNode): Element | null => {
+      for (const child of Array.from(node.children)) {
+        if (child.hasAttribute('data-tanrei-appear')) return child;
+        const inside = (child.shadowRoot && find(child.shadowRoot)) || find(child);
+        if (inside) return inside;
+      }
+      return null;
+    };
+    let active: Element | null = document.activeElement;
+    while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+    const host = active && (active.localName.startsWith('tanrei-') ? active : (active.getRootNode() as ShadowRoot).host);
+    const focused = host ? `${host.localName}:${(host as HTMLElement & { label?: string }).label ?? ''}` : 'none';
+    const start = (root.shadowRoot && find(root.shadowRoot)) || find(root);
+    if (!start) return { focused };
+    const style = getComputedStyle(start);
+    const box = start.getBoundingClientRect();
+    const tenth = (value: number) => Math.round(value * 10) / 10;
+    return { focused, opacity: Number(style.opacity), scale: style.scale, translate: style.translate, filter: style.filter, origin: style.transformOrigin, x: tenth(box.x), y: tenth(box.y), width: tenth(box.width), height: tenth(box.height) };
+  };
+
+  test('MBR-49: the first opening draws the frames of every later one — the same motions from the same start, the same place and focus in each frame', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [editor()], reducedMotion: false });
+    const root = menu(page, 'editor', 'File');
+    const sample = async () => {
+      await focusTitle(page, 'editor', 'File');
+      // The title's own colors at rest in its focused state, so that each opening starts from the same title.
+      await settled(page);
+      return sampleFrames(root, () => page.keyboard.press('Enter'), { probe: opening, elements: false });
+    };
+    // The motions that ran, in no order: two that begin in one frame are caught in either order.
+    const motions = (seen: Frames) => seen.motions.map(({ kind, name, on, duration, easing }) => JSON.stringify({ kind, name, on, duration, easing })).sort();
+    const first = await sample();
+    expect(first.complete).toBe(true);
+    expect(first.frames.length).toBeGreaterThan(2);
+    expectNoFlicker(first);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => open(page, 'editor')).toEqual([]);
+    await expect.poll(() => root.evaluate((el) => !el.shadowRoot!.querySelector('tanrei-menu')!.shadowRoot!.querySelector('.surface')!.matches(':popover-open'))).toBe(true);
+    const again = await sample();
+    expect(motions(first)).toEqual(motions(again));
+    // Frame by frame up to the frame it rests in; the frames after it, which repeat it while some other motion of the
+    // page (the title's own press) ends, are not the menu's.
+    const moving = (seen: Frames) => {
+      const probes = seen.frames.map((frame) => JSON.stringify(frame.probe));
+      const rest = JSON.stringify(seen.rest.probe);
+      while (probes.length > 1 && probes.at(-1) === rest && probes.at(-2) === rest) probes.pop();
+      return probes.map((probe) => JSON.parse(probe));
+    };
+    expect(moving(first).length).toBeGreaterThan(2);
+    expect(moving(first)).toEqual(moving(again));
+    expect(first.rest.probe).toEqual(again.rest.probe);
   });
 });
 

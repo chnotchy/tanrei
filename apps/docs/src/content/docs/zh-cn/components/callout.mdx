@@ -2,7 +2,7 @@
 title: "提示块（Callout）"
 description: "属于内容的一部分、并一直留在那里的通知——一条说明、一条注意事项、某件事的原因，或者对出错之处的汇总。外观是柔和填充或轮廓，采用语义状态的颜色和字形，可带标题、操作和关闭按钮。"
 translationOf: components/callout.mdx
-sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
+sourceHash: 3d1bf520f77dcafbb5843ed539e8b4f896a51e0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ import Example from '../../../../components/visuals/Example.astro';
   <tanrei-callout headline="小贴士" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>让操作保持可用，在用户使用它时再说明还缺什么。</tanrei-callout>
   <tanrei-callout status="info" headline="实验性" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>这项行为在以后的版本中可能会变。</tanrei-callout>
   <tanrei-callout status="warning" headline="磁盘上的文件已更改" style="inline-size: min(100%, 34rem)">你在这里的修改不在那个文件里。在你做出选择之前，不会覆盖任何内容。<tanrei-button slot="actions" variant="outlined">从磁盘重新加载</tanrei-button><tanrei-button slot="actions" variant="text">保留我的修改</tanrei-button></tanrei-callout>
-  <tanrei-callout id="callout-demo-closable" headline="搜索现已涵盖发行说明" closable close-label="关闭" style="inline-size: min(100%, 34rem)">按下关闭按钮：提示块立刻消失，焦点回到原来的位置。</tanrei-callout>
+  <tanrei-callout id="callout-demo-closable" headline="搜索现已涵盖发行说明" closable close-label="关闭" style="inline-size: min(100%, 34rem)">按下关闭按钮：提示块以一个连贯的动作收起，焦点回到原来的位置。</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">再次显示</tanrei-button>
   <tanrei-callout size="large" status="error" headline="危险" style="inline-size: min(100%, 34rem)">此命令会删除所有生成的文件，且无法撤销。</tanrei-callout>
 </Example>
@@ -173,7 +173,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 操作是你自己的[按钮](../button/)或链接，一到两个。请使用 `outlined` 或 `text` 按钮：`tonal` 按钮的填充与不带语义状态的 tonal 提示块相同，在那里看不出是按钮。提示块把它们排成可以换行的一行，除此之外什么都不做：按下其中一个时它不会关闭。
 
-`closable` 绘制一个关闭按钮：一个小尺寸、只有图标的[按钮](../button/)，由 `close-label` 命名，变体由 `--tanrei-comp-callout-close-button-variant` 决定（默认系统中是 tonal）。在 tonal 提示块上，它用提示块自己的文字颜色绘制：一个由这种颜色变成半透明的圆，里面是同色的字形，因此在每种状态的填充上都看得见；在没有填充的 outlined 提示块上，它就是和别处一样的按钮。它像所有按钮一样响应悬停、焦点和按下。按下它会把 `open` 设为 false 并触发 `dismiss`。提示块从不自己关闭，也不响应 Escape。用户关闭之后，请记住这一点：每次访问都重新出现的可关闭提示块只是噪音。对旁边内容加以限定的注意事项不应该可以关闭。
+`closable` 绘制一个关闭按钮：一个小尺寸、只有图标的[按钮](../button/)，由 `close-label` 命名，变体由 `--tanrei-comp-callout-close-button-variant` 决定（默认系统中是 tonal）。在 tonal 提示块上，它用提示块自己的文字颜色绘制：一个由这种颜色变成半透明的圆，里面是同色的字形，因此在每种状态的填充上都看得见；在没有填充的 outlined 提示块上，它就是和别处一样的按钮。它像所有按钮一样响应悬停、焦点和按下。按下它会把 `open` 设为 false 并触发 `dismiss`。提示块随即以一个连贯的动作关闭：内容固定在顶边，高度逐渐收为零，同时淡出；后面的内容跟着它的底边上移，下方不会出现跳动。把 `open` 重新设为 true，它会沿同样的路径展开。在减弱动态效果时，它立即消失、立即重现。提示块从不自己关闭，也不响应 Escape。用户关闭之后，请记住这一点：每次访问都重新出现的可关闭提示块只是噪音。对旁边内容加以限定的注意事项不应该可以关闭。
 
 ### 为回应某件事而出现
 
@@ -232,6 +232,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - 以文本给出的标题是纯文本。`title` 插槽里的标题元素保留自己的级别。
 - 它不是焦点顺序中的停靠点，也从不移动焦点。Tab 先到达正文里的链接和控件，然后是操作，最后是关闭按钮。
 - 焦点在提示块内时关闭它，焦点会回到进入提示块之前持有焦点的元素，所以下一次 Tab 会到达其后的内容。
+- 从关闭的那一刻起，它就对辅助技术隐藏，其中的任何内容都无法获得焦点，不必等动效结束。从打开的那一刻起，它就可以被读到、被聚焦，实时提示块也在此时播报。
 - 关闭按钮就是一个按钮：它的点击区域会扩展到最小目标；在 tonal 提示块上，它的字形和焦点环使用提示块的文字颜色，在默认系统的每种状态和配色方案中，相对于按钮都保持至少 6:1。
 - 文本放大时，所有内容都会换行并变大；字形和关闭按钮留在第一行。
 - 在强制颜色模式下，每种外观都会多出一道文本颜色的边线，字形会完整绘制。

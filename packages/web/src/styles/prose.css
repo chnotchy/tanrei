@@ -532,6 +532,7 @@
       margin-block: calc((1lh - var(--tanrei-comp-prose-task-icon-size)) / 2);
       margin-inline-start: calc(-1 * (var(--tanrei-comp-prose-task-icon-size) + var(--tanrei-comp-prose-item-gap)));
       font-family: var(--tanrei-sys-icon-family-unselected);
+      visibility: var(--tanrei-icon-visibility, inherit);
       font-size: var(--tanrei-comp-prose-task-icon-size);
       font-style: normal;
       font-weight: normal;

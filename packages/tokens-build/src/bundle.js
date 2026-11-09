@@ -25,9 +25,9 @@ export function listSystems(repoRoot) {
 }
 
 /**
- * The systems that ship with Tanrei, by id: every layer but the root. The root values the vocabulary for the systems
- * that extend it and has no outputs of its own — no stylesheet, no bundle, no native constant — so it is offered
- * nowhere a system is chosen; it is read only as the first layer of every chain.
+ * The systems that ship with Tanrei, by id: every layer but the root. The root values the vocabulary in grey for the
+ * systems that extend it and has no bundle, no components manifest and no native constant, so it is offered nowhere a
+ * system is chosen; it is the first layer of every chain. Its one output is its stylesheet (`rootSystem` in cli.js).
  */
 export const shippedSystems = (repoRoot) => listSystems(repoRoot).filter((id) => id !== ROOT_SYSTEM);
 

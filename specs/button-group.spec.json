@@ -1235,6 +1235,17 @@
           "notes": "A `tanrei-button` child, as anywhere: its label is its content and its glyph a `tanrei-icon` in its `icon` slot. `confirming` and `dismissive` are boolean attributes on the child that the group reads (a MutationObserver re-places the items when they change, BGR-11); the Button itself draws nothing for them."
         }
       },
+      "parts": {
+        "group": "host",
+        "button": "tanrei-button",
+        "inner-corner": {
+          "noBox": "The group sets the corner radius of a Button's container where it faces a neighbour: a property of that box, not a box of its own."
+        },
+        "outer-corner": {
+          "noBox": "The group sets the corner radius of a Button's container at an end of the joined shape: a property of that box, not a box of its own."
+        },
+        "divider": "divider"
+      },
       "notes": "`<tanrei-button-group variant=\"connected\" orientation=\"vertical\" full-width label=\"Text style\">` holds `tanrei-button` children. It places them without moving them in the author's DOM: its shadow root has three slots in the order of the orientation (dismissive, unflagged, confirming in a row; confirming, unflagged, dismissive in a column) and assigns each child to one with manual slot assignment, so focus and the accessibility tree, which walk the flat tree, follow the placed order (BGR-15) and CSS `order` is not used. It sets role group and `aria-label` on its own element only while label is not empty (ElementInternals is not used for the role: axe-core does not see semantics set through it). It gives a connected item its corners and minimum size through CSS custom properties that Button reads on its container (`--tanrei-group-start-radius`, `--tanrei-group-end-radius`, and in a column the top and bottom radii, `--tanrei-group-min-width`, `--tanrei-group-min-height`); these are an internal contract between Tanrei elements, not a styling API. Each item also learns its place in the group through an internal controller, because three things cannot be done with custom properties alone: a label that may wrap (BGR-7, BGR-17), corners that never animate and pill ends held to half the measured height (BGR-11), and a hit area that stops at half the gap (BGR-4). It reports other children in debug builds (BGR-10). `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-button-group-connected-separation`. Under divider the group draws each rule itself, in its shadow root over the seam, and tells each item through the same internal controller which of its edges meet a seam (no outline, no ring) and how much padding to add at an outer end (BGR-22, BGR-23). A divider draws its line twice, in `::before` in connected.divider.color and in `::after` in connected.divider.on-fill.color, and shows one of them or neither by its opacity, so that a line that comes, goes or changes color is a transition of opacity alone (BGR-24); a divider whose seam the group's placement or form changes is drawn at once. Owed on the web: `orientation=\"vertical\"` must really stack the items (BGR-12, BGR-14, BGR-16) — today the element and the review gallery draw every vertical fixture as a row — and its fixtures must be drawn as columns in the gallery and the baselines."
     },
     "swiftui": {

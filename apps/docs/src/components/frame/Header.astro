@@ -1,7 +1,7 @@
 ---
 // The site's header, drawn by Tanrei's app bar (specs/app-bar.spec.json) in place of the framework's row: this
 // component replaces Starlight's `Header`, and with it its `SiteTitle`, `ThemeSelect`, `LanguageSelect` and
-// `SocialIcons` (the link to the source repository stands at the foot of every page, Footer.astro). PageFrame.astro puts it in the shell's `<header>`.
+// `SocialIcons`. PageFrame.astro puts it in the shell's `<header>`.
 //
 //   the menu button   the bar's navigation item, at every width, on pages that have a sidebar: the navigation's one
 //                     menu button, so the drawer has no row of its own for one. Two icon-only Buttons that look the
@@ -22,8 +22,11 @@
 //                     now, and Theme Studio's link. The choice is lib/appearance.ts's, which the head's script applies
 //                     before the first paint; every example of every page follows it (components/visuals/Example.astro),
 //                     and so do the lists of components (lib/list-filter.ts). A compact window has no room for it beside
-//                     the wordmark and three actions: there the same button and panel stand first in the drawer's list
+//                     the wordmark and the actions: there the same button and panel stand first in the drawer's list
 //                     (Sidebar.astro), and the bar's is not drawn;
+//   the repository    an icon-only Button that is a link to the source repository on GitHub (lib/repository.ts, from
+//                     tanrei.config.json), the first action, which says that it leaves the site. Nothing is fetched
+//                     from GitHub: no count, no picture but the mark drawn here;
 //   the search        Tanrei's Search as the bar's first action (Search.astro): a button trigger with its shortcut
 //                     that opens a dialog, and in a compact window an icon-only Button that opens the full-screen
 //                     view; the site's search index answers it;
@@ -32,7 +35,11 @@
 //   the language      an icon-only Button that opens a Menu of links — a language is a place to go, the same page
 //                     at another address, and a list of places is a menu of links, never options.
 //
-// The bar holds three actions (APB-13) and one navigation item: of the two menu buttons, only the one of the window's
+// The bar hides what does not fit (`overflow="hide"`, APB-26, APB-30): the search, the mode and the language are never
+// taken out (`app-bar-overflow="never"`), so the repository's link is the one action that leaves where the row has no
+// room for it — every page's foot links the repository too (Footer.astro). It stands first among the actions, so that
+// whether it is drawn moves nothing else, and until the bar is defined, and where no script runs, it is not drawn
+// (styles/frame.css). The bar holds one navigation item: of the two menu buttons, only the one of the window's
 // class is given its slot (the other's stays unassigned, and the bar draws nothing of it), first by the script that
 // follows the bar, before the bar is defined, then whenever the class changes. Until the bar is defined, and where no
 // script runs, the stylesheet shows the one or the other (styles/frame.css).
@@ -46,9 +53,12 @@ import { inlineMark } from '../../lib/brand.mjs';
 import { frameOf } from '../../lib/brand-geometry.mjs';
 import { marks } from '../../lib/brand-marks';
 import Appearance from './Appearance.astro';
+import { repositoryHref } from '../../lib/repository';
+import { strings } from '../../lib/i18n';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
+const { externalLink } = strings(route.lang);
 
 // The same page in each language: the address without this language's folder, under the other's.
 const here = route.locale ? Astro.url.pathname.replace(new RegExp(`^/${route.locale}(?=/|$)`), '') || '/' : Astro.url.pathname;
@@ -60,7 +70,7 @@ const wordmark = inlineMark(marks.wordmark, { width: Math.round((WORDMARK_HEIGHT
 const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
 ---
 
-<tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle}>
+<tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle} overflow="hide">
   {
     route.hasSidebar && (
       <>
@@ -75,11 +85,15 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   }
   <Fragment set:html={wordmark} />
   <Appearance id="docs-appearance" part="button" slot="context" />
+  {/* GitHub's mark (Octicons' mark-github), in the current color. */}
+  <tanrei-button slot="actions" id="docs-repository" variant="text" href={repositoryHref} label={words.repository} aria-description={externalLink}>
+    <svg slot="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
+  </tanrei-button>
   <Search />
-  <tanrei-button slot="actions" id="docs-mode" variant="text" toggle label={words.darkMode}>
+  <tanrei-button slot="actions" id="docs-mode" variant="text" toggle label={words.darkMode} app-bar-overflow="never">
     <span slot="icon">dark_mode</span>
   </tanrei-button>
-  <tanrei-button slot="actions" id="docs-language" variant="text" label={words.language}>
+  <tanrei-button slot="actions" id="docs-language" variant="text" label={words.language} app-bar-overflow="never">
     <span slot="icon">translate</span>
   </tanrei-button>
 </tanrei-app-bar>
@@ -103,8 +117,10 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     const look = root.getAttribute('data-docs-system');
     if (look) {
       for (const button of frame.querySelectorAll('.docs-look')) {
-        button.querySelector('.docs-look-name').textContent = look;
-        button.setAttribute('label', button.dataset.label.replace('{look}', look));
+        // The reader's own theme is named by its word ("My theme"), not by its look's id.
+        const name = look === 'custom' ? button.dataset.customName : look;
+        button.querySelector('.docs-look-name').textContent = name;
+        button.setAttribute('label', button.dataset.label.replace('{look}', name));
       }
       for (const list of frame.querySelectorAll('.docs-appearance-look')) list.setAttribute('value', look);
     }
@@ -129,7 +145,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
   import '../../lib/list-filter';
-  import { isShared, keepShared, linkTo, onAppearance, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
+  import { CUSTOM_LOOK, isShared, keepShared, linkTo, onAppearance, placeCustomChoices, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
   type Choice = HTMLElement & { value: string | null };
   type Panel = HTMLElement & { open: boolean };
@@ -144,10 +160,12 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     else control.setAttribute('value', value);
   };
   const say = (appearance: Appearance) => {
+    placeCustomChoices();
     for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-look')) {
+      const look = appearance.look === CUSTOM_LOOK ? (button.dataset.customName ?? appearance.look) : appearance.look;
       const name = button.querySelector('.docs-look-name');
-      if (name) name.textContent = appearance.look;
-      button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', appearance.look));
+      if (name) name.textContent = look;
+      button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', look));
     }
     for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-mode')) choose(tabs, appearance.mode);
     for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-contrast')) choose(tabs, appearance.contrast);
@@ -157,6 +175,8 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   };
   say(shownAppearance());
   onAppearance(({ appearance }) => say(appearance));
+  // Whether this browser keeps a theme of the reader's own may change in another tab (Theme Studio's Share menu).
+  addEventListener('storage', () => queueMicrotask(placeCustomChoices));
 
   // A choice in any panel is the reader's appearance from here on.
   document.addEventListener('change', (event) => {
@@ -177,14 +197,19 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   let panelDefined: Promise<unknown> | undefined;
   const definePanel = () =>
     (panelDefined ??= Promise.all([import('@tanrei/web/components/popover'), import('@tanrei/web/components/tabs'), import('@tanrei/web/components/list'), import('@tanrei/web/components/list-row'), import('@tanrei/web/components/swatch')]).then(() => customElements.whenDefined('tanrei-popover')));
-  // A panel opens from its button and closes when it asks to (the popover never closes itself, POP-14).
+  // A panel opens and closes when it asks to (a press on its button asks through toggle, POP-18; Escape and a press
+  // outside through close, POP-21). A panel not drawn yet hears no press: the press that defines it opens it.
   for (const panel of document.querySelectorAll<Panel>('tanrei-popover.docs-appearance-panel')) {
     const button = document.getElementById(panel.getAttribute('anchor') ?? '');
     button?.addEventListener('pointerenter', definePanel, { once: true });
     button?.addEventListener('focusin', definePanel, { once: true });
     button?.addEventListener('click', async () => {
+      if ((panel as Panel & { hasUpdated?: boolean }).hasUpdated) return;
       await definePanel();
-      panel.open = !panel.open;
+      panel.open = true;
+    });
+    panel.addEventListener('toggle', (event) => {
+      panel.open = (event as unknown as CustomEvent<{ open: boolean }>).detail.open;
     });
     panel.addEventListener('close', () => {
       panel.open = false;

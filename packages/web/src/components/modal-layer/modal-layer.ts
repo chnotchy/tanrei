@@ -9,7 +9,6 @@ import {
   focusWithin,
   holdPageScroll,
   keyboardCover,
-  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
@@ -60,12 +59,9 @@ export class TanreiModalLayer extends TanreiElement {
   static override properties: PropertyDeclarations = {
     open: { type: Boolean, reflect: true },
     closedBy: { type: String, attribute: 'closedby', reflect: true },
-    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `no-scrim`.
-    scrim: {
-      attribute: 'no-scrim',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    // The spec's `scrim`, which defaults to true, is its inverse here, `noScrim`: an HTML boolean attribute cannot default
+    // to true, and the property has the attribute's name (the spec's web notes).
+    noScrim: { type: Boolean, attribute: 'no-scrim', reflect: true },
     label: { type: String },
   };
 
@@ -75,8 +71,8 @@ export class TanreiModalLayer extends TanreiElement {
   /** The spec's `dismissible`, as HTML's `closedby`: `any` (the default) lets Escape, back and the scrim ask to close; `none` does not. Give the content a way out of its own. */
   closedBy: TanreiModalLayerClosedBy = 'any';
 
-  /** Whether the layer dims what lies behind it. False for content that covers the whole window with a fill of its own; the layer still blocks everything behind. */
-  scrim = true;
+  /** Leaves what lies behind the layer undimmed, for content that covers the whole window with a fill of its own; the layer still blocks everything behind. False (the default) dims it. */
+  noScrim = false;
 
   /** The container's accessible name ("Export photos"): the modal dialog's name. Required; never drawn. */
   label = '';
@@ -178,7 +174,6 @@ export class TanreiModalLayer extends TanreiElement {
     this.opener = deepActive();
     openModal(dialog);
     this.shown = true;
-    modalLayer.add(this);
     holdPageScroll(this, true);
     this.onViewport();
     this.focusInside();
@@ -188,7 +183,6 @@ export class TanreiModalLayer extends TanreiElement {
   private withdraw(restore: boolean) {
     if (!this.shown) return;
     this.shown = false;
-    modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
     if (dialog) void closeModal(dialog);

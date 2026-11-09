@@ -40,6 +40,7 @@ const SUBJECTS: Record<string, (rest: string) => string> = {
   'tanrei-slider-field': (rest) => `<tanrei-slider-field label="Slider" value="40" ${rest}></tanrei-slider-field>`,
   'tanrei-radio-button': (rest) => `<tanrei-radio-button label="Radio" value="a" checked ${rest}></tanrei-radio-button>`,
   'tanrei-radio-group': (rest) => `<tanrei-radio-group label="Radio group" value="a" ${rest}>${RADIOS}</tanrei-radio-group>`,
+  'tanrei-rating': (rest) => `<tanrei-rating label="Rating" value="3" ${rest}></tanrei-rating>`,
   'tanrei-search': (rest) => `<tanrei-search label="Search" value="a" ${rest}></tanrei-search>`,
   // A Button is one of its form's controls and adds to a submission only when it is the button pressed (BTN-29,
   // BTN-31): what it submits is read from the submission its own press makes.
@@ -207,5 +208,66 @@ for (const tag of Object.keys(SUBJECTS)) {
       if (how === 'undone') expect(outcome, how).toEqual({ within, after: { focus: true, nowhere: 0, attribute: false, platform: false, written: 0 } });
       else expect(outcome, how).toEqual({ within, after: { focus: false, nowhere: true, attribute: true, platform: true } });
     }
+  });
+}
+
+// One change of whether an element is disabled is drawn in one update (`FormDisabledController`): the platform's word
+// for the element's own attribute, which the update that drew the property's change writes, changes nothing drawn and
+// draws nothing again. One change takes a second update: its own `disabled` unset inside a disabled fieldset, which
+// only the attribute's removal at the end of the first shows still disabled. The Button takes the platform's word
+// itself (BTN-32) and is not counted here.
+//
+// A radio button and a radio group may draw once more after a change of their disabled state, for a reason of their
+// own: the radio button's one tab stop is chosen after its update (RAD-5), and a radio group is told by its radio
+// buttons, after theirs, that they changed (in Firefox a fieldset's word reaches the radio buttons before the group's
+// update, which then draws both). What is counted for them is that the platform's word adds no update of its own.
+const SECOND_UPDATE: Record<string, readonly string[]> = {
+  'tanrei-radio-button': ['disabled set', 'disabled unset', 'fieldset disabled', 'fieldset enabled'],
+  'tanrei-radio-group': ['disabled set', 'disabled unset', 'fieldset disabled', 'fieldset enabled'],
+};
+for (const tag of Object.keys(SUBJECTS).filter((tag) => tag !== 'tanrei-button')) {
+  test(`${tag}: one change of disabled — its property set or unset, a fieldset around it disabled or enabled — is drawn in one update`, async ({ page }) => {
+    await mount(page, tag);
+    const counts = await page.evaluate(async (tag) => {
+      type Subject = HTMLElement & { disabled: boolean };
+      // Each change is made in one task; what it queued (the platform's word, a frame's work) has run two frames later.
+      const frames = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const proto = customElements.get(tag)!.prototype as { updated: (...args: unknown[]) => unknown };
+      const updated = proto.updated;
+      let updates = 0;
+      proto.updated = function (this: HTMLElement, ...args: unknown[]) {
+        if (this.id === 'twin') updates++;
+        return updated.apply(this, args);
+      };
+      const el = document.querySelector<Subject>('#twin')!;
+      const set = document.querySelector<HTMLFieldSetElement>('#set')!;
+      const changes: [string, () => void][] = [
+        ['disabled set', () => (el.disabled = true)],
+        ['disabled unset', () => (el.disabled = false)],
+        ['fieldset disabled', () => (set.disabled = true)],
+        ['disabled set in the disabled fieldset', () => (el.disabled = true)],
+        ['disabled unset in the disabled fieldset', () => (el.disabled = false)],
+        ['fieldset enabled', () => (set.disabled = false)],
+      ];
+      const counts: Record<string, number> = {};
+      for (const [name, change] of changes) {
+        updates = 0;
+        change();
+        await frames();
+        counts[name] = updates;
+      }
+      proto.updated = updated;
+      return counts;
+    }, tag);
+    const expected: Record<string, number> = {
+      'disabled set': 1,
+      'disabled unset': 1,
+      'fieldset disabled': 1,
+      'disabled set in the disabled fieldset': 1,
+      'disabled unset in the disabled fieldset': 2,
+      'fieldset enabled': 1,
+    };
+    for (const change of SECOND_UPDATE[tag] ?? []) if (counts[change] === expected[change]! + 1) counts[change]! -= 1;
+    expect(counts).toEqual(expected);
   });
 }

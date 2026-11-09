@@ -5,6 +5,7 @@ import {
   AppearController,
   AvailabilityController,
   FollowController,
+  cssZoom,
   GlyphDrawnController,
   GlyphMirrorController,
   OpenAxesController,
@@ -515,7 +516,11 @@ export class TanreiFabMenu extends TanreiElement {
     const list = this.list;
     const toggle = this.toggleButton;
     if (!list || !toggle || this.inline || !this.presented) return;
-    const offset = Number.parseFloat(getComputedStyle(list).scrollMarginBlockStart) || 0;
+    // Placed in the window's pixels: under an ancestor's zoom, which reaches the top layer, what is read from the list's
+    // style is turned into them and the insets written on it back into its own (`cssZoom()`).
+    const zoom = cssZoom(list);
+    const own = (value: number | null) => (value === null ? 'auto' : `${value / zoom}px`);
+    const offset = (Number.parseFloat(getComputedStyle(list).scrollMarginBlockStart) || 0) * zoom;
     // The list's own fractional size (offsetWidth is snapped to whole pixels); it only picks the edge that holds the
     // list — the lengths are the toggle's and the viewport's, so the items' end edges stay on the toggle's end edge
     // however the list's width changes after this (FBM-13).
@@ -529,9 +534,9 @@ export class TanreiFabMenu extends TanreiElement {
       rtl: getComputedStyle(this).direction === 'rtl',
     });
     list.style.top = 'auto';
-    list.style.bottom = `${at.bottom}px`;
-    list.style.left = at.left === null ? 'auto' : `${at.left}px`;
-    list.style.right = at.right === null ? 'auto' : `${at.right}px`;
+    list.style.bottom = own(at.bottom);
+    list.style.left = own(at.left);
+    list.style.right = own(at.right);
   }
 
   /**

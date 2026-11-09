@@ -15,7 +15,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { bounded, engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -50,13 +50,26 @@ const root = (page) =>
     return { theme: html.dataset.theme, tanreiTheme: html.dataset.tanreiTheme, mode: html.dataset.docsMode, contrast: html.getAttribute('data-tanrei-contrast'), look: html.dataset.docsSystem, shared: html.hasAttribute('data-docs-appearance-shared'), stored: JSON.parse(localStorage.getItem(key) ?? 'null') };
   }, APPEARANCE_KEY);
 
+// Each test's limit: the backstop for what has no limit of its own (launch.mjs). The slowest takes about 43 s in CI
+// (the shared link, in Firefox and WebKit).
+const LIMIT = { timeout: 150_000 };
+
 /** The page's controls defined, its fonts in, and a frame drawn after both. */
 const settled = (page) =>
-  page.evaluate(async () => {
-    await Promise.all(['tanrei-app-bar', 'tanrei-button'].map((tag) => customElements.whenDefined(tag)));
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+  bounded(
+    `${page.url()}: its controls defined, its fonts loaded and two frames drawn`,
+    page.evaluate(async () => {
+      await Promise.all(['tanrei-app-bar', 'tanrei-button'].map((tag) => customElements.whenDefined(tag)));
+      await document.fonts.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }),
+    () =>
+      page.evaluate(() => {
+        const undefinedTags = ['tanrei-app-bar', 'tanrei-button'].filter((tag) => !customElements.get(tag));
+        const loading = [...document.fonts].filter((face) => face.status === 'loading').map((face) => face.family);
+        return `The document is ${document.readyState} and ${document.visibilityState}; not defined: ${undefinedTags.join(', ') || 'none'}; faces loading: ${loading.join(', ') || 'none'} (document.fonts ${document.fonts.status})`;
+      }),
+  );
 
 /** Opens the panel of the button `id` (the bar's, or the drawer's) and waits for it. */
 async function openPanel(page, id = 'docs-appearance') {
@@ -83,7 +96,7 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('a first visit: the device’s scheme, standard contrast, the default system, nothing stored', async () => {
+    test('a first visit: the device’s scheme, standard contrast, the default system, nothing stored', LIMIT, async () => {
       const { context, page } = await open();
       assert.deepEqual(await root(page), { theme: 'light', tanreiTheme: 'light', mode: 'system', contrast: null, look: DEFAULT, shared: false, stored: null });
       assert.equal(await page.locator('#docs-appearance').getAttribute('label'), en.frame.appearanceOf.replace('{look}', DEFAULT));
@@ -96,7 +109,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the panel chooses the mode, the contrast and the look; each is on the root at once, kept, and there from the next page’s first paint', async () => {
+    test('the panel chooses the mode, the contrast and the look; each is on the root at once, kept, and there from the next page’s first paint', LIMIT, async () => {
       const { context, page } = await open();
       const panel = await openPanel(page);
       await panel.getByRole('radio', { name: en.dark, exact: true }).click();
@@ -126,7 +139,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the bar’s toggle shows the other scheme and keeps it as the mode', async () => {
+    test('the bar’s toggle shows the other scheme and keeps it as the mode', LIMIT, async () => {
       const { context, page } = await open();
       const toggle = page.locator('#docs-mode');
       assert.equal(await toggle.getByRole('button', { name: en.frame.darkMode, exact: true }).getAttribute('aria-pressed'), 'false');
@@ -140,7 +153,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('another tab of the site follows a choice', async () => {
+    test('another tab of the site follows a choice', LIMIT, async () => {
       const { context, page } = await open();
       const other = await context.newPage();
       await other.goto(`${origin}/foundations/accessibility/`);
@@ -152,7 +165,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('a shared link shows its appearance on its page, keeps nothing until the reader keeps it, and is what “Copy link” copies', async () => {
+    test('a shared link shows its appearance on its page, keeps nothing until the reader keeps it, and is what “Copy link” copies', LIMIT, async () => {
       const { context, page } = await open();
       await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({ mode: 'light', contrast: 'standard', look: 'm3-like' })), APPEARANCE_KEY);
       await page.goto(`${origin}${PAGE}?look=${SHOWCASE}&mode=dark&contrast=medium`);
@@ -180,7 +193,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('a compact window: the drawer’s button opens the same panel, as a sheet, and the bar keeps its toggle', async () => {
+    test('a compact window: the drawer’s button opens the same panel, as a sheet, and the bar keeps its toggle', LIMIT, async () => {
       const { context, page } = await open({ viewport: COMPACT });
       assert.equal(await page.locator('#docs-appearance').isVisible(), false, 'the bar has no room for the look’s button');
       assert.ok(await page.locator('#docs-mode').isVisible());
@@ -194,7 +207,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the look’s button and the toggle are named in the page’s language', async () => {
+    test('the look’s button and the toggle are named in the page’s language', LIMIT, async () => {
       for (const [dir, lang] of [['', 'en'], ['ja/', 'ja'], ['zh-cn/', 'zh-cn'], ['hi/', 'hi'], ['es/', 'es'], ['ar/', 'ar']]) {
         const { context, page } = await open({}, `/${dir}foundations/accessibility/`);
         const words = strings(lang).frame;

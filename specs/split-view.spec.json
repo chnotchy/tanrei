@@ -1,0 +1,377 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "split-view",
+  "title": "Split view",
+  "summary": "Divides a region into two panes side by side or one above the other, with a Handle on the line between them that a person drags, steps from the keyboard or presses to give one pane more room, and, where the product allows it, to fold one pane away and bring it back.",
+  "category": "containment",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": ["handle"],
+  "fills": ["handle.axis", "handle.size", "handle.value", "handle.min", "handle.max", "handle.label", "handle.valueText", "handle.disabled"],
+  "anatomy": [
+    {
+      "id": "start-pane",
+      "description": "The pane at the start: the inline-start side while the panes stand side by side, the top while one stands above the other. It takes its size from the split and holds the product's content, clipped to it."
+    },
+    {
+      "id": "end-pane",
+      "description": "The pane at the end, which takes the room the start pane and the divider leave, or the other way round when it is the primary pane."
+    },
+    { "id": "divider", "description": "The hairline between the two panes, across the whole region." },
+    {
+      "id": "handle",
+      "description": "The Handle, centred on the divider: medium, with the axis of the split, its value the primary pane's share. Its target reaches over both panes; its drawing, states, cursor and keys are the Handle's own."
+    }
+  ],
+  "props": [
+    {
+      "name": "axis",
+      "type": "enum",
+      "values": ["horizontal", "vertical"],
+      "default": "horizontal",
+      "description": "Which size the split divides, as the Handle names it. horizontal: the width — the panes stand side by side and the divider is upright. vertical: the height — one pane stands above the other and the divider lies across."
+    },
+    {
+      "name": "primary",
+      "type": "enum",
+      "values": ["start", "end"],
+      "default": "start",
+      "description": "Which pane the value measures and which one folds away: the start pane (a list beside its detail, a navigation beside a page) or the end pane (an inspector after a canvas). The other pane takes the rest."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": 50,
+      "description": "The primary pane's share of the region's size along the axis, less the divider, in percent. It is drawn held between the least and the greatest share (SPV-16) and kept as given while the region's size changes. While the pane is folded away it is the share the pane comes back at. The split view writes it as the person moves the divider; the product may set it."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 10,
+      "description": "The least share of the primary pane, in percent, while it is not folded away. minSize may hold it larger (SPV-16)."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 90,
+      "description": "The greatest share of the primary pane, in percent: 100 less the least share the other pane keeps. maxSize may hold it smaller (SPV-16)."
+    },
+    {
+      "name": "minSize",
+      "type": "number",
+      "default": null,
+      "description": "The least size of the primary pane in pixels along the axis, while it is not folded away, on top of min (\"the list is never narrower than 240\"). Null sets none. Where the region is too small for both minSize and maxSize, minSize wins (SPV-16)."
+    },
+    {
+      "name": "maxSize",
+      "type": "number",
+      "default": null,
+      "description": "The greatest size of the primary pane in pixels along the axis, on top of max. Null sets none (SPV-16)."
+    },
+    { "name": "step", "type": "number", "default": 5, "description": "How far one arrow key moves the divider, in percent of the region." },
+    {
+      "name": "largeStep",
+      "type": "number",
+      "default": 20,
+      "description": "How far Shift with an arrow key, Page Up or Page Down moves the divider, in percent of the region."
+    },
+    {
+      "name": "resetValue",
+      "type": "number",
+      "default": 50,
+      "description": "The share a press on the Handle without a drag, Enter or Space moves the primary pane to while it cannot be folded away; the next press moves it back to where it was (SPV-7)."
+    },
+    {
+      "name": "collapsible",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets the primary pane be folded away: by Enter or a press on the Handle, and by a drag past half its least share. Its content is then not drawn, not reachable and not read, and the divider stands at the region's edge to bring it back."
+    },
+    {
+      "name": "collapsed",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the primary pane is folded away. The split view writes it as the person folds and restores the pane; the product may set it. Ignored while collapsible is false."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The Handle's accessible name, saying what the divider resizes in the product's words (\"Resize the message list\"); the primary pane's own heading, where it has one, is a good name. Never drawn. Required: a split view without one still works, and its Handle reports the missing name in debug builds (HDL-8)."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "Read in place of the percentage where another reading is natural (\"List 320 pixels wide\"), as the Handle's value text; the split view does not write it. Empty reads the percentage."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps both panes at their sizes: the Handle is drawn as unavailable and cannot be moved, folded or reached by Tab (HDL-15). The panes' content stays as operable as it is."
+    }
+  ],
+  "slots": [
+    { "name": "start", "description": "The content of the start pane.", "fixture": "text" },
+    { "name": "end", "description": "The content of the end pane.", "fixture": "text" }
+  ],
+  "events": [
+    {
+      "name": "resize",
+      "description": "The divider moved during a drag: emitted in every frame it moves, with the primary pane's share in percent and whether the pane is folded away."
+    },
+    {
+      "name": "change",
+      "description": "The person changed the primary pane's share: once when a drag ends, and once for each key or press that moved it. Carries the new value. Not emitted when the product sets value."
+    },
+    {
+      "name": "toggle",
+      "description": "The person folded the primary pane away or brought it back: by Enter, a press on the Handle or a drag. Carries the new collapsed value. Not emitted when the product sets collapsed."
+    }
+  ],
+  "states": ["enabled", "disabled", "hovered", "focused", "pressed", "dragged"],
+  "behavior": [
+    {
+      "id": "SPV-1",
+      "text": "THE split view SHALL lay out its two panes along its axis — side by side WHILE axis is horizontal, the start pane at the inline-start; one above the other WHILE axis is vertical, the start pane on top — with a divider comp.split-view.divider.width thick in comp.split-view.divider.color between them across the whole region, the primary pane its share (value, held as SPV-16 says) of the region's size along the axis less the divider and the other pane the rest; each pane SHALL clip its content to its own box and SHALL draw nothing else of its own. THE split view SHALL take the size the layout gives it; WHILE axis is vertical it divides the height the layout gives it."
+    },
+    {
+      "id": "SPV-2",
+      "text": "THE split view SHALL place one Handle centred on its divider, at size medium and with the axis of the split, its value the primary pane's share as drawn in whole percent, its min 0 WHILE collapsible is true and the least share (SPV-16) otherwise, and its max the greatest share, as the Handle draws and exposes them (HDL-1, HDL-5, HDL-8); its target SHALL reach over both panes without moving their content, and it SHALL be in the focus order after the start pane's content and before the end pane's. THE split view SHALL relate the Handle to the primary pane as the element it controls (the window splitter pattern's controls relation), where the platform has that relation, by the means the Handle gives whoever places it to relate it to another element (HDL-26 on the web)."
+    },
+    {
+      "id": "SPV-3",
+      "text": "WHILE a drag holds the Handle (HDL-6) THE split view SHALL move the divider with the press, at every frame and without a motion of its own: the primary pane's share SHALL be the share it had when the drag began (0 WHILE it was folded away) plus the distance the Handle reports along the axis, as a share of the region less the divider, signed so that the divider moves the way the press moves, held between the least and the greatest share (SPV-16); THE split view SHALL emit resize at every frame the share drawn changes and, WHEN the drag ends and the share differs from the one the drag began with, change once with the new value. WHILE a drag lasts every embedded document in either pane SHALL take no pointer, so that the drag is not lost over it (HDL-6)."
+    },
+    {
+      "id": "SPV-4",
+      "text": "WHILE collapsible is true and a drag holds the Handle THE split view SHALL fold the primary pane away WHEN the press moves the divider past half of the least share toward the pane, and bring it back at the least share WHEN the press moves it back past that point, at every frame and without a motion of its own; a pane a drag folds away SHALL keep the share it had when the drag began as its value, to come back at; WHEN the drag ends with the pane folded away or brought back THE split view SHALL emit toggle once with the new collapsed value."
+    },
+    {
+      "id": "SPV-5",
+      "text": "WHEN the Handle emits step (HDL-9, HDL-10) THE split view SHALL move the divider at once, without a motion: the way the key points by step percent of the region for amount one and by largeStep for amount large, held between the least and the greatest share (SPV-16); to the least share for amount limit with direction −1 (Home) and to the greatest for amount limit with direction 1 (End) whichever pane is primary, as the window splitter pattern gives Home the primary pane's smallest size and End its largest; and SHALL emit change once WHEN the share changed. A step SHALL NOT fold the pane away. WHILE the pane is folded away, a step that would give it room and Home SHALL bring it back at the least share, and End at the greatest, emitting toggle and change; a step that would take room from it SHALL change nothing."
+    },
+    {
+      "id": "SPV-6",
+      "text": "WHILE collapsible is true, WHEN the Handle emits activate (HDL-7: a press without a drag, Enter or Space) THE split view SHALL fold the primary pane away WHILE it is shown and bring it back at the share it had before WHILE it is folded away, over comp.split-view.motion.collapse-duration with comp.split-view.motion.collapse-easing, and emit toggle once with the new collapsed value; focus SHALL stay on the Handle."
+    },
+    {
+      "id": "SPV-7",
+      "text": "WHILE collapsible is false, WHEN the Handle emits activate THE split view SHALL move the divider to the share resetValue gives the primary pane, held between the least and the greatest share, over comp.split-view.motion.collapse-duration with comp.split-view.motion.collapse-easing, and WHEN it emits activate again before the share was changed in another way SHALL move it back to the share it had before, emitting change once each time, so that two sizes are reached without a drag (WCAG 2.5.7); WHILE the share is resetValue already and there is no share before to go back to, activate SHALL change nothing."
+    },
+    {
+      "id": "SPV-8",
+      "text": "WHILE the primary pane is folded away THE split view SHALL give it no size and draw nothing of it, SHALL make its content unreachable by focus and hidden from assistive technology, SHALL give the other pane the whole region less the divider, and SHALL keep the divider and the Handle at the region's edge on the folded pane's side, with the Handle's value 0, so that the pane can be brought back by every input that folded it."
+    },
+    {
+      "id": "SPV-9",
+      "text": "WHEN the product sets value or collapsed after the first frame THE split view SHALL move the divider to the new place over comp.split-view.motion.resize-duration — over comp.split-view.motion.collapse-duration WHEN collapsed changes — with comp.split-view.motion.collapse-easing, going on from the place then shown WHEN it changes again during the motion (MOT-2), and SHALL emit neither change nor toggle; THE split view SHALL draw its first frame at its value without a motion (MOT-3), and WHERE motion is reduced SHALL move the divider at once (MOT-6)."
+    },
+    {
+      "id": "SPV-10",
+      "text": "WHILE the divider moves by a motion (SPV-6, SPV-7, SPV-9) THE split view SHALL change the panes' sizes in the layout at every frame, their content laid out to the size then shown and fixed to each pane's start edge, and SHALL scroll nothing to bring a part of either into view (MOT-5)."
+    },
+    {
+      "id": "SPV-11",
+      "text": "WHEN the region's own size changes — the window or an enclosing pane is resized or turned — THE split view SHALL keep the primary pane's share and lay both panes out again at once, without a motion, and emit nothing."
+    },
+    {
+      "id": "SPV-12",
+      "text": "WHERE the layout direction is right-to-left and axis is horizontal THE split view SHALL place the start pane at the right and the end pane at the left, and the divider SHALL still move the way a press or an arrow key points (HDL-17), so that the Right Arrow moves it to the right whichever pane is primary; it SHALL take its layout direction from where it is used, SHALL have no direction setting of its own, and SHALL NOT mirror its panes' content."
+    },
+    {
+      "id": "SPV-13",
+      "text": "WHILE disabled is true THE split view SHALL keep both panes at their sizes and the primary pane folded or shown as it is, and its Handle SHALL take no input and no focus (HDL-15); the panes' content SHALL stay as operable as it is."
+    },
+    {
+      "id": "SPV-14",
+      "text": "WHERE the platform draws with a person's own forced colors THE split view SHALL draw its divider in the platform's text color; the Handle draws itself as HDL-16 says."
+    },
+    {
+      "id": "SPV-15",
+      "text": "IF min is below 0, max above 100, min above max, or value, resetValue, step or largeStep is not a finite number, or step or largeStep is not above 0, THE split view SHALL use the default of each value it cannot use, hold value between the least and the greatest share, and in debug builds report the values; IF minSize or maxSize is neither null nor a finite number of 0 or more THE split view SHALL ignore it and in debug builds report it; WHEN axis or primary names a value the split view does not define it SHALL use the default and in debug builds report it; WHILE label is empty the Handle reports its missing name (HDL-8)."
+    },
+    {
+      "id": "SPV-16",
+      "text": "THE split view SHALL hold the primary pane, while it is shown, between a least and a greatest share: the least the greater of min and minSize pixels as a share of the region's size along the axis less the divider, the greatest the lesser of max and maxSize pixels as such a share, each within 0 and 100; WHERE the region is too small for the least to stay at or below the greatest, the least SHALL win, as a least size wins over a greatest one in CSS. WHEN the region's size changes THE split view SHALL count both again and draw value held between them, keeping value as it was given (SPV-11)."
+    }
+  ],
+  "accessibility": {
+    "role": "separator (the Handle: focusable, with a value) between two panes that have no role of their own",
+    "keyboard": [
+      { "keys": "Tab", "action": "Reaches the Handle between the start pane's content and the end pane's." },
+      { "keys": "Arrow keys of the axis", "action": "Move the divider by step percent the way the key points; with Shift by largeStep." },
+      { "keys": "Page Up / Page Down", "action": "Move the divider by largeStep." },
+      {
+        "keys": "Home / End",
+        "action": "Give the primary pane its least share (min, or minSize) or its greatest (max, or maxSize), whichever pane is primary."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "While collapsible: fold the primary pane away, or bring it back where it was. Otherwise: move the divider to resetValue, and back."
+      }
+    ],
+    "labeling": "The Handle is named by label and exposes the primary pane's share in whole percent as its value (0 while the pane is folded away), with min (0 while collapsible, the least share otherwise) and the greatest share as max, valueText where given, and the primary pane as the element it controls. The panes are not landmarks of their own: a product that needs them as regions names a landmark inside each.",
+    "minimumTarget": true,
+    "notes": [
+      "WAI-ARIA APG, Window Splitter: a focusable separator whose value is the primary pane's position, valuemin where the primary pane is smallest (typically 0), valuemax where it is largest, aria-controls naming the primary pane; arrow keys move it the way they point, Enter collapses and restores, Home gives the primary pane its smallest size and End its largest. Here Home and End stop at the least and the greatest share, and folding away is Enter's alone among the keys, so that a key held down never folds a pane by accident.",
+      "F6 to move between panes, which the pattern lists as optional, is not taken: web browsers give F6 to their own toolbar and address bar.",
+      "Dragging movements (WCAG 2.5.7): a press on the Handle without a drag folds and restores the pane, or moves the divider between resetValue and the share before (SPV-6, SPV-7), and the keys reach every share.",
+      "A drag over an embedded document keeps going (HDL-6): a pane that holds an iframe does not swallow the press.",
+      "The steps are percentages of the region, as react-resizable-panels counts them (5 for an arrow key); minSize and maxSize hold a pane to pixels on top of them, for a list that must stay readable in a wide window and a narrow one alike."
+    ]
+  },
+  "tokens": "comp.split-view",
+  "fixtures": [
+    {
+      "id": "horizontal",
+      "props": { "label": "Resize the message list" },
+      "slots": { "start": "Inbox — 24 messages", "end": "Select a message to read it." }
+    },
+    {
+      "id": "vertical",
+      "props": { "axis": "vertical", "value": 60, "label": "Resize the editor" },
+      "slots": { "start": "SELECT * FROM orders", "end": "1,204 rows" }
+    },
+    {
+      "id": "primary-end",
+      "props": { "primary": "end", "value": 30, "label": "Resize the inspector" },
+      "slots": { "start": "Canvas", "end": "Inspector" }
+    },
+    {
+      "id": "collapsed",
+      "props": { "collapsible": true, "collapsed": true, "value": 30, "label": "Resize the navigation" },
+      "slots": { "start": "Navigation", "end": "Page" }
+    },
+    {
+      "id": "disabled",
+      "props": { "disabled": true, "value": 35, "label": "Resize the message list" },
+      "slots": { "start": "Inbox — 24 messages", "end": "Select a message to read it." }
+    },
+    {
+      "id": "rtl",
+      "props": { "value": 35, "label": "تغيير حجم قائمة الرسائل" },
+      "slots": { "start": "البريد الوارد", "end": "اختر رسالة لقراءتها." },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-split-view",
+      "props": {
+        "axis": "axis",
+        "primary": "primary",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "minSize": "minSize",
+        "maxSize": "maxSize",
+        "step": "step",
+        "largeStep": "largeStep",
+        "resetValue": "resetValue",
+        "collapsible": "collapsible",
+        "collapsed": "collapsed",
+        "label": "label",
+        "valueText": "valueText",
+        "disabled": "disabled"
+      },
+      "events": { "resize": "resize", "change": "change", "toggle": "toggle" },
+      "parts": { "start-pane": "start-pane", "end-pane": "end-pane", "divider": "divider", "handle": "handle" },
+      "notes": "`<tanrei-split-view label=\"Resize the message list\"><div slot=\"start\">…</div><div slot=\"end\">…</div></tanrei-split-view>`. A flex row (a column while axis is vertical) in the shadow root: the start pane, the divider with the `<tanrei-handle>` centred on it, and the end pane; the primary pane's box is its share of the region less the divider, and the other takes the rest. The split view sets `aria-controls` on its Handle to the id of the primary pane's box, which the Handle moves to its separator (HDL-26). A folded pane's box is `inert`, and its content `visibility: hidden` once the fold's motion has ended. A motion is `AnimatedSize` on the primary pane's box. Attributes are kebab-case (`min-size`, `max-size`, `large-step`, `reset-value`, `value-text`). `resize`, `change` and `toggle` are CustomEvents that bubble and are composed, whose `detail` carries `value` and `collapsed`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSplitView",
+      "props": {
+        "axis": "axis",
+        "primary": "primary",
+        "value": "value",
+        "min": "range.lowerBound",
+        "max": "range.upperBound",
+        "minSize": "minSize",
+        "maxSize": "maxSize",
+        "step": "step",
+        "largeStep": "largeStep",
+        "resetValue": "resetValue",
+        "collapsible": "isCollapsible",
+        "collapsed": "isCollapsed",
+        "label": "label",
+        "valueText": "valueText",
+        "disabled": ".disabled(_:)"
+      },
+      "events": { "resize": "onResize", "change": "value (Binding)", "toggle": "isCollapsed (Binding)" },
+      "notes": "Drawn by Tanrei with a layout that splits a geometry reader's size, not `HSplitView` (macOS only, with its own divider) or `NavigationSplitView` (a navigation structure)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSplitView",
+      "props": {
+        "axis": "axis",
+        "primary": "primary",
+        "value": "value",
+        "min": "valueRange.start",
+        "max": "valueRange.endInclusive",
+        "minSize": "minSize",
+        "maxSize": "maxSize",
+        "step": "step",
+        "largeStep": "largeStep",
+        "resetValue": "resetValue",
+        "collapsible": "collapsible",
+        "collapsed": "collapsed",
+        "label": "label",
+        "valueText": "valueText",
+        "disabled": "enabled"
+      },
+      "events": { "resize": "onResize", "change": "onValueChange", "toggle": "onCollapsedChange" },
+      "notes": "A `Layout` that measures the region and places the two panes and the `TanreiHandle`; `enabled` is the inverse of disabled."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSplitView",
+      "props": {
+        "axis": "axis",
+        "primary": "primary",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "minSize": "minSize",
+        "maxSize": "maxSize",
+        "step": "step",
+        "largeStep": "largeStep",
+        "resetValue": "resetValue",
+        "collapsible": "collapsible",
+        "collapsed": "collapsed",
+        "label": "label",
+        "valueText": "valueText",
+        "disabled": "enabled"
+      },
+      "events": { "resize": "onResize", "change": "onChanged", "toggle": "onCollapsedChanged" },
+      "notes": "A `CustomMultiChildLayout` of the two panes and the `TanreiHandle`; a folded pane is wrapped in `Offstage` and `ExcludeSemantics`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "SplitView",
+      "props": {
+        "axis": "axis",
+        "primary": "primary",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "minSize": "minSize",
+        "maxSize": "maxSize",
+        "step": "step",
+        "largeStep": "largeStep",
+        "resetValue": "resetValue",
+        "collapsible": "collapsible",
+        "collapsed": "collapsed",
+        "label": "label",
+        "valueText": "valueText",
+        "disabled": "disabled"
+      },
+      "events": { "resize": "onResize", "change": "onValueChange", "toggle": "onCollapsedChange" },
+      "notes": "Two Views sized by flex basis from the measured region, and the `Handle` between them; a folded pane is `display: 'none'`."
+    }
+  }
+}

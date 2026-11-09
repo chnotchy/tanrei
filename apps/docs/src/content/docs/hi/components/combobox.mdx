@@ -1,8 +1,8 @@
 ---
 title: कॉम्बोबॉक्स
-description: वह बॉक्स जिसमें लोग एक मान खोजने के लिए टाइप करते हैं, और विकल्पों की वह लिस्ट जो वह खोलता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
+description: वह बॉक्स जिसमें लोग एक या कई मान खोजने के लिए टाइप करते हैं, और विकल्पों की वह लिस्ट जो वह खोलता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/combobox.mdx
-sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
+sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,57 @@ import Example from '../../../../components/visuals/Example.astro';
 
 फ़ील्ड के लेबल पर दबाने से फ़ोकस इनपुट पर आता है और कुछ नहीं खुलता। जब तक लिस्ट खुली है, लेबल कॉम्बोबॉक्स के बाहर है: दबाने से लिस्ट बंद होती है, और फ़ोकस इनपुट में ही रहता है।
 
+### कई मान
+
+`selection` को `multiple` पर सेट करें, तो कॉम्बोबॉक्स `values` रखता है: उसके कितने भी विकल्प, उसी क्रम में जिसमें वे चुने गए। हर चुना गया मान बॉक्स में टेक्स्ट से पहले एक चिप के रूप में दिखता है, और जब चिप अगली पंक्ति में जाते हैं तो बॉक्स पूरी-पूरी पंक्ति बढ़ता है। कोई भी मान किसी गिनती के पीछे नहीं छिपता। तब टेक्स्ट सिर्फ़ वह होता है जो व्यक्ति किसी विकल्प को खोजने के लिए टाइप करता है।
+
+<Example label="कई मान: चुने गए शहर चिप के रूप में, और लिस्ट अब भी छनती है" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर">
+    <tanrei-combobox selection="multiple" values="kyoto lisbon" remove-label="{entry} हटाएँ" added-text="{entry} जोड़ा गया" removed-text="{entry} हटाया गया" empty-text="कोई मेल नहीं मिला">
+      <tanrei-option value="kyoto">क्योटो</tanrei-option>
+      <tanrei-option value="lisbon">लिस्बन</tanrei-option>
+      <tanrei-option value="nairobi">नैरोबी</tanrei-option>
+      <tanrei-option value="tokyo">टोक्यो</tanrei-option>
+      <tanrei-option value="toronto">टोरंटो</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</Example>
+
+```html
+<tanrei-field label="शहर">
+  <tanrei-combobox name="cities" selection="multiple" values='["kyoto", "lisbon"]'
+    remove-label="{entry} हटाएँ" added-text="{entry} जोड़ा गया" removed-text="{entry} हटाया गया">
+    <tanrei-option value="kyoto">क्योटो</tanrei-option>
+    <tanrei-option value="lisbon">लिस्बन</tanrei-option>
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option>
+    <tanrei-option value="tokyo">टोक्यो</tanrei-option>
+    <tanrei-option value="toronto">टोरंटो</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+
+<script type="module">
+  const cities = document.querySelector('[name="cities"]');
+  // कोई मान जोड़ा या हटाया गया। `values` पहले से नई ऐरे है।
+  cities.addEventListener('change', (e) => save(e.detail.values));
+</script>
+```
+
+| व्यक्ति क्या करता है | क्या होता है |
+| --- | --- |
+| किसी विकल्प पर दबाता है, या सक्रिय विकल्प पर Enter दबाता है | उसका मान आख़िर में जुड़ जाता है, या पहले से चुना हो तो हट जाता है। टेक्स्ट ख़ाली हो जाता है, सारे विकल्प फिर से दिखते हैं, और अगले चुनाव के लिए लिस्ट खुली रहती है। |
+| किसी विकल्प का पूरा लेबल टाइप करके Enter दबाता है | वह विकल्प जुड़ जाता है। `allowCustomValue` हो तो कोई और टेक्स्ट भी अपने आप में एक मान बन जाता है। |
+| कैरेट टेक्स्ट की शुरुआत में हो तब Backspace, या पंक्ति की शुरुआत की ओर इशारा करने वाली ऐरो कुंजी दबाता है | फ़ोकस आख़िरी चिप पर जाता है। अभी कुछ नहीं हटता। |
+| किसी चिप पर ऐरो कुंजी, Home या End दबाता है | फ़ोकस चिपों के बीच चलता है; आख़िरी के बाद, टेक्स्ट पर लौटता है। Escape और Tab भी टेक्स्ट पर लौटाते हैं। |
+| किसी चिप पर Backspace या Delete दबाता है, या उसका हटाने का बटन | वह मान हट जाता है, और फ़ोकस बग़ल के चिप पर, या टेक्स्ट पर जाता है। |
+| किसी चिप पर दबाता है | फ़ोकस टेक्स्ट पर जाता है, और लिस्ट उस चिप के विकल्प पर खुलती है। |
+| फ़ील्ड से बाहर जाता है, या लिस्ट बंद होने पर Escape दबाता है | टाइप किया टेक्स्ट ख़ाली हो जाता है। कुछ नहीं चुना जाता, और कोई मान नहीं हटता। |
+
+चुनाव के बाद लिस्ट खुली रहती है, क्योंकि जो व्यक्ति कई मान चुनता है वह आम तौर पर उन्हें एक के बाद एक चुनता है। वह Escape से, शेवरॉन से, बाहर दबाने से, या फ़ोकस हटने पर बंद होती है। Backspace कुछ भी हटाने से पहले आख़िरी चिप पर जाता है, जैसे [चिप फ़ील्ड](/hi/components/chip-field/) में: एक ही कुंजी दोनों फ़ील्ड में एक ही काम करती है, और ऐसा कुछ नहीं हटता जिसे व्यक्ति ने पहले देखा न हो।
+
+फ़ॉर्म में यह `<select multiple>` की तरह हर मान के लिए अपने `name` के नीचे एक एंट्री भेजता है, और जब तक कुछ नहीं चुना गया तब तक कुछ नहीं भेजता। इसके चारों ओर ज़रूरी फ़ील्ड हो तो कम से कम एक मान माँगा जाता है।
+
+चिप इनपुट प्रकार के [चिप](/hi/components/chip/) हैं, जो चिप के टोकन से बनते हैं। उनके बीच की जगह `comp.combobox.entries.*` है, जो टेक्स्ट इनपुट की एंट्री के बीच की जगह जैसी रहती है, जब तक कोई डिज़ाइन सिस्टम उसे अलग न रखे।
+
 ## स्पेक
 
 <Example label="अकेले कॉम्बोबॉक्स: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, मिटाने के बटन के साथ, और large" column>
@@ -197,6 +248,9 @@ import Example from '../../../../components/visuals/Example.astro';
 - भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`।
 - `empty-text` और `clear-label` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों से पढ़े जाते हैं (`setWords()`)।
 - एलिमेंट के डिफ़ाइन होने से पहले उसके विकल्प चलता टेक्स्ट होते हैं। `tanrei-combobox:not(:defined) > *` को छिपाएँ और ऊँचाई के लिए जगह रखें।
+- `selection="multiple"` के साथ एलिमेंट `values` का हर मान अपने `name` के नीचे भेजता है, रीसेट होने पर अपने `values` ऐट्रिब्यूट (JSON ऐरे, या स्पेस से अलग किए मान) पर लौटता है, और `change` के साथ `detail.values` भी आता है।
+- चुने गए मानों के भाग: `entry` (हर चिप), `entry-container`, `entry-label` और `entry-remove`।
+- `remove-label`, `added-text` और `removed-text` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों `entryRemoveLabel`, `entryAddedText` और `entryRemovedText` से पढ़े जाते हैं, वही जो चिप फ़ील्ड पढ़ता है।
 
 ## दिशानिर्देश
 
@@ -241,6 +295,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - फ़ोकस बॉक्स के अपने किनारे से दिखाया जाता है, कीबोर्ड से आए या पॉइंटर से। हिट एरिया न्यूनतम टार्गेट पूरा करता है।
 - फ़्लोट होते लेबल के बाद का तारांकन सहायक तकनीक से छिपा रहता है: ज़रूरी होने का स्टेट यह पहले ही बता देता है।
 - नाम न हो तो डीबग बिल्ड में इसकी रिपोर्ट होती है।
+- कई मानों के साथ, लिस्ट बॉक्स बताता है कि कई विकल्प चुने जा सकते हैं, और हर विकल्प बताता है कि वह चुना हुआ है या नहीं। चुने गए मान एक लिस्ट हैं जिसका नाम कॉम्बोबॉक्स जैसा ही है, और हर मान एक चिप है जिसके हटाने के बटन का नाम `removeLabel` से आता है। एक polite लाइव रीजन `addedText` और `removedText` के शब्दों में बताता है कि व्यक्ति ने क्या जोड़ा या हटाया।
 
 ### आपको क्या करना है
 
@@ -248,3 +303,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - जहाँ अकेला कॉम्बोबॉक्स ग़लत हो सकता है, वहाँ क्या ग़लत है यह ऐसे शब्दों में बताएँ जो सहायक तकनीक तक पहुँचें: पेज से जुड़ा आपका अपना संदेश, या कॉम्बोबॉक्स के चारों ओर एक फ़ील्ड।
 - हर विकल्प को एक लेबल और ऐसा मान दें जो ख़ाली न हो, और मान अलग-अलग रखें।
 - मिटाने के बटन वाले कॉम्बोबॉक्स को `clearLabel` दें, और `emptyText` और `statusText` लिखें।
+- कई मानों के साथ, `{entry}` की जगह वाला `removeLabel`, और `addedText` और `removedText` प्रॉडक्ट की भाषा में दें, या `setWords()` से सारे फ़ील्ड के लिए एक बार सेट करें।

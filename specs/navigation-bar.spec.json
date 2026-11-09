@@ -1104,6 +1104,18 @@
         "change": "change",
         "reselect": "reselect"
       },
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "item": "tanrei-navigation-bar-item cell",
+        "item.container": "tanrei-navigation-bar-item container",
+        "item.icon-indicator": "tanrei-navigation-bar-item icon-indicator",
+        "item.icon": "tanrei-navigation-bar-item icon",
+        "item.label": "tanrei-navigation-bar-item label",
+        "item.covered-content": "tanrei-navigation-bar-item covered-content",
+        "item.badge": "tanrei-navigation-bar-item tanrei-badge",
+        "focus-ring": "tanrei-navigation-bar-item container@focus-ring"
+      },
       "notes": "Destinations are `<tanrei-navigation-bar-item>` children, in order. The bar selects the activated destination itself (sets `value`) before firing `change`, as a native control does, unless the destination is a link. For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The bar does not set `value` for a link. `variant` is the `variant` attribute (`tonal`, `filled`) and `labelVisibility` the `label-visibility` attribute. The host is a navigation landmark (`role=\"navigation\"`, `aria-label` from `label`); the selected destination has `aria-current=\"page\"`. The active indicator is one layer of the bar that slides between the destinations' item containers; the covered copy of every icon and label (NVB-23) is an `aria-hidden` layer clipped with `clip-path` to the indicator's box, animated with it. A drag (NVB-27 to NVB-29) is followed with Pointer Events, as `tanrei-tabs` follows its own: `pointerdown` on the bar, `setPointerCapture` once the drag is taken, `pointermove` placing the indicator through the same custom properties a slide transitions, `pointerup` choosing the destination, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-current` is written only on the release, a destination that is a link is not draggable as a link (`draggable=\"false\"`, the one behaviour of a link the bar takes, NVB-30) and is followed with its own `click()` when a release chooses it, the indicator then returning to the destination `value` selects (NVB-28), and `touch-action: pan-y` leaves vertical drags to the page. The bottom inset is `env(safe-area-inset-bottom)`. It does not yet follow NVB-30 to NVB-33, nor the parts of NVB-1, NVB-19 and NVB-28 that concern links: a pressed link destination is selected like a button, `change` is not cancelable and carries no `href`, and the destination writes the link rules itself instead of using the shared link primitive (`packages/web/src/primitives/link.ts`).",
       "items": {
         "destination": {

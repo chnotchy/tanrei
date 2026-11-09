@@ -1,8 +1,8 @@
 ---
 title: ポップオーバー
-description: 押したコントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールに付いて動き、ページのほかの部分を暗くしたり、ふさいだりしません。コンパクトなウィンドウでは、ボトムシートの見た目をしたモーダルなサーフェスに表示します。
+description: コントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールを押したとき、またはポインターやキーボードフォーカスがコントロールにとどまったときに開き、コントロールに付いて動きます。ページのほかの部分を暗くしたり、ふさいだりしません。コンパクトなウィンドウでは、ボトムシートの見た目をしたモーダルなサーフェスに表示します。
 translationOf: components/popover.mdx
-sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
+sourceHash: 423dcc9ccf4410ebef8292c5c8e5ad7a43f5a874
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,15 +16,22 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="popover" />
 
 <Example label="ボタンを押すと開きます：リンクのある説明と、アクションのある短いフォーム">
-  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">ストレージ</tanrei-button>
-  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="ストレージ" closable close-label="ストレージの説明を閉じる" arrow placement="bottom" onclose="this.open = false">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined">ストレージ</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="ストレージ" closable close-label="ストレージの説明を閉じる" arrow placement="bottom" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     ゴミ箱のファイルは、削除するまでストレージの使用量に含まれます。<a class="tanrei-link" href="#ガイドライン">使用量の数え方</a>
   </tanrei-popover>
-  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">名前を変更</tanrei-button>
-  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="フォルダーの名前を変更" onclose="this.open = false">
+  <tanrei-button id="popover-demo-form-opener" variant="outlined">名前を変更</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="フォルダーの名前を変更" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <tanrei-text-field label="名前" value="レポート" autofocus></tanrei-text-field>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">変更</tanrei-button>
+  </tanrei-popover>
+</Example>
+
+<Example label="名前にポインターを置くか、Tab で移動すると、その人のプレビューが開きます">
+  <p><a class="tanrei-link" id="popover-demo-person" href="#ガイドライン">山田花子</a>さんが月曜日に共有しました。</p>
+  <tanrei-popover id="popover-demo-preview" anchor="popover-demo-person" label="山田花子" trigger="hover focus" placement="bottom-start" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    山田花子、解析エンジンチーム。共有フォルダーを 12 個管理しています。<a class="tanrei-link" href="#ガイドライン">プロフィールを開く</a>
   </tanrei-popover>
 </Example>
 
@@ -34,9 +41,32 @@ import Example from '../../../../components/visuals/Example.astro';
 
 コントロールは利用者側で用意します。Web では、ポップオーバーを横に置く要素の id を `anchor` に指定します。この要素は、ポップオーバーを開く要素（オープナー）でもあります。ポップオーバーは、この要素がダイアログを開くことと、そのダイアログが開いているかどうかを支援技術に伝え、閉じるときにはこの要素にフォーカスを戻します。フィールドがサーフェスのアンカーで、それを開くのがフィールドの中のボタンである場合は、そのボタンを `opener` に指定します。
 
-ポップオーバーは、メニューと同じく制御コンポーネントです。オープナーが押されたら `open` を設定し、ポップオーバーが `close` を発火したら false に戻します。ホバーやフォーカス、時間の経過で、ひとりでに開くことはありません。`close` は理由を伝えます。`escape`、`outside`、`focus-out`、`close`（閉じるボタン）、`anchor-hidden` のいずれかです。アクションを押してもポップオーバーは閉じません。閉じるのは、利用者側のハンドラーです。コンパクトなウィンドウでシートとして表示されているときは、スクリムを押すと `outside` を伝え、`focus-out` と `anchor-hidden` は伝えません。
+ポップオーバーは、メニューと同じく制御コンポーネントです。開くか閉じるかを `toggle` で求めるので、その `detail.open` の値を `open` に設定します。既定では、オープナーを押すと開くことを、もう一度押すと閉じることを求めます。そのため、オープナーにハンドラーを書く必要はありません。それ以外の理由で閉じるときは `close` で求めるので、`open` を false に戻します。`close` は理由を伝えます。`escape`、`outside`、`focus-out`、`close`（閉じるボタン）、`anchor-hidden` のいずれかです。アクションを押してもポップオーバーは閉じません。閉じるのは、利用者側のハンドラーです。コンパクトなウィンドウでシートとして表示されているときは、スクリムを押すと `outside` を伝え、`focus-out` と `anchor-hidden` は伝えません。
 
 ポップオーバーには名前を付けます。見出しを描くなら `headline`、描かないなら `label` です。
+
+### トリガー
+
+`trigger` は、ポップオーバーを開くきっかけを指定します。`press`、`hover`、`focus` から 1 つ以上を、自由に組み合わせて指定できます。Web の属性では、`trigger="hover focus"` のように空白で区切って並べます。
+
+| トリガー | ポップオーバーが開くとき | フォーカスの行き先 |
+| --- | --- | --- |
+| `press`（既定） | オープナーを押したとき、またはオープナーで Enter か Space を押したとき。もう一度押すと閉じることを求めます | ポップオーバーの中 |
+| `hover` | マウス、トラックパッド、ホバーできるペンが、アンカーの上に `showDelay` の間とどまったとき。タッチでは開きません | 移りません。元の場所のままです |
+| `focus` | キーボードフォーカスが、アンカーに `showDelay` の間とどまったとき。押したりタップしたりして移ったフォーカスでは開きません | 移りません。アンカーにとどまり、次の Tab でポップオーバーの中へ進みます |
+
+`toggle` は、どのトリガーかを `detail.reason` で伝えます。ホバーやフォーカスで開いたポップオーバーは、次のようにふるまいます。
+
+- 開く前に待ちます。ポインターがアンカーの上を通り過ぎたり、Tab で並んだアンカーを通り過ぎたりしただけでは開きません。`showDelay` を省くと `comp.popover.motion.show-delay`（既定のシステムでは 700 ms）になります。
+- ポインターがアンカー、アンカーとポップオーバーの間のすき間、ポップオーバーのいずれかの上にある間と、フォーカスがポップオーバーの中にある間は、開いたままです。トリガーに `focus` があれば、アンカーにあるキーボードフォーカスでも開いたままです。`hideDelay` がいくつでも、ポインターはすき間を渡れます。
+- そのどれも当てはまらない状態が `hideDelay` 続くと、`toggle` で理由 `leave` を付けて閉じることを求めます。`hideDelay` を省くと `comp.popover.motion.hide-delay`（既定のシステムでは 300 ms）になります。どれかが当てはまる間に、時間で閉じることはありません。
+- フォーカスがどこにあっても Escape で閉じ、フォーカスは動かしません。Escape で閉じたあとは、ポインターやフォーカスがいったんアンカーを離れて戻ってくるまで、もう一度は開きません。
+- コンパクトなウィンドウでも、アンカーの横に表示します。アンカーを指しただけの人から、シートがフォーカスを奪わないようにするためです。
+- ほかのポップオーバーと同じモーションで現れます。
+
+トリガーに `press` があるとき、ホバーで開いたポップオーバーのオープナーを押すと、押して開いたときと同じ状態で開いたままになります。フォーカスが中に移り、ポインターが離れても閉じなくなります。`press` がないときは、リンクの移動など、オープナー自身の動作がそのまま行われ、オープナーはダイアログを開くことを伝えません。
+
+これらの待ち時間はモーションではありません。モーションを減らす設定でも変わりません。
 
 SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
 
@@ -56,13 +86,16 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <tanrei-text-field id="city" label="市区町村"></tanrei-text-field>
     <tanrei-popover anchor="city" label="候補" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
 
+    <!-- リンクのプレビュー：押したときではなく、ホバーかキーボードフォーカスで開きます。 -->
+    <a id="author" href="/people/ada">山田花子</a>
+    <tanrei-popover id="author-preview" anchor="author" label="山田花子" trigger="hover focus">…</tanrei-popover>
+
     <script type="module">
       import '@tanrei/web/components/popover';
 
-      const opener = document.querySelector('#share');
       const panel = document.querySelector('#share-panel');
-      // オープナーで開閉します。オープナーを押しても「外側」を押したことにはならないので、1 回押しただけで閉じてまた開くことはありません。
-      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // オープナーを押すと開くことを、もう一度押すと閉じることを求めます。
+      panel.addEventListener('toggle', (e) => (panel.open = e.detail.open));
       // Escape、外側を押す、フォーカスが離れる、閉じるボタン、アンカーが見えなくなる。
       panel.addEventListener('close', (e) => {
         console.log(e.detail.reason);
@@ -83,8 +116,8 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
     const [open, setOpen] = useState(false);
 
-    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>共有</Button>
-    <Popover anchor="share" open={open} headline="このページを共有" closable closeLabel="共有を閉じる" onClose={() => setOpen(false)}>
+    <Button id="share" variant="outlined">共有</Button>
+    <Popover anchor="share" open={open} headline="このページを共有" closable closeLabel="共有を閉じる" onToggle={(e) => setOpen(e.detail.open)} onClose={() => setOpen(false)}>
       リンクを知っている全員が閲覧できます。
       <Button slot="actions" dismissive onClick={stopSharing}>共有を停止</Button>
       <Button slot="actions" confirming onClick={copyLink}>リンクをコピー</Button>
@@ -96,12 +129,12 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 ## 仕様
 
 <Example label="配置、矢印、アンカーと同じ幅のポップオーバー">
-  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">上、中央</tanrei-button>
-  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="ストレージ" placement="top" arrow onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
-  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">横、末尾側</tanrei-button>
-  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="ストレージ" placement="end-top" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
-  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">このボタンと同じ幅</tanrei-button>
-  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="ストレージ" width="anchor" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined">上、中央</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="ストレージ" placement="top" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined">横、末尾側</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="ストレージ" placement="end-top" ontoggle="this.open = event.detail.open" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem">このボタンと同じ幅</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="ストレージ" width="anchor" ontoggle="this.open = event.detail.open" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
 </Example>
 
 ### 配置
@@ -175,6 +208,9 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - Web には固有の戻る操作がないので、`close` が理由 `back` を伝えることはありません。
 - `anchorElement` と `openerElement` は、id で届かない要素（別のシャドウルートの中の要素など）を指定するプロパティです。
 - `arrow` は未設定、true、false のいずれかです。属性は、なし、`arrow`、`arrow="false"` で表します。
+- `trigger` はリストのプロパティです。属性では、値を空白で区切って並べます。`showDelay` と `hideDelay` は、ミリ秒で指定する `show-delay` 属性と `hide-delay` 属性です。
+- `toggle` は `detail.open` と `detail.reason` を持つ `CustomEvent` です。マークアップでは `ontoggle="this.open = event.detail.open"` で応えられます。
+- ホバーは `pointerType` が `mouse` か `pen` のポインターから、キーボードフォーカスは `:focus-visible` に一致するフォーカスから判断します。
 - 開いたときにフォーカスを受け取る要素には、`autofocus` を付けます。
 - 強制カラーモードでは、コンテナと矢印にテキストの色の輪郭線が付きます。
 
@@ -184,9 +220,9 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 | 観点 | ツールチップ | ポップオーバー | メニュー | ダイアログ |
 | --- | --- | --- | --- | --- |
-| 開くきっかけ | ホバー、キーボードフォーカス、長押し | オープナーを押す | アンカーを押す | プロダクト |
+| 開くきっかけ | ホバー、キーボードフォーカス、長押し | オープナーを押す。`trigger` の指定に応じてホバーやキーボードフォーカスでも | アンカーを押す | プロダクト |
 | 入るもの | アンカーの説明 | ユーザーが操作するコンテンツ | 項目だけ | 判断 |
-| フォーカス | 受け取りません | 受け取り、戻します | 受け取り、戻します | 受け取り、保ちます |
+| フォーカス | 受け取りません | 押して開いたときは受け取り、戻します | 受け取り、戻します | 受け取り、保ちます |
 | ページをふさぐか | いいえ | いいえ（コンパクトなウィンドウのシートでは、はい） | いいえ | はい |
 
 1. コントロールが何であるかを伝えるだけで、押せるものが中にないなら、ツールチップです。
@@ -203,13 +239,15 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - **ページの代わりにしない。** 先へ進む前に読まなければならないことは、フィールドの補助テキストやページそのものに書きます。尋ねなくても読めるように。
 
 <Example label="トグルチップ：情報ボタンを押してください">
-  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="ストレージについて" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
-  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="ストレージについて" arrow onclose="this.open = false">ゴミ箱のファイルも、削除されるまでストレージの使用量に含まれます。 <a class="tanrei-link" href="#guidelines">ストレージの数え方</a></tanrei-popover>
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="ストレージについて" arrow ontoggle="this.open = event.detail.open" onclose="this.open = false">ゴミ箱のファイルも、削除されるまでストレージの使用量に含まれます。 <a class="tanrei-link" href="#guidelines">ストレージの数え方</a></tanrei-popover>
 </Example>
 
 ### 推奨
 
-- コントロールを押して開き、同じコントロールをもう一度押したら閉じます。
+- 既定では、コントロールを押して開きます。同じコントロールをもう一度押すと、ポップオーバーが閉じることを求めます。
+- 人やドキュメントなど、リンク先のプレビューには `trigger="hover focus"` を使います。プレビューと同じ情報には、リンクをたどっても届くようにします。
+- ホバーで開くポップオーバーの中に操作するものがあるときは、トリガーに `press` も加えます。キーボードやタッチの人が、意図して開き、中に入れるようにするためです。
 - コンテンツは短くします。1 つの作業で、フィールドは多くても数個です。
 - ポップオーバーが大きく、外側の押せる場所を覆ってしまうときは、`closable` を付けます。Escape のないタッチのためにも付けます。
 - ユーザーが入力しているフィールドの下に出すサーフェスには、`width="anchor"` と `initialFocus="anchor"` を使います。
@@ -218,7 +256,8 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ### 非推奨
 
-- ホバーやフォーカスでポップオーバーを開かない。タッチでは届きません。ポインターが通っただけでフォーカスを奪うサーフェスは、抜け出せない罠になります。
+- 必要な情報を、ホバーで開くポップオーバーだけに置かない。タッチにはホバーがありません。リンク先や、トリガーの `press` など、別の方法でも同じ情報に届くようにします。
+- ホバーのポップオーバーを素早く見せようとして、`showDelay` を短くしない。ポップオーバーはツールチップより大きく、ポインターが通るたびにページを覆ってしまいます。
 - 外側をうっかり 1 回押しただけで失われて困るものを、ポップオーバーに入れない。長いフォームは、ダイアログかシートに入れます。
 - ポップオーバーの中に、ポップオーバーを 2 つ以上重ねない。1 段増えるごとに、Escape を押す回数が 1 回増えます。
 - 先に進む前に答えが必要なものに、ポップオーバーを使わない。それはダイアログです。
@@ -231,7 +270,8 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 - コンテナは、モーダルではないダイアログです。`headline` または `label` が名前になります。外側のものを隠したり、操作不能にしたりしません。
 - コンパクトなウィンドウでシートとして表示されているときは、コンテナはモーダルなダイアログです。外側はすべて操作不能になり、Tab と Shift+Tab は中で循環します。閉じると、フォーカスはオープナーに戻ります。
-- オープナーは、ダイアログを開くことと、そのダイアログが開いているかどうかを伝えます。オープナー自身の名前とロールは変わりません。
+- トリガーに `press` があるとき、オープナーはダイアログを開くことと、そのダイアログが開いているかどうかを伝えます。ホバーやフォーカスだけで開くアンカーは、どちらも伝えません。オープナー自身の名前とロールは変わりません。
+- ホバーやフォーカスで開いたポップオーバーは、WCAG 1.4.13（ホバーまたはフォーカスで表示されるコンテンツ）を満たします。ポインターもフォーカスも動かさずに Escape で消せ、すき間を渡ってポインターをポップオーバーの上に移せ、ポインターとフォーカスが離れるまで表示されたままです。
 - 開くと、利用者側で印を付けた要素に、なければコンテナにフォーカスを移します。そのため、ポップオーバーの名前が最初に読み上げられます。コンテナのフォーカスインジケーターは、キーボードで開いたときだけ表示します。
 - ポップオーバーは、文書のどこに書かれていても、Tab の順序ではオープナーのすぐ後に来ます。最後の要素で Tab を押すと、フォーカスはオープナーの次の要素に進み、ポップオーバーは閉じます。フォーカスを閉じ込めることはありません。
 - Escape は、いちばん上のオーバーレイだけを閉じ、それより先には届きません。ポップオーバーが置かれているダイアログは、開いたままです。
@@ -242,6 +282,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 ### 利用者側で行うこと
 
 - ポップオーバーに `headline` または `label` を付けます。`closable` のときは `closeLabel` も付けます。
-- オープナーが押されたら `open` を設定し、`close` を受け取ったら false にします。
+- `toggle` が求める値を `open` に設定し、`close` を受け取ったら false にします。
+- トリガーが `hover` だけのときは、ポップオーバーが示す内容に別の方法でも届くようにします。タッチの人には、ポップオーバーが見えないからです。
 - Web では、できるだけポップオーバーの要素を文書の中でオープナーのすぐ後に置きます。スクリーンリーダーの読み上げ順が、Tab の順序と同じになります。
 - 短いフォームでは、最初のフィールドに、開いたときにフォーカスを受け取る印を付けます。テキストだけのポップオーバーには付けません。

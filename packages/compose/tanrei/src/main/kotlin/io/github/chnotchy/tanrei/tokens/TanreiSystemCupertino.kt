@@ -120,6 +120,7 @@ private object CupertinoSystemSource {
             progressIndicator = progressIndicator(typescale, elevation),
             prose = prose(typescale, elevation),
             radioButton = radioButton(typescale, elevation),
+            rating = rating(typescale, elevation),
             resizableFrame = resizableFrame(typescale, elevation),
             scrollArea = scrollArea(typescale, elevation),
             search = search(typescale, elevation),
@@ -129,6 +130,7 @@ private object CupertinoSystemSource {
             skeleton = skeleton(typescale, elevation),
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
+            splitView = splitView(typescale, elevation),
             stepper = stepper(typescale, elevation),
             steps = steps(typescale, elevation),
             swatch = swatch(typescale, elevation),
@@ -3066,6 +3068,9 @@ private object CupertinoSystemSource {
             dividerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             dividerSpace = 0.dp,
             dividerThickness = 8.dp,
+            entriesGap = 8.dp,
+            entriesRowGap = 8.dp,
+            entriesTypingMinWidth = 72.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
@@ -6477,8 +6482,10 @@ private object CupertinoSystemSource {
             headlineTypescale = typescale.heading6,
             motionCloseDuration = 250,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionHideDelay = 300,
             motionOpenDuration = 300,
             motionOpenEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionShowDelay = 700,
             offset = 4.dp,
             windowMargin = 8.dp,
         )
@@ -6762,6 +6769,82 @@ private object CupertinoSystemSource {
                         ringColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         fillColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         labelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun rating(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiRatingTokens =
+        TanreiRatingTokens(
+            containerShape = 9999.dp,
+            motionFeedbackDuration = 450,
+            motionSelectionDuration = 250,
+            motionSelectionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionStateDuration = 200,
+            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            hovered = TanreiRatingStateTokens(containerShape = 9999.dp, opacity = 1f),
+            focused = TanreiRatingStateTokens(containerShape = 9999.dp, opacity = 1f),
+            pressed = TanreiRatingStateTokens(containerShape = 9999.dp, opacity = 0.7f),
+            disabled = TanreiRatingStateTokens(containerShape = 9999.dp, opacity = 1f),
+            sizes = TanreiRatingSizes(
+                small = TanreiRatingSizeTokens(markSize = 20.dp, containerSize = 28.dp),
+                medium = TanreiRatingSizeTokens(markSize = 24.dp, containerSize = 32.dp),
+                large = TanreiRatingSizeTokens(markSize = 32.dp, containerSize = 40.dp),
+            ),
+            conditions = TanreiRatingConditions(
+                unselected = TanreiRatingConditionTokens(
+                    enabled = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    hovered = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    focused = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    pressed = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    disabled = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+                selected = TanreiRatingConditionTokens(
+                    enabled = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                    ),
+                    hovered = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                    ),
+                    focused = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                    ),
+                    pressed = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                    ),
+                    disabled = TanreiRatingConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        markColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -7683,6 +7766,16 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun splitView(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSplitViewTokens =
+        TanreiSplitViewTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerWidth = 1.dp,
+            motionCollapseDuration = 400,
+            motionCollapseEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionResizeDuration = 300,
         )
 
     @Suppress("UNUSED_PARAMETER")

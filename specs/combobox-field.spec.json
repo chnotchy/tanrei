@@ -278,7 +278,7 @@
         "open": "open",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
-        "wrap": "wrap",
+        "wrap": "noWrap",
         "chevron": "noChevron",
         "clearable": "clearable",
         "clearLabel": "clearLabel",

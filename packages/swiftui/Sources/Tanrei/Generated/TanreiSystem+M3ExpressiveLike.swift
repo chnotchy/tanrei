@@ -3257,6 +3257,9 @@ private let m3ExpressiveLikeComboboxTokens = TanreiComboboxTokens(
   dividerColor: .role(.outlineVariant),
   dividerSpace: 8,
   dividerThickness: 1,
+  entriesGap: 8,
+  entriesRowGap: 8,
+  entriesTypingMinWidth: 72,
   groupTitleColor: .role(.onSurfaceVariant),
   groupTitleTypescale: m3ExpressiveLikeTypescale.labelSmall,
   groupGap: 16,
@@ -7029,8 +7032,10 @@ private let m3ExpressiveLikePopoverTokens = TanreiPopoverTokens(
   headlineTypescale: m3ExpressiveLikeTypescale.heading6,
   motionCloseDuration: 100,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionHideDelay: 300,
   motionOpenDuration: 200,
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionShowDelay: 700,
   offset: 4,
   windowMargin: 8
 )
@@ -7346,6 +7351,101 @@ private let m3ExpressiveLikeRadioButtonTokens = TanreiRadioButtonTokens(
     opacity: 1
   ),
   disabled: TanreiRadioButtonStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  )
+)
+
+private let m3ExpressiveLikeRatingTokens = TanreiRatingTokens(
+  containerShape: 9999,
+  motionFeedbackDuration: 450,
+  motionSelectionDuration: 150,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiRatingSizes(
+    small: TanreiRatingSizeTokens(
+      markSize: 20,
+      containerSize: 28
+    ),
+    medium: TanreiRatingSizeTokens(
+      markSize: 24,
+      containerSize: 32
+    ),
+    large: TanreiRatingSizeTokens(
+      markSize: 32,
+      containerSize: 40
+    )
+  ),
+  conditions: TanreiRatingConditions(
+    unselected: TanreiRatingConditionTokens(
+      enabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.08),
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.12),
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.12),
+        markColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiRatingConditionTokens(
+      enabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      hovered: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.primary), amount: 0.08),
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      focused: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.primary), amount: 0.12),
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      pressed: TanreiRatingConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.primary), amount: 0.12),
+        markColor: .role(.primary),
+        stateLayerColor: .role(.primary)
+      ),
+      disabled: TanreiRatingConditionStateTokens(
+        containerColor: .none,
+        markColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  ),
+  focused: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  ),
+  pressed: TanreiRatingStateTokens(
+    containerShape: 9999,
+    opacity: 1
+  ),
+  disabled: TanreiRatingStateTokens(
     containerShape: 9999,
     opacity: 1
   )
@@ -8374,6 +8474,14 @@ private let m3ExpressiveLikeSnackbarTokens = TanreiSnackbarTokens(
   pressed: TanreiSnackbarStateTokens(
     opacity: 1
   )
+)
+
+private let m3ExpressiveLikeSplitViewTokens = TanreiSplitViewTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerWidth: 1,
+  motionCollapseDuration: 500,
+  motionCollapseEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionResizeDuration: 200
 )
 
 private let m3ExpressiveLikeStepperTokens = TanreiStepperTokens(
@@ -10135,6 +10243,7 @@ extension TanreiSystem {
     progressIndicator: m3ExpressiveLikeProgressIndicatorTokens,
     prose: m3ExpressiveLikeProseTokens,
     radioButton: m3ExpressiveLikeRadioButtonTokens,
+    rating: m3ExpressiveLikeRatingTokens,
     resizableFrame: m3ExpressiveLikeResizableFrameTokens,
     scrollArea: m3ExpressiveLikeScrollAreaTokens,
     search: m3ExpressiveLikeSearchTokens,
@@ -10144,6 +10253,7 @@ extension TanreiSystem {
     skeleton: m3ExpressiveLikeSkeletonTokens,
     slider: m3ExpressiveLikeSliderTokens,
     snackbar: m3ExpressiveLikeSnackbarTokens,
+    splitView: m3ExpressiveLikeSplitViewTokens,
     stepper: m3ExpressiveLikeStepperTokens,
     steps: m3ExpressiveLikeStepsTokens,
     swatch: m3ExpressiveLikeSwatchTokens,

@@ -653,9 +653,9 @@ test.describe('behavior', () => {
     await page.keyboard.up('Delete');
     expect(await events(page)).toMatchObject({ remove: 3, click: 0 });
     // Not removable, it offers no key (CHP-38), and has it back when removable again.
-    await host(page, 'input').evaluate((el) => Object.assign(el, { removable: false }));
+    await host(page, 'input').evaluate((el) => Object.assign(el, { notRemovable: true }));
     await expect(inner(page, 'input')).not.toHaveAttribute('aria-keyshortcuts', /.*/);
-    await host(page, 'input').evaluate((el) => Object.assign(el, { removable: true }));
+    await host(page, 'input').evaluate((el) => Object.assign(el, { notRemovable: false }));
     await expect(inner(page, 'input')).toHaveAttribute('aria-keyshortcuts', 'Delete Backspace');
     await listen(host(page, 'action-outlined'));
     await host(page, 'action-outlined').focus();
@@ -1624,9 +1624,9 @@ test.describe('link form', () => {
     await mountFixtures(page, spec);
     const id = 'input';
     const withAction = (await bounds(inner(page, id))).width;
-    await expect(host(page, id)).toHaveJSProperty('removable', true);
+    await expect(host(page, id)).toHaveJSProperty('notRemovable', false);
     await host(page, id).evaluate((el) => el.setAttribute('not-removable', ''));
-    await expect(host(page, id)).toHaveJSProperty('removable', false);
+    await expect(host(page, id)).toHaveJSProperty('notRemovable', true);
     await expect(removeOf(page, id)).toBeHidden();
     await expect(host(page, id).getByRole('button')).toHaveCount(1);
     // Padded as a chip that has no remove action: as the action chip of the same label and size is.
@@ -1650,14 +1650,14 @@ test.describe('link form', () => {
     await tab(page);
     await expect(inner(page, 'input-avatar')).toBeFocused();
     // The property writes the attribute, and removable again it has its action back.
-    await host(page, id).evaluate((el) => Object.assign(el, { removable: true }));
+    await host(page, id).evaluate((el) => Object.assign(el, { notRemovable: false }));
     await expect(host(page, id)).not.toHaveAttribute('not-removable', /.*/);
     await expect(removeOf(page, id)).toBeVisible();
     await removeOf(page, id).click();
     expect(await events(page)).toMatchObject({ remove: 1 });
     // Another kind ignores it.
     const before = await bounds(inner(page, 'action-no-icon'));
-    await host(page, 'action-no-icon').evaluate((el) => Object.assign(el, { removable: false }));
+    await host(page, 'action-no-icon').evaluate((el) => Object.assign(el, { notRemovable: true }));
     await expect(host(page, 'action-no-icon').getByRole('button')).toHaveCount(1);
     expect((await bounds(inner(page, 'action-no-icon'))).width).toBe(before.width);
   });

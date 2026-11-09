@@ -1,8 +1,8 @@
 ---
 title: مربع التحرير والسرد
-description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
+description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة أو أكثر، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
+sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,57 @@ import Example from '../../../../components/visuals/Example.astro';
 
 الضغط على تسمية الحقل ينقل التركيز إلى حقل الإدخال ولا يفتح شيئًا. وما دامت القائمة مفتوحة تكون التسمية خارج مربع التحرير والسرد: فالضغطة تغلق القائمة، ويبقى التركيز في حقل الإدخال.
 
+### قيم متعددة
+
+اضبط `selection` على `multiple` فيحمل مربع التحرير والسرد `values`: أي عدد من خياراته، بالترتيب الذي اختيرت به. تقف كل قيمة مختارة في الصندوق رقاقةً قبل النص، ويزداد ارتفاع الصندوق سطرًا كاملًا كلما التفّت الرقاقات إلى سطر جديد. لا تختفي أي قيمة خلف عدد. ويصبح النص حينئذٍ مجرد ما يكتبه الشخص ليجد خيارًا.
+
+<Example label="قيم متعددة: المدن المختارة رقاقات، والقائمة ما زالت تُصفّي" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدن">
+    <tanrei-combobox selection="multiple" values="kyoto lisbon" remove-label="إزالة {entry}" added-text="أُضيفت {entry}" removed-text="أُزيلت {entry}" empty-text="لا توجد نتائج مطابقة">
+      <tanrei-option value="kyoto">كيوتو</tanrei-option>
+      <tanrei-option value="lisbon">لشبونة</tanrei-option>
+      <tanrei-option value="nairobi">نيروبي</tanrei-option>
+      <tanrei-option value="tokyo">طوكيو</tanrei-option>
+      <tanrei-option value="toronto">تورنتو</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</Example>
+
+```html
+<tanrei-field label="المدن">
+  <tanrei-combobox name="cities" selection="multiple" values='["kyoto", "lisbon"]'
+    remove-label="إزالة {entry}" added-text="أُضيفت {entry}" removed-text="أُزيلت {entry}">
+    <tanrei-option value="kyoto">كيوتو</tanrei-option>
+    <tanrei-option value="lisbon">لشبونة</tanrei-option>
+    <tanrei-option value="nairobi">نيروبي</tanrei-option>
+    <tanrei-option value="tokyo">طوكيو</tanrei-option>
+    <tanrei-option value="toronto">تورنتو</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+
+<script type="module">
+  const cities = document.querySelector('[name="cities"]');
+  // أُضيفت قيمة أو أُزيلت. `values` هي المصفوفة الجديدة سلفًا.
+  cities.addEventListener('change', (e) => save(e.detail.values));
+</script>
+```
+
+| ما يفعله الشخص | ما يحدث |
+| --- | --- |
+| يضغط على خيار، أو يضغط Enter على الخيار النشط | تُضاف قيمته في النهاية، أو تُزال إن كانت مختارة من قبل. يُفرَّغ النص، وتظهر الخيارات كلها من جديد، وتبقى القائمة مفتوحة للاختيار التالي. |
+| يكتب تسمية خيار كاملة ثم يضغط Enter | يُضاف ذلك الخيار. ومع `allowCustomValue` يصبح أي نص آخر قيمة قائمة بذاتها. |
+| يضغط Backspace، أو مفتاح السهم الذي يشير إلى بداية السطر، ومؤشر الكتابة في بداية النص | ينتقل التركيز إلى آخر رقاقة. ولا يُزال شيء بعد. |
+| يضغط على رقاقة مفتاح سهم أو Home أو End | ينتقل التركيز بين الرقاقات؛ وبعد الأخيرة يعود إلى النص. ويعيد Escape وTab التركيز إلى النص أيضًا. |
+| يضغط على رقاقة Backspace أو Delete، أو زر الإزالة فيها | تُزال تلك القيمة، وينتقل التركيز إلى الرقاقة المجاورة، أو إلى النص. |
+| يضغط على رقاقة | ينتقل التركيز إلى النص، وتُفتح القائمة على خيار تلك الرقاقة. |
+| يغادر الحقل، أو يضغط Escape والقائمة مغلقة | يُفرَّغ النص المكتوب. لا يُختار شيء، ولا تُزال أي قيمة. |
+
+تبقى القائمة مفتوحة بعد الاختيار، لأن من يختار عدة قيم يختارها في الغالب واحدة تلو الأخرى. وتُغلق بالمفتاح Escape، أو بالسهم المنسدل، أو بضغطة في الخارج، أو حين يغادر التركيز. وينتقل Backspace إلى آخر رقاقة قبل أن يزيل أي شيء، كما في [حقل الرقاقات](/ar/components/chip-field/): فالمفتاح يفعل الشيء نفسه في الحقلين، ولا يُزال شيء لم يره الشخص أولًا.
+
+وفي النموذج يُرسل مُدخلًا لكل قيمة تحت `name` الخاص به، كما يفعل `<select multiple>`، ولا يُرسل شيئًا ما دام لم يُختر شيء. والحقل المطلوب الذي يحيط به يطلب قيمة واحدة على الأقل.
+
+الرقاقات [رقاقات](/ar/components/chip/) من نوع الإدخال، تُرسم من رموز الرقاقة. والمسافة بينها هي `comp.combobox.entries.*`، وهي تتبع مسافات المُدخلات في حقل إدخال النص ما لم يضبطها نظام التصميم على نحو آخر.
+
 ## المواصفات
 
 <Example label="مربعات تحرير وسرد مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وقابل للمسح، وبالحجم large" column>
@@ -197,6 +248,9 @@ import Example from '../../../../components/visuals/Example.astro';
 - الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `leading-icon`، `clear-button`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`، `status`.
 - الخاصيتان `empty-text` و `clear-label` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
 - قبل أن يُعرَّف العنصر، تكون خياراته نصًّا جاريًا في الصفحة. أخفِ `tanrei-combobox:not(:defined) > *` واحجز الارتفاع.
+- مع `selection="multiple"` يُرسل العنصر كل قيمة من `values` تحت `name` الخاص به، ويعود عند إعادة التعيين إلى سمة `values` (مصفوفة JSON، أو قيم تفصل بينها مسافات)، ويحمل الحدث `change` أيضًا `detail.values`.
+- أجزاء القيم المختارة: `entry` (كل رقاقة)، `entry-container`، `entry-label`، `entry-remove`.
+- الخاصيات `remove-label` و `added-text` و `removed-text` تُقرأ حين تُترك فارغة من كلمات المنتج `entryRemoveLabel` و `entryAddedText` و `entryRemovedText`، وهي نفسها التي يقرؤها حقل الرقاقات.
 
 ## الإرشادات
 
@@ -241,6 +295,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - يُعرض التركيز بحافة الصندوق نفسها، سواء جاء من لوحة المفاتيح أو من مؤشر. ومساحة اللمس تستوفي الحد الأدنى للهدف.
 - النجمة التي بعد التسمية العائمة مخفيّة عن التقنيات المساعدة: فحالة المطلوب تقول ذلك سلفًا.
 - غياب الاسم يُبلَّغ عنه في بنيات التنقيح (debug).
+- مع القيم المتعددة، يقول مربع القائمة إن بالإمكان اختيار عدة خيارات، ويقول كل خيار إن كان مختارًا. والقيم المختارة قائمة تحمل اسم مربع التحرير والسرد نفسه، وكل قيمة رقاقة لها زر إزالة يسمّيه `removeLabel`. وتقول منطقة حيّة مهذّبة (polite) ما أضافه الشخص أو أزاله، بكلمات `addedText` و `removedText`.
 
 ### ما عليك فعله
 
@@ -248,3 +303,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - حيث يمكن أن يكون مربع التحرير والسرد المجرَّد خاطئًا، قل ما الخطأ بكلمات تصل إلى التقنيات المساعدة: رسالة من عندك مرتبطة بالصفحة، أو حقل يحيط بمربع التحرير والسرد.
 - أعطِ كل خيار تسمية وقيمة غير فارغة، وأبقِ القيم فريدة.
 - أعطِ مربع التحرير والسرد القابل للمسح `clearLabel`، واكتب `emptyText` و `statusText`.
+- مع القيم المتعددة، أعطِ `removeLabel` وفيه الموضع `{entry}`، و `addedText` و `removedText`، بلغة المنتج، أو اضبطها مرة واحدة لكل الحقول بالدالة `setWords()`.

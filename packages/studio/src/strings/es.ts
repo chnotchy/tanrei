@@ -624,7 +624,7 @@ const es: Dictionary = {
     menu: 'Punto de partida',
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
-    notNeutral: 'Todavía no: la capa raíz de Tanrei aún tiene los valores del sistema predeterminado. Será un punto de partida en blanco cuando sus valores sean neutros.',
+    notInInit: 'Todavía no: la capa raíz de Tanrei ya es neutra —gris, sin color de acento—, pero la línea de comandos aún no puede empezar una capa desde ella (tanrei init --extends core). Se podrá elegir aquí cuando pueda.',
     gallery: 'Empezar desde la galería',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',
@@ -691,6 +691,14 @@ const es: Dictionary = {
     kept: 'Ahora este navegador guarda la capa compartida en lugar de la que tenías.',
     edited: 'Editaste la capa compartida, así que ahora este navegador la guarda en lugar de la que tenías.',
     back: 'Has vuelto a tu capa.',
+  },
+  sharing: {
+    open: 'Compartir',
+    close: 'Cerrar',
+    docs: 'Mostrar la documentación con este tema',
+    docsHelp: (system: string) => `Solo en este navegador. La elección de sistema de diseño de la documentación suma «Mi tema», y elegir ${system} allí la devuelve a su aspecto.`,
+    docsOn: 'La documentación se muestra ahora con este tema, en este navegador.',
+    docsOff: (system: string) => `La documentación vuelve a ${system}.`,
   },
   app: {
     language: 'Idioma',
