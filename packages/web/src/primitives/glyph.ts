@@ -27,12 +27,40 @@ function mark(readings: readonly Reading[]): HTMLElement[] {
   const changed: HTMLElement[] = [];
   for (const [glyph, drawn] of readings) {
     if (drawn === glyph.hasAttribute('data-drawn')) continue;
-    glyph.toggleAttribute('data-drawn', drawn);
     changed.push(glyph);
     if (drawn) appeared.push(glyph);
+    else glyph.removeAttribute('data-drawn');
   }
-  for (const animation of appeared.flatMap((glyph) => glyph.getAnimations())) animation.finish();
+  if (appeared.length) appearAtOnce(appeared);
   return changed;
+}
+
+/**
+ * Marks the glyphs drawn with no transition starting on them or in them (MOT-3): a glyph appears when its face has
+ * loaded — after the element that draws it has settled, on a page loaded cold — and a style that fades its mark in and
+ * out (a menu's or a select's check: `visibility` and `opacity`) would otherwise start a transition from the hidden mark
+ * it never showed. A transition is started by the style a change leads to, so each glyph and what is in it are styled
+ * once with `transition-property: none` (inline, and important over a rule of the component's), marked, and let go; a
+ * transition or an animation already running on the glyph ends where it was going.
+ */
+function appearAtOnce(glyphs: readonly HTMLElement[]) {
+  const quiet = glyphs.flatMap((glyph) => [glyph, ...glyph.querySelectorAll<HTMLElement>('*')]);
+  const own = quiet.map((element) => ({
+    attribute: element.hasAttribute('style'),
+    value: element.style.getPropertyValue('transition-property'),
+    priority: element.style.getPropertyPriority('transition-property'),
+  }));
+  for (const element of quiet) element.style.setProperty('transition-property', 'none', 'important');
+  for (const glyph of glyphs) glyph.setAttribute('data-drawn', '');
+  // Styled now, each of them: an engine styles only what the element asked about needs.
+  for (const element of quiet) void getComputedStyle(element).visibility;
+  quiet.forEach((element, at) => {
+    const { attribute, value, priority } = own[at]!;
+    if (value) element.style.setProperty('transition-property', value, priority);
+    else element.style.removeProperty('transition-property');
+    if (!attribute && !element.style.length) element.removeAttribute('style');
+  });
+  for (const animation of glyphs.flatMap((glyph) => glyph.getAnimations())) animation.finish();
 }
 
 /**
@@ -122,7 +150,8 @@ function watchAgain(glyphs: readonly HTMLElement[]) {
  * so the component's styles draw nothing in its place until then. Each glyph is a box styled by `iconGlyph()` holding
  * ONE inline-block child with the ligature text — the child's width is the ink's. A ResizeObserver on that child hears
  * the font arrive (or a system switch to another icon set) in the frame it changes the layout, before it is painted.
- * When a glyph becomes drawable, the transitions running on it are ended, so it appears without motion.
+ * When a glyph becomes drawable, no transition starts on it or in it, and one running on it ends: it appears without
+ * motion (`appearAtOnce`).
  */
 export class GlyphDrawnController implements ReactiveController {
   private connected = false;
