@@ -9,6 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 
 const spec = loadSpec('modal-layer');
 type P = Page;
@@ -323,6 +324,17 @@ test.describe('motion', () => {
     expect(ms(await css(container(page, 'l'), 'transition-duration'))).toBe(enter);
     expect(await css(container(page, 'l'), 'scale')).toBe('none');
     expect(await css(container(page, 'l'), 'translate')).toBe('none');
+  });
+
+  test('MDL-7: a layer in the page’s markup with open is there in its first frame — neither its container nor its scrim fades in — and one mounted open after the first paint fades both in (MOT-4)', async ({ page }) => {
+    await page.setViewportSize(WINDOW);
+    expect(entrances(await loadOpen(page, spec, { fixtures: [f('l', { open: true })] })), 'in the page’s markup').toEqual([]);
+    expect(await isOpen(page, 'l')).toBe(true);
+    expect(await css(container(page, 'l'), 'opacity')).toBe('1');
+    await mountOpenAgain(page);
+    // (WebKit names no pseudo-element for the scrim's fade: it is counted as the container's.)
+    expect(entrances(await runsAtRest(page)).map((run) => run.name), 'mounted after the first paint').toEqual(['opacity', 'opacity']);
+    expect(await isOpen(page, 'l-again')).toBe(true);
   });
 
   test('MDL-1, MDL-7: the components built from the layer take its scrim, and its tempo where they take the modal role — one value changes every such surface, and one value every sheet', async ({ page }) => {

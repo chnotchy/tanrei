@@ -12,6 +12,7 @@ import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { motionEnded } from '../../../test/motions.js';
+import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
@@ -1938,6 +1939,22 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
       await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       expect((await readThumb(tabsRow(page, 't', 'entry')))[0].scale, name).toBeCloseTo(1, 3);
       await check('open');
+    }
+  });
+
+  test('DTM-35: a picker in the page’s markup with open — modal or docked — is there in its first frame, playing no entrance (nor its scrim), and one mounted open after the first paint opens with its motion (MOT-4)', async ({ page }) => {
+    // A docked picker grows in by an animation of its own (`docked-open`); a modal one is a modal `<dialog>`, which
+    // appears with its scrim (WebKit naming no pseudo-element for the scrim's fade).
+    const entering = (runs: MotionRun[]) => [...entrances(runs), ...runs.filter((run) => run.name === 'docked-open')];
+    const fixtureOf = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const dockedDate = fixtureOf('docked-date');
+    for (const fixture of [fixtureOf('modal-date'), { ...dockedDate, props: { ...dockedDate.props, inline: false, anchor: 'anchor-docked-date' } }]) {
+      await page.setViewportSize(pickerWindow(fixture));
+      const atLoad = await loadOpen(page, spec, { icons: true, fixtures: [fixture] });
+      expect(entering(atLoad), `${fixture.id} in the page’s markup`).toEqual([]);
+      expect(await host(page, fixture.id).evaluate((el) => (el as HTMLElement & { open: boolean }).open)).toBe(true);
+      await mountOpenAgain(page);
+      expect(entering(await runsAtRest(page)), `${fixture.id} mounted after the first paint`).not.toEqual([]);
     }
   });
 

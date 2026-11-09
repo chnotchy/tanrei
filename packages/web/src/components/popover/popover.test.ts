@@ -7,10 +7,11 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -324,18 +325,11 @@ test.describe('presentation', () => {
     const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-popover id="late" anchor="a" label="Storage" open>Trash counts.</tanrei-popover>')), { probe: appearProbe });
     expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
     expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
-    // In the page's markup, open before the first paint: there at once, and no entrance runs (every transition that
-    // starts in a shadow root is counted from before the first element is made).
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + event.propertyName)); return root; };</script>`;
-    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
-    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}${anchorAt(300, 200)}${popover('label="Storage" open')}` });
-    await page.route('http://popover.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://popover.test/');
-    await page.waitForFunction(() => !!customElements.get('tanrei-popover'));
-    await settle(page);
+    // In the page's markup, open before the first paint: there at once, and no entrance runs.
+    const atLoad = await loadOpen(page, spec, { icons: true, lead: `${anchorAt(300, 200)}${popover('label="Storage" open')}` });
     expect(await isShown(page)).toBe(true);
     expect(await part(page, '.motion').evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
-    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-popover motion'))).toEqual([]);
+    expect(entrances(atLoad)).toEqual([]);
   });
 
   test('POP-27: a motion that is turned round goes on from the opacity and the size it has reached; closed or closing the popover takes no pointer and no focus, and closed it takes no room, draws nothing and exposes nothing', async ({ page }) => {

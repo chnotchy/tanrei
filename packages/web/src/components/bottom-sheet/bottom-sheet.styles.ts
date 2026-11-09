@@ -168,8 +168,8 @@ export const styles = css`
   }
   ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'block-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: '0 var(--_drag, 0px)' })}
   ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
-  /* While the sheet follows a drag, settles by script (BSH-9) or is mounted open (BSH-1), no transition runs on it or on
-     its scrim. (After the appearance, whose open rule weighs as much.) */
+  /* While the sheet follows a drag, settles by script (BSH-9) or is presented in place (moved in the document, or turned
+     modal while open), no transition runs on it or on its scrim. (After the appearance, whose open rule weighs as much.) */
   dialog.sheet:is(.dragging, .settling, .instant),
   dialog.sheet.instant::backdrop {
     transition-property: none;

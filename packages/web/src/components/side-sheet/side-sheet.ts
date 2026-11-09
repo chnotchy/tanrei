@@ -121,7 +121,8 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private readonly words = new WordsController(this);
   /**
    * SSH-2: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
-   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   * open before the document's first paint, played where it is mounted open after it (MOT-4), turned round from what it
+   * shows (MOT-2). The `<dialog>` is the surface that slides.
    */
   private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
@@ -227,7 +228,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
     if (this.hasUpdated) this.readSlots();
-    // Moved in the document while open: presented again, in place (as mounted).
+    // Moved in the document while open: presented again, in place, without motion.
     if (this.hasUpdated && this.open && this.modal) this.present(true);
   }
 
@@ -496,14 +497,18 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     returnFocus(opener, this);
   }
 
-  /** SSH-2, SSH-3: in the top layer, the page held, focus in. Mounted open, it appears in place without motion. */
-  private present(mounted: boolean) {
+  /**
+   * SSH-2, SSH-3: in the top layer, the page held, focus in. `instant`: in place, without motion (moved in the
+   * document, or turned modal while open). Mounted open, it slides in as it opens, unless the document has not been
+   * painted yet — `openModal()` and the appearance then draw it open at once (MOT-4).
+   */
+  private present(instant: boolean) {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
     watchEscape();
     this.place(0);
     this.opener = deepActive();
-    if (mounted) {
+    if (instant) {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
@@ -516,7 +521,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     };
     // SSH-2: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
-    this.appear.enter(mounted);
+    this.appear.enter(instant);
     this.shown = true;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
@@ -589,8 +594,9 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
       const mounted = changed.has('open') && changed.get('open') === undefined;
       const was = changed.has('open') ? changed.get('open') === true : this.open;
       if (this.modal) {
-        // SSH-3: a modal sheet mounted open takes focus as if it had just opened.
-        if (this.open) this.present(mounted || variantChanged);
+        // SSH-3: a modal sheet mounted open takes focus as if it had just opened. SSH-2: it appears as MOT-4 says
+        // (`present`); turned modal while open, in place.
+        if (this.open) this.present(variantChanged);
         else if (this.shown) this.withdraw(true);
       } else if (changed.has('open') && !mounted) {
         // SSH-3: a standard sheet opened moves focus in; closed with focus inside, it gives it back. Mounted open, it

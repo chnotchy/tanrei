@@ -6,6 +6,7 @@ import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, 
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1671,22 +1672,12 @@ test.describe('motion', () => {
     const mounted = await sampleFrames(main, () => main.evaluate((el, html) => el.insertAdjacentHTML('beforeend', html), late), { probe: appearProbe });
     expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
     expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
-    // In the page's markup, open before the first paint: there at once, and no entrance runs (every transition that
-    // starts in a shadow root is counted from before the first element is made).
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + event.propertyName)); return root; };</script>`;
-    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
-    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}${late.replace('id="late"', 'id="early"')}` });
-    await page.route('http://tooltip.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://tooltip.test/');
-    await page.waitForFunction(() => !!customElements.get('tanrei-tooltip'));
-    await page.evaluate(async () => {
-      await (document.querySelector('tanrei-tooltip') as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-      for (let i = 0; i < 3; i++) await new Promise(requestAnimationFrame);
-    });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs.
+    const atLoad = await loadOpen(page, spec, { icons: true, lead: late.replace('id="late"', 'id="early"') });
     const early = page.locator('tanrei-tooltip#early');
     expect(await early.locator('.surface').evaluate((el) => el.matches(':popover-open') && el.classList.contains('open'))).toBe(true);
     expect(await early.locator('.motion').evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
-    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-tooltip motion'))).toEqual([]);
+    expect(entrances(atLoad)).toEqual([]);
   });
 
   test('TIP-28: a tooltip that takes over from one that is open, or still fading out, or that closed within the warm time because the pointer left its anchor, appears whole at once without its show delay, and the other disappears at once; after the warm time the next one waits and moves again', async ({ page }) => {

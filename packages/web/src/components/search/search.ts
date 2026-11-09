@@ -25,6 +25,7 @@ import {
   chordsOf,
   containedWheel,
   deepActive,
+  documentPainted,
   focusWithin,
   holdPageScroll,
   hostAria,
@@ -2186,8 +2187,12 @@ export class TanreiSearch extends TanreiElement {
       this.place();
       this.following.start();
       view.classList.remove('entering');
-      void view.offsetWidth; // restart the animation
-      view.classList.add('entering');
+      // SRC-23: it grows in as it opens — but not before the document's first paint, where a view written open in the
+      // page's markup is there in its first frame (MOT-4).
+      if (documentPainted()) {
+        void view.offsetWidth; // restart the animation
+        view.classList.add('entering');
+      }
     } else if (!wanted && this.viewShown) {
       this.viewShown = false;
       this.stopFollowing();
