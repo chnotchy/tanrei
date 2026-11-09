@@ -10,8 +10,9 @@ import { fill, strings } from '../lib/i18n';
 import { ns } from '../lib/tokens';
 
 type Json = Record<string, any>;
-// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Products import the one they use.
-import.meta.glob('../../../../packages/web/src/generated/systems/*.css', { eager: true });
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Products import the one they use. Not
+// the root's (core.css): the gallery does not show the root.
+import.meta.glob(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { eager: true });
 const layers = import.meta.glob<Json>('../../../../tokens/systems/*.system.json', { eager: true, import: 'default' });
 const reports = import.meta.glob<Json>('../../../../tokens/generated/*/a11y-report.json', { eager: true, import: 'default' });
 const fidelities = import.meta.glob<Json>('../../../../tokens/generated/*/fidelity.json', { eager: true, import: 'default' });
@@ -21,9 +22,9 @@ const all = strings(Astro.currentLocale);
 const t = { light: all.light, dark: all.dark, ...all.gallery };
 
 const variants = getSpec('button').props.find((prop) => prop.name === 'variant')!.values!;
-// The root layer (the one without `extends`) is the first layer of every chain and has no output of its own: it is not
-// shown. The default system is shown with it — what the root values, the default system draws — and a preset with
-// what its own layer changes.
+// The root layer (the one without `extends`) is the first layer of every chain, the grey starting point, and ships as
+// no system: it is not shown. The default system is shown with it — the default system draws what the root values,
+// with its own colors over it — and a preset with what its own layer changes.
 const root = Object.values(layers).find((layer) => !layer.extends)!;
 const systems = Object.values(layers)
   .filter((layer) => layer.extends)

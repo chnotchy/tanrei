@@ -129,8 +129,9 @@ interface WindowData {
   page: boolean;
 }
 
-// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: a window drawn under a preset links it.
-const presetSheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: a window drawn under a preset links it. Not
+// the root's (core.css), which is no preset.
+const presetSheets = import.meta.glob<string>(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { query: '?url', import: 'default', eager: true });
 const presetSheetOf = (system: string) => Object.entries(presetSheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1];
 
 let module: Promise<string> | undefined;

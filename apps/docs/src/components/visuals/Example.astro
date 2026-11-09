@@ -104,8 +104,9 @@ const t = strings(lang);
 if (system && !shippedSystems.some((shipped) => shipped.id === system)) throw new Error(`Example: "${system}" is not a shipped system`);
 const pinned = system && system !== ns ? system : undefined;
 // One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]: linked here only for a frame pinned to
-// a preset; the script loads the one the reader chose (lib/example.ts).
-const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+// a preset; the script loads the one the reader chose (lib/example.ts). Not the root's (core.css), which is no system a
+// frame or a reader chooses.
+const stylesheets = import.meta.glob<string>(['../../../../../packages/web/src/generated/systems/*.css', '!../../../../../packages/web/src/generated/systems/core.css'], { query: '?url', import: 'default', eager: true });
 const stylesheet = pinned ? Object.entries(stylesheets).find(([path]) => path.endsWith(`/${pinned}.css`))?.[1] : undefined;
 if (pinned && !stylesheet) throw new Error(`Example: no generated stylesheet for the system "${pinned}"`);
 
