@@ -297,6 +297,71 @@ export function startFromNextFrame(motions: readonly Animation[], { leaving = fa
 }
 
 /**
+ * The motions of states that a change made in this task began under `roots` — focus given to an item as a surface
+ * opens, a control's turn, a row's look in another form — begin in the first frame drawn after it, as an appearance
+ * does (`startFromNextFrame`): WebKit dated them from the frame drawn before the task, and where opening took longer
+ * than they last (a surface's items placed and rendered on a loaded machine) drew their end state at once, with no frame
+ * of them. Each root is looked through whole: its subtree and every shadow root inside it, at any depth. Only a motion
+ * that stands at its start is held; one under way goes on as it is, and an appearance's is left to its controller
+ * (`holdStates`). It holds what has begun when it is called, and again once the updates the task queued under the roots
+ * have rendered — still in the task, as they are microtasks: what an item draws differently once the change reaches it.
+ * They are played in that frame even where a page clock holds frame callbacks (`leaving`): what a state's motion moves
+ * runs on the document's timeline, which no page clock holds, so it must not stand at its start for as long as a clock
+ * is held. Call it at the end of the opening (or closing) task, once focus has moved: asking brings style up to date.
+ */
+export function statesFromNextFrame(roots: readonly (Element | null | undefined)[]): void {
+  const given = roots.filter((root): root is Element => !!root);
+  holdStates(given);
+  void afterUpdates(given).then(() => holdStates(given));
+}
+
+/**
+ * Each root and every shadow root under `roots`, at any depth (`trees`), and every element in them (`elements`). An
+ * element's `getAnimations({ subtree: true })` and a shadow root's `getAnimations()` list the motions of that tree,
+ * pseudo-elements' included, and none inside a shadow root of it.
+ */
+function treesUnder(roots: readonly Element[]): { trees: (Element | ShadowRoot)[]; elements: Element[] } {
+  const trees: (Element | ShadowRoot)[] = [];
+  const elements: Element[] = [];
+  const walk = (root: Element | ShadowRoot) => {
+    trees.push(root);
+    for (const element of root instanceof Element ? [root, ...root.querySelectorAll('*')] : root.querySelectorAll('*')) {
+      elements.push(element);
+      if (element.shadowRoot) walk(element.shadowRoot);
+    }
+  };
+  for (const root of roots) walk(root);
+  return { trees, elements };
+}
+
+/**
+ * `statesFromNextFrame()`'s hold: every motion under `roots` that stands at its start, but an appearance's (on an
+ * element that carries `APPEARING`), which its controller holds or leaves (`AppearController`: an exit that turns an
+ * entrance round is left as it is). Asking brings style up to date.
+ */
+function holdStates(roots: readonly Element[]) {
+  const motions = treesUnder(roots).trees.flatMap((tree) => (tree instanceof Element ? tree.getAnimations({ subtree: true }) : tree.getAnimations()));
+  const appearing = (animation: Animation) => !!((animation.effect as KeyframeEffect | null)?.target as Element | null)?.hasAttribute(APPEARING);
+  startFromNextFrame(
+    motions.filter((animation) => Number(animation.currentTime ?? 0) === 0 && !appearing(animation)),
+    { leaving: true },
+  );
+}
+
+/**
+ * Settles once no element under `roots` has an update pending: what the task's change told them (an item's form, a
+ * control's state) is rendered. Each update is a microtask, so this is still the same task.
+ */
+async function afterUpdates(roots: readonly Element[]): Promise<void> {
+  await null;
+  for (let round = 0; round < 8; round++) {
+    const pending = treesUnder(roots).elements.filter((element) => (element as Partial<ReactiveControllerHost & { isUpdatePending: boolean }>).isUpdatePending);
+    if (!pending.length) return;
+    await Promise.all(pending.map((element) => (element as unknown as ReactiveControllerHost).updateComplete));
+  }
+}
+
+/**
  * Runs `then` once, in the next frame the document draws: in its frame callbacks. `unheld` (an exit, which a surface
  * waits for before it leaves the top layer): also where a page clock holds those callbacks (Playwright's `page.clock`,
  * a test's fake timers), at a resize observer's first report of the root, which every drawn frame gives and no clock
