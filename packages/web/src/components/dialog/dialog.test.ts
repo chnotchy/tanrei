@@ -9,8 +9,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
-import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
@@ -991,8 +991,8 @@ test.describe('compact window', () => {
     expect(out.duration).toBe(40_000);
     expect(out.scale).toBe('none');
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    // Out of view: its own height below its place.
-    expect(await css(d, 'translate')).toBe('0px 100%');
+    // Out of view: its own height below its place, and not across (no inline offset: `0px` or `0%`, as the engine writes it).
+    expect(await css(d, 'translate')).toMatch(/^0(px|%)? 100%$/);
     await expect(page.locator('#open-compact')).toBeFocused();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [closed('compact')], COMPACT);
@@ -1005,6 +1005,40 @@ test.describe('compact window', () => {
     expect(reduced).toContain('opacity');
     expect(reduced).not.toContain('translate');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  test('DLG-18: as a sheet it moves as a modal bottom sheet does — its first frame held its own height below the bottom edge, whole and unscaled; up over the bottom sheet’s enter motion and down the same way over its exit motion on the accelerating curve, the scrim in step over the same duration; nothing flickers, the exit’s last frame leaves no more than its curve does, and the exit is drawn in every engine; under the unfold appearance (m3-like) too', async ({ page }) => {
+    const d = dialog(page, 'compact');
+    const opened = (open: boolean) => () => host(page, 'compact').evaluate(async (el: any, o) => {
+      el.open = o;
+      await el.updateComplete;
+    }, open);
+    await mount(page, [closed('compact')], COMPACT);
+    const frozen = await freezeFirstFrame(d, opened(true), { probe: sheetProbe });
+    expect(slidOut(frozen.frame, 'bottom')).toBeCloseTo(1, 2);
+    expect(frozen.frame.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, scrim: 0 });
+    await frozen.release();
+    // The sheet's own opacity never moves, so an `opacity` is the scrim's (which WebKit reports as the dialog's own).
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog'));
+    for (const system of [undefined, 'm3-like']) {
+      await mount(page, [closed('compact')], COMPACT, system);
+      // m3-like keeps its dialog centred in every window (a compact window width of 0): given one, it is a sheet there.
+      if (system) await override(page, { [T('compact-window-width')]: `${COMPACT.width + 1}px` });
+      const [enter, exit] = [await resolveToken(page, B('motion-enter-duration'), 'duration'), await resolveToken(page, B('motion-exit-duration'), 'duration')];
+      const [enterEasing, exitEasing] = [await resolveEasing(page, B('motion-enter-easing')), await resolveEasing(page, B('motion-exit-easing'))];
+      const opening = await sampleFrames(d, opened(true), { probe: sheetProbe });
+      expect(slidOut(opening.frames[0]!, 'bottom'), system).toBeCloseTo(1, 2);
+      expect(slidOut(opening.rest, 'bottom'), system).toBeCloseTo(0, 2);
+      expectSlidOnly(opening, 'bottom');
+      expectNoFlicker(opening);
+      expect([...new Set(own(opening).map((motion) => motion.name))].sort(), system).toEqual(['opacity', 'translate']);
+      for (const motion of own(opening)) expect([motion.name, motion.duration, motion.easing], system).toEqual([motion.name, enter, enterEasing]);
+      const closing = await sampleFrames(d, opened(false), { probe: sheetProbe });
+      expectSlidOnly(closing, 'bottom');
+      expectNoFlicker(closing);
+      for (const motion of own(closing)) expect([motion.name, motion.duration, motion.easing], system).toEqual([motion.name, exit, exitEasing]);
+      expectSlideExitEnd(closing, 'bottom', { duration: exit, easing: bezierOf(exitEasing) });
+    }
   });
 });
 
