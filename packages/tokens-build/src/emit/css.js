@@ -4,8 +4,14 @@ import { GENERATED_HEADER, cssColor, kebab, typeFamily } from '../pure.js';
 
 const PREFIX = CONFIG.web.cssPrefix;
 const varName = (path) => `${PREFIX}-${kebab(path)}`;
+/** Each id's custom property, once worked out: a sheet names the same token in many declarations. */
+const VAR_NAMES = new Map();
 /** The custom property of a token id. A layer's own tokens keep their own prefix: `acme.comp.rating.gap` → `--acme-comp-rating-gap`. */
-export const idToVar = (id) => (id.startsWith(`${CONFIG.namespace}.`) ? varName(id.split('.').slice(1)) : `--${kebab(id.split('.'))}`);
+export const idToVar = (id) => {
+  let name = VAR_NAMES.get(id);
+  if (name === undefined) VAR_NAMES.set(id, (name = id.startsWith(`${CONFIG.namespace}.`) ? varName(id.split('.').slice(1)) : `--${kebab(id.split('.'))}`));
+  return name;
+};
 const ref = (id) => `var(${idToVar(id)})`;
 
 // Shape, borders, focus rings and shadows stay in px so they do not grow with text.
@@ -290,7 +296,10 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
   const inScheme = (id, scheme) => declarations(model.componentColors?.[scheme]?.[id] ?? model.tokens[id])[0][1];
   const perScheme = model.partial
     ? []
-    : Object.keys(model.componentColors?.light ?? {}).filter((id) => model.schemes.some((scheme) => inScheme(id, scheme) !== inScheme(id, 'light')));
+    : Object.keys(model.componentColors?.light ?? {}).filter((id) => {
+        const light = inScheme(id, 'light');
+        return model.schemes.some((scheme) => inScheme(id, scheme) !== light);
+      });
   const componentLevel = (suffix) => perScheme.map((id) => [idToVar(id), pair(inScheme(id, `light${suffix}`), inScheme(id, `dark${suffix}`))]);
 
   const base = [];
