@@ -26885,6 +26885,10 @@
             {
               "description": "The title's text.",
               "name": "label"
+            },
+            {
+              "description": "The `expand_more` glyph after the title's label, drawn while the bar holds both menus and bar items (hidden from assistive technology).",
+              "name": "indicator"
             }
           ],
           "slots": [

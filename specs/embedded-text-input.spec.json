@@ -537,6 +537,18 @@
         "rowsChange": "rowschange",
         "focusChange": "focusin / focusout"
       },
+      "parts": {
+        "input": "input",
+        "placeholder": {
+          "noBox": "The browser draws the placeholder in the input's text box (::placeholder), which has no box of its own to measure."
+        },
+        "caret": {
+          "noBox": "The browser draws the caret in the input's text: it has no element to measure."
+        },
+        "selection": {
+          "noBox": "The browser draws the selection highlight behind the selected text (::selection), which has no box of its own to measure."
+        }
+      },
       "notes": "Class `TanreiEmbeddedTextInput`, React `EmbeddedTextInput`. A form-associated custom element with a shadow root and `delegatesFocus` (every point of it is its text) that renders one `<textarea>` while `multiline` and one `<input>` otherwise, with `appearance: none`, no border, no outline, no background, no padding and no resize handle; the host is `display: block`. Attributes are kebab-case (`min-rows`, `max-rows`, `enter-key`) except `readonly` and `autocomplete`, which keep HTML's names; `name` is the form's. The name, the description (`aria-description`), `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element; the host has no role and a debug build reports an `aria-label` set on it. It dispatches no `tanrei-field-connect` (ETI-13). Focus: the platform's `focusin` and `focusout` are composed and are the spec's focusChange; a holder styles itself with `:focus-within` — also from inside its own shadow root, `:host(:focus-within)` — and needs no script for H2. Height: the host's block size is the animated one (a transition of `block-size` between two measured heights, from `scrollHeight` of the inner element at `block-size: auto`), `overflow: hidden` during a motion whose end fits; the routine is shared with the Text input (`src/primitives/auto-height.ts`) and holds no token. `rowschange` is a composed CustomEvent with `detail: { rows, scrolling }`; the read-only property `rows` gives the number at any time, for a listener added after the first draw. `action` is composed and cancelable, `detail: { value }`. Keys (ETI-21): `keydown` leaves the shadow root before the input acts; a `keydown` whose default was prevented is not read by ETI-6. A composition is recognised by `event.isComposing`, by key code 229, and by a `keydown` that follows `compositionend` in the same task (ETI-4). An on-screen keyboard cannot be told from a hardware one by any web API: a `keydown` of Enter is read as the return key of an on-screen keyboard while the primary pointer is coarse and cannot hover (`(pointer: coarse) and (hover: none)`), so a tablet with a keyboard attached begins a new line with Enter and acts with Ctrl+Enter or Command+Enter — safe, and a guess. `enterkeyhint` is `enter` while multiline and the browser's own otherwise (`search` for type search). Selection (ETI-21): `selectionStart`, `selectionEnd`, `setSelectionRange()`, `setRangeText()` and `select()` are passed through to the inner element. Types set `inputmode` on a `<textarea>`, which has no `type`. Parts: `input`. Custom properties: `--tanrei-comp-embedded-text-input-*`. Without script (ETI-27): the product writes `<textarea name aria-label>` or `<input>` as the element's child; it is not slotted, and after definition it is `hidden` and `disabled`. Fixtures whose id begins `held-` are staged by the harness inside its sample holder; every other fixture is drawn bare on the stage."
     },
     "swiftui": {

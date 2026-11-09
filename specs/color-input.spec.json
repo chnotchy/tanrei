@@ -597,6 +597,19 @@
         "pickerRequest": "pickerrequest",
         "entryError": "entryerror"
       },
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "active-indicator": "active-indicator",
+        "label": "label",
+        "required-asterisk": "requirement-label",
+        "swatch": "swatch",
+        "input": "input",
+        "picker-button": "picker-button",
+        "caret": {
+          "noBox": "The browser draws the caret in the input's text: it has no element to measure."
+        }
+      },
       "notes": "The color field's control, without the frame: the class `TanreiColorInput`, React `ColorInput`. A form-associated custom element with a shadow root that takes `name`, submits `value` (the color in its own form; an empty string while empty), restores it on navigation, resets to the value it was first given, follows `<fieldset disabled>`, and reports `valueMissing` while its Field says it is required and `value` is empty, and `badInput` while an entry error lasts (CLI-20). The shadow root holds the container, the swatch and a real `<input type=\"text\" inputmode=\"text\" autocapitalize=\"none\" autocorrect=\"off\" spellcheck=\"false\" autocomplete=\"off\" dir=\"ltr\">`. The swatch is a `<span aria-hidden=\"true\">` whose background is the value, with `forced-color-adjust: none` on it alone and a `CanvasText` border under `forced-colors: active` (CLI-35). The picker button is a `<tanrei-button variant=\"text\">` whose `icon` slot holds the `palette` glyph, with `aria-haspopup=\"dialog\"`. The platform's picker is the browser's: the shadow root holds a visually hidden `<input type=\"color\" tabindex=\"-1\" aria-hidden=\"true\">` placed under the picker button, so that the browser anchors its picker there; activation dispatches a cancelable `pickerrequest` and, unless `preventDefault()` was called, sets that input's value (black while the color input is empty) and calls `showPicker()` inside the same user activation. Its `input` events are the picks of CLI-29 and its `change` the close; where a browser gives no close signal the next focus of the page counts as one. The shadow root does not delegate focus — it has two stops — and `focus()` focuses the inner input. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `swatch`, `input`, `picker-button`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (CLI-43): the input says `drawsLabel` while its look floats the label, `inset: { start, end }` — lengths it writes from its own tokens: the padding beside the swatch, the swatch and the gap; and the text padding at the end — and `refusal: { text }` while an entry error lasts. It keeps no count. It takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. The name, the description, `aria-invalid` and `aria-required` are written on the inner input, the input's own `label` winning. Attributes are kebab-case: `label-hidden`, `invalid-text`, `picker-label`. `input` and `change` are composed events; `pickerrequest` and `entryerror` are composed `CustomEvent`s whose `detail` is `{ value }` (`TanreiColorInputPickerRequestDetail`) and `{ text, message }` (`TanreiColorInputEntryErrorDetail`; `message` is `invalid-text`). What the value reads and writes is one module with no DOM in it (`color-text.ts`), which lives beside the element. Before the element is defined its host is an empty inline box: a page that must work before its scripts load reserves the room or renders a native `<input>` in its place. The host is `display: block`. The element has no words and reads none (CLI-42)."
     },
     "swiftui": {

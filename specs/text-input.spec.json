@@ -1822,6 +1822,30 @@
         "resizeEnd": "resizeend",
         "revealChange": "revealchange"
       },
+      "parts": {
+        "container": "container",
+        "active-indicator": "active-indicator",
+        "outline": "outline",
+        "label": "label",
+        "required-asterisk": "requirement-label",
+        "input": "input",
+        "segment": "segment",
+        "placeholder": {
+          "noBox": "The browser draws the placeholder in the input's text box (::placeholder), and an empty segment draws its own as its ::before: neither has a box of its own to measure."
+        },
+        "prefix": "prefix",
+        "suffix": "suffix",
+        "leading-icon": "leading-icon",
+        "trailing-icon": "trailing-icon",
+        "clear-button": "clear-button",
+        "reveal-button": "reveal-button",
+        "picker-button": "picker-button",
+        "resize-handle": "resize-handle",
+        "caret": {
+          "noBox": "The browser draws the caret in the input's text: it has no element to measure."
+        },
+        "entries": "entries"
+      },
       "notes": "The input without the frame: the class `TanreiTextInput`, React `TextInput`. The host is `display: block` and as wide as its place, framed and bare (TXI-63): a Field keeps an inline-level control at its own size, at the start edge, so an inline host would not fill its Field. A form-associated custom element with a shadow root and `delegatesFocus` that takes `name`, submits its value, restores it and reports validity (a missing value while its Field says it is required; for date, time and date-time also badInput, rangeUnderflow and rangeOverflow while an entry error lasts, TXI-30). It renders an `<input>`, or a `<textarea>` while multiline, or the `role=\"group\"` of spin buttons of a date or a time; the `leading-icon` and `trailing-icon` slots are named slots; the clear button is a `<tanrei-button variant=\"text\" size=\"small\">` in the shadow root, in a box of the glyph's size whose `mousedown` is prevented so that a press keeps focus in the input, the reveal button a `<tanrei-button variant=\"text\" size=\"small\" toggle>` in the same kind of box — a toggle never submits a form — whose `change` stays in the shadow root, while revealed the native `<input>` being `type=\"text\"` with the password field's other attributes kept, and the picker button a `<tanrei-button variant=\"text\">`. What the text field's note says of the inner element, of the types, of the segments, of the handle, of `noWrap` (attribute `no-wrap`, the inverse of `wrap`) and of code holds here for this element, with `--tanrei-comp-input-box-*` for the box (TXI-68) and `--tanrei-comp-text-input-*` for what is the text input's own. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `reveal-button`, `picker-button`, `resize-handle`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (TXI-62): the control's side gains what it says of itself — `drawsLabel`, `inset: { start, end }` (lengths written by the input from its own tokens and its measured icon boxes), `refusal: { text }` — and the frame's side gains `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states; a Field that does not read the three ignores them, and an input no Field answers is drawn as a bare one. The count is not in the exchange: `countText` is a read-only property of the element (the text of TXI-19, empty while `counter` is false), new after each of the element's updates, which a composed element reads as it reads the value and a product reads in its own `input` listener. The routine of TXI-37 and TXI-38 that measures the lines and moves the height is one file, `src/primitives/auto-height.ts`, which draws nothing and reads no token; the web's tests of the height are one suite, so that another element that types on several lines is held to the same behaviour. The name, the description, `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element, the input's own `label` winning. Attributes are kebab-case (`label-hidden`, `min-rows`, `max-rows`, `prefix-text`, `suffix-text`, `invalid-text`, `unavailable-text`, `clear-label`, `reveal-label`, `picker-label`, `resize-axis`, `resize-label`, `disabled-dates`, `segment-empty-text`, `no-wrap`) except `readonly`, `maxlength`, `autocomplete`, `min` and `max`, which keep HTML's names. `input` and `change` are composed events; `action` is cancelable; `pickerrequest` `entryerror` and `revealchange` are composed CustomEvents whose `detail` carries `{ value, type, min, max }`, `{ reason, text }` and `{ revealed }`. Words: `clear-label`, `reveal-label`, `resize-label` and `segment-empty-text` left empty read the product's words (`setWords()`). For the types email, url, tel, number and password the row of prefix, input and suffix takes the direction TXI-67 gives as its own `dir`; for every other type it keeps the host's. The resize handle is a `<tanrei-handle size=\"small\">` in the shadow root (part `resize-handle`), whose events stay in that root: the element answers them and fires `resizeend`, a composed `CustomEvent` whose `detail` is `{ lines, width }` (`width` null unless `resize-axis` is both)."
     },
     "swiftui": {
