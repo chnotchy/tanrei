@@ -12,6 +12,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, motionCount, motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -1898,6 +1899,19 @@ test.describe('forms and focus', () => {
     await mount(page, [{ ...closed, props: { ...closed.props, variant: 'modal', open: false } }]);
     await drawer(page, 'group-closed-selected').evaluate((el: any) => (el.open = true));
     await expect.poll(() => activeValue(page)).toBe('group:Projects');
+  });
+
+  test('NVD-19, NVD-55: a modal drawer in the page’s markup with open — and a responsive one in its modal presentation — is there in its first frame, neither it nor its scrim playing its entrance, and one mounted open after the first paint slides in over its fading scrim (MOT-4)', async ({ page }) => {
+    for (const id of ['modal', 'responsive-narrow']) {
+      await page.setViewportSize(drawerWindow(id));
+      const atLoad = await loadOpen(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
+      expect(entrances(atLoad), `${id} in the page’s markup`).toEqual([]);
+      await expect(drawer(page, id).locator('dialog')).toHaveJSProperty('open', true);
+      await mountOpenAgain(page);
+      // (WebKit names no pseudo-element for the scrim's fade: it is counted as the drawer's.)
+      expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), `${id} mounted after the first paint`).toEqual(['opacity', 'translate']);
+      await expect(drawer(page, `${id}-again`).locator('dialog')).toHaveJSProperty('open', true);
+    }
   });
 
   test('NVD-20: the scrim, Escape, back, the menu button and a drag past half its width (or a fling) close a modal drawer: open is false and close fires once', async ({ page }) => {

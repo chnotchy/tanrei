@@ -8,13 +8,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals, markOf } from '../../../test/links.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -708,14 +709,7 @@ test.describe('overlay', () => {
 
   test('MNU-4, MNU-50: a menu in the page’s markup with open, and its submenus written open, is open in its first frame — no surface plays its open motion — and one mounted open after the first paint opens with it (MOT-4)', async ({ page }) => {
     const files = overlay('files', [it('New'), sub('Open recent', [it('Report.pdf'), sub('Older', [it('Notes.txt'), it('Plan.md')], { open: true }), it('Budget.xlsx')], { open: true }), it('Save')], { open: true });
-    // Every animation and transition that starts in a shadow root, counted from before the first element is made.
-    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); const note = (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + (event.animationName || event.propertyName)); root.addEventListener('animationstart', note); root.addEventListener('transitionrun', note); return root; };</script>`;
-    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
-    const markup = await fixturesDocument(spec, { fixtures: [files], lead: count });
-    await page.route('http://menu.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-    await page.goto('http://menu.test/');
-    await page.waitForFunction(() => !!customElements.get('tanrei-menu'));
-    await motionEnded(page);
+    const atLoad = await loadOpen(page, spec, { fixtures: [files] });
     expect(await isOpen(page, 'files')).toBe(true);
     for (const label of ['Open recent', 'Older']) expect(await shown(labelled(page, 'files', label)), label).toBe(true);
     for (const host of [menu(page, 'files'), labelled(page, 'files', 'Open recent'), labelled(page, 'files', 'Older')]) {
@@ -723,8 +717,8 @@ test.describe('overlay', () => {
     }
     // MNU-50: each open submenu item is in the expanded condition, and did not fade into it.
     for (const label of ['Open recent', 'Older']) expect(await css(rowOf(labelled(page, 'files', label)), 'background-color')).toBe(await resolveColor(page, T('expanded-container-color')));
-    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => /^tanrei-(menu|submenu) /.test(run));
-    expect(runs.filter((run) => /surface|row/.test(run)), 'no surface plays its open motion, and no row fades into its condition').toEqual([]);
+    const runs = atLoad.filter((run) => /^tanrei-(menu|submenu)$/.test(run.host));
+    expect([...entrances(runs), ...runs.filter((run) => /(^|\.)row(\.|$)/.test(run.on))], 'no surface plays its open motion, and no row fades into its condition').toEqual([]);
     // Mounted open after the document was painted: the menu and each submenu open with their motion (40 s: read while it runs).
     await override(page, { [T('motion-open-duration')]: '40s' });
     await page.evaluate(() => {

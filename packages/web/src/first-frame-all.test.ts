@@ -77,11 +77,14 @@ const opened: Pick = (f) => f.props.open === true;
 
 /** The overlays written open that play their entrance when they appear after the page's first paint (MOT-4). */
 const ENTERS: Record<string, Pick> = {
+  // BSH-1, SSH-2: a modal sheet (a standard one is a layout region, drawn at rest).
+  'bottom-sheet': (f) => opened(f) && f.props.variant !== 'standard',
   dialog: opened,
   'date-time-picker': (f) => opened(f) && f.props.presentation !== 'docked',
   'image-preview': opened,
   'modal-layer': opened,
   'navigation-drawer': (f) => f.id === 'modal' || f.id === 'responsive-narrow',
+  'side-sheet': (f) => opened(f) && f.props.variant === 'modal',
   // POP-26, POP-41: the compact- fixtures are the real overlay (the others are drawn in place, whole at once).
   popover: (f) => opened(f) && f.id.startsWith('compact'),
   search: (f) => f.props.expanded === true && (f.props.presentation === 'full-screen' || f.props.presentation === 'dialog'),

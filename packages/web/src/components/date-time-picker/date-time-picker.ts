@@ -31,6 +31,7 @@ import {
   containedWheel,
   deepActive,
   deviceTime,
+  documentPainted,
   headerDateText,
   holdPageScroll,
   hostAria,
@@ -2291,8 +2292,12 @@ export class TanreiDateTimePicker extends TanreiElement {
         this.following.start();
         this.listen(true);
         surface.classList.remove('entering');
-        void surface.offsetWidth; // restart the animation
-        surface.classList.add('entering');
+        // DTM-35: it grows in as it opens — but not before the document's first paint, where a picker written open in
+        // the page's markup is there in its first frame (MOT-4).
+        if (documentPainted()) {
+          void surface.offsetWidth; // restart the animation
+          surface.classList.add('entering');
+        }
       }
     } finally {
       this.presenting = false;

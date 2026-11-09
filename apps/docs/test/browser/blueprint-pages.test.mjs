@@ -2,6 +2,8 @@
 // on every page of the root language that draws one, in Chromium (blueprint.test.mjs asks the rest of the button's
 // page in each engine):
 //
+// - no figure makes anything modal over the page: a figure is a picture, and a modal fixture (`showModal()`) drawn in
+//   the page would cover the whole site and hold its focus;
 // - an anatomy figure numbers at least one part, each number once and as the spec numbers it, inside the figure and
 //   clear of every other number;
 // - a measure figure draws each length of its table as long as its token resolves to, to half a pixel, or draws no
@@ -72,6 +74,16 @@ test('every figure: each number once, inside and clear; each line its token’s 
         while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
+        // A figure is a picture: nothing of it is modal over the page (a modal fixture is drawn in a window of its own,
+        // in the gallery, and stands under no figure). `:modal` is looked for in every shadow tree, where a dialog is.
+        const modal = [];
+        const walk = (root) => {
+          for (const element of root.querySelectorAll('*')) {
+            if (element.matches(':modal')) modal.push(element.getRootNode().host?.localName ?? element.localName);
+            if (element.shadowRoot) walk(element.shadowRoot);
+          }
+        };
+        walk(document);
         const overlay = frame.querySelector('[data-example-overlay]').getBoundingClientRect();
         const box = (element) => {
           const r = element.getBoundingClientRect();
@@ -80,6 +92,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
         out.push({
           kind: frame.dataset.blueprintFigure,
           drawn: Boolean(done()),
+          modal,
           room: { width: overlay.width, height: overlay.height },
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
           rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
@@ -92,6 +105,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
     const anatomy = component ? JSON.parse(fs.readFileSync(path.join(specs, `${component}.spec.json`), 'utf8')).anatomy.map((part) => part.id) : [];
     for (const figure of figures) {
       assert.ok(figure.drawn, `${name}: the ${figure.kind} figure is drawn`);
+      assert.deepEqual(figure.modal, [], `${name}: the ${figure.kind} figure makes nothing modal over the page`);
       if (figure.kind === 'anatomy') {
         assert.ok(figure.markers.length > 0, `${name}: a part is numbered`);
         assert.equal(new Set(figure.markers.map((marker) => marker.n)).size, figure.markers.length, `${name}: each number once`);

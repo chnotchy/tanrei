@@ -9,6 +9,7 @@ import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -86,6 +87,9 @@ async function mount(page: P, fixtures: Fixture[], options: Parameters<typeof mo
   await page.setViewportSize(WINDOW);
   await mountFixtures(page, spec, { fixtures, icons: true, ...options });
   await settled(page);
+  // A modal sheet written open in a window whose earlier document was painted (a second mount in a test) slides in, as
+  // one mounted open after the first paint does (MOT-4): the test begins once it rests.
+  await motionEnded(page);
 }
 /** Waits for the sheet's own motion (a slide, a width change) to end. */
 const still = (page: P, id = 's') =>
@@ -823,6 +827,20 @@ test.describe('forms, focus and dismissal', () => {
     await expect(host(page).locator('dialog')).toHaveJSProperty('open', true);
     await host(page).evaluate((el) => (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.finish()));
     expect(await offset(page)).toBeCloseTo(0, 1);
+  });
+
+  test('SSH-2: a modal sheet in the page’s markup with open is there in its first frame — neither it nor its scrim plays its entrance — and one mounted open after the first paint slides in over its fading scrim (MOT-4); a standard sheet mounted open takes its place at once, before the first paint and after it (SSH-1)', async ({ page }) => {
+    await page.setViewportSize(WINDOW);
+    expect(entrances(await loadOpen(page, spec, { fixtures: [fx('s', { variant: 'modal' }, TEXT, ACTIONS)] })), 'in the page’s markup').toEqual([]);
+    expect(await offset(page)).toBeCloseTo(0, 1);
+    await mountOpenAgain(page);
+    expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), 'mounted after the first paint').toEqual(['opacity', 'translate']);
+    expect(await offset(page, 's-again')).toBeCloseTo(0, 1);
+    // A standard sheet is a layout region, not an overlay: no motion either way (MOT-3).
+    const standard = await loadOpen(page, spec, { fixtures: [fx('s')] });
+    expect(standard.filter((run) => run.host === 'tanrei-side-sheet'), 'in the page’s markup').toEqual([]);
+    await mountOpenAgain(page);
+    expect((await runsAtRest(page)).filter((run) => run.host === 'tanrei-side-sheet'), 'mounted after the first paint').toEqual([]);
   });
 
   test('SSH-3: opening moves focus to the element marked autofocus, else the sheet; closing with focus inside returns it (or drops it when that element is gone) — when it opens and closes, not when the motion ends; mounted open, only a modal sheet moves focus', async ({ page }) => {

@@ -11,6 +11,7 @@ import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixture
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
+import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -59,6 +60,9 @@ async function mount(page: P, fixtures: Fixture[], options: Parameters<typeof mo
   await page.setViewportSize(WINDOW);
   await mountFixtures(page, spec, { fixtures, ...options });
   await settled(page);
+  // A modal sheet written open in a window whose earlier document was painted (a second mount in a test) slides in, as
+  // one mounted open after the first paint does (MOT-4): the test begins once it rests.
+  await motionEnded(page);
 }
 /**
  * Waits for the sheet's own motion (a settle, a slide) to end. A frame passes first: a motion that starts in the next
@@ -603,7 +607,7 @@ test.describe('forms, focus and dismissal', () => {
       return (el.shadowRoot.querySelector('.sheet') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
     });
 
-  test('BSH-1: opening slides the sheet up over the enter motion, a modal one over a scrim fading in; closing slides it down over the exit motion; reduced motion fades in place; mounted open, it appears without motion', async ({ page }) => {
+  test('BSH-1: opening slides the sheet up over the enter motion, a modal one over a scrim fading in; closing slides it down over the exit motion; reduced motion fades in place', async ({ page }) => {
     await mount(page, [fx('s', { open: false }, LONG)]);
     const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
     const dialog = host(page).locator('dialog');
@@ -631,11 +635,21 @@ test.describe('forms, focus and dismissal', () => {
     expect(moving).not.toContain('translate');
     expect(await top(page)).toBeCloseTo(WINDOW.height / 2, 1);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    // Mounted open: in place at once, no motion.
+  });
+
+  test('BSH-1: a modal sheet in the page’s markup with open is there in its first frame — neither it nor its scrim plays its entrance — and one mounted open after the first paint slides in over its fading scrim (MOT-4); a standard sheet mounted open appears in place, before the first paint and after it (BSH-4)', async ({ page }) => {
     await page.setViewportSize(WINDOW);
-    await mountFixtures(page, spec, { fixtures: [fx('s', {}, LONG)] });
-    expect(await sheet(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(entrances(await loadOpen(page, spec, { fixtures: [fx('s', {}, LONG)] })), 'in the page’s markup').toEqual([]);
     expect(await top(page)).toBeCloseTo(WINDOW.height / 2, 1);
+    await mountOpenAgain(page);
+    expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), 'mounted after the first paint').toEqual(['opacity', 'translate']);
+    expect(await top(page, 's-again')).toBeCloseTo(WINDOW.height / 2, 1);
+    // A standard sheet is a layout region, not an overlay: no motion either way (MOT-3).
+    const standard = await loadOpen(page, spec, { fixtures: [fx('s', { variant: 'standard' }, LONG)] });
+    expect(standard.filter((run) => run.host === 'tanrei-bottom-sheet'), 'in the page’s markup').toEqual([]);
+    await mountOpenAgain(page);
+    expect((await runsAtRest(page)).filter((run) => run.host === 'tanrei-bottom-sheet'), 'mounted after the first paint').toEqual([]);
+    expect(await top(page, 's-again')).toBeCloseTo(WINDOW.height / 2, 1);
   });
 
   /**
