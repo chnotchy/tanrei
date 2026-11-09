@@ -8,9 +8,11 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
 import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
-import { componentChoices, heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
+import { ROOT_SYSTEM, componentChoices, heldComponents, layerChain, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { createStudio } from '../src/core.js';
 import { catalogOf } from '../src/listing.js';
+import { createPageSheet } from '../src/sheet.js';
+import { layerIndex, withoutProse } from '../src/sheet-sources.js';
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 export const json = (rel) => JSON.parse(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
@@ -54,3 +56,33 @@ export const studio = createStudio({
   declarations,
   catalog: catalogOf(json('docs/status/status.json')),
 });
+
+/**
+ * The page sheet as its worker computes it (src/sheet-data.ts): the token documents without their prose, every shipped
+ * layer as its index, the default system's chain whole (`defaultChain`, as vite-plugin.js bundles it), and any other
+ * shipped layer whole only when `load` is asked for it — each id asked for is added to `loads`, in order.
+ */
+export function workerPageSheet() {
+  const loads = [];
+  const sheets = createPageSheet({
+    config: json('tanrei.config.json'),
+    sources: Object.fromEntries(Object.entries(sources).map(([ref, doc]) => [ref, withoutProse(doc)])),
+    vocabulary: json('tokens/sys/color.vocabulary.json'),
+    resolver,
+    shipped: Object.fromEntries(Object.values(shipped).map((layer) => [layer.id, layerIndex(layer)])),
+    preloaded: defaultChain,
+    load: async (id) => {
+      loads.push(id);
+      return json(`tokens/systems/${id}.system.json`);
+    },
+    mcu: { Hct, TonalPalette },
+    emitCss,
+    sheetAvailability,
+    heldComponents,
+    outsideStandIns,
+  });
+  return { sheets, loads };
+}
+
+/** The default system — named like the namespace, else the root — and the layers it extends, root first: what vite-plugin.js bundles into the worker. */
+export const defaultChain = layerChain(Object.hasOwn(shipped, json('tanrei.config.json').namespace) ? json('tanrei.config.json').namespace : ROOT_SYSTEM, (id) => shipped[id]);
