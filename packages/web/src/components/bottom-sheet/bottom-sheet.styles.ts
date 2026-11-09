@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, dividerVisibilityHost, focusRing, modalExitStyles, scrimFilter, whenScroll } from '../../primitives/index.js';
+import { appearStyles, dividerVisibilityHost, focusRing, modalExitStyles, sheetScrimStyles, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -52,6 +52,9 @@ const handleTokens = [
 ].join('\n    ');
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
+/** BSH-1: the sheet's entrance and exit, which its slide and its scrim's fade take alike. */
+const ENTER_MOTION = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
+const EXIT_MOTION = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 
 export const styles = css`
   :host {
@@ -148,48 +151,28 @@ export const styles = css`
   }
 
   /* BSH-2, BSH-1: a modal sheet is a native modal <dialog> in the top layer, docked to the window's bottom edge (above the
-     keyboard) over ::backdrop, the scrim. It slides up from below the bottom edge over the enter motion and down out of
-     view over the exit motion; the scrim fades with it. */
+     keyboard) over ::backdrop, the scrim. It appears as every sheet does (src/primitives/motion.ts, role sheet, from the
+     block end): it slides up from its own height below the bottom edge over the enter motion — unfaded and unscaled
+     whatever the appearance — and down the same way over the exit motion, from wherever it is drawn (a drag's offset is
+     --_drag), turned round from where it has got to; kept in the top layer and displayed until it has left (the browser
+     has closed it by then: focus and the page are given back at once). The scrim fades in step, over the same duration
+     and curve. Under reduced motion both only fade, in place, over sys.motion.role.reduced. */
   dialog.sheet {
     position: fixed;
     inset-inline: 0;
     inset-block: auto var(--_keyboard, 0px);
     --_area-top: var(--_inset-top);
-    transition-property: translate, opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
   }
   dialog.sheet:not([open]) {
     display: none;
-    translate: 0 100%;
   }
-  dialog.sheet[open] {
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
-  }
-  @starting-style {
-    dialog.sheet[open] {
-      translate: 0 100%;
-    }
-  }
-  ${scrimFilter('dialog.sheet', T('scrim-blur'))}
-  dialog.sheet::backdrop {
-    background: ${t('scrim-color')};
-    backdrop-filter: ${SCRIM_FILTER};
-    opacity: 0;
-    transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
-  }
-  dialog.sheet[open]::backdrop {
-    opacity: 1;
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
-  }
-  @starting-style {
-    dialog.sheet[open]::backdrop {
-      opacity: 0;
-    }
+  ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'block-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: '0 var(--_drag, 0px)' })}
+  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
+  /* While the sheet follows a drag, settles by script (BSH-9) or is mounted open (BSH-1), no transition runs on it or on
+     its scrim. (After the appearance, whose open rule weighs as much.) */
+  dialog.sheet:is(.dragging, .settling, .instant),
+  dialog.sheet.instant::backdrop {
+    transition-property: none;
   }
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
@@ -229,18 +212,22 @@ export const styles = css`
     visibility: hidden;
   }
 
-  /* BSH-1: where motion is reduced the sheet fades in and out in place, without sliding. */
+  /* BSH-1: where motion is reduced a standard sheet fades in and out in place, without sliding, over
+     sys.motion.role.reduced (MOT-6), as a modal one does (above). */
   @media (prefers-reduced-motion: reduce) {
-    dialog.sheet:not([open]),
+    .sheet.standard {
+      transition:
+        opacity var(--tanrei-sys-motion-role-reduced) ${t('motion-exit-easing')},
+        visibility 0s linear var(--tanrei-sys-motion-role-reduced);
+    }
+    :host([open]) .sheet.standard {
+      transition:
+        opacity var(--tanrei-sys-motion-role-reduced) ${t('motion-enter-easing')},
+        visibility 0s;
+    }
     :host(:not([open])) .sheet.standard {
       translate: 0 var(--_drag, 0px);
       opacity: 0;
-    }
-    @starting-style {
-      dialog.sheet[open] {
-        translate: 0 var(--_drag, 0px);
-        opacity: 0;
-      }
     }
   }
 

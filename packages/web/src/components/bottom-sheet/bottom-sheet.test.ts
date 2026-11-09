@@ -11,6 +11,8 @@ import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixture
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
+import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
+import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('bottom-sheet');
@@ -632,6 +634,104 @@ test.describe('forms, focus and dismissal', () => {
     await page.setViewportSize(WINDOW);
     await mountFixtures(page, spec, { fixtures: [fx('s', {}, LONG)] });
     expect(await sheet(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await top(page)).toBeCloseTo(WINDOW.height / 2, 1);
+  });
+
+  /**
+   * The motions a change held on the modal sheet's `<dialog>` and its scrim, by property, with their durations and
+   * curves. The sheet's own opacity never moves (it slides whole), so an `opacity` is the scrim's fade — which WebKit
+   * reports as the dialog's own, its pseudo-element unnamed — and both are counted once each.
+   */
+  const dialogMotions = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog'));
+  const motionNames = (seen: Frames) => [...new Set(dialogMotions(seen).map((motion) => motion.name))].sort();
+
+  test('BSH-1: a modal sheet slides up from its own height below the bottom edge — its first frame held there, whole and unscaled — over the enter motion, and down the same way over the exit motion on the accelerating curve, its scrim fading in step over the same duration; nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
+    await mount(page, [fx('s', { open: false }, LONG)]);
+    const dialog = host(page).locator('dialog');
+    const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
+    const [enterEasing, exitEasing] = [await resolveEasing(page, T('motion-enter-easing')), await resolveEasing(page, T('motion-exit-easing'))];
+    // The sheet role's tempo, and the exit role's (accelerating) curve.
+    expect(enter).toBe(await ms(page, '--tanrei-sys-motion-role-appear-sheet-enter'));
+    expect(exit).toBe(await ms(page, '--tanrei-sys-motion-role-appear-sheet-exit'));
+    expect(exitEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-exit'));
+    // Its first frame, held still: out of view by its own height, whole, the scrim not yet faded in.
+    const frozen = await freezeFirstFrame(dialog, () => setOpen(page, true), { probe: sheetProbe });
+    expect(slidOut(frozen.frame, 'bottom')).toBeCloseTo(1, 2);
+    expect(frozen.frame.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, scrim: 0 });
+    await frozen.release();
+    await mount(page, [fx('s', { open: false }, LONG)]);
+    const opening = await sampleFrames(dialog, () => setOpen(page, true), { probe: sheetProbe });
+    expect(slidOut(opening.frames[0]!, 'bottom')).toBeCloseTo(1, 2);
+    expect(slidOut(opening.rest, 'bottom')).toBeCloseTo(0, 2);
+    expect(opening.rest.probe.scrim).toBe(1);
+    expectSlidOnly(opening, 'bottom');
+    expectNoFlicker(opening);
+    expect(motionNames(opening)).toEqual(['opacity', 'translate']);
+    for (const motion of dialogMotions(opening)) expect([motion.name, motion.duration, motion.easing]).toEqual([motion.name, enter, enterEasing]);
+
+    const closing = await sampleFrames(dialog, () => setOpen(page, false), { probe: sheetProbe });
+    // No longer modal at once; drawn in the top layer until its exit has played, in every engine (MDL-7).
+    expect(await dialog.evaluate((el) => (el as HTMLDialogElement).open)).toBe(false);
+    expectSlidOnly(closing, 'bottom');
+    expectNoFlicker(closing);
+    expect(motionNames(closing)).toEqual(['opacity', 'translate']);
+    for (const motion of dialogMotions(closing)) expect([motion.name, motion.duration, motion.easing]).toEqual([motion.name, exit, exitEasing]);
+    expectSlideExitEnd(closing, 'bottom', { duration: exit, easing: bezierOf(exitEasing) });
+    expect(await css(dialog, 'display')).toBe('none');
+  });
+
+  test('BSH-1: under the unfold appearance (m3-like) the modal sheet still slides from its edge, whole and unscaled, its scrim in step', async ({ page }) => {
+    await mount(page, [fx('s', { open: false }, LONG)], { system: 'm3-like' });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const dialog = host(page).locator('dialog');
+    const opening = await sampleFrames(dialog, () => setOpen(page, true), { probe: sheetProbe });
+    expect(slidOut(opening.frames[0]!, 'bottom')).toBeCloseTo(1, 2);
+    expectSlidOnly(opening, 'bottom');
+    expectNoFlicker(opening);
+    const closing = await sampleFrames(dialog, () => setOpen(page, false), { probe: sheetProbe });
+    expectSlidOnly(closing, 'bottom');
+    expectNoFlicker(closing);
+  });
+
+  test('BSH-1: where motion is reduced the modal sheet and its scrim only fade, in place, over sys.motion.role.reduced — no slide', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [fx('s', { open: false }, LONG)]);
+    const dialog = host(page).locator('dialog');
+    const reduced = await ms(page, '--tanrei-sys-motion-role-reduced');
+    for (const open of [true, false]) {
+      const seen = await sampleFrames(dialog, () => setOpen(page, open), { probe: sheetProbe });
+      expect(motionNames(seen), `open ${open}`).toEqual(['opacity']);
+      for (const motion of dialogMotions(seen)) expect(motion.duration, `open ${open}`).toBe(reduced);
+      for (const frame of [...seen.frames, seen.rest]) {
+        const out = slidOut(frame, 'bottom');
+        if (out !== undefined) expect(out, `open ${open}, frame ${frame.index}: in place`).toBeCloseTo(0, 2);
+        // The sheet and its scrim fade together.
+        if (out !== undefined) expect(Math.abs((frame.probe.opacity as number) - (frame.probe.scrim as number)), `open ${open}, frame ${frame.index}`).toBeLessThanOrEqual(0.02);
+      }
+      expectNoFlicker(seen);
+      expect(seen.rest.probe.opacity).toBe(open ? 1 : 0);
+    }
+  });
+
+  test('BSH-1: a slide turned round goes on from where it has got to — closed while it enters, and opened again while it leaves', async ({ page }) => {
+    await mount(page, [fx('s', { open: false }, LONG)]);
+    await override(page, { [T('motion-enter-duration')]: '20s', [T('motion-exit-duration')]: '20s' });
+    await setOpen(page, true);
+    const closedMidway = await turnHeld(host(page), false);
+    // Held on its way: below where it rests (half the window), above the bottom edge.
+    expect(closedMidway.held.y!).toBeGreaterThan(WINDOW.height / 2 + 1);
+    expect(closedMidway.held.y!).toBeLessThan(WINDOW.height - 1);
+    expect(closedMidway.kept, closedMidway.listed).toEqual([]);
+    expect(closedMidway.moving, closedMidway.listed).toContain('translate');
+    expect(closedMidway.moving, closedMidway.listed).not.toContain('scale');
+    expect(closedMidway.turned.y!).toBeCloseTo(closedMidway.held.y!, 0);
+    await host(page).evaluate((el) => (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.play()));
+    const openedMidway = await turnHeld(host(page), true);
+    expect(openedMidway.kept, openedMidway.listed).toEqual([]);
+    expect(openedMidway.moving, openedMidway.listed).toContain('translate');
+    expect(openedMidway.turned.y!).toBeCloseTo(openedMidway.held.y!, 0);
+    await expect(host(page).locator('dialog')).toHaveJSProperty('open', true);
+    await host(page).evaluate((el) => (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.finish()));
     expect(await top(page)).toBeCloseTo(WINDOW.height / 2, 1);
   });
 

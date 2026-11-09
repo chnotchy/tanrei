@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
@@ -139,6 +140,11 @@ export class TanreiBottomSheet extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'bottom-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
+  /**
+   * BSH-1: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
+   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
 
   static override properties: PropertyDeclarations = {
@@ -650,7 +656,9 @@ export class TanreiBottomSheet extends TanreiElement {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
+    // BSH-1: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
+    this.appear.enter(mounted);
     this.shown = true;
     holdPageScroll(this, true);
     this.onViewport();
@@ -671,7 +679,10 @@ export class TanreiBottomSheet extends TanreiElement {
     holdPageScroll(this, false);
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
+    // BSH-1: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
+    // and its scrim's have played (closeModal), in every engine.
     if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }
