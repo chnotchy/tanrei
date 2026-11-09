@@ -21,6 +21,7 @@ import {
 } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { type Probe, sampleFrames } from '../../../test/frames.js';
@@ -1069,6 +1070,21 @@ test.describe('opening and closing', () => {
     await page.evaluate(() => ((window as any).log.length = 0));
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['submit:inv']);
+  });
+
+  test('SRC-23, SRC-41: a search in the page’s markup with expanded is there in its first frame — its docked, full-screen or dialog view plays no entrance, nor does a scrim — and one mounted expanded after the first paint brings its view in with it (MOT-4)', async ({ page }) => {
+    await page.setViewportSize({ width: 720, height: 480 });
+    // The docked view grows in by an animation of its own (`view-open`); the full-screen and dialog views are a modal
+    // `<dialog>`, which fades in (with its scrim, WebKit naming no pseudo-element for it).
+    const entering = (runs: MotionRun[]) => [...entrances(runs), ...runs.filter((run) => run.name === 'view-open')];
+    for (const id of ['docked', 'full-screen', 'dialog-results']) {
+      const fixture = spec.fixtures.find((f) => f.id === id)!;
+      const atLoad = await loadOpen(page, spec, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, inline: false } }] });
+      expect(entering(atLoad), `${id} in the page’s markup`).toEqual([]);
+      expect(await prop(host(page, id), 'expanded')).toBe(true);
+      await mountOpenAgain(page);
+      expect(entering(await runsAtRest(page)), `${id} mounted after the first paint`).not.toEqual([]);
+    }
   });
 
   test('SRC-23: the docked view fades and grows in over open-duration and fades out over close-duration; the full-screen view fades; focus moves when it opens, not when the motion ends; at once where motion is reduced', async ({ page }) => {
