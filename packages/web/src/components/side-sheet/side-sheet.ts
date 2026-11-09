@@ -3,6 +3,7 @@ import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/d
 import { classMap } from 'lit/directives/class-map.js';
 import {
   ActionPlacement,
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
@@ -118,6 +119,11 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private readonly availability = new AvailabilityController(this, 'side-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
+  /**
+   * SSH-2: a modal sheet's appearance, opened and closed (src/primitives/motion.ts): made at once where it is mounted
+   * open, turned round from what it shows (MOT-2). The `<dialog>` is the surface that slides.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.dialog });
   static override styles = styles;
 
   // The children are assigned by hand: the content to the default slot, the actions to three slots in the order the
@@ -508,7 +514,9 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
         report(this, 'SSH-16', 'a modal side sheet opened with no action; it must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
       }
     };
+    // SSH-2: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
+    this.appear.enter(mounted);
     this.shown = true;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
@@ -528,7 +536,10 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     const hadFocus = focusWithin(this);
     const dialog = this.dialog;
     dialog?.classList.remove('dragging');
+    // SSH-2: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
+    // and its scrim's have played (closeModal), in every engine.
     if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }

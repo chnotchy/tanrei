@@ -8,8 +8,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
-import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -2369,6 +2369,38 @@ test.describe('compact window', () => {
     expect(reduced).toContain('opacity');
     expect(reduced).not.toContain('translate');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  test('POP-41: as a sheet it moves as a modal bottom sheet does — its first frame held its own height below the bottom edge, whole and unscaled; up over the bottom sheet’s enter motion and down the same way over its exit motion on the accelerating curve, the scrim in step over the same duration; nothing flickers, the exit’s last frame leaves no more than its curve does, and the exit is drawn in every engine; under the unfold appearance (m3-like) too', async ({ page }) => {
+    const opened = (open: boolean) => () => host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, o) => {
+      el.open = o;
+      await el.updateComplete;
+    }, open);
+    await mount(page, page320(), { ...COMPACT, reducedMotion: false });
+    // (Sampled through the host: the sheet's dialog is the first in its shadow root, made as it opens.)
+    const frozen = await freezeFirstFrame(host(page), opened(true), { probe: sheetProbe });
+    expect(slidOut(frozen.frame, 'bottom')).toBeCloseTo(1, 2);
+    expect(frozen.frame.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, scrim: 0 });
+    await frozen.release();
+    // The sheet's own opacity never moves, so an `opacity` on it is the scrim's (which WebKit reports as the dialog's own).
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.on.includes('sheet'));
+    for (const system of [undefined, 'm3-like']) {
+      await mount(page, page320(), { ...COMPACT, reducedMotion: false, system });
+      const [enter, exit] = [await resolveToken(page, B('motion-enter-duration'), 'duration'), await resolveToken(page, B('motion-exit-duration'), 'duration')];
+      const [enterEasing, exitEasing] = [await resolveEasing(page, B('motion-enter-easing')), await resolveEasing(page, B('motion-exit-easing'))];
+      const opening = await sampleFrames(host(page), opened(true), { probe: sheetProbe });
+      expect(slidOut(opening.frames.find((frame) => frame.probe.opacity !== undefined)!, 'bottom'), system).toBeCloseTo(1, 2);
+      expect(slidOut(opening.rest, 'bottom'), system).toBeCloseTo(0, 2);
+      expectSlidOnly(opening, 'bottom');
+      expectNoFlicker(opening);
+      expect([...new Set(own(opening).map((motion) => motion.name))].sort(), system).toEqual(['opacity', 'translate']);
+      for (const motion of own(opening)) expect([motion.name, motion.duration, motion.easing], system).toEqual([motion.name, enter, enterEasing]);
+      const closing = await sampleFrames(host(page), opened(false), { probe: sheetProbe });
+      expectSlidOnly(closing, 'bottom');
+      expectNoFlicker(closing);
+      for (const motion of own(closing)) expect([motion.name, motion.duration, motion.easing], system).toEqual([motion.name, exit, exitEasing]);
+      expectSlideExitEnd(closing, 'bottom', { duration: exit, easing: bezierOf(exitEasing) });
+    }
   });
 
   test('POP-42: crossing compact.window-width while open changes the presentation at once — no motion, no close — keeping the element that has focus; focus on the opener moves into the sheet', async ({ page }) => {
