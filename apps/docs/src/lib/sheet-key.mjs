@@ -1,8 +1,9 @@
 // The key of the build that computes the stylesheet of a reader's own theme (lib/custom-theme.ts): a hash of
 // everything that stylesheet is computed from — the tokens, the configuration, the token engine, the build's pipeline
-// and emitter, and Theme Studio's core — read once when the site is built. A theme's sheet is kept in the reader's
-// browser under this key and the layer's hash: once the site is built from other sources, the key is another, and a
-// sheet kept under the old one is not used (it is computed again).
+// and emitter, and the modules of Theme Studio's that its worker bundles, with the plugin that shapes the documents the
+// worker is given — read once when the site is built. A theme's sheet is kept in the reader's browser under this key
+// and the layer's hash: once the site is built from other sources, the key is another, and a sheet kept under the old
+// one is not used (it is computed again).
 //
 // It reaches the page as the virtual module `virtual:tanrei-docs/sheet-key` (its default export), for the head's
 // script (components/frame/ThemeProvider.astro) and lib/custom-theme.ts alike.
@@ -15,7 +16,7 @@ export const SHEET_KEY_MODULE = 'virtual:tanrei-docs/sheet-key';
 const RESOLVED = `\0${SHEET_KEY_MODULE}`;
 
 /** What a theme's stylesheet is computed from, relative to the repository's root: a folder is every file in it. */
-export const SHEET_SOURCES = ['tanrei.config.json', 'tokens', 'docs/status/status.json', 'packages/token-engine/src', 'packages/tokens-build/src', 'packages/studio/src/core.js', 'packages/studio/src/model.js', 'packages/studio/src/fonts.js', 'packages/studio/src/listing.js', 'packages/studio/src/data.ts', 'packages/studio/src/sheet-answer.js', 'packages/studio/src/sheet-worker.ts'];
+export const SHEET_SOURCES = ['tanrei.config.json', 'tokens', 'packages/token-engine/src', 'packages/tokens-build/src', 'packages/studio/vite-plugin.js', 'packages/studio/src/model.js', 'packages/studio/src/sheet.js', 'packages/studio/src/sheet-sources.js', 'packages/studio/src/sheet-data.ts', 'packages/studio/src/sheet-answer.js', 'packages/studio/src/sheet-worker.ts'];
 
 /** Every file of `rel` (a file, or a folder and everything in it), relative to `root`, in a fixed order. */
 function filesOf(root, rel) {

@@ -1,10 +1,16 @@
 // A layer's page sheet, and the part of the Studio's pipeline it is computed with: from a chain of layers to the
 // system's model (`systemOf`), and from the model to the sheet a page applies over the default system's
-// (`pageSheetOf`). The Studio core (./core.js) computes with these.
-import { componentDocumentPath, mergeLayers, resolveNumericTokens } from '@tanrei/token-engine';
+// (`pageSheetOf`). The Studio core (./core.js) computes with these, and so does the page sheet's worker
+// (`createPageSheet`, ./sheet-worker.ts), which is given only what a sheet needs: the token documents without their
+// prose (./sheet-sources.js), the default system's chain, the chosen layer's ancestry (loaded when it is asked for),
+// and, of every other shipped layer, what it says of the components that live in it. No schema, no checks of the
+// build, nothing the Studio's page shows: so the worker that the documentation starts for a reader's theme loads and
+// computes no more than its sheet.
+import { componentDocumentPath, createPaletteEngine, mergeLayers, resolveNumericTokens } from '@tanrei/token-engine';
 import { buildModel } from './model.js';
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 
 /** The declarations of a sheet by the rule they stand in, with the rule's selectors and at-rules around it. */
 export function sheetRules(css) {
@@ -133,4 +139,93 @@ export function pageSheetOf(model, { namespace, emitCss, availability, defaultRu
     for (const [property] of missing) own.declarations.push([property, valueIn(ours, path, property)]);
   }
   return printRules(rules);
+}
+
+/**
+ * The systems a layer may extend, by id, as the Studio offers them: the default first, then the others; never the
+ * root, which is every chain's first layer and has no output of its own.
+ * @param {string[]} ids  every shipped layer
+ */
+export function offeredSystems(ids, { rootId, defaultId }) {
+  return ids.filter((id) => id !== rootId).sort((a, b) => Number(a !== defaultId) - Number(b !== defaultId) || a.localeCompare(b));
+}
+
+/**
+ * The page sheet of a layer, computed from what it needs alone: `pageSheet(layer)` resolves with the sheet `pageSheetOf`
+ * gives for the layer's model, and rejects with why a layer has none.
+ *
+ * `shipped` names every shipped layer with its `extends` and its `vocabulary` (what it says of the components that
+ * live in it: where each lives, what a system without it uses instead, and what a layer that includes one from it
+ * borrows); `preloaded` holds shipped layers whole that are at hand already (the default system's chain, which every
+ * sheet is computed against), and `load(id)` gives any other one, asked for only when the chain of a layer asked for
+ * holds it. A layer is not checked against the schema: what reaches the sheet is what the engine computes, and a layer
+ * it cannot compute is refused with the engine's reason.
+ *
+ * @param {object} deps
+ * @param {{ namespace: string }} deps.config  tanrei.config.json
+ * @param {Record<string, object>} deps.sources  the token documents the default resolver names, and the documents of
+ *   the components that live in a layer, keyed by path relative to tokens/ (their prose may be left out: ./sheet-sources.js)
+ * @param {object} deps.vocabulary  tokens/sys/color.vocabulary.json
+ * @param {object} deps.resolver  tokens/tanrei.resolver.json
+ * @param {{ Hct: any, TonalPalette: any }} deps.mcu  material-color-utilities
+ * @param {Function} deps.emitCss  tokens-build's src/emit/css.js
+ * @param {Function} deps.sheetAvailability  tokens-build's src/layers.js
+ * @param {Function} deps.heldComponents  the same module
+ * @param {Function} deps.outsideStandIns  the same module
+ * @param {Record<string, { id: string, extends?: string, vocabulary?: object }>} deps.shipped  every shipped layer, by id
+ * @param {object[]} [deps.preloaded]  shipped layers, whole, at hand
+ * @param {(id: string) => Promise<object>} deps.load  a shipped layer, whole
+ */
+export function createPageSheet({ config, sources, vocabulary, resolver, mcu, emitCss, sheetAvailability, heldComponents, outsideStandIns, shipped, preloaded = [], load }) {
+  const NS = config.namespace;
+  const engine = createPaletteEngine(mcu);
+  const ids = Object.keys(shipped);
+  const rootId = Object.values(shipped).find((layer) => !layer.extends).id;
+  const defaultId = Object.hasOwn(shipped, NS) ? NS : rootId;
+  const homes = heldComponents(ids, (id) => shipped[id]);
+  const standIns = outsideStandIns(ids, (id) => shipped[id]);
+  const known = () => offeredSystems(ids, { rootId, defaultId }).join(', ');
+  const deps = { namespace: NS, sources, vocabulary, resolver, engine, lend: (id) => (Object.hasOwn(shipped, id) ? shipped[id] : undefined) };
+
+  const loading = new Map(preloaded.map((layer) => [layer.id, Promise.resolve(layer)]));
+  const loaded = (id) => loading.get(id) ?? loading.set(id, load(id)).get(id);
+  /** The shipped layers `extends` leads through from `id`, by id: as far as the names are shipped, and no further than a cycle. */
+  const ancestry = (id) => {
+    const out = [];
+    for (let at = id; at && Object.hasOwn(shipped, at) && !out.includes(at); at = shipped[at].extends) out.push(at);
+    return out;
+  };
+  /** A layer's chain, its shipped layers loaded first. */
+  async function chainFor(layer) {
+    const ancestors = ancestry(layer.extends);
+    const layers = new Map(await Promise.all(ancestors.map(async (id) => [id, await loaded(id)])));
+    return chainOf(layer, { find: (id) => layers.get(id), rootId, known });
+  }
+
+  let defaultRules;
+  /** The default system's sheet, as the page holds it on its root: computed once. */
+  const defaults = () =>
+    (defaultRules ??= (async () => {
+      const { chain, model } = systemOf(await chainFor(await loaded(defaultId)), deps);
+      return sheetRules(emitCss(model, sheetAvailability(chain, homes, standIns)));
+    })());
+
+  return {
+    rootId,
+    defaultId,
+    /** Starts loading and computing what every sheet needs — the default system's — before a layer is asked for. */
+    warm() {
+      defaults().catch(() => {});
+    },
+    /** @param {unknown} input  a layer @returns {Promise<string>} */
+    async pageSheet(input) {
+      if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('a layer is a JSON object');
+      if (input.extends && !Object.hasOwn(shipped, input.extends)) throw new Error(`"extends": "${input.extends}" is not a shipped system (${known()})`);
+      if (!input.extends && input.id !== rootId) throw new Error(`the Studio edits layers that extend a shipped system ("extends": ${offeredSystems(ids, { rootId, defaultId }).map((id) => `"${id}"`).join(' | ')})`);
+      const layer = clone(input);
+      const chain = await chainFor(layer);
+      const { model } = systemOf(chain, deps);
+      return pageSheetOf(model, { namespace: NS, emitCss, availability: sheetAvailability(chain, homes, standIns), defaultRules: await defaults() });
+    },
+  };
 }

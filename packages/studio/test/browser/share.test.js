@@ -56,10 +56,20 @@ studioTest('the Share menu: the link, and the documentation shown in the layer �
 });
 
 studioTest('the page sheet from the worker is the core’s, for any layer; a layer that cannot be computed is refused', hosted, async ({ page, requests }) => {
-  const layer = studio.setEssential(studio.setPalette({ id: 'acme', extends: 'tanrei' }, 'primary', { source: { seed: '#0b6e4f' } }), 'space.unit', 3);
-  const css = await page.evaluate((given) => window.pageSheetOf(given), layer);
-  assert.equal(css, studio.pageSheet(studio.preview(layer)), 'the same sheet, character for character');
+  // On the default system; on a showcase system, whose layers the worker loads only now; borrowing a component from a
+  // layer the chain does not hold (the worker has only that layer's index).
+  const layers = [
+    studio.setEssential(studio.setPalette({ id: 'acme', extends: 'tanrei' }, 'primary', { source: { seed: '#0b6e4f' } }), 'space.unit', 3),
+    studio.setPalette({ id: 'acme', extends: 'm3-expressive-like' }, 'primary', { source: { seed: '#d00000' } }),
+    { id: 'acme', extends: 'tanrei', components: { include: [{ name: 'fab-menu', from: 'm3-like' }] } },
+  ];
+  for (const layer of layers) {
+    const css = await page.evaluate((given) => window.pageSheetOf(given), layer);
+    assert.equal(css, studio.pageSheet(studio.preview(layer)), `${layer.extends}: the same sheet, character for character`);
+  }
   assert.ok(requests.some((url) => /sheet-worker[^/]*\.js$/.test(url)), 'computed in the worker');
+  assert.ok(requests.some((url) => /m3-like\.system[^/]*\.js$/.test(url)), 'a showcase system’s layer loaded when a chain needs it');
+  assert.ok(!requests.some((url) => /cupertino\.system[^/]*\.js$/.test(url)), 'and no layer no chain needs');
   const refused = await page.evaluate(() => window.pageSheetOf({ id: 'acme', extends: 'nothing-like-this' }).then(() => 'resolved', (error) => error.message));
   assert.match(refused, /nothing-like-this/);
 });

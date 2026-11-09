@@ -6,15 +6,27 @@
 //    under a Content-Security-Policy without 'unsafe-eval', and Ajv's runtime compiler needs `new Function`.
 // 3. material-color-utilities' Hct and TonalPalette, from their own modules (`virtual:tanrei-studio/hct`): the
 //    package's entry imports every scheme and the quantizers too, and a bundler keeps them all.
+// 4. The page sheet's worker (src/sheet-data.ts) imports the token documents without their prose (`?tanrei-sheet`)
+//    and every shipped layer as its index (`?tanrei-sheet-index`): src/sheet-sources.js. The layers of the default
+//    system's chain, which every sheet is computed against, are bundled into it; any other layer is a module of its
+//    own, loaded when a chain needs it (`virtual:tanrei-studio/sheet-layers`).
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { CONFIG } from '@tanrei/tokens-build/config';
+import { ROOT_SYSTEM, layerChain } from '@tanrei/tokens-build/layers';
+import { INDEX_QUERY, SHEET_QUERY, layerIndex, withoutProse } from './src/sheet-sources.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const schemaFile = path.resolve(here, '../../tokens/schema/system.schema.json');
+const systemsDir = path.resolve(here, '../../tokens/systems');
 const VALIDATOR = 'virtual:tanrei-studio/validate-layer';
 const HCT = 'virtual:tanrei-studio/hct';
+const SHEET_LAYERS = 'virtual:tanrei-studio/sheet-layers';
+/** A JSON file imported with `query`: its id, with nothing after the query. */
+const queried = (id, query) => id.endsWith(`.json?${query}`);
+const systemFile = (id) => path.join(systemsDir, `${id}.system.json`);
 
 export function tanreiStudio() {
   const require = createRequire(import.meta.url);
@@ -24,12 +36,36 @@ export function tanreiStudio() {
     resolveId(source) {
       if (source === VALIDATOR) return `\0${VALIDATOR}`;
       if (source === HCT) return `\0${HCT}`;
+      if (source === SHEET_LAYERS) return `\0${SHEET_LAYERS}`;
       return null;
+    },
+    // A JSON file with a query is no JSON module to the bundler: it is made a module here, its data parsed at once
+    // from one string (`JSON.parse`), which an engine reads faster than the same data as an object literal.
+    transform(code, id) {
+      const shaped = queried(id, SHEET_QUERY) ? withoutProse(JSON.parse(code)) : queried(id, INDEX_QUERY) ? layerIndex(JSON.parse(code)) : undefined;
+      if (shaped === undefined) return null;
+      return { code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(JSON.stringify(shaped))});\n`, map: null, moduleType: 'js' };
     },
     load(id) {
       if (id === `\0${HCT}`) {
         const root = path.dirname(require.resolve('@material/material-color-utilities'));
         return `export { Hct } from ${JSON.stringify(path.join(root, 'hct/hct.js'))};\nexport { TonalPalette } from ${JSON.stringify(path.join(root, 'palettes/tonal_palette.js'))};\n`;
+      }
+      if (id === `\0${SHEET_LAYERS}`) {
+        // `defaultChain`: the default system — the one named like the namespace, else the root (as src/sheet.js reads
+        // it) — and the layers it extends, root first, imported with the module. `loaders`: every other shipped layer,
+        // by id, a module of its own.
+        const read = (each) => JSON.parse(fs.readFileSync(systemFile(each), 'utf8'));
+        const defaultId = fs.existsSync(systemFile(CONFIG.namespace)) ? CONFIG.namespace : ROOT_SYSTEM;
+        const chain = layerChain(defaultId, read).map((layer) => layer.id);
+        const others = fs.readdirSync(systemsDir).filter((name) => name.endsWith('.system.json')).map((name) => read(name.slice(0, -'.system.json'.length)).id).filter((each) => !chain.includes(each)).sort();
+        for (const each of [...chain, ...others]) this.addWatchFile?.(systemFile(each));
+        return [
+          ...chain.map((each, i) => `import layer${i} from ${JSON.stringify(systemFile(each))};`),
+          `export const defaultChain = [${chain.map((_, i) => `layer${i}`).join(', ')}];`,
+          `export const loaders = {${others.map((each) => `\n  ${JSON.stringify(each)}: () => import(${JSON.stringify(systemFile(each))}).then((module) => module.default),`).join('')}\n};`,
+          '',
+        ].join('\n');
       }
       if (id !== `\0${VALIDATOR}`) return null;
       this.addWatchFile?.(schemaFile);
