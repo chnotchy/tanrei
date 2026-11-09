@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
+import { answer } from '../src/sheet-answer.js';
 import { repoRoot, studio } from './studio-node.js';
 
 const NS = studio.namespace;
@@ -110,4 +111,14 @@ test('a layer on a showcase system: the root draws it, the components it does no
 
 test('a layer that cannot be computed has no page sheet', () => {
   assert.equal(studio.pageSheet(studio.preview({ id: 'acme', extends: 'nothing-like-this' })), null);
+});
+
+test('what the worker answers (src/sheet-answer.js): the page sheet by the request’s id, or why there is none', () => {
+  const layer = studio.setPalette({ id: 'acme', extends: studio.defaultId }, 'primary', { source: { seed: '#0b6e4f' } });
+  assert.deepEqual(answer(studio, { id: 7, layer }), { id: 7, css: studio.pageSheet(studio.preview(layer)) });
+  const refused = answer(studio, { id: 8, layer: { id: 'acme', extends: 'nothing-like-this' } });
+  assert.equal(refused.id, 8);
+  assert.match(refused.error, /nothing-like-this/);
+  assert.equal(answer(studio, { id: 9, layer: 'not a layer' }).id, 9, 'what is not a layer is answered too');
+  assert.ok('error' in answer(studio, { id: 9, layer: 'not a layer' }));
 });

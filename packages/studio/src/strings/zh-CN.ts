@@ -686,6 +686,14 @@ const zhCN: Dictionary = {
     edited: '你编辑了共享的层，所以这个浏览器现在保存它，取代了你之前的层。',
     back: '已回到你的层。',
   },
+  sharing: {
+    open: '分享',
+    close: '关闭',
+    docs: '用此主题显示文档',
+    docsHelp: (system: string) => `仅保存在此浏览器中。文档的设计系统选项中会多出“我的主题”，在那里选择 ${system} 即可恢复。`,
+    docsOn: '文档现在以此主题显示（仅限此浏览器）。',
+    docsOff: (system: string) => `文档已恢复为 ${system}。`,
+  },
   app: {
     language: '语言',
     theme: '主题',

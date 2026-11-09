@@ -6,6 +6,9 @@
 //      test/mock-server.mjs on a free port, over its own layer file, and takes both down again;
 //   3. removes the build. Nothing stays: no server, no port, no directory.
 //
+// For test/browser/share.test.js it also builds test/browser/host/ — the Studio mounted by a host that is a
+// documentation, with the page sheet's worker — into a temporary directory of its own (`TANREI_STUDIO_HOST`).
+//
 //   TANREI_STUDIO_APP=<dir>   use an app that is already built (e.g. dist-app) instead of building one
 //   node test/browser/run.mjs typefaces        only the test files whose name contains "typefaces"
 import { spawnSync } from 'node:child_process';
@@ -41,9 +44,18 @@ try {
   if (!fs.existsSync(path.join(appDir, 'index.html'))) throw new Error(`${appDir} holds no built app`);
   const only = process.argv.slice(2);
   const files = fs.readdirSync(here).filter((name) => name.endsWith('.test.js') && (!only.length || only.some((word) => name.includes(word)))).map((name) => path.join('test/browser', name));
+  // A host that is a documentation (test/browser/host/), for the tests that need one: built apart, in a directory of its own.
+  let hostDir = '';
+  if (files.some((file) => file.endsWith('share.test.js'))) {
+    const hostStarted = performance.now();
+    hostDir = tempDir('studio-host');
+    const step = spawnSync(process.execPath, [path.join(pkg, 'node_modules/vite/bin/vite.js'), 'build', '--config', 'test/browser/host/vite.config.js', '--outDir', hostDir, '--emptyOutDir', '--logLevel', 'warn'], { cwd: pkg, stdio: 'inherit' });
+    if (step.status !== 0) throw new Error(`building the documentation host failed: vite exited with ${step.status}`);
+    console.log(`# documentation host built in ${seconds(hostStarted)}`);
+  }
   const testsStarted = performance.now();
   // Through runNodeTests: a suite that fails to load, or a hook that throws, fails the run on every Node version.
-  status = runNodeTests(files, { cwd: pkg, env: { ...process.env, TANREI_STUDIO_APP: appDir } });
+  status = runNodeTests(files, { cwd: pkg, env: { ...process.env, TANREI_STUDIO_APP: appDir, TANREI_STUDIO_HOST: hostDir } });
   console.log(`# browser tests ran in ${seconds(testsStarted)} (${seconds(started)} with the build)`);
 } catch (error) {
   console.error(error.message);

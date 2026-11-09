@@ -3,9 +3,9 @@
 // file depends on the example or holds every value itself (core.writeOut); then three tabs — the file, what its
 // stylesheet changes (core.sheetChanges), and what to do next, with a link to share. Everything shown is the engine's
 // and the build's own output for this layer, never a sketch of it; a command is shown only as the CLI takes it.
-import { packLayer, withLayer } from '../address.js';
 import { stringifyLayer } from '../core.js';
 import { type Ctx, type Json, type Layer, button, choice, h, isolated, linkButton, rich, tabbed } from './dom';
+import { copyLayerLink } from './share';
 
 type Tab = 'file' | 'css' | 'next';
 const TABS: Tab[] = ['file', 'css', 'next'];
@@ -139,13 +139,7 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
 
   const linkState = h('span', { class: 'ts-help', role: 'status', 'data-export-link-state': true });
   async function copyLink() {
-    let said: string = words.copyFailed;
-    try {
-      const text = stringifyLayer(ctx.layer());
-      const packed = text === stringifyLayer(studio.blank()) ? null : await packLayer(text);
-      await navigator.clipboard.writeText(`${location.origin}${location.pathname}${location.search}${withLayer(location.hash, packed)}`);
-      said = words.linkCopied;
-    } catch {}
+    const said = await copyLayerLink(ctx);
     linkState.textContent = said;
     ctx.announce(said);
   }
