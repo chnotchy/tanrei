@@ -4689,6 +4689,26 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     expect(await offset(page)).toBe(0);
   });
 
+  test('MNU-68: a key pressed before the opening motion has drawn its first frame leaves the list where it is, and at rest the list scrolls to bring the item into view', async ({ page }) => {
+    await mountActions(page);
+    // The entrance waits for the first frame drawn after the menu opened, held at its start until then: a key that
+    // comes before that frame — a busy machine's — finds the surface scaled about its origin, and the list measured
+    // through that scale was scrolled part of the way (30 px in Chromium, 31 in Firefox, 27 in WebKit).
+    await holdClock(page);
+    await anchor(page, 'actions').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => focused(page)).toBe(FIRST);
+    await page.keyboard.press('End');
+    await expect.poll(() => focused(page)).toBe(LAST);
+    expect(await motionCount(surface(page, 'actions')), 'the opening motion has not begun').toBeGreaterThan(0);
+    expect(await offset(page)).toBe(0);
+    expect(await scrolled(page)).toEqual([]);
+    await releaseClock(page);
+    await motionEnded(page);
+    await expect.poll(() => toEnd(page)).toBeLessThan(1);
+    expect((await standing(page, LAST)).bottom).toBeGreaterThanOrEqual(-0.5);
+  });
+
   test('MNU-68: the first item of a titled group brings its title into view with it', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 300 });
     const many = (name: string) => Array.from({ length: 8 }, (_, n) => it(`${name} ${n + 1}`));
