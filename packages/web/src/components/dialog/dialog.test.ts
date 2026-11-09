@@ -13,6 +13,7 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExi
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1310,7 +1311,7 @@ test.describe('fixtures', () => {
       await page.setViewportSize(dialogWindow(fixture.id));
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });
       await expect.poll(() => isOpen(page, fixture.id)).toBe(true);
-      await expect(page).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
 });

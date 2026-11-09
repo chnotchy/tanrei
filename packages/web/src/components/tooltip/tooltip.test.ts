@@ -8,6 +8,7 @@ import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../.
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('tooltip');
 type P = Page;
@@ -1951,7 +1952,7 @@ test.describe('fixtures', () => {
       await page.setViewportSize({ width: 320, height: 200 });
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });
       await expect.poll(() => shown(page, fixture.id)).toBe(true);
-      await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
 });

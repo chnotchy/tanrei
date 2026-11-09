@@ -15,6 +15,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -2840,7 +2841,7 @@ test.describe('fixtures', () => {
 
   for (const f of IN_PLACE) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });
@@ -2856,7 +2857,7 @@ test.describe('compact fixtures', () => {
       await expect.poll(() => own.evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet[open], .surface:popover-open'))).toBe(true);
       await settle(page);
       await motionEnded(own.locator('dialog.sheet, .surface > .motion').first());
-      await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
 });

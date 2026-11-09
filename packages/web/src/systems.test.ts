@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type Spec, fixtureHost, mountFixtures, resolveColor, resolveToken, subject } from '../test/harness.js';
+import { expectBaseline } from '../test/baseline.js';
 
 /** One line per component: its spec, and the fixtures baselined under each preset: one representative each. */
 const SUBJECTS = [
@@ -580,8 +581,8 @@ for (const system of presets) {
           // The top layer is drawn over the whole window, wherever the shot scrolls to: another fixture's open surface
           // there is drawn into this fixture's picture, unless it stays inside its own stage.
           expect(await othersInTopLayer(page, fixture.id), 'fixtures with a surface open in the top layer').toEqual([]);
-          if (wholeWindow) await expect(page).toHaveScreenshot(shot);
-          else await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot(shot);
+          if (wholeWindow) await expectBaseline(page, shot);
+          else await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), shot);
         });
       }
     }
