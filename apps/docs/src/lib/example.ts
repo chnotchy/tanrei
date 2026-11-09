@@ -4,7 +4,7 @@
 //
 // Nothing here moves what is drawn: the stage holds its markup from the first paint, the actions' room is held by the
 // stylesheet, and the code opens under the stage only when a reader asks for it.
-import { CUSTOM_LOOK, CUSTOM_SHEET_EVENT } from './appearance';
+import { CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID } from './appearance';
 import { DEFAULT_SYSTEM_ATTR, SYSTEM_EVENT, drawUnder } from './visuals/frame';
 import './define-on-demand';
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
@@ -48,10 +48,17 @@ const drawnUnder = new WeakMap<HTMLElement, string>();
 function follow(frame: HTMLElement) {
   if (frame.dataset.pinned) return;
   const stage = stageOf(frame);
+  if (!stage) return;
   const fallback = frame.getAttribute(DEFAULT_SYSTEM_ATTR) ?? '';
   const system = pageSystem(frame);
-  if (!stage || (drawnUnder.get(frame) ?? stage.getAttribute('data-tanrei-system') ?? fallback) === system) return;
+  const was = drawnUnder.get(frame) ?? stage.getAttribute('data-tanrei-system') ?? fallback;
+  if (was === system) return;
   drawnUnder.set(frame, system);
+  // Between the default system and the reader's own theme the stage has no scope either way: its tokens are the
+  // root's, and only the theme's stylesheet changes them, which says so when it is put in or taken away (below).
+  // Nothing is drawn again before then: the press that chose the look is answered by the next frame.
+  const unscoped = (look: string) => look === fallback || look === CUSTOM_LOOK;
+  if (unscoped(was) && unscoped(system) && !document.getElementById(CUSTOM_STYLE_ID)) return;
   void drawUnder(frame, system, system === fallback || system === CUSTOM_LOOK ? undefined : sheetOf(system)).then((drawn) => {
     // A stylesheet that could not be loaded: the frame is still drawn under what it was, and is asked again next time.
     if (drawn !== system && drawnUnder.get(frame) === system) drawnUnder.delete(frame);
