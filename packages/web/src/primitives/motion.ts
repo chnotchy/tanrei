@@ -274,13 +274,12 @@ const heldOnce = new WeakSet<Animation>();
  * (or ended there, with its events), and the surface is drawn whole at once. (A combobox's list, its rows rendered in
  * the task that opens it, took 200–340 ms there on a two-core Linux runner, against an entrance of 300 ms.) Played
  * again in the same task it is dated the same way; so each is held at its start, which the next frame draws, and
- * played from that frame (`nextFrame`), where the timeline has that frame's time. One that is no longer held there —
- * replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden document
- * draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the motions are
- * an exit, which the surface waits for before it goes, and so are played even where a page clock holds frame callbacks
- * (`nextFrame`). A motion is held once: played from that frame, it waits there for its start time, and held again then
- * Chromium never gave it one — it stood at its start, pending, for good (a submenu item's colors, held as its submenu
- * opened and again by the key that opened the next one before a frame had started them).
+ * played from that frame (`nextFrame`), dated from that frame's time (`playFromThisFrame`). One that is no longer held
+ * there — replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden
+ * document draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the
+ * motions are an exit, which the surface waits for before it goes, and so are played even where a page clock holds
+ * frame callbacks (`nextFrame`). A motion is held once: from the frame it is played from it runs as it is, and held
+ * again it would start over from a later one.
  */
 export function startFromNextFrame(motions: readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
   if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
@@ -292,8 +291,23 @@ export function startFromNextFrame(motions: readonly Animation[], { leaving = fa
     animation.currentTime = 0;
   }
   nextFrame(() => {
-    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) animation.play();
+    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) playFromThisFrame(animation);
   }, leaving);
+}
+
+/**
+ * Plays a motion held at its start from the frame being drawn: its start time is that frame's time, so it stands at its
+ * start in this frame and runs from there, with nothing left pending. `play()` would leave it waiting for the engine to
+ * give it a start time, and from a frame's callbacks (a frame callback or a resize observer's report) Chromium never
+ * gave one to a motion it had already been waiting for when it was held — begun in an earlier task, or played in an
+ * earlier frame, with no frame drawn since: the motion stood at its start, pending, for good (a menu item's colors,
+ * begun by the key that moved focus off it and held by the next key, which opened a submenu before a frame was drawn).
+ * Where the timeline has no time it is played as usual.
+ */
+function playFromThisFrame(animation: Animation) {
+  const now = animation.timeline?.currentTime;
+  if (now === null || now === undefined) animation.play();
+  else animation.startTime = now;
 }
 
 /**

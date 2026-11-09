@@ -860,3 +860,76 @@ test.describe('Settle', () => {
     expect(await changed(false)).toEqual(['background-color']);
   });
 });
+
+test.describe('startFromNextFrame', () => {
+  test('a motion still waiting for its start time when it is held — begun in an earlier task, or played in a frame and held again before the next — stands at its start in the first frame after the task and moves from there', async ({ page }) => {
+    // A state's motion is held at its start and played in the frame callbacks of the next frame. One the engine was
+    // already waiting to start when it was held — begun by the key before, with no frame drawn since (focus moved off a
+    // menu item, then the next key opened a submenu) — was played there with play(), and Chromium never gave it a start
+    // time: it stood at its start, pending, for good, and nothing waiting for it ended. In every engine it stands at
+    // its start in that frame and moves in the frames after it, held once or asked to be held again.
+    await open(page, '<div id="stage"><div id="m" class="item"></div></div>', {
+      head: '<style>.item { block-size: 20px; background: rgb(255, 0, 0); transition: background-color var(--tanrei-sys-motion-role-state-default) linear; } .item[data-on] { background: rgb(0, 128, 0); }</style>',
+    });
+    await painted(page);
+    const seen = await page.evaluate(async () => {
+      const { startFromNextFrame, statesFromNextFrame } = (await import('/motion.js' as string)) as {
+        startFromNextFrame(motions: readonly Animation[], options?: { leaving?: boolean }): void;
+        statesFromNextFrame(roots: readonly Element[]): void;
+      };
+      const stage = document.querySelector('#stage')!;
+      const item = document.querySelector('#m')!;
+      const frame = () => new Promise<number>((resolve) => requestAnimationFrame(resolve));
+      /** A task of its own after this one (a message): no frame comes between unless one was due. */
+      const task = () =>
+        new Promise<void>((resolve) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => resolve();
+          channel.port2.postMessage(0);
+        });
+      const state = (motion: Animation) => `${motion.playState}${motion.pending ? ', pending' : ''} at ${Math.round(Number(motion.currentTime))} ms`;
+      const holds: Record<string, (motion: Animation) => void> = {
+        startFromNextFrame: (motion) => startFromNextFrame([motion]),
+        'startFromNextFrame, leaving': (motion) => startFromNextFrame([motion], { leaving: true }),
+        statesFromNextFrame: () => statesFromNextFrame([stage]),
+      };
+      const out: { how: string; first: string; later: string }[] = [];
+      let missed = 0;
+      for (const how of Object.keys(holds))
+        for (const again of [false, true])
+          for (let trial = 0; trial < 3; trial++) {
+            await frame();
+            await frame();
+            item.toggleAttribute('data-on');
+            const [motion] = item.getAnimations();
+            if (!motion) throw new Error('the change began no motion');
+            await task();
+            // The case is a motion the engine is still waiting to start: one a frame has started already is not it.
+            if (!motion.pending || motion.currentTime !== 0) {
+              missed++;
+              motion.finish();
+              continue;
+            }
+            holds[how]!(motion);
+            if (again) {
+              // Played in the next frame, then asked to be held again in a task after it, before another frame.
+              await frame();
+              await task();
+              holds[how]!(motion);
+            }
+            // Read in the frame callbacks of the first frame after the task, after the hold's own.
+            const first = await frame().then(() => state(motion));
+            for (let frames = 0; frames < 4 && motion.playState !== 'finished'; frames++) await frame();
+            const later = motion.playState === 'finished' ? 'finished' : `${motion.pending ? 'pending' : 'started'}${Number(motion.currentTime) > 0 ? ', moved' : ''}`;
+            out.push({ how: `${how}${again ? ', held again' : ''}`, first, later });
+            motion.finish();
+          }
+      return { out, missed };
+    });
+    expect(seen.out.length, `the cases met (${seen.missed} missed: a frame came first)`).toBeGreaterThanOrEqual(12);
+    for (const { how, first, later } of seen.out) {
+      if (!how.endsWith('held again')) expect(first, `${how}: at its start in the first frame after the task`).toMatch(/^running(, pending)? at 0 ms$/);
+      expect(later, `${how}: it moves in the frames after it`).toMatch(/^(finished|started, moved)$/);
+    }
+  });
+});
