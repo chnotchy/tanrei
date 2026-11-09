@@ -788,7 +788,11 @@
         "button",
         "button-with-menu",
         "divider",
-        "menu"
+        "menu",
+        "number-input",
+        "select",
+        "slider",
+        "text-input"
       ],
       "hasSpec": true,
       "docs": "/components/toolbar/",

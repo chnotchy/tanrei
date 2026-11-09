@@ -237,7 +237,11 @@ export class TanreiButton extends TanreiElement {
   /** Web only. With `value`, the pair sent with the form when this button is the one that submitted it; nothing is sent while it is empty (BTN-31). */
   name = '';
 
-  /** Web only. What is sent under `name` when this button submitted the form. */
+  /**
+   * What the button stands for, as data: never drawn and never announced (BTN-44). A toolbar group whose selection is
+   * single or multiple holds its selected members' values (TBR-28); with `name`, it is what is sent when this button
+   * submitted its form (BTN-31).
+   */
   value = '';
 
   /**
@@ -557,12 +561,20 @@ export class TanreiButton extends TanreiElement {
     else if (!this.refuses) super.click();
   }
 
+  /** BTN-47: a toggle that the component placing it makes one choice of a single selection (a toolbar group's, TBR-28). */
+  private get choice() {
+    return this.toggle && !this.link.form && !!this[GROUP_ITEM].place?.choice;
+  }
+
   /**
    * BTN-14: a toggle switches its own `selected`, then fires `click`, then `change` (src/primitives/after-click.ts): a
    * `click` listener on the element already sees the new value, and `change` follows once the click has gone through the page.
    */
   #onClick() {
     if (!this.toggle || this.refuses) return;
+    // BTN-47: one choice of a single selection is changed by choosing another: activated while selected, it stays so
+    // and fires its click alone.
+    if (this.choice && this.selected) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
     afterClick(() => this.dispatchEvent(new CustomEvent<TanreiButtonChangeDetail>('change', { bubbles: true, detail })));
@@ -694,10 +706,12 @@ export class TanreiButton extends TanreiElement {
     const mark = !!link?.opensNew && this.hasLabel && !trailing;
     // BTN-39: full width, unless a host lays the button out.
     const full = this.fullWidth && !this[GROUP_ITEM].place;
+    const choice = this.choice;
     return html`
       <${tag}
         part="container"
         type=${link ? nothing : 'button'}
+        role=${choice ? 'radio' : nothing}
         data-tanrei-shape
         class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, 'full-width': full, busy, ...this[GROUP_ITEM].classes() })}
         data-host-variant=${this[GROUP_ITEM].variant ?? nothing}
@@ -708,7 +722,9 @@ export class TanreiButton extends TanreiElement {
           // BTN-16: a label given is the whole name, over the product's aria-label and aria-labelledby.
           'aria-label': this.label,
           'aria-description': description,
-          'aria-pressed': this.toggle && String(this.selected),
+          // BTN-47: one choice of a single selection is a radio button, checked or not, with no pressed state.
+          'aria-pressed': this.toggle && !choice && String(this.selected),
+          'aria-checked': choice && String(this.selected),
           'aria-disabled': !link && reachable && 'true',
         })}
         ?disabled=${!link && disabled && !reachable}
