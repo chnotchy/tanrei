@@ -12,12 +12,16 @@
 //   Design system  Tanrei's List with one choice: the default system, then each showcase system (an imitation of
 //                another design system, made to show what Tanrei can take on; its name from its components manifest),
 //                each with three dots of its own colors (its primary, secondary container and a surface, from the
-//                resolved tokens, in light and in dark), and a line that says what a showcase system is
+//                resolved tokens, in light and in dark), and a line that says what a showcase system is; and, while
+//                this browser keeps a theme Theme Studio gave the docs, "My theme" (the header's script takes the
+//                item out of the list while it keeps none). Choosing the default system is the one step back from it
+//                (the button names the reader's theme by that word, never by its look's id)
 //   the actions  Theme Studio's link ("Edit theme"), and a copy of a link to this page as it looks now
 //                (`?look=&mode=&contrast=`), said in a Snackbar
 // The quick switch between light and dark is the bar's own toggle (Header.astro); the device's mode is chosen here.
 //
 // A button and its panel are two parts, written apart: the bar draws only its slots, so the panel stands outside it.
+import { CUSTOM_LOOK } from '../../lib/appearance';
 import { manifests } from '../../lib/repo';
 import { localeBase, strings } from '../../lib/i18n';
 import { colorCss, ns, tokensIn } from '../../lib/tokens';
@@ -55,7 +59,7 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
 
 {
   part === 'button' ? (
-    <tanrei-button slot={slot} id={id} class="docs-look" variant="text" label={words.appearanceOf.replace('{look}', look)} data-label={words.appearanceOf} translate="no">
+    <tanrei-button slot={slot} id={id} class="docs-look" variant="text" label={words.appearanceOf.replace('{look}', look)} data-label={words.appearanceOf} data-custom-name={words.myTheme} translate="no">
       <span slot="icon" data-pagefind-ignore>palette</span>
       <span class="docs-look-name">{look}</span>
     </tanrei-button>
@@ -85,6 +89,9 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
               </tanrei-list-row>
             </tanrei-list-item>
           ))}
+          <tanrei-list-item value={CUSTOM_LOOK} label={words.myTheme} data-docs-look-custom>
+            <tanrei-list-row headline={words.myTheme} supporting-text={words.myThemeNote} supporting-lines="2" leading-icon="palette" />
+          </tanrei-list-item>
         </tanrei-list>
         <p class="docs-appearance-note">{words.showcaseNote}</p>
       </div>
