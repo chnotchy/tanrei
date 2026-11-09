@@ -148,13 +148,15 @@ test('list_systems: the shipped systems, and a product’s chain', async () => {
   assert.deepEqual(data.shipped.filter((s) => s.extends === null).map((s) => s.id), [], 'the root is not listed');
   assert.equal(tanrei.extends, 'core');
   assert.equal(tanrei.accessibilityWarnings, 0, 'a violation in the default system is a build failure, so there are none');
-  // The default system's own layer chooses its components; the root it extends holds the palettes, roles and rules.
-  assert.deepEqual([tanrei.patternRules, tanrei.valueChanges, tanrei.palettes], [0, 0, []]);
+  // The default system's own layer chooses its components and declares its colors; the grey root it extends holds the
+  // per-state rules, and declares no accent.
+  assert.deepEqual([tanrei.patternRules, tanrei.valueChanges], [0, Object.keys(shippedLayer('tanrei').tokens).length]);
+  assert.ok(tanrei.palettes.includes('accent (intent roles)'));
   assert.ok((shippedLayer('core').rules ?? []).length >= 18 && Object.keys(shippedLayer('core').tokens).length >= 30);
-  assert.ok('accent' in shippedLayer('core').palettes);
+  assert.ok(!('accent' in shippedLayer('core').palettes));
   assert.deepEqual([m3.extends, expressive.extends, cupertino.extends], ['core', 'm3-like', 'core'], 'the presets extend the root, not the default system');
   assert.ok(m3.palettes.includes('tertiary (intent roles)'));
-  assert.deepEqual(m3.droppedPalettes, ['accent']);
+  assert.deepEqual(m3.droppedPalettes, [], 'the root declares no accent for a preset to drop');
   // An imitation preset is not held to Tanrei's accessibility criteria in any contrast scheme: its
   // contrast is measured with the fixed ruler and shown as information, never counted as warnings.
   for (const preset of [m3, expressive, cupertino]) {
@@ -403,10 +405,12 @@ test('explain_token: rationale, the layers that touch it, and the legal operatio
   const gap = (await server.call('explain_token', { token: 'tanrei.comp.button.container.gap.medium', layerFile: acmeFile })).data;
   assert.deepEqual(gap.touchedBy, [{ layer: 'acme', operation: { $value: '{tanrei.sys.space.space50}' } }]);
   assert.deepEqual(gap.howToChange.slice(0, 2).map((o) => o.op), ['re-point alias', 'scale']);
-  // The focus ring is the one role that reads the accent palette (a link takes the primary's color).
+  // The focus ring is the one role that reads the accent palette (a link takes the primary's color): the default
+  // system's own layer declares both, over the grey root's ring, which is the primary's.
   const role = (await server.call('explain_token', { token: 'tanrei.sys.color.focus-ring' })).data;
   assert.deepEqual(role.howToChange.map((o) => o.op), ['change the palette', 'derive', 'derive (contrast-pick)', 're-point alias', 'declare a palette', 'declare a single role']);
-  assert.equal(role.touchedBy[0].palette.accent.roles, 'intent', 'the palette the role reads is part of where its value comes from');
+  assert.deepEqual(role.touchedBy.map((t) => t.layer), ['core', 'tanrei'], 'root first');
+  assert.equal(role.touchedBy[1].palette.accent.roles, 'intent', 'the palette the role reads is part of where its value comes from');
   const link = (await server.call('explain_token', { token: 'tanrei.sys.color.link' })).data;
   assert.equal(link.touchedBy[0].operation.$value, '{tanrei.sys.color.primary}', 'in the default system a link is the primary\'s color');
   const type = (await server.call('explain_token', { token: 'tanrei.sys.typescale.body-large' })).data;

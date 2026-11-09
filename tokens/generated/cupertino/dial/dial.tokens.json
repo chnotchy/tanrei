@@ -34,11 +34,11 @@
           "$schema": "../schema/system.schema.json",
           "id": "core",
           "name": "Core",
-          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
+          "description": "The root layer every design system extends, and a neutral starting point. It values the vocabulary in grey: a neutral palette without chroma for surfaces, text, the primary and the focus ring; the four status palettes, a conventional red, green, amber and blue, whose containers are faint tints of their own palette; the color roles drawn from them; and the per-state rules of the components. It declares no accent, no tints of its own and no code colors — code is drawn in the text colors the code block's document gives it. It leaves no component out; a system chooses its components, and its look, in its own layer.",
           "specVersion": "tanrei-2026.2",
           "palettes": {
             "neutral": {
-              "description": "Surfaces, text and the monochrome primary. Zero chroma.",
+              "description": "Surfaces, text, the primary and the focus ring. Zero chroma: the root has no hue of its own.",
               "source": {
                 "hue": 0,
                 "chroma": 0
@@ -62,83 +62,6 @@
             "info": {
               "source": {
                 "seed": "#3b6fd4"
-              }
-            },
-            "accent": {
-              "description": "Tanrei's one chromatic voice: the keyboard focus ring. Declared by this system rather than fixed in the vocabulary, because which accent a product has — or whether it has one — is that product's choice.",
-              "source": {
-                "seed": "#30a3f0"
-              },
-              "roles": "intent"
-            },
-            "error-quiet": {
-              "description": "The hue of the error palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The error palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 22,
-                "chroma": 16
-              }
-            },
-            "success-quiet": {
-              "description": "The hue of the success palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The success palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 150,
-                "chroma": 16
-              }
-            },
-            "warning-quiet": {
-              "description": "The hue of the warning palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The warning palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 66,
-                "chroma": 16
-              }
-            },
-            "info-quiet": {
-              "description": "The hue of the info palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The info palette keeps its full chroma for the status color itself.",
-              "source": {
-                "hue": 268,
-                "chroma": 16
-              }
-            },
-            "syntax-keyword": {
-              "description": "A purple: the language's own words — its keywords, its modifiers, its at-rules. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 315,
-                "chroma": 64
-              }
-            },
-            "syntax-string": {
-              "description": "A green: text quoted in the code. It is near the hue of the success palette and is not that palette: a system that re-values success does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 145,
-                "chroma": 52
-              }
-            },
-            "syntax-constant": {
-              "description": "An orange: the values that are not text — numbers, booleans and null, named constants, units. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 55,
-                "chroma": 64
-              }
-            },
-            "syntax-function": {
-              "description": "A blue: the names of functions, and at a tone nearer the text, of properties. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 265,
-                "chroma": 64
-              }
-            },
-            "syntax-type": {
-              "description": "A blue-green: the names of types. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 200,
-                "chroma": 48
-              }
-            },
-            "syntax-tag": {
-              "description": "A red: what markup and style sheets address — an element's name, a selector. It is near the hue of the error palette and is not that palette: a system that re-values error does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
-              "source": {
-                "hue": 20,
-                "chroma": 70
               }
             }
           },
@@ -523,22 +446,8 @@
               }
             },
             "tanrei.sys.color.focus-ring": {
-              "derive": {
-                "fn": "tone",
-                "palette": "accent",
-                "tone": {
-                  "light": [
-                    45,
-                    38,
-                    30
-                  ],
-                  "dark": [
-                    72,
-                    80,
-                    87
-                  ]
-                }
-              }
+              "$value": "{tanrei.sys.color.primary}",
+              "reason": "The root has no accent: the keyboard focus ring is its strongest neutral, the primary, which stands apart from every surface, every tonal container and the resting outline of a field."
             },
             "tanrei.sys.color.focus-ring-inner": {
               "derive": {
@@ -551,7 +460,7 @@
             },
             "tanrei.sys.color.link": {
               "$value": "{tanrei.sys.color.primary}",
-              "reason": "A link takes the primary's color, so the accent is the keyboard focus ring's alone. A link is told from the text beside it by its underline, in every scheme."
+              "reason": "A link takes the primary's color, so that a system's accent, where it has one, is the keyboard focus ring's alone. A link is told from the text beside it by its underline, in every scheme."
             },
             "tanrei.sys.color.inverse-link": {
               "$value": "{tanrei.sys.color.inverse-primary}",
@@ -827,7 +736,7 @@
             "tanrei.sys.color.error-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "error-quiet",
+                "palette": "error",
                 "tone": {
                   "light": [
                     95
@@ -837,12 +746,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-error-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "error-quiet",
+                "palette": "error",
                 "tone": {
                   "light": [
                     16,
@@ -856,12 +765,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.success-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "success-quiet",
+                "palette": "success",
                 "tone": {
                   "light": [
                     95
@@ -871,12 +780,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-success-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "success-quiet",
+                "palette": "success",
                 "tone": {
                   "light": [
                     16,
@@ -890,12 +799,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.warning-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "warning-quiet",
+                "palette": "warning",
                 "tone": {
                   "light": [
                     95
@@ -905,12 +814,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-warning-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "warning-quiet",
+                "palette": "warning",
                 "tone": {
                   "light": [
                     16,
@@ -924,12 +833,12 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.sys.color.info-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "info-quiet",
+                "palette": "info",
                 "tone": {
                   "light": [
                     95
@@ -939,12 +848,12 @@
                   ]
                 }
               },
-              "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+              "reason": "A status container is a faint tint of the status on the surface: its palette at the lightest tone in a light scheme and a deep one in a dark scheme."
             },
             "tanrei.sys.color.on-info-container": {
               "derive": {
                 "fn": "tone",
-                "palette": "info-quiet",
+                "palette": "info",
                 "tone": {
                   "light": [
                     16,
@@ -958,7 +867,7 @@
                   ]
                 }
               },
-              "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+              "reason": "What is drawn on a status container is a deep tone of the status in a light scheme and a pale one in a dark scheme, further from the container at each contrast level, so that a message stays readable on the bar of the other theme too."
             },
             "tanrei.comp.menu.selected.container.color": {
               "derive": {
@@ -1075,294 +984,6 @@
               },
               "reason": "Under a press the open title answers with the pressed layer alone."
             },
-            "tanrei.comp.snackbar.inverse-info.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.info-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-info-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-info.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "info",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.warning-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-warning-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-warning.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "warning",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.error-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-error-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-error.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "error",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.container.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success-quiet",
-                "tone": {
-                  "light": [
-                    14
-                  ],
-                  "dark": [
-                    95
-                  ]
-                }
-              },
-              "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.success-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.supporting-text.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success-quiet",
-                "tone": {
-                  "light": [
-                    92,
-                    94,
-                    96
-                  ],
-                  "dark": [
-                    16,
-                    12,
-                    8
-                  ]
-                }
-              },
-              "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-success-container with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.icon.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
-            },
-            "tanrei.comp.snackbar.inverse-success.outline.color": {
-              "derive": {
-                "fn": "tone",
-                "palette": "success",
-                "tone": {
-                  "light": [
-                    72,
-                    80,
-                    87
-                  ],
-                  "dark": [
-                    45,
-                    38,
-                    30
-                  ]
-                }
-              },
-              "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
-            },
             "tanrei.comp.link.standard.disabled.container.color": {
               "$value": "{tanrei.comp.link.standard.container.color}",
               "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
@@ -1378,139 +999,6 @@
             "tanrei.comp.link.inverse.disabled.current.container.color": {
               "$value": "{tanrei.comp.link.inverse.current.container.color}",
               "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
-            },
-            "tanrei.comp.code-block.syntax.color.keyword": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-keyword",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A keyword is a purple. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.constant": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-constant",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A number, a boolean or null is an orange. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.tag": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-tag",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "An element's name or a selector is a red, from a palette of its own and not the error color. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.string": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-string",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "Quoted text is a green, from a palette of its own and not the success color. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.function": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-function",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A function's name is a blue. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.property": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-function",
-                "tone": {
-                  "light": [
-                    36,
-                    30,
-                    22
-                  ],
-                  "dark": [
-                    80,
-                    85,
-                    91
-                  ]
-                }
-              },
-              "reason": "A property's name is the blue of a function's name, a step nearer the text in each scheme: the two are told by tone, and by where they stand. The default system draws code in a conventional, vivid scheme."
-            },
-            "tanrei.comp.code-block.syntax.color.type": {
-              "derive": {
-                "fn": "tone",
-                "palette": "syntax-type",
-                "tone": {
-                  "light": [
-                    40,
-                    33,
-                    25
-                  ],
-                  "dark": [
-                    76,
-                    82,
-                    89
-                  ]
-                }
-              },
-              "reason": "A type's name is a blue-green. The default system draws code in a conventional, vivid scheme."
             },
             "tanrei.comp.select.stacked.disabled.selected-option.container.color": {
               "derive": {
@@ -2544,8 +2032,7 @@
               "source": {
                 "seed": "#0a7aff"
               }
-            },
-            "accent": null
+            }
           },
           "vocabulary": {
             "tanrei.sys.typescale.body-callout": {

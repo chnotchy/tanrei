@@ -115,8 +115,7 @@
       "source": {
         "seed": "#0a7aff"
       }
-    },
-    "accent": null
+    }
   },
   "vocabulary": {
     "tanrei.sys.typescale.body-callout": {"$type": "typography", "rationale": "Apple's Callout: between body and subhead.", "$value": {"fontFamily": "{tanrei.ref.typeface.plain}", "fontSize": {"value": 16, "unit": "px"}, "fontWeight": 400, "letterSpacing": {"value": 0, "unit": "px"}, "lineHeight": 1.3125}, "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.0, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},

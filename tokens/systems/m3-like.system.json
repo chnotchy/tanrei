@@ -251,8 +251,7 @@
           "100": "#ffffff"
         }
       }
-    },
-    "accent": null
+    }
   },
   "vocabulary": {
     "tanrei.comp.fab-menu": {"document": "comp/fab-menu.tokens.json", "rationale": "Material 3 opens a short list of related actions from its floating action button (the FAB menu); no product built on Tanrei's own look needs one, so the component lives in this layer, and every system that descends from it has it.",

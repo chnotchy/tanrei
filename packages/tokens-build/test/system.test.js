@@ -107,7 +107,8 @@ test('typography: pin some fields and rule the others in one operation', () => {
 });
 
 test('a layer can drop an inherited palette — and must then re-point what used it', () => {
-  const merged = mergeLayers([root, { id: 'a', extends: 'tanrei', palettes: { accent: null } }]);
+  // The default system declares the accent, and its focus ring is a tone of it.
+  const merged = mergeLayers([root, loadSystem(REPO_ROOT, 'tanrei'), { id: 'a', extends: 'tanrei', palettes: { accent: null } }]);
   assert.ok(!('accent' in merged.palettes));
   assert.throws(() => generateSchemeFiles(merged, REPO_ROOT, resolveNumericTokens(sources, merged)), /unknown palette "accent"/);
 });
