@@ -293,6 +293,7 @@
       "Selection is the set's: value or values holds the selected segments' values, and change carries the new ones. A segment's disabled is its own.",
       "iOS has no radio role: a segment of a single-choice set is a button with the selected trait and its position (\"2 of 3\") in its accessibility value, as the radio button is. Compose has no radio group role; the set is a selectable group and each segment `Role.RadioButton` (single) or a toggleable `Role.Button` (multiple), as the filter chip is.",
       "A segmented button chooses among options of one setting. Actions belong to a button group; switching views of one subject belongs to tabs.",
+      "Don't put an action that deletes in a segmented button, and don't look for a destructive segment: there is none. Choosing a segment switches a setting, and switching deletes nothing, as a toggle Button is never destructive (BTN-41). An action that deletes is a Button with destructive beside the set.",
       "Text size does not clip a segment: labels wrap and every segment grows to the tallest. The icon is not text and keeps its size.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
     ]
