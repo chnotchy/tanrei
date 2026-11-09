@@ -2,13 +2,16 @@
 // package's tokens.css, in the same cascade layer, the root draws the layer — every custom property the layer's whole
 // sheet declares has the layer's value — at every contrast level and under `prefers-contrast`, though the sheet holds
 // only what differs. The cascade is worked out here as a browser works it out on `<html>`: the rules that match, the
-// most specific, then the last.
+// most specific, then the last. The worker that computes it for a page (src/sheet.js `createPageSheet`) is given only
+// what a sheet needs, and gives the core's sheet, character for character.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
+import { LLM } from '@tanrei/token-engine';
 import { answer } from '../src/sheet-answer.js';
-import { repoRoot, studio } from './studio-node.js';
+import { layerIndex, withoutProse } from '../src/sheet-sources.js';
+import { defaultChain, json, repoRoot, studio, workerPageSheet } from './studio-node.js';
 
 const NS = studio.namespace;
 const tokensCss = fs.readFileSync(path.join(repoRoot, 'packages/web/src/generated/tokens.css'), 'utf8');
@@ -113,12 +116,69 @@ test('a layer that cannot be computed has no page sheet', () => {
   assert.equal(studio.pageSheet(studio.preview({ id: 'acme', extends: 'nothing-like-this' })), null);
 });
 
-test('what the worker answers (src/sheet-answer.js): the page sheet by the request’s id, or why there is none', () => {
+/** A layer of each kind the worker is asked for: on the default system, on the root, on each showcase system, and one that borrows a component from a layer it does not extend. */
+function layersToCompare() {
+  const tone = (light, dark) => ({ derive: { fn: 'tone', palette: 'primary', tone: { light, dark } } });
+  let own = studio.setPalette({ id: 'acme', extends: studio.defaultId }, 'primary', { source: { seed: '#0b6e4f' } });
+  own = studio.setEssential(studio.setEssential(own, 'space.unit', 3), 'shape.unit', 6);
+  own = { ...own, tokens: { ...own.tokens, [`${NS}.sys.color.primary`]: tone([45, 38, 30], [72, 80, 87]) } };
+  const showcases = studio.systems.filter((system) => system.id !== studio.defaultId && !system.local);
+  // A component that lives in a showcase system's layer, borrowed by a layer whose chain does not hold that layer.
+  const holder = showcases.find((system) => Object.values(json(`tokens/systems/${system.id}.system.json`).vocabulary ?? {}).some((entry) => entry.document));
+  const lent = holder && Object.keys(json(`tokens/systems/${holder.id}.system.json`).vocabulary).find((id) => json(`tokens/systems/${holder.id}.system.json`).vocabulary[id].document);
+  assert.ok(showcases.length >= 2 && lent, 'showcase systems, and a component that lives in one');
+  return [
+    ['on the default system', own],
+    ['on the default system, nothing changed', { id: 'acme', extends: studio.defaultId }],
+    ['on the root', studio.setPalette({ id: 'acme', extends: studio.rootId }, 'primary', { source: { seed: '#7b2cbf' } })],
+    ...showcases.map((system) => [`on ${system.id}`, studio.setEssential(studio.setPalette({ id: 'acme', extends: system.id }, 'primary', { source: { seed: '#d00000' } }), 'shape.unit', 2)]),
+    ['borrowing a component', { id: 'acme', extends: studio.defaultId, components: { include: [{ name: lent.split('.').at(-1), from: holder.id }] } }],
+  ];
+}
+
+test('the worker’s page sheet (src/sheet.js createPageSheet) is the core’s, character for character, loading only the layers of its chain', async () => {
+  // The layers a chain is made of, from `id` up to the root.
+  const chain = (id) => (id ? [id, ...chain(json(`tokens/systems/${id}.system.json`).extends)] : []);
+  assert.deepEqual(defaultChain.map((layer) => layer.id), chain(studio.defaultId).reverse(), 'the default system’s chain is at hand');
+  for (const [what, layer] of layersToCompare()) {
+    const { sheets, loads } = workerPageSheet();
+    const css = await sheets.pageSheet(layer);
+    assert.equal(css, studio.pageSheet(studio.preview(studio.fromLayer(layer))), `${what}: the same sheet`);
+    // The layer's own chain, but for what the default system's holds; each once.
+    assert.deepEqual([...loads].sort(), chain(layer.extends).filter((id) => !chain(studio.defaultId).includes(id)).sort(), `${what}: only the layers of its chain are loaded`);
+  }
+});
+
+test('the worker’s documents: the token documents without their prose, and nothing else changed; the shipped layers as their index', () => {
+  const doc = json('tokens/comp/button.tokens.json');
+  const kept = withoutProse(doc);
+  const text = JSON.stringify(kept);
+  assert.ok(!text.includes('"$description"') && !text.includes(`"${LLM}"`), 'no description, no usage guidance');
+  assert.ok(text.length < JSON.stringify(doc).length * 0.8, `a good part of the document is prose (${text.length} of ${JSON.stringify(doc).length} characters left)`);
+  // The prose put back gives the document again: nothing else was taken out or changed.
+  const restore = (shaped, original) => {
+    if (!original || typeof original !== 'object' || Array.isArray(original)) return shaped;
+    return Object.fromEntries(Object.entries(original).map(([key, value]) => [key, key === '$description' || key === LLM ? value : restore(shaped?.[key] ?? (key === '$extensions' ? {} : undefined), value)]));
+  };
+  assert.deepEqual(restore(kept, doc), doc);
+  const layer = json('tokens/systems/m3-like.system.json');
+  assert.deepEqual(layerIndex(layer), { id: layer.id, extends: layer.extends, vocabulary: layer.vocabulary });
+  assert.deepEqual(layerIndex(json(`tokens/systems/${studio.rootId}.system.json`)), { id: studio.rootId }, 'the root extends nothing');
+});
+
+test('what the worker answers (src/sheet-answer.js): the page sheet by the request’s id, or why there is none', async () => {
+  const { sheets } = workerPageSheet();
   const layer = studio.setPalette({ id: 'acme', extends: studio.defaultId }, 'primary', { source: { seed: '#0b6e4f' } });
-  assert.deepEqual(answer(studio, { id: 7, layer }), { id: 7, css: studio.pageSheet(studio.preview(layer)) });
-  const refused = answer(studio, { id: 8, layer: { id: 'acme', extends: 'nothing-like-this' } });
+  assert.deepEqual(await answer(sheets, { id: 7, layer }), { id: 7, css: studio.pageSheet(studio.preview(layer)) });
+  const refused = await answer(sheets, { id: 8, layer: { id: 'acme', extends: 'nothing-like-this' } });
   assert.equal(refused.id, 8);
   assert.match(refused.error, /nothing-like-this/);
-  assert.equal(answer(studio, { id: 9, layer: 'not a layer' }).id, 9, 'what is not a layer is answered too');
-  assert.ok('error' in answer(studio, { id: 9, layer: 'not a layer' }));
+  const notALayer = await answer(sheets, { id: 9, layer: 'not a layer' });
+  assert.equal(notALayer.id, 9, 'what is not a layer is answered too');
+  assert.ok('error' in notALayer);
+  // A layer the engine cannot compute: refused with the engine's reason, the one the core gives.
+  const broken = { id: 'acme', extends: studio.defaultId, tokens: { [`${NS}.sys.nothing-like-this`]: { $value: 1, reason: 'A reason long enough.' } } };
+  const engine = studio.preview(broken).computation.error;
+  assert.ok(engine, 'the engine refuses it');
+  assert.deepEqual(await answer(sheets, { id: 10, layer: broken }), { id: 10, error: engine });
 });

@@ -1,7 +1,8 @@
 // The page's side of the page sheet's worker (./sheet-worker.ts): `pageSheetInWorker(layer)` resolves with the layer's
-// sheet for a page whose root holds the default system's (core.js `pageSheet`), computed off the page's thread, and
-// rejects with why a layer has none. One worker serves every request of the page; it is let go once nothing has been
-// asked of it for a while, since it holds the whole pipeline, and started again when it is next needed.
+// sheet for a page whose root holds the default system's (./sheet.js, the core's `pageSheet`'s), computed off the page's
+// thread, and rejects with why a layer has none. One worker serves every request of the page; it is let go once nothing
+// has been asked of it for a while, since it holds the token documents and the pipeline, and started again when it is
+// next needed.
 //
 // A host bundles it with Vite, which builds the worker into a file of its own: give `worker.plugins` the Studio's plugin
 // as well (`@tanrei/studio/vite`), and `worker.format: 'es'`.

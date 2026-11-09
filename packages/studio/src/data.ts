@@ -1,9 +1,8 @@
 // Browser wiring of the Studio core: the repository's own files, bundled — never a hand-kept copy.
 //
-// material-color-utilities@0.4.0: the package's barrel uses extensionless imports, which break under
-// Node's ESM loader (see packages/tokens-build/src/mcu.js) but resolve fine in a bundler. Vite resolves the
-// bare specifier and tree-shakes the barrel down to Hct + TonalPalette and what they import.
-import { Hct, TonalPalette } from '@material/material-color-utilities';
+// material-color-utilities' Hct and TonalPalette, from their own modules (../vite-plugin.js): the package's entry
+// imports every scheme and the quantizers too, and a bundler keeps them all.
+import { Hct, TonalPalette } from 'virtual:tanrei-studio/hct';
 // A virtual module: the layer schema, compiled at build time (../vite-plugin.js, declared in ./virtual.d.ts).
 import validate from 'virtual:tanrei-studio/validate-layer';
 import config from '../../../tanrei.config.json';
