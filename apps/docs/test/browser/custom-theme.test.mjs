@@ -34,14 +34,6 @@ const LIMIT = { timeout: 180_000 };
 const INTERACTION = 150;
 
 const ENGINES = engines('chromium,firefox,webkit');
-/**
- * The engines that have a theme's sheet well within REVEAL_AFTER on the first page, measured on a Mac from navigation to
- * the sheet in (7 loads of the Button page each): Chromium in 0.7 to 0.9 s. Firefox (2.0 to 2.1 s; it fetches the
- * worker's script only once the page's modules have run) and WebKit (1.2 to 2.5 s; its worker computes slowly while the
- * page loads) had it in time on that Mac too, but too close to 3 s to be relied on, on CI's runners least of all: their
- * first page may still be shown in the default system.
- */
-const IN_TIME = ['chromium'];
 const WIDE = { width: 1440, height: 900 };
 const PAGE = '/components/button/';
 const en = strings('en');
@@ -357,10 +349,13 @@ for (const engine of ENGINES) {
       const measured = JSON.stringify({ hidden: Math.round(cloak.hidden), shown: Math.round(cloak.shown), sheetThen: cloak.sheetThen, ...timings });
       t.diagnostic(`hidden for ${Math.round(cloak.shown - cloak.hidden)} ms, ${cloak.sheetThen ? 'shown in the theme' : 'shown in the default system: the sheet was not in after REVEAL_AFTER'}`);
       t.diagnostic(`${engine} first load, ms from navigation: ${measured}`);
-      // The worker is asked for as soon as the head's script finds no sheet kept, without waiting for the page's other
-      // modules: where an engine computes the sheet well within REVEAL_AFTER on a developer's machine, the first page is
-      // shown in the theme.
-      if (IN_TIME.includes(engine)) assert.ok(cloak.sheetThen, `${engine} shows the first page in the theme, its sheet computed within ${REVEAL_AFTER} ms (${measured})`);
+      // Whether the first page is shown in the theme is reported, not asserted, in every engine. On a Mac each engine has
+      // the sheet in time (Chromium at about 0.7 s from navigation, Firefox and WebKit at 2.1 to 2.2 s), but on CI's
+      // runners, where this file runs beside other browser test files, nothing about it is reliable. There Chromium's
+      // worker took 2.6 s from being made (578 ms) to answering (3142 ms), against 0.4 s on an idle Mac page, while the
+      // page's main thread had 2.2 s of long tasks. One run took the late path. The next was in the theme only because the
+      // fallback timer itself ran 85 ms late (sheet in at 3143 ms, the timer due at 3058). Firefox fetched the worker's
+      // script only after the page had loaded (6.8 s). So the numbers are printed (above) and both paths are accepted.
       if (!cloak.sheetThen) {
         // A sheet the page could not wait for: shown after REVEAL_AFTER, in the default system, which it keeps; the sheet
         // is computed all the same and kept, and the next page is drawn in the theme.
