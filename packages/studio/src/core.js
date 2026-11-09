@@ -9,9 +9,9 @@
 // build's own emitter and the warnings by the build's own invariants (both injected: they live in
 // @tanrei/tokens-build), so what the Studio shows is what `tanrei build` will generate. The tests build Studio
 // layers with the real pipeline and compare whole sheets.
-import { SCHEMES, argbToColor, componentDocumentPath, createPaletteEngine, dependencyIndex, evaluateNumeric, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
+import { SCHEMES, argbToColor, createPaletteEngine, dependencyIndex, evaluateNumeric, extensionRecipes, legalOperations, tokenKind } from '@tanrei/token-engine';
 import { composeStack, inferredGeneric, parseStack } from './fonts.js';
-import { buildModel } from './model.js';
+import { chainOf as chainThrough, pageSheetOf, printRules, sheetRules, systemOf } from './sheet.js';
 
 const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
 const refId = (v) => v.slice(1, -1);
@@ -136,37 +136,17 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   const roleVar = (role) => `${PREFIX}-sys-color-${role}`;
 
   // ── from a layer to a whole system ───────────────────────────────────────────────────────────
-  function chainOf(layer) {
-    const chain = [layer];
-    const seen = new Set([layer.id]);
-    while (chain[0].extends) {
-      const parent = find(chain[0].extends);
-      if (!parent) throw new Error(`"extends": "${chain[0].extends}" is not a shipped system (${known()})`);
-      if (seen.has(parent.id)) throw new Error(`"extends" cycle at "${parent.id}"`);
-      seen.add(parent.id);
-      chain.unshift(parent);
-    }
-    if (chain[0].id !== rootId) throw new Error(`a layer must extend "${rootId}" or a system that does`);
-    return chain;
-  }
+  const chainOf = (layer) => chainThrough(layer, { find, rootId, known });
 
   const floored = targetFloors(Object.values(sources));
-  /** Layers → documents → model → CSS and warnings: the build's pipeline, in memory. Throws what the engine throws. */
+  /** Layers → documents → model → CSS and warnings: the build's pipeline, in memory (./sheet.js). Throws what the engine throws. */
   function compute(layer) {
-    const chain = chainOf(layer);
     // `lend`: the layer that holds a component a layer of the chain includes from it.
-    const system = mergeLayers(chain, { lend: find });
-    const documents = resolveNumericTokens(sources, system);
-    const generated = engine.generateColorFiles(system, { sourcePath: `tokens/systems/${system.id}.system.json`, vocabulary, documents });
-    const files = { ...documents, ...Object.fromEntries(Object.entries(generated).map(([name, doc]) => [`generated/${name}`, doc])) };
-    // A component that lives in a layer is one more component document of the systems that have it, as in the build's bundle.
-    const held = Object.values(system.vocabulary).filter((decl) => decl.kind === 'component').map((decl) => ({ $ref: componentDocumentPath(decl.component) }));
-    const own = held.length ? { ...resolver, sets: { ...resolver.sets, comp: { ...resolver.sets.comp, sources: [...resolver.sets.comp.sources, ...held] } } } : resolver;
-    const model = buildModel(files, { id: system.id, namespace: NS, resolver: own });
+    const computed = systemOf(chainOf(layer), { namespace: NS, sources, vocabulary, resolver, engine, lend: find });
     // The heights the core vocabulary floors at sys.target.minimum, which the target-floor check holds in every layer,
     // as the build's model carries them.
-    model.floored = floored;
-    return { chain, system, files, model, warnings: checkInvariants(model) };
+    computed.model.floored = floored;
+    return { ...computed, warnings: checkInvariants(computed.model) };
   }
 
   const bases = new Map();
@@ -1241,28 +1221,6 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return { problems, warnings: computation.computed.warnings };
   }
 
-  /** The declarations of a sheet by the rule they stand in, with the rule's selectors and at-rules around it. */
-  function sheetRules(css) {
-    const rules = [];
-    const open = [];
-    let current = null;
-    for (const line of css.split('\n')) {
-      const text = line.trim();
-      if (!text || text.startsWith('/*')) continue;
-      if (text.endsWith('{')) {
-        open.push(text.slice(0, -1).trim());
-        current = { path: [...open], declarations: [] };
-        rules.push(current);
-      } else if (text === '}') {
-        open.pop();
-        current = rules.findLast((rule) => same(rule.path, open)) ?? null;
-      } else if (current) {
-        const colon = text.indexOf(':');
-        if (colon > 0) current.declarations.push([text.slice(0, colon), text.slice(colon + 1).trim().replace(/;$/, '')]);
-      }
-    }
-    return rules;
-  }
   const baseSheets = new Map();
   /**
    * What a layer's stylesheet — the one `tanrei build` writes for the web, `<id>.css` — says that the sheet of the
@@ -1288,34 +1246,11 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return { css: printRules(own), changed: own.reduce((sum, rule) => sum + rule.declarations.length, 0), removed };
   }
 
-  /** Rules as a sheet: each with its at-rules and selectors around it, opened where they differ from the last ones printed; a rule with nothing in it is left out. */
-  function printRules(rules) {
-    const lines = [];
-    let printed = [];
-    for (const rule of rules) {
-      if (!rule.declarations.length) continue;
-      let common = 0;
-      while (common < printed.length && common < rule.path.length - 1 && printed[common] === rule.path[common]) common += 1;
-      for (let depth = printed.length; depth > common; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
-      for (let depth = common; depth < rule.path.length; depth += 1) lines.push(`${'  '.repeat(depth)}${rule.path[depth]} {`);
-      for (const [property, value] of rule.declarations) lines.push(`${'  '.repeat(rule.path.length)}${property}: ${value};`);
-      lines.push(`${'  '.repeat(rule.path.length - 1)}}`);
-      printed = rule.path.slice(0, -1);
-    }
-    for (let depth = printed.length; depth > 0; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
-    return lines.length ? `${lines.join('\n')}\n` : '';
-  }
-
   let defaultRules = null;
   /**
-   * The layer's sheet for a page whose root already holds the default system's sheet — the one `tanrei build` writes
-   * unscoped, on `:root` (the web package's tokens.css) — to be applied after it, in the same cascade layer: then the
-   * page draws the layer. It holds only what the page needs of the layer: the custom properties whose value differs
-   * from the default system's in any rule of the sheet (on the root, at a contrast level, under `prefers-contrast`),
-   * written by the build's emitter with only those (`emitCss`'s `used`, which brings along what their values read).
-   * Where the default sheet declares one of them again in a rule the layer's sheet leaves it out of (the layer's
-   * value is the same at that level), it is declared there too, with the layer's value, so that the default
-   * system's never shows through. null for a layer that cannot be computed.
+   * The layer's sheet for a page whose root already holds the default system's sheet (./sheet.js `pageSheetOf`): what
+   * the page needs of the layer, to be applied after the web package's tokens.css. null for a layer that cannot be
+   * computed.
    */
   function pageSheet(view) {
     const computed = view?.computation?.computed;
@@ -1324,38 +1259,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       const fallback = base(defaultId);
       defaultRules = sheetRules(emitCss(fallback.model, sheetAvailability(fallback.chain, homes, standIns)));
     }
-    const availability = sheetAvailability(computed.chain, homes, standIns);
-    const byPath = (rules) => new Map(rules.map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
-    const theirs = byPath(defaultRules);
-    const ours = byPath(sheetRules(emitCss(computed.model, availability)));
-    // What a property is in a rule: its own declaration there, else the root's (the token block, then the system's own block).
-    const ROOT = [`@layer ${NS}.tokens`, `:root, [data-${NS}-contrast]`];
-    const OWN = [`@layer ${NS}.tokens`, ':root'];
-    const valueIn = (rules, path, property) => rules.get(path)?.get(property) ?? rules.get(JSON.stringify(ROOT))?.get(property) ?? rules.get(JSON.stringify(OWN))?.get(property);
-    const paths = new Set([...theirs.keys(), ...ours.keys()]);
-    const used = new Set();
-    for (const path of paths) {
-      for (const property of new Set([...(theirs.get(path)?.keys() ?? []), ...(ours.get(path)?.keys() ?? [])])) {
-        if (property.startsWith('--') && valueIn(theirs, path, property) !== valueIn(ours, path, property)) used.add(property);
-      }
-    }
-    const rules = sheetRules(emitCss(computed.model, { ...availability, used }));
-    const kept = byPath(rules);
-    for (const rule of defaultRules) {
-      const path = JSON.stringify(rule.path);
-      const missing = rule.declarations.filter(([property]) => used.has(property) && !kept.get(path)?.has(property));
-      if (!missing.length) continue;
-      let own = rules.find((each) => JSON.stringify(each.path) === path);
-      if (!own) {
-        own = { path: rule.path, declarations: [] };
-        // In the default sheet's order: after the last rule that comes before it there.
-        const before = defaultRules.slice(0, defaultRules.indexOf(rule)).map((each) => JSON.stringify(each.path));
-        const at = rules.findLastIndex((each) => before.includes(JSON.stringify(each.path)));
-        rules.splice(at + 1, 0, own);
-      }
-      for (const [property] of missing) own.declarations.push([property, valueIn(ours, path, property)]);
-    }
-    return printRules(rules);
+    return pageSheetOf(computed.model, { namespace: NS, emitCss, availability: sheetAvailability(computed.chain, homes, standIns), defaultRules });
   }
 
   /** Import: anything that is a JSON object is a layer the Studio can hold; what is wrong with it is reported, not refused… */
