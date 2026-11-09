@@ -70,7 +70,7 @@ interface RovingHalves {
   setStop(stop: 0 | 1 | null | undefined): void;
 }
 
-type Item = HTMLElement & { disabled?: boolean; label?: string; toggle?: boolean; selected?: boolean; menuLabel?: string } & Partial<GroupItem> & Partial<{ [ROVING_HALVES]: RovingHalves }>;
+type Item = HTMLElement & { disabled?: boolean; label?: string; toggle?: boolean; selected?: boolean; destructive?: boolean; menuLabel?: string } & Partial<GroupItem> & Partial<{ [ROVING_HALVES]: RovingHalves }>;
 
 /**
  * What an item is to the toolbar: a Button or a Button with menu; a Select or a Number input, which keeps its own Up and
@@ -1030,6 +1030,10 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     if (glyph) row.setAttribute('leading-icon', glyph);
     if (item.toggle) row.toggleAttribute('checked', !!item.selected);
     row.toggleAttribute('disabled', disabled);
+    // A Button that draws destructive is a destructive row (MNU-18). A toggle draws none (BTN-41), and neither does a
+    // link (BTN-43): the Button is a link exactly when its shadow root holds an anchor for its container.
+    const link = !!item.shadowRoot?.querySelector('a[part~="container"]');
+    if (!item.toggle) row.toggleAttribute('destructive', item.localName === BUTTON && !!item.destructive && !link);
     // The hidden item is activated as a person would: its own button, so that it fires its own click (and change).
     row.addEventListener('click', () => (item.shadowRoot?.querySelector('[part~="container"]') as HTMLElement | null)?.click());
     return [row];

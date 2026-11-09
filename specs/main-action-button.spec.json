@@ -230,6 +230,7 @@
     "minimumTarget": true,
     "notes": [
       "It is an action, never a toggle. Collapsing and extending change what is drawn, not what is announced: the role stays button, the name stays label, and there is no expanded state to report (MAB-20).",
+      "Don't make an action that deletes or discards something (Delete, Move to trash) the main action button. It floats over the content as the screen's most prominent action and the easiest to reach, and an action that deletes is neither what the screen is for nor one to make the easiest to press; it has no destructive look either. Put it beside what it acts on as a Button with destructive, or in a menu as a destructive item.",
       "Its place in the focus and reading order is where the layout puts it in the element tree, not where it is drawn. Put it where its action belongs: after the content it acts on, or first when it is the screen's reason to exist.",
       "Extended, text must remain readable at 200% text size: the container grows, the label never truncates. Collapsed, the icon is not text: where sizes are points or dp (SwiftUI, Compose, Flutter, React Native), text size leaves the square and the icon as they are; on the web every Tanrei size follows the root font size (rem), so the square and its icon grow together and stay square and whole. Either way the label is still announced.",
       "A trailing icon that points (an arrow) keeps its glyph in right-to-left layouts; the product chooses the glyph that points the right way for the direction.",

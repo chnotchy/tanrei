@@ -5650,7 +5650,8 @@ styles (a flex or grid item, `fit-content` and a table cell depend on the layout
 and a report of its other length alone decides nothing. Each decision shows every item before it measures, so the
 parent grows to what the layout offers. After a change made in the callback the observation is laid
 down and taken up again in the next frame, so that a resize it causes is no loop error. The overflow button opens a
-`<tanrei-menu>` placed bottom-end, built when it opens: an action is a menu item with its label and icon, a toggle a
+`<tanrei-menu>` placed bottom-end, built when it opens: an action is a menu item with its label and icon, `destructive`
+while the Button draws destructive (not a toggle, and not a link: its shadow root holds no anchor), a toggle a
 checkbox item, a menu button a submenu holding copies of its menu's items, a Button with menu its main action and a
 submenu named by `menuLabel`, each run between two lines a menu group. A row activates the hidden item itself (its
 native button's click, or the original menu item's), once, and the menu's own events stay in the shadow root. With

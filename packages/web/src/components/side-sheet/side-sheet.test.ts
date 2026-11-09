@@ -1075,6 +1075,22 @@ test.describe('actions and scrolling', () => {
     await expect.poll(() => paint(action(page, 'Apply', id))).toBe(filled);
   });
 
+  test('SSH-17, BTN-40: a destructive action without a variant takes the sheet’s variant and keeps its own destructive; the sheet gives it no look of its own', async ({ page }) => {
+    const id = 'destructive-action';
+    await mount(page, [fixtureOf(id)]);
+    const B = (name: string) => resolveColor(page, `--tanrei-comp-button-${name}`);
+    const drawn = (label: string) =>
+      action(page, label, id)
+        .locator('button')
+        .evaluate((el) => ({ variant: el.dataset.hostVariant, background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
+    await expect(action(page, 'Delete filter', id)).not.toHaveAttribute('variant');
+    expect(await drawn('Delete filter')).toEqual({ variant: 'tonal', background: await B('tonal-destructive-container-color'), color: await B('tonal-destructive-label-color') });
+    // Cancel beside it is the sheet's plain variant.
+    expect(await drawn('Cancel')).toEqual({ variant: 'tonal', background: await B('tonal-container-color'), color: await B('tonal-label-color') });
+    // Placed by its flag as any action: the dismissive one first, the confirming destructive one at the end.
+    expect((await bounds(action(page, 'Cancel', id))).x).toBeLessThan((await bounds(action(page, 'Delete filter', id))).x);
+  });
+
   test('SSH-18: activating an action lets the Button emit its click, and the sheet neither closes nor emits close — confirming, dismissive or neither, in either variant', async ({ page }) => {
     for (const f of [fixtureOf('standard-actions'), fixtureOf('modal')]) {
       await mount(page, [f]);

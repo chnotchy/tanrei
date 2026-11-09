@@ -161,6 +161,12 @@
           "description": "As the Button's disabled."
         },
         {
+          "name": "destructive",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's destructive: the action deletes or discards something a person may not get back (Delete, Discard, Remove member). The group leaves it as set and gives it no look of its own (BGR-19): the Button draws it in the error role at its variant's emphasis (BTN-40). Its label still says what it deletes (BTN-42)."
+        },
+        {
           "name": "confirming",
           "type": "boolean",
           "default": false,
@@ -1044,6 +1050,31 @@
       ]
     },
     {
+      "id": "order-cancel-delete",
+      "props": {
+        "variant": "standard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "destructive": true,
+            "confirming": true
+          },
+          "content": "Delete"
+        }
+      ]
+    },
+    {
       "id": "order-back-next",
       "props": {
         "variant": "standard"
@@ -1225,6 +1256,7 @@
             "toggle": "toggle",
             "selected": "selected",
             "disabled": "disabled",
+            "destructive": "destructive",
             "confirming": "confirming",
             "dismissive": "dismissive"
           },
@@ -1271,6 +1303,7 @@
             "toggle": "isSelected",
             "selected": "isSelected",
             "disabled": "disabled",
+            "destructive": "role",
             "confirming": "tanreiGroupPlacement(.confirming)",
             "dismissive": "tanreiGroupPlacement(.dismissive)"
           },
@@ -1306,6 +1339,7 @@
             "toggle": "onCheckedChange",
             "selected": "checked",
             "disabled": "enabled",
+            "destructive": "destructive",
             "confirming": "Modifier.confirming()",
             "dismissive": "Modifier.dismissive()"
           },
@@ -1341,6 +1375,7 @@
             "toggle": "isSelected",
             "selected": "isSelected",
             "disabled": "onPressed",
+            "destructive": "isDestructiveAction",
             "confirming": "TanreiButtonGroupItem.placement",
             "dismissive": "TanreiButtonGroupItem.placement"
           },
@@ -1376,6 +1411,7 @@
             "toggle": "toggle",
             "selected": "selected",
             "disabled": "disabled",
+            "destructive": "destructive",
             "confirming": "confirming",
             "dismissive": "dismissive"
           },
