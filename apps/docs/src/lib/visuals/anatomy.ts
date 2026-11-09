@@ -5,6 +5,7 @@
 // and its script lays the numbers over the parts it finds there (lib/visuals/blueprint.ts).
 import { readPart } from '../../../../../packages/tools/src/parts.js';
 import { fixtureDocument } from '../fixture-documents';
+import { stageOf } from '../fixture-gallery';
 import { definedTags, getSpec } from '../repo';
 
 export interface AnatomyPart {
@@ -90,15 +91,18 @@ export interface BlueprintStage {
 
 /**
  * The web package's stage of one of a component's fixtures, for a figure that lays numbers or lines over it; null where
- * a figure cannot stand on it: no document, a document whose every stage is a page, a fixture drawn in a window of its
- * own (presented, or sized by the window), a document that takes a step in script before its stages are what the
- * baselines show, no baseline to take the room of, or a stage that does not hold the component's web element.
+ * a figure cannot stand on it: no document, a document whose every stage is a page, a fixture the fixture gallery draws
+ * in a window of its own (lib/fixture-gallery.ts: a modal one, which `showModal()` would place in the page's own top
+ * layer, over the whole site and holding its focus, or one sized by the window), a document that takes a step in
+ * script before its stages are what the baselines show, no baseline to take the room of, or a stage that does not hold
+ * the component's web element.
  */
 export function blueprintStageOf(name: string, fixture = anatomyFixtureOf(name)): BlueprintStage | null {
   const spec = getSpec(name);
   const document = fixtureDocument(name);
   const tag = spec.platforms.web?.name;
-  if (!fixture || !document || !tag || document.page || document.after || document.windowed.includes(fixture)) return null;
+  const given = spec.fixtures.find((candidate) => candidate.id === fixture);
+  if (!fixture || !given || !document || !tag || document.page || document.after || stageOf(spec, given).kind === 'window') return null;
   const stage = document.stages.find((candidate) => candidate.id === fixture);
   const room = document.sizes[fixture];
   if (!stage || !room || !new RegExp(`<${tag}[\\s/>]`).test(stage.html)) return null;
