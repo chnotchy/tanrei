@@ -1053,6 +1053,44 @@ test.describe('icon, accessible name and toggle', () => {
     await expect(inner(page, 'filled-icon-selected-disabled')).toHaveAttribute('aria-pressed', 'true');
   });
 
+  test('BTN-47: a toggle a toolbar group whose selection is single makes one of its choices is a radio button — checked while selected, no pressed state — drawn in its toggle looks; activated while checked it fires click alone and stays checked; outside such a group it is the toggle again', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [],
+      lead: `<tanrei-toolbar label="Paragraph"><tanrei-toolbar-group label="Alignment" selection="single" value="left">
+        <tanrei-button id="left" variant="text" toggle value="left" label="Align left"><span slot="icon">format_align_left</span></tanrei-button>
+        <tanrei-button id="right" variant="text" toggle value="right" label="Align right"><span slot="icon">format_align_right</span></tanrei-button>
+      </tanrei-toolbar-group></tanrei-toolbar>`,
+    });
+    const left = page.locator('#left');
+    await expect(left.locator('button')).toHaveAttribute('role', 'radio');
+    await expect(left.locator('button')).toHaveAttribute('aria-checked', 'true');
+    await expect(left.locator('button')).not.toHaveAttribute('aria-pressed');
+    await expect(page.getByRole('radio', { name: 'Align right', checked: false })).toHaveCount(1);
+    // Its looks are the toggle's: the selected container and icon color on the checked one, the unselected on the other.
+    const look = (id: string) => page.locator(`#${id}`).locator('button').evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el.querySelector('.icon')!).color]);
+    expect(await look('left')).toEqual([await resolveColor(page, '--tanrei-comp-button-text-selected-container-color'), await resolveColor(page, '--tanrei-comp-button-text-selected-icon-color')]);
+    expect(await look('right')).toEqual([await resolveColor(page, '--tanrei-comp-button-text-unselected-container-color'), await resolveColor(page, '--tanrei-comp-button-text-unselected-icon-color')]);
+    await left.evaluate((el) => {
+      const log: string[] = ((window as unknown as { log: string[] }).log = []);
+      el.addEventListener('click', () => log.push(`click:${(el as unknown as { selected: boolean }).selected}`));
+      el.addEventListener('change', () => log.push('change'));
+    });
+    await left.click();
+    await left.focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Enter');
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    expect(await page.evaluate(() => (window as unknown as { log: string[] }).log)).toEqual(['click:true', 'click:true', 'click:true']);
+    await expect(left.locator('button')).toHaveAttribute('aria-checked', 'true');
+    // Taken out of the group, it is the toggle BTN-14 describes.
+    await page.evaluate(() => document.body.append(document.querySelector('#left')!));
+    await expect(left.locator('button')).not.toHaveAttribute('role');
+    await expect(left.locator('button')).toHaveAttribute('aria-pressed', 'true');
+    await left.click();
+    await expect(left.locator('button')).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('BTN-15: a toggle renders from the selected parts of its variant when it is on and from the unselected parts when it is off, its elevation from the variant’s own; a button that is no toggle from the variant’s own parts', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     for (const variant of ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const) {
@@ -1586,6 +1624,33 @@ test.describe('in a form', () => {
   const log = (page: P) => page.evaluate(() => (window as unknown as { log: string[] }).log.splice(0));
   const press = (page: P, id: string) => page.locator(`#${id}`).click();
   const FIELD = (id: string, rest = '') => `<tanrei-text-field id="${id}" name="${id}" label="${id}" ${rest}></tanrei-text-field>`;
+
+  test('BTN-44: value is data alone — the button is drawn, named, described and exposed exactly as without it, a toggle too — and a submission it makes carries it with name; without a name it sends nothing', async ({ page }) => {
+    await mountForm(
+      page,
+      `<form id="f" action="/never" method="post">
+        <tanrei-button id="with" type="submit" name="align" value="left">Align</tanrei-button>
+        <tanrei-button id="without" type="submit" name="align">Align</tanrei-button>
+        <tanrei-button id="nameless" type="submit" value="left">Align</tanrei-button>
+        <tanrei-button id="toggle-with" variant="text" toggle value="bold" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+        <tanrei-button id="toggle-without" variant="text" toggle label="Bold"><span slot="icon">format_bold</span></tanrei-button></form>`,
+    );
+    // What the native element carries — its role, name, states and description — and what it draws.
+    const native = (id: string) => page.locator(`#${id}`).locator('button').evaluate((el) => [...el.attributes].map((a) => `${a.name}=${a.value}`).sort().join(' '));
+    // To a hundredth of a pixel: Firefox lays two equal boxes at different places out a few millionths apart.
+    const drawn = (id: string) => page.locator(`#${id}`).evaluate((el) => [el.shadowRoot!.textContent?.trim(), ...[el.getBoundingClientRect().width, el.getBoundingClientRect().height].map((n) => Math.round(n * 100) / 100)]);
+    for (const [given, plain] of [['with', 'without'], ['toggle-with', 'toggle-without']]) {
+      expect(await native(given), given).toBe(await native(plain));
+      expect(await drawn(given), given).toEqual(await drawn(plain));
+    }
+    await expect(page.getByRole('button', { name: 'Align', exact: true })).toHaveCount(3);
+    await expect(page.getByRole('button', { name: 'left' })).toHaveCount(0);
+    expect(await page.locator('#with').locator('button').getAttribute('aria-description')).toBeNull();
+    await press(page, 'with');
+    expect(await log(page)).toEqual(['click:with', 'submit:f[align=left]<button:align=left>']);
+    await press(page, 'nameless');
+    expect(await log(page)).toEqual(['click:nameless', 'submit:f[]<button:=left>']);
+  });
 
   test('BTN-27: a submit button asks its form to submit after click, exactly once — by a pointer, Enter, Space and element.click() — with the form’s validation first; a cancelled click validates and sends nothing; a button without type does nothing to the form; the submission is not held for press-hold', async ({ page }) => {
     await mountForm(page, `<form id="f">${FIELD('who', 'required')}<tanrei-button id="send" type="submit">Send</tanrei-button><tanrei-button id="plain">Other</tanrei-button></form>`);
@@ -2181,9 +2246,10 @@ test.describe('in a form', () => {
     expect(closed).toEqual([false, 'ok']);
   });
 
-  test('BTN-34: the web is the platform with a form element — type, form, name and value are the element’s, and none of them is a spec prop', async () => {
+  test('BTN-34, BTN-44: the web is the platform with a form element — type, form and name are the element’s, none of them a spec prop; value is the spec’s, what a component that places the button reads on every platform', async () => {
     const props = (spec as unknown as { props: { name: string }[] }).props.map((p) => p.name);
-    for (const name of ['type', 'form', 'name', 'value']) expect(props, name).not.toContain(name);
+    for (const name of ['type', 'form', 'name']) expect(props, name).not.toContain(name);
+    expect(props).toContain('value');
   });
 });
 

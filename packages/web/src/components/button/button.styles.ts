@@ -101,7 +101,7 @@ const toneBlock = `
     --_tone-edge: ${toneOf('--tanrei-comp-button-tone-container-opacity')};
     --_tone-edge-d: var(--_tone-edge);
   }
-  :host(:not([destructive])) button[data-tone]:not([aria-pressed]),
+  :host(:not([destructive])) button[data-tone]:not([aria-pressed], [role='radio']),
   a[data-tone] {
     --_c: var(--_tone-rest);
 ${Object.entries(TONE_LAYERS)
@@ -167,13 +167,13 @@ const buttonStyles = css`
   /* DLG-20: without a variant attribute, the variant a dialog gives its action (src/primitives/group-item.ts). */
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host(:not([variant])) button[data-host-variant='${v}']`)).join('\n'))}
   ${unsafeCSS(lookBlock('plain', 'button'))}
-  ${unsafeCSS(lookBlock('unselected', 'button[aria-pressed]'))}
-  ${unsafeCSS(lookBlock('selected', "button[aria-pressed='true']"))}
+  ${unsafeCSS(lookBlock('unselected', "button:is([aria-pressed], [role='radio'])"))}
+  ${unsafeCSS(lookBlock('selected', "button:is([aria-pressed='true'], [role='radio'][aria-checked='true'])"))}
   /* BTN-40, BTN-41, BTN-43: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its
      own, and a link (the anchor, a) the plain parts of its variant: it only leads somewhere, and deletes nothing. The
      a in :not() is needed although a button element never is one: styles, below, rewrites every button selector as
      :is(button, a), and it is this a that then leaves the link out (the BTN-43 tests fail without it). */
-  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed], a)'))}
+  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed], [role=radio], a)'))}
   /* BTN-45: the plain look on the tone a host gives (above). */
   ${unsafeCSS(toneBlock)}
 
@@ -360,7 +360,7 @@ const buttonStyles = css`
   }
   ${iconGlyph('.icon', {
     size: '--_glyph',
-    selected: "button[aria-pressed='true']",
+    selected: "button:is([aria-pressed='true'], [role='radio'][aria-checked='true'])",
     duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
     fade: '--tanrei-comp-button-motion-busy-fade-duration',
@@ -393,7 +393,7 @@ const buttonStyles = css`
   }
   ${iconGlyph('.mark', {
     size: '--_icon',
-    selected: "button[aria-pressed='true']",
+    selected: "button:is([aria-pressed='true'], [role='radio'][aria-checked='true'])",
     duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
     fade: '--tanrei-comp-button-motion-busy-fade-duration',

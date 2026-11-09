@@ -387,8 +387,10 @@ function toolbarItemsMarkup(spec: Spec, f: Fixture): string {
           return `${itemsMarkup(spec, [item], { itemAttributes: () => `id="${id}"` })}<tanrei-menu anchor="${id}"><tanrei-menu-item label="Name"></tanrei-menu-item><tanrei-menu-item label="Date modified"></tanrei-menu-item><tanrei-menu-item label="Size"></tanrei-menu-item></tanrei-menu>`;
         }
         if (item.kind === 'group') {
-          const label = item.props.label ? ` label="${String(item.props.label).replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"` : '';
-          return `<tanrei-toolbar-group${label}>${markup(item.items ?? [])}</tanrei-toolbar-group>`;
+          // Its props as attributes: the label, and a selection with its value or its values (TBR-28).
+          const kind = spec.items?.find((k) => k.name === 'group');
+          const own = attributes(kind?.props, spec.platforms.web.items?.group?.props, item.props);
+          return `<tanrei-toolbar-group${own ? ` ${own}` : ''}>${markup(item.items ?? [])}</tanrei-toolbar-group>`;
         }
         return itemsMarkup(spec, [item], {});
       })
@@ -1462,14 +1464,19 @@ const STAGING: Record<string, Staging> = {
   // a horizontal floating one is centred in a stage at least 360 × 96, a vertical one in one at least 96 × 240, with
   // its elevation's reach above and below it (`stageReaches`), so the shadow shows whole on every side — the vertical
   // one's length is still at most the 240 its stage gives it (a toolbar that scrolls, TBR-8); an inline one
-  // stands at the start of a 360 × 56 stage, vertically centred — an overflowing one in 240.
+  // stands at the start of a 360 × 56 stage, vertically centred — an overflowing one in 240, as is one that scrolls with
+  // an item kept at its end (TBR-30's verify).
   // Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled, `tanrei-button-with-menu`
   // children, `tanrei-toolbar-group`s and `tanrei-divider` separators; a menu button is given an id and a closed
   // `tanrei-menu` anchored to it, beside it (the fixture format has no field for the menu's own items).
   toolbar: {
     css: () => `.stage:has(> tanrei-toolbar) { box-sizing: border-box; inline-size: 360px; padding: 0; }
       .stage:has(> tanrei-toolbar:not([variant='docked'], [variant='floating'])) { display: flex; align-items: center; block-size: 56px; }
-      .stage:is([data-fixture='inline-overflow'], [data-fixture='inline-overflow-pinned'], [data-fixture='rtl-inline-overflow']) { inline-size: 240px; }
+      .stage:is([data-fixture='inline-overflow'], [data-fixture='inline-overflow-pinned'], [data-fixture='rtl-inline-overflow'], [data-fixture='inline-scroll-pinned']) { inline-size: 240px; }
+      .stage[data-fixture='inline-fields'] { inline-size: 600px; }
+      .stage > tanrei-toolbar > tanrei-select { inline-size: 10rem; }
+      .stage > tanrei-toolbar > tanrei-number-input { inline-size: 10rem; }
+      .stage > tanrei-toolbar > :is(tanrei-text-input, tanrei-slider) { inline-size: 9rem; }
       .stage:has(> tanrei-toolbar[variant='floating']) { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; min-block-size: 96px; padding-block: var(--stage-reach-toolbar-container-elevation-floating); }
       .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; min-block-size: 240px; max-block-size: calc(240px + 2 * var(--stage-reach-toolbar-container-elevation-floating)); }`,
     items: (spec, f) => toolbarItemsMarkup(spec, f),

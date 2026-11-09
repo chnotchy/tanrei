@@ -163,6 +163,32 @@ export const styles = [
       display: none;
     }
 
+    /* TBR-30: while a run of items is kept at the end, the box before it holds the other items in the same line and is
+       the one that scrolls; the container does not, so the run stays in place at the end edge. */
+    .track {
+      box-sizing: border-box;
+      flex: 0 1 auto;
+      min-inline-size: 0;
+      min-block-size: 0;
+      align-self: stretch;
+      display: flex;
+      flex-direction: inherit;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    .container.pins.scrolls {
+      overflow: visible;
+    }
+    .container.pins.scrolls > .track {
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    .container.pins.scrolls > .track::-webkit-scrollbar {
+      display: none;
+    }
+
     /* TBR-4, TBR-5: floating — at its own size where the layout places it, never wider than its container; the edge
        around the whole shape, rounded by the variant's corners eased by corner smoothing. */
     ${unsafeCSS(FLOATING)} .container {
@@ -185,6 +211,13 @@ export const styles = [
       padding-right: 0;
     }
     ${unsafeCSS(VERTICAL)} .container.scrolls {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    ${unsafeCSS(VERTICAL)} .container.pins.scrolls {
+      overflow: visible;
+    }
+    ${unsafeCSS(VERTICAL)} .container.pins.scrolls > .track {
       overflow-x: hidden;
       overflow-y: auto;
     }

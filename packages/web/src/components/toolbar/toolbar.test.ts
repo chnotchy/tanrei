@@ -17,7 +17,8 @@ type P = Page;
 const bar = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-toolbar`);
 const item = (page: P, id: string, n: number) => bar(page, id).locator(':scope > *').nth(n);
 const inner = (page: P, id: string, n: number) => item(page, id, n).locator('button');
-const container = (page: P, id: string) => bar(page, id).locator('.container');
+// The toolbar's own container: its shadow root is searched before its children, whose fields have containers of their own.
+const container = (page: P, id: string) => bar(page, id).locator('.container').first();
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
@@ -307,7 +308,11 @@ test.describe('layout', () => {
 
   test('TBR-8: a toolbar whose items fit does not scroll and clips nothing', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    for (const f of spec.fixtures) expect(await css(container(page, f.id), 'overflow-x'), f.id).toBe('visible');
+    // inline-scroll-pinned is the one fixture whose items scroll (TBR-30); a box inside its container scrolls them.
+    for (const f of spec.fixtures.filter((each) => each.id !== 'inline-scroll-pinned')) {
+      expect(await css(container(page, f.id), 'overflow-x'), f.id).toBe('visible');
+      expect(await container(page, f.id).evaluate((el) => el.classList.contains('scrolls')), f.id).toBe(false);
+    }
   });
 
   test('TBR-14: enlarged text grows the toolbar across its axis to hold its items (its size is a minimum); it scales none of them itself', async ({ page }) => {
@@ -378,7 +383,7 @@ test.describe('items', () => {
       await toggle.updateComplete;
     }, n);
   const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
-  const TOGGLE_FIXTURES = ['floating', 'inline-formatting', 'inline-separation-gap', 'inline-labelled-toggles'];
+  const TOGGLE_FIXTURES = ['floating', 'inline-formatting', 'inline-separation-gap', 'inline-labelled-toggles', 'inline-selection-groups', 'inline-fields'];
 
   test('TBR-9: the fixtures a toggle item’s change of look is sampled in — every fixture that holds a toggle', () => {
     expect(spec.fixtures.filter((f) => JSON.stringify(f.items).includes('"toggle":true')).map((f) => f.id)).toEqual(TOGGLE_FIXTURES);
@@ -1390,6 +1395,336 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const moved = page.locator('body > tanrei-button-with-menu');
     await expect.poll(() => moved.locator('button.leading').getAttribute('tabindex')).toBeNull();
     expect(await moved.locator('button.trailing').getAttribute('tabindex')).toBeNull();
+  });
+});
+
+test.describe('selection groups, fields and the items kept at the end', () => {
+  /** The `n`th Button of a toolbar, a group's included, in reading order. */
+  const member = (page: P, id: string, n: number) => bar(page, id).locator('tanrei-button').nth(n);
+  const only = (id: string) => ({ icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
+  /** Logs every change heard on the toolbar: what fired it, and what it carries. */
+  const listen = (page: P, id: string) =>
+    bar(page, id).evaluate((el) => {
+      const heard: string[] = [];
+      (window as unknown as { heard: string[] }).heard = heard;
+      el.addEventListener('change', (event) => heard.push(`${(event.target as Element).localName} ${JSON.stringify((event as CustomEvent).detail)}`));
+    });
+  const heard = (page: P) => page.evaluate(() => (window as unknown as { heard: string[] }).heard);
+  /** Two frames: what a press would still fire after its click (a toggle's change follows the click) has fired by then. */
+  const settled = (page: P) => page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+  const group = (page: P, id: string, n: number) => bar(page, id).locator('tanrei-toolbar-group').nth(n);
+  /** Puts a text box's caret at `at` with nothing selected: Home and End do not move it on macOS. */
+  const caret = (input: Locator, at: number | 'end') =>
+    input.evaluate((el: HTMLInputElement, to) => {
+      const n = to === 'end' ? el.value.length : to;
+      el.setSelectionRange(n, n);
+    }, at);
+
+  test('TBR-28, BTN-47: a group whose selection is single is a radio group named by its label, its toggles radio buttons checked from its value, with no pressed state; one whose selection is multiple a group of toggles pressed from its values', async ({ page }) => {
+    const id = 'inline-selection-groups';
+    await mountFixtures(page, spec, only(id));
+    const alignment = bar(page, id).getByRole('radiogroup', { name: 'Alignment' });
+    await expect(alignment).toHaveCount(1);
+    await expect(alignment.getByRole('radio')).toHaveCount(3);
+    await expect(alignment.getByRole('radio', { name: 'Align left', checked: true })).toHaveCount(1);
+    await expect(alignment.getByRole('radio', { checked: true })).toHaveCount(1);
+    for (const n of [3, 4, 5]) await expect(member(page, id, n).locator('button')).not.toHaveAttribute('aria-pressed');
+    const style = bar(page, id).getByRole('group', { name: 'Text style' });
+    await expect(style.getByRole('button', { name: 'Bold', pressed: true })).toHaveCount(1);
+    await expect(style.getByRole('button', { pressed: true })).toHaveCount(1);
+    await expect(style.getByRole('radio')).toHaveCount(0);
+    // The toolbar is still one Tab stop, and the members its items.
+    expect(await bar(page, id).locator('tanrei-button').evaluateAll((els) => els.map((el) => el.getAttribute('tabindex')))).toEqual(['0', '-1', '-1', '-1', '-1', '-1']);
+    // A selection none: the same toggles are independent toggles again, and a radio no more.
+    await group(page, id, 1).evaluate((el) => el.setAttribute('selection', 'none'));
+    await expect(bar(page, id).getByRole('radio')).toHaveCount(0);
+    await expect(bar(page, id).getByRole('button', { name: 'Align left', pressed: true })).toHaveCount(1);
+    await expect(group(page, id, 1)).toHaveAttribute('role', 'group');
+  });
+
+  test('TBR-28: the arrow keys move through the members and choose nothing; Space and Enter choose — single: the one checked, one change from the group with its value, nothing on the checked one again; multiple: the values in reading order, one change — and a member’s own change does not travel past its group', async ({ page }) => {
+    const id = 'inline-selection-groups';
+    await mountFixtures(page, spec, only(id));
+    await listen(page, id);
+    await tabTo(page, member(page, id, 0));
+    for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowRight');
+    await expect(member(page, id, 4)).toBeFocused();
+    await settled(page);
+    expect(await heard(page)).toEqual([]);
+    await expect(bar(page, id).getByRole('radio', { name: 'Align left', checked: true })).toHaveCount(1);
+    await page.keyboard.press('Space');
+    await expect(bar(page, id).getByRole('radio', { name: 'Align center', checked: true })).toHaveCount(1);
+    await expect(bar(page, id).getByRole('radio', { checked: true })).toHaveCount(1);
+    await expect.poll(() => heard(page)).toEqual(['tanrei-toolbar-group {"value":"center","values":[]}']);
+    expect(await group(page, id, 1).evaluate((el) => (el as unknown as { value: string }).value)).toBe('center');
+    // The checked one again: it stays checked, and nothing changes.
+    await page.keyboard.press('Enter');
+    await settled(page);
+    expect(await heard(page)).toHaveLength(1);
+    await expect(bar(page, id).getByRole('radio', { name: 'Align center', checked: true })).toHaveCount(1);
+    // Multiple: Italic, then Underline, then Bold off — values in reading order, one change each.
+    for (let n = 0; n < 3; n++) await page.keyboard.press('ArrowLeft');
+    await expect(member(page, id, 1)).toBeFocused();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Home');
+    await page.keyboard.press('Space');
+    await expect.poll(() => heard(page)).toEqual([
+      'tanrei-toolbar-group {"value":"center","values":[]}',
+      'tanrei-toolbar-group {"value":"","values":["bold","italic"]}',
+      'tanrei-toolbar-group {"value":"","values":["bold","italic","underline"]}',
+      'tanrei-toolbar-group {"value":"","values":["italic","underline"]}',
+    ]);
+    await expect(bar(page, id).getByRole('group', { name: 'Text style' }).getByRole('button', { pressed: true })).toHaveCount(2);
+    // A pointer chooses as Space does.
+    await bar(page, id).getByRole('radio', { name: 'Align right' }).click();
+    await expect.poll(() => (heard(page) as Promise<string[]>).then((all) => all.at(-1))).toBe('tanrei-toolbar-group {"value":"right","values":[]}');
+    await expect(bar(page, id).getByRole('radio', { checked: true })).toHaveCount(1);
+  });
+
+  test('TBR-28: the product sets value and values and the members follow, with no change; right-to-left, Left Arrow moves to the next member and chooses nothing', async ({ page }) => {
+    const id = 'inline-selection-groups';
+    await mountFixtures(page, spec, only(id));
+    await listen(page, id);
+    await group(page, id, 1).evaluate((el) => ((el as unknown as { value: string }).value = 'right'));
+    await expect(bar(page, id).getByRole('radio', { name: 'Align right', checked: true })).toHaveCount(1);
+    await expect(bar(page, id).getByRole('radio', { checked: true })).toHaveCount(1);
+    await group(page, id, 0).evaluate((el) => ((el as unknown as { values: string[] }).values = ['underline', 'italic']));
+    await expect(bar(page, id).getByRole('button', { pressed: true })).toHaveCount(2);
+    await expect(bar(page, id).getByRole('button', { name: 'Bold', pressed: false })).toHaveCount(1);
+    // An empty value checks none.
+    await group(page, id, 1).evaluate((el) => ((el as unknown as { value: string }).value = ''));
+    await expect(bar(page, id).getByRole('radio', { checked: true })).toHaveCount(0);
+    await settled(page);
+    expect(await heard(page)).toEqual([]);
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await tabTo(page, member(page, id, 0));
+    for (let n = 0; n < 3; n++) await page.keyboard.press('ArrowLeft');
+    await expect(member(page, id, 3)).toBeFocused();
+    await settled(page);
+    expect(await heard(page)).toEqual([]);
+    await page.keyboard.press('Space');
+    await expect.poll(() => heard(page)).toEqual(['tanrei-toolbar-group {"value":"left","values":[]}']);
+  });
+
+  test('TBR-28: a selection group with an item that is not a toggle, a member with no value or another’s value, an unnamed single selection or an unknown selection still lays them out, and a debug build reports each', async ({ page }) => {
+    const seen = warnings(page);
+    const t = (glyph: string, value: string) => a(glyph, { toggle: true, value });
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        { id: 'faults', props: { label: 'Faults' }, items: [
+          { kind: 'group', props: { label: 'Mixed', selection: 'single', value: 'a' }, items: [t('format_align_left', 'a'), a('link'), t('format_align_right', '')] },
+          { kind: 'group', props: { selection: 'multiple' }, items: [t('format_bold', 'same'), t('format_italic', 'same')] },
+        ] },
+        { id: 'unnamed-single', props: { label: 'Unnamed' }, items: [{ kind: 'group', props: { selection: 'single' }, items: [t('format_align_left', 'l'), t('format_align_right', 'r')] }] },
+      ],
+    });
+    await group(page, 'faults', 1).evaluate((el) => el.setAttribute('selection', 'several'));
+    await expect.poll(() => seen.filter((w) => w.includes('TBR-28')).length).toBeGreaterThanOrEqual(5);
+    const all = seen.join('\n');
+    expect(all).toMatch(/a group whose selection is single holds <tanrei-button> without toggle.*\(TBR-28\)/);
+    expect(all).toMatch(/a member of a group whose selection is single has no value.*\(TBR-28\)/);
+    expect(all).toMatch(/two members of a group whose selection is multiple have the value "same".*\(TBR-28\)/);
+    expect(all).toMatch(/a group whose selection is single is a radio group, and has no accessible name.*\(TBR-28\)/);
+    expect(all).toMatch(/selection "several" is not a value of the toolbar group; it is drawn as "none".*\(TBR-28\)/);
+    // Laid out all the same: the action in the single group is a button, the others radios.
+    await expect(bar(page, 'faults').getByRole('radio')).toHaveCount(2);
+    await expect(bar(page, 'faults').getByRole('button', { name: 'link' })).toBeVisible();
+  });
+
+  test('TBR-29: a Select and a Number input are stops of the arrow keys that keep their own keys — the Select opens with Down Arrow and keeps every key while open, the Number input steps with Up Arrow and moves its caret with Left and Right Arrow, leaving for its neighbour only from the end of its text', async ({ page }) => {
+    const id = 'inline-fields';
+    await mountFixtures(page, spec, only(id));
+    const select = bar(page, id).locator('tanrei-select');
+    const number = bar(page, id).locator('tanrei-number-input');
+    const input = number.locator('input');
+    // The Select is the first item: the Tab stop, its own control taking focus (its host has no tabindex).
+    await tabTo(page, select);
+    expect(await select.getAttribute('tabindex')).toBeNull();
+    expect(await number.getAttribute('tabindex')).toBe('-1');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => select.evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await page.keyboard.press('ArrowRight');
+    await expect(select).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect.poll(() => select.evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(false);
+    await page.keyboard.press('ArrowRight');
+    await expect(number).toBeFocused();
+    // The Number input is the Tab stop now.
+    expect(await number.getAttribute('tabindex')).toBeNull();
+    expect(await select.getAttribute('tabindex')).toBe('-1');
+    await page.keyboard.press('ArrowUp');
+    await expect.poll(() => number.evaluate((el) => (el as unknown as { value: number }).value)).toBe(15);
+    await expect(number).toBeFocused();
+    // Home and End are its own (where its caret goes on them is the platform's: not on macOS); Left and Right move the
+    // caret until it stands at that end of the text.
+    await page.keyboard.press('Home');
+    await page.keyboard.press('End');
+    await expect(number).toBeFocused();
+    await caret(input, 0);
+    await page.keyboard.press('ArrowRight');
+    await expect(number).toBeFocused();
+    expect(await input.evaluate((el: HTMLInputElement) => el.selectionStart)).toBe(1);
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await expect(member(page, id, 0)).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(number).toBeFocused();
+    await caret(input, 0);
+    await page.keyboard.press('ArrowLeft');
+    await expect(select).toBeFocused();
+    // Text selected: the arrow collapses it and focus stays.
+    await page.keyboard.press('ArrowRight');
+    await input.evaluate((el: HTMLInputElement) => el.select());
+    await page.keyboard.press('ArrowRight');
+    await expect(number).toBeFocused();
+  });
+
+  test('TBR-29: the last Text input or Slider is a Tab stop of its own after the toolbar’s, the arrow keys neither reach nor leave it, and Shift+Tab returns to the toolbar’s stop', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'inline-fields' || f.id === 'inline-slider') });
+    const text = bar(page, 'inline-fields').locator('tanrei-text-input');
+    await tabTo(page, bar(page, 'inline-fields').locator('tanrei-select'));
+    await page.keyboard.press('End');
+    // End reaches the last stop of the arrow keys — Italic — and not the Text input.
+    await expect(member(page, 'inline-fields', 1)).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(bar(page, 'inline-fields').locator('tanrei-select')).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await tab(page);
+    await expect(text).toBeFocused();
+    expect(await text.getAttribute('tabindex')).toBeNull();
+    await page.keyboard.type('ab');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await expect(text).toBeFocused();
+    await page.keyboard.press('Home');
+    await page.keyboard.press('End');
+    await expect(text).toBeFocused();
+    await tab(page, { back: true });
+    await expect(member(page, 'inline-fields', 1)).toBeFocused();
+    // The Slider: every arrow key is its own.
+    const slider = bar(page, 'inline-slider').locator('tanrei-slider');
+    await tabTo(page, slider);
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => slider.evaluate((el) => (el as unknown as { value: number }).value)).toBe(41);
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => slider.evaluate((el) => (el as unknown as { value: number }).value)).toBe(39);
+    await expect(slider).toBeFocused();
+    await tab(page, { back: true });
+    await expect(member(page, 'inline-slider', 0)).toBeFocused();
+  });
+
+  test('TBR-29: a field is never hidden into the overflow menu, and the overflow button stands before the last Text input; right-to-left, the Number input leaves for the next item at the end of its text', async ({ page }) => {
+    const id = 'inline-fields';
+    await mountFixtures(page, spec, only(id));
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement) => (el.style.inlineSize = '460px'));
+    const overflow = bar(page, id).locator('.overflow');
+    await expect(overflow).toBeVisible();
+    // The toggles went; the fields stayed.
+    for (const n of [0, 1]) await expect(member(page, id, n)).toBeHidden();
+    for (const tag of ['tanrei-select', 'tanrei-number-input', 'tanrei-text-input']) await expect(bar(page, id).locator(tag)).toBeVisible();
+    const [button, text] = [await bounds(overflow), await bounds(bar(page, id).locator('tanrei-text-input'))];
+    expect(button.x + button.width).toBeLessThanOrEqual(text.x);
+    // The overflow button is the last stop of the arrow keys, before the Text input.
+    await tabTo(page, bar(page, id).locator('tanrei-select'));
+    await page.keyboard.press('End');
+    await expect(overflow).toBeFocused();
+    // Right-to-left: the key toward the end of the number's own run, at its end, moves to the next item.
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement) => {
+      el.style.inlineSize = '';
+      el.setAttribute('dir', 'rtl');
+    });
+    await expect(overflow).toBeHidden();
+    const number = bar(page, id).locator('tanrei-number-input');
+    await tabTo(page, bar(page, id).locator('tanrei-select'));
+    await page.keyboard.press('ArrowLeft');
+    await expect(number).toBeFocused();
+    const rtl = await number.locator('input').evaluate((el: HTMLInputElement) => getComputedStyle(el).direction === 'rtl');
+    await caret(number.locator('input'), 'end');
+    await page.keyboard.press(rtl ? 'ArrowLeft' : 'ArrowRight');
+    // Toward its end in an RTL run is Left, which is the toolbar's next; in an LTR run it is Right, the toolbar's previous.
+    await expect(rtl ? member(page, id, 0) : bar(page, id).locator('tanrei-select')).toBeFocused();
+  });
+
+  test('TBR-29, TBR-12: a field in a vertical toolbar, a Text input or a Slider that is not the last item, and one in a group, are laid out and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        { id: 'vertical-select', props: { label: 'Vertical', orientation: 'vertical' }, content: '<tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button><tanrei-select label="Size"><tanrei-option label="S" value="s"></tanrei-option></tanrei-select>' },
+        { id: 'text-first', props: { label: 'Text first' }, content: '<tanrei-text-input label="Find"></tanrei-text-input><tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button>' },
+        { id: 'slider-in-group', props: { label: 'Slider in a group' }, content: '<tanrei-toolbar-group><tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button><tanrei-slider label="Size"></tanrei-slider></tanrei-toolbar-group>' },
+      ],
+    });
+    await expect.poll(() => seen.filter((w) => w.includes('TBR-12')).length).toBe(3);
+    const all = seen.join('\n');
+    expect(all).toMatch(/it holds <tanrei-select>, which is none of its item kinds here; it is laid out, but a vertical toolbar takes no field.*\(TBR-12\)/);
+    expect(all).toMatch(/it holds <tanrei-text-input>, which is none of its item kinds here; it is laid out, but a Text input or a Slider is its last item only.*\(TBR-12\)/);
+    expect(all).toMatch(/a group holds <tanrei-slider>, which is none of its item kinds here; it is laid out, but a Text input or a Slider is its last item only.*\(TBR-12\)/);
+    await expect(bar(page, 'vertical-select').locator('tanrei-select')).toBeVisible();
+    // None of them is a stop of the arrow keys, nor given a tabindex.
+    for (const [id, tag] of [['vertical-select', 'tanrei-select'], ['text-first', 'tanrei-text-input'], ['slider-in-group', 'tanrei-slider']] as const) {
+      expect(await bar(page, id).locator(tag).getAttribute('tabindex'), id).toBeNull();
+    }
+  });
+
+  test('TBR-30: while the items scroll, the items that end the line and whose overflow is never stay at the end edge, outside what scrolls; the items before them scroll and are clipped where the kept ones begin; a focused item is brought into view in what scrolls', async ({ page }) => {
+    const id = 'inline-scroll-pinned';
+    await mountFixtures(page, spec, only(id));
+    const send = member(page, id, 5);
+    const track = bar(page, id).locator('.track');
+    const surface = container(page, id);
+    const pad = await resolveToken(page, T('container-padding-inline-inline'));
+    await expect.poll(() => track.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeGreaterThan(0);
+    expect(await css(surface, 'overflow-x')).toBe('visible');
+    expect(await css(track, 'overflow-x')).toBe('auto');
+    const port = await bounds(surface);
+    const at = await bounds(send);
+    expect(at.x + at.width).toBeCloseTo(port.x + port.width - pad, 0);
+    // The track ends before Send: what it scrolls is clipped there and never drawn under or over Send.
+    const lane = await bounds(track);
+    expect(lane.x + lane.width).toBeLessThanOrEqual(at.x + 0.5);
+    for (const end of [100000, 0]) {
+      await track.evaluate((el, left) => el.scrollTo({ left, behavior: 'instant' }), end);
+      expect(await bounds(send), `scrolled to ${end}`).toEqual(at);
+    }
+    // Focus: Send is never scrolled; an item in the track is brought fully into it.
+    await tabTo(page, member(page, id, 0));
+    await page.keyboard.press('End');
+    await expect(send).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(member(page, id, 4)).toBeFocused();
+    const shown = await bounds(member(page, id, 4).locator('button'));
+    expect(shown.x + shown.width).toBeLessThanOrEqual(lane.x + lane.width + 0.5);
+    expect(shown.x).toBeGreaterThanOrEqual(lane.x - 0.5);
+    await page.keyboard.press('Home');
+    const first = await bounds(member(page, id, 0).locator('button'));
+    expect(first.x).toBeGreaterThanOrEqual(lane.x - 0.5);
+    // Right-to-left: Send at the left edge.
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await expect.poll(async () => (await bounds(send)).x).toBeCloseTo((await bounds(surface)).x + pad, 0);
+  });
+
+  test('TBR-30: an item whose overflow is never that stands before one that may scroll scrolls with the others; taking never off the last item, or a menu overflow, keeps nothing at the end', async ({ page }) => {
+    const id = 'inline-scroll-pinned';
+    await mountFixtures(page, spec, only(id));
+    const track = bar(page, id).locator('.track');
+    await member(page, id, 0).evaluate((el) => el.setAttribute('toolbar-overflow', 'never'));
+    await expect.poll(() => member(page, id, 0).evaluate((el) => !!el.assignedSlot?.closest('.track'))).toBe(true);
+    await member(page, id, 5).evaluate((el) => el.removeAttribute('toolbar-overflow'));
+    await expect(track).toHaveCount(0);
+    // The container scrolls them all again (TBR-8).
+    await expect.poll(() => css(container(page, id), 'overflow-x')).toBe('auto');
+    await member(page, id, 5).evaluate((el) => el.setAttribute('toolbar-overflow', 'never'));
+    await expect(track).toHaveCount(1);
+    await bar(page, id).evaluate((el) => el.setAttribute('overflow', 'menu'));
+    await expect(track).toHaveCount(0);
+    await expect(bar(page, id).locator('.overflow')).toBeVisible();
+    await expect(member(page, id, 5)).toBeVisible();
   });
 });
 
