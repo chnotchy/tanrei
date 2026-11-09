@@ -16,6 +16,8 @@
 //                                              components the lists show
 //                       data-docs-appearance-pending  while the look is the reader's theme and its stylesheet is not in
 //                                              yet: nothing of the page is drawn (styles/tanrei-theme.css)
+//                       data-docs-custom-missing  while the look is the reader's theme and IndexedDB, asked by the
+//                                              head's script, held no stylesheet for it: the key it is computed under
 //                       data-docs-custom-late  on a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the
 //                                              page is drawn in the default system, and the sheet is kept for the next
 //                       data-docs-appearance-shared   present while the page shows an appearance from its address
@@ -38,8 +40,10 @@
 // own theme script) applies the stored or shared appearance before the first paint. It is made of the same functions
 // as the module below — each written as a function of its arguments alone, so that its text is the script — and never
 // a second copy of them. Under the reader's own theme it hides the page until the theme's stylesheet is in: read from
-// IndexedDB at once, else computed by lib/custom-theme.ts once the page's modules run. After `REVEAL_AFTER` it shows
-// the page whatever happens — without the sheet, in the default system, which that page keeps.
+// IndexedDB at once, else computed by lib/custom-theme.ts, which the module right after the head's script asks for
+// (components/frame/ThemeProvider.astro) — where the head's script found no sheet kept, at once, before the document is
+// parsed. After `REVEAL_AFTER` it shows the page whatever happens — without the sheet, in the default system, which
+// that page keeps.
 import { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 export type Mode = 'system' | 'light' | 'dark';
@@ -80,6 +84,11 @@ export const CUSTOM_BASE_ATTR = 'data-docs-custom-base';
 export const PENDING_ATTR = 'data-docs-appearance-pending';
 /** On a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the page is drawn in the default system, and the sheet is kept for the next. */
 export const LATE_ATTR = 'data-docs-custom-late';
+/**
+ * Set by the head's script when IndexedDB holds no stylesheet for the reader's theme: the key it is to be computed
+ * under. lib/custom-theme.ts computes it without asking IndexedDB a second time, and takes the mark away.
+ */
+export const MISSING_ATTR = 'data-docs-custom-missing';
 /** The `<style>` that holds the reader's theme while it is the look. */
 export const CUSTOM_STYLE_ID = 'docs-custom-system';
 /** Where the theme's stylesheet is kept (IndexedDB). */
@@ -217,7 +226,7 @@ export interface BootConfig {
   shared: string;
   rule: { id: string; absent: string; only: string };
   /** The reader's own theme: where it is kept, its marks on the root, where its stylesheet is kept, and the build that computes it. */
-  custom: { key: string; look: string; available: string; base: string; pending: string; late: string; style: string; db: string; store: string; build: string; wait: number };
+  custom: { key: string; look: string; available: string; base: string; pending: string; late: string; missing: string; style: string; db: string; store: string; build: string; wait: number };
 }
 
 /**
@@ -231,7 +240,7 @@ export const bootConfig = (looks: string[], build = ''): BootConfig => ({
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
   shared: SHARED_ATTR,
   rule: { id: SYSTEM_RULE_ID, absent: ABSENT_ATTR, only: SYSTEM_ONLY_ATTR },
-  custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, base: CUSTOM_BASE_ATTR, pending: PENDING_ATTR, late: LATE_ATTR, style: CUSTOM_STYLE_ID, db: SHEET_STORE.db, store: SHEET_STORE.store, build, wait: REVEAL_AFTER },
+  custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, base: CUSTOM_BASE_ATTR, pending: PENDING_ATTR, late: LATE_ATTR, missing: MISSING_ATTR, style: CUSTOM_STYLE_ID, db: SHEET_STORE.db, store: SHEET_STORE.store, build, wait: REVEAL_AFTER },
 });
 
 /** Where a theme's stylesheet is kept: under the build's key and the layer's hash. */
@@ -245,7 +254,7 @@ export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
  * and two frames more: what was measured under the default system's tokens is measured again before it is drawn.
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);readSheet(c.custom.db,c.custom.store,key,function(css){if(css===null||root.getAttribute(c.names.look)!==c.custom.look)return;placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})})}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.absent,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
+  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);readSheet(c.custom.db,c.custom.store,key,function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})})}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.absent,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
 }
 
 /**
@@ -404,6 +413,7 @@ if (typeof document !== 'undefined' && typeof matchMedia === 'function') {
     show(readStored(looksOnPage()), false);
   });
   // The reader's theme, where the head's script found it the look: its stylesheet, if IndexedDB did not hold it (and,
-  // where the page could not wait for it, kept for the next page).
+  // where the page could not wait for it, kept for the next page). The head's module (ThemeProvider.astro) has asked for
+  // it already, before any module that defines an element runs: this asks for the same, and waits for that.
   if (document.documentElement.getAttribute(LOOK_ATTR) === CUSTOM_LOOK || document.documentElement.hasAttribute(LATE_ATTR)) void drawCustom();
 }

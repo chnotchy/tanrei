@@ -11,9 +11,9 @@
 // for as soon as a glyph is laid out; preloaded, it took the slow line from the stylesheets and the text faces, and the
 // largest paint of a throttled mobile page came 0.7 s later, with the page's load no sooner.
 //
-// And it holds the page's first module script (lib/link-fallback.ts): module scripts run in the order they stand, each
-// once its whole graph has arrived, and this one must be waiting for the link forms' elements before any other defines
-// one.
+// And it holds the page's first module script that waits for elements (lib/link-fallback.ts): module scripts run in the
+// order they stand, each once its whole graph has arrived, and this one must be waiting for the link forms' elements
+// before any other defines one. (The appearance's module, ThemeProvider.astro, may run before it: it defines none.)
 //
 // And it names the page's version in Markdown, `<path>.md` beside the page, for a program that reads the page
 // (`<link rel="alternate" type="text/markdown">`): every page the site's search reads has one, written from it when the
