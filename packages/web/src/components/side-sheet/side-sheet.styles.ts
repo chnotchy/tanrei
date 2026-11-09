@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, SCRIM_FILTER, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, scrimFilter, shape, whenChosen, whenScroll } from '../../primitives/index.js';
+import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -35,6 +35,9 @@ export const AXES: readonly OpenAxis[] = [
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
 const EXIT = `${T('motion-exit-duration')} ${T('motion-exit-easing')}`;
+/** SSH-2: the modal sheet's entrance and exit, which its slide and its scrim's fade take alike. */
+const ENTER_MOTION = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
+const EXIT_MOTION = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 /** Far enough to let a shadow show on the sides that are not clipped (a clip-path inset needs a length). */
 const FAR = '100vmax';
 
@@ -49,12 +52,9 @@ export const styles = css`
     --_inset-end: env(safe-area-inset-right, 0px);
     /* SSH-7: container.width beside the end system inset, which the color reaches under. */
     --_width: calc(${t('container-width')} + var(--_inset-end));
-    /* Toward the end edge, in the direction of the text: where the sheet slides out to. */
-    --_away: 100%;
   }
   :host(:dir(rtl)) {
     --_inset-end: env(safe-area-inset-left, 0px);
-    --_away: -100%;
   }
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
@@ -283,8 +283,13 @@ export const styles = css`
 
   /* SSH-2, SSH-7: a modal sheet is a native modal <dialog> in the top layer at the window's end edge, its full height,
      never wider than the window less sys.target.touch (a strip of scrim stays pressable), over ::backdrop (the scrim).
-     It slides in from the end edge over the enter motion and out to it over the exit motion, from wherever it is (a
-     drag's offset is --_drag); the scrim fades with it. */
+     It appears as every sheet does (src/primitives/motion.ts, role sheet, from the inline end): it slides in from its
+     own width beyond the end edge over the enter motion — unfaded and unscaled whatever the appearance — and out the
+     same way over the exit motion, from wherever it is drawn (a drag's offset is --_drag), turned round from where it
+     has got to; kept in the top layer and displayed until it has left (the browser has closed it by then: focus and the
+     page are given back at once). A released drag that does not close it slides back over the enter motion. The scrim
+     fades in step, over the same duration and curve. Under reduced motion both only fade, in place (from wherever a
+     drag left it), over sys.motion.role.reduced, and a released drag goes back at once. */
   dialog.sheet {
     position: fixed;
     inset-block: 0;
@@ -292,77 +297,32 @@ export const styles = css`
     inline-size: min(var(--_width), calc(100% - var(--tanrei-sys-target-touch)));
     block-size: 100%;
     max-block-size: none;
-    translate: var(--_drag, 0px) 0;
     touch-action: pan-y;
-    transition-property: translate, opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
   }
   dialog.sheet:not([open]) {
     display: none;
-    translate: var(--_away) 0;
   }
-  dialog.sheet[open] {
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
-  }
-  @starting-style {
-    dialog.sheet[open] {
-      translate: var(--_away) 0;
-    }
-  }
-  ${scrimFilter('dialog.sheet', T('scrim-blur'))}
-  dialog.sheet::backdrop {
-    background: ${t('scrim-color')};
-    backdrop-filter: ${SCRIM_FILTER};
-    opacity: 0;
-    transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
-  }
-  dialog.sheet[open]::backdrop {
-    opacity: 1;
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
-  }
-  @starting-style {
-    dialog.sheet[open]::backdrop {
-      opacity: 0;
-    }
-  }
-  /* SSH-4: while the sheet follows a drag, nothing transitions; mounted open, it appears in place. */
+  ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'inline-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: 'var(--_drag, 0px) 0' })}
+  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
+  /* SSH-4: while the sheet follows a drag, nothing transitions; mounted open, it and its scrim appear in place. (After
+     the appearance, whose open rule weighs as much.) */
   dialog.sheet.dragging {
-    transition: none;
     user-select: none;
     -webkit-user-select: none;
   }
-  dialog.sheet.instant,
+  dialog.sheet:is(.dragging, .instant),
   dialog.sheet.instant::backdrop {
-    transition: none;
+    transition-property: none;
   }
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
-  /* SSH-1, SSH-2, SSH-4: where motion is reduced, a standard sheet opens and closes at once, and a modal one fades in and
-     out in place without sliding (from wherever a drag left it); a released drag goes back at once. */
+  /* SSH-1: where motion is reduced, a standard sheet opens and closes at once. */
   @media (prefers-reduced-motion: reduce) {
     :host(:not([variant='modal'])),
     :host(:not([variant='modal'])[open]) {
       transition-duration: 0s;
       transition-delay: 0s;
-    }
-    dialog.sheet {
-      transition-property: opacity;
-    }
-    dialog.sheet:not([open]) {
-      translate: var(--_drag, 0px) 0;
-      opacity: 0;
-    }
-    @starting-style {
-      dialog.sheet[open] {
-        translate: 0px 0;
-        opacity: 0;
-      }
     }
   }
 
