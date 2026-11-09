@@ -862,12 +862,13 @@ test.describe('Settle', () => {
 });
 
 test.describe('startFromNextFrame', () => {
-  test('a motion still waiting for its start time when it is held — begun in an earlier task, or played in a frame and held again before the next — stands at its start in the first frame after the task and moves from there', async ({ page }) => {
+  test('a motion begun in an earlier task with no frame drawn since, or played in a frame and held again before the next, stands at its start in the first frame after the task and moves from there', async ({ page }) => {
     // A state's motion is held at its start and played in the frame callbacks of the next frame. One the engine was
     // already waiting to start when it was held — begun by the key before, with no frame drawn since (focus moved off a
     // menu item, then the next key opened a submenu) — was played there with play(), and Chromium never gave it a start
     // time: it stood at its start, pending, for good, and nothing waiting for it ended. In every engine it stands at
-    // its start in that frame and moves in the frames after it, held once or asked to be held again.
+    // its start in that frame and moves in the frames after it, held once or asked to be held again. (Harsh mode's
+    // slowed motion has Chromium give the motion its start time in the next task already: the hold is the same.)
     await open(page, '<div id="stage"><div id="m" class="item"></div></div>', {
       head: '<style>.item { block-size: 20px; background: rgb(255, 0, 0); transition: background-color var(--tanrei-sys-motion-role-state-default) linear; } .item[data-on] { background: rgb(0, 128, 0); }</style>',
     });
@@ -904,8 +905,8 @@ test.describe('startFromNextFrame', () => {
             const [motion] = item.getAnimations();
             if (!motion) throw new Error('the change began no motion');
             await task();
-            // The case is a motion the engine is still waiting to start: one a frame has started already is not it.
-            if (!motion.pending || motion.currentTime !== 0) {
+            // The case is a motion still at its start, no frame drawn since it began: one a frame has moved is not it.
+            if (motion.currentTime !== 0) {
               missed++;
               motion.finish();
               continue;
