@@ -81,10 +81,37 @@ function deepQuery(root: Element, selector: string): Element | null {
 }
 
 /**
- * The elements of an element's CSS part: in its shadow tree, or in the nearest shadow tree under it that exports it.
- * A part may be drawn in pieces (a slider's track, on each side of its active track): the part is all of them.
+ * The elements of a CSS part a shadow tree exports under another name: an element of it whose `exportparts` maps a
+ * part of its own shadow tree to `part` (`exportparts="container: handle"`), followed down as far as it is exported.
+ */
+function exportedPart(shadow: ShadowRoot, part: string): Element[] {
+  for (const holder of shadow.querySelectorAll('[exportparts]')) {
+    if (!holder.shadowRoot) continue;
+    for (const entry of (holder.getAttribute('exportparts') ?? '').split(',')) {
+      const [inner, outer = inner] = entry.split(':').map((name) => name.trim());
+      if (outer !== part || !inner) continue;
+      const found = [...holder.shadowRoot.querySelectorAll(`[part~="${inner}"]`)];
+      if (found.length) return found;
+      const deeper = exportedPart(holder.shadowRoot, inner);
+      if (deeper.length) return deeper;
+    }
+  }
+  return [];
+}
+
+/**
+ * The elements of an element's CSS part: in its shadow tree, where an element of it exports it under that name (a
+ * sheet's `handle`, its `<tanrei-handle>`'s `container`), or in the nearest shadow tree under it that has a part of
+ * that name. A part may be drawn in pieces (a slider's track, on each side of its active track): the part is all of
+ * them.
  */
 function partOf(element: Element, part: string): Element[] {
+  if (element.shadowRoot) {
+    const own = [...element.shadowRoot.querySelectorAll(`[part~="${part}"]`)];
+    if (own.length) return own;
+    const exported = exportedPart(element.shadowRoot, part);
+    if (exported.length) return exported;
+  }
   for (const shadow of element.shadowRoot ? [element.shadowRoot, ...shadowRootsIn(element.shadowRoot)] : []) {
     const found = [...shadow.querySelectorAll(`[part~="${part}"]`)];
     if (found.length) return found;
