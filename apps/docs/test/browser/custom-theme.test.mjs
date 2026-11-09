@@ -151,6 +151,8 @@ for (const engine of ENGINES) {
       await studio.evaluate(() => customElements.whenDefined('tanrei-popover'));
       // The layer the Studio keeps: given as a person would load it, through the browser's own storage.
       await studio.evaluate((layer) => localStorage.setItem('tanrei-theme-studio', JSON.stringify({ layer })), LAYER);
+      // Its faces in first: a reload cancels a face still downloading, and Firefox logs the cancelled download as an error.
+      await studio.evaluate(() => document.fonts.ready);
       await studio.reload();
       await studio.waitForSelector('[data-studio][data-pane] [data-share-open]');
       // The Studio drawn: every element defined, its faces in, and two frames since (its first computation is done).
