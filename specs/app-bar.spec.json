@@ -943,6 +943,17 @@
         "overflow": "overflow",
         "overflowLabel": "overflowLabel"
       },
+      "parts": {
+        "container": "container",
+        "navigation": "slot:navigation",
+        "brand": "brand",
+        "context": "slot:context",
+        "title": "title",
+        "subtitle": "subtitle",
+        "actions": "slot:actions",
+        "overflow-button": "overflow-button",
+        "outline": "outline"
+      },
       "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation`, `context` and `actions`. `overflow` is the `overflow` attribute (`menu` | `hide`) and `overflowLabel` the `overflow-label` attribute; an action's own overflow is its `app-bar-overflow` attribute (`auto` | `never`). The bar watches its top row, its start items, its title and each action drawn with one ResizeObserver, and decides from the widths measured then, before the frame: an action that is out carries the bar's `app-bar-out` attribute, which draws it as nothing (it stays in the page, with its listeners and its state). The more button (`part=\"overflow-button\"`) and its Menu (`part=\"overflow-menu\"`) are elements of the bar's shadow root; the Menu's rows are made from the actions when it opens. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders. The brand: `brand-href`, `brand-label` and `brand-layout` (`lockup` | `responsive`); its images are children with `slot=\"brand\"`, `slot=\"brand-symbol\"` or `slot=\"brand-wordmark\"` (an `<img>` or an inline `<svg>`), which the bar sizes from its tokens, marks `aria-hidden` and draws inside its own link (`part=\"brand\"`). The link is the bar's: a router that follows links by their clicks reads it from the click's composed path. The window class is the enclosing `<tanrei-app-shell>`'s, else `matchMedia` against `sys.breakpoint.medium`.",
       "items": {
         "navigation": {

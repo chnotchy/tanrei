@@ -812,6 +812,17 @@
         "toggle": "toggle",
         "close": "close"
       },
+      "parts": {
+        "leading": "leading",
+        "trailing": "trailing",
+        "container": "container",
+        "icon": "icon",
+        "label": "label",
+        "chevron": "chevron",
+        "divider": "divider",
+        "menu": "tanrei-menu surface",
+        "focus-ring": "container@focus-ring"
+      },
       "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge. `destructive` is a boolean attribute; it draws both halves from the variant's destructive parts, exposes nothing more (SPB-35), and is not passed to the menu's items."
     },
     "swiftui": {

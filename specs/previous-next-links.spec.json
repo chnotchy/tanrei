@@ -470,6 +470,17 @@
           "notes": "A class on the product's own anchor. `data-direction` is `previous` or `next`; the anchor also carries `rel=\"prev\"` or `rel=\"next\"`. The label and the title are two spans with their classes, in that order."
         }
       },
+      "parts": {
+        "root": ".tanrei-previous-next-links",
+        "container": ".tanrei-previous-next-links-item",
+        "outline": ".tanrei-previous-next-links-item@outline",
+        "icon": {
+          "noBox": "The arrow is the previous item's ::before and the next item's ::after, a glyph of the icon font: it has no element to measure."
+        },
+        "label": ".tanrei-previous-next-links-label",
+        "title": ".tanrei-previous-next-links-title",
+        "focus-ring": ".tanrei-previous-next-links-item@focus-ring"
+      },
       "notes": "Classes on the product's own elements, as Link is: `<nav class=\"tanrei-previous-next-links\" aria-label=\"Pages\"><a class=\"tanrei-previous-next-links-item\" data-direction=\"previous\" rel=\"prev\" href=\"…\"><span class=\"tanrei-previous-next-links-label\">Previous</span><span class=\"tanrei-previous-next-links-title\">Installation</span></a><a class=\"tanrei-previous-next-links-item\" data-direction=\"next\" rel=\"next\" href=\"…\">…</a></nav>`, styled by a stylesheet of the package. The anchors are in the document, so they are links before any script runs and for whatever reads the page as built (PNL-2). The stylesheet alone gives the whole component: the two columns are a grid in which each item takes the column of its `data-direction`, whatever its place in the markup, and an anchor without `href` is not displayed (PNL-3); stacking is a container query on the nav (PNL-5); the arrows are the items' `::before` and `::after` in the icon font, mirrored under `:dir(rtl)`; the states and the press-hold are the stylesheet's as they are Link's. The package's script, where it is loaded, adds through its one listener on the document what a stylesheet cannot: the shared press primitive (ripple and dim, PNL-11), the reordering of items given next-first so that the focus order is right, and every debug report. The web is not a custom element here, so `packages/tools/src/conventions.js` needs an entry for where the implementation lives, as prose has. React: `PreviousNextLinks` renders the same markup and takes a `render` prop for a router's link."
     },
     "swiftui": {

@@ -434,6 +434,11 @@
         "copied": "copied",
         "copyFailed": "copyfailed"
       },
+      "parts": {
+        "container": "tanrei-button container",
+        "icon": "tanrei-button icon",
+        "label": "tanrei-button label"
+      },
       "notes": "`<tanrei-copy-button text=\"…\" label=\"Copy\" copied-label=\"Copied\" failed-label=\"Could not copy\">`, with `icon-only=\"false\"` for the labelled form. Its shadow root holds a `<tanrei-button>` (so every Button token and state applies unchanged) and one visually hidden live region: `role=\"status\"` for the copied announcement and `role=\"alert\"` for the failed one, emptied and set again on each activation so the same words are spoken twice (CPY-5). CPY-2 is `navigator.clipboard.writeText(text)`, which needs a secure context and the person's activation; where the API is missing or the promise rejects, that is CPY-4 — no `document.execCommand` fallback. The events are named `copied` and `copyfailed`, not `copy`, because `copy` is the document's own clipboard event and bubbles. CPY-7: the three labels are stacked in one grid cell, two of them `visibility: hidden`. CPY-19 (`label-width=\"fit\"`): the box's `inline-size` is set to the shown text's measured width and transitions over the resize tokens (none under `prefers-reduced-motion: reduce`), clipped at its end with `overflow-x: clip`; a `ResizeObserver` on the three texts takes a new face's widths at once. The timer is a `setTimeout` of the token's value read from the custom property, cleared on a new activation and on disconnect."
     },
     "swiftui": {

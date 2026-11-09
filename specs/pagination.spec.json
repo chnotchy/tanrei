@@ -563,6 +563,15 @@
       "events": {
         "change": "change"
       },
+      "parts": {
+        "root": "nav",
+        "item": "item",
+        "label": "label",
+        "icon": "icon",
+        "ellipsis": "ellipsis",
+        "count": "count",
+        "focus-ring": "item@focus-ring"
+      },
       "notes": "`<tanrei-pagination label=\"Pages\" page=\"3\" count=\"10\" previous-label=\"Previous page\" next-label=\"Next page\" page-label=\"Page {page}\">`; the attributes are the props in kebab case (`first-last`, `count-text`). The element draws a `nav` with `aria-label` around one `ol` in its shadow root; each page and control is an `a` (with `href`) or a `button`, the current page with `aria-current=\"page\"`, a disabled link an `a` without `href` and with `aria-disabled=\"true\"` and `role=\"link\"`. `change` is a cancelable `CustomEvent` whose `detail` is `{ page }`, fired before `page` changes and, for a link, before the browser follows it. The narrow form is decided by a ResizeObserver on the element against its numbered row, which is kept in the layout at no height so that the element asks for its width. React: the generated `Pagination` wrapper, with `onChange`."
     },
     "swiftui": {
