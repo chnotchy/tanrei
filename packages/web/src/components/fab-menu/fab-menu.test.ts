@@ -855,6 +855,42 @@ test.describe('behavior', () => {
     for (const motion of opening.motions.filter((each) => /^div\.appear\b/.test(each.on) && each.name === 'opacity')) expect(motion.duration).toBe(duration);
   });
 
+  test('FBM-19, FBM-21: opened at the end of a task that outlasts its motions, the toggle turns and the first item takes its focused colors from the first frame drawn after that task — each motion at its start there, none of it over before it is drawn — and closed the same way, they turn back from there', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it, which stands still while the task runs: a
+    // menu whose opening took longer than its motions last drew the toggle turned and its first item focused at once,
+    // with no frame of either (the default system in right-to-left took about 200 ms to open in a four-CPU Linux
+    // container, against a state motion of 250 ms; a CI runner took longer). The task here is held for longer than those
+    // motions, and the frame drawn after it is read in its frame callback.
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    type Seen = { begun: string[]; at: string[] };
+    const firstFrame = (open: boolean) =>
+      host(page, 'menu').evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, open) => {
+        el.open = open;
+        await el.updateComplete;
+        const toggle = el.shadowRoot!.querySelector('.toggle')!;
+        const first = el.querySelector('tanrei-fab-menu-item')!.shadowRoot!.querySelector('.container')!;
+        const name = (on: string, animation: Animation) => `${on} ${((animation.effect as KeyframeEffect).target as Element).classList[0]} ${(animation as CSSTransition).transitionProperty}`;
+        const motions = () => [...toggle.getAnimations({ subtree: true }).map((a) => ['toggle', a] as const), ...first.getAnimations({ subtree: true }).map((a) => ['item', a] as const)];
+        const begun = motions();
+        const end = performance.now() + Math.max(0, ...begun.map(([, a]) => Number(a.effect!.getComputedTiming().endTime))) + 200;
+        while (performance.now() < end);
+        return new Promise<Seen>((resolve) =>
+          requestAnimationFrame(() => resolve({ begun: begun.map(([on, a]) => name(on, a)).sort(), at: motions().map(([on, a]) => `${name(on, a)} at ${Math.round(Number(a.currentTime))} ms`).sort() })),
+        );
+      }, open);
+    for (const open of [true, false]) {
+      const seen = await firstFrame(open);
+      const what = open ? 'opened' : 'closed';
+      // What the change begins: the toggle's colors and corners, its glyphs' cross-fade, and the first item's colors.
+      expect(seen.begun, `${what}: the toggle turns`).toEqual(expect.arrayContaining(['toggle toggle background-color', 'toggle toggle border-top-left-radius', 'toggle glyph opacity']));
+      expect(seen.begun, `${what}: the first item's colors change`).toContain('item container background-color');
+      expect(seen.at, `${what}: every motion it began stands at its start in the first frame drawn after the task`).toEqual(seen.begun.map((motion) => `${motion} at 0 ms`));
+      await expect.poll(() => toggle(page, 'menu').evaluate((el) => el.classList.contains('turning'))).toBe(false);
+      await expect.poll(() => shown(page, 'menu')).toBe(open);
+    }
+  });
+
   test('FBM-19: where motion is reduced the items only fade in and out, all together, over sys.motion.role.reduced — no scale, no distance, no blur, no stagger — and nothing else moves', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
