@@ -1211,9 +1211,12 @@ const STAGING: Record<string, Staging> = {
   // A FAB menu's toggle sits at the inline-end bottom corner of a 320 × 320 stage, 16 from both edges (FBM-13's verify).
   // A fixture draws its open items in place above the toggle — the `inline` test attribute, with their elevation and
   // without open motion (as the menu's, MNU-19); a test's own fixture with `inline: false` is the real overlay instead.
-  // The stages stand 32 apart, so that one toggle's shadow never reaches into the next stage's baseline.
+  // The stages stand 32 apart, so that one toggle's shadow never reaches into the next stage's baseline: a gap of the
+  // document's column of stages, not a margin of the stage: the docs draw a stage alone (a gallery's canvas, the
+  // anatomy and measure figures), and a margin there is room the stage's baseline does not have.
   'fab-menu': {
-    css: () => `.stage:has(> tanrei-fab-menu) { box-sizing: border-box; inline-size: 320px; block-size: 320px; margin-block-end: 32px; display: flex; align-items: flex-end; justify-content: flex-end; }`,
+    css: () => `main:has(> .stage > tanrei-fab-menu) { row-gap: 32px; }
+      .stage:has(> tanrei-fab-menu) { box-sizing: border-box; inline-size: 320px; block-size: 320px; display: flex; align-items: flex-end; justify-content: flex-end; }`,
     props: ({ inline, ...props }) => (inline === false ? props : { ...props, inline: true }),
   },
   // A chip's content names what goes in its leading position: a glyph of the icon set (the `icon` slot), or `avatar` —

@@ -278,6 +278,7 @@
         "disabled": "disabled"
       },
       "events": { "resize": "resize", "change": "change", "toggle": "toggle" },
+      "parts": { "start-pane": "start-pane", "end-pane": "end-pane", "divider": "divider", "handle": "handle" },
       "notes": "`<tanrei-split-view label=\"Resize the message list\"><div slot=\"start\">…</div><div slot=\"end\">…</div></tanrei-split-view>`. A flex row (a column while axis is vertical) in the shadow root: the start pane, the divider with the `<tanrei-handle>` centred on it, and the end pane; the primary pane's box is its share of the region less the divider, and the other takes the rest. The split view sets `aria-controls` on its Handle to the id of the primary pane's box, which the Handle moves to its separator (HDL-26). A folded pane's box is `inert`, and its content `visibility: hidden` once the fold's motion has ended. A motion is `AnimatedSize` on the primary pane's box. Attributes are kebab-case (`min-size`, `max-size`, `large-step`, `reset-value`, `value-text`). `resize`, `change` and `toggle` are CustomEvents that bubble and are composed, whose `detail` carries `value` and `collapsed`."
     },
     "swiftui": {

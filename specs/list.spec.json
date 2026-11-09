@@ -1506,6 +1506,22 @@
           }
         }
       },
+      "parts": {
+        "list": "items",
+        "item": "tanrei-list-item container",
+        "content": "tanrei-list-item content",
+        "handle": "tanrei-list-item handle",
+        "move-menu": "tanrei-list-item tanrei-menu surface",
+        "gap": {
+          "noBox": "The place a dragged item would land is the room the other items open by sliding aside: no element draws it."
+        },
+        "mark": "tanrei-list-item mark",
+        "divider": "tanrei-list-item divider",
+        "focus-ring": "tanrei-list-item container@focus-ring",
+        "announcement": {
+          "noBox": "The live region is a visually hidden element, clipped to one pixel: it is never drawn."
+        }
+      },
       "notes": "`tanrei-list` holds `tanrei-list-item` children. It sets its own `value` or `values` (an array property; the `values` attribute is not reflected) before firing `change`, as a native control does. Focus moves among actionable items by a roving tabindex. Each item is a separate element, so the list sets `aria-posinset` and `aria-setsize` on them. Words: the attributes `drag-handle-label`, `drag-handle-hint`, `move-to-start-label`, `move-before-label`, `move-after-label`, `move-to-end-label`, `lifted-text`, `moved-text` and `cancelled-text`, and the same keys of `setWords()`. `move` is a `CustomEvent` whose `detail` is `{ from, to }`; it bubbles, is not cancelable, and the list moves no element: the product reorders the `tanrei-list-item` children (or its framework does), and the list sees it as a change of its children. The move menu is one `tanrei-menu` in the list's shadow root, placed against the handle that opened it. A dragged item and its neighbours are moved by transforms, so the product's elements never change place under it; the item carries `touch-action: pan-x pan-y` and the handle `touch-action: none`, and a long press is told from a swipe by a non-passive `touchmove` listener that is cancelled only once the item is lifted. The live region is one visually hidden `role=\"status\"` element in the list's shadow root. An item the product takes away is drawn leaving by putting the product's own element back where it stood, as the list's child, until its motion has ended (LST-41): it is `inert`, `aria-hidden=\"true\"` and carries `data-leaving` meanwhile (in a wrapping list `data-leaving=\"placed\"`, positioned outside the flow at the box it was drawn in), the list counts it in nothing, and once it has gone the list removes it and gives back the `inert` and `aria-hidden` it had. A script that reads the list's children while one leaves selects `tanrei-list-item:not([data-leaving])`; a product that puts that element back gives it back to the list, which grows it from where it is drawn. The length of an item that arrives or leaves moves through Web Animations on the item (its `block-size` or `inline-size` and the margin after it, its content held at its own length and cut by a `clip-path`), and its fade on its `opacity`. Before the element is defined (no script) the items are plain children in the order written and nothing can be moved."
     },
     "swiftui": {

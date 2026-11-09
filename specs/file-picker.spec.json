@@ -532,6 +532,16 @@
         "select": "select",
         "reject": "reject"
       },
+      "parts": {
+        "group": "host",
+        "trigger": "slot:trigger",
+        "container": "container",
+        "outline": "container@outline",
+        "icon": "icon",
+        "label": "label",
+        "supporting-text": "supporting-text",
+        "selection-text": "selection-text"
+      },
       "notes": "The shadow-root form: a control whose parts and states are its own. `<tanrei-file-picker accept=\".json\" constraints-text=\"…\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose a file</tanrei-button></tanrei-file-picker>`. Attributes are kebab-case (`max-size`, `max-files`, `constraints-text`, `drop-text`, `selection-text`); `accept` is a comma-separated list, the form a native file input takes. The trigger and the glyph stay in the product's light DOM (the `trigger` and `icon` slots); the area and the texts are in the shadow root. The picker is a real `<input type=\"file\">` in the shadow root — hidden from sight, from the focus order and from assistive technology — carrying `multiple` and `accept`, whose `click()` the trigger's `click` and a press on the area call (both are user activations); its `change` and the area's `drop` feed FPK-9, and its value is cleared after each choice so that the same file can be chosen twice. The area listens for `dragenter`, `dragover`, `dragleave` and `drop` on itself only, counts enters and leaves so that a child does not end the condition, sets `dropEffect` to `copy` or `none`, and during a drag knows what the browser tells: kinds and a count (`DataTransfer.items`), never names or sizes, so a file that is too large is refused at the drop. `select` and `reject` are CustomEvents that bubble: `detail.files` is a `File[]`, and `reject`'s `detail.files` is `{ file, reason }[]`. `judge(files: Iterable<File>): { accepted: File[], refused: { file: File, reason: 'type' | 'size' | 'count' }[] }` is FPK-31 and dispatches nothing. **Not form-associated**: no `name`, no value, no validity (FPK-7). It is a Field's control: it asks for the Field's connection as every Tanrei control does and takes the name, the description and the three states as values; a component that holds it gives the same values through the same connection. The description, `aria-invalid` and `disabled` are written on the slotted trigger's host — which a `tanrei-button` carries to its native button — and taken back when the trigger leaves the slot; the group's role and name are on an element of the shadow root, present only while there is a name (FPK-17). A button's role has no required state, so `required` is said only by a Field's required text in that description. Parts: `container`, `icon`, `label`, `supporting-text`, `selection-text`. Custom properties: `--<namespace>-comp-file-picker-…`. Without script, and until the element is defined, the trigger is a button that opens nothing. Class `TanreiFilePicker`. React: `FilePicker`, with `onSelect`, `onReject`, and a ref with `judge()`."
     },
     "swiftui": {

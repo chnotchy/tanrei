@@ -87,6 +87,7 @@ const flatParent = (node: Node): Node | null => {
  * @slot - The menu's items: `<tanrei-menu-item>`, `<tanrei-menu-checkbox-item>`, `<tanrei-menu-radio-item>`, `<tanrei-submenu>` and `<tanrei-menu-group>` children.
  * @csspart container - The title's container: its fill, corners, every state, the ripple and the focus ring.
  * @csspart label - The title's text.
+ * @csspart indicator - The `expand_more` glyph after the title's label, drawn while the bar holds both menus and bar items (hidden from assistive technology).
  * @fires {CustomEvent<TanreiMenubarMenuToggleDetail>} toggle - The person opened or closed the menu: `detail.open` (and the element's `open`) is the new value. It bubbles. A change the product makes to `open` fires none. A submenu item's `toggle` bubbles through the element too: tell them apart by the event's target.
  */
 export class TanreiMenubarMenu extends TanreiElement {

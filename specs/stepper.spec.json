@@ -942,6 +942,18 @@
           "notes": "A child element: `<tanrei-stepper-step value=\"shipping\" label=\"Shipping\" description=\"…\" status=\"error\" disabled>`, as `<option>` in a `<select>`."
         }
       },
+      "parts": {
+        "root": "host",
+        "step": "tanrei-stepper-step",
+        "container": "tanrei-stepper-step container",
+        "marker": "tanrei-stepper-step marker",
+        "label": "tanrei-stepper-step label",
+        "description": "tanrei-stepper-step description",
+        "connector": "tanrei-stepper-step connector",
+        "bar": "bar",
+        "position": "position",
+        "focus-ring": "tanrei-stepper-step container@focus-ring"
+      },
       "notes": "`<tanrei-stepper label=\"Checkout\" value=\"payment\" layout=\"horizontal\" pressable=\"visited\">` holds `<tanrei-stepper-step>` children, in order. The stepper is a `role=\"list\"` named by `aria-label`, each step host a `role=\"listitem\"` with `aria-current=\"step\"` on the current one; a pressable step draws a native `<button>` in its shadow root around its marker and text, a step that is not pressable the same parts in a `<div>`. The words for a condition are a visually hidden span after the label. The compact form is drawn in the stepper's own shadow root, where the steps are not displayed, and the host's role becomes `group`. The switch from horizontal to compact reads the host's width with a `ResizeObserver` against `comp.stepper.step.min-width` measured from a probe. `select` is a `CustomEvent` with `detail.value`; value is never set by the element. React: `Stepper` and `StepperStep`, generated wrappers. Fixtures fill their stage: 600 wide for a horizontal stepper, 360 for a vertical one, 320 for a compact one."
     },
     "swiftui": {

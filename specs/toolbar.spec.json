@@ -1728,6 +1728,13 @@
         "overflowLabel": "overflowLabel",
         "separation": "separation"
       },
+      "parts": {
+        "container": "container",
+        "items": "slot",
+        "separator": "separator",
+        "overflow-button": "overflow-button",
+        "outline": "container@outline"
+      },
       "notes": "The items are `<tanrei-button>` children, icon-only and labelled, `<tanrei-button-with-menu>` children, `<tanrei-toolbar-group>` children holding them, and `<tanrei-divider>` separators; a `<tanrei-menu anchor>` child anchored to an item's id is that item's Menu and is not laid out. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`; a group with a label has `role=\"group\"` and `aria-label`. The toolbar assigns each of its children, and a group each of its items, to a slot of its own (manual slot assignment), so that the toolbar draws the separations between them and leaves a hidden item unassigned: a hidden item is not drawn and keeps its place, its listeners and its state in the page. The overflow button and its menu are elements of the toolbar's shadow root. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): an item delegates focus to the button in its shadow root, and a host whose tabindex is -1 takes that button out of the Tab order; a Button with menu is told which of its halves is the Tab stop through the internal channel (SPB-33). A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4, TBR-6 and TBR-18. A selection group is `<tanrei-toolbar-group selection value values>`: `values` is a JSON array or whitespace-separated values (the property is the array: assign a new one), and its members are `<tanrei-button toggle value>` children. While single, the group's host has `role=\"radiogroup\"` and each member is told through the group-item channel that it is a choice (BTN-47); while multiple, the host is a group as any labelled one. The group fires `change` (a bubbling `CustomEvent` whose `detail` is `{ value, values }`) and stops a member's `change` at its host. The fields are `<tanrei-select>`, `<tanrei-number-input>`, `<tanrei-text-input>` and `<tanrei-slider>` children: a Select or a Number input that is not the Tab stop has `tabindex=\"-1\"`, and the stop has none, so that the control inside its shadow root is the one that takes focus; the last Text input or Slider keeps its own Tab stop and is never given a `tabindex`. While the items scroll, the run kept at the end stands after an element of the toolbar's shadow root that holds the items before it and is the one that scrolls.",
       "items": {
         "action": {

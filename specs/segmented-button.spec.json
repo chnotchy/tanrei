@@ -629,6 +629,16 @@
           "notes": "A child element: `<tanrei-segment value=\"week\" label=\"Week\" icon=\"…\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
         }
       },
+      "parts": {
+        "set": "set",
+        "container": "tanrei-segment container",
+        "check": "tanrei-segment check",
+        "icon": "tanrei-segment icon",
+        "label": "tanrei-segment label",
+        "divider": "tanrei-segment divider",
+        "outline": "set@outline",
+        "focus-ring": "tanrei-segment container@focus-ring"
+      },
       "notes": "`tanrei-segmented-button` (selection, value, values, size, label) holds `tanrei-segment` children. `value` is an attribute and a property; `values` is a property (an array); the `values` attribute is also read, as JSON or as space-separated words, because the fixture harness writes attributes. It sets its own `value` or `values` before firing `change`, as a native control does. It puts role radiogroup (single) or group (multiple) and `aria-label` on its own element, and on each segment's inner `<button>` role radio with `aria-checked`, `aria-posinset` and `aria-setsize` (single), or `aria-pressed` (multiple), with a roving tabindex. A toggle button may not carry `aria-posinset`, so in a multiple set the row is a `role=\"list\"` and each segment a `role=\"listitem\"` that carries the position; ElementInternals is not used for the roles, because axe cannot see it. It is not form-associated. The check is the icon helper's `check` glyph in the `check` part (SEG-16)."
     },
     "swiftui": {
