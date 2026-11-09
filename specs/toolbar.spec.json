@@ -148,6 +148,12 @@
           "description": "As the Button's disabled."
         },
         {
+          "name": "destructive",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's destructive: the action deletes or discards something a person may not get back (Delete, Discard, Remove member). The toolbar leaves it as set and gives it no look of its own: the Button draws it in the error role at its variant's emphasis (BTN-40). Its label still says what it deletes (BTN-42). Hidden into the overflow menu, it is a destructive menu item (TBR-20)."
+        },
+        {
           "name": "overflow",
           "type": "enum",
           "values": [
@@ -216,6 +222,12 @@
           "type": "boolean",
           "default": false,
           "description": "As the button's disabled."
+        },
+        {
+          "name": "destructive",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's destructive: the action deletes or discards something a person may not get back (Delete, Discard, Remove member). The toolbar leaves it as set and gives it no look of its own: the Button draws it in the error role at its variant's emphasis (BTN-40). Its label still says what it deletes (BTN-42). Hidden into the overflow menu, it is a destructive menu item (TBR-20)."
         },
         {
           "name": "overflow",
@@ -671,7 +683,7 @@
     },
     {
       "id": "TBR-20",
-      "text": "WHEN the overflow button is activated THE toolbar SHALL open a Tanrei Menu anchored to it, placed bottom-end (in a vertical toolbar, at the side away from the edge it stands at), holding the hidden items in reading order: an action or a labelled Button as a menu item with its label and its icon, disabled while it is; a toggle as a checkbox item with its selected state; a menu button as a submenu item holding its menu's items; a Button with menu as an item for its main action followed by a submenu item named by its menuLabel; and a separator, or the boundary between two groups, as the menu's separation. Activating a menu item SHALL do exactly what activating the hidden item does — the same click or change, once, from that item — and close the menu."
+      "text": "WHEN the overflow button is activated THE toolbar SHALL open a Tanrei Menu anchored to it, placed bottom-end (in a vertical toolbar, at the side away from the edge it stands at), holding the hidden items in reading order: an action or a labelled Button as a menu item with its label and its icon, disabled while it is, and destructive while the Button draws destructive — neither a toggle (BTN-41) nor a link (BTN-43) — as the menu draws a destructive item (MNU-18); a toggle as a checkbox item with its selected state; a menu button as a submenu item holding its menu's items; a Button with menu as an item for its main action followed by a submenu item named by its menuLabel; and a separator, or the boundary between two groups, as the menu's separation. Activating a menu item SHALL do exactly what activating the hidden item does — the same click or change, once, from that item — and close the menu."
     },
     {
       "id": "TBR-21",
@@ -870,6 +882,44 @@
           "props": {
             "label": "Delete",
             "disabled": true
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Mark as unread"
+          },
+          "content": "mark_email_unread"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Move"
+          },
+          "content": "drive_file_move"
+        }
+      ]
+    },
+    {
+      "id": "docked-destructive-item",
+      "props": {
+        "variant": "docked",
+        "label": "Message actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete",
+            "destructive": true
           },
           "content": "delete"
         },
@@ -1746,6 +1796,7 @@
             "selected": "selected",
             "value": "value",
             "disabled": "disabled",
+            "destructive": "destructive",
             "overflow": "toolbar-overflow"
           },
           "events": {
@@ -1759,6 +1810,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "destructive",
             "toggle": "toggle",
             "selected": "selected",
             "value": "value",
@@ -1897,6 +1949,7 @@
             "selected": "isSelected",
             "value": "value",
             "disabled": "disabled",
+            "destructive": "role",
             "overflow": "toolbarOverflow"
           },
           "events": {
@@ -1910,6 +1963,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "role",
             "toggle": "isSelected",
             "selected": "isSelected",
             "value": "value",
@@ -2048,6 +2102,7 @@
             "selected": "checked",
             "value": "value",
             "disabled": "enabled",
+            "destructive": "destructive",
             "overflow": "Modifier.toolbarOverflow"
           },
           "events": {
@@ -2061,6 +2116,7 @@
           "props": {
             "variant": "variant",
             "disabled": "enabled",
+            "destructive": "destructive",
             "toggle": "onCheckedChange",
             "selected": "checked",
             "value": "value",
@@ -2199,6 +2255,7 @@
             "selected": "isSelected",
             "value": "value",
             "disabled": "onPressed",
+            "destructive": "isDestructiveAction",
             "overflow": "TanreiToolbarItem.overflow"
           },
           "events": {
@@ -2212,6 +2269,7 @@
           "props": {
             "variant": "variant",
             "disabled": "onPressed",
+            "destructive": "isDestructiveAction",
             "toggle": "isSelected",
             "selected": "isSelected",
             "value": "value",
@@ -2350,6 +2408,7 @@
             "selected": "selected",
             "value": "value",
             "disabled": "disabled",
+            "destructive": "destructive",
             "overflow": "toolbarOverflow"
           },
           "events": {
@@ -2363,6 +2422,7 @@
           "props": {
             "variant": "variant",
             "disabled": "disabled",
+            "destructive": "destructive",
             "toggle": "toggle",
             "selected": "selected",
             "value": "value",

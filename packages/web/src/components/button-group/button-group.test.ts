@@ -1554,6 +1554,24 @@ test.describe('items, keyboard and semantics', () => {
     // Not announced: three buttons, named by their labels, in the placed order.
     expect(await stage(page, 'flagged').ariaSnapshot()).toBe('- button "Cancel"\n- button "Plain"\n- button "Delete"');
   });
+
+  test('BGR-19, BTN-40: a destructive confirming action is placed as any confirming one and draws its own destructive — the group neither gives it nor takes it away', async ({ page }) => {
+    const id = 'order-cancel-delete';
+    const given = spec.fixtures.find((f) => f.id === id)!;
+    // Its twin: the same items, Delete without destructive.
+    const twin = { ...given, id: 'plain-delete', items: given.items!.map((i) => ({ ...i, props: { ...i.props, destructive: false } })) };
+    await mountFixtures(page, spec, { fixtures: [given, twin] });
+    expect(await placed(page, id)).toEqual(['Cancel', 'Delete']);
+    const look = (fixtureId: string, n: number) => inner(page, fixtureId, n).evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+    expect(await look(id, 1)).toEqual([await resolveColor(page, B('tonal-destructive-container-color')), await resolveColor(page, B('tonal-destructive-label-color'))]);
+    // Cancel is not made destructive by standing beside it, and Delete's place and size are its twin's.
+    expect(await look(id, 0)).toEqual(await look('plain-delete', 0));
+    expect(await look('plain-delete', 1)).toEqual([await resolveColor(page, B('tonal-container-color')), await resolveColor(page, B('tonal-label-color'))]);
+    const [destructive, plain] = [await boxes(page, id, 2), await boxes(page, 'plain-delete', 2)];
+    expect(destructive.map(({ x, width, height }) => [x, width, height])).toEqual(plain.map(({ x, width, height }) => [x, width, height]));
+    // Not announced: two buttons named by their labels, as without it (BTN-42).
+    expect(await stage(page, id).ariaSnapshot()).toBe(await stage(page, 'plain-delete').ariaSnapshot());
+  });
 });
 
 test.describe('accessibility', () => {

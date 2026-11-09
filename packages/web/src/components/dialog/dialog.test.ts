@@ -1085,6 +1085,29 @@ test.describe('actions', () => {
     await expect.poll(() => paint(action(page, 'basic', 'Discard'))).toBe(await resolveColor(page, '--tanrei-comp-button-filled-container-color'));
   });
 
+  test('DLG-20, DLG-2, DLG-14, BTN-40: a destructive confirmation — an alertdialog whose Cancel takes the dialog’s variant and initial focus where the product marks it, and whose Delete keeps its filled variant and its destructive, at the end of the row', async ({ page }) => {
+    const id = 'destructive-confirmation';
+    await mount(page, [closed(id)]);
+    // DLG-2: the product marks the least destructive action with the platform's own mark (the guidance in the spec's notes).
+    await action(page, id, 'Cancel').evaluate((el) => el.setAttribute('autofocus', ''));
+    await open(page, id);
+    expect(await focused(page)).toBe('Cancel');
+    await expect(page.getByRole('alertdialog', { name: 'Delete 3 files?' })).toHaveCount(1);
+    const look = (label: string) =>
+      action(page, id, label)
+        .locator('button')
+        .evaluate((el) => ({ background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
+    const B = (name: string) => resolveColor(page, `--tanrei-comp-button-${name}`);
+    // Cancel is the dialog's variant, not destructive; Delete is filled and destructive, as set.
+    await page.mouse.move(0, 0);
+    await expect.poll(() => look('Delete')).toEqual({ background: await B('filled-destructive-container-color'), color: await B('filled-destructive-label-color') });
+    await expect(action(page, id, 'Cancel').locator('button')).toHaveAttribute('data-host-variant', 'tonal');
+    await expect(action(page, id, 'Cancel')).not.toHaveAttribute('destructive');
+    // The flags place them: the dismissive action at the start of the row, the confirming one at its end.
+    const [cancel, del] = [await bounds(action(page, id, 'Cancel')), await bounds(action(page, id, 'Delete'))];
+    expect(cancel.x).toBeLessThan(del.x);
+  });
+
   test('DLG-10: an action marked both confirming and dismissive is placed among the unflagged ones and reported (BGR-18)', async ({ page }) => {
     const seen = reports(page);
     await mount(page, [f('both', {}, { items: [act('Discard', { confirming: true }), act('Both', { confirming: true, dismissive: true }), act('Cancel', { dismissive: true })] })]);
@@ -1287,9 +1310,9 @@ test.describe('Lit development mode', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, open, centred and compact', async ({ page }) => {
+  test('no axe violations in light and dark, open, centred and compact, and as a destructive confirmation', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      for (const id of ['icon', 'scrolling', 'compact-stacked']) {
+      for (const id of ['icon', 'scrolling', 'compact-stacked', 'destructive-confirmation']) {
         await page.setViewportSize(dialogWindow(id));
         await mountFixtures(page, spec, { theme, icons: true, fixtures: [spec.fixtures.find((fx) => fx.id === id)!] });
         // A color is judged as it rests: the entrance draws the dialog and its scrim translucent while it plays.
