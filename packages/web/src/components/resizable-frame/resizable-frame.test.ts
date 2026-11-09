@@ -8,6 +8,7 @@ import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColo
 import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('resizable-frame');
 type P = Page;
@@ -577,7 +578,7 @@ test.describe('fixtures', () => {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtureAsInAll(page, spec, f);
       await away(page);
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

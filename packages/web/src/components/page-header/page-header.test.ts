@@ -9,6 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('page-header');
 type P = Page;
@@ -1206,7 +1207,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

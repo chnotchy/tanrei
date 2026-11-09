@@ -11,6 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../../..');
@@ -1992,7 +1993,7 @@ test.describe('fixtures', () => {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       // A fixture the block highlights by itself is compared with its colors, which arrive after the code is drawn.
       if (!f.items && f.props.highlight !== false && H.languages().includes(String(f.props.language ?? ''))) await colors(page, f.id);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

@@ -12,6 +12,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -1390,7 +1391,7 @@ test.describe('fixtures', () => {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
       await page.mouse.move(0, 0);
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });

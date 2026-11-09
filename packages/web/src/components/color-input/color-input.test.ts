@@ -13,6 +13,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('color-input');
 type P = Page;
@@ -2137,7 +2138,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

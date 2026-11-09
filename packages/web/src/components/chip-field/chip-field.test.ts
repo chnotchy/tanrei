@@ -12,6 +12,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { boxAtRest } from '../../../test/at-rest.js';
 import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('chip-field');
 type P = Page;
@@ -1342,7 +1343,7 @@ test.describe('fixtures', () => {
 
   for (const fixture of spec.fixtures) {
     test(`snapshot: ${fixture.id}`, async ({ page }) => {
-      await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
 });

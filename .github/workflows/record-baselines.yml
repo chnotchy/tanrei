@@ -7,7 +7,8 @@
 # message. Look at every image in the commits before merging, and repeat the reason in the changeset.
 #
 #   web           Chromium in mcr.microsoft.com/playwright (the image and the version ci.yml runs), the `snapshot: …`
-#                 tests only, `--update-snapshots=changed`: a baseline within the comparison's tolerance is kept
+#                 tests only, `--update-snapshots=changed`: a baseline within the comparison's tolerance (its pixels,
+#                 and where it is drawn: packages/web/test/baseline.ts) is kept
 #   flutter       ubuntu-24.04, Flutter 3.32.8, `flutter test --update-goldens`
 #   compose       ubuntu-24.04, JDK 17, `./gradlew :tanrei:recordRoborazziDebug` (the snapshot test classes only)
 #   react-native  ubuntu-24.04, `TANREI_RECORD_SNAPSHOTS=1 jest` (render trees are platform independent)

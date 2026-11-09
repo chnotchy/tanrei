@@ -15,6 +15,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('date-time-picker');
 type P = Page;
@@ -3201,12 +3202,12 @@ test.describe('fixtures', () => {
       await page.setViewportSize(pickerWindow(fixture));
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });
       if (fixture.props.presentation === 'docked') {
-        await expect(page.locator(`[data-fixture="${fixture.id}"]`)).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+        await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
         return;
       }
       await expect.poll(() => isOpen(page, fixture.id)).toBe(true);
       await settle(page, fixture.id);
-      await expect(page).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
+      await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
 });

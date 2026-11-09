@@ -12,6 +12,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { holdClock } from '../../../test/page-clock.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('skeleton');
 type P = Page;
@@ -1269,8 +1271,12 @@ test.describe('skeleton', () => {
 
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
-      await mountFixtures(page, spec);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      // A fixture that keeps its show delay (`waiting`) is pictured while it waits (SKL-7): the page's clock is held
+      // from before the mount, so the delay cannot run out before the screenshot, however slow the machine.
+      const waits = f.props.showDelay !== 0;
+      if (waits) await holdClock(page);
+      await mountFixtures(page, spec, { beforePaint: waits });
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

@@ -8,6 +8,7 @@ import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, 
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('field');
 const textField = loadSpec('text-field');
@@ -2224,7 +2225,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtureAsInAll(page, spec, f, { icons: true });
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

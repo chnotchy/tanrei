@@ -11,6 +11,7 @@ import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { compounds, functions, hasForAnother, list } from '../../test/selectors.js';
 import { fixturePicture } from '../../test/pictures.js';
 import { specimenHtml, specimenSections } from '../../test/specimen.js';
+import { expectBaseline } from '../../test/baseline.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../..');
@@ -1473,7 +1474,7 @@ test.describe('fixtures', () => {
       await mountFixtures(page, spec, { icons: true, fixtures: [f] });
       // The specimen's external link carries a site's picture, asked for lazily: it has arrived before the stage is compared.
       await expect.poll(() => page.evaluate(() => [...document.images].every((image) => image.complete))).toBe(true);
-      await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
 });

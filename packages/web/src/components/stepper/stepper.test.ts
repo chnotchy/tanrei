@@ -25,6 +25,7 @@ import {
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded, settledCss } from '../../../test/motions.js';
+import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -753,7 +754,7 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtureAsInAll(page, spec, f, { icons: true });
-      await expect(page.locator(`[data-fixture="${f.id}"]`)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+      await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
 });
