@@ -16,6 +16,10 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the header’s theme on a
+// preset’s stage, took 11 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -78,7 +82,7 @@ async function windowed(page, id) {
 }
 
 describe("the gallery's stages follow the page's scheme and contrast", () => {
-  test('the header’s theme reaches a preset’s stage, on the system’s other scheme, until the stage’s own switch is turned', async () => {
+  test('the header’s theme reaches a preset’s stage, on the system’s other scheme, until the stage’s own switch is turned', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light', reducedMotion: 'reduce' });
     try {
       const page = await context.newPage();
@@ -109,7 +113,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     }
   });
 
-  test('the header’s theme and the page’s contrast reach a window, on the system’s other scheme', async () => {
+  test('the header’s theme and the page’s contrast reach a window, on the system’s other scheme', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light', reducedMotion: 'reduce' });
     try {
       const page = await context.newPage();
@@ -137,7 +141,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     }
   });
 
-  test('a window is written in the contrast and theme the site stored', async () => {
+  test('a window is written in the contrast and theme the site stored', LIMIT, async () => {
     const context = await browser.newContext({ colorScheme: 'light', viewport: { width: 1440, height: 1000 } });
     try {
       const page = await context.newPage();

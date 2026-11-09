@@ -24,6 +24,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the mirrored figures, in
+// WebKit, took 41 s in CI.
+const LIMIT = { timeout: 150_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -141,7 +145,7 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('the anatomy figure numbers each part the fixture draws, once, inside the figure and clear of the others, with a leader to it', async () => {
+    test('the anatomy figure numbers each part the fixture draws, once, inside the figure and clear of the others, with a leader to it', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, ANATOMY);
       const figure = await anatomy(page);
@@ -165,7 +169,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the measure figure draws every length of its table, each as long as its token resolves to', async () => {
+    test('the measure figure draws every length of its table, each as long as its token resolves to', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, MEASURE);
       const figure = await measures(page);
@@ -183,7 +187,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('on a page that reads right to left, the figures are mirrored: the start stands at the right', async () => {
+    test('on a page that reads right to left, the figures are mirrored: the start stands at the right', LIMIT, async () => {
       for (const [url, rtl] of [[PAGE, false], ['/ar/components/button/', true]]) {
         const { context, page } = await open(url);
         await drawn(page, ANATOMY);
@@ -202,7 +206,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('under a preset chosen in the header, the lines are drawn again with that system’s values', async () => {
+    test('under a preset chosen in the header, the lines are drawn again with that system’s values', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, MEASURE);
       const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
@@ -223,7 +227,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('in the dark scheme the numbers take the dark scheme’s badge color', async () => {
+    test('in the dark scheme the numbers take the dark scheme’s badge color', LIMIT, async () => {
       const { context, page } = await open(PAGE, { colorScheme: 'dark' });
       await drawn(page, ANATOMY);
       const figure = await anatomy(page);
@@ -233,7 +237,7 @@ for (const engine of ENGINES) {
     });
 
     if (engine === 'chromium') {
-      test('under forced colors every number and line is the system’s text color', async () => {
+      test('under forced colors every number and line is the system’s text color', LIMIT, async () => {
         const { context, page } = await open(PAGE, { forcedColors: 'active' });
         await drawn(page, ANATOMY);
         const figure = await anatomy(page);
@@ -251,7 +255,7 @@ for (const engine of ENGINES) {
       });
     }
 
-    test('each figure takes the same room before its elements are defined as once it is drawn', async () => {
+    test('each figure takes the same room before its elements are defined as once it is drawn', LIMIT, async () => {
       const { context, page } = await open();
       const room = (selector) => page.evaluate((selector) => document.querySelector(selector).getBoundingClientRect().height, selector);
       const held = {};

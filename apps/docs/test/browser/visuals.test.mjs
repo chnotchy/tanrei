@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a preset’s stylesheet,
+// took 13 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -91,7 +95,7 @@ const settled = (page) =>
 
 describe('the figure frame on the button’s page', () => {
   for (const viewport of VIEWPORTS) {
-    test(`at ${viewport.width}: the stage and the header take the same room before anything is defined as once drawn, and the variants stand in one row`, async () => {
+    test(`at ${viewport.width}: the stage and the header take the same room before anything is defined as once drawn, and the variants stand in one row`, LIMIT, async () => {
       // Every script is held until the document is parsed and its faces are in: the first frame is the page before any
       // element is defined, what a reader on a slow line sees.
       const context = await browser.newContext({ viewport });
@@ -120,7 +124,7 @@ describe('the figure frame on the button’s page', () => {
     });
   }
 
-  test('drawn under the default system; a preset’s stylesheet is loaded when it is chosen, once, and reaches the stage only', async () => {
+  test('drawn under the default system; a preset’s stylesheet is loaded when it is chosen, once, and reaches the stage only', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
     const page = await context.newPage();
     const sheets = [];

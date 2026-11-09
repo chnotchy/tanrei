@@ -20,6 +20,10 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, every cell’s tokens, took
+// 14 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -116,7 +120,7 @@ const cells = (page) =>
 const tokenOf = (cell, part) => `${NS}.comp.button.${cell.variant}${cell.state === 'enabled' ? '' : `.${cell.state}`}${cell.selected ? '.selected' : ''}.${part}.color`;
 
 describe('the state matrix on the button’s page', () => {
-  test('every cell is drawn with its state’s tokens: the container and the label, of every variant, at rest and selected', async () => {
+  test('every cell is drawn with its state’s tokens: the container and the label, of every variant, at rest and selected', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
     const page = await context.newPage();
     await page.goto(`${origin}${PAGE}`);
@@ -140,7 +144,7 @@ describe('the state matrix on the button’s page', () => {
     }
   });
 
-  test('under a preset chosen in the header, every cell is held again and drawn with that system’s tokens', async () => {
+  test('under a preset chosen in the header, every cell is held again and drawn with that system’s tokens', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
     const page = await context.newPage();
     await page.goto(`${origin}${PAGE}`);
@@ -165,7 +169,7 @@ describe('the state matrix on the button’s page', () => {
     { width: 390, height: 844 },
     { width: 1440, height: 900 },
   ]) {
-    test(`at ${viewport.width}: the table takes the same room before its elements are defined as once they are drawn`, async () => {
+    test(`at ${viewport.width}: the table takes the same room before its elements are defined as once they are drawn`, LIMIT, async () => {
       const context = await browser.newContext({ viewport });
       const page = await context.newPage();
       let release;
@@ -199,7 +203,7 @@ describe('the state matrix on the button’s page', () => {
     });
   }
 
-  test('nothing in a cell takes the focus or is exposed; each cell says what it shows', async () => {
+  test('nothing in a cell takes the focus or is exposed; each cell says what it shows', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
     await page.goto(`${origin}${PAGE}`);

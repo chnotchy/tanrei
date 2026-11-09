@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the glyphs held back, took
+// 8 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
@@ -106,7 +110,7 @@ for (const engine of ENGINES) {
       return { context, page, warnings };
     }
 
-    test('while the font is held back no glyph is painted, past the block period; once it arrives each is drawn in the box it held', async () => {
+    test('while the font is held back no glyph is painted, past the block period; once it arrives each is drawn in the box it held', LIMIT, async () => {
       const held = [];
       const { context, page } = await open((route) => held.push(route), { iconFile: SITE_ICON_FILE });
       try {
@@ -131,7 +135,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a font that fails to load leaves the glyphs hidden, and the page says so', async () => {
+    test('a font that fails to load leaves the glyphs hidden, and the page says so', LIMIT, async () => {
       const { context, page, warnings } = await open((route) => route.continue(), { iconFile: '/no-such-icon-font.woff2' });
       try {
         await page.waitForLoadState('load');
@@ -145,7 +149,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a page whose script does not run never hides them', async () => {
+    test('a page whose script does not run never hides them', LIMIT, async () => {
       const { context, page } = await open((route) => route.continue(), { javaScriptEnabled: false });
       try {
         await page.waitForLoadState('load');

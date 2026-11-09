@@ -21,6 +21,10 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the row of package
+// managers, in WebKit, took 26 s in CI.
+const LIMIT = { timeout: 120_000 };
+
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
 const { tabsKey } = await import('../../src/components/tabs/keys.mjs');
@@ -109,7 +113,7 @@ for (const engine of ENGINES) {
       return { page, errors };
     };
 
-    test('a named row of npm, pnpm, yarn and bun; npm shown first; the choice kept across pages and languages; the copy copies it', async () => {
+    test('a named row of npm, pnpm, yarn and bun; npm shown first; the choice kept across pages and languages; the copy copies it', LIMIT, async () => {
       const ctx = await context([KEEPING_CLIPBOARD]);
       try {
         const { page, errors } = await open(ctx, '/getting-started/web/');
@@ -157,7 +161,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('with storage that throws, npm is shown, every tab works, the page takes the device’s scheme and nothing is thrown', async () => {
+    test('with storage that throws, npm is shown, every tab works, the page takes the device’s scheme and nothing is thrown', LIMIT, async () => {
       // The page is built in the dark scheme and the device prefers the light one: the head's script must still run.
       const ctx = await context([BLOCKED_STORAGE]);
       try {

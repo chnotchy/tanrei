@@ -22,6 +22,11 @@ import { fileURLToPath } from 'node:url';
 import { headerRules, headersFor, serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Button page, took 91 s
+// in CI, and the Navigation drawer's 219 s on a loaded Mac beside two other files. It is above ANSWER (below), so a
+// script of the page that does not answer is named by its own wait, with where it stands, before this runs out.
+const LIMIT = { timeout: 600_000 };
+
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 const repo = path.join(docs, '../..');
@@ -246,13 +251,14 @@ async function evaluateBounded(page, what, fn, arg) {
 }
 
 /**
- * A new context and page of `browser`, its DevTools session's debugger on (`standing`), and closing it, each bounded.
+ * A new context and page of `browser`, its DevTools session's debugger on (`standing`), and closing it, each bounded
+ * (the context, the page and closing the context by launch.mjs).
  * @param {string} what
  * @param {import('@playwright/test').BrowserContextOptions} options
  */
 async function openPage(what, options) {
-  const context = await bounded(`${what}: a new browser context`, browser.newContext(options));
-  const page = await bounded(`${what}: a new page`, context.newPage());
+  const context = await browser.newContext(options);
+  const page = await context.newPage();
   const session = await bounded(`${what}: its DevTools session`, context.newCDPSession(page));
   const held = { session, scripts: new Map(), asked: false };
   session.on('Debugger.scriptParsed', ({ scriptId, url }) => held.scripts.set(scriptId, url));
@@ -262,7 +268,7 @@ async function openPage(what, options) {
   page.on('crash', () => (held.crashed ??= Date.now()));
   await bounded(`${what}: its debugger`, session.send('Debugger.enable'));
   sessions.set(page, held);
-  return { page, close: () => bounded(`${what}: closing its context`, context.close()) };
+  return { page, close: () => context.close() };
 }
 
 /**
@@ -470,7 +476,7 @@ const drawing = [];
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {
   test('there are component pages', () => assert.ok(pages.length > 80, `found ${pages.length} component pages`));
   for (const { name, fixtures } of pages) {
-    test(name, async () => {
+    test(name, LIMIT, async () => {
       const problems = [];
       for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
         const { page, close } = await openPage(`/components/${name}/ at ${viewport.width}`, { viewport, reducedMotion: 'reduce' });
