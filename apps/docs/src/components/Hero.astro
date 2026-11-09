@@ -162,10 +162,13 @@ const specimenTitle = `${figureId(Astro)}-title`;
     --_specimen-gap: 0.75rem;
     /* Until its Buttons are defined the stage holds them hidden, as text, in fewer rows than they take once drawn. It is
        given the rows they will take, so that nothing beside or under it moves when they are drawn. Measured with every
-       element defined, the same in all six languages (the specimen's labels are not translated): 13 rows in the second
-       column, at every width that column has (from 60rem up its width no longer changes); 7 to 14 rows in one column,
-       more as it narrows — there it is given the fewest, which leaves no room empty at any width. */
-    --_specimen-rows: 7;
+       element defined, the same in all six languages (the specimen's labels are not translated): 15 rows in the second
+       column, at every width that column has (from 60rem up its width no longer changes); 8 to 17 rows in one column,
+       more as it narrows — there it is given the fewest, which leaves no room empty at any width. The rows follow the
+       Button's fixtures the specimen draws (lib/fixtures.ts), so a fixture added to the Button's spec can add one: the
+       hero's browser test (test/browser/hero.test.mjs) then fails at 1440 until the second column's count is measured
+       again, and the one column's fewest is measured again with it. */
+    --_specimen-rows: 8;
     flex-direction: row;
     flex-wrap: wrap;
     gap: var(--_specimen-gap);
@@ -176,7 +179,7 @@ const specimenTitle = `${figureId(Astro)}-title`;
   }
   @media (min-width: 60rem) {
     .specimen-stage {
-      --_specimen-rows: 13;
+      --_specimen-rows: 15;
     }
   }
   .specimen-stage :global(:not(:defined)) {
