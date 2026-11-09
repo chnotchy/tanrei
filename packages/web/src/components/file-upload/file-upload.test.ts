@@ -2044,6 +2044,20 @@ test.describe('its own rows', () => {
     await host(page, id).evaluate((el) => ((el as Upload).rows = 'own'));
     await expect(list(page, id)).toBeHidden();
     await expect(stage(page, id).getByRole('listitem')).toHaveCount(0);
+    // The product's row leaves as a removed row does (FUP-29): until the List has drawn its item leaving, it is drawn
+    // there only, in an item that is inert and hidden. The list's box is empty a few frames before that item is taken
+    // away — the item's length rounds to nothing before its motion ends — so a hidden list is not the end of the leave.
+    expect(
+      await rows(page, id)
+        .first()
+        .evaluate((el) => {
+          // Chromium keeps naming the slot of an item that was taken away: a slot out of the tree draws nothing.
+          const item = el.assignedSlot?.parentElement;
+          return !item?.isConnected || (item.hasAttribute('data-leaving') && (item as HTMLElement).inert && item.getAttribute('aria-hidden') === 'true');
+        }),
+      'meanwhile the product’s row is drawn only leaving',
+    ).toBe(true);
+    await motionEnded(host(page, id));
     expect(await rows(page, id).first().evaluate((el) => el.getClientRects().length), 'the product’s row is no longer drawn').toBe(0);
     expect(await keptNames(page, id), 'no file is carried across').toEqual([]);
     await expect.poll(() => submitted(page)).toEqual(['note=hello']);
