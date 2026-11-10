@@ -336,6 +336,20 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
     ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []),
     ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : []),
   ];
+  // Motion is reduced where the person asks their system for it (prefers-reduced-motion), or where the product reduces
+  // it from inside the app (data-${NS}-motion="reduce" on the root): either way the root says `${PREFIX}-motion: reduce`,
+  // and a component's reduced form answers that one inherited value with a style container query (MOT-6,
+  // docs/architecture/motion.md). Only the root sheet declares it, as it declares the colour scheme: a system scope
+  // inherits it. There is no value that turns motion back on against the person's setting.
+  const motion = scope
+    ? []
+    : [
+        `  /* Motion follows prefers-reduced-motion; reduce it from inside the app with data-${NS}-motion="reduce" on the root. */`,
+        '  @media (prefers-reduced-motion: reduce) {',
+        block(':root', [[`${PREFIX}-motion`, 'reduce']], '    '),
+        '  }',
+        block(`:root${attr('motion', 'reduce')}`, [[`${PREFIX}-motion`, 'reduce']], '  '),
+      ];
   // `used`: what is kept of each rule, and a rule left with nothing is not written.
   const keep = used ? kept(used, [own, base, standard, medium, high]) : null;
   const only = (decls) => (keep ? decls.filter(([name]) => !name.startsWith('--') || keep.has(name)) : decls);
@@ -351,6 +365,7 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
       ...(only(high).length ? ['  @media (prefers-contrast: more) {', block(`${S}:not([data-${NS}-contrast])`, only(high), '    '), '  }'] : []),
       ...rule(scope ? scoped('medium') : attr('contrast', 'medium'), medium, '  '),
       ...rule(scope ? scoped('high') : attr('contrast', 'high'), high, '  '),
+      ...motion,
       '}',
       '',
     ].join('\n');
@@ -374,6 +389,7 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
     '  }',
     block(scope ? scoped('medium') : attr('contrast', 'medium'), medium, '  '),
     block(scope ? scoped('high') : attr('contrast', 'high'), high, '  '),
+    ...(motion.length ? ['', ...motion] : []),
     '}',
     '',
   ].join('\n');

@@ -162,3 +162,12 @@ test('a corner inside another (a sub of a shape) gets a -pill companion of 0; a 
   assert.equal(base['--tanrei-comp-button-group-standard-gap'], 'max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)))');
   for (const gap of ['button-group-standard-gap', 'toolbar-container-gap-docked', 'search-container-gap']) assert.equal(base[`--tanrei-comp-${gap}-pill`], undefined, gap);
 });
+
+test('reduced motion: the root sheet says --tanrei-motion: reduce under prefers-reduced-motion and under data-tanrei-motion="reduce" on the root (MOT-6); a system scope says nothing and inherits it', async () => {
+  const root = emitCss(await (await resolveSystem({ system: 'tanrei' })).model());
+  assert.match(root, /@media \(prefers-reduced-motion: reduce\) \{\n\s+:root \{\n\s+--tanrei-motion: reduce;\n\s+\}\n\s+\}/);
+  assert.equal(blocks(root)[':root[data-tanrei-motion="reduce"]']?.['--tanrei-motion'], 'reduce');
+  assert.equal(root.match(/--tanrei-motion:/g).length, 2, 'declared by those two rules alone');
+  const scoped = emitCss(await (await resolveSystem({ system: 'm3-like' })).model(), { scope: 'm3-like' });
+  assert.doesNotMatch(scoped, /--tanrei-motion|data-tanrei-motion|prefers-reduced-motion/);
+});

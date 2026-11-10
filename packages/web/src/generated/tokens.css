@@ -9390,4 +9390,14 @@
     --tanrei-comp-snackbar-inverse-warning-outline-color: light-dark(#ffd2a6, #683c00);
     --tanrei-comp-snackbar-inverse-warning-supporting-text-color: light-dark(#fff1e7, #241403);
   }
+
+  /* Motion follows prefers-reduced-motion; reduce it from inside the app with data-tanrei-motion="reduce" on the root. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --tanrei-motion: reduce;
+    }
+  }
+  :root[data-tanrei-motion="reduce"] {
+    --tanrei-motion: reduce;
+  }
 }
