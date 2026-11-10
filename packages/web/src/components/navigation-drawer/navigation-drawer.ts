@@ -3148,6 +3148,17 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-88: asked to focus its filter while it was closed: the field, in place of the selected destination.
     if (this.filterFocusOwed) {
       this.filterFocusOwed = false;
+      const field = this.filterInput;
+      if (this.fieldShown && field && !field.hasUpdated) {
+        // A held drawer's column is the same `<nav>` as the drawer open over the content, and draws no field: the field
+        // is made by the update that opens it, and takes focus once it has drawn its input (NVD-87: once it is expanded).
+        void field.updateComplete.then(() => {
+          if (!this.shown || !this.fieldShown || this.filterInput !== field) return;
+          this.focusField();
+          if (!this.hasFocus()) this.focusInside(shown);
+        });
+        return;
+      }
       if (this.fieldShown) {
         this.focusField();
         if (this.hasFocus()) return;

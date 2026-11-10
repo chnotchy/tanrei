@@ -874,6 +874,18 @@ test.describe('the menu button', () => {
     await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
   });
 
+  test('APS-33, NVD-87: at 800 wide the column answers a filterable drawer’s chord itself: it widens over the content below the header, the frame follows (one navigationOpenChange with true), and focus is in the filter field, which the column did not draw', async ({ page }) => {
+    const filterable = DRAWER('responsive collapsible filterable filter-label="Filter navigation" filter-placeholder="Filter" filter-clear-label="Clear" filter-count-text="Matches: {count}" filter-empty-text="No matches"');
+    await mount(page, real({ navigation: filterable }), { width: 800 });
+    expect(await drawer(page).evaluate((el) => el.shadowRoot!.querySelector('.filter'))).toBeNull();
+    const log = await record(page);
+    await page.locator('#first').focus();
+    await page.keyboard.press('/');
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
+    expect((await log()).filter(([name]) => name === 'navigationopenchange')).toEqual([['navigationopenchange', true]]);
+  });
+
   test('APS-7: navigationOpen set by the product opens the navigation and puts it away without an event, and is ignored while the navigation stands beside the content; in the column presentation the drawer’s own menu button widens it over the content and the frame follows', async ({ page }) => {
     await mount(page, real(), { width: 400 });
     const log = await record(page);
