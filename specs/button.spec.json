@@ -62,7 +62,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height (32 / 40 / 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (32 / 40 / 56 under the default system), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.button.size"
     },
     {
