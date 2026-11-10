@@ -34,6 +34,15 @@ const LIMIT = { timeout: 180_000 };
 const INTERACTION = 150;
 
 const ENGINES = engines('chromium,firefox,webkit');
+// The engines whose first page under a theme not kept yet is shown in the theme, asserted; the others may take the late
+// path (shown in the default system after REVEAL_AFTER, the sheet kept for the next page). Measured in a container like
+// CI's (two CPUs, this file alone), from navigation until the sheet was in: Chromium 0.9 to 2.0 s; Firefox 1.3 to 2.0 s,
+// but up to 3.9 s with the host busy, and in about one load of 30 it still fetched the worker's script only once the
+// document was parsed (5 s there), though the head's script had started it; WebKit 1.2 to 3.9 s, its main thread too
+// busy loading the page to take the worker's answer in time. Beside a second browser test file on the same two CPUs, Chromium was late once in six loads
+// (twice in three before the worker was started from the head), so even Chromium holds only with this file's share of
+// a runner.
+const IN_TIME = new Set(['chromium']);
 const WIDE = { width: 1440, height: 900 };
 const PAGE = '/components/button/';
 const en = strings('en');
@@ -349,13 +358,9 @@ for (const engine of ENGINES) {
       const measured = JSON.stringify({ hidden: Math.round(cloak.hidden), shown: Math.round(cloak.shown), sheetThen: cloak.sheetThen, ...timings });
       t.diagnostic(`hidden for ${Math.round(cloak.shown - cloak.hidden)} ms, ${cloak.sheetThen ? 'shown in the theme' : 'shown in the default system: the sheet was not in after REVEAL_AFTER'}`);
       t.diagnostic(`${engine} first load, ms from navigation: ${measured}`);
-      // Whether the first page is shown in the theme is reported, not asserted, in every engine. On a Mac each engine has
-      // the sheet in time (Chromium at about 0.7 s from navigation, Firefox and WebKit at 2.1 to 2.2 s), but on CI's
-      // runners, where this file runs beside other browser test files, nothing about it is reliable. There Chromium's
-      // worker took 2.6 s from being made (578 ms) to answering (3142 ms), against 0.4 s on an idle Mac page, while the
-      // page's main thread had 2.2 s of long tasks. One run took the late path. The next was in the theme only because the
-      // fallback timer itself ran 85 ms late (sheet in at 3143 ms, the timer due at 3058). Firefox fetched the worker's
-      // script only after the page had loaded (6.8 s). So the numbers are printed (above) and both paths are accepted.
+      // Where the first page is shown in the theme in time with room to spare, it is asserted (IN_TIME); elsewhere both
+      // paths are accepted, and the numbers are printed (above).
+      if (IN_TIME.has(engine)) assert.ok(cloak.sheetThen, `the first page is shown in the theme, its sheet computed within ${REVEAL_AFTER} ms (${measured})`);
       if (!cloak.sheetThen) {
         // A sheet the page could not wait for: shown after REVEAL_AFTER, in the default system, which it keeps; the sheet
         // is computed all the same and kept, and the next page is drawn in the theme.
