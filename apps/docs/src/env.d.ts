@@ -25,6 +25,12 @@ declare module 'virtual:tanrei-docs/sheet-key' {
   const key: string;
   export default key;
 }
+// The address of the script of the worker that computes that stylesheet, in a built site; null under `astro dev`
+// (src/lib/sheet-worker.mjs).
+declare module 'virtual:tanrei-docs/sheet-worker' {
+  const address: string | null;
+  export default address;
+}
 
 // Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
 // function for each tag that imports its module, and how many modules there are.

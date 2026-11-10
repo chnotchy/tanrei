@@ -11,7 +11,7 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing 
 import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -181,6 +181,16 @@ const press = async (page: P, keys: string[]) => {
 };
 
 test.describe('presentation, focus and closing', () => {
+  test('DTM-35: a docked picker opened at the end of a task that outlasts its motion grows in from the first frame drawn after that task, and closed the same way fades out from there', async ({ page }) => {
+    // WebKit dates an animation begun in a task from the frame drawn before it: where opening took longer than the
+    // docked picker's entrance lasts, the picker was drawn whole at once, with no frame of it growing in.
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    await tabTo(page, opener(page, 'd'));
+    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = true; }', ['tanrei-date-time-picker div.surface docked-open'], 'opened');
+    await motionEnded(page);
+    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = false; }', ['tanrei-date-time-picker div.surface docked-close'], 'closed');
+  });
+
   test('DTM-1: a modal picker opens as a modal dialog over the scrim, centred at least the margin from the edges, in its color, elevation and corners; everything else inert, the page held, focus kept inside', async ({ page }) => {
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div style="block-size: 3000px"></div><button id="elsewhere">Elsewhere</button>'));

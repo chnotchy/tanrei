@@ -31,6 +31,7 @@ import '../button/button.js';
 import '../handle/handle.js';
 import { styles } from './bottom-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** Standard sits over the lower part of its parent while the content above stays usable; modal dims and blocks the rest of the window. */
 export type TanreiBottomSheetVariant = 'standard' | 'modal';
@@ -669,6 +670,9 @@ export class TanreiBottomSheet extends TanreiElement {
     this.onViewport();
     this.measure();
     this.focusInside();
+    // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
+    // after this task, as its entrance does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /** BSH-1, BSH-3: out of the top layer (sliding from where it is drawn), the page given back, focus back where it was. */

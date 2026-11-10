@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 
 /**
  * Motions that run inside shadow roots, waited for or counted where they run.
@@ -135,3 +135,73 @@ export const settledCss = (target: Locator, property: string, pseudo?: string): 
  */
 export const motionCount = (target: Locator): Promise<number> =>
   target.evaluate((given, source) => ((0, eval)(source) as (root: Element) => Animation[])(given).length, EVERY_ANIMATION);
+
+// ── A change made in a long task ──────────────────────────────────────────────────────────────────────────────────────
+
+/** What `heldTaskFrame()` saw: the motions the change began, and each of them in the first frame drawn after its task. */
+export interface HeldTask {
+  /** Each motion the change began in its task: `<host> <element>.<class><pseudo> <property>`, sorted. */
+  begun: string[];
+  /** The same motions in the first frame drawn after the task: `<motion> at <current time> ms`, or `<motion> finished` once over (`idle` once cancelled). */
+  at: string[];
+}
+
+/**
+ * Makes a change at the start of a task that is then held for longer than every motion the change began lasts, and
+ * reads those motions in the frame callbacks of the first frame drawn after it.
+ *
+ * WebKit dates a transition begun in a task from the frame drawn before that task, which stands still while the task
+ * runs: a component that opens in a long task (its items placed and rendered on a loaded machine) has that much of each
+ * motion it began over before any frame draws it, and none of it where the task outlasted the motion. A component that
+ * plays them from the next frame (`startFromNextFrame`, `statesFromNextFrame`, src/primitives/motion.ts) has every one
+ * at its start there, in every engine.
+ *
+ * `act` is the source of an in-page function `(host, active) => void`, called with the element of `host` and the
+ * deepest focused element, which makes the change: what the person's key or click would do (the key's event is
+ * dispatched, the click is `click()`). The microtasks it queues — the components' updates — run before the motions are
+ * read, in the same task. Motions of the page's that are already running are left out.
+ */
+export const heldTaskFrame = (host: Locator, act: string): Promise<HeldTask> =>
+  host.evaluate(
+    async (el, [every, source]) => {
+      const all = (0, eval)(every) as (root: Document) => Animation[];
+      const change = (0, eval)(source) as (host: Element, active: Element | null) => void;
+      let active: Element | null = document.activeElement;
+      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+      const before = new Set(all(document));
+      change(el, active);
+      // The components' updates, each a microtask that may queue the next (a parent's update, then its items').
+      for (let turn = 0; turn < 200; turn++) await null;
+      const name = (animation: Animation) => {
+        const effect = animation.effect as KeyframeEffect;
+        const target = effect.target as Element;
+        const owner = (target.getRootNode() as ShadowRoot).host?.localName ?? '';
+        const property = (animation as CSSTransition).transitionProperty ?? (animation as CSSAnimation).animationName ?? 'script';
+        return `${owner} ${target.localName}${target.classList.length ? `.${target.classList[0]}` : ''}${effect.pseudoElement ?? ''} ${property}`;
+      };
+      const begun = all(document).filter((animation) => !before.has(animation) && animation.playState !== 'finished' && Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY);
+      const end = performance.now() + Math.max(300, ...begun.map((animation) => Number(animation.effect!.getComputedTiming().endTime))) + 200;
+      while (performance.now() < end);
+      return new Promise<{ begun: string[]; at: string[] }>((resolve) =>
+        requestAnimationFrame(() =>
+          resolve({
+            begun: begun.map(name).sort(),
+            at: begun.map((animation) => `${name(animation)} ${animation.playState === 'finished' || animation.playState === 'idle' ? animation.playState : `at ${Math.round(Number(animation.currentTime))} ms`}`).sort(),
+          }),
+        ),
+      );
+    },
+    [EVERY_ANIMATION, act] as const,
+  );
+
+/**
+ * `heldTaskFrame()`, with what it saw held to the rule: the change began each of `expected` (and maybe more), and every
+ * motion it began stands at its start in the first frame drawn after its task — none of it over, or under way, before a
+ * frame draws it. `what` names the change in the messages.
+ */
+export async function expectFromNextFrame(host: Locator, act: string, expected: readonly string[], what: string): Promise<HeldTask> {
+  const seen = await heldTaskFrame(host, act);
+  expect(seen.begun, `${what}: the motions it begins`).toEqual(expect.arrayContaining([...expected]));
+  expect(seen.at, `${what}: every motion it began stands at its start in the first frame drawn after the task`).toEqual(seen.begun.map((motion) => `${motion} at 0 ms`));
+  return seen;
+}

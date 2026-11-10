@@ -735,11 +735,13 @@ jobs:
     strategy:
       fail-fast: false # every shard reports, as the single job did
       matrix:
-        # The fixture gallery and the two previews files each run in a job of their own (`$alone` in
-        # apps/docs/test/browser/durations.json): beside any of them the other files' pages loaded too slowly in WebKit
-        # and Firefox. The other three share the rest by time.
-        shard: [1, 2, 3, 4, 5, 6]
-        shards: [6]
+        # Five files each run in a job of their own (`$alone` in apps/docs/test/browser/durations.json): the fixture
+        # gallery, the icon font's test and the two previews files each open four pages at a time in Chromium for their
+        # whole run, and beside any of them the other files' pages loaded too slowly in WebKit and Firefox; the reader's
+        # own theme measures how soon a press is drawn, which beside other files WebKit missed. The other three share
+        # the rest by time.
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shards: [8]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

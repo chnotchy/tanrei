@@ -7,15 +7,25 @@
 //                    default system's sheet, which every page already holds on the root, in the same cascade layer —
 //                    applied after it, the whole page is drawn in the theme. It is computed in a worker, off the page's
 //                    thread, and kept in IndexedDB under the build's key (lib/sheet-key.mjs: a sheet another build
-//                    computed is not used) and the layer's hash; IndexedDB keeps one sheet, the last.
+//                    computed is not used) and the layer's hash; IndexedDB keeps one sheet, the last, and
+//                    localStorage `tanrei-docs-custom-sheet` names its key.
 //
 // The head's script reads the sheet from IndexedDB before the first paint where it can (lib/appearance.ts); what it
 // cannot is done here, by the page's first module (components/frame/ThemeProvider.astro): `showCustomSheet`, which
 // asks the worker for a sheet IndexedDB does not hold as soon as the document is parsed, without waiting for the rest
-// of the page's modules, whose graphs take a second or more to arrive in some engines.
+// of the page's modules, whose graphs take a second or more to arrive in some engines — the worker the head's script
+// started then (`EARLY_WORKER`), where it did.
 import build from 'virtual:tanrei-docs/sheet-key';
-import { pageSheetInWorker } from '@tanrei/studio/page-sheet';
-import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, PENDING_ATTR, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
+import { adoptSheetWorker, pageSheetInWorker } from '@tanrei/studio/page-sheet';
+import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, PENDING_ATTR, SHEET_HELD_KEY, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
+
+// The worker the head's script started, where it found no sheet kept: the one this page's sheets are computed in.
+{
+  const scope = window as unknown as Record<string, unknown>;
+  const early = scope[EARLY_WORKER];
+  delete scope[EARLY_WORKER];
+  if (early instanceof Worker) adoptSheetWorker(early);
+}
 
 /** The theme as it is kept. */
 interface Kept {
@@ -50,8 +60,14 @@ function kept(): Kept | null {
 /** Whether this browser keeps a theme of the reader's own. */
 export const keptCustomTheme = () => kept() !== null;
 
-/** IndexedDB keeps `css` under `key`, and no other sheet. */
+/**
+ * IndexedDB keeps `css` under `key`, and no other sheet; and localStorage says so from now (`SHEET_HELD_KEY`), for the
+ * head's script of the next page — which asks IndexedDB only for the sheet it names, and computes any other at once.
+ */
 function writeSheet(key: string, css: string): Promise<void> {
+  try {
+    localStorage.setItem(SHEET_HELD_KEY, key);
+  } catch {}
   return new Promise((resolve) => {
     try {
       const open = indexedDB.open(SHEET_STORE.db, 1);
@@ -192,14 +208,16 @@ async function placeCustomSheet(theme: Kept | null, key: string): Promise<void> 
     if (root.getAttribute(LOOK_ATTR) !== CUSTOM_LOOK || kept()?.hash !== theme.hash) return;
     placeSheet(css, key, CUSTOM_STYLE_ID);
     document.dispatchEvent(new CustomEvent(CUSTOM_SHEET_EVENT));
-    // A hidden page is shown once it has settled in the theme: what its elements measured under the default system's
-    // tokens (the shell's columns, a drawer's width) is measured again in the next two frames, and a size an element
-    // moves to by a motion of its own (a drawer resizes itself) is drawn where the motion ends, before anything of
-    // the page is drawn.
+    // A hidden page is shown in the theme at once, its motions at their end: the sheet's values are taken now (the
+    // style and layout of the whole page, read here), and a motion that a value changed (a drawer's width) is taken to
+    // its end before anything of the page is drawn. What its elements measure under the theme's tokens (the shell's
+    // columns) is measured before the first frame is drawn, as it would be in any frame; a motion that starts then
+    // is taken to its end in the next two. Waiting for two frames before showing the page instead cost WebKit 1 to
+    // 1.5 s: a page still loading gets few frames there, each one long.
     if (root.hasAttribute(PENDING_ATTR)) {
-      await frames(2);
+      void document.body?.offsetWidth;
       finishMotions();
-      await frames(1);
+      void frames(2).then(finishMotions);
     }
   } catch (error) {
     console.warn(`[docs] The theme this browser keeps could not be drawn (${(error as Error).message}): the page is drawn in the default system.`);

@@ -263,6 +263,9 @@ export function appearStyles(options: AppearOptions): CSSResult {
 const appearing = (element: Element) =>
   element.getAnimations().filter((animation) => APPEAR_PROPERTIES.has((animation as CSSTransition).transitionProperty ?? '') && animation.playState !== 'finished');
 
+/** The motions `startFromNextFrame()` has held: each is held once. */
+const heldOnce = new WeakSet<Animation>();
+
 /**
  * The motions that a change of state just started, in the task that made it, begin in the first frame drawn after it,
  * in every engine. WebKit dates a transition from the timeline's time, which is the time of the frame drawn last and
@@ -271,23 +274,108 @@ const appearing = (element: Element) =>
  * (or ended there, with its events), and the surface is drawn whole at once. (A combobox's list, its rows rendered in
  * the task that opens it, took 200–340 ms there on a two-core Linux runner, against an entrance of 300 ms.) Played
  * again in the same task it is dated the same way; so each is held at its start, which the next frame draws, and
- * played from that frame (`nextFrame`), where the timeline has that frame's time. One that is no longer held there —
- * replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden document
- * draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the motions are
- * an exit, which the surface waits for before it goes, and so are played even where a page clock holds frame callbacks
- * (`nextFrame`).
+ * played from that frame (`nextFrame`), dated from that frame's time (`playFromThisFrame`). One that is no longer held
+ * there — replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden
+ * document draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the
+ * motions are an exit, which the surface waits for before it goes, and so are played even where a page clock holds
+ * frame callbacks (`nextFrame`). A motion is held once: from the frame it is played from it runs as it is, and held
+ * again it would start over from a later one.
  */
 export function startFromNextFrame(motions: readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
   if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
-  const started = motions.filter((animation) => animation.playState === 'running');
+  const started = motions.filter((animation) => animation.playState === 'running' && !heldOnce.has(animation));
   if (!started.length) return;
   for (const animation of started) {
+    heldOnce.add(animation);
     animation.pause();
     animation.currentTime = 0;
   }
   nextFrame(() => {
-    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) animation.play();
+    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) playFromThisFrame(animation);
   }, leaving);
+}
+
+/**
+ * Plays a motion held at its start from the frame being drawn: its start time is that frame's time, so it stands at its
+ * start in this frame and runs from there, with nothing left pending. `play()` would leave it waiting for the engine to
+ * give it a start time, and from a frame's callbacks (a frame callback or a resize observer's report) Chromium never
+ * gave one to a motion it had already been waiting for when it was held — begun in an earlier task, or played in an
+ * earlier frame, with no frame drawn since: the motion stood at its start, pending, for good (a menu item's colors,
+ * begun by the key that moved focus off it and held by the next key, which opened a submenu before a frame was drawn).
+ * Its current time is then written 0 again: Firefox gives a page the timeline's time coarsened, a few hundredths of a
+ * millisecond before its own, and a start time taken from it had the motion that far in (an opacity of 1.5e-8, not 0).
+ * Where the timeline has no time it is played as usual.
+ */
+function playFromThisFrame(animation: Animation) {
+  const now = animation.timeline?.currentTime;
+  if (now === null || now === undefined) return animation.play();
+  animation.startTime = now;
+  animation.currentTime = 0;
+}
+
+/**
+ * The motions of states that a change made in this task began under `roots` — focus given to an item as a surface
+ * opens, a control's turn, a row's look in another form — begin in the first frame drawn after it, as an appearance
+ * does (`startFromNextFrame`): WebKit dated them from the frame drawn before the task, and where opening took longer
+ * than they last (a surface's items placed and rendered on a loaded machine) drew their end state at once, with no frame
+ * of them. Each root is looked through whole: its subtree and every shadow root inside it, at any depth. Only a motion
+ * that stands at its start is held; one under way goes on as it is, and an appearance's is left to its controller
+ * (`holdStates`). It holds what has begun when it is called, and again once the updates the task queued under the roots
+ * have rendered — still in the task, as they are microtasks: what an item draws differently once the change reaches it.
+ * They are played in that frame even where a page clock holds frame callbacks (`leaving`): what a state's motion moves
+ * runs on the document's timeline, which no page clock holds, so it must not stand at its start for as long as a clock
+ * is held. Call it at the end of the opening (or closing) task, once focus has moved: asking brings style up to date.
+ */
+export function statesFromNextFrame(roots: readonly (Element | null | undefined)[]): void {
+  const given = roots.filter((root): root is Element => !!root);
+  holdStates(given);
+  void afterUpdates(given).then(() => holdStates(given));
+}
+
+/**
+ * Each root and every shadow root under `roots`, at any depth (`trees`), and every element in them (`elements`). An
+ * element's `getAnimations({ subtree: true })` and a shadow root's `getAnimations()` list the motions of that tree,
+ * pseudo-elements' included, and none inside a shadow root of it.
+ */
+function treesUnder(roots: readonly Element[]): { trees: (Element | ShadowRoot)[]; elements: Element[] } {
+  const trees: (Element | ShadowRoot)[] = [];
+  const elements: Element[] = [];
+  const walk = (root: Element | ShadowRoot) => {
+    trees.push(root);
+    for (const element of root instanceof Element ? [root, ...root.querySelectorAll('*')] : root.querySelectorAll('*')) {
+      elements.push(element);
+      if (element.shadowRoot) walk(element.shadowRoot);
+    }
+  };
+  for (const root of roots) walk(root);
+  return { trees, elements };
+}
+
+/**
+ * `statesFromNextFrame()`'s hold: every motion under `roots` that stands at its start, but an appearance's (on an
+ * element that carries `APPEARING`), which its controller holds or leaves (`AppearController`: an exit that turns an
+ * entrance round is left as it is). Asking brings style up to date.
+ */
+function holdStates(roots: readonly Element[]) {
+  const motions = treesUnder(roots).trees.flatMap((tree) => (tree instanceof Element ? tree.getAnimations({ subtree: true }) : tree.getAnimations()));
+  const appearing = (animation: Animation) => !!((animation.effect as KeyframeEffect | null)?.target as Element | null)?.hasAttribute(APPEARING);
+  startFromNextFrame(
+    motions.filter((animation) => Number(animation.currentTime ?? 0) === 0 && !appearing(animation)),
+    { leaving: true },
+  );
+}
+
+/**
+ * Settles once no element under `roots` has an update pending: what the task's change told them (an item's form, a
+ * control's state) is rendered. Each update is a microtask, so this is still the same task.
+ */
+async function afterUpdates(roots: readonly Element[]): Promise<void> {
+  await null;
+  for (let round = 0; round < 8; round++) {
+    const pending = treesUnder(roots).elements.filter((element) => (element as Partial<ReactiveControllerHost & { isUpdatePending: boolean }>).isUpdatePending);
+    if (!pending.length) return;
+    await Promise.all(pending.map((element) => (element as unknown as ReactiveControllerHost).updateComplete));
+  }
 }
 
 /**

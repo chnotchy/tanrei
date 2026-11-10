@@ -29,6 +29,7 @@ import {
 } from '../../primitives/index.js';
 import { styles } from './dialog.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
 export type TanreiDialogClosedBy = 'any' | 'none' | 'closerequest';
@@ -419,6 +420,9 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     const marked = this.querySelector<HTMLElement>('[autofocus]');
     if (marked) marked.focus();
     else dialog.focus();
+    // DLG-2, DLG-13: what the open state began inside it — the colors of what took focus — begins in the first frame
+    // drawn after this task, as its entrance does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /** DLG-4, DLG-13, DLG-18: out of the top layer (fading), focus back where it was, the page given back. */

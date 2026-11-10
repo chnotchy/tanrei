@@ -14,13 +14,15 @@
 // so that IndexedDB is not asked again. Left to the page's other modules, the worker was asked for only once all of them
 // had run — 0.7 s after navigation in Chromium, 1.4 s in Firefox and 2.4 s in WebKit on a Mac, by when a page hidden for
 // the sheet (at most three seconds) was often shown without it; asked for here, it is 0.05 to 0.5 s. Nothing in the
-// module's graph defines an element.
+// module's graph defines an element. The worker itself the head's script starts then, where the build names its script
+// (lib/sheet-worker.mjs): Firefox fetched the script of a worker this module started only once the document was parsed.
 import build from 'virtual:tanrei-docs/sheet-key';
+import worker from 'virtual:tanrei-docs/sheet-worker';
 import { appearanceBootstrap, bootConfig } from '../../lib/appearance';
 import { manifests } from '../../lib/repo';
 
 // The shipped systems, the default first (lib/repo.ts puts the configuration's namespace first).
-const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system), build));
+const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system), build, worker));
 ---
 
 <script is:inline set:html={script} />

@@ -174,11 +174,12 @@ describe('shards by measured time (--shard-weights)', () => {
   });
 
   test('the weights are measured again from the logs of a sharded run', () => {
-    const logs = ['2026-10-26T12:00:00.0Z # file-duration test/a.test.mjs 61.4\nok 1 - a', '# file-duration test/a.test.mjs 58.6\n# file-duration test/new.test.mjs 12.2\r'];
+    const logs = ['2026-10-26T12:00:00.0Z # file-duration test/a.test.mjs 61.4\nok 1 - a', '# file-duration test/a.test.mjs 58.6\n# file-duration test/new.test.mjs 12.2\r\n# file-duration test/quick.test.mjs 0.4'];
     const found = measured(logs);
-    assert.deepEqual([...found], [['test/a.test.mjs', [61.4, 58.6]], ['test/new.test.mjs', [12.2]]]);
+    assert.deepEqual([...found], [['test/a.test.mjs', [61.4, 58.6]], ['test/new.test.mjs', [12.2]], ['test/quick.test.mjs', [0.4]]]);
     const next = refreshed({ $comment: 'seconds', 'b.test.mjs': 40, 'a.test.mjs': 50 }, found, (file) => file.replace(/^test\//, ''));
-    assert.deepEqual(Object.entries(next), [['$comment', 'seconds'], ['a.test.mjs', 60], ['b.test.mjs', 40], ['new.test.mjs', 12]]);
+    // A file that ran for less than half a second weighs one: never 0.
+    assert.deepEqual(Object.entries(next), [['$comment', 'seconds'], ['a.test.mjs', 60], ['b.test.mjs', 40], ['new.test.mjs', 12], ['quick.test.mjs', 1]]);
   });
 
   test('the docs’ browser tests are split by their weights file: seconds by file, and a comment that says where they come from', () => {

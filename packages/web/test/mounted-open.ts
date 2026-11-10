@@ -18,6 +18,8 @@ import { motionEnded } from './motions.js';
 export interface MotionRun {
   /** The element whose shadow root it ran in (its tag), or `document` for the light DOM. */
   host: string;
+  /** That element as `localName.class.class` (a control told apart from its siblings by its class), or `document`. */
+  owner: string;
   /** The element it runs on, as `localName.class.class`. */
   on: string;
   /**
@@ -34,11 +36,12 @@ export interface MotionRun {
 /** Records into `window.__motionRuns` from the first element made on: the first thing in the page's body. */
 const RECORD = `<script>(() => {
   const runs = (window.__motionRuns = []);
-  const listen = (root, host) => {
+  const listen = (root, host, owner) => {
     const note = (event) => {
       const target = event.target;
       runs.push({
         host,
+        owner: owner ? [owner.localName, ...owner.classList].join('.') : 'document',
         on: [target.localName, ...target.classList].join('.'),
         appear: target.hasAttribute('data-tanrei-appear') || target.localName === 'dialog',
         name: event.propertyName || event.animationName,
@@ -52,7 +55,7 @@ const RECORD = `<script>(() => {
   const attach = Element.prototype.attachShadow;
   Element.prototype.attachShadow = function (init) {
     const root = attach.call(this, init);
-    listen(root, this.localName);
+    listen(root, this.localName, this);
     return root;
   };
 })();</script>`;

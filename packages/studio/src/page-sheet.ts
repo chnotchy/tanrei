@@ -6,6 +6,11 @@
 //
 // A host bundles it with Vite, which builds the worker into a file of its own: give `worker.plugins` the Studio's plugin
 // as well (`@tanrei/studio/vite`), and `worker.format: 'es'`.
+//
+// A host that knows the worker's file before this module runs may start the worker itself, sooner (a page's head
+// script, while the document is still being parsed: Firefox puts off fetching a worker's script made once the parser
+// is busy with the page's body, until the document is parsed), and give it here (`adoptSheetWorker`): the next request
+// is sent to it instead of to a new one.
 
 /** How long a worker that has nothing to do is kept, in milliseconds. */
 const IDLE = 10_000;
@@ -24,9 +29,8 @@ function stop(reason?: Error) {
   waiting.clear();
 }
 
-function started(): Worker {
-  if (worker) return worker;
-  const made = new Worker(new URL('./sheet-worker.ts', import.meta.url), { type: 'module' });
+/** `made` is the worker every request is sent to, until it stops. */
+function serve(made: Worker): Worker {
   made.addEventListener('message', (event: MessageEvent<Answer>) => {
     const answer = event.data;
     const asked = waiting.get(answer.id);
@@ -43,6 +47,22 @@ function started(): Worker {
   });
   worker = made;
   return made;
+}
+
+const started = (): Worker => worker ?? serve(new Worker(new URL('./sheet-worker.ts', import.meta.url), { type: 'module' }));
+
+/**
+ * A worker of ./sheet-worker.ts the host started, made the one the page's requests are sent to — where none is running
+ * yet; otherwise it is let go. Let go too if nothing is asked of it for a while.
+ */
+export function adoptSheetWorker(made: Worker): void {
+  if (worker) {
+    if (made !== worker) made.terminate();
+    return;
+  }
+  serve(made);
+  clearTimeout(idle);
+  idle = setTimeout(() => stop(), IDLE);
 }
 
 /** The layer's sheet for a page whose root holds the default system's, computed in the worker. */
