@@ -19,6 +19,7 @@
 // tests have reported, instead of being held open by its connection to that browser.
 import { afterEach, beforeEach } from 'node:test';
 import * as playwright from '@playwright/test';
+import { describeRequests } from './waits.mjs';
 
 /** How long a browser has to answer what has no limit of Playwright's: a new context or page, closing one, a script. */
 export const ANSWER = 60_000;
@@ -73,6 +74,10 @@ const opened = new Map();
  * The scripts each page is running for the test (`page.evaluate`), with when each was asked for.
  * @type {WeakMap<import('@playwright/test').Page, Map<object, { what: string, started: number }>>} */
 const asked = new WeakMap();
+/**
+ * The requests of each page that have not ended, with when each was asked for and the status of its response if one came.
+ * @type {WeakMap<import('@playwright/test').Page, Map<import('@playwright/test').Request, { started: number, answered?: number }>>} */
+const requests = new WeakMap();
 
 beforeEach((t) => {
   running.add(t);
@@ -80,8 +85,8 @@ beforeEach((t) => {
 
 // A test that failed leaves nothing open behind it: the contexts it opened are closed, so that their pages do not go on
 // drawing beside the tests after it. One that ran out of its limit says first what it was still waiting for: the
-// scripts its pages were running and the state of each page. Neither may hide why the test failed: what cannot be read
-// or closed is added to its failure, never thrown.
+// scripts its pages were running, the state of each page and the requests they had not had answered. Neither may
+// hide why the test failed: what cannot be read or closed is added to its failure, never thrown.
 afterEach(async (t) => {
   running.delete(t);
   const own = [...opened].filter(([, owner]) => owner === t).map(([context]) => context);
@@ -116,12 +121,19 @@ function amend(failure, more) {
   }
 }
 
-/** What `page` is doing: its address, its document's state, and the scripts it is running that have not answered. */
+/** What `page` is doing: its address, its document's state, the scripts it is running that have not answered, and its requests that have not ended. */
 async function standing(page) {
   const now = Date.now();
   const scripts = [...(asked.get(page)?.values() ?? [])].map(({ what, started }) => `${what} (asked ${((now - started) / 1000).toFixed(1)} s ago)`);
   const state = page.isClosed() ? 'closed' : await within(READ, page.mainFrame().evaluate(() => `${document.readyState}, ${document.visibilityState}`).catch((cause) => `not read: ${String(cause).split('\n')[0]}`), `not read in ${READ / 1000} s`);
-  return `${page.url()} (its document ${state}): ${scripts.length ? `running ${scripts.join(', ')}` : 'no script of the test running'}`;
+  return `${page.url()} (its document ${state}): ${scripts.length ? `running ${scripts.join(', ')}` : 'no script of the test running'}; outstanding: ${outstanding(page, now)}`;
+}
+
+/** The requests of `page` that have not ended (launch.mjs keeps them from the page's start). */
+export function outstanding(page, now = Date.now()) {
+  const open = requests.get(page);
+  if (!open) return 'not kept (the page was not opened in a browser of launch())';
+  return describeRequests([...open].map(([request, entry]) => ({ type: request.resourceType(), url: request.url(), ...entry })), now);
 }
 
 /** The engines Playwright launches. */
@@ -245,6 +257,7 @@ function keepWhatIsAsked(page) {
 function sayWhatIsOutstanding(page) {
   /** @type {Map<import('@playwright/test').Request, { started: number, answered?: number }>} */
   const open = new Map();
+  requests.set(page, open);
   page.on('request', (request) => open.set(request, { started: Date.now() }));
   page.on('response', (response) => {
     const entry = open.get(response.request());
@@ -257,10 +270,9 @@ function sayWhatIsOutstanding(page) {
       return await goto(...args);
     } catch (error) {
       if (!(error instanceof Error) || page.isClosed()) throw error;
-      const now = Date.now();
-      const outstanding = [...open].map(([request, { started, answered }]) => `${request.resourceType()} ${request.url()}, asked ${((now - started) / 1000).toFixed(1)} s ago, ${answered === undefined ? 'no response' : `response ${answered}, body not ended`}`);
+      const pending = outstanding(page);
       const state = await Promise.race([page.evaluate(() => document.readyState).catch((cause) => `not read: ${String(cause).split('\n')[0]}`), new Promise((resolve) => setTimeout(() => resolve('not read in 5 s'), 5000))]);
-      error.message += `\nOutstanding when it failed: ${outstanding.length ? outstanding.join('; ') : 'no request'}. The main frame stands at ${page.mainFrame().url()}, its document ${state}.`;
+      error.message += `\nOutstanding when it failed: ${pending}. The main frame stands at ${page.mainFrame().url()}, its document ${state}.`;
       throw error;
     }
   };
