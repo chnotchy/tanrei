@@ -17,6 +17,7 @@ import { pageLastmod } from './src/lib/lastmod.mjs';
 import { pageMarkdownFiles } from './src/lib/page-markdown.mjs';
 import { pagePolicies } from './src/lib/csp.mjs';
 import { sheetKeyPlugin } from './src/lib/sheet-key.mjs';
+import { sheetWorkerPlugin } from './src/lib/sheet-worker.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 // When each page last changed: the newest commit of what it is made from (its own source; for a component's page, its
@@ -139,8 +140,9 @@ export default defineConfig({
     // Theme Studio (@tanrei/studio) previews with the build's own emitter; its plugin makes that bundle for a browser.
     // A page defines only the elements it draws (src/lib/define-on-demand.ts), from this table of the module that
     // defines each tag, made from the web package's manifest.
-    // The reader's own theme is drawn from a stylesheet kept under the key of what computes it (src/lib/sheet-key.mjs).
-    plugins: [tanreiStudio(), elementModulesPlugin(), sheetKeyPlugin(repoRoot)],
+    // The reader's own theme is drawn from a stylesheet kept under the key of what computes it (src/lib/sheet-key.mjs),
+    // computed in a worker that the head's script may start, given its address (src/lib/sheet-worker.mjs).
+    plugins: [tanreiStudio(), elementModulesPlugin(), sheetKeyPlugin(repoRoot), sheetWorkerPlugin()],
     // The stylesheet of the reader's own theme is computed in a worker (@tanrei/studio/page-sheet), a module bundled
     // apart, which runs Theme Studio's core: the Studio's plugin bundles it too.
     worker: { format: 'es', plugins: () => [tanreiStudio()] },
