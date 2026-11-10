@@ -182,6 +182,28 @@ export const appShellWindow = (id: string) =>
   id === 'compact-narrowest' ? { width: 320, height: 640 } : id.startsWith('expanded') ? { width: 1280, height: 800 } : id.startsWith('medium') ? { width: 800, height: 800 } : { width: 400, height: 800 };
 
 /**
+ * The window a fixture is drawn in where its spec's verify names one — a dialog's, a compact popover's, a picker's, and a
+ * responsive drawer's or an app shell's, which are what the window's width makes them — or nothing, for the project's.
+ */
+export function fixtureWindow(spec: Spec, fixture: Fixture): { width: number; height: number } | undefined {
+  switch (spec.name) {
+    case 'dialog':
+      return dialogWindow(fixture.id);
+    // POP-39: a popover's compact- fixtures are the real overlay in a compact window; the others are drawn on the stage.
+    case 'popover':
+      return fixture.id.startsWith('compact') ? popoverWindow : undefined;
+    case 'date-time-picker':
+      return pickerWindow(fixture);
+    case 'navigation-drawer':
+      return drawerWindow(fixture.id);
+    case 'app-shell':
+      return appShellWindow(fixture.id);
+    default:
+      return undefined;
+  }
+}
+
+/**
  * The element a fixture mounted: the component's tag inside `[data-fixture="<id>"]` (see `mountFixtures`) — or, for a
  * spec that is not an element on the web (prose is a class), the element that carries its class.
  */
@@ -2442,7 +2464,7 @@ const systemStyles = (options: DocumentOptions) => (options.system ? (options.sy
 const documentIconFamilies = (options: DocumentOptions) => (options.icons ? iconFamilies(read('dist/tokens.css'), systemStyles(options)) : Promise.resolve([]));
 
 /** One fixture of `spec` in its stage, as the spec's staging says; `mark` is the attribute the stage is found by. */
-function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
+export function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
   const staging = STAGING[spec.name] ?? {};
   // Markup given by a test is used as it is; the spec's content (a name) is staged.
   const content = f.content === undefined ? '' : staging.content && !f.content.includes('<') ? staging.content(f.content, f.props) : f.content;

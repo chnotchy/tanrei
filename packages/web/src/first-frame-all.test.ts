@@ -51,7 +51,7 @@ import { fileURLToPath } from 'node:url';
 import { type BrowserContext, type BrowserContextOptions, type Page, type Route, test as base, expect } from '@playwright/test';
 import { type Appeared, appearAgain, asStaged, expectDrawnAsMounted, mountForAppearing } from '../test/first-frame.js';
 import { type Probe, expectFirstFrameAtRest } from '../test/frames.js';
-import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, drawnAfterMount, itemsStagedInScript, loadSpec, pickerWindow, popoverWindow } from '../test/harness.js';
+import { type Fixture, type Spec, drawnAfterMount, fixtureWindow, itemsStagedInScript, loadSpec } from '../test/harness.js';
 import { MOUNTS_PER_PAGE } from '../test/mounts-per-page.js';
 import { MISSING } from '../test/pictures.js';
 
@@ -61,16 +61,6 @@ const inventory = JSON.parse(fs.readFileSync(path.join(repo, 'specs/inventory.js
 const specs: Spec[] = inventory.components
   .filter((c) => fs.existsSync(path.join(repo, `specs/${c.name}.spec.json`)) && fs.existsSync(path.join(repo, `packages/web/src/components/${c.name}`)))
   .map((c) => loadSpec(c.name));
-
-/** The windows the specs' verifies draw some fixtures in: a responsive drawer or an app shell is what the window's width makes it. */
-const WINDOWS: Record<string, (fixture: Fixture) => { width: number; height: number } | undefined> = {
-  dialog: (f) => dialogWindow(f.id),
-  // POP-39: a popover's compact- fixtures are the real overlay in a compact window; the others are drawn on the stage.
-  popover: (f) => (f.id.startsWith('compact') ? popoverWindow : undefined),
-  'date-time-picker': pickerWindow,
-  'navigation-drawer': (f) => drawerWindow(f.id),
-  'app-shell': (f) => appShellWindow(f.id),
-};
 
 type Pick = (fixture: Fixture) => boolean;
 const opened: Pick = (f) => f.props.open === true;
@@ -265,7 +255,7 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
   ],
   appear: async ({ stage }, use, testInfo) => {
     await use(async (spec, fixture, measured) => {
-      const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
+      const window = fixtureWindow(spec, fixture) ?? stage.viewport;
       // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
       const mount = alone(spec, fixture) ? `${spec.name}/${fixture.id}` : spec.name;
       const size = stage.page?.viewportSize();
