@@ -9,10 +9,12 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, propertyOf, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
-import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { motionEnded } from '../../../test/motions.js';
+import { expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -425,7 +427,7 @@ test.describe('the navigation', () => {
 });
 
 test.describe('the menu button', () => {
-  test('APS-6: the fixtures compact and medium draw the menu button at the start of the header, and expanded draws none: not shown, no stop for the keyboard, nothing for assistive technology, and its place given to what is beside it; in the column presentation and with no navigation region there is none either; the button is the icon-only Button it is', async ({ page }) => {
+  test('APS-6: the fixtures compact and medium draw the menu button at the start of the header, and expanded — whose navigation is not a drawer — draws none: not shown, no stop for the keyboard, nothing for assistive technology, and its place given to what is beside it; with no navigation region there is none; the button is the icon-only Button it is', async ({ page }) => {
     for (const id of ['compact', 'medium'] as const) {
       await mount(page, id);
       const [button, header] = [await edges(menu(page)), await contentBox(region(page, 'header'))];
@@ -448,10 +450,6 @@ test.describe('the menu button', () => {
       return [...range.getClientRects()].filter((rect) => rect.width > 0)[0].left;
     });
     near(text, (await contentBox(region(page, 'header'))).left);
-    // The column presentation: the drawer's own first header button is its menu button (NVD-37).
-    await mount(page, real(), { width: 800 });
-    expect(await shown(menu(page))).toBe(false);
-    await expect(page.getByRole('button', { name: 'Collapse navigation' })).toHaveCount(1);
     // No navigation region: no menu button, in any window.
     await mount(page, real({ navigation: '' }), { width: 400 });
     expect(await shown(menu(page))).toBe(false);
@@ -460,6 +458,29 @@ test.describe('the menu button', () => {
     await expect.poll(() => shown(menu(page))).toBe(true);
     await drawer(page).evaluate((el) => el.remove());
     await expect.poll(() => shown(menu(page))).toBe(false);
+  });
+
+  test('APS-6: a navigation drawer has the menu button in every class, its glyph the same whether the navigation is open or not; with menuButtonPlacement drawer the column and the standard presentations show the drawer’s own menu button in its place, and a compact window the header’s; a placement the frame does not define is header', async ({ page }) => {
+    // A navigation drawer: the menu button in every class, its glyph the same whether the navigation is open or not.
+    for (const width of [400, 800, 1280]) {
+      await mount(page, real(), { width });
+      expect(await shown(menu(page)), String(width)).toBe(true);
+    }
+    const glyph = () => menu(page).evaluate((el) => el.textContent?.trim());
+    const closedGlyph = await glyph();
+    await menu(page).click();
+    expect(await glyph()).toBe(closedGlyph);
+    // menuButtonPlacement drawer: the column and the standard presentations show the drawer's own first header button (NVD-37).
+    for (const width of [800, 1280]) {
+      await mount(page, real({ props: { menuButtonPlacement: 'drawer' } }), { width });
+      expect(await shown(menu(page)), String(width)).toBe(false);
+      await expect(page.getByRole('button', { name: 'Collapse navigation' })).toHaveCount(1);
+    }
+    await mount(page, real({ props: { menuButtonPlacement: 'drawer' } }), { width: 400 });
+    expect(await shown(menu(page))).toBe(true);
+    // A placement the frame does not define is header.
+    await mount(page, real({ props: { menuButtonPlacement: 'toolbar' } }), { width: 1280 });
+    expect(await shown(menu(page))).toBe(true);
   });
 
   test('APS-6: where the browser has no style queries the element says whether the menu button is shown, and the same rule hides it', async ({ page }) => {
@@ -473,7 +494,12 @@ test.describe('the menu button', () => {
     });
     expect(await shell(page).getAttribute('data-menu')).toBe(queries ? null : 'shown');
     expect(await shown(menu(page))).toBe(true);
+    // A navigation drawer keeps it in every class; with menuButtonPlacement drawer the drawer's own stands for it.
     await resize(page, 1280);
+    expect(await shell(page).getAttribute('data-menu')).toBe(queries ? null : 'shown');
+    expect(await shown(menu(page))).toBe(true);
+    await shell(page).evaluate((el) => el.setAttribute('menu-button-placement', 'drawer'));
+    await frame(page);
     expect(await shell(page).getAttribute('data-menu')).toBe(queries ? null : 'hidden');
     expect(await shown(menu(page))).toBe(false);
     await resize(page, 800);
@@ -486,17 +512,17 @@ test.describe('the menu button', () => {
     expect(await shown(menu(page))).toBe(false);
   });
 
-  test('APS-7: at 400 wide, activating the menu button opens the drawer with focus inside it, the button expanded and controlling the navigation, and one navigationOpenChange carried true; Escape closes it, focus is on the menu button and one carried false; opened at 400 and resized to 1280, the drawer is standard, nothing is inert and one navigationOpenChange carried false', async ({ page, browserName }) => {
+  test('APS-7, NVD-20, NVD-22: at 400 wide, activating the menu button opens the drawer with focus inside it, the button expanded and controlling the navigation, and one navigationOpenChange carried true; Escape in the drawer closes it, focus is on the menu button and one carried false; a press on the header does not close it, Escape on the menu button and a second activation of it do', async ({ page, browserName }) => {
     await mount(page, real(), { width: 400 });
     const log = await record(page);
     const open = () => shell(page).evaluate((el) => [(el as unknown as { navigationOpen: boolean }).navigationOpen, el.hasAttribute('navigation-open')]);
-    const dialogOpen = () => drawer(page).evaluate((el) => !!el.shadowRoot!.querySelector('dialog[open]'));
+    const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
     const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
     await expect.poll(expanded).toBe('false');
     // The keyboard reaches the button and activates it.
     await menu(page).evaluate((el) => (el as HTMLElement).focus());
     await page.keyboard.press('Enter');
-    await expect.poll(dialogOpen).toBe(true);
+    await expect.poll(drawerOpen).toBe(true);
     expect(await open()).toEqual([true, true]);
     expect(await log()).toEqual([['navigationopenchange', true]]);
     await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
@@ -505,12 +531,9 @@ test.describe('the menu button', () => {
       const button = el.shadowRoot!.querySelector('button') as HTMLElement & { ariaControlsElements?: Element[] | null };
       return 'ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.localName) : ['tanrei-navigation-drawer'];
     })).toEqual(['tanrei-navigation-drawer']);
-    if (browserName === 'chromium') {
-      // The drawer is modal: the button is behind it. It is read again once the drawer has closed.
-      expect(await axNode(page, 'dialog', 'Documentation')).not.toBeNull();
-    }
+    if (browserName === 'chromium') expect((await axNode(page, 'button', 'Menu'))?.expanded).toBe(true);
     await page.keyboard.press('Escape');
-    await expect.poll(dialogOpen).toBe(false);
+    await expect.poll(drawerOpen).toBe(false);
     expect(await open()).toEqual([false, false]);
     expect(await log()).toEqual([
       ['navigationopenchange', true],
@@ -520,24 +543,306 @@ test.describe('the menu button', () => {
     await expect.poll(expanded).toBe('false');
     if (browserName === 'chromium') expect((await axNode(page, 'button', 'Menu'))?.expanded).toBe(false);
 
-    // A pointer opens it too, and a change of the window's class closes it at once.
+    // A press on the header (its headline) leaves it open: the scrim covers only what lies below the header.
     await menu(page).click();
-    await expect.poll(dialogOpen).toBe(true);
-    await resize(page, 1280);
-    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { presentation: string }).presentation)).toBe('standard');
-    expect(await dialogOpen()).toBe(false);
-    expect(await open()).toEqual([false, false]);
-    // (The drawer and the frame hear the same width: which of the two speaks first is the browser's.)
-    expect((await log()).slice(2).map((entry) => entry.join(':')).sort()).toEqual(['navigationopenchange:false', 'navigationopenchange:true', 'windowclasschange:expanded']);
+    await expect.poll(drawerOpen).toBe(true);
+    const header = await edges(region(page, 'header'));
+    await page.mouse.click(header.left + header.width - 40, header.top + header.height / 2);
+    await frame(page);
+    expect(await drawerOpen()).toBe(true);
+    // Escape on the menu button closes it.
+    await menu(page).evaluate((el) => (el as HTMLElement).focus());
+    await page.keyboard.press('Escape');
+    await expect.poll(drawerOpen).toBe(false);
+    // The menu button, activated again while it is open, closes it, and focus stays on it.
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(false);
+    await expect.poll(() => active(page)).toContain('menu');
+    expect((await log()).filter(([name]) => name === 'navigationopenchange').map(([, value]) => value)).toEqual([true, false, true, false, true, false]);
     expect(await page.evaluate(() => document.querySelectorAll('[inert]').length)).toBe(0);
-    expect(await shown(drawer(page))).toBe(true);
   });
 
-  test('APS-33: at 400 wide, a filterable drawer’s chord pressed anywhere opens the navigation as the menu button does (one navigationOpenChange with true) with focus in the drawer’s filter field; typed in a text field it is typed; where the drawer is shown the drawer answers it and the frame does not', async ({ page }) => {
+  test('APS-6, APS-7, NVD-37, NVD-53: beside the content the menu button asks the drawer for its other form — a collapsible drawer narrows to its column and widens back, one that is not collapsible is hidden and shown, each with one expandedChange — and says expanded while the drawer is; 800 wide it opens a drawer that is not collapsible over the content', async ({ page }) => {
+    const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
+    const changes = async () => drawer(page).evaluate((el) => {
+      const seen: boolean[] = ((window as unknown as { __forms: boolean[] }).__forms = []);
+      el.addEventListener('expandedchange', (event) => seen.push((event as CustomEvent).detail.expanded));
+    });
+    const forms = () => page.evaluate(() => (window as unknown as { __forms: boolean[] }).__forms);
+    const [full, column] = [await (async () => 240)(), 72];
+    // Collapsible: full ↔ column.
+    await mount(page, real({ sections: 2 }), { width: 1280 });
+    await changes();
+    await expect.poll(expanded).toBe('true');
+    await menu(page).click();
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(column);
+    await expect.poll(expanded).toBe('false');
+    expect((await edges(main(page))).left).toBe(column);
+    await menu(page).click();
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(full);
+    await expect.poll(expanded).toBe('true');
+    expect(await forms()).toEqual([false, true]);
+    expect(await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen)).toBe(false);
+    // Not collapsible: shown ↔ hidden — hidden, no width, no landmark and nothing to focus.
+    await mount(page, real({ navigation: DRAWER('responsive'), sections: 2 }), { width: 1280 });
+    await changes();
+    await menu(page).click();
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(0);
+    await motionEnded(page);
+    await expect.poll(expanded).toBe('false');
+    expect((await edges(main(page))).left).toBe(0);
+    await expect(page.getByRole('navigation', { name: 'Documentation' })).toHaveCount(0);
+    expect(await drawer(page).evaluate((el) => el.shadowRoot!.querySelector('.drawer')!.hasAttribute('inert'))).toBe(true);
+    expect(await drawer(page).evaluate((el) => (el as unknown as { expanded: boolean }).expanded)).toBe(false);
+    await menu(page).click();
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(full);
+    await expect.poll(expanded).toBe('true');
+    await expect(page.getByRole('navigation', { name: 'Documentation' })).toHaveCount(1);
+    expect(await forms()).toEqual([false, true]);
+    // Hidden beside the content, it is not opened in a narrower window: the two do not follow each other (NVD-55).
+    await menu(page).click();
+    await expect.poll(expanded).toBe('false');
+    await resize(page, 800);
+    expect(await drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(false);
+    // 800 wide, not collapsible: the modal presentation, which the menu button opens below the header.
+    await menu(page).click();
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await expect.poll(expanded).toBe('true');
+    expect(await drawer(page).evaluate((el) => (el as unknown as { expanded: boolean }).expanded)).toBe(false);
+  });
+
+  test('NVD-20, NVD-21, NVD-37: below the header a press on the scrim, a drag toward the start edge past half the drawer’s width and a destination close the drawer, each with one close; a collapsible drawer with no header button of its own that the frame’s menu button controls is not reported', async ({ page }) => {
+    const seen = warnings(page);
+    const noButton = DRAWER().replace(/<tanrei-button slot="header-button"[\s\S]*?<\/tanrei-button>/, '');
+    await mount(page, real({ navigation: noButton, sections: 2 }), { width: 400 });
+    const closes = () => drawer(page).evaluate((el) => {
+      const w = window as unknown as { __closes: number };
+      w.__closes = 0;
+      el.addEventListener('close', () => w.__closes++);
+    });
+    const count = () => page.evaluate(() => (window as unknown as { __closes: number }).__closes);
+    const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
+    await closes();
+    // The scrim, beside the drawer below the header.
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    await motionEnded(page);
+    const header = await edges(region(page, 'header'));
+    await page.mouse.click(380, header.bottom + 100);
+    await expect.poll(drawerOpen).toBe(false);
+    expect(await count()).toBe(1);
+    // A drag toward the start edge, past half its width.
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    await motionEnded(page);
+    const panel = await edges(drawer(page).locator('.drawer'));
+    const y = panel.top + panel.height - 40;
+    await page.mouse.move(panel.right - 20, y);
+    await page.mouse.down();
+    // (Released past half its width, it closes whether the release counts as a fling or not.)
+    for (const x of [panel.right - 60, panel.right - 120, panel.right - 180, panel.right - 200]) await page.mouse.move(x, y);
+    await page.mouse.up();
+    await expect.poll(drawerOpen).toBe(false);
+    expect(await count()).toBe(2);
+    // A destination.
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    await drawer(page).locator('tanrei-navigation-drawer-item').nth(1).click();
+    await expect.poll(drawerOpen).toBe(false);
+    expect(await count()).toBe(3);
+    expect(seen.filter((message) => message.includes('NVD-37'))).toEqual([]);
+  });
+
+  test('APS-7, NVD-19: no axe violations with the navigation open below the header, light and dark', async ({ page }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      await mount(page, real({ sections: 2 }), { width: 400, theme });
+      await menu(page).click();
+      await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+      await motionEnded(page);
+      const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`), theme).toEqual([]);
+    }
+  });
+
+  test('APS-22: while the navigation is open over the content below the header, Tab and Shift+Tab move through the header and the drawer and on to what lies beyond the frame — never into the main region, the aside or the footer under the scrim — and focus is not kept inside the drawer', async ({ page }) => {
+    await mount(page, real({ announcement: '<div slot="announcement"><a id="notice" href="#n">Notice</a></div>' }), { width: 400 });
+    await tabTo(page, menu(page));
+    await page.keyboard.press('Enter');
+    await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
+    const stops: string[] = [];
+    for (let presses = 0; presses < 10; presses++) {
+      await tab(page);
+      stops.push(await active(page));
+    }
+    const back: string[] = [];
+    for (let presses = 0; presses < 10; presses++) {
+      await tab(page, { back: true });
+      back.push(await active(page));
+    }
+    // Nothing under the scrim: the skip link, the main region's links, the aside's and the footer's.
+    expect([...stops, ...back].filter((stop) => /skip-link|#first|#aside-link|#footer-link/.test(stop))).toEqual([]);
+    // It leaves the drawer: backwards it reaches the header and the announcement (forwards, past the drawer, lies the
+    // browser's own interface, where a headless engine may stop or wrap).
+    expect(stops.some((stop) => stop.includes('tanrei-navigation-drawer'))).toBe(true);
+    expect(back.some((stop) => stop.startsWith('menu'))).toBe(true);
+    expect(back.some((stop) => stop === '#notice')).toBe(true);
+  });
+
+  for (const width of [400, 800] as const) {
+    test(`APS-4, APS-7, APS-22, APS-32, NVD-19, NVD-23: opened ${width} wide, the drawer and its scrim are drawn below the header — their top edge the header’s bottom edge — and the header stays usable: not inert, not covered, its menu button pressable; the skip link, the main region, the aside and the footer are inert and the page is held; the drawer is the navigation landmark, no dialog and not in the top layer`, async ({ page, browserName }) => {
+      await mount(page, real({ sections: 4 }), { width });
+      await menu(page).click();
+      await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+      await motionEnded(page);
+      const header = await edges(region(page, 'header'));
+      const panel = await edges(drawer(page).locator('.drawer'));
+      const scrim = await edges(drawer(page).locator('.scrim'));
+      near(panel.top, header.bottom);
+      near(scrim.top, header.bottom);
+      expect([scrim.left, scrim.right, scrim.bottom]).toEqual([0, width, 800]);
+      expect(panel.bottom).toBe(800);
+      expect(panel.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-container-width'));
+      // The header is not covered: what a press at its middle and at its menu button reaches is the header's.
+      const hit = (x: number, y: number) => page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('tanrei-app-shell > *')?.getAttribute('slot') ?? null, [x, y] as const);
+      expect(await hit(width / 2, header.top + header.height / 2)).toBe('header');
+      const button = await edges(menu(page));
+      expect(await hit(button.left + button.width / 2, button.top + button.height / 2)).toBe('header');
+      // Below the header, beside the drawer, the scrim covers the main region.
+      expect(await hit(width - 8, header.bottom + 40)).toBe('navigation');
+      // Inert: every region under the scrim, and the skip link whose target is one; never the header.
+      const inert = () => shell(page).evaluate((el) => [...el.children].filter((child) => (child as HTMLElement).inert).map((child) => child.getAttribute('slot') ?? child.localName));
+      expect(await inert()).toEqual(['skip-link', 'main', 'aside', 'footer']);
+      expect(await region(page, 'header').evaluate((el) => el.closest('[inert]'))).toBeNull();
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
+      // Not a dialog: no dialog element, nothing modal, nothing in the top layer; the navigation landmark named by its label.
+      expect(await drawer(page).evaluate((el) => [el.shadowRoot!.querySelectorAll('dialog').length, document.querySelectorAll(':modal').length, el.shadowRoot!.querySelectorAll(':modal, :popover-open').length])).toEqual([0, 0, 0]);
+      await expect(page.getByRole('navigation', { name: 'Documentation' })).toHaveCount(1);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      if (browserName === 'chromium') expect(await axNode(page, 'dialog', 'Documentation')).toBeNull();
+      // The menu button, pressed again, closes it: nothing is inert from that moment on.
+      await menu(page).click();
+      await expect.poll(inert).toEqual([]);
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe('hidden');
+    });
+  }
+
+  test('APS-7, APS-23, NVD-54, NVD-55: opened 400 wide and widened to 800, the navigation stays open — no close, no navigationOpenChange, its scrim and focus where they are, the same panel — while its column comes into the layout at once; widened to 1280 its presentation over the content ends: one close, one navigationOpenChange with false, nothing inert, focus kept, the scrim fading out as the panel takes its place beside the content; narrowed to 400 again nothing opens', async ({ page }) => {
+    await mount(page, real({ sections: 2 }), { width: 400 });
+    const log = await record(page);
+    await drawer(page).evaluate((el) => el.addEventListener('close', () => (window as unknown as { __log: [string, unknown][] }).__log.push(['close', null])));
+    await menu(page).click();
+    await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
+    await motionEnded(page);
+    const focused = await active(page);
+    // The one panel the drawer draws, marked so that a replacement would be seen.
+    await drawer(page).evaluate((el) => el.shadowRoot!.querySelector('.drawer')!.setAttribute('data-seen', ''));
+    const state = () =>
+      drawer(page).evaluate((el) => {
+        const panel = el.shadowRoot!.querySelector('.drawer')!;
+        const scrim = el.shadowRoot!.querySelector('.scrim');
+        return { presentation: (el as unknown as { presentation: string }).presentation, open: (el as unknown as { open: boolean }).open, same: panel.hasAttribute('data-seen'), scrim: scrim ? Number(getComputedStyle(scrim).opacity) : 0, inert: document.querySelectorAll('tanrei-app-shell > [inert]').length };
+      });
+    await resize(page, 800);
+    await motionEnded(page);
+    expect(await state()).toEqual({ presentation: 'column', open: true, same: true, scrim: 1, inert: 4 });
+    expect(await active(page)).toBe(focused);
+    expect((await edges(main(page))).left).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
+    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
+    // 1280: the overlay ends, told once, the panel beside the content.
+    await resize(page, 1280);
+    await motionEnded(page);
+    expect(await state()).toEqual({ presentation: 'standard', open: false, same: true, scrim: 0, inert: 0 });
+    expect(await active(page)).toBe(focused);
+    // (The drawer and the frame hear the same width: which of the two speaks first is the browser's.)
+    expect((await log()).filter(([name]) => name !== 'windowclasschange').map((entry) => entry.join(':')).sort()).toEqual(['close:', 'navigationopenchange:false', 'navigationopenchange:true']);
+    expect(await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen)).toBe(false);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe('hidden');
+    // 400 again: no overlay the person did not ask for.
+    await resize(page, 400);
+    await motionEnded(page);
+    expect(await state()).toMatchObject({ presentation: 'modal', open: false, same: true, inert: 0 });
+    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toHaveLength(3);
+  });
+
+  test('NVD-54, APS-23: a change of the window’s class moves the one panel — never replaced, nothing flickering — to its new place and form over motion.expand while the rest of the frame is drawn at once; where motion is reduced it takes its new place at once', async ({ page }) => {
+    const panelProbe = (root: Element) => {
+      const host = root.querySelector('tanrei-navigation-drawer')!;
+      const panel = host.shadowRoot!.querySelector('.drawer')! as HTMLElement;
+      const scrim = host.shadowRoot!.querySelector('.scrim');
+      const box = panel.getBoundingClientRect();
+      const main = root.querySelector('tanrei-app-shell > main')!.getBoundingClientRect();
+      return { seen: panel.hasAttribute('data-seen'), x: Math.round(box.left * 10) / 10, width: Math.round(box.width * 10) / 10, scrim: scrim ? Number(getComputedStyle(scrim).opacity) : 0, main: Math.round(main.left * 10) / 10 };
+    };
+    /** motion.expand's duration, in whole ms, as the engine computes it. */
+    const expandMs = () =>
+      page.evaluate(() => {
+        const probe = document.createElement('div');
+        probe.style.transitionDuration = 'var(--tanrei-comp-navigation-drawer-motion-expand-duration)';
+        document.body.append(probe);
+        const value = getComputedStyle(probe).transitionDuration;
+        probe.remove();
+        return Math.round(Number.parseFloat(value) * (value.endsWith('ms') ? 1 : 1000));
+      });
+    // 1280 full → 800 column: 240 narrows to the column's 72, the main region is at 72 at once.
+    await mount(page, real({ sections: 2 }), { width: 1280 });
+    await drawer(page).evaluate((el) => el.shadowRoot!.querySelector('.drawer')!.setAttribute('data-seen', ''));
+    const narrowing = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 800, height: 800 }), { probe: panelProbe, elements: false });
+    expect(narrowing.complete).toBe(true);
+    expect(narrowing.frames.every((f) => f.probe.seen)).toBe(true);
+    expect(narrowing.frames[0]!.probe.main).toBe(72);
+    expectAnimated(narrowing, 'width');
+    expectNoFlicker(narrowing);
+    expect(narrowing.rest.probe).toMatchObject({ width: 72, x: 0 });
+    expect(narrowing.motions.filter((m) => m.name === 'inline-size' || m.name === 'width').map((m) => m.duration)).toContain(await expandMs());
+    // 800 column → 400: the column slides out of the window, the main region at 0 at once.
+    const leaving = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 400, height: 800 }), { probe: panelProbe, elements: false });
+    expect(leaving.complete).toBe(true);
+    expect(leaving.frames.every((f) => f.probe.seen)).toBe(true);
+    expect(leaving.frames[0]!.probe.main).toBe(0);
+    expectAnimated(leaving, 'x');
+    expectNoFlicker(leaving);
+    expect(leaving.rest.probe.x as number).toBeLessThanOrEqual(-72);
+    // Reduced motion: at once.
+    await mount(page, real({ sections: 2 }), { width: 1280, reducedMotion: true });
+    const atOnce = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 800, height: 800 }), { probe: panelProbe, elements: false });
+    expect(atOnce.frames[0]!.probe).toMatchObject({ width: 72, main: 72 });
+  });
+
+  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim faded to nothing and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
+    for (const width of [400, 800] as const) {
+      await mount(page, real({ sections: 2 }), { width });
+      // Opened from the keyboard: the destination that takes focus is drawn focused from the start (a key pressed after
+      // a pointer's press would first draw the focus a pointer's press does not, which no frame of this closing is about).
+      await tabTo(page, menu(page));
+      await page.keyboard.press('Enter');
+      await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
+      await motionEnded(page);
+      const closing = await sampleFrames(page.locator('.stage'), () => page.keyboard.press('Escape'), {
+        probe: (root) => ({ inert: root.querySelectorAll('tanrei-app-shell > [inert]').length, scrimTakes: getComputedStyle(root.querySelector('tanrei-navigation-drawer')!.shadowRoot!.querySelector('.scrim')!).pointerEvents }),
+      });
+      expect(closing.complete, String(width)).toBe(true);
+      expectNoFlicker(closing);
+      // From its first frame nothing is inert and the scrim takes no press (NVD-22).
+      expect(closing.frames[0]!.probe, String(width)).toEqual({ inert: 0, scrimTakes: 'none' });
+      // The last frame of the motion is the closed drawer at rest, and no element of it comes or goes on the way.
+      const ends = Math.max(...closing.motions.map((motion) => closing.frames.find((frame) => frame.index === motion.frame)!.time + motion.duration));
+      const last = closing.frames.filter((frame) => frame.time <= ends + 0.5).at(-1)!;
+      expect(last.time, `${width}: a frame is drawn where the motion ends`).toBeGreaterThan(ends - 17);
+      expectFirstFrameAtRest({ ...closing, frames: [last] });
+      const drawerKeys = (frame: { elements: Record<string, unknown> }) => Object.keys(frame.elements).filter((key) => key.includes('tanrei-navigation-drawer')).sort().join('\n');
+      expect(closing.frames.filter((frame) => drawerKeys(frame) !== drawerKeys(closing.rest)).map((frame) => frame.index), `${width}: an element of the drawer comes or goes`).toEqual([]);
+      expect(await shell(page).evaluate((el) => [...el.children].filter((child) => (child as HTMLElement).inert).length)).toBe(0);
+      await expect.poll(() => active(page)).toContain('menu');
+    }
+  });
+
+  test('APS-33: at 400 wide, a filterable drawer’s chord pressed anywhere opens the navigation as the menu button does (one navigationOpenChange with true) with focus in the drawer’s filter field; typed in a text field it is typed; where the drawer is shown the drawer answers it and the frame does not; where it is hidden beside the content the frame shows it and focuses its field', async ({ page }) => {
     const filterable = DRAWER('responsive collapsible filterable filter-label="Filter navigation" filter-placeholder="Filter" filter-clear-label="Clear" filter-count-text="Matches: {count}" filter-empty-text="No matches"');
     await mount(page, real({ navigation: filterable, aside: '<aside slot="aside"><input id="aside-field" aria-label="Note"></aside>' }), { width: 400 });
     const log = await record(page);
-    const dialogOpen = () => drawer(page).evaluate((el) => !!el.shadowRoot!.querySelector('dialog[open]'));
+    const dialogOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
     await page.locator('#first').focus();
     await page.keyboard.press('/');
     await expect.poll(dialogOpen).toBe(true);
@@ -557,12 +862,22 @@ test.describe('the menu button', () => {
     await page.keyboard.press('/');
     await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
     expect((await log()).slice(before).filter(([name]) => name === 'navigationopenchange')).toEqual([]);
+    // Hidden beside the content (a drawer with no collapsed form, put away by the menu button): the frame answers the
+    // chord, shows the drawer (its expanded true, one expandedChange) and gives its field focus.
+    await mount(page, real({ navigation: filterable.replace('responsive collapsible', 'responsive') }), { width: 1280 });
+    await menu(page).click();
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { expanded: boolean }).expanded)).toBe(false);
+    await motionEnded(page);
+    await page.locator('#first').focus();
+    await page.keyboard.press('/');
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { expanded: boolean }).expanded)).toBe(true);
+    await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
   });
 
   test('APS-7: navigationOpen set by the product opens the navigation and puts it away without an event, and is ignored while the navigation stands beside the content; in the column presentation the drawer’s own menu button widens it over the content and the frame follows', async ({ page }) => {
     await mount(page, real(), { width: 400 });
     const log = await record(page);
-    const dialogOpen = () => drawer(page).evaluate((el) => !!el.shadowRoot!.querySelector('dialog[open]'));
+    const dialogOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
     const set = (value: boolean) => shell(page).evaluate((el, v) => ((el as unknown as { navigationOpen: boolean }).navigationOpen = v), value);
     await set(true);
     await expect.poll(dialogOpen).toBe(true);
@@ -1245,11 +1560,11 @@ test.describe('the skip link, landmarks and focus', () => {
     });
   }
 
-  test('APS-23: a change of the window’s class is drawn at once, without a motion; scroll, headerPosition, mainWidth, asideOrder, footerHidden and separation stay as they are; and keyboard focus on something the new arrangement does not show — the menu button, a destination of the navigation bar — moves to the main region', async ({ page }) => {
-    await mount(page, real({ bar: true, sections: 2, props: { mainWidth: 'full', asideOrder: 'before', separation: 'gap', headerPosition: 'static' } }), { width: 400 });
-    const props = () => shell(page).evaluate((el) => ['scroll', 'header-position', 'main-width', 'aside-order', 'footer-hidden', 'separation'].map((name) => el.getAttribute(name)));
+  test('APS-23: a change of the window’s class draws every region but the navigation at once, without a motion; scroll, headerPosition, mainWidth, asideOrder, footerHidden, separation and menuButtonPlacement stay as they are; and keyboard focus on something the new arrangement does not show — a menu button that menuButtonPlacement drawer hides, a destination of the navigation bar — moves to the main region', async ({ page }) => {
+    await mount(page, real({ bar: true, sections: 2, props: { mainWidth: 'full', asideOrder: 'before', separation: 'gap', headerPosition: 'static', menuButtonPlacement: 'drawer' } }), { width: 400 });
+    const props = () => shell(page).evaluate((el) => ['scroll', 'header-position', 'main-width', 'aside-order', 'footer-hidden', 'separation', 'menu-button-placement'].map((name) => el.getAttribute(name)));
     const kept = await props();
-    expect(kept).toEqual([null, 'static', 'full', 'before', null, 'gap']);
+    expect(kept).toEqual([null, 'static', 'full', 'before', null, 'gap', 'drawer']);
     await menu(page).evaluate((el) => (el as HTMLElement).focus());
     expect(await active(page)).toContain('menu');
     await resize(page, 1280);
@@ -1332,19 +1647,24 @@ test.describe('before its code runs, text size, forced colors, insets, direction
     }
   });
 
-  test('APS-24: before the element is defined a drawer in the navigation region keeps its place — its width beside the content in an expanded window, its column’s in a medium one while it is collapsible, none in a compact one — and the menu button is shown by the class alone; no event is emitted until the class is decided', async ({ page: first }) => {
+  test('APS-24: before the element is defined a drawer in the navigation region keeps its place — its width beside the content in an expanded window, its column’s in a medium one while it is collapsible, none in a compact one — and the menu button is shown by the stylesheet alone — in every class for a drawer, in the compact one only with menuButtonPlacement drawer; no event is emitted until the class is decided', async ({ page: first }) => {
     const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-regular' } as const;
     for (const width of [1280, 800, 400] as const) {
       const page = await withoutScript(first, real(), width);
       const expected = width === 400 ? 0 : await resolveToken(page, places[width]);
       expect((await edges(region(page, 'navigation'))).width, String(width)).toBe(expected);
       expect((await edges(main(page))).left).toBe(expected);
-      // The menu button is shown only in the compact window: the class alone decides, where the browser answers style queries.
+      // The menu button of a drawer is shown in every class, and with menuButtonPlacement drawer only in the compact
+      // one: the stylesheet alone decides, where the browser answers style queries.
       const queries = await page.evaluate(() => {
         document.body.insertAdjacentHTML('beforeend', '<style>@container style(--probe: on) { #probe-inner { --answer: yes; } }</style><div style="--probe: on"><div id="probe-inner"></div></div>');
         return getComputedStyle(document.querySelector('#probe-inner')!).getPropertyValue('--answer').trim() === 'yes';
       });
-      if (queries) expect(await shown(menu(page)), String(width)).toBe(width === 400);
+      if (queries) {
+        expect(await shown(menu(page)), String(width)).toBe(true);
+        await shell(page).evaluate((el) => el.setAttribute('menu-button-placement', 'drawer'));
+        expect(await shown(menu(page)), `${width}, drawer`).toBe(width === 400);
+      }
       await page.close();
     }
     // A drawer that is not collapsible has no place in a medium window.
@@ -1453,7 +1773,7 @@ test.describe('before its code runs, text size, forced colors, insets, direction
     // The direction changes while shown: drawn at once, the class kept; the order of focus is the markup's.
     await mount(page, real(), { width: 400 });
     await menu(page).click();
-    await expect.poll(() => drawer(page).evaluate((el) => !!el.shadowRoot!.querySelector('dialog[open]'))).toBe(true);
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
     await page.locator('.stage').evaluate((el) => el.setAttribute('dir', 'rtl'));
     await frame(page);
     expect([await windowClass(page), await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen)]).toEqual(['compact', true]);

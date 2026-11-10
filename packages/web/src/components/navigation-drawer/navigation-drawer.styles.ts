@@ -165,6 +165,7 @@ export const drawerStyles = css`
   :host([data-instant]),
   :host([data-instant]) .drawer,
   :host([data-instant]) .title,
+  :host([data-instant]) .scrim,
   :host([data-instant]) dialog.drawer::backdrop {
     transition: none !important;
   }
@@ -578,6 +579,150 @@ export const drawerStyles = css`
      opacity it showed, and while it leaves its scrim takes no pointer. After the dialog's own rules. */
   ${modalExitStyles('dialog.drawer')}
 
+  /* NVD-19, NVD-22, NVD-40, NVD-53, NVD-54: held below an app shell's header (\`data-held\`), the drawer is one <nav> in
+     every presentation, never a dialog: beside the content it is the standard drawer's panel; as a column it is the
+     column, which widens over the content in place; in the modal presentation it stands at the window's start edge
+     below the header (\`--_top\`, \`--_start\`, measured where it opens) and slides in and out. Its scrim is its own,
+     under it, from the header's bottom edge to the window's bottom edge. Its host keeps its own place in the layout and
+     draws the panel past it (overflow visible), so that the panel can stand over the content. Every change of look is a
+     transition of the same element: the last frame of a closing is the closed drawer's first, and nothing is taken
+     away, put in its place or recolored when the motion ends (NVD-22). */
+  :host([data-held]) {
+    overflow: visible;
+    --_top: 0px;
+    --_start: 0px;
+  }
+  /* Each state names its motion's duration and curve (\`--_held-d\`, \`--_held-e\`); a state that hides the panel names
+     the delay of its \`visibility\` (\`--_held-hide\`), so that it is hidden only once it has left — and one that shows it
+     shows it at once, so that focus can go into it as it opens. */
+  .held {
+    --_held-d: ${t('motion-expand-duration')};
+    --_held-e: ${t('motion-expand-easing')};
+    --_held-hide: 0s;
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    block-size: 100%;
+    translate: var(--_drag, 0px) 0;
+    visibility: visible;
+    transition-property: inline-size, block-size, translate, background-color, box-shadow, border-radius, visibility;
+    transition-duration: var(--_held-d), var(--_held-d), var(--_held-d), var(--_held-d), var(--_held-d), var(--_held-d), 0s;
+    transition-timing-function: var(--_held-e);
+    transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, var(--_held-hide);
+  }
+  .held .edge {
+    transition: background-color var(--_held-d) var(--_held-e);
+  }
+  .held.dragging {
+    transition: none;
+  }
+  /* The standard presentation shown is the standard drawer's panel at its start edge; hidden (no collapsed form,
+     expanded false, NVD-53) it slides out of the window while its place in the layout closes, as a standard drawer that
+     closes does (NVD-18). */
+  :host([data-held]:not([data-as='modal'])) .held {
+    --_held-d: ${t('motion-enter-duration')};
+    --_held-e: ${t('motion-enter-easing')};
+  }
+  :host([data-held]:not([data-as='modal']):not([data-open])) .held {
+    --_held-d: ${t('motion-exit-duration')};
+    --_held-e: ${t('motion-exit-easing')};
+    --_held-hide: ${t('motion-exit-duration')};
+    translate: var(--_away) 0;
+    visibility: hidden;
+  }
+  /* NVD-40: the column, closed, is drawn as a standard drawer's, in its own box; open, it widens over the content to the
+     modal drawer's width and look, and reaches from below the header to the window's bottom edge (\`--_reach\`), over the
+     change of form's motion. */
+  ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ":host([data-held][data-as='modal'][data-collapsible]:not([data-open])) .held"))}
+  :host([data-held][data-as='modal'][data-collapsible][data-open]) .held {
+    block-size: var(--_reach, 100%);
+  }
+  /* NVD-19: the modal presentation stands at the window's start edge below the header, its own height, and slides in
+     from its start edge over the enter motion and out over the exit motion. */
+  :host([data-held][data-as='modal']:not([data-collapsible])) .held {
+    --_held-d: ${t('motion-enter-duration')};
+    --_held-e: ${t('motion-enter-easing')};
+    position: fixed;
+    inset-block-start: var(--_top);
+    inset-inline-start: var(--_start);
+    block-size: calc(100dvh - var(--_top));
+  }
+  :host([data-held][data-as='modal']:not([data-collapsible]):not([data-open])) .held {
+    --_held-d: ${t('motion-exit-duration')};
+    --_held-e: ${t('motion-exit-easing')};
+    --_held-hide: ${t('motion-exit-duration')};
+    translate: var(--_away) 0;
+    visibility: hidden;
+  }
+  /* The scrim: below the header only, faded in with the drawer and out with it (NVD-22: from the moment it closes it
+     takes no press), over the change of form's motion for a column (NVD-40). Hidden once it has faded. */
+  ${scrimFilter(':host([data-held]) .scrim', T('scrim-blur'))}
+  :host([data-held]) .scrim {
+    --_held-d: ${t('motion-exit-duration')};
+    --_held-e: ${t('motion-exit-easing')};
+    --_held-hide: ${t('motion-exit-duration')};
+    display: block;
+    position: fixed;
+    inset-block-start: var(--_top);
+    inset-block-end: 0;
+    inset-inline: 0;
+    background: ${t('scrim-color')};
+    backdrop-filter: ${SCRIM_FILTER};
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition-property: opacity, visibility;
+    transition-duration: var(--_held-d), 0s;
+    transition-timing-function: var(--_held-e);
+    transition-delay: 0s, var(--_held-hide);
+  }
+  :host([data-held][data-as='modal'][data-open]) .scrim {
+    --_held-d: ${t('motion-enter-duration')};
+    --_held-e: ${t('motion-enter-easing')};
+    --_held-hide: 0s;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  :host([data-held][data-as='modal'][data-collapsible]) .scrim,
+  :host([data-held][data-as='modal'][data-collapsible][data-open]) .scrim {
+    --_held-d: ${t('motion-expand-duration')};
+    --_held-e: ${t('motion-expand-easing')};
+  }
+  :host([data-held][data-as='modal'][data-collapsible]:not([data-open])) .scrim {
+    --_held-hide: ${t('motion-expand-duration')};
+  }
+  /* MOT-4: mounted open after the document's first paint, it enters as one that opens does. */
+  @starting-style {
+    :host([data-held][data-as='modal']:not([data-collapsible])[data-open]) .held {
+      translate: var(--_away) 0;
+    }
+    :host([data-held][data-as='modal'][data-collapsible][data-open]) .held {
+      inline-size: var(--_column-width);
+      block-size: 100%;
+    }
+    ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ":host([data-held][data-as='modal'][data-collapsible][data-open]) .held"))}
+    :host([data-held][data-as='modal'][data-open]) .scrim {
+      opacity: 0;
+    }
+  }
+  /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — and fades the scrim over
+     motion.expand; the host's own place in the layout changes at once, and the rest of the frame with it (APS-23). */
+  :host([data-held][data-moving]) {
+    transition: none;
+  }
+  :host([data-held][data-moving]) .held,
+  :host([data-held][data-moving]) .scrim {
+    --_held-d: ${t('motion-expand-duration')};
+    --_held-e: ${t('motion-expand-easing')};
+  }
+  :host([data-held][data-moving]:not([data-open])) .scrim,
+  :host([data-held][data-moving]:not([data-as='modal']):not([data-open])) .held,
+  :host([data-held][data-moving][data-as='modal']:not([data-collapsible]):not([data-open])) .held {
+    --_held-hide: ${t('motion-expand-duration')};
+  }
+
   ${shape}
 
   @media (prefers-reduced-motion: reduce) {
@@ -598,6 +743,13 @@ export const drawerStyles = css`
     dialog.drawer.widening[open]::backdrop {
       transition-duration: 0s;
       transition-delay: 0s;
+    }
+    /* (A held drawer's rules name its state on the host: this one outranks them all.) */
+    .held,
+    .held .edge,
+    .scrim {
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
     }
     .clock {
       transition-delay: 0s;
