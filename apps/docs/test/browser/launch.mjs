@@ -19,7 +19,7 @@
 // tests have reported, instead of being held open by its connection to that browser.
 import { afterEach, beforeEach } from 'node:test';
 import * as playwright from '@playwright/test';
-import { describeRequests } from './waits.mjs';
+import { SETTLE, describeRequests, settleFrame } from './waits.mjs';
 
 /** How long a browser has to answer what has no limit of Playwright's: a new context or page, closing one, a script. */
 export const ANSWER = 60_000;
@@ -134,6 +134,20 @@ export function outstanding(page, now = Date.now()) {
   const open = requests.get(page);
   if (!open) return 'not kept (the page was not opened in a browser of launch())';
   return describeRequests([...open].map(([request, entry]) => ({ type: request.resourceType(), url: request.url(), ...entry })), now);
+}
+
+/**
+ * The element `selector` names in `page` settled (`settleFrame` in waits.mjs: in view, nothing in it matching
+ * `pending`, its elements defined, the fonts in, two frames drawn), each wait within its bound. A wait that runs out
+ * fails at once, naming what it waited for and the page's requests that had not ended, rather than holding the test
+ * to its limit.
+ * @param {import('@playwright/test').Page} page
+ * @param {string} selector
+ * @param {{ scroll?: 'start' | 'center' | 'end' | 'nearest', pending?: string }} [options]
+ */
+export async function settle(page, selector, { scroll, pending } = {}) {
+  const lost = await page.evaluate(settleFrame, { selector, scroll, pending, bounds: SETTLE });
+  if (lost) throw new Error(`${page.url()} did not settle: ${lost}. Outstanding: ${outstanding(page)}.`);
 }
 
 /** The engines Playwright launches. */
