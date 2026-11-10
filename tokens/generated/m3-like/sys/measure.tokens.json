@@ -120,9 +120,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fn": "mul",
-              "of": "{tanrei.dial.size.unit}",
-              "by": 12
+              "fixed": "Material 3's touch target, 48dp, the least area a press is taken from under a finger: m3-like keeps the value it drew when the root held this."
             }
           }
         },
@@ -133,9 +131,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fn": "mul",
-              "of": "{tanrei.dial.size.unit}",
-              "by": 11
+              "fixed": "m3-like keeps the value it drew when the root held this. Material 3 names no pointer target apart from its 48dp touch target; whether this should be 48 is not yet checked against the fidelity map."
             }
           }
         },
@@ -146,7 +142,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "The developer's value: a floor that shrank with the dials it floors would be no floor."
+              "fixed": "The least height Material 3 draws a pressable at, its extra-small button and its chips (32dp): m3-like keeps the value it drew when the root held this. Not yet checked against the fidelity map."
             }
           },
           "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
