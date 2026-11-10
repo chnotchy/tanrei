@@ -75,8 +75,9 @@ describe('the header’s controls', () => {
     assert.match(header, /<tanrei-button slot="actions" id="docs-language" variant="text" label=\{words\.language\} app-bar-overflow="never">/);
     // The repository's link: the one action the bar may hide (overflow="hide"), to the configured repository, said to leave the site.
     assert.match(header, /<tanrei-button slot="actions" id="docs-repository" variant="text" href=\{repositoryHref\} label=\{words\.repository\} aria-description=\{externalLink\}>/);
-    assert.match(header, /id="docs-drawer-toggle"[^>]*label=\{words\.menu\} aria-controls="docs-sidebar" aria-expanded="true">/);
-    assert.match(header, /data-app-shell-menu variant="text" label=\{words\.menu\}>/);
+    // The navigation's one menu button is the shell's, at every width: the shell says what it controls and whether it is expanded.
+    assert.match(header, /<tanrei-button slot="navigation" data-app-shell-menu variant="text" label=\{words\.menu\}>/);
+    assert.equal(header.match(/slot="navigation"/g)?.length, 1);
     assert.match(header, /<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">/);
     assert.match(header, /<Appearance id="docs-appearance" part="panel" \/>/);
     assert.match(panel, /<tanrei-popover class="docs-appearance-panel" data-define-on-use anchor=\{id\} placement="bottom-start" headline=\{words\.appearance\} closable close-label=\{words\.close\}/);

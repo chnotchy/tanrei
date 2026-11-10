@@ -70,26 +70,6 @@
   tanrei-app-shell[data-window-class='compact'] .docs-look-row {
     display: flex;
   }
-  /* The menu button: the shell's in a compact window, the site's in a wider one — by the shell's window class, a
-     style query, and the shell's own word where the browser has none (until the shell is defined such a browser
-     shows the wide one). The shell also takes its own away wherever the navigation has a place (APS-6). */
-  .docs-compact-only {
-    display: none;
-  }
-  @container style(--tanrei-app-shell-window-class: compact) {
-    tanrei-app-bar > .docs-wide-only {
-      display: none;
-    }
-    tanrei-app-bar > .docs-compact-only {
-      display: inline-flex;
-    }
-  }
-  tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-wide-only {
-    display: none;
-  }
-  tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-compact-only {
-    display: inline-flex;
-  }
   /* A bar too narrow for the brand beside the menu button, the design system and the three actions that stay (a 320 wide window,
      or text twice its size) leaves the brand out: the widths are the reader's text size, as the shell's are (APS-2).
      The design system's button still says the name, and the first level of the breadcrumbs still leads home. */
@@ -123,7 +103,7 @@
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
-  /* The search: the first action, so the actions start from it at the end. The menu buttons and the brand before it
+  /* The search: the first action, so the actions start from it at the end. The menu button and the brand before it
      are shown and hidden by the rules above; the bar puts actions.gap between them all, and the design system's
      button after the brand (APB-19, APB-25). */
   tanrei-app-bar:not(:defined) > .docs-search {
@@ -137,14 +117,6 @@
      it stands before the search, so that drawing it then moves nothing. Without script the foot of the page links it. */
   tanrei-app-bar:not(:defined) > #docs-repository {
     display: none;
-  }
-  tanrei-app-bar:not(:defined) > .docs-wide-only {
-    display: inline-flex;
-  }
-  @container style(--tanrei-app-shell-window-class: compact) {
-    tanrei-app-bar:not(:defined) > .docs-wide-only {
-      display: none;
-    }
   }
   /* The shell's menu button is shown only where the shell shows it (APS-6): its `display` is the shell's to take away. */
   @container style(--_aps-menu: shown) {
@@ -408,15 +380,12 @@
     tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar:not(:defined) > :where(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
       display: block;
     }
-    tanrei-app-shell [data-app-shell-menu] {
-      display: none;
-    }
   }
   .docs-toc-list.docs-toc-list {
     display: block;
   }
   .docs-toc-compact.docs-toc-compact,
-  tanrei-app-bar > :is(.docs-wide-only, .docs-compact-only) {
+  tanrei-app-bar > [data-app-shell-menu][data-app-shell-menu] {
     display: none;
   }
   /* Nothing can be chosen without script: the menus' and the panel's buttons, and the mode's toggle, are not drawn (the switch's row holds nothing either). */
