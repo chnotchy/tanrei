@@ -52,12 +52,15 @@ export const afterFirstPaint = (): Promise<void> => whenPainted;
 
 // The person's setting, or the product's on the root element (src/styles/motion.ts says how a stylesheet reads both).
 // A motion that script plays or holds asks here, never `matchMedia` itself: the attribute is read as it is, with no
-// style to work out first.
+// style to work out first. The media query is asked again each time: a list kept from before answers in WebKit what
+// held at its last rendering update, so a setting changed since (emulated, in a test) would be read a frame late. The
+// kept list is only the one the watchers listen to.
 const reducedQuery = typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION_MEDIA) : null;
+const reducedByPerson = () => typeof matchMedia === 'function' && matchMedia(REDUCED_MOTION_MEDIA).matches;
 const reducedInApp = () => typeof document !== 'undefined' && document.documentElement?.getAttribute(REDUCED_MOTION_ATTRIBUTE) === REDUCED_MOTION_VALUE;
 
 /** Whether motion is reduced now (MOT-6): the person's `prefers-reduced-motion`, or the product's `data-tanrei-motion="reduce"` on the root. */
-export const motionReduced = (): boolean => (reducedQuery?.matches ?? false) || reducedInApp();
+export const motionReduced = (): boolean => reducedByPerson() || reducedInApp();
 
 const reducedWatchers = new Set<(reduced: boolean) => void>();
 let reducedShown = false;
