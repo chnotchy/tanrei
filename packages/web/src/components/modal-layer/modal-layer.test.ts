@@ -6,8 +6,8 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
-import { motionEnded } from '../../../test/motions.js';
+import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 
@@ -162,6 +162,15 @@ test.describe('presentation', () => {
 });
 
 test.describe('focus', () => {
+  test('MDL-3, MDL-7: opened at the end of a task that outlasts its motions, the layer fades in and the element marked for focus takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
+    // marked control's state motion lasts, the control was drawn focused at once, with no frame of its colors changing.
+    await mount(page, [f('marked', { open: false }, { content: '<button id="first-marked">First</button> <tanrei-button id="go" label="Go" autofocus><span slot="icon">add</span></tanrei-button>' })]);
+    await tabTo(page, page.locator('#open-marked'));
+    await expectFromNextFrame(host(page, 'marked'), '(el) => { el.open = true; }', ['tanrei-modal-layer dialog opacity', 'tanrei-button button.has-icon background-color'], 'opened');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('go');
+  });
+
   test('MDL-3: focus goes to the element marked autofocus, or to the container; the next Tab reaches the first focusable element', async ({ page }) => {
     await mount(page, [f('plain'), f('marked', {}, { content: '<button id="a">A</button><input id="field" aria-label="Name" autofocus>' })]);
     await open(page, 'plain');

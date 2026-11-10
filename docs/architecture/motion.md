@@ -91,6 +91,36 @@ system's choice names. A layer that sets the appearance gets the values that go 
 keeps its pin whatever the appearance, as a pin holds against a dial. A component that must start from somewhere else
 says so with a component token of its own that aliases the system's.
 
+## The first frames on the web
+
+How the web package keeps MOT-3 and MOT-4 (`packages/web/src/primitives/motion.ts`, `src/styles/motion.ts`,
+`src/primitives/modal-exit.ts`):
+
+- **Settling.** Every element carries `data-tanrei-settling` from each time it is connected until two frames after its
+  first update there: the frame its first render is drawn in, and the one after it, where a state it measured in a
+  frame callback or a resize observer is written. Meanwhile nothing in it starts a transition
+  (`transition-property: none`, never a zero duration, which still runs a transition that has a delay). The element a
+  surface's entrance moves (`data-tanrei-appear`) is left alone: its entrance is MOT-4's to play or skip.
+- **Layout is forced before settling ends.** The elements that ask in one frame are let go together, by one pair of
+  frame callbacks, and before they are let go the document is laid out once. A state written after the last frame drawn
+  while they settled — in a task between two frames (an image preview's zoom-in control, enabled when its picture has
+  loaded) or in an earlier callback of the same frame — is then styled while transitions are still off, not in the same
+  pass as the change that turns them back on, which would move it from the state before it. The layout is one the frame
+  was about to make; letting go then changes only `transition-property`.
+- **The first paint.** The document counts as painted at the second frame callback after it has been parsed (a module
+  that arrives later trusts Paint Timing where the browser reports a paint). An overlay mounted open before then
+  appears at once: the element its entrance moves starts no transition until that paint, from the update that renders
+  it. Mounted after it, the overlay plays its entrance.
+- **A modal's scrim is kept quiet until the first paint.** A modal `<dialog>` opened before the first paint is opened
+  at once, and its `::backdrop` starts no transition until that paint: WebKit can start the scrim's entrance from its
+  `@starting-style` again when the component lays the dialog out anew in the task that opened it (a dialog or a side
+  sheet whose actions are stacked), and the scrim would fade in as the page loads.
+
+Two sweeps hold every fixture to this: `src/first-frame-all.test.ts` makes each fixture appear on a page that is
+already there and compares its first frame with its rest, and `src/written-open-all.test.ts` loads each fixture written
+open (and, where the harness draws a surface in place, the real overlay it stands for) by a navigation and counts every
+transition and animation that starts before the page is at rest.
+
 ## The presets
 
 `m3-like` states Material 3's durations for every role, its emphasized curves for `enter` and `exit`, its fast spatial

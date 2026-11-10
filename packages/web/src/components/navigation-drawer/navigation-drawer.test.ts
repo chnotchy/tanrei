@@ -11,7 +11,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDo
 import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
-import { EVERY_ANIMATION, motionCount, motionEnded } from '../../../test/motions.js';
+import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -1817,6 +1817,22 @@ test.describe('forms and focus', () => {
       document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="menu">Menu</button>');
       document.querySelector('main')!.insertAdjacentHTML('beforeend', '<button id="after-drawer">After</button>');
     });
+
+  test('NVD-19, NVD-40: opened at the end of a task that outlasts its motions, a modal drawer slides in and its selected destination takes its focused colors from the first frame drawn after that task — and a collapsible one widens from its column, its rows with it, and narrows back to it the same way', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the motions
+    // last, the destination was drawn focused, and a collapsible drawer's rows drawn wide, at once, with no frame of them.
+    const closed = (id: string) => {
+      const given = spec.fixtures.find((f) => f.id === id)!;
+      return { ...given, props: { ...given.props, open: false } };
+    };
+    await mountFixtures(page, spec, { icons: true, fixtures: [closed('modal')] });
+    await expectFromNextFrame(drawer(page, 'modal'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color'], 'the modal drawer opened');
+    await mountFixtures(page, spec, { icons: true, fixtures: [closed('modal-collapsible-closed')] });
+    const rows = ['tanrei-navigation-drawer dialog.drawer width', 'tanrei-navigation-drawer-item span.container width', 'tanrei-navigation-drawer-item span.text opacity'];
+    await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = true; }', rows, 'the collapsible drawer opened');
+    await motionEnded(page);
+    await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = false; }', rows, 'the collapsible drawer closed');
+  });
 
   test('NVD-18: a standard drawer takes its form’s width while open and none while closed — hidden from assistive technology and focus — sliding over the enter and exit motion, at once where motion is reduced; no scrim, no close, no trap', async ({ page }) => {
     await mount(page, [fixture('s', MAIL), rail('c', MAIL)]);

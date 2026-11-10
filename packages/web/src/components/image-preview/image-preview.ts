@@ -37,6 +37,7 @@ import { TanreiButton } from '../button/button.js';
 import '../skeleton/skeleton.js';
 import { styles } from './image-preview.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** Why the preview asks to close (IMP-5): its close control, Escape, the platform's back, or the downward drag by touch. */
 export type TanreiImagePreviewCloseReason = 'button' | 'escape' | 'back' | 'swipe';
@@ -1331,6 +1332,9 @@ export class TanreiImagePreview extends TanreiElement {
     // IMP-2: focus moves when it opens, not when its motion ends.
     const stage = this.stageElement;
     if (stage) focusOverlay(this, stage);
+    // IMP-2, IMP-33: what the open state began inside it — the colors of what took focus, and its controls' states —
+    // begins in the first frame drawn after this task, as its entrance does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /** IMP-4: out of the top layer (fading), the page given back, focus back where it was. */

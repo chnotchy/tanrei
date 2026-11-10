@@ -165,7 +165,8 @@
     "text.test.ts": 1,
     "theme-script.test.ts": 2,
     "tmp.test.ts": 0,
-    "words/en.test.ts": 199
+    "words/en.test.ts": 199,
+    "written-open-all.test.ts": 370
   },
   "firefox": {
     "components/accordion/accordion.test.ts": 117,
@@ -332,7 +333,8 @@
     "text.test.ts": 1,
     "theme-script.test.ts": 2,
     "tmp.test.ts": 0,
-    "words/en.test.ts": 159
+    "words/en.test.ts": 159,
+    "written-open-all.test.ts": 524
   },
   "firefox-no-style-queries": {
     "components/accordion/accordion.test.ts": 9,
@@ -571,6 +573,7 @@
     "text.test.ts": 2,
     "theme-script.test.ts": 2,
     "tmp.test.ts": 0,
-    "words/en.test.ts": 213
+    "words/en.test.ts": 213,
+    "written-open-all.test.ts": 476
   }
 }

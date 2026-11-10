@@ -11,7 +11,7 @@ import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -108,6 +108,15 @@ async function tabOrder(page: P, id: string, count: number) {
 }
 
 test.describe('presentation and focus', () => {
+  test('DLG-2, DLG-13: opened at the end of a task that outlasts its motions, it appears and the element marked for focus takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
+    // marked action's state motion lasts, the action was drawn focused at once, with no frame of its colors changing.
+    await mount(page, [closed('basic')]);
+    await tabTo(page, page.locator('#open-basic'));
+    const marked = `(el) => { el.querySelector('tanrei-button')?.setAttribute('autofocus', ''); el.open = true; }`;
+    await expectFromNextFrame(host(page, 'basic'), marked, ['tanrei-dialog dialog.container opacity', 'tanrei-button button background-color'], 'opened');
+  });
+
   test('DLG-1: opening presents it in the top layer over the scrim of its color, makes everything else inert and holds the page’s scroll until it closes', async ({ page }) => {
     await mount(page, [f('d')]);
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div style="block-size: 3000px"></div><button id="elsewhere">Elsewhere</button>'));

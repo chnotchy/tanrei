@@ -10,7 +10,7 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
@@ -591,6 +591,16 @@ test.describe('forms, focus and dismissal', () => {
       document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="opener">Open</button>');
       document.querySelector('main')!.insertAdjacentHTML('beforeend', '<button id="after">After</button>');
     });
+
+  test('BSH-1, BSH-3: opened at the end of a task that outlasts its motions, a modal sheet slides up and the element marked for focus takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
+    // marked control's state motion lasts, the control was drawn focused at once, with no frame of its colors changing.
+    await mount(page, [fx('s', { open: false, variant: 'modal' }, '<tanrei-button id="marked" autofocus>Apply</tanrei-button>')]);
+    await opener(page);
+    await tabTo(page, page.locator('#opener'));
+    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-bottom-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened');
+  });
+
   const setOpen = (page: P, open: boolean, id = 's') => host(page, id).evaluate(async (el: any, o) => {
     el.open = o;
     await el.updateComplete;
