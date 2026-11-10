@@ -13,7 +13,7 @@ register('./vite-shim.mjs', import.meta.url);
 const appearance = await import('../src/lib/appearance.ts');
 const { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } = await import('../src/lib/listing.mjs');
 const { manifests } = await import('../src/lib/repo.ts');
-const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
+const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, SHEET_HELD_KEY, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
 /** The key of a build, as lib/sheet-key.mjs gives one. */
 const BUILD = '0123456789abcdef';
 
@@ -25,9 +25,11 @@ const SHOWCASE = looks.find((id) => id !== DEFAULT);
 /**
  * The head's script, run with a storage that holds `stored` (or throws), an address, and the device's scheme: the
  * attributes it leaves on the root, and the rule it writes. `after` is what the parser has put after the script in the
- * head so far (`{ localName, type, src }`); the head's observers are kept in `observers`.
+ * head so far (`{ localName, type, src }`); the head's observers are kept in `observers`, the workers it starts in
+ * `workers` (`{ url, options }`), and what it leaves on `window` in `scope`. `held` is the key storage says IndexedDB
+ * was last given (by default, the key of the sheet `sheets` holds); `reads` counts the times IndexedDB is asked.
  */
-function boot({ stored = null, custom = null, sheets = null, search = '', dark = false, after = null, script = appearanceBootstrap(bootConfig(looks, BUILD)) } = {}) {
+function boot({ stored = null, custom = null, sheets = null, held = (sheets && Object.keys(sheets)[0]) || null, search = '', dark = false, after = null, script = appearanceBootstrap(bootConfig(looks, BUILD)) } = {}) {
   const attributes = {};
   const head = [];
   const timers = [];
@@ -61,11 +63,13 @@ function boot({ stored = null, custom = null, sheets = null, search = '', dark =
     getElementById: (id) => head.find((node) => node.id === id) ?? null,
     head: { appendChild: (node) => head.push(node) },
   };
-  const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === APPEARANCE_KEY ? stored : key === CUSTOM_KEY ? custom : null) };
+  const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === APPEARANCE_KEY ? stored : key === CUSTOM_KEY ? custom : key === SHEET_HELD_KEY ? held : null) };
+  const reads = { count: 0 };
   const matchMedia = (query) => ({ matches: query.includes('dark') && dark });
   // IndexedDB as the head's script uses it: one database, one store, a get by key, each answered at once. None where `sheets` is null.
   const indexedDB = sheets && {
     open: () => {
+      reads.count += 1;
       const request = { result: { createObjectStore() {}, close() {}, transaction: () => ({ objectStore: () => ({ get: (key) => {
         const got = { result: sheets[key] };
         queueMicrotask(() => got.onsuccess());
@@ -76,10 +80,17 @@ function boot({ stored = null, custom = null, sheets = null, search = '', dark =
     },
   };
   const setTimeout = (run, ms) => timers.push({ run, ms });
+  const workers = [];
+  class Worker {
+    constructor(url, options) {
+      workers.push({ url, options });
+    }
+  }
+  const scope = {};
   // A frame is a turn of the microtasks here: what waits for two of them has waited when a test has waited for a task.
   const requestAnimationFrame = (run) => queueMicrotask(run);
-  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', 'MutationObserver', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame, MutationObserver);
-  return { attributes, rule: head.find((node) => node.id === SYSTEM_RULE_ID), head, timers, parsed, observers };
+  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', 'MutationObserver', 'Worker', 'window', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame, MutationObserver, Worker, scope);
+  return { attributes, rule: head.find((node) => node.id === SYSTEM_RULE_ID), head, timers, parsed, observers, workers, scope, reads };
 }
 
 describe('the appearance', () => {
@@ -205,6 +216,37 @@ describe('the appearance', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     assert.deepEqual(started(kept), []);
     assert.equal(kept.attributes[MISSING_ATTR], undefined);
+  });
+
+  test('the head’s script under the reader’s theme with no sheet kept: the worker that computes it started at once, where the build names its script, and left for the module', async () => {
+    const custom = JSON.stringify({ hash: 'k3x9', layer: { id: 'acme', extends: SHOWCASE } });
+    const stored = JSON.stringify({ look: CUSTOM_LOOK });
+    const key = sheetKey(BUILD, 'k3x9');
+    const WORKER = '/_astro/sheet-worker-0a1b2c3d.js';
+    const script = appearanceBootstrap(bootConfig(looks, BUILD, WORKER));
+    const started = [{ url: WORKER, options: { type: 'module' } }];
+    // Storage names another sheet as the one IndexedDB keeps (or none): IndexedDB is not asked, and the sheet is
+    // computed at once — the root marked, the worker started, before the script ends.
+    for (const held of [null, sheetKey(BUILD, 'other1'), sheetKey('fedcba9876543210', 'k3x9')]) {
+      const missing = boot({ stored, custom, sheets: {}, held, script });
+      assert.deepEqual([missing.attributes[MISSING_ATTR], missing.workers, missing.reads.count], [key, started, 0], `held: ${held}`);
+      assert.ok(missing.scope[EARLY_WORKER], 'where the module takes it');
+    }
+    // Storage names this sheet, and IndexedDB does not hold it after all (its write failed, or is not done yet): computed
+    // once IndexedDB has answered.
+    const lost = boot({ stored, custom, sheets: {}, held: key, script });
+    assert.deepEqual([lost.attributes[MISSING_ATTR], lost.workers, lost.reads.count], [undefined, [], 1]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.deepEqual([lost.attributes[MISSING_ATTR], lost.workers], [key, started]);
+    // A sheet kept, another look, or no address (`astro dev`): no worker.
+    for (const [why, run] of [
+      ['a sheet kept', boot({ stored, custom, sheets: { [key]: 'x' }, script })],
+      ['another look', boot({ stored: JSON.stringify({ look: SHOWCASE }), custom, sheets: {}, script })],
+      ['no address', boot({ stored, custom, sheets: {} })],
+    ]) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      assert.deepEqual([run.workers, run.scope[EARLY_WORKER]], [[], undefined], why);
+    }
   });
 
   test('the head’s script with a theme kept and another look: nothing hidden, the mark that one is kept; with none kept, the look `custom` is the default', () => {
