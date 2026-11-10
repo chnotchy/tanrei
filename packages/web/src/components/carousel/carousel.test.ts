@@ -2775,6 +2775,96 @@ test.describe('behavior', () => {
     await expect.poll(() => now(page, id), { timeout: every * 4 }).toBeGreaterThan(1);
   });
 
+  test('CRL-33, CRL-36: a hold that begins in a task after the clock started, before a frame is drawn, and ends while the next frame is drawn leaves the fill moving on', async ({ page }) => {
+    // The clock runs again (CRL-33) — focus leaves the row, or the row is played — and the fill is played from the time
+    // the clock has counted. Focus comes back in a later task, before a frame is drawn, and the fill is held; it leaves
+    // again while the next frame is drawn (a product that moves focus from a resize observer's report or a frame
+    // callback), and the fill is played on. Where the clock had counted no time meanwhile (inputs closer together than
+    // its resolution; here the page clock is held), Chromium never gave a start time to a fill played with play()
+    // there, one it had been waiting to start since before it was held: the fill stood where it was held, for good. In
+    // every engine it moves on from there in the frames after it.
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: only('autoplay-progress') });
+    await page.mouse.move(1200, 700);
+    // The page clock (the carousel's) is held: no time passes on it between the start, the hold and its end, and the
+    // row does not move on. The fill runs on the document's timeline, which no page clock holds.
+    await holdPageClock(page);
+    const seen = await carousel(page, 'autoplay-progress').evaluate(async (el) => {
+      const tanrei = el as HTMLElement & { paused: boolean; updateComplete: Promise<boolean> };
+      const away = document.createElement('button');
+      document.body.append(away);
+      const control = el.shadowRoot!.querySelector<HTMLElement>('.playback')!;
+      const fill = () => el.shadowRoot!.querySelector('.dot.timed .fill')?.getAnimations()[0];
+      /** A task of its own after this one (a message, which no page clock holds): no frame comes between unless one was due. */
+      const task = () =>
+        new Promise<void>((resolve) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => resolve();
+          channel.port2.postMessage(0);
+        });
+      /**
+       * Runs `then` while the next frame is drawn, at a resize observer's first report (frame callbacks are the held
+       * clock's). Observed from a task of its own, so that no observation begins while observers report.
+       */
+      const frame = async (then: () => void = () => {}) => {
+        await task();
+        await new Promise<void>((resolve) => {
+          const observer = new ResizeObserver(() => {
+            observer.disconnect();
+            then();
+            resolve();
+          });
+          observer.observe(document.documentElement);
+        });
+      };
+      /** How the clock starts again: focus leaves (the fill it held runs on), or the row is played (a new fill). */
+      const starts: Record<string, { before(): void; start(): Promise<unknown> | void }> = {
+        'focus leaves': { before: () => control.focus(), start: () => away.focus() },
+        'played again': {
+          before: () => {
+            tanrei.paused = true;
+          },
+          start: () => {
+            tanrei.paused = false;
+            return tanrei.updateComplete;
+          },
+        },
+      };
+      const out: { how: string; state: string; moved: number }[] = [];
+      let missed = 0;
+      for (const [how, { before, start }] of Object.entries(starts))
+        for (let trial = 0; trial < 4; trial++) {
+          away.focus();
+          await frame();
+          before();
+          await frame();
+          await frame();
+          const drawn = document.timeline.currentTime;
+          await start();
+          const motion = fill();
+          if (!motion || motion.playState !== 'running') throw new Error(`the clock did not start (${how})`);
+          await task();
+          // The case is a hold before a frame is drawn: one after a frame is not it.
+          if (document.timeline.currentTime !== drawn) {
+            missed++;
+            continue;
+          }
+          control.focus();
+          // Read again through a cast: the focus just moved changed it, which the check above does not know.
+          if ((motion.playState as AnimationPlayState) !== 'paused') throw new Error('focus within did not hold the fill');
+          const heldAt = Number(motion.currentTime);
+          await frame(() => away.focus());
+          for (let frames = 0; frames < 6; frames++) await frame();
+          out.push({ how, state: `${motion.playState}${motion.pending ? ', pending' : ''}`, moved: Number(motion.currentTime) - heldAt });
+        }
+      away.remove();
+      return { out, missed };
+    });
+    await releaseClock(page);
+    expect(seen.out.length, `the cases met (${seen.missed} missed: a frame came first)`).toBeGreaterThanOrEqual(6);
+    const stuck = seen.out.filter(({ state, moved }) => state !== 'running' || !(moved > 0));
+    expect(stuck, 'every fill played on, nothing left pending, and moved on from where it was held').toEqual([]);
+  });
+
   test('CRL-37: the playback control’s hit area is the target, centred; the indicator’s is the controls row’s height and at least sys.target.touch wide', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: only('autoplay') });
     const [pointer, touch, controls] = [await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('controls-height'))];
