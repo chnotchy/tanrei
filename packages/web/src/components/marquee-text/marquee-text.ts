@@ -3,6 +3,7 @@ import { AvailabilityController, DIRECTION_PROBE, DirectionController, WordsCont
 import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
 import { flatParent } from '../../primitives/flat-tree.js';
+import { playFromThisFrame } from '../../primitives/motion.js';
 import '../button/button.js';
 import { FADE, GAP, LOOPS, SPEED, TRIGGERS, styles } from './marquee-text.styles.js';
 
@@ -652,12 +653,16 @@ export class TanreiMarqueeText extends TanreiElement {
     for (const animation of this.run) animation.effect?.updateTiming({ iterations: (done ?? 0) + 1 });
   }
 
-  /** MRQ-9: holds the run where it is, or lets it go on. */
+  /**
+   * MRQ-9: holds the run where it is, or lets it go on — from the frame being drawn (`playFromThisFrame`): a hold that
+   * ends while a frame is drawn (the pointer leaving, which Chromium sends there) after one that began in a task before
+   * it, played with `play()`, left the text standing where it was held in Chromium, for good.
+   */
   private holdOrGo() {
     const hold = this.held;
     for (const animation of this.run) {
       if (hold && animation.playState === 'running') animation.pause();
-      else if (!hold && animation.playState === 'paused') animation.play();
+      else if (!hold && animation.playState === 'paused') playFromThisFrame(animation);
     }
     if (this.reduced && this.stepTimer !== undefined && hold) this.clearSteps();
   }
