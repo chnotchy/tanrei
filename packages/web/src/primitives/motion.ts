@@ -302,12 +302,15 @@ export function startFromNextFrame(motions: readonly Animation[], { leaving = fa
  * gave one to a motion it had already been waiting for when it was held — begun in an earlier task, or played in an
  * earlier frame, with no frame drawn since: the motion stood at its start, pending, for good (a menu item's colors,
  * begun by the key that moved focus off it and held by the next key, which opened a submenu before a frame was drawn).
+ * Its current time is then written 0 again: Firefox gives a page the timeline's time coarsened, a few hundredths of a
+ * millisecond before its own, and a start time taken from it had the motion that far in (an opacity of 1.5e-8, not 0).
  * Where the timeline has no time it is played as usual.
  */
 function playFromThisFrame(animation: Animation) {
   const now = animation.timeline?.currentTime;
-  if (now === null || now === undefined) animation.play();
-  else animation.startTime = now;
+  if (now === null || now === undefined) return animation.play();
+  animation.startTime = now;
+  animation.currentTime = 0;
 }
 
 /**
