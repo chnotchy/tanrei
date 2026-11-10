@@ -44,6 +44,8 @@ function specificity(selector, state) {
   const level = selector.match(new RegExp(`^\\[data-${NS}-contrast="(\\w+)"\\]$`));
   if (level) return state.contrast === level[1] ? 10 : -1;
   if (selector.startsWith(`[data-${NS}-theme=`)) return -1;
+  // The product's reduced motion (`--tanrei-motion`, no token's value): no state here sets it.
+  if (selector === `:root[data-${NS}-motion="reduce"]`) return -1;
   throw new Error(`a selector this test does not know: ${selector}`);
 }
 

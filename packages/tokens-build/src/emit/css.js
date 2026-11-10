@@ -340,7 +340,8 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
   // it from inside the app (data-${NS}-motion="reduce" on the root): either way the root says `${PREFIX}-motion: reduce`,
   // and a component's reduced form answers that one inherited value with a style container query (MOT-6,
   // docs/architecture/motion.md). Only the root sheet declares it, as it declares the colour scheme: a system scope
-  // inherits it. There is no value that turns motion back on against the person's setting.
+  // inherits it. There is no value that turns motion back on against the person's setting. A style query reads it and
+  // no var() does, so no token's value asks for it: a sheet pruned to `used` has it only where `used` names it.
   const motion = scope
     ? []
     : [
@@ -365,7 +366,8 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
       ...(only(high).length ? ['  @media (prefers-contrast: more) {', block(`${S}:not([data-${NS}-contrast])`, only(high), '    '), '  }'] : []),
       ...rule(scope ? scoped('medium') : attr('contrast', 'medium'), medium, '  '),
       ...rule(scope ? scoped('high') : attr('contrast', 'high'), high, '  '),
-      ...motion,
+      // Kept, as every custom property is, only where it is asked for: a pruned sheet stands on the root sheet.
+      ...(keep.has(`${PREFIX}-motion`) ? motion : []),
       '}',
       '',
     ].join('\n');

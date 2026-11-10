@@ -67,9 +67,8 @@ test('on: the properties named and what their values read, in the rules that dec
 test('on, with nothing used: only what is not a token', async () => {
   const model = await (await resolveSystem({ layers: [fixture] })).model();
   const none = emitCss(model, { used: [] });
-  // The root's reduced motion is not a token: a style container query reads it, never a var(), so it is always kept.
-  assert.deepEqual([...names(none)].filter((name) => name.startsWith('--')), ['--tanrei-motion']);
-  assert.deepEqual(new Set(rules(none).map((rule) => rule.selector)), new Set([':root', '[data-tanrei-theme="light"]', '[data-tanrei-theme="dark"]', ':root[data-tanrei-motion="reduce"]']));
+  assert.deepEqual([...names(none)].filter((name) => name.startsWith('--')), []);
+  assert.deepEqual(new Set(rules(none).map((rule) => rule.selector)), new Set([':root', '[data-tanrei-theme="light"]', '[data-tanrei-theme="dark"]']));
 });
 
 test('a value that reads a value that reads another: the whole chain is kept', async () => {
