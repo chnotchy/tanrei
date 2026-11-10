@@ -126,6 +126,19 @@ use instead.
 `data-tanrei-theme="light|dark"` and `data-tanrei-contrast="medium|high"` choose the scheme the same way, on the root
 or on a subtree. Every color pair of every scheme is checked for contrast when the tokens are built.
 
+Motion is reduced where the person's system asks for it (`prefers-reduced-motion: reduce`). An app that has a "reduce
+motion" setting of its own reduces it the same way with one attribute on the root element:
+
+```html
+<html data-tanrei-motion="reduce">
+```
+
+Every component then moves as it does under the media query: no movement, scaling or blur, a short cross-fade in their
+place, and sizes that change at once. The attribute can only reduce motion — nothing turns it back on where the person
+asked for less — and it is read as it changes. It needs style container queries (Chrome and Edge
+111, Safari 18, current Firefox); an older browser inside the floor below follows the media query alone, and the
+attribute only for motion played from script.
+
 ## Stylesheets for your own markup
 
 Some components are your own HTML with a class or a light-DOM element around it, so they are drawn before any script
