@@ -1275,10 +1275,25 @@ test.describe('accessibility', () => {
       expect(await strokeOf(ringOf(page, id)), `${id}: the stroke`).toBe(await strokeOf(ringOf(page, plain)));
       expect((await rgba(page, await settledCss(fillOf(page, id), 'background-color'))).a, `${id}: no fill`).toBe(0);
       expect(await css(labelOf(page, id), 'color'), `${id}: the label`).toBe(await css(labelOf(page, plain), 'color'));
-      const [a, b] = [await page.locator(`[data-fixture="${id}"]`).screenshot({ animations: 'disabled' }), await page.locator(`[data-fixture="${plain}"]`).screenshot({ animations: 'disabled' })];
-      expect(a.equals(b), `${id} is the pixels of ${plain}`).toBe(true);
     }
     expect(await strokeOf(ringOf(page, 'error-selected'))).toBeGreaterThan(await strokeOf(ringOf(page, 'error-unselected')));
+    // The pixels: each fixture drawn alone, so the two compared are drawn at the same place on the page. Chromium
+    // rasterizes the page in tiles (a seam every 256 device pixels, measured) and antialiases a circle that crosses a
+    // seam a few levels differently on its edge rows, so the same ring drawn at two heights is not the same picture
+    // (it was not: 33 pixels, up to 28 levels, with the error-selected stage across the seam at 512 and the selected
+    // one clear of it). The same place is asserted, so the comparison cannot drift back to two places.
+    const drawn = async (id: string) => {
+      await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === id) });
+      await page.mouse.move(0, 0);
+      await settle(page, id);
+      const stage = page.locator(`[data-fixture="${id}"]`);
+      return { box: await stage.boundingBox(), pixels: await stage.screenshot({ animations: 'disabled' }) };
+    };
+    for (const [id, plain] of [['error-unselected', 'unselected'], ['error-selected', 'selected']] as const) {
+      const [a, b] = [await drawn(id), await drawn(plain)];
+      expect(a.box, `${id} is drawn where ${plain} is`).toEqual(b.box);
+      expect(a.pixels.equals(b.pixels), `${id} is the pixels of ${plain}`).toBe(true);
+    }
   });
 });
 
