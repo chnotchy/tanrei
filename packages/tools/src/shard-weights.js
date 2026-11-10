@@ -7,7 +7,8 @@
 //
 // Every such run prints `# file-duration <file> <seconds>` for each of its files (file-durations-reporter.js), the file
 // relative to the package's directory. A file measured in several logs takes the mean of them; a file no log measured
-// keeps its weight; the `$comment` is kept. Seconds are rounded to whole ones.
+// keeps its weight; the `$comment` is kept. Seconds are rounded to whole ones, and
+// a file that ran for less than half of one weighs one: a weight is never 0, which would say the file takes no time.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ export function measured(logs) {
  */
 export function refreshed(weights, found, key) {
   const next = { ...weights };
-  for (const [file, seconds] of found) next[key(file)] = Math.round(seconds.reduce((a, b) => a + b, 0) / seconds.length);
+  for (const [file, seconds] of found) next[key(file)] = Math.max(1, Math.round(seconds.reduce((a, b) => a + b, 0) / seconds.length));
   const { $comment, ...rest } = next;
   return { ...($comment === undefined ? {} : { $comment }), ...Object.fromEntries(Object.keys(rest).sort().map((k) => [k, rest[k]])) };
 }
