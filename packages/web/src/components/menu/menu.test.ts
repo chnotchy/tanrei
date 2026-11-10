@@ -14,7 +14,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { expectFromNextFrame, motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -1942,6 +1942,21 @@ const tap = (page: P, x: number, y: number) =>
 const DELAY = T('motion-submenu-delay');
 
 test.describe('submenus', () => {
+  test('MNU-1, MNU-4, MNU-43: opened at the end of a task that outlasts its motions, the menu grows in and its first item takes its focused colors from the first frame drawn after that task — and so does a submenu opened by a key, and its first item', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the item's
+    // state motion lasts, the first item was drawn focused at once, with no frame of its colors changing.
+    await mountFixtures(page, spec, { fixtures: [overlay('file', FILE)] });
+    await wire(page);
+    await tabTo(page, anchor(page, 'file'));
+    await expectFromNextFrame(menu(page, 'file'), '(el) => { el.open = true; }', ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the menu opened');
+    await motionEnded(page);
+    await pressTo(page, 'Open recent');
+    await motionEnded(page);
+    const right = `(el, active) => active.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true, cancelable: true }))`;
+    await expectFromNextFrame(menu(page, 'file'), right, ['tanrei-submenu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the submenu opened');
+    expect(await focused(page)).toBe('Report.pdf');
+  });
+
   // The acme fixture system is built once per worker, outside any test's budget: otherwise a test of this group that is
   // the first of its worker to ask for it pays the build out of its own 30 s.
   test.beforeAll(async () => {

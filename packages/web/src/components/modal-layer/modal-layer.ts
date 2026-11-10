@@ -18,6 +18,7 @@ import {
 } from '../../primitives/index.js';
 import { styles } from './modal-layer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim ask to close) or `none` (nothing does). */
 export type TanreiModalLayerClosedBy = 'any' | 'none' | 'closerequest';
@@ -177,6 +178,9 @@ export class TanreiModalLayer extends TanreiElement {
     holdPageScroll(this, true);
     this.onViewport();
     this.focusInside();
+    // MDL-3: what the open state began inside it — the colors of what took focus — begins in the first frame drawn after
+    // this task, as its entrance does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /** MDL-2, MDL-5, MDL-7: out of the top layer (fading), the page given back, focus back where it was. */
