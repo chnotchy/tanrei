@@ -127,13 +127,13 @@ studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias r
 });
 
 studioTest('a mul rule keeps its density, its step and its floor: the editor shows them, and an edit writes them back', {}, async ({ page, inspect, saved, onDisk }) => {
-  const ROW = 'tanrei.comp.tree-view.container.height.compact';
+  const ROW = 'tanrei.comp.tree-view.container.height.regular';
   await inspect('tokens');
   await find(page, ROW);
   await row(page, ROW).click();
   const pane = editor(page, ROW);
   // The summary says the rule in the order the engine applies it.
-  assert.match(await page.locator('[data-token-pane] [data-facts]').textContent(), /= max\(sys\.target\.minimum, round\(dial\.size\.unit × 8 × dial\.density, dial\.size\.unit\)\)/);
+  assert.match(await page.locator('[data-token-pane] [data-facts]').textContent(), /= max\(sys\.target\.minimum, round\(dial\.size\.unit × 12 × dial\.density, dial\.size\.unit\)\)/);
   await pane.locator('[data-tab="derive"]').click();
   for (const [term, id] of [['times', 'tanrei.dial.density'], ['round', 'tanrei.dial.size.unit'], ['min', 'tanrei.sys.target.minimum']]) {
     assert.equal(await pane.locator(`[data-term="${term}"]`).evaluate((el) => el.value), id, `${term} is shown as written`);
