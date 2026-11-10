@@ -7533,8 +7533,9 @@ navigation landmark named by `label`, keeps no focus inside it and makes nothing
 presentation moves the same panel over `motion.expand` (`data-moving`); while it is open over the content, closing, or
 moving, the host carries `data-over`, which the frame's stylesheet reads to draw it over the main region and under the
 header. Nothing is replaced or removed when a closing ends: the scrim has faded and the panel has left the window or is
-its column at rest. Outside such a frame a change of presentation is still drawn at once. Inside one the platform's back
-action is not yet heard: the native `cancel` of a modal `<dialog>` was what brought it, and the panel is no dialog.
+its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move). **The platform's back
+action does not close a drawer the frame holds** (NVD-20, MDL-6 ask that it do): it reached a modal drawer as its
+`<dialog>`'s native `cancel`, and the held panel is no dialog.
 
 **A site's sidebar (NVD-57…64).** Give every destination an `href` and the drawer the page's own address as `value`:
 
@@ -9614,6 +9615,14 @@ Good to know:
   (`:focus-visible`); otherwise the link is clipped to nothing, never `display: none`. The Link keeps its color, its
   underline and its focus ring; its state container color is under the box and is not seen. These rules have an
   attribute's specificity (not none), because link.css says `position: relative` of the same anchor.
+- **The header, the navigation and the aside are `position: sticky`, and do not yet hold still when the page is
+  pulled past an end** (APS-5, APS-9 and APS-16 ask that they do): a browser that moves the document on an overscroll
+  moves a sticky box that is not stuck with it, and only a `position: fixed` one stays — which would need the header
+  to rest below an announcement and the navigation and the aside to end at the footer by positioning that follows the
+  scroll, which the frame does not have yet.
+- **The frame's levels** (APS-32), within its own stacking order: the footer and the navigation bar 1 (the bar after
+  the footer, so over it), a navigation drawer standing over the content — open below the header, closing, or moving to
+  a new presentation (its `data-over`) — 2, the header 3, the focused skip link 4.
 - **A sticky part stays inside the frame, not inside its row** (every engine): the navigation and the aside would run
   over the footer at the end of the page. The element measures the footer and the stylesheet takes that much off what
   they may reach; without script the footer is drawn over their end, on the frame's own fill.
