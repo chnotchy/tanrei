@@ -7,7 +7,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
 import { resolveEasing } from '../../../test/appear.js';
-import { type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
@@ -2390,6 +2390,31 @@ test.describe('busy, reachable while disabled, full width', () => {
       expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
       expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
     }
+  });
+
+  test('BTN-36 (MOT-6): data-tanrei-motion="reduce" on the root, with no media query, makes the busy change and the hover at once exactly as prefers-reduced-motion does', async ({ page }) => {
+    // Every motion that runs, by where it runs, what it moves and for how long.
+    const motions = (seen: Frames) => seen.motions.map((motion) => [motion.on, motion.name, motion.duration].join(' ')).sort();
+    const run = async (by: 'the person' | 'the product') => {
+      await mountFixtures(page, spec, { icons: true, fixtures: [fx('saving', { variant: 'tonal', busy: true, busyLabel: 'Saving' }, 'Save', { slots: { icon: 'save' } })], reducedMotion: by === 'the person', ...(by === 'the product' ? { motion: 'reduce' as const } : {}) });
+      const steps: { step: string; first?: Record<string, unknown>; motions: string[] }[] = [];
+      for (const busy of [false, true]) {
+        const seen = await sampleFrames(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+        expectFirstFrameAtRest(seen);
+        steps.push({ step: `busy ${busy}`, first: seen.frames[0]!.probe, motions: motions(seen) });
+      }
+      // A change of state (hovered): the container's color is there at once.
+      await setBusy(page, 'saving', false);
+      steps.push({ step: 'hovered', motions: motions(await sampleFrames(stageOf(page, 'saving'), () => page.locator(button('saving')).hover(), { probe: busyFrame })) });
+      await page.mouse.move(0, 0);
+      return steps;
+    };
+    const person = await run('the person');
+    const product = await run('the product');
+    // Under the person's setting nothing fades or recolors over time (the busy arc's pulse is an animation, and stays).
+    const fades = (step: { motions: string[] }) => step.motions.filter((motion) => / (opacity|visibility|background-color|color) /.test(`${motion} `));
+    expect(person.map(fades)).toEqual([[], [], []]);
+    expect(product).toEqual(person);
   });
 
   test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {

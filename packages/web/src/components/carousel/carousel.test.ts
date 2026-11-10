@@ -2643,6 +2643,26 @@ test.describe('behavior', () => {
     await expect.poll(() => offset(page, id)).toBe(s);
   });
 
+  test('CRL-34 (MOT-6): data-tanrei-motion="reduce" set on the root while the carousel is shown, with no media query, stops autoplay as prefers-reduced-motion does; taken off, autoplay starts from zero', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await clockPage(page, only('autoplay-progress'));
+    const id = 'autoplay-progress';
+    const every = await interval(page);
+    const s = await step(page, id);
+    await expect(playback(page, id)).toHaveCount(1);
+    await page.evaluate(() => document.documentElement.setAttribute('data-tanrei-motion', 'reduce'));
+    await expect(playback(page, id)).toHaveCount(0);
+    await expect(indicator(page, id)).not.toHaveClass(/progress/);
+    await page.clock.runFor(every * 3);
+    expect(await offset(page, id)).toBe(0);
+    await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-motion'));
+    await expect(playback(page, id)).toHaveCount(1);
+    await page.clock.runFor(every - 100);
+    expect(await offset(page, id), 'from zero').toBe(0);
+    await page.clock.runFor(200);
+    await expect.poll(() => offset(page, id)).toBe(s);
+  });
+
   test('CRL-35: the playback control — pause while playing, play_arrow while paused, named by pauseLabel and playLabel, no pressed state; it toggles paused, fires pausedchange and keeps focus', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: only('autoplay', 'autoplay-paused') });
     const id = 'autoplay';

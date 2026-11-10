@@ -581,6 +581,26 @@ test.describe('reduced motion', () => {
     expect(await shownDigits(ticker)).toBe('123456');
     expect(await ticker.evaluate((el) => el.shadowRoot!.querySelectorAll('.leaving').length)).toBe(0);
   });
+
+  test('NTK-7 (MOT-6): data-tanrei-motion="reduce" on the root, with no media query, puts the new number and its width there at once exactly as prefers-reduced-motion does', async ({ page }) => {
+    const run = async (by: 'the person' | 'the product') => {
+      await mountFixtures(page, spec, { reducedMotion: by === 'the person', ...(by === 'the product' ? { motion: 'reduce' as const } : {}) });
+      const ticker = host(page, 'default');
+      await settles(ticker);
+      const before = (await boxOf(ticker, '.number')).width;
+      await set(ticker, { value: 123456 });
+      // Read in the moment the change begins (`set` holds the motions there): the width is the new one already.
+      const at = { settled: await settled(page), grown: (await boxOf(ticker, '.number')).width > before + 1, motions: (await timings(ticker)).map((t) => `${t.on} ${t.duration}`).sort() };
+      await play(ticker);
+      return { ...at, shown: await shownDigits(ticker) };
+    };
+    const person = await run('the person');
+    const product = await run('the product');
+    const reduced = await resolveToken(page, T('motion-reduced-duration'), 'duration');
+    expect(person).toMatchObject({ settled: [123456], grown: true, shown: '123456' });
+    expect(person.motions.every((motion) => !motion.startsWith('column') && motion.endsWith(` ${reduced}`))).toBe(true);
+    expect(product).toEqual(person);
+  });
 });
 
 test.describe('accessibility', () => {

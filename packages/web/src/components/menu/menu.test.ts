@@ -674,6 +674,31 @@ test.describe('overlay', () => {
     await expect.poll(() => isOpen(page, 'edit')).toBe(false);
   });
 
+  test('MNU-4 (MOT-6): data-tanrei-motion="reduce" on the root, with no media query, reduces the appearance exactly as prefers-reduced-motion does', async ({ page }) => {
+    const own = (seen: Frames) => seen.motions.filter((motion) => /^div\.surface\b/.test(motion.on)).map((motion) => [motion.name, motion.duration]);
+    const run = async (by: 'the person' | 'the product') => {
+      await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)], reducedMotion: by === 'the person', ...(by === 'the product' ? { motion: 'reduce' as const } : {}) });
+      await wire(page);
+      const host = menu(page, 'edit');
+      const opening = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+      const closing = await sampleFrames(host, () => host.evaluate((el: any) => (el.open = false)), { probe: appearProbe });
+      await expect.poll(() => isOpen(page, 'edit')).toBe(false);
+      return {
+        start: opening.frames[0]!.probe,
+        unmoved: [...opening.frames, ...closing.frames].every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0),
+        opening: own(opening),
+        closing: own(closing),
+        open: opening.rest.probe,
+        closed: closing.rest.probe,
+      };
+    };
+    const person = await run('the person');
+    const product = await run('the product');
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    expect(person).toMatchObject({ unmoved: true, opening: [['opacity', reduced]], closing: [['opacity', reduced]] });
+    expect(product).toEqual(person);
+  });
+
   test('MNU-4: turned round, the surface goes on from where it is and carries the motions it turns to and none of those it turns from — closed while it opens, and opened again while it closes — and the close that follows ends', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

@@ -13,7 +13,7 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExi
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
-import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('dialog');
@@ -71,9 +71,9 @@ const closed = (id: string): Fixture => {
   const fixture = spec.fixtures.find((fx) => fx.id === id)!;
   return { ...fixture, props: { ...fixture.props, open: false } };
 };
-async function mount(page: P, fixtures: Fixture[], window = WIDE, system?: string) {
+async function mount(page: P, fixtures: Fixture[], window = WIDE, system?: string, more: Pick<DocumentOptions, 'motion'> & Pick<MountOptions, 'reducedMotion'> = {}) {
   await page.setViewportSize(window);
-  await mountFixtures(page, spec, { icons: true, fixtures, system });
+  await mountFixtures(page, spec, { icons: true, fixtures, system, ...more });
   await page.evaluate(() => {
     const log: string[] = ((window as any).log = []);
     for (const d of document.querySelectorAll<any>('tanrei-dialog')) {
@@ -297,6 +297,29 @@ test.describe('presentation and focus', () => {
     expect(own(closing)).toContainEqual(['opacity', reduced]);
     expect(own(closing).filter(([name]) => name !== 'opacity')).toEqual([]);
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
+  });
+
+  test('DLG-13 (MOT-6): data-tanrei-motion="reduce" on the root, with no media query, reduces the container and its scrim exactly as prefers-reduced-motion does', async ({ page }) => {
+    // Every motion on the dialog, its scrim (`::backdrop`) included, by where it runs, what it moves and for how long.
+    const all = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog')).map((motion) => [motion.on, motion.name, motion.duration].join(' ')).sort();
+    const run = async (by: 'the person' | 'the product') => {
+      await mount(page, [f('d')], WIDE, undefined, { reducedMotion: by === 'the person', ...(by === 'the product' ? { motion: 'reduce' as const } : {}) });
+      const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+      const closing = await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe });
+      return {
+        start: opening.frames[0]!.probe,
+        unmoved: [...opening.frames, ...closing.frames].every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0),
+        opening: all(opening),
+        closing: all(closing),
+        closed: closing.rest.probe,
+      };
+    };
+    const person = await run('the person');
+    const product = await run('the product');
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    expect(person.unmoved).toBe(true);
+    expect(person.opening.some((motion) => motion.endsWith(` opacity ${reduced}`))).toBe(true);
+    expect(product).toEqual(person);
   });
 
   test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page }) => {
