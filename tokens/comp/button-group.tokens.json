@@ -26,10 +26,10 @@
           "gap": {
             "$type": "dimension",
             "$value": {
-              "value": 16,
+              "value": 0,
               "unit": "px"
             },
-            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 48 − 32 = 16 in the default system.",
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 36 − 36 = 0 in the default system, where every Button is drawn at least as large as the target, so the items touch.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "sub",

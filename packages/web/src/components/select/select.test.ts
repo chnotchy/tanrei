@@ -226,8 +226,8 @@ test.describe('behavior: the trigger', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers (the spec's verify): a stacked select 40 and 56, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 32 with 12 and 8 and a 20 one.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([40, 56, 32]);
+    // The default system's numbers (the spec's verify): a stacked select 40 and 56, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 36 (held at the minimum target) with 12 and 8 and a 20 one.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([40, 56, 36]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     expect([await token(page, 'container-padding-inline-small'), await token(page, 'container-padding-inline-with-icon-small'), await token(page, 'icon-size-small')]).toEqual([12, 8, 20]);
     // With a leading icon: the glyph padding before it, the gap after it, then the value.
@@ -2042,8 +2042,8 @@ test.describe('behavior: the list', () => {
       return { height, padBlock, padInline, gap, icon, mark, title };
     };
     const [regular, small] = [await sizes('regular'), await sizes('compact')];
-    // The default system's compact option: the menu's compact row, 32 high with 20 glyphs, 8 from its edges.
-    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    // The default system's compact option: the menu's compact row, 36 high (the minimum target) with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([36, 20, 20, 8]);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const drawn = async (id: string, label: string) => {
       const r = row(page, id, label);
@@ -2053,7 +2053,8 @@ test.describe('behavior: the list', () => {
     const mail = await drawn('density-compact', 'Mail');
     const mailRegular = await drawn('density-regular', 'Mail');
     near(mail.height, small.height, 'a compact option');
-    expect(mail.height).toBeLessThan(pointer);
+    // In the default system the compact row is held at the minimum target, which the pointer target aliases.
+    expect(mail.height).toBe(pointer);
     near(mail.icon, small.icon, 'its glyph');
     near(mail.start, small.padInline + small.icon + small.gap, 'its label after the padding, the glyph and the gap');
     near(mailRegular.height, Math.max(regular.height, pointer), 'a regular option');
@@ -2074,8 +2075,10 @@ test.describe('behavior: the list', () => {
     // A change is drawn at once.
     await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
     await expect.poll(async () => (await drawn('density-regular', 'Mail')).height).toBeCloseTo(mail.height, 0);
-    // SEL-37: for touch a compact option is the touch target.
+    // SEL-37: for touch a compact option is the touch target — seen under a system whose touch target (48) is taller
+    // than the compact row, as the default system's (36) is not.
     if (browserName !== 'chromium') return;
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });

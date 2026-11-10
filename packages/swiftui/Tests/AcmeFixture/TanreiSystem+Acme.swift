@@ -873,7 +873,7 @@ private let acmeButtonGroupTokens = TanreiButtonGroupTokens(
   connectedVerticalOuterShape: 12,
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  standardGap: 16
+  standardGap: 0
 )
 
 private let acmeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
@@ -894,13 +894,13 @@ private let acmeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiButtonWithMenuSizes(
     small: TanreiButtonWithMenuSizeTokens(
-      containerHeight: 32,
-      containerPaddingBlock: 6,
+      containerHeight: 36,
+      containerPaddingBlock: 8,
       containerGap: 8,
       leadingPaddingInlineStart: 16,
       leadingPaddingInlineStartWithIcon: 12,
       leadingPaddingInlineEnd: 16,
-      trailingPaddingInline: 6,
+      trailingPaddingInline: 8,
       trailingPaddingInlineNarrow: 4,
       labelTypescale: acmeTypescale.label,
       iconSize: 20,
@@ -1231,14 +1231,14 @@ private let acmeButtonTokens = TanreiButtonTokens(
   toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
-      containerHeight: 32,
+      containerHeight: 36,
       containerPaddingInlineNarrow: 4,
       containerWidthWide: 40,
       containerPaddingInlineStart: 16,
       containerPaddingInlineEnd: 16,
       containerPaddingInlineStartWithIcon: 12,
       containerPaddingInlineEndWithIcon: 12,
-      containerPaddingBlock: 6,
+      containerPaddingBlock: 8,
       labelTypescale: acmeTypescale.label,
       iconSize: 20,
       iconSizeWithoutLabel: 20,
@@ -2439,7 +2439,7 @@ private let acmeCarouselTokens = TanreiCarouselTokens(
   containerSmallMaxWidth: 56,
   containerSmallMinWidth: 40,
   controlsButtonSize: 40,
-  controlsHeight: 48,
+  controlsHeight: 40,
   controlsIconSize: 24,
   controlsIndicatorPaddingInline: 12,
   controlsShape: 9999,
@@ -2951,12 +2951,12 @@ private let acmeChipTokens = TanreiChipTokens(
       motionStateDuration: 200
     ),
     medium: TanreiChipSizeTokens(
-      containerHeight: 32,
+      containerHeight: 36,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 8,
-      containerPaddingInlineWithAvatar: 4,
-      containerPaddingInlineWithRemove: 4,
-      containerPaddingBlock: 4,
+      containerPaddingInlineWithAvatar: 6,
+      containerPaddingInlineWithRemove: 6,
+      containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: acmeTypescale.label,
       iconSize: 24,
@@ -3276,7 +3276,7 @@ private let acmeColorInputTokens = TanreiColorInputTokens(
 )
 
 private let acmeComboboxTokens = TanreiComboboxTokens(
-  containerActionGap: 4,
+  containerActionGap: 6,
   dividerColor: .role(.outlineVariant),
   dividerSpace: 4,
   dividerThickness: 1,
@@ -3527,9 +3527,9 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
       groupTitlePaddingInline: 12
     ),
     compact: TanreiComboboxDensityTokens(
-      optionHeight: 32,
+      optionHeight: 36,
       optionPaddingInline: 8,
-      optionPaddingBlock: 6,
+      optionPaddingBlock: 8,
       optionGap: 8,
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
@@ -4648,11 +4648,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
       containerHeight: 40,
-      stackedContainerHeight: 32,
+      stackedContainerHeight: 36,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 8,
-      stackedContainerPaddingBlock: 4,
+      stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
       labelTypescale: acmeTypescale.label,
@@ -5440,8 +5440,8 @@ private let acmeListTokens = TanreiListTokens(
       containerPaddingBlock: 8
     ),
     compact: TanreiListDensityTokens(
-      containerHeight: 32,
-      containerPaddingBlock: 4
+      containerHeight: 36,
+      containerPaddingBlock: 6
     )
   ),
   hovered: TanreiListStateTokens(
@@ -6031,9 +6031,9 @@ private let acmeMenuTokens = TanreiMenuTokens(
       groupTitlePaddingInline: 12
     ),
     compact: TanreiMenuDensityTokens(
-      containerHeight: 32,
+      containerHeight: 36,
       containerPaddingInline: 8,
-      containerPaddingBlock: 6,
+      containerPaddingBlock: 8,
       containerGap: 8,
       leadingIconSize: 20,
       trailingIconSize: 20,
@@ -6746,9 +6746,9 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
     ),
     compact: TanreiNavigationDrawerDensityTokens(
       containerGap: 2,
-      itemContainerHeight: 32,
+      itemContainerHeight: 36,
       itemPaddingInline: 8,
-      itemPaddingBlock: 2,
+      itemPaddingBlock: 4,
       itemNestIndent: 24,
       itemIconSize: 16,
       itemIconIndicatorWidth: 16,
@@ -6756,8 +6756,8 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       itemLabelTypescale: acmeTypescale.label,
       itemTrailingIconSize: 16,
       collapsedContainerWidth: 56,
-      collapsedItemContainerWidth: 32,
-      collapsedItemContainerPaddingBlock: 8,
+      collapsedItemContainerWidth: 36,
+      collapsedItemContainerPaddingBlock: 10,
       headingHeight: 28
     )
   ),
@@ -6936,7 +6936,7 @@ private let acmePaginationTokens = TanreiPaginationTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiPaginationSizes(
     small: TanreiPaginationSizeTokens(
-      containerHeight: 32
+      containerHeight: 36
     ),
     medium: TanreiPaginationSizeTokens(
       containerHeight: 40
@@ -7207,7 +7207,7 @@ private let acmeRadioButtonTokens = TanreiRadioButtonTokens(
   motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionMinHeight: 48,
+  optionMinHeight: 36,
   ringSelectedWidthShare: 0.5,
   ringSize: 20,
   ringWidth: 2,
@@ -7513,7 +7513,7 @@ private let acmeScrollAreaTokens = TanreiScrollAreaTokens(
 
 private let acmeSearchTokens = TanreiSearchTokens(
   containerButtonGap: 0,
-  containerGap: 16,
+  containerGap: 0,
   containerHeight: 56,
   containerPaddingInline: 16,
   containerPaddingInlineWithButton: 8,
@@ -7652,9 +7652,9 @@ private let acmeSearchTokens = TanreiSearchTokens(
       suggestionLeadingIconSize: 24
     ),
     compact: TanreiSearchDensityTokens(
-      suggestionContainerHeight: 32,
+      suggestionContainerHeight: 36,
       suggestionContainerPaddingInline: 8,
-      suggestionContainerPaddingBlock: 4,
+      suggestionContainerPaddingBlock: 6,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
     )
@@ -7693,9 +7693,9 @@ private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
   setShape: 6,
   sizes: TanreiSegmentedButtonSizes(
     small: TanreiSegmentedButtonSizeTokens(
-      containerHeight: 32,
+      containerHeight: 36,
       containerPaddingInline: 12,
-      containerPaddingBlock: 6,
+      containerPaddingBlock: 8,
       containerGap: 8,
       labelTypescale: acmeTypescale.label,
       iconSize: 16,
@@ -7818,7 +7818,7 @@ private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
 )
 
 private let acmeSelectTokens = TanreiSelectTokens(
-  containerActionGap: 4,
+  containerActionGap: 6,
   dividerColor: .role(.outlineVariant),
   dividerSpace: 4,
   dividerThickness: 1,
@@ -8063,9 +8063,9 @@ private let acmeSelectTokens = TanreiSelectTokens(
       groupTitlePaddingInline: 12
     ),
     compact: TanreiSelectDensityTokens(
-      optionHeight: 32,
+      optionHeight: 36,
       optionPaddingInline: 8,
-      optionPaddingBlock: 6,
+      optionPaddingBlock: 8,
       optionGap: 8,
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
@@ -8275,7 +8275,7 @@ private let acmeSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 8,
   controlsGap: 4,
-  controlsHeight: 32,
+  controlsHeight: 36,
   controlsLabelTypescale: acmeTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,
@@ -9076,8 +9076,8 @@ private let acmeTableOfContentsTokens = TanreiTableOfContentsTokens(
       rowPaddingBlock: 12
     ),
     compact: TanreiTableOfContentsDensityTokens(
-      rowHeight: 32,
-      rowPaddingBlock: 6
+      rowHeight: 36,
+      rowPaddingBlock: 8
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9583,7 +9583,7 @@ private let acmeTabsTokens = TanreiTabsTokens(
   ),
   sizes: TanreiTabsSizes(
     small: TanreiTabsSizeTokens(
-      containerHeight: 32,
+      containerHeight: 36,
       containerPaddingInline: 12,
       activeIndicatorPaddingInline: 12,
       activeIndicatorPaddingBlock: 2,
@@ -9766,7 +9766,7 @@ private let acmeTagTokens = TanreiTagTokens(
 private let acmeTextInputTokens = TanreiTextInputTokens(
   codeTabSize: 2,
   codeTypescale: acmeTypescale.code,
-  containerActionGap: 4,
+  containerActionGap: 6,
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,
@@ -9840,7 +9840,7 @@ private let acmeToolbarTokens = TanreiToolbarTokens(
       containerShape: 0,
       containerSize: 64,
       containerPaddingInline: 16,
-      containerGap: 16,
+      containerGap: 0,
       outlineColor: .role(.outlineVariant)
     ),
     floating: TanreiToolbarVariantTokens(
@@ -10030,8 +10030,8 @@ private let acmeTreeViewTokens = TanreiTreeViewTokens(
       chevronSize: 20
     ),
     compact: TanreiTreeViewDensityTokens(
-      containerHeight: 32,
-      containerPaddingBlock: 6,
+      containerHeight: 36,
+      containerPaddingBlock: 8,
       containerPaddingInline: 8,
       containerGap: 8,
       levelIndent: 24,
@@ -10125,10 +10125,10 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
-      targetMinimum: 32,
-      targetPointer: 44,
+      targetMinimum: 36,
+      targetPointer: 36,
       targetSpacing: 8,
-      targetTouch: 48
+      targetTouch: 36
     ),
     typefaces: acmeTypefaces,
     icon: TanreiIconStyle(

@@ -172,23 +172,28 @@ test.describe('layout', () => {
     expect(rClear.x - r.x).toBeCloseTo(padButton, 1);
   });
 
-  test('SRC-34: the bar’s action buttons — the clear button and the trailing slot’s — stand container.button-gap apart and two of them further only as far as each needs to keep sys.target.touch of length along the row: the small clear button and a medium Button 12 apart, two medium Buttons 8, two large ones touching, all three touching where the target is 0; the first still container.gap after the input and the last padding-inline-with-button from the end; no button is widened or restyled, whatever the pointer', async ({ page, browserName }) => {
+  test('SRC-34: the bar’s action buttons — the clear button and the trailing slot’s — stand container.button-gap apart and two of them further only as far as each needs to keep sys.target.touch of length along the row: touching in the default system, whose target (36) no Button is narrower than; under a 48 target the small clear button and a medium Button 10 apart, two medium Buttons 8, two large ones touching; all three touching where the target is 0; the first still container.gap after the input and the last padding-inline-with-button from the end; no button is widened or restyled, whatever the pointer', async ({ page, browserName }) => {
     const slots = (id: string): Fixture => ({ ...spec.fixtures.find((f) => f.id === 'bar-value-slots')!, id });
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [slots('bar-value-slots'), slots('zero'), slots('large'), slots('wide-gap'), ...spec.fixtures.filter((f) => f.id === 'bar-slots' || f.id === 'bar-value')] });
-    const [gap, buttonGap, padButton, touch] = [await resolveToken(page, T('container-gap')), await resolveToken(page, T('container-button-gap')), await resolveToken(page, T('container-padding-inline-with-button')), await resolveToken(page, '--tanrei-sys-target-touch')];
-    // SRC-25's verify, under the default system.
-    expect([gap, buttonGap, padButton, touch]).toEqual([16, 0, 8, 48]);
+    let [gap, buttonGap, padButton, touch] = [await resolveToken(page, T('container-gap')), await resolveToken(page, T('container-button-gap')), await resolveToken(page, T('container-padding-inline-with-button')), await resolveToken(page, '--tanrei-sys-target-touch')];
+    // SRC-25's verify, under the default system: the gap is the touch target less the small clear button, 36 − 36.
+    expect([gap, buttonGap, padButton, touch]).toEqual([0, 0, 8, 36]);
     const actions = (id: string) => [host(page, id).locator('.bar > .clear'), host(page, id).locator('tanrei-button[slot="trailing"]').nth(0), host(page, id).locator('tanrei-button[slot="trailing"]').nth(1)];
     const visible = (id: string) => Promise.all(actions(id).map((action) => bounds(action.locator('button'))));
     const apart = async (id: string) => {
       const boxes = await visible(id);
       return boxes.slice(1).map((box, n) => Math.round((box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
     };
-    // SRC-34's verify: the small clear button (32) and the first trailing Button (40) stand 12 apart (8 + 4), and the
-    // two trailing Buttons 8 apart (4 + 4), where each pair stood 16 apart.
-    await expect.poll(() => apart('bar-value-slots')).toEqual([12, 8]);
+    // SRC-34's verify: in the default system no action button is narrower than the touch target, so they touch.
+    await expect.poll(() => apart('bar-value-slots')).toEqual([0, 0]);
+    // Under a 48 touch target (a platform guideline's): the small clear button (36) and the first trailing Button (40)
+    // stand 10 apart (6 + 4), and the two trailing Buttons 8 apart (4 + 4); the gap after the input is 48 − 36.
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    [gap, touch] = [await resolveToken(page, T('container-gap')), await resolveToken(page, '--tanrei-sys-target-touch')];
+    expect([gap, touch]).toEqual([12, 48]);
+    await expect.poll(() => apart('bar-value-slots')).toEqual([10, 8]);
     const boxes = await visible('bar-value-slots');
-    expect(boxes.map((box) => box.width)).toEqual([32, 40, 40]);
+    expect(boxes.map((box) => box.width)).toEqual([36, 40, 40]);
     // The first action button still stands container.gap after the input, the last padding-inline-with-button from the end.
     const own = await bounds(bar(page, 'bar-value-slots'));
     const field = await bounds(input(page, 'bar-value-slots'));
@@ -218,14 +223,14 @@ test.describe('layout', () => {
     expect(cleared[1].x - (cleared[0].x + cleared[0].width)).toBeCloseTo(8, 1);
     expect(cleared[1].x).toBeCloseTo(boxes[2].x, 1);
     await host(page, 'bar-value-slots').evaluate(async (el: any) => { el.value = 'invoice'; await el.updateComplete; });
-    await expect.poll(() => apart('bar-value-slots')).toEqual([12, 8]);
+    await expect.poll(() => apart('bar-value-slots')).toEqual([10, 8]);
     // Unit: with sys.target.touch set to 0 in a test layer the three buttons touch.
     await page.evaluate(() => (document.querySelector('[data-fixture="zero"]') as HTMLElement).style.setProperty('--tanrei-sys-target-touch', '0px'));
     await expect.poll(() => apart('zero')).toEqual([0, 0]);
-    // Unit: with two large (56) Buttons in the trailing slot they touch under the default system; the small clear button stands its 8 from the first.
+    // Unit: with two large (56) Buttons in the trailing slot they touch under the 48 target; the small clear button stands its 6 from the first.
     await host(page, 'large').evaluate((el) => { for (const button of el.querySelectorAll('tanrei-button[slot="trailing"]')) button.setAttribute('size', 'large'); });
-    await expect.poll(() => apart('large')).toEqual([8, 0]);
-    expect((await visible('large')).map((box) => box.width)).toEqual([32, 56, 56]);
+    await expect.poll(() => apart('large')).toEqual([6, 0]);
+    expect((await visible('large')).map((box) => box.width)).toEqual([36, 56, 56]);
     // A layer whose button gap is wider than what the targets need (a preset's: its gap): the gap is the space.
     await page.evaluate((name) => (document.querySelector('[data-fixture="wide-gap"]') as HTMLElement).style.setProperty(name, '16px'), T('container-button-gap'));
     await expect.poll(() => apart('wide-gap')).toEqual([16, 16]);
@@ -235,7 +240,7 @@ test.describe('layout', () => {
       await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
       await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
       expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
-      expect(await apart('bar-value-slots')).toEqual([12, 8]);
+      expect(await apart('bar-value-slots')).toEqual([10, 8]);
       // SRC-25: under a coarse pointer every action button's hit area is at least sys.target.touch wide, and two
       // neighbours' stop where the lengths kept for them meet — they touch and never overlap.
       const hit = (action: Locator) =>
@@ -257,7 +262,7 @@ test.describe('layout', () => {
     await expect.poll(async () => {
       const mirrored = await visible('bar-value-slots');
       return mirrored.slice(1).map((box, n) => Math.round((mirrored[n].x - (box.x + box.width)) * 100) / 100);
-    }).toEqual([12, 8]);
+    }).toEqual([10, 8]);
   });
 
   test('SRC-2: the search glyph is drawn at leading-icon.size in the unselected family, fill and weight, in its color, hidden from assistive technology', async ({ page }) => {
@@ -435,8 +440,9 @@ test.describe('layout', () => {
       return { height, padBlock, padInline, gap, icon };
     };
     const [regular, small] = [await sizes('regular'), await sizes('compact')];
-    // The default system's compact row: the tree view's, 32 high with a 20 glyph, 8 from its edges.
-    expect([small.height, small.icon, small.padInline]).toEqual([32, 20, 8]);
+    // The default system's compact row: the small step of the control heights, held at the minimum target — 36 high
+    // with a 20 glyph, 8 from its edges.
+    expect([small.height, small.icon, small.padInline]).toEqual([36, 20, 8]);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const drawn = async (r: Locator) => {
       const [b, icon, headline, font] = [await bounds(r), await bounds(r.locator('.option-icon, .icon').first()), await bounds(r.locator('.headline')), await px(r.locator('.headline'), 'font-size')];
@@ -445,7 +451,8 @@ test.describe('layout', () => {
     const first = await drawn(row(page, 'density-compact', 0));
     const firstRegular = await drawn(row(page, 'density-regular', 0));
     expect(first.height).toBeCloseTo(small.height, 0);
-    expect(first.height).toBeLessThan(pointer);
+    // In the default system the compact row is held at the minimum target, which the pointer target aliases.
+    expect(first.height).toBeCloseTo(pointer, 0);
     expect(first.icon).toBeCloseTo(small.icon, 0);
     expect(first.start).toBeCloseTo(small.padInline + small.icon + small.gap, 0);
     expect(firstRegular.height).toBeCloseTo(Math.max(regular.height, pointer), 0);
@@ -469,8 +476,10 @@ test.describe('layout', () => {
     // A change is drawn at once.
     await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
     await expect.poll(async () => (await drawn(row(page, 'density-regular', 0))).height).toBeCloseTo(first.height, 0);
-    // SRC-16: for touch a compact row is the touch target.
+    // SRC-16: for touch a compact row is the touch target — seen under a system whose touch target (48) is taller than
+    // the compact row, as the default system's (36) is not.
     if (browserName !== 'chromium') return;
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });

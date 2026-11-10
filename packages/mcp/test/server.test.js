@@ -589,9 +589,9 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
     'tree-view.container.height.regular',
   ].map((rest) => `tanrei.comp.${rest}`);
   assert.equal(valid.warnings.total, HEIGHTS_WITHOUT_ROOM_AT_18.length);
-  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the regular header of the accordion (24 + 2 × 16 = 56), nor a row of the tree view at either density (20 + 2 × 6 = 32 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
+  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the regular header of the accordion (24 + 2 × 16 = 56), nor a row of the tree view at either density (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
   assert.match(valid.warnings.first[0], /accordion\.container\.height\.regular: 56px cannot hold its content — 2 × padding-block \(16px\) \+ one label line = 59px/);
-  assert.match(valid.warnings.first[1], /container\.height\.small: 32px cannot hold its content — 2 × padding-block \(6px\) \+ one label line = 34\.5px/);
+  assert.match(valid.warnings.first[1], /container\.height\.small: 36px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 38\.5px/);
   assert.match(valid.warnings.first[4], /tag\.container\.height\.medium: 24px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 26\.5px/);
   assert.match(valid.warnings.first[5], /tag\.container\.height\.small: 20px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 22px/);
   assert.match(valid.next, /tanrei build/);
@@ -691,8 +691,8 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
   // `near` is enough to name the component, the axis and `from`; the product's own layer file is where it goes.
   const near = (await propose({ kind: 'axis-value', near: 'tanrei.comp.button.container.height.small', value: 'xs', scale: 0.75, layerFile: acmeFile })).data;
   assert.deepEqual(near.write.vocabulary, { 'tanrei.comp.button.size.xs': { from: 'small', scale: 0.75, rationale: PLACEHOLDER } });
-  // 32 × 0.75 is 24, held at the minimum target (32): a size scaled from a floored height keeps the floor.
-  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '32px']);
+  // 32 × 0.75 is 24, held at the minimum target (36): a size scaled from a floored height keeps the floor.
+  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '36px']);
   assert.ok(near.verified.newWarnings.some((w) => /height\.xs/.test(w)), 'thresholds are constants for extensions too: the xs button cannot hold its content, and the proposal says so');
 
   // A variant: the declaration, plus the resting colors to re-point under `tokens`; its state tokens come from the pattern rules.

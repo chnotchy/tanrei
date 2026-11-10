@@ -141,7 +141,7 @@
         "compact"
       ],
       "default": "regular",
-      "description": "How much room a row takes: its least height, its paddings, the gap between its columns and the size of its glyphs (the mark, the leading and the trailing icon), and never its text style. regular (a 48 row with 24 glyphs in the default system) is the menu of a product used by touch as well as by pointer. compact (a 32 row with 20 glyphs, the tree view's compact row) is for a tool used with a pointer, whose menus are long and opened often. For touch a row is never lower than the touch target in either (MNU-12). It applies to the menu and to every submenu of it (MNU-64). A design system may add values.",
+      "description": "How much room a row takes: its least height, its paddings, the gap between its columns and the size of its glyphs (the mark, the leading and the trailing icon), and never its text style. regular (a 48 row with 24 glyphs in the default system) is the menu of a product used by touch as well as by pointer. compact (a 36 row with 20 glyphs, the tree view's compact row) is for a tool used with a pointer, whose menus are long and opened often. For touch a row is never lower than the touch target in either (MNU-12). It applies to the menu and to every submenu of it (MNU-64). A design system may add values.",
       "axis": "tanrei.comp.menu.density"
     }
   ],
@@ -668,7 +668,7 @@
     {
       "id": "MNU-47",
       "text": "WHERE neither side of the surface that holds a submenu item has room for the submenu's surface at comp.menu.surface.min-width within comp.menu.surface.viewport-margin THE menu SHALL still present the submenu as a surface of its own, laid over the surface it opened from, on the side with more room and as far towards that side as the margin allows, narrowed down to comp.menu.surface.min-width before it covers more, and SHALL leave at least sys.target.touch of the covered surface's inline size uncovered on its other side wherever the visible part of the window is wide enough for both; THE menu SHALL NOT replace the items of a surface with its submenu's at any window size. WHILE a submenu covers part of the surface it opened from, a press on the uncovered part of that surface SHALL close the submenu as MNU-48 says and SHALL NOT activate the item under the press, so that a person without a keyboard or a back button can go back one level; keys and focus SHALL behave as in a wide window.",
-      "verify": "Test in a window 360 wide: the submenu overlaps its parent, at least 48 of the parent stays uncovered, a tap there closes the submenu only, and a second tap acts on the item."
+      "verify": "Test in a window 360 wide: the submenu overlaps its parent, at least sys.target.touch (36 in the default system) of the parent stays uncovered, a tap there closes the submenu only, and a second tap acts on the item."
     },
     {
       "id": "MNU-48",
@@ -752,7 +752,7 @@
     {
       "id": "MNU-64",
       "text": "THE menu SHALL draw the rows of every surface at its density. WHILE density is regular each row SHALL take the regular value of every token of the density axis this spec names (comp.menu.container.height.regular, comp.menu.container.padding-block.regular, comp.menu.container.padding-inline.regular, comp.menu.container.gap.regular, comp.menu.leading-icon.size.regular, comp.menu.trailing-icon.size.regular, comp.menu.mark.size.regular, comp.menu.group-title.padding-inline.regular); WHILE density is compact it SHALL take the compact value of each in its place (comp.menu.container.height.compact, comp.menu.container.padding-block.compact, comp.menu.container.padding-inline.compact, comp.menu.container.gap.compact, comp.menu.leading-icon.size.compact, comp.menu.trailing-icon.size.compact, comp.menu.mark.size.compact, comp.menu.group-title.padding-inline.compact), so that a compact row is lower, set in less from its edges and draws smaller glyphs, the room a row keeps for an empty column (MNU-59) shrinking with them. The text styles, the surface and its paddings, the dividers, the group gap and the control of a checkbox or radio item SHALL be the same in both. Every submenu SHALL take the menu's density. WHEN density names a value the active design system does not have THE menu SHALL draw the default density's rows and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the menu is open THE menu SHALL draw the new rows at once, without a motion, keeping focus where it is.",
-      "verify": "Fixture density-compact under the default system: with a mouse every row is 32 high, its glyphs 20, its content 8 from the row's edges; under touch emulation every row is 48. Its labels are drawn in the regular rows' text style."
+      "verify": "Fixture density-compact under the default system: with a mouse every row is 36 high, the minimum target, its glyphs 20, its content 8 from the row's edges; under touch emulation every row is 36 too, and 48 under a layer that sets sys.target.touch to 48. Its labels are drawn in the regular rows' text style."
     },
     {
       "id": "MNU-65",
@@ -844,7 +844,7 @@
       "Text size does not clip an item: items grow at 200% text size, and the surface scrolls when it no longer fits the visible part of the window.",
       "An item's shortcut is drawn by the keyboard shortcut component (KBS-13), which writes the keys for the keyboard the person uses and only shows them: the product binds them. Trailing text is never read as a shortcut; a product that typed its shortcut there keeps the text but not the keyboard shortcut semantics until it moves the keys to shortcut.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WCAG 2.5.8 (target size): for touch every row is at least the touch target high in both densities (MNU-12). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its rows reach across the surface's whole width. A product that cannot accept that uses regular."
+      "WCAG 2.5.8 (target size): for touch every row is at least the touch target high in both densities (MNU-12). In the default system a compact row is held at the minimum target, which the pointer target aliases; under a system whose pointer target is taller the compact density is lower than it for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its rows reach across the surface's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.menu",

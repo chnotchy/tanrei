@@ -214,7 +214,7 @@
     {
       "id": "TGR-1",
       "text": "THE tag group SHALL lay out its members in lines: from its start edge, in the order they were given, comp.tag-group.gap.tags apart along a line WHILE spacing is tags and comp.tag-group.gap.chips apart WHILE spacing is chips, each member at its own size and centred on the middle of its line. It SHALL be as wide as its layout gives it and as tall as its lines, SHALL draw no container, fill, edge or elevation of its own, SHALL add no padding around its members, and SHALL NOT draw its label.",
-      "verify": "Under the default system three medium tags stand 8 apart on one line 24 high; three medium chips stand 8 apart on one line 32 high."
+      "verify": "Under the default system three medium tags stand 8 apart on one line 24 high; three medium chips stand 8 apart on one line 36 high."
     },
     {
       "id": "TGR-2",
@@ -232,7 +232,7 @@
     {
       "id": "TGR-5",
       "text": "WHILE the hit areas that two neighbouring chips extend beyond their visible bounds (CHP-5, CHP-21) overlap THE tag group SHALL give every press on a chip's visible bounds to that chip, and a press in the gap between two chips — along a line or between two lines — to the nearer one, so that neighbouring hit areas meet at the middle of the gap. comp.tag-group.row-gap.chips is what keeps each chip's target whole between two lines: at sys.target.touch minus a chip's height or more, no hit areas overlap, as under the default system's value for a medium chip; a small chip on wrapped lines, and a layer that narrows the gap, have targets that meet between the lines.",
-      "verify": "Under the default system two wrapped lines of medium chips give every chip 48 of height to a touch: 32 and half of 16 on each side."
+      "verify": "Under the default system a medium chip is 36, as tall as the touch target, and reaches nothing. Under a layer whose touch target is 48, two wrapped lines of medium chips give every chip its whole 48 (36 and 6 of the 16 on each side), and small chips (24) on wrapped lines reach half the 16 and meet at its middle."
     },
     {
       "id": "TGR-6",

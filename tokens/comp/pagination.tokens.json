@@ -68,7 +68,7 @@
             "$description": "An item's height, per size, and its least width: a page number of one digit stands in a square.",
             "small": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {

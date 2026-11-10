@@ -637,10 +637,10 @@ private object AcmeSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
-        targetMinimum = 32.dp,
-        targetPointer = 44.dp,
+        targetMinimum = 36.dp,
+        targetPointer = 36.dp,
         targetSpacing = 8.dp,
-        targetTouch = 48.dp,
+        targetTouch = 36.dp,
     )
 
     fun motion(): TanreiMotion = TanreiMotion(
@@ -1121,7 +1121,7 @@ private object AcmeSystemSource {
             connectedVerticalOuterShape = 12.dp,
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            standardGap = 16.dp,
+            standardGap = 0.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -1147,7 +1147,7 @@ private object AcmeSystemSource {
             pressed = TanreiButtonWithMenuStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonWithMenuStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonWithMenuSizes(
-                small = TanreiButtonWithMenuSizeTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 6.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 20.dp, outlineWidth = 1.dp),
+                small = TanreiButtonWithMenuSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 8.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 20.dp, outlineWidth = 1.dp),
                 medium = TanreiButtonWithMenuSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 8.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
                 large = TanreiButtonWithMenuSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingPaddingInlineStart = 24.dp, leadingPaddingInlineStartWithIcon = 16.dp, leadingPaddingInlineEnd = 24.dp, trailingPaddingInline = 16.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
             ),
@@ -1438,7 +1438,7 @@ private object AcmeSystemSource {
             pressed = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonSizes(
-                small = TanreiButtonSizeTokens(containerHeight = 32.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 200),
+                small = TanreiButtonSizeTokens(containerHeight = 36.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 8.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 200),
                 medium = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
                 large = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
                 extra = mapOf(
@@ -2515,7 +2515,7 @@ private object AcmeSystemSource {
             containerSmallMaxWidth = 56.dp,
             containerSmallMinWidth = 40.dp,
             controlsButtonSize = 40.dp,
-            controlsHeight = 48.dp,
+            controlsHeight = 40.dp,
             controlsIconSize = 24.dp,
             controlsIndicatorPaddingInline = 12.dp,
             controlsShape = 9999.dp,
@@ -2993,7 +2993,7 @@ private object AcmeSystemSource {
             disabled = TanreiChipStateTokens(opacity = 1f),
             sizes = TanreiChipSizes(
                 small = TanreiChipSizeTokens(containerHeight = 24.dp, containerPaddingInline = 8.dp, containerPaddingInlineWithIcon = 6.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 2.dp, containerPaddingBlock = 2.dp, containerGap = 4.dp, labelTypescale = typescale.labelSmall, iconSize = 20.dp, avatarSize = 16.dp, removeContainerSize = 24.dp, motionStateDuration = 200),
-                medium = TanreiChipSizeTokens(containerHeight = 32.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 4.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, avatarSize = 24.dp, removeContainerSize = 28.dp, motionStateDuration = 250),
+                medium = TanreiChipSizeTokens(containerHeight = 36.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 6.dp, containerPaddingInlineWithRemove = 6.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, avatarSize = 24.dp, removeContainerSize = 28.dp, motionStateDuration = 250),
             ),
             variants = TanreiChipVariants(
                 outlined = TanreiChipVariantTokens(
@@ -3261,7 +3261,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun combobox(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiComboboxTokens =
         TanreiComboboxTokens(
-            containerActionGap = 4.dp,
+            containerActionGap = 6.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerSpace = 4.dp,
             dividerThickness = 1.dp,
@@ -3507,7 +3507,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiComboboxDensitys(
                 regular = TanreiComboboxDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiComboboxDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                compact = TanreiComboboxDensityTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -4550,7 +4550,7 @@ private object AcmeSystemSource {
             focused = TanreiInputBoxStateTokens(activeIndicatorWidth = 2.dp, opacity = 1f, outlineWidth = 2.dp),
             disabled = TanreiInputBoxStateTokens(activeIndicatorWidth = 1.dp, opacity = 1f, outlineWidth = 1.dp),
             sizes = TanreiInputBoxSizes(
-                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, stackedContainerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, stackedContainerPaddingBlock = 4.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 200),
+                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, stackedContainerHeight = 36.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, stackedContainerPaddingBlock = 6.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 200),
                 medium = TanreiInputBoxSizeTokens(containerHeight = 48.dp, stackedContainerHeight = 40.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 10.dp, stackedContainerPaddingBlock = 6.dp, containerPaddingBlockWithLabel = 4.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
                 large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, stackedContainerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 14.dp, stackedContainerPaddingBlock = 14.dp, containerPaddingBlockWithLabel = 4.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
             ),
@@ -5255,7 +5255,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiListDensitys(
                 regular = TanreiListDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
+                compact = TanreiListDensityTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
             ),
         )
 
@@ -5774,7 +5774,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiMenuDensitys(
                 regular = TanreiMenuDensityTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiMenuDensityTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                compact = TanreiMenuDensityTokens(containerHeight = 36.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -6420,7 +6420,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiNavigationDrawerDensitys(
                 regular = TanreiNavigationDrawerDensityTokens(containerGap = 4.dp, itemContainerHeight = 48.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 24.dp, itemIconIndicatorHeight = 24.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 48.dp, collapsedItemContainerPaddingBlock = 12.dp, headingHeight = 36.dp),
-                compact = TanreiNavigationDrawerDensityTokens(containerGap = 2.dp, itemContainerHeight = 32.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 2.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 32.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 28.dp),
+                compact = TanreiNavigationDrawerDensityTokens(containerGap = 2.dp, itemContainerHeight = 36.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 4.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 36.dp, collapsedItemContainerPaddingBlock = 10.dp, headingHeight = 28.dp),
             ),
         )
 
@@ -6577,7 +6577,7 @@ private object AcmeSystemSource {
             pressed = TanreiPaginationStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiPaginationStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiPaginationSizes(
-                small = TanreiPaginationSizeTokens(containerHeight = 32.dp),
+                small = TanreiPaginationSizeTokens(containerHeight = 36.dp),
                 medium = TanreiPaginationSizeTokens(containerHeight = 40.dp),
             ),
             parts = TanreiPaginationParts(
@@ -6812,7 +6812,7 @@ private object AcmeSystemSource {
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 200,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionMinHeight = 48.dp,
+            optionMinHeight = 36.dp,
             ringSelectedWidthShare = 0.5f,
             ringSize = 20.dp,
             ringWidth = 2.dp,
@@ -7093,7 +7093,7 @@ private object AcmeSystemSource {
     fun search(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSearchTokens =
         TanreiSearchTokens(
             containerButtonGap = 0.dp,
-            containerGap = 16.dp,
+            containerGap = 0.dp,
             containerHeight = 56.dp,
             containerPaddingInline = 16.dp,
             containerPaddingInlineWithButton = 8.dp,
@@ -7229,7 +7229,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiSearchDensitys(
                 regular = TanreiSearchDensityTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
-                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 36.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 
@@ -7254,7 +7254,7 @@ private object AcmeSystemSource {
             pressed = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             disabled = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             sizes = TanreiSegmentedButtonSizes(
-                small = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 200),
+                small = TanreiSegmentedButtonSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 200),
                 medium = TanreiSegmentedButtonSizeTokens(containerHeight = 36.dp, containerPaddingInline = 14.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
                 large = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 16.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
             ),
@@ -7339,7 +7339,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun select(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSelectTokens =
         TanreiSelectTokens(
-            containerActionGap = 4.dp,
+            containerActionGap = 6.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerSpace = 4.dp,
             dividerThickness = 1.dp,
@@ -7579,7 +7579,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiSelectDensitys(
                 regular = TanreiSelectDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiSelectDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                compact = TanreiSelectDensityTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -7747,7 +7747,7 @@ private object AcmeSystemSource {
             containerPaddingInlineStart = 16.dp,
             containerShape = 8.dp,
             controlsGap = 4.dp,
-            controlsHeight = 32.dp,
+            controlsHeight = 36.dp,
             controlsLabelTypescale = typescale.label,
             controlsPaddingInline = 14.dp,
             controlsShape = 9999.dp,
@@ -8502,7 +8502,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiTableOfContentsDensitys(
                 regular = TanreiTableOfContentsDensityTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
-                compact = TanreiTableOfContentsDensityTokens(rowHeight = 32.dp, rowPaddingBlock = 6.dp),
+                compact = TanreiTableOfContentsDensityTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
             ),
         )
 
@@ -8989,7 +8989,7 @@ private object AcmeSystemSource {
                 ),
             ),
             sizes = TanreiTabsSizes(
-                small = TanreiTabsSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
+                small = TanreiTabsSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
                 medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp, iconPlacement = 0f),
             ),
         )
@@ -9135,7 +9135,7 @@ private object AcmeSystemSource {
         TanreiTextInputTokens(
             codeTabSize = 2f,
             codeTypescale = typescale.code,
-            containerActionGap = 4.dp,
+            containerActionGap = 6.dp,
             entriesGap = 8.dp,
             entriesRowGap = 8.dp,
             entriesTypingMinWidth = 72.dp,
@@ -9185,7 +9185,7 @@ private object AcmeSystemSource {
             separation = 0f,
             variants = TanreiToolbarVariants(
                 inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 8.dp, containerSize = 40.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
-                docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 16.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
+                docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 0.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 floating = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright), containerElevation = elevation.level3, containerShape = 9999.dp, containerSize = 64.dp, containerPaddingInline = 12.dp, containerGap = 0.dp, outlineColor = TanreiPaint.None),
             ),
         )
@@ -9363,7 +9363,7 @@ private object AcmeSystemSource {
             ),
             densitys = TanreiTreeViewDensitys(
                 regular = TanreiTreeViewDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
-                compact = TanreiTreeViewDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
+                compact = TanreiTreeViewDensityTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
             ),
         )
 }

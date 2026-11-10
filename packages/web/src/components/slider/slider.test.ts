@@ -382,6 +382,11 @@ test.describe('geometry and paint', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    // In the default system the target (36) is lower than the slider's own container (40), which is then the hit area.
+    const own = await rootOf(page, 'continuous').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+    expect(own).toBe(Math.max(await resolveToken(page, T('container-size')), await resolveToken(page, '--tanrei-sys-target-touch')));
+    // Under a 48 touch target (a platform guideline) the hit area reaches it.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const hit = await rootOf(page, 'continuous').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBe(touch);

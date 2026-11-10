@@ -264,7 +264,7 @@
     {
       "id": "SPR-18",
       "text": "THE stepper SHALL make every step's container at least sys.target.pointer high and wide for fine pointers and sys.target.touch for touch input — a platform that cannot tell the input type SHALL use sys.target.touch — leaving the room it adds below and after the container's content, so that a pressable step's hit area meets the minimum target without reaching over a neighbouring step's, and so that a pressable and a plain step stand alike.",
-      "verify": "Under the default system a horizontal step's container is 68 high (8, a 24 marker, 8, a 20 label line, 8) and at least 120 wide, so nothing is added; a vertical step with a label alone is 40 high by its content (8, a 24 marker, 8) and is made 44 high for a mouse and 48 for touch."
+      "verify": "Under the default system a horizontal step's container is 68 high (8, a 24 marker, 8, a 20 label line, 8) and at least 120 wide, so nothing is added; a vertical step with a label alone is 40 high by its content (8, a 24 marker, 8), more than the target (36), so nothing is added; under a layer whose targets are 44 and 48 it is made 44 high for a mouse and 48 for touch."
     },
     {
       "id": "SPR-19",

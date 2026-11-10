@@ -155,9 +155,10 @@ test.describe('behavior', () => {
       near(group.height, height, `${id}: as tall as its line`);
       for (const one of placed) near(one.height, height, `${id}: ${one.label} at its own height`);
       near(group.width, 760 - 32, `${id}: as wide as its layout`);
-      // The spec's verify, under the default system: 8 apart, on one line 24 (tags) or 32 (chips) high.
+      // The spec's verify, under the default system: 8 apart, on one line 24 (tags) or 36 (chips, the medium chip held
+      // at the minimum target) high.
       expect(gap, id).toBe(8);
-      expect(height, id).toBe(id === 'tags' ? 24 : 32);
+      expect(height, id).toBe(id === 'tags' ? 24 : 36);
     }
     // Members of different sizes are centred on the middle of their line.
     const mixed = await layout(page, 'mixed');
@@ -273,18 +274,22 @@ test.describe('behavior', () => {
     near(top((await layout(page, 'as-chips')).lines[1]) - bottom((await layout(page, 'as-chips')).lines[0]), await token(page, 'row-gap-tags'), 'the distance follows the spacing at once');
   });
 
-  test('TGR-5: on a touch screen two wrapped lines of medium chips give every chip its whole target — its height and half the row gap on each side — and the hit areas of two lines meet at the middle of the gap, small chips’ too', async ({ page, browserName }) => {
+  test('TGR-5: on a touch screen two wrapped lines of medium chips give every chip its whole target — at most its height and half the row gap on each side — and the hit areas of two lines meet at the middle of the gap, small chips’ too (under a 48 touch target)', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium can emulate a coarse pointer (touch emulation over CDP)');
     await mount(page, [...only('chips-filters-wrap'), fx('small', { spacing: 'chips', label: 'Filters' }, ['Open', 'Assigned to me', 'Needs review', 'Blocked', 'Has a design', 'Web', 'iOS', 'Android', 'This week', 'Overdue', 'No owner', 'Archived', 'Mine', 'Starred', 'Recent'].map((label) => `<tanrei-chip kind="filter" size="small" label="${label}"></tanrei-chip>`).join('')), fx('one-line', { spacing: 'chips', label: 'Filters' }, ['Open', 'Blocked', 'Archived'].map((label) => `<tanrei-chip kind="filter" size="small" label="${label}"></tanrei-chip>`).join(''))]);
+    // The default system's medium chip is as tall as its target (36) and reaches nothing; a system whose touch target
+    // is larger (a platform guideline's 48) is where the row gap bounds what a chip reaches between two lines.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     await coarse(page);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
+    expect(touch).toBe(48);
     const [gap, rowGap] = [await token(page, 'gap-chips'), await token(page, 'row-gap-chips')];
     const area = (id: string, nth: number) => member(page, id, nth).evaluate((el) => { const s = getComputedStyle(el.shadowRoot!.querySelector('.container')!, '::before'); return [Number.parseFloat(s.width), Number.parseFloat(s.height)]; });
-    // Medium: 32 and half of 16 on each side is the whole 48 (the spec's verify) — nothing is taken from it.
+    // Medium: 36 and half of 16 on each side is more than the whole 48 — nothing is taken from it.
     const medium = await layout(page, 'chips-filters-wrap');
     for (let i = 0; i < medium.placed.length; i++) {
       const [width, height] = await area('chips-filters-wrap', i);
-      near(height, medium.placed[i].height + rowGap, `chip ${i}: its height and half the row gap on each side`);
+      expect(medium.placed[i].height + rowGap, `chip ${i}: its height and half the row gap on each side`).toBeGreaterThanOrEqual(touch);
       near(height, touch, `chip ${i}: the whole touch target`);
       // Along the line it reaches no further than half the gap toward a neighbour.
       expect(width, `chip ${i}`).toBeLessThanOrEqual(medium.placed[i].width + gap + 0.5);
@@ -308,8 +313,12 @@ test.describe('behavior', () => {
       const upper = first.find((m) => m.x <= lower.x + 4 && m.right >= lower.x + 4)!;
       const middle = (bottom(first) + top(second)) / 2;
       const x = lower.x + 4;
-      expect(await hit(page, x, middle - 1.5), `${id}: above the middle`).toBe(upper.label);
-      expect(await hit(page, x, middle + 1.5), `${id}: below the middle`).toBe(lower.label);
+      // (Where a chip and half the row gap are more than the target — the medium chips here — the targets do not reach
+      // the middle, and a press there is the group's.)
+      if (lower.height + rowGap <= touch) {
+        expect(await hit(page, x, middle - 1.5), `${id}: above the middle`).toBe(upper.label);
+        expect(await hit(page, x, middle + 1.5), `${id}: below the middle`).toBe(lower.label);
+      }
       // A press on a chip's visible bounds is that chip's, at every edge that faces a neighbour. (Along a line these
       // chips are wider than the target and extend nothing; the next test has chips that do.)
       const [left, right] = first;

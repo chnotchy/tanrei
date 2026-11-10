@@ -244,7 +244,7 @@
     {
       "id": "BRC-23",
       "text": "WHERE the visual size of a level that is a link or of the overflow button is below the minimum target THE breadcrumbs SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes, and on the axis of the trail no further than halfway to the entry beside it, so that no two hit areas overlap; a platform that cannot tell the input type SHALL use sys.target.touch.",
-      "verify": "Under the default system a level is 22 high and takes presses 48 high. A press on a separator reaches the nearer of its two neighbours."
+      "verify": "Under the default system a level is 22 high and takes presses 36 high. A press on a separator reaches the nearer of its two neighbours."
     },
     {
       "id": "BRC-24",

@@ -130,7 +130,7 @@
             "$description": "Minimum height of the set and of every segment, per size.",
             "small": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -191,7 +191,7 @@
             "$description": "Vertical padding, per size. Heights are minimums, so this shows only when a label wraps or text is enlarged.",
             "small": {
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {

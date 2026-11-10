@@ -75,7 +75,7 @@
       ],
       "axis": "tanrei.comp.segmented-button.size",
       "default": "medium",
-      "description": "Visual height (32 / 36 / 40 under the default system, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
+      "description": "Visual height (36 / 36 / 40 in the core, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "label",

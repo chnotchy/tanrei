@@ -1183,8 +1183,9 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     // Each keeps the touch target along the row: two buttons narrower than it stand apart by what is missing.
     near(up.x - (down.x + down.width), Math.max(await token(page, 'stepper-gap'), touch - button), 'the two stand apart by what their targets lack');
     near(c.x + c.width - (up.x + up.width), await token(page, 'stepper-inset'), 'stepper.inset from the end edge');
-    // Under the default system: 40 each, 8 apart — 88 of the container's width — and 4 from its end.
-    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([40, 88, 4]);
+    // Under the default system: 40 each, wider than the touch target (36), so touching — 80 of the container's width —
+    // and 4 from its end.
+    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([40, 80, 4]);
     // Buttons, named, outside the focus order: the native button carries tabindex -1 and is still a button.
     for (const [which, name] of [['down', 'Decrease'], ['up', 'Increase']] as const) {
       const native = stepper(page, id, which).locator('button');

@@ -61,7 +61,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next in the default system: 32 and 12 make sys.target.pointer's 44."
+            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
           },
           "button": {
             "variant": {

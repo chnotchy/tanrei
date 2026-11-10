@@ -62,7 +62,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the box, 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge.",
+            "$description": "The round state layer behind the box, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
             "$value": {
               "value": 28,
               "unit": "px"

@@ -225,13 +225,14 @@ test.describe('the list', () => {
     await expect(nav(page, 'label-hidden')).toHaveAttribute('aria-label', 'On this page');
   });
 
-  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 44 high with the labels of three levels 12, 24 and 36 from the rail at regular, 32 high with the labels at the same places at compact — in label.typescale with corners row.shape and no space between rows; density changes the height and nothing else', async ({ page }) => {
+  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 44 high with the labels of three levels 12, 24 and 36 from the rail at regular, 36 high with the labels at the same places at compact — in label.typescale with corners row.shape and no space between rows; density changes the height and nothing else', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('three-levels', 'density-compact-three-levels') });
     const levels = ['#tokens', '#color', '#roles'];
     const starts: number[][] = [];
     for (const [id, height] of [
       ['three-levels', 44],
-      ['density-compact-three-levels', 32],
+      // The compact row: the small step of the control heights, held at the minimum target.
+      ['density-compact-three-levels', 36],
     ] as const) {
       const rail = (await edges(list(page, id))).left;
       const end = (await edges(list(page, id))).right;
@@ -969,17 +970,17 @@ test.describe('states', () => {
     expect(await css(button(page, 'compact-closed'), 'transition-duration')).toBe('0s');
   });
 
-  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a regular row is 44 high, the pointer target, and a compact one 32; for touch both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
+  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a regular row is 44 high, above the pointer target (36), and a compact one 36, the minimum target; for touch under a 48 target both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('nested', 'density-compact-nested', 'compact-closed') });
-    expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(44);
-    expect(await resolveToken(page, T('row-height-regular'))).toBe(await resolveToken(page, '--tanrei-sys-target-pointer'));
+    expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(36);
+    expect(await resolveToken(page, T('row-height-regular'))).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-pointer'));
     for (const anchor of await rows(page, 'nested').all()) expect((await edges(anchor)).height).toBe(44);
-    for (const anchor of await rows(page, 'density-compact-nested').all()) expect((await edges(anchor)).height).toBe(32);
+    for (const anchor of await rows(page, 'density-compact-nested').all()) expect((await edges(anchor)).height).toBe(36);
     expect((await edges(button(page, 'compact-closed'))).height).toBe(48);
     expect(await resolveToken(page, T('compact-row-height'))).toBe(48);
     // A regular row is never lower than the pointer target, whatever its tokens say.
     await override(page, { [T('row-height-regular')]: '20px', [T('row-padding-block-regular')]: '0px' });
-    expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(44);
+    expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(36);
     await override(page, { [T('row-height-regular')]: '', [T('row-padding-block-regular')]: '' });
     // A press on the indent before a nested label, and at the row's far end, follows that item.
     const nested = row(page, 'nested', '#container');
@@ -994,6 +995,8 @@ test.describe('states', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    // Under a system whose touch target (48) is taller than both rows, as the default system's (36) is not.
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
     expect(await resolveToken(page, '--tanrei-sys-target-touch')).toBe(48);
     await expect.poll(async () => (await edges(row(page, 'nested', '#anatomy'))).height).toBe(48);
     for (const anchor of await rows(page, 'density-compact-nested').all()) expect((await edges(anchor)).height).toBe(48);
@@ -1527,7 +1530,7 @@ test.describe('missing, unknown, empty', () => {
     await row(page, 'compact-open', '#container').focus();
     expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(44);
     await set(open, { density: 'compact' });
-    expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(32);
+    expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(36);
     expect(await css(row(page, 'compact-open', '#container'), 'transition-property')).not.toContain('block-size');
     expect([await prop(open, 'open'), await prop(open, 'current'), await page.evaluate(() => document.activeElement?.getAttribute('href'))]).toEqual([true, '#label', '#container']);
     // current names no item.
@@ -1592,7 +1595,7 @@ test.describe('before the element is defined, and without script', () => {
     expect(await host(page, 'nested').evaluate((el) => [...el.querySelectorAll('ul a')].map((a) => a.getAttribute('href')))).toEqual(['#when-to-use', '#anatomy', '#container', '#label', '#behaviour', '#states', '#keyboard', '#accessibility']);
     await expect(host(page, 'nested').getByRole('link')).toHaveCount(8);
     expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(44);
-    expect((await edges(row(page, 'density-compact-three-levels', '#roles'))).height).toBe(32);
+    expect((await edges(row(page, 'density-compact-three-levels', '#roles'))).height).toBe(36);
     expect(Math.round((await textBox(row(page, 'density-compact-three-levels', '#roles'))).left - (await edges(list(page, 'density-compact-three-levels'))).left)).toBe(36);
     expect(await css(list(page, 'nested'), 'border-left-color', '::before')).toBe(await resolveColor(page, T('rail-color')));
     expect(await css(row(page, 'nested', '#anatomy'), 'text-decoration-line')).toBe('none');
@@ -1643,7 +1646,7 @@ test.describe('before the element is defined, and without script', () => {
     });
     const inner = page.locator('#shadowed tanrei-table-of-contents');
     await expect(inner.locator('a[href="#b"]')).toHaveAttribute('aria-current', 'location');
-    expect((await edges(inner.locator('a[href="#a"]'))).height).toBe(32);
+    expect((await edges(inner.locator('a[href="#a"]'))).height).toBe(36);
     expect(await css(inner.locator('a[href="#b"]'), 'opacity', '::before')).toBe('1');
     expect(Math.round((await textBox(inner.locator('a[href="#b"]'))).left - (await edges(inner.locator('> ul'))).left)).toBe(24);
   });

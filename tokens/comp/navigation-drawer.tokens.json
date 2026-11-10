@@ -249,7 +249,7 @@
                 },
                 "compact": {
                   "$value": {
-                    "value": 32,
+                    "value": 36,
                     "unit": "px"
                   },
                   "$extensions": {
@@ -274,7 +274,17 @@
                   "$value": "{tanrei.sys.space.space150}"
                 },
                 "compact": {
-                  "$value": "{tanrei.sys.space.space100}"
+                  "$value": {
+                    "value": 10,
+                    "unit": "px"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.derive": {
+                      "fn": "pad",
+                      "of": "{tanrei.sys.space.space100}",
+                      "height": "{tanrei.comp.navigation-drawer.collapsed.item.container.width.compact}"
+                    }
+                  }
                 }
               },
               "shape": {
@@ -434,7 +444,7 @@
           "container": {
             "height": {
               "$type": "dimension",
-              "$description": "The expanded item container's least height, per density: the destination's row, which is also its active indicator and carries hover, focus and press. Regular is a menu item's height, so that a list of places and a list of commands are rows of one size, and with the default icon it leaves item.padding-inline above and below the glyph. Compact is a tree view's compact row, for a product used with a pointer whose drawer lists many places; for touch a row is never lower than the touch target, whatever this says (NVD-6). A minimum: a row grows with a label that wraps and with enlarged text.",
+              "$description": "The expanded item container's least height, per density: the destination's row, which is also its active indicator and carries hover, focus and press. Regular is a menu item's height, so that a list of places and a list of commands are rows of one size, and with the default icon it leaves item.padding-inline above and below the glyph. Compact is a tree view's compact row (36 in the default system, the minimum target), for a product used with a pointer whose drawer lists many places; for touch a row is never lower than the touch target, whatever this says (NVD-6). A minimum: a row grows with a label that wraps and with enlarged text.",
               "regular": {
                 "$value": {
                   "value": 48,
@@ -453,7 +463,7 @@
               },
               "compact": {
                 "$value": {
-                  "value": 32,
+                  "value": 36,
                   "unit": "px"
                 },
                 "$extensions": {
@@ -506,7 +516,7 @@
             },
             "compact": {
               "$value": {
-                "value": 2,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

@@ -151,15 +151,26 @@ test.describe('behavior', () => {
       expect(hit.w).toBeGreaterThanOrEqual(pointer);
       // Where the visual size is below the target: a click just outside the visual bounds, inside the target, still
       // activates. (The large size is taller than the target, and extends nothing.)
-      if (height >= pointer) continue;
-      await target.evaluate((el) => {
-        (window as any).clicks = 0;
-        el.addEventListener('click', () => (window as any).clicks++);
-      });
-      await page.mouse.click(box!.x + box!.width / 2, box!.y - (pointer - height) / 2 + 1);
-      expect(await page.evaluate(() => (window as any).clicks)).toBe(1);
+      // In the default system no size is drawn below the target (the small one is held at the minimum), so the hit
+      // area is what is drawn.
+      expect(height).toBeGreaterThanOrEqual(pointer);
     }
-    expect(await resolveToken(page, '--tanrei-comp-button-container-height-small')).toBeLessThan(pointer);
+    expect(await resolveToken(page, '--tanrei-comp-button-container-height-small')).toBe(pointer);
+    // Under a system whose pointer target is above the minimum (one that follows a platform guideline), a click just
+    // outside the small Button's visual bounds, inside the target, still activates.
+    const raised = 48;
+    await rootTokens(page, { '--tanrei-sys-target-pointer': `${raised}px` });
+    const target = page.locator(button('filled-small'));
+    const box = (await target.locator('button').boundingBox())!;
+    const hit = await target.evaluate((el) => Number.parseFloat(getComputedStyle(el.shadowRoot!.querySelector('button')!, '::before').height));
+    expect(hit).toBe(raised);
+    expect(box.height).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-small'));
+    await target.evaluate((el) => {
+      (window as any).clicks = 0;
+      el.addEventListener('click', () => (window as any).clicks++);
+    });
+    await page.mouse.click(box.x + box.width / 2, box.y - (raised - box.height) / 2 + 1);
+    expect(await page.evaluate(() => (window as any).clicks)).toBe(1);
   });
 
   test('BTN-6: disabled renders from the disabled tokens of its variant', async ({ page }) => {
@@ -887,14 +898,14 @@ test.describe('icon side padding and icon-only widths', () => {
     await page.mouse.click(placed.x - (pointer - placed.width) / 2 + 1, placed.y + placed.height / 2);
     await page.mouse.click(placed.x + placed.width + (pointer - placed.width) / 2 - 1, placed.y + placed.height / 2);
     expect(await page.evaluate(() => (window as any).clicks)).toBe(2);
-    // A coarse pointer: sys.target.touch across (BTN-21's verify: 48 under the default system), the button still 32 wide.
+    // A coarse pointer: sys.target.touch across (BTN-21's verify: 36 under the default system), the button still 32 wide.
     if (browserName !== 'chromium') return;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     await expect.poll(() => inner(page, 'text-icon-narrow').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').width))).toBeGreaterThanOrEqual(touch);
-    expect(touch).toBe(48);
+    expect(touch).toBe(36);
     expect((await box(page, 'text-icon-narrow')).width).toBe(narrow.width);
   });
 
@@ -2897,9 +2908,9 @@ test.describe('a tone a host gives (BTN-45)', () => {
     }
     for (const id of ['tonal', 'filled', 'elevated', 'text', 'outlined']) {
       expect(await glyph(page, id), id).toBe(await color(page, T));
-      // Its own size: small is 32 × 32 in the default system.
+      // Its own size: small is 36 × 36 in the default system, held at the minimum target.
       const box = (await inner(page, id).boundingBox())!;
-      expect([box.width, box.height], id).toEqual([32, 32]);
+      expect([box.width, box.height], id).toEqual([36, 36]);
     }
     // The variants that draw no container at rest draw none on a tone either; an outlined edge takes the tone's
     // translucent color in place of its own.

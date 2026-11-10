@@ -74,7 +74,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the ring, 40; the 48 target reaches 4 beyond it on each side.",
+            "$description": "The round state layer behind the ring, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -165,7 +165,7 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "From the container to the label. With the 40 container it starts the label where the 48 target ends.",
+            "$description": "From the container to the label.",
             "$value": "{tanrei.sys.space.space50}"
           }
         },

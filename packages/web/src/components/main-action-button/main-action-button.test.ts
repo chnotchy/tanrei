@@ -206,9 +206,16 @@ test.describe('behavior', () => {
     expect(await css(page, 'filled-extended', 'transition-property')).not.toContain('outline');
   });
 
+  /** A system whose targets are larger than the default system's 36: a platform guideline's 44 and 48. */
+  const raiseTargets = (page: Page) =>
+    rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
+
   test('MAB-5: the hit area meets sys.target.pointer on both axes while the container keeps its size', async ({ page }) => {
+    // Every size is at least the default system's target (36), so nothing reaches there; a system whose targets are
+    // larger (a platform guideline's 44 and 48) is where the small one reaches them.
+    await raiseTargets(page);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
-    // The small one is below the target in the default system: the test must exercise the extension.
+    // The small one is below the raised target: the test must exercise the extension.
     expect(await resolveToken(page, T('container-height-small'))).toBeLessThan(pointer);
     for (const [id, size] of [['filled-small-extended', 'small'], ['filled-small-collapsed', 'small'], ['filled-extended', 'medium'], ['filled-collapsed', 'medium']] as const) {
       const box = await bounds(inner(page, id));
@@ -236,6 +243,7 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    await raiseTargets(page);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const hit = await inner(page, 'filled-small-collapsed').evaluate((el) => { const r = getComputedStyle(el, '::before'); return [Number.parseFloat(r.width), Number.parseFloat(r.height)]; });
     expect(hit).toEqual([touch, touch]);

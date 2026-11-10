@@ -605,7 +605,7 @@ export const acme = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 2, outerWidth: 2 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { minimum: 32, pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 36, pointer: 36, spacing: 8, touch: 36 },
   },
   typefaces: {
     brand: {
@@ -1306,7 +1306,7 @@ export const acme = {
       connectedVerticalOuterShape: 12,
       motionStateDuration: 250,
       motionStateEasing: [0.2, 0, 0, 1],
-      standardGap: 16,
+      standardGap: 0,
     },
     buttonWithMenu: {
       containerInnerGap: 2,
@@ -1333,7 +1333,7 @@ export const acme = {
       pressedContainerShape: 9999,
       pressedOpacity: 1,
       sizes: {
-        small: { containerHeight: 32, containerPaddingBlock: 6, containerGap: 8, leadingPaddingInlineStart: 16, leadingPaddingInlineStartWithIcon: 12, leadingPaddingInlineEnd: 16, trailingPaddingInline: 6, trailingPaddingInlineNarrow: 4, labelTypescale: "label", iconSize: 20, outlineWidth: 1 },
+        small: { containerHeight: 36, containerPaddingBlock: 8, containerGap: 8, leadingPaddingInlineStart: 16, leadingPaddingInlineStartWithIcon: 12, leadingPaddingInlineEnd: 16, trailingPaddingInline: 8, trailingPaddingInlineNarrow: 4, labelTypescale: "label", iconSize: 20, outlineWidth: 1 },
         medium: { containerHeight: 40, containerPaddingBlock: 6, containerGap: 8, leadingPaddingInlineStart: 16, leadingPaddingInlineStartWithIcon: 12, leadingPaddingInlineEnd: 16, trailingPaddingInline: 8, trailingPaddingInlineNarrow: 4, labelTypescale: "label", iconSize: 24, outlineWidth: 1 },
         large: { containerHeight: 56, containerPaddingBlock: 6, containerGap: 8, leadingPaddingInlineStart: 24, leadingPaddingInlineStartWithIcon: 16, leadingPaddingInlineEnd: 24, trailingPaddingInline: 16, trailingPaddingInlineNarrow: 4, labelTypescale: "label", iconSize: 24, outlineWidth: 1 },
       },
@@ -1841,7 +1841,7 @@ export const acme = {
       pressedOpacity: 1,
       toneContainerOpacity: 0.16,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 200 },
+        small: { containerHeight: 36, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 8, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 200 },
         medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 250 },
         large: { containerHeight: 56, containerPaddingInlineNarrow: 4, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 250 },
         "3x": { containerHeight: 84, containerPaddingInlineNarrow: 6, containerWidthWide: 108, containerPaddingInlineStart: 36, containerPaddingInlineEnd: 36, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 16, labelTypescale: "label", iconSize: 36, iconSizeWithoutLabel: 36, containerGap: 12, outlineWidth: 1.5, motionStateDuration: 375 },
@@ -3840,7 +3840,7 @@ export const acme = {
       containerSmallMaxWidth: 56,
       containerSmallMinWidth: 40,
       controlsButtonSize: 40,
-      controlsHeight: 48,
+      controlsHeight: 40,
       controlsIconSize: 24,
       controlsIndicatorPaddingInline: 12,
       controlsShape: 9999,
@@ -4560,7 +4560,7 @@ export const acme = {
       removeContainerShape: 9999,
       sizes: {
         small: { containerHeight: 24, containerPaddingInline: 8, containerPaddingInlineWithIcon: 6, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 2, containerPaddingBlock: 2, containerGap: 4, labelTypescale: "labelSmall", iconSize: 20, avatarSize: 16, removeContainerSize: 24, motionStateDuration: 200 },
-        medium: { containerHeight: 32, containerPaddingInline: 16, containerPaddingInlineWithIcon: 8, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 4, containerPaddingBlock: 4, containerGap: 8, labelTypescale: "label", iconSize: 24, avatarSize: 24, removeContainerSize: 28, motionStateDuration: 250 },
+        medium: { containerHeight: 36, containerPaddingInline: 16, containerPaddingInlineWithIcon: 8, containerPaddingInlineWithAvatar: 6, containerPaddingInlineWithRemove: 6, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 24, avatarSize: 24, removeContainerSize: 28, motionStateDuration: 250 },
       },
       variants: {
         outlined: {
@@ -5132,7 +5132,7 @@ export const acme = {
       swatchShape: 3,
     },
     combobox: {
-      containerActionGap: 4,
+      containerActionGap: 6,
       disabledOpacity: 1,
       dividerColor: { kind: "role", role: "outlineVariant" },
       dividerSpace: 4,
@@ -6311,7 +6311,7 @@ export const acme = {
       },
       densitys: {
         regular: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+        compact: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
       },
     },
     copyButton: {
@@ -7834,7 +7834,7 @@ export const acme = {
       selectionColor: { kind: "role", role: "primary" },
       selectionContentColor: { kind: "role", role: "onPrimary" },
       sizes: {
-        small: { containerHeight: 40, stackedContainerHeight: 32, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, stackedContainerPaddingBlock: 4, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
+        small: { containerHeight: 40, stackedContainerHeight: 36, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
         medium: { containerHeight: 48, stackedContainerHeight: 40, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 10, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
         large: { containerHeight: 56, stackedContainerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 14, stackedContainerPaddingBlock: 14, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
       },
@@ -8980,7 +8980,7 @@ export const acme = {
       },
       densitys: {
         regular: { containerHeight: 48, containerPaddingBlock: 8 },
-        compact: { containerHeight: 32, containerPaddingBlock: 4 },
+        compact: { containerHeight: 36, containerPaddingBlock: 6 },
       },
     },
     loadingIndicator: {
@@ -10085,7 +10085,7 @@ export const acme = {
       },
       densitys: {
         regular: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 24, trailingIconSize: 24, markSize: 24, groupTitlePaddingInline: 12 },
-        compact: { containerHeight: 32, containerPaddingInline: 8, containerPaddingBlock: 6, containerGap: 8, leadingIconSize: 20, trailingIconSize: 20, markSize: 20, groupTitlePaddingInline: 8 },
+        compact: { containerHeight: 36, containerPaddingInline: 8, containerPaddingBlock: 8, containerGap: 8, leadingIconSize: 20, trailingIconSize: 20, markSize: 20, groupTitlePaddingInline: 8 },
       },
     },
     menubar: {
@@ -11176,7 +11176,7 @@ export const acme = {
       },
       densitys: {
         regular: { containerGap: 4, itemContainerHeight: 48, itemPaddingInline: 12, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 24, itemIconIndicatorHeight: 24, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 72, collapsedItemContainerWidth: 48, collapsedItemContainerPaddingBlock: 12, headingHeight: 36 },
-        compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
+        compact: { containerGap: 2, itemContainerHeight: 36, itemPaddingInline: 8, itemPaddingBlock: 4, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 36, collapsedItemContainerPaddingBlock: 10, headingHeight: 28 },
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
@@ -11358,7 +11358,7 @@ export const acme = {
       pressedContainerShape: 9999,
       pressedOpacity: 1,
       sizes: {
-        small: { containerHeight: 32 },
+        small: { containerHeight: 36 },
         medium: { containerHeight: 40 },
       },
       parts: {
@@ -11660,7 +11660,7 @@ export const acme = {
       motionSelectionEasing: [0.2, 0, 0, 1],
       motionStateDuration: 200,
       motionStateEasing: [0.2, 0, 0, 1],
-      optionMinHeight: 48,
+      optionMinHeight: 36,
       pressedContainerShape: 9999,
       pressedOpacity: 1,
       ringSelectedWidthShare: 0.5,
@@ -12093,7 +12093,7 @@ export const acme = {
     },
     search: {
       containerButtonGap: 0,
-      containerGap: 16,
+      containerGap: 0,
       containerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithButton: 8,
@@ -12294,7 +12294,7 @@ export const acme = {
       },
       densitys: {
         regular: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
-        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        compact: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
       },
     },
     segmentedButton: {
@@ -12320,7 +12320,7 @@ export const acme = {
       setPadding: 0,
       setShape: 6,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 200 },
+        small: { containerHeight: 36, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 200 },
         medium: { containerHeight: 36, containerPaddingInline: 14, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
         large: { containerHeight: 40, containerPaddingInline: 16, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
       },
@@ -12460,7 +12460,7 @@ export const acme = {
       },
     },
     select: {
-      containerActionGap: 4,
+      containerActionGap: 6,
       disabledOpacity: 1,
       dividerColor: { kind: "role", role: "outlineVariant" },
       dividerSpace: 4,
@@ -13633,7 +13633,7 @@ export const acme = {
       },
       densitys: {
         regular: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+        compact: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
       },
     },
     sideSheet: {
@@ -13834,7 +13834,7 @@ export const acme = {
       containerPaddingInlineStart: 16,
       containerShape: 8,
       controlsGap: 4,
-      controlsHeight: 32,
+      controlsHeight: 36,
       controlsLabelTypescale: "label",
       controlsPaddingInline: 14,
       controlsShape: 9999,
@@ -16001,7 +16001,7 @@ export const acme = {
       },
       densitys: {
         regular: { rowHeight: 44, rowPaddingBlock: 12 },
-        compact: { rowHeight: 32, rowPaddingBlock: 6 },
+        compact: { rowHeight: 36, rowPaddingBlock: 8 },
       },
     },
     table: {
@@ -16782,7 +16782,7 @@ export const acme = {
         },
       },
       sizes: {
-        small: { containerHeight: 32, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20, iconPlacement: 1 },
+        small: { containerHeight: 36, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20, iconPlacement: 1 },
         medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 24, iconPlacement: 0 },
       },
     },
@@ -17079,7 +17079,7 @@ export const acme = {
     textInput: {
       codeTabSize: 2,
       codeTypescale: "code",
-      containerActionGap: 4,
+      containerActionGap: 6,
       entriesGap: 8,
       entriesRowGap: 8,
       entriesTypingMinWidth: 72,
@@ -17137,7 +17137,7 @@ export const acme = {
           containerShape: 0,
           containerSize: 64,
           containerPaddingInline: 16,
-          containerGap: 16,
+          containerGap: 0,
           outlineColor: { kind: "role", role: "outlineVariant" },
         },
         floating: {
@@ -17369,7 +17369,7 @@ export const acme = {
       },
       densitys: {
         regular: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
-        compact: { containerHeight: 32, containerPaddingBlock: 6, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
+        compact: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
       },
     },
   },

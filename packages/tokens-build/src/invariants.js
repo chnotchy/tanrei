@@ -84,6 +84,43 @@ export function targetFloors(documents) {
   return [...floored].sort();
 }
 
+/**
+ * The heights the core vocabulary draws at one step of the control height ladder: every token of `documents` whose
+ * rule is `{ "fn": "mul", "of": "{<ns>.sys.control.height.<step>}", "by": 1 }` (with or without a `min`) or whose value
+ * is that step itself, and every token whose value is an alias of one (transitively), each with its step. In the
+ * default system each is as tall as its step, or as the minimum target where it is floored: one height per size name.
+ * @param {object[]} documents DTCG documents of the core vocabulary (as `targetFloors` reads them)
+ * @returns {Record<string, string>} token id → step name
+ */
+export function ladderReaders(documents) {
+  const STEP = new RegExp(`^\\{${CONFIG.namespace}\\.sys\\.control\\.height\\.([a-z-]+)\\}$`);
+  const steps = new Map();
+  const aliases = new Map();
+  const walk = (node, path) => {
+    if (!node || typeof node !== 'object') return;
+    if ('$value' in node) {
+      const id = path.join('.');
+      const rule = node.$extensions?.['dev.tanrei.derive'];
+      const step = (rule?.fn === 'mul' && rule.by === 1 && rule.times === undefined && rule.round === undefined && typeof rule.of === 'string' && rule.of.match(STEP)?.[1]) || (typeof node.$value === 'string' && node.$value.match(STEP)?.[1]);
+      if (step) steps.set(id, step);
+      else if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) aliases.set(id, node.$value.slice(1, -1));
+      return;
+    }
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) walk(child, [...path, key]);
+  };
+  for (const doc of documents) walk(doc, []);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [id, target] of aliases) {
+      if (steps.has(target) && !steps.has(id)) {
+        steps.set(id, steps.get(target));
+        grew = true;
+      }
+    }
+  }
+  return Object.fromEntries([...steps].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+}
+
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
 export const PRESET_CRITERIA_NOTE =
   "An imitation preset is held to fidelity to the system it imitates, not to Tanrei's accessibility criteria, in every contrast scheme. These are measurements against the fixed thresholds, kept as information: they are not warnings and not mimicry gaps.";
@@ -678,19 +715,6 @@ export function auditInvariants(model) {
     }
   }
 
-  // One height per size name. A stacked input box — the box that draws no label inside it, the only look the default
-  // system ships — is as tall as a Button of the same size, so that an input and a Button set side by side in one row
-  // stand as tall as each other. Held in the default system: a preset keeps its original's fields, and says so in its
-  // own layer.
-  if (model.system === CONFIG.namespace) {
-    for (const size of ['small', 'medium', 'large']) {
-      const [boxId, buttonId] = [`${CONFIG.namespace}.comp.input-box.stacked.container.height.${size}`, `${CONFIG.namespace}.comp.button.container.height.${size}`];
-      const [box, button] = [model.tokens[boxId]?.value?.value, model.tokens[buttonId]?.value?.value];
-      if (typeof box !== 'number' || typeof button !== 'number') failures.push(`${short(boxId)} and ${short(buttonId)} must both be dimensions: a stacked input box is as tall as a Button of the same size`);
-      else if (box !== button) failures.push(`${short(boxId)}: ${box}px, but a stacked input box is as tall as a Button of the same size — ${short(buttonId)} is ${button}px; alias it, { "$value": "{${buttonId}}" }`);
-    }
-  }
-
   // The target floor. sys.target.minimum is the least height (and width, for an icon-only control) anything a person
   // presses is drawn at, and pointer and touch the least areas a press is taken from: none of them under WCAG 2.5.8's
   // 24px, a hit area never under what is drawn, and a density above zero. Every height the core floors at the minimum
@@ -711,6 +735,22 @@ export function auditInvariants(model) {
     for (const id of [...floored].sort()) {
       const value = model.tokens[id]?.value?.value;
       if (typeof value === 'number' && value < minimum) failures.push(`target size: ${id.slice(CONFIG.namespace.length + 1)}: ${value}px < sys.target.minimum ${minimum}px (a box a person presses is drawn at least the minimum target; derive it with "min": "${MIN}", or lower the minimum)`);
+    }
+  }
+
+  // One height per size name. Every height the core draws at a step of the control height ladder (`model.ladder`,
+  // `ladderReaders`) is as tall as that step — or as the minimum target, where the core floors it — so that controls
+  // of one size set side by side in one row stand as tall as each other: a stacked input box and a Button, a tree's
+  // small row and a menu's. Held in the default system: a preset keeps its original's heights, and says so in its own
+  // layer.
+  if (model.system === CONFIG.namespace && model.ladder) {
+    const floored = new Set(model.floored ?? []);
+    for (const [id, step] of Object.entries(model.ladder)) {
+      const [value, height] = [model.tokens[id]?.value?.value, px(`sys.control.height.${step}`)];
+      if (typeof value !== 'number' || typeof height !== 'number') continue;
+      const held = floored.has(id) && typeof minimum === 'number' && minimum > height;
+      const expected = held ? minimum : height;
+      if (value !== expected) failures.push(`${short(id)}: ${value}px, but a control of the ${step} size is as tall as sys.control.height.${step} (${height}px)${held ? `, held at sys.target.minimum (${minimum}px)` : ''} — read the step, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.${step}}", "by": 1${floored.has(id) ? `, "min": "{${CONFIG.namespace}.sys.target.minimum}"` : ''} }`);
     }
   }
 

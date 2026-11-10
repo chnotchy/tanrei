@@ -500,7 +500,11 @@ test.describe('layout', () => {
     }
     // A tab that fills is at least the minimum target wide, and the row scrolls when it is too narrow for that.
     await mountFixtures(page, spec, { fixtures: [fixture('many', 'abcdefghijklmnop'.split('').map((c) => t(c, `${c} tab`)), { fullWidth: true })] });
+    // The default system's target (36) is narrower than a tab's indicator; a system with a larger target (a platform
+    // guideline's 44) is where the target sets the least width.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
+    expect(target).toBe(44);
     expect((await bounds(tabAt(page, 'many', 0))).width).toBeCloseTo(target, 0);
     expect(await track(page, 'many').evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     // Under m3-like, whose track.padding is nothing, the first tab starts at the row's edge.
@@ -793,6 +797,9 @@ test.describe('layout', () => {
       if (unit.part === 'the box') {
         const { id, n, form } = unit;
         await mountFixtures(page, spec, { icons: true });
+        // In the default system a circle's tab is the circle wide (its 36 target is narrower); under a larger target (a
+        // platform guideline's 44) the tab is wider than its circle, and the box is still the circle, not the tab.
+        if (form === 'circle') await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
         const inset = await resolveToken(page, T('track-padding'));
         const [whole, c] = [await bounds(tabAt(page, id, n)), await seat(page, id, n)];
         // The box: the row less track.padding above and below, centred in the tab.
@@ -1486,15 +1493,15 @@ test.describe('concentric at every size', () => {
     return { outer, seats, circle, pitch, inset };
   };
 
-  test('TAB-35: the two-icon row with a fine pointer — a 92 by 48 track, two 40 circles 4 apart with a 24 glyph at each centre, centres 24 and 68 from the start, each hit area half the track; the second-selected fixture is its mirror image and the secondary one has the same geometry in its thumb’s color', async ({ page }) => {
+  test('TAB-35: the two-icon row in the default system — an 88 by 48 track, two 40 circles touching with a 24 glyph at each centre, centres 24 and 64 from the start, each hit area half the track, for every input (the 36 target is narrower than a circle); the second-selected fixture is its mirror image and the secondary one has the same geometry in its thumb’s color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     const a = await twoIcons(page, 'primary-two-icons', target);
-    // The table's numbers, in the default system.
-    expect([a.outer.width, a.outer.height, a.circle, a.pitch]).toEqual([92, 48, 40, 44]);
-    expect(a.seats.map((c) => c.x + 20 - a.outer.x)).toEqual([expect.closeTo(24, 1), expect.closeTo(68, 1)]);
-    expect(a.seats[1].x - (a.seats[0].x + 40)).toBeCloseTo(4, 1);
-    expect(a.outer.width / 2).toBe(46);
+    // The table's numbers, in the default system: a tab is its circle wide, as the target (36) is narrower.
+    expect([a.outer.width, a.outer.height, a.circle, a.pitch]).toEqual([88, 48, 40, 40]);
+    expect(a.seats.map((c) => c.x + 20 - a.outer.x)).toEqual([expect.closeTo(24, 1), expect.closeTo(64, 1)]);
+    expect(a.seats[1].x - (a.seats[0].x + 40)).toBeCloseTo(0, 1);
+    expect(a.outer.width / 2).toBe(44);
     const b = await twoIcons(page, 'primary-two-icons-second-selected', target);
     const c = await twoIcons(page, 'secondary-two-icons', target);
     for (const other of [b, c]) {
@@ -1512,11 +1519,14 @@ test.describe('concentric at every size', () => {
     await expect.poll(async () => (await drawn(page, 'primary-two-icons', 0)).pill).toBe(await resolveColor(page, T('primary-selected-active-indicator-color')));
   });
 
-  test('TAB-35: the two-icon row with touch input — a 96 by 48 track, two 40 circles 8 apart, centres 24 and 72 from the start, each hit area 48 by 48', async ({ page, browserName }) => {
+  test('TAB-35: the two-icon row with touch input under a 48 touch target — a 96 by 48 track, two 40 circles 8 apart, centres 24 and 72 from the start, each hit area 48 by 48', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium can emulate a coarse pointer (touch emulation over CDP)');
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
+    // A system whose touch target is larger than a circle (a platform guideline's 48): each tab is that wide.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     await touchInput(page, browserName);
     const target = await resolveToken(page, '--tanrei-sys-target-touch');
+    expect(target).toBe(48);
     for (const id of ['primary-two-icons', 'primary-two-icons-second-selected', 'secondary-two-icons']) {
       const a = await twoIcons(page, id, target);
       expect([a.outer.width, a.outer.height, a.circle, a.pitch], id).toEqual([96, 48, 40, 48]);
@@ -1539,7 +1549,8 @@ test.describe('concentric at every size', () => {
     const seats = [await seat(page, id, 0), await seat(page, id, 1)];
     const circle = seats[0].width;
     const travel = seats[1].x - seats[0].x;
-    expect([circle, travel]).toEqual([expect.closeTo(40, 1), expect.closeTo(await resolveToken(page, '--tanrei-sys-target-pointer'), 1)]);
+    // One tab's width: the circle, or the target where that is wider (40 in the default system, whose target is 36).
+    expect([circle, travel]).toEqual([expect.closeTo(40, 1), expect.closeTo(Math.max(40, await resolveToken(page, '--tanrei-sys-target-pointer')), 1)]);
     // The slide: every frame held is the circle, between the two places.
     await tabAt(page, id, 1).click();
     const xs: number[] = [];
@@ -1783,7 +1794,9 @@ test.describe('the track and the drag', () => {
 
   test('TAB-28: the look changes continuously with the pointer, with no threshold — a circle widens into a capsule, nothing jumps where two tabs meet — and a frame of a tap’s slide is the frame a drag draws at that place (TAB-17)', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-single-characters', 'primary'), reducedMotion: false });
-    await override(page, { [T('motion-state-duration')]: '0s' });
+    // A target wider than a circle (a platform guideline's 44), so that a circle and its neighbour's capsule meet
+    // between tabs wider than their circles; in the default system (36) each such tab is its circle.
+    await override(page, { [T('motion-state-duration')]: '0s', '--tanrei-sys-target-pointer': '44px' });
     const id = 'primary-single-characters';
     const seats = await Promise.all([0, 1, 2, 3].map((n) => seat(page, id, n)));
     const [cL, cCustom, meet] = [await centreX(page, id, 2), await centreX(page, id, 3), await meetX(page, id, 2, 3)];
@@ -2311,6 +2324,9 @@ test.describe('states, press, corners and focus style', () => {
 
   test('TAB-5: a tab is at least the minimum target wide in layout — pointer, and touch for a coarse pointer — and a row lower than the target is not made taller', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { fixtures: [fixture('many', 'abcdefghijklmnopqrstuvwxyz'.split('').map((c) => t(c, ''))), ...spec.fixtures.filter((f) => ['primary-single-characters', 'primary-small-single-characters'].includes(f.id))] });
+    // The default system's target (36) is narrower than a tab's least indicator; a system whose targets are larger (a
+    // platform guideline's 44 and 48) is where the target sets a tab's least width.
+    await override(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const id of ['primary-single-characters', 'primary-small-single-characters']) {
       const count = await tabs(page, id).count();
@@ -2452,7 +2468,8 @@ test.describe('states, press, corners and focus style', () => {
     // The ripple is the container's: wherever on the tab the press lands — its corner, outside the container — the layer
     // is the container's box, clipped to its shape, growing from the nearest point of it.
     await mountFixtures(page, spec, { fixtures: EARLIER, icons: true });
-    await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'ripple' });
+    // Under a target wider than the container (a platform guideline's 44) a tab's corner lies outside its container.
+    await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'ripple', '--tanrei-sys-target-pointer': '44px' });
     const whole = await bounds(tabAt(page, 'primary-icon-only', 1));
     await page.mouse.move(whole.x + 1, whole.y + 1);
     await page.mouse.down();
@@ -3586,7 +3603,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     }
   });
 
-  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 32 tall with a 24 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 48 and 40; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
+  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 36 tall (the minimum target) with a 28 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 48 and 40; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
@@ -3601,7 +3618,8 @@ test.describe('variants, the track, sizes and the transition', () => {
       glyph: await resolveToken(page, T(`icon-size-${size}`)),
     });
     const [small, medium] = [await of('small'), await of('medium')];
-    expect([small.height, medium.height]).toEqual([32, 48]);
+    // The small row is held at the default system's minimum target (36).
+    expect([small.height, medium.height]).toEqual([36, 48]);
     for (const [id, size] of [['primary', medium], ['tonal-no-track', medium], ['primary-small', small], ['tonal-small-no-track', small]] as const) {
       const [r, p, tabBox, text] = [await bounds(track(page, id)), await pill(page, id, 0), await bounds(tabAt(page, id, 0)), await bounds(label(page, id, 0))];
       expect([r.height, tabBox.height, p.height], id).toEqual([expect.closeTo(size.height, 1), expect.closeTo(size.height, 1), expect.closeTo(size.height - 2 * inset, 1)]);
@@ -3617,7 +3635,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     // The same label style, gap and track at both sizes.
     for (const property of ['font-size', 'line-height', 'font-weight', 'letter-spacing']) expect(await css(label(page, 'primary-small', 0), property), property).toBe(await css(label(page, 'primary', 0), property));
     expect(await css(track(page, 'primary-small'), 'background-color')).toBe(await css(track(page, 'primary'), 'background-color'));
-    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 32.
+    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 36.
     for (const id of ['primary-small-icons', 'secondary-small-icons']) {
       const [i, l] = [await bounds(icon(page, id, 0)), await bounds(label(page, id, 0))];
       expect(i.x + i.width, id).toBeLessThanOrEqual(l.x + 0.5);
@@ -3668,6 +3686,9 @@ test.describe('variants, the track, sizes and the transition', () => {
   test('TAB-5: a small row answers a press just above and just below it, in line with a tab, without being taller; a control under the row keeps its own press, and so does a press that selects text', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-small', 'tonal-small-no-track', 'primary') });
     await wire(page);
+    // The default system's small row is the minimum target (36) tall and reaches nothing; a system whose pointer target
+    // is taller (a platform guideline's 48) is where its hit area reaches above and below it.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const id of ['primary-small', 'tonal-small-no-track']) {
       const stage = page.locator(`[data-fixture="${id}"]`);
@@ -3678,7 +3699,7 @@ test.describe('variants, the track, sizes and the transition', () => {
         (el.querySelector('#under') as HTMLElement).addEventListener('click', () => ((window as any).pressedUnder = ((window as any).pressedUnder ?? 0) + 1));
       });
       const r = await bounds(track(page, id));
-      expect(r.height).toBeCloseTo(32, 1);
+      expect(r.height).toBeCloseTo(36, 1);
       const reach = (pointer - r.height) / 2;
       expect(reach).toBeGreaterThanOrEqual(5);
       const x = (n: number) => centreX(page, id, n);
@@ -3720,13 +3741,15 @@ test.describe('variants, the track, sizes and the transition', () => {
     }
     expect(await log(page)).toEqual(['activity:activity', 'settings:settings', 'activity:activity', 'settings:settings']);
     // TAB-34: a small row of circles — the end tabs end at the track's edge, and a press just beyond it is theirs.
-    await mountFixtures(page, spec, { icons: true, fixtures: only('primary-small-icon-only') });
+    // Under a 44 pointer target (a platform guideline's; the default system's is 36), set before the row is drawn.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('primary-small-icon-only'), lead: '<style>:root { --tanrei-sys-target-pointer: 44px; }</style>' });
+    const wide = 44; // the platform guideline's pointer target this part was written for (the default system's is 36)
     const circles = 'primary-small-icon-only';
     const [edge, firstTab, lastTab, firstSeat] = [await bounds(track(page, circles)), await bounds(tabAt(page, circles, 0)), await bounds(tabAt(page, circles, 2)), await seat(page, circles, 0)];
     expect([firstTab.x, lastTab.x + lastTab.width]).toEqual([expect.closeTo(edge.x, 1), expect.closeTo(edge.x + edge.width, 1)]);
-    expect(firstTab.width).toBeLessThan(pointer - 1);
+    expect(firstTab.width).toBeLessThan(wide - 1);
     expect(firstSeat.x - edge.x).toBeCloseTo(await resolveToken(page, T('track-padding')), 1);
-    const lacks = pointer - lastTab.width;
+    const lacks = wide - lastTab.width;
     await page.mouse.click(edge.x + edge.width + lacks - 1, edge.y + edge.height / 2);
     expect(await selectedValue(page, circles)).toBe('settings');
     await page.mouse.click(edge.x - lacks + 1, edge.y - 3);
@@ -4132,10 +4155,13 @@ test.describe('vertical', () => {
 
   test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every container are the tab less track.padding all round', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'vertical-small', 'vertical-secondary') });
+    // In the default system a small tab is the minimum target (36) tall; a system whose pointer target is larger (a
+    // platform guideline's 44) is where a column's small tabs grow to it.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const [inset, padMedium, padSmall, medium, small, target] = await Promise.all(
       [T('track-padding'), T('container-padding-inline-medium'), T('container-padding-inline-small'), T('container-height-medium'), T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)),
     );
-    // Small is lower than the minimum target: in a column its tabs are the target tall, not 32.
+    // Small is lower than that target: in a column its tabs are the target tall, not 36.
     expect(small).toBeLessThan(target);
     for (const [id, height, pad] of [[V, Math.max(medium, target), padMedium], ['vertical-small', Math.max(small, target), padSmall], ['vertical-secondary', Math.max(medium, target), padMedium]] as const) {
       const all = await boxes(page, id);

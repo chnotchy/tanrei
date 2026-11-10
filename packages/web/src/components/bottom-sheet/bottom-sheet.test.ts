@@ -1147,7 +1147,7 @@ test.describe('the header and the close button', () => {
     expect(seen.join('\n')).toMatch(/divider-visibility "sometimes" is not a value of the bottom sheet/);
   });
 
-  test('BSH-29: while closable, an icon-only small Button (32 × 32) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant and whatever dismissible says; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('BSH-29: while closable, an icon-only small Button (36 × 36 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant and whatever dismissible says; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const props of [{}, { variant: 'standard' }, { dismissible: false }] as Fixture['props'][]) {
       const name = JSON.stringify(props);
@@ -1160,7 +1160,7 @@ test.describe('the header and the close button', () => {
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
       await expect.poll(() => paint(page), name).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
       const box = await bounds(close(page).locator('button'));
-      expect([box.width, box.height], name).toEqual([32, 32]);
+      expect([box.width, box.height], name).toEqual([36, 36]); // the small Button, held at the minimum target
       await expect(host(page).getByRole('button', { name: 'Close sharing' }), name).toHaveCount(1);
       await close(page).locator('button').click();
       expect(await log(page), name).toEqual(['close:close']);

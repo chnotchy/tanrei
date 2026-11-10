@@ -107,7 +107,7 @@
             "$description": "The container's height, per size, and the width of an icon-only button at its default width.",
             "small": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -291,7 +291,7 @@
             "$description": "Vertical padding. Heights are minimums, so this only shows when the label wraps or text is enlarged.",
             "small": {
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {

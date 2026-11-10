@@ -88,7 +88,7 @@
       ],
       "default": "medium",
       "axis": "tanrei.comp.pagination.size",
-      "description": "An item's height (32 / 40 under the default system, never drawn below sys.target.minimum). small is for a dense place, such as the status line of a compact table. The hit area always meets the minimum target. A design system may add sizes."
+      "description": "An item's height (36 / 40 under the default system, never drawn below sys.target.minimum). small is for a dense place, such as the status line of a compact table. The hit area always meets the minimum target. A design system may add sizes."
     },
     {
       "name": "firstLast",
@@ -246,7 +246,7 @@
     {
       "id": "PGN-12",
       "text": "THE pagination SHALL lay its items out in one row at the start edge of its box, comp.pagination.gap apart, each item the container height of its size high (comp.pagination.container.height.medium for medium, and so on) and at least as wide, a page's number centred in it with comp.pagination.container.padding-inline on each side where the number is wider than the square, and each control's arrow centred in its square; it SHALL NOT wrap the row.",
-      "verify": "Under the default system: medium items 40 high and 40 wide for one digit, 4 apart; small items 32."
+      "verify": "Under the default system: medium items 40 high and 40 wide for one digit, 4 apart; small items 36."
     },
     {
       "id": "PGN-13",
@@ -282,7 +282,7 @@
     {
       "id": "PGN-20",
       "text": "WHERE the visual size of an item is below the minimum target THE pagination SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size and without overlapping the hit area of its neighbour beyond the gap between them; a platform that cannot tell the input type SHALL use sys.target.touch.",
-      "verify": "Under the default system a small item is 32 high and its hit area sys.target.touch (48) for touch."
+      "verify": "Under the default system a small item is 36 high, the minimum target, and its hit area is what it draws (sys.target.touch is 36); under a layer that sets sys.target.touch to 48 its hit area is 48 high for touch."
     },
     {
       "id": "PGN-21",

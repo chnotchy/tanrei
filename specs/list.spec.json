@@ -113,7 +113,7 @@
         "compact"
       ],
       "default": "regular",
-      "description": "How much room an item takes: the least height of an interactive item, a link item and an option and the padding above and below its content, and the density of every List row that is an item's direct child (LST-51). regular (a 48 item in the default system) is for a product used by touch as well as by pointer; compact (a 32 item, the tree view's compact row) is for a tool used with a pointer, where many items are looked through. For touch an item is never lower than the touch target in either (LST-11). The paddings at the start and the end, the gap and the text style are not changed. A design system may add values.",
+      "description": "How much room an item takes: the least height of an interactive item, a link item and an option and the padding above and below its content, and the density of every List row that is an item's direct child (LST-51). regular (a 48 item in the default system) is for a product used by touch as well as by pointer; compact (a 36 item, the tree view's compact row) is for a tool used with a pointer, where many items are looked through. For touch an item is never lower than the touch target in either (LST-11). The paddings at the start and the end, the gap and the text style are not changed. A design system may add values.",
       "axis": "tanrei.comp.list.density"
     },
     {
@@ -612,7 +612,7 @@
     {
       "id": "LST-51",
       "text": "THE list SHALL draw its items at its density. WHILE density is regular an interactive item, a link item and an option SHALL be at least comp.list.container.height.regular tall and padded by comp.list.container.padding-block.regular above and below (LST-8); WHILE density is compact at least comp.list.container.height.compact tall and padded by comp.list.container.padding-block.compact. A static item draws no box of its own and is not changed. THE list SHALL tell a List row that is an item's direct child (LST-48) the list's density, before the row is first drawn in the item and again WHEN density changes, and the row SHALL draw at that density in place of its own (LRW-17), so that the rows of one list are of one density. WHEN density names a value the active design system does not have THE list SHALL draw the default density's items and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the list is shown THE list SHALL draw the new items at once, without a motion, keeping focus and the selection.",
-      "verify": "Fixture density-compact under the default system: with a mouse every option holding a one-line row is 40 high (the row's compact one-line height), an option of plain text 32; under touch emulation every option is 48. A List row with density regular in a compact list is drawn compact."
+      "verify": "Fixture density-compact under the default system: with a mouse every option holding a one-line row is 40 high (the row's compact one-line height), an option of plain text 36, the minimum target; under touch emulation every option is at least 36, and 48 under a layer that sets sys.target.touch to 48. A List row with density regular in a compact list is drawn compact."
     },
     {
       "id": "LST-52",
@@ -667,7 +667,7 @@
       "A reorderable list holds static items only, and is never a listbox: an action, a link or an option is taken by a press that a drag would take. What a reorderable item may hold besides its content: the product's own controls, such as a button that removes the item; the list keeps focus in the list when the item with focus is removed (LST-46).",
       "The four move words and the three sentences are the product's, with places to fill. The product writes the sentence, so the order of the words is its language's; the list fills in a name and two numbers and builds no phrase of its own. In a line, the product says \"Move left\" and \"Move right\" (or the reverse in a right-to-left language) where a column says \"Move up\" and \"Move down\".",
       "A wrapping list is still one list in one order: it is read, tabbed through and counted line by line in the reading direction, and a move to another line is a move to another place in that order.",
-      "WCAG 2.5.8 (target size): for touch every interactive item, link item and option is at least the touch target high in both densities (LST-11). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its items reach across the list's whole width. A product that cannot accept that uses regular."
+      "WCAG 2.5.8 (target size): for touch every interactive item, link item and option is at least the touch target high in both densities (LST-11). In the default system a compact item is held at the minimum target, which the pointer target aliases; under a system whose pointer target is taller the compact density is lower than it for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its items reach across the list's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.list",

@@ -844,6 +844,10 @@ test.describe('the keys', () => {
 test.describe('targets and disabled', () => {
   test('MBR-17: a title’s hit area reaches the minimum target on both axes without changing what is drawn; two neighbours’ hit areas meet at the middle of the gap and never overlap; a title narrower than the target is given the room by moving its neighbours apart', async ({ page }) => {
     await mountFixtures(page, spec);
+    // In the default system the target (36) is lower and narrower than a title's container (40 high, a short title
+    // 43 wide), so nothing reaches; a system whose targets are 48 (a platform guideline) is where a title reaches them
+    // and a short one is given the room.
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
     const [gap, pointer, touch, height] = [await resolveToken(page, T('bar-gap')), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('container-height'))];
     const coarse = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
     const target = coarse ? touch : pointer;

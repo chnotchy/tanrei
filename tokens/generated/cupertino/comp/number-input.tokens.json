@@ -29,7 +29,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space0}",
-            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row, so two 40 buttons stand 8 apart and two that are 48 or wider touch."
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 40 button is wider than the target, so the two touch; under a 48 target they would stand 8 apart."
           },
           "inset": {
             "$type": "dimension",

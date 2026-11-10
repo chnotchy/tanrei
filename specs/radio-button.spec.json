@@ -184,7 +184,7 @@
     {
       "id": "RAD-21",
       "text": "THE radio button SHALL take at least comp.radio-button.option.min-height of height in layout, the container centered in it; at its default, sys.target.touch, radio buttons stacked with no space between them keep whole targets that do not overlap, and a layer that lowers it accepts shared target area.",
-      "verify": "Stack three options with no gap and check that each option's hit area is its own 48 and that a press on a boundary selects exactly one option; then lower the token in a test layer and check that the options pack to it."
+      "verify": "Stack three options with no gap: under the default system each is its 40 container high (the token, sys.target.touch, is 36); under a layer whose sys.target.touch is 48 check that each option's hit area is its own 48 and that a press on a boundary selects exactly one option; then lower the token in a test layer and check that the options pack to it."
     },
     {
       "id": "RAD-22",

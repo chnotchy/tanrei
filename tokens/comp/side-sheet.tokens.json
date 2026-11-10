@@ -232,7 +232,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space200}",
-            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap and comp.dialog.actions.gap do."
+            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap and comp.dialog.actions.gap do."
           },
           "arrangement": {
             "$type": "number",

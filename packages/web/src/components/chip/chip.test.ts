@@ -251,7 +251,18 @@ test.describe('behavior', () => {
     expect(await css(page, 'action-outlined', 'transition-property')).not.toContain('outline');
   });
 
+  /** A system whose targets are larger than the default system's 36: a platform guideline's 44 and 48. */
+  const raiseTargets = (page: Page) =>
+    rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
+
   test('CHP-5: the chip’s hit area meets sys.target.pointer on both axes while the chip keeps its size', async ({ page }) => {
+    // In the default system a medium chip is drawn at the target (36, held at the minimum), so its hit area is what it
+    // draws, and the small chip (24) reaches it.
+    const own = await resolveToken(page, '--tanrei-sys-target-pointer');
+    expect((await bounds(inner(page, 'action-outlined'))).height).toBe(own);
+    expect((await bounds(inner(page, 'action-small'))).height).toBeLessThan(own);
+    // Under larger targets both sizes reach them.
+    await raiseTargets(page);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const [id, size] of [['action-small', 'small'], ['action-outlined', 'medium']] as const) {
       const box = await bounds(inner(page, id));
@@ -804,6 +815,9 @@ test.describe('behavior', () => {
   });
 
   test('CHP-21: the remove hit area is at least the minimum target on both axes around its glyph, reaches toward the label no further than the gap, extends outward past the chip, and never covers the label; the rest of the chip activates the chip', async ({ page }) => {
+    // In the default system a medium chip's remove target (36) ends inside the chip's end, so it needs nothing
+    // outward; a larger target (a platform guideline's 44) is where it reaches past the chip.
+    await raiseTargets(page);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const [id, size] of [['input', 'medium'], ['input-small', 'small']] as const) {
       const remove = removeOf(page, id);

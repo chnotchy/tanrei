@@ -61,7 +61,7 @@
               "Restyle through these tokens in a layer; never fork the component.",
               "Each look's state-layer.color is the color hover, focus and press mix into a tab: the plain look's aliases its label color, and the selected look's its covered label color, because on the selected tab the state is drawn over the active indicator, whose content that is.",
               "Hover, press and keyboard focus are drawn at the active indicator's size and place on the tab — a capsule or a circle in the default system — never on the tab's rectangle. The whole tab still answers the pointer. container.shape rounds that box; keep it equal to active-indicator.shape.",
-              "Size is the row's height and what must shrink with it (padding, the indicator's margins, the icon); the label's style, the track's inset, every color and every motion are the same at every size. Medium (48) is the row of a screen's views; small (32) stands in a header or a toolbar beside small buttons. A small row is still pressed over the minimum target: its hit area reaches above and below it.",
+              "Size is the row's height and what must shrink with it (padding, the indicator's margins, the icon); the label's style, the track's inset, every color and every motion are the same at every size. Medium (48) is the row of a screen's views; small (36 in the default system, the minimum target) stands in a header or a toolbar beside small buttons. Where a system's target is taller than a small row, the row's hit area reaches above and below it.",
               "Variant, track, size and transition are four independent decisions: every variant is drawn with and without its track, at every size, with and without the travel. Do not make a variant imply one of the others in a layer.",
               "The tonal variant's active indicator is a layer, not a tone: in the default system the color of the selected label at the selected layer (sys.state.selected-state-layer-opacity, 16 %), laid over whatever is beneath it, so that it is seen by the same step on the track, on a page and on a filled card. selected.active-indicator.color names the tonal container, which a design system may draw as it is where its tonal container stands apart from its surfaces; do not pick a surface tone for it without measuring it against every surface a row may stand on, in both themes.",
               "motion.transition and track.visible are choices of kind, not values to imitate: do not shorten indicator-duration to stop the travel, and do not make track.color transparent to hide the track of one row — set the choice, or the prop."
@@ -97,7 +97,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, as tall as the touch target. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; its hit area reaches above and below it to the minimum target.",
+            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, 48 in the default system. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; where a system's target is taller than it, its hit area reaches above and below it to the target.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product puts a row of tabs at the top of a screen's content, where it is as tall as a finger needs, and another in the header of a card, a figure or a toolbar beside a title and small buttons, where a row that tall would make the header taller than what it heads.",
@@ -106,7 +106,7 @@
             },
             "small": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {

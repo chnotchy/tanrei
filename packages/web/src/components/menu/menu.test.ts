@@ -1297,8 +1297,9 @@ test.describe('items', () => {
       return { height, padBlock, padInline, gap, icon, mark };
     };
     const [regular, small] = [await tokens('regular'), await tokens('compact')];
-    // The default system's compact row: the tree view's, 32 high with 20 glyphs, 8 from its edges.
-    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    // The default system's compact row: the small step of the control heights, held at the minimum target — 36 high
+    // with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([36, 20, 20, 8]);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const drawnRow = async (id: string, label: string) => {
       const r = rowOf(labelled(page, id, label));
@@ -1313,7 +1314,8 @@ test.describe('items', () => {
     const cut = await drawnRow('density-compact', 'Cut');
     const cutRegular = await drawnRow('density-regular', 'Cut');
     expect(cut.height).toBeCloseTo(Math.max(small.height, small.padBlock * 2 + 20), 1);
-    expect(cut.height).toBeLessThan(pointer);
+    // In the default system the compact row is held at the minimum target, which the pointer target aliases.
+    expect(cut.height).toBeCloseTo(pointer, 1);
     expect(cut.icon).toBe(small.icon);
     expect(cut.padInline).toBe(small.padInline);
     expect(cutRegular.height).toBeCloseTo(Math.max(regular.height, pointer), 1);
@@ -1338,8 +1340,10 @@ test.describe('items', () => {
     // A change is drawn at once.
     await menu(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
     await expect.poll(async () => (await drawnRow('density-regular', 'Cut')).height).toBeCloseTo(cut.height, 1);
-    // MNU-12: for touch a compact row is the touch target.
+    // MNU-12: for touch a compact row is the touch target — seen under a system whose touch target (48) is taller than
+    // the compact row, as the default system's (36) is not.
     if (browserName !== 'chromium') return;
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });

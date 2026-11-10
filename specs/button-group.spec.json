@@ -221,7 +221,7 @@
     {
       "id": "BGR-4",
       "text": "WHILE variant is standard and the hit areas that two neighbouring items extend (BTN-5) overlap THE button group SHALL give every press on an item's visible bounds to that item, and a press in the gap between two items to the nearer one, so that neighbouring hit areas meet at the middle of the gap. comp.button-group.standard.gap is what keeps each item's target whole there: at sys.target.touch minus an item's width (in a row) or height (in a column) or more, no hit areas overlap and every item keeps its full target between its neighbours, as the default system's gap does for every Button size; a layer that narrows the gap narrows the targets between items.",
-      "verify": "Under the default system comp.button-group.standard.gap is 16, sys.target.touch (48) minus the narrowest and lowest item, a small icon-only Button (32): in standard-icon-only every item's hit area is at least 48 wide and 48 high, in order-three-runs-vertical every item keeps 48 high between its neighbours, and Android's touch-target check (48 dp, an error for the default system) passes on each of them."
+      "verify": "Under the default system comp.button-group.standard.gap is 0, sys.target.touch (36) minus the narrowest and lowest item, a small icon-only Button (36), so the items touch: in standard-icon-only every item's hit area is at least 36 wide and 36 high, and in order-three-runs-vertical every item keeps 36 high between its neighbours. Under a layer whose targets are 48 and whose gap is 8, a press in the gap goes to the nearer item and no hit area reaches over a neighbour's visible bounds."
     },
     {
       "id": "BGR-5",
