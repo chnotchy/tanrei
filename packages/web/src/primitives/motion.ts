@@ -296,21 +296,28 @@ export function startFromNextFrame(motions: readonly Animation[], { leaving = fa
 }
 
 /**
- * Plays a motion held at its start from the frame being drawn: its start time is that frame's time, so it stands at its
- * start in this frame and runs from there, with nothing left pending. `play()` would leave it waiting for the engine to
- * give it a start time, and from a frame's callbacks (a frame callback or a resize observer's report) Chromium never
- * gave one to a motion it had already been waiting for when it was held — begun in an earlier task, or played in an
- * earlier frame, with no frame drawn since: the motion stood at its start, pending, for good (a menu item's colors,
- * begun by the key that moved focus off it and held by the next key, which opened a submenu before a frame was drawn).
- * Its current time is then written 0 again: Firefox gives a page the timeline's time coarsened, a few hundredths of a
- * millisecond before its own, and a start time taken from it had the motion that far in (an opacity of 1.5e-8, not 0).
- * Where the timeline has no time it is played as usual.
+ * Plays a held motion on from where it is held, dated from the frame being drawn (in a task, the frame drawn last): its
+ * start time is that frame's time less the time it is held at, so it stands there in this frame and runs from there,
+ * with nothing left pending. `play()` would leave it waiting for the engine to give it a start time, and from a frame's
+ * rendering steps (a frame callback, a resize observer's report, or an input event Chromium sends there: a pointer's
+ * moves, its entering and leaving) Chromium never gave one to a motion it had already been waiting for when it was
+ * held — begun or played in an earlier task, or in an earlier frame, with no frame drawn since — where it was held at
+ * the time that wait began: the motion stood there, pending, for good (a menu item's colors, begun by the key that moved
+ * focus off it and held by the next key, which opened a submenu before a frame was drawn; a line's text, played on when
+ * focus left it and held when focus came back before a frame was drawn). Every motion that the component holds and
+ * plays on goes through here. The current time is written last: Firefox gives a page the timeline's time coarsened, a
+ * few hundredths of a millisecond before its own, and a start time taken from it alone had the motion that far in (an
+ * opacity of 1.5e-8, not 0). Where the timeline has no time, or the motion no current time, it is played as usual.
  */
-function playFromThisFrame(animation: Animation) {
+export function playFromThisFrame(animation: Animation): void {
   const now = animation.timeline?.currentTime;
-  if (now === null || now === undefined) return animation.play();
+  const held = animation.currentTime;
+  if (now === null || now === undefined || held === null) {
+    animation.play();
+    return;
+  }
   animation.startTime = now;
-  animation.currentTime = 0;
+  animation.currentTime = held;
 }
 
 /**
