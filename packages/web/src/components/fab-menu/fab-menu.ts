@@ -25,7 +25,7 @@ import { AXES, itemStyles, menuStyles } from './fab-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
-import { startFromNextFrame } from '../../primitives/motion.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** FBM-11: the glyph of the system's icon set the open toggle draws — the spec's name, not a value. */
 const CLOSE_GLYPH = 'close';
@@ -165,14 +165,6 @@ export class TanreiFabMenuItem extends TanreiElement {
   /** @internal Whether the FAB menu shows it. */
   get entered(): boolean {
     return this.appear.open;
-  }
-
-  /**
-   * @internal FBM-21: the motions of its states — its container's colors and elevation, and its icon's and label's —
-   * not of its appearance, which `.appear` carries. Asking brings style up to date.
-   */
-  get stateMotions(): Animation[] {
-    return this.container?.getAnimations({ subtree: true }) ?? [];
   }
 
   /** Enter activates on key-down and Space on key-up, as a native button does. */
@@ -640,25 +632,12 @@ export class TanreiFabMenu extends TanreiElement {
       if (this.openForm !== this.presented) {
         if (this.openForm) this.show();
         else this.hide();
-        this.stateFromNextFrame();
+        // FBM-19, FBM-21: the toggle's turn (its colors, elevation and corners, the glyphs' cross-fade) and the colors
+        // of the item focus moved to begin in the first frame drawn after this task (statesFromNextFrame).
+        statesFromNextFrame([this]);
       }
     }
     this.sync();
-  }
-
-  /**
-   * FBM-19, FBM-21: what the open or the closed state begins in this task — the toggle's turn (its colors, elevation and
-   * corners, the glyphs' cross-fade) and its state's colors, and the colors of the item focus moves to — begins in the
-   * first frame drawn after it, as the items' appearance does (`startFromNextFrame`, src/primitives/motion.ts). WebKit
-   * dates a transition begun in a task from the frame drawn before that task: where opening the menu took longer than
-   * those motions last (the items placed and rendered on a loaded machine), the toggle was drawn turned and the first
-   * item focused at once, with no frame of either. A motion already under way (past its start) goes on as it is. They
-   * are played in that frame even where a page clock holds frame callbacks (`leaving`): the turn ends only once its
-   * cross-fade has played, so it must not stand at its start for as long as a clock is held.
-   */
-  private stateFromNextFrame() {
-    const motions = [...(this.toggleButton?.getAnimations({ subtree: true }) ?? []), ...this.items.flatMap((item) => item.stateMotions)];
-    startFromNextFrame(motions.filter((animation) => Number(animation.currentTime ?? 0) === 0), { leaving: true });
   }
 
   /**

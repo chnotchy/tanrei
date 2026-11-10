@@ -35,6 +35,7 @@ import {
 import '../button/button.js';
 import { AXES, styles } from './side-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiSideSheetVariant = 'standard' | 'modal' | (string & {});
@@ -529,6 +530,9 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     this.layout();
     this.onViewport();
     this.focusInside();
+    // SSH-2: what the open state began inside it — the colors of what took focus — begins in the first frame drawn after
+    // this task, as its entrance does (statesFromNextFrame).
+    statesFromNextFrame([this]);
   }
 
   /** SSH-2, SSH-3: out of the top layer (sliding from where it is drawn), the page given back, focus back where it was. */

@@ -54,6 +54,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import { AXES, groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
 import type { TanreiMenuDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 import { PointerMovedController } from '../../primitives/pointer-moved.js';
 import { DelegatedAriaWriter, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
@@ -1846,7 +1847,11 @@ export class TanreiMenu extends TanreiElement {
     this.placeFocus(() => this.focusItem(first, submenu, focus !== 'key'));
   }
 
-  /** Moves focus as the menu's own doing (MNU-1, MNU-43), which closes no submenu of the surface focus lands in. */
+  /**
+   * Moves focus as the menu's own doing (MNU-1, MNU-43), which closes no submenu of the surface focus lands in. It moves
+   * in the task that opens the menu or a submenu: the colors of the item that takes focus, and those of the item that
+   * leaves it, begin in the first frame drawn after that task, as the surface's entrance does (`statesFromNextFrame`).
+   */
   private placeFocus(move: () => void) {
     this.placing = true;
     try {
@@ -1854,6 +1859,7 @@ export class TanreiMenu extends TanreiElement {
     } finally {
       this.placing = false;
     }
+    statesFromNextFrame([this]);
   }
 
   /**

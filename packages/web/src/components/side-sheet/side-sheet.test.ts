@@ -8,7 +8,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
@@ -623,6 +623,15 @@ test.describe('forms, focus and dismissal', () => {
       document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="opener">Open</button>');
       document.querySelector('main')!.insertAdjacentHTML('beforeend', '<button id="after">After</button>');
     });
+
+  test('SSH-2, SSH-3: opened at the end of a task that outlasts its motions, a modal sheet slides in and the element marked for focus takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
+    // marked control's state motion lasts, the control was drawn focused at once, with no frame of its colors changing.
+    await mount(page, [fx('s', { open: false, variant: 'modal' }, '<tanrei-button id="marked" autofocus>Apply</tanrei-button>')]);
+    await opener(page);
+    await tabTo(page, page.locator('#opener'));
+    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-side-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened');
+  });
 
   test('SSH-1: a standard sheet takes its width at the end of the row while open and none while closed, sliding while the content beside it resizes (enter and exit motion, at once where reduced); no scrim, no trap, Tab leaves it open, Escape and drags are ignored', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'standard', open: false }, '<button id="inside">Inside</button>')]);

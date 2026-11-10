@@ -9,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import { motionCount, motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain } from '../../../test/mounted-open.js';
 import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -862,34 +862,23 @@ test.describe('behavior', () => {
     // menu whose opening took longer than its motions last drew the toggle turned and its first item focused at once,
     // with no frame of either (the default system in right-to-left took about 200 ms to open in a four-CPU Linux
     // container, against a state motion of 250 ms; a CI runner took longer). The task here is held for longer than those
-    // motions, and the frame drawn after it is read in its frame callback.
+    // motions, and the frame drawn after it is read in its frame callbacks (heldTaskFrame, test/motions.ts).
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
     await wire(page);
-    type Seen = { begun: string[]; at: string[] };
-    const firstFrame = (open: boolean) =>
-      host(page, 'menu').evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, open) => {
-        el.open = open;
-        await el.updateComplete;
-        const toggle = el.shadowRoot!.querySelector('.toggle')!;
-        const first = el.querySelector('tanrei-fab-menu-item')!.shadowRoot!.querySelector('.container')!;
-        const name = (on: string, animation: Animation) => `${on} ${((animation.effect as KeyframeEffect).target as Element).classList[0]} ${(animation as CSSTransition).transitionProperty}`;
-        const motions = () => [...toggle.getAnimations({ subtree: true }).map((a) => ['toggle', a] as const), ...first.getAnimations({ subtree: true }).map((a) => ['item', a] as const)];
-        const begun = motions();
-        const end = performance.now() + Math.max(0, ...begun.map(([, a]) => Number(a.effect!.getComputedTiming().endTime))) + 200;
-        while (performance.now() < end);
-        return new Promise<Seen>((resolve) =>
-          requestAnimationFrame(() => resolve({ begun: begun.map(([on, a]) => name(on, a)).sort(), at: motions().map(([on, a]) => `${name(on, a)} at ${Math.round(Number(a.currentTime))} ms`).sort() })),
-        );
-      }, open);
     for (const open of [true, false]) {
-      const seen = await firstFrame(open);
-      const what = open ? 'opened' : 'closed';
       // What the change begins: the toggle's colors and corners, its glyphs' cross-fade, and the first item's colors.
-      expect(seen.begun, `${what}: the toggle turns`).toEqual(expect.arrayContaining(['toggle toggle background-color', 'toggle toggle border-top-left-radius', 'toggle glyph opacity']));
-      expect(seen.begun, `${what}: the first item's colors change`).toContain('item container background-color');
-      expect(seen.at, `${what}: every motion it began stands at its start in the first frame drawn after the task`).toEqual(seen.begun.map((motion) => `${motion} at 0 ms`));
+      await expectFromNextFrame(
+        host(page, 'menu'),
+        `(el) => { el.open = ${open}; }`,
+        ['tanrei-fab-menu button.toggle background-color', 'tanrei-fab-menu button.toggle border-top-left-radius', 'tanrei-fab-menu span.glyph opacity', 'tanrei-fab-menu-item div.container background-color'],
+        open ? 'opened' : 'closed',
+      );
       await expect.poll(() => toggle(page, 'menu').evaluate((el) => el.classList.contains('turning'))).toBe(false);
       await expect.poll(() => shown(page, 'menu')).toBe(open);
+      // Closed from rest, the items' exit is held too: one that turns their entrance round goes on from where it is,
+      // unheld (AppearController.exit, src/primitives/motion.ts), and an entrance staggered over its items can still
+      // run once the toggle has turned.
+      await motionEnded(page);
     }
   });
 
