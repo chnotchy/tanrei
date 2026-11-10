@@ -13,6 +13,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/segmented-button.tokens.json). A segment has two conditions — unselected
 // and selected — which are its state variants: each colors the container, label and icon (the check too)
@@ -398,13 +399,13 @@ export const segmentStyles = css`
     transition: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .lead,
     .glyphs > * {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .container.selected {
       forced-color-adjust: none;

@@ -14,6 +14,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/pagination.tokens.json). An item has two parts — a page or a control
 // (`item`) and the current page (`current`) — which are its state variants: each colors the container, the number and
@@ -241,12 +242,12 @@ export const styles = css`
   .item.still {
     transition: none;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .item,
     .glyph {
       transition: none;
     }
-  }
+  `)}
 
   /* PGN-21: the person's own colors — the numbers, the arrows and the sentence in the text color (the link color for a
      link), the current page in the highlight colors, a disabled control in the disabled text color. The focus ring is

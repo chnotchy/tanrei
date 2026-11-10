@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/button-with-menu.tokens.json). The button with menu owns its tokens:
 // they carry Button's values by default but are its own, so a system can style its buttons with menu apart from its buttons.
@@ -432,14 +433,14 @@ export const styles = css`
     transition-duration: var(${P}-motion-hover-close-delay);
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     button,
     .turn,
     .glyph-open,
     .divider::before {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .divider::before,
     :host([disabled]) .divider::before {

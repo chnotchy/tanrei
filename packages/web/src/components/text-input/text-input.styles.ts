@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json) or the text input's own
 // (tokens/comp/text-input.tokens.json). The input draws the box and what is in it, and
@@ -1045,7 +1046,7 @@ export const styles = css`
   }
 
   /* TXI-14: where motion is reduced, the label and the states change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .field,
     .container,
     .input,
@@ -1063,7 +1064,7 @@ export const styles = css`
     .indicator {
       transition: none !important;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .container {
       border: 1px solid FieldText;

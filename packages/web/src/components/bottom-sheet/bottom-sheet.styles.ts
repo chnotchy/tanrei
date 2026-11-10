@@ -3,6 +3,7 @@ import { appearStyles, dividerVisibilityHost, focusRing, modalExitStyles, sheetS
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/bottom-sheet.tokens.json). Both forms read the same container tokens: the
 // scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is a
@@ -214,7 +215,7 @@ export const styles = css`
 
   /* BSH-1: where motion is reduced a standard sheet fades in and out in place, without sliding, over
      sys.motion.role.reduced (MOT-6), as a modal one does (above). */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .sheet.standard {
       transition:
         opacity var(--tanrei-sys-motion-role-reduced) ${t('motion-exit-easing')},
@@ -229,7 +230,7 @@ export const styles = css`
       translate: 0 var(--_drag, 0px);
       opacity: 0;
     }
-  }
+  `)}
 
   /* BSH-12: the drag handle's row — the box centred across the sheet, handle.margin-block above and below it; it stays
      in place while the content scrolls, and a drag on it is always the sheet's. */

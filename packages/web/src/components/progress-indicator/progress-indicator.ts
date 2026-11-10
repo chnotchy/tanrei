@@ -39,7 +39,7 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  *
  * The host is the progressbar (`role="progressbar"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and
  * `aria-valuetext` from `value-text` while determinate; `aria-busy="true"` and no value while indeterminate). It is
- * never focusable and never announces a change by itself. Under `prefers-reduced-motion: reduce` a value change shows
+ * never focusable and never announces a change by itself. Where motion is reduced a value change shows
  * at once and the indeterminate form pulses in place; off screen, its animation is paused.
  *
  * @tag tanrei-progress-indicator

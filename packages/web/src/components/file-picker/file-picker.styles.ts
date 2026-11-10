@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/file-picker.tokens.json). One thing answers a pointer: the drop area
 // (hovered and pressed; never focused — keyboard focus is on the trigger, FPK-15). It paints from that state's tokens;
@@ -255,7 +256,7 @@ export const styles = css`
     display: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .area,
     .outline rect,
     .icon,
@@ -263,7 +264,7 @@ export const styles = css`
     .area .supporting {
       transition: none;
     }
-  }
+  `)}
 
   /* FPK-23: forced colors remove every fill. The edge and the texts take the text color; a receiving area has an edge
      twice as wide, solid, in the highlight color, and a refusing one its block glyph, so neither rests on a fill;

@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
-import { AvailabilityController, OpenAxesController, Settle, documentPainted, parseValues, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, Settle, documentPainted, motionReduced, parseValues, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
 import { TanreiElement, focusKept } from '../../primitives/element.js';
@@ -34,7 +34,6 @@ const isContent = (node: Node) => node.nodeType === Node.ELEMENT_NODE || (isText
 const sameOrder = (a: readonly Node[], b: readonly Node[]) => a.length === b.length && a.every((node, i) => node === b[i]);
 
 /** Whether motion is reduced for this person (TGR-10). */
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** TGR-10: where a member was laid out at the last look, from the list's corner and without its move, its size, and the line it stood on. */
 interface Place {
@@ -361,7 +360,7 @@ export class TanreiTagGroup extends TanreiElement {
     const loading = typeof document !== 'undefined' && document.fonts?.status === 'loading';
     // At a new width, direction or gap the members that fade are drawn as they will be, too.
     if (relaid) this.endPresence();
-    if (relaid || !before.size || !duration || loading || this.settle.settling || !documentPainted() || reducedMotion()) {
+    if (relaid || !before.size || !duration || loading || this.settle.settling || !documentPainted() || motionReduced()) {
       this.stopMoves();
       return;
     }

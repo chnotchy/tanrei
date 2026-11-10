@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/tabs.tokens.json). A tab has two looks in each variant: a tab
 // that is not selected reads the variant's own parts, the selected tab its `selected.` parts. How a state looks is the
@@ -240,14 +241,14 @@ export const tabsStyles = css`
      row reads through these two properties is what it reads where motion is reduced, so a new selection is drawn in one
      frame, a tab is brought into view at once and a drag lands at once. A tab's states keep their motion (the tab's own). */
   ${whenChosen(TRANSITION_PROPERTY, '.row', 'transition', 'none', (row) => `${row} .scroller {\n    animation-duration: 0s;\n  }\n  ${row} .tabs {\n    transition-duration: 0s;\n  }`)}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .scroller {
       animation-duration: 0s;
     }
     .tabs {
       transition-duration: 0s;
     }
-  }
+  `)}
   /* TAB-51: a column of tabs at the start edge, beside the panels, which take the rest of the row. The column is as wide
      as its widest tab (or as the product makes the tab list) and never wider than the row; it is as tall as the row,
      so that a row given a height holds its tabs in it and scrolls them (TAB-56). */
@@ -691,7 +692,7 @@ export const tabStyles = css`
   /* TAB-8: the content carries press-hold for PressController; it has no transition of its own. */
   ${pressHold('.content')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .tab,
     .box,
     .label,
@@ -700,7 +701,7 @@ export const tabStyles = css`
     .underline {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .cover,
     .underline {

@@ -2,6 +2,7 @@ import { type CSSResult, unsafeCSS } from 'lit';
 import { rippleStyles } from './ripple.js';
 import { conditionBlock, conditionStates, selectionContainerShape } from './selection.js';
 import type { StateSelector } from './states.js';
+import { reducedMotion } from '../styles/motion.js';
 
 /**
  * A row of a column of items (a list item, LST-*; a menu item, MNU-*): one box, `.row`, that carries the item's condition
@@ -71,12 +72,12 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
     fade: `${prefix}-motion-state-duration`,
     easing: `${prefix}-motion-state-easing`,
   })}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .row,
     ${painted} {
       transition: none;
     }
-  }
+  `)}
 `);
 }
 

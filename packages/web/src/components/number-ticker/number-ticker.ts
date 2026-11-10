@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AnimatedSize, AvailabilityController, DIRECTION_PROBE, DirectionController, compChoice, report } from '../../primitives/index.js';
+import { AnimatedSize, AvailabilityController, DIRECTION_PROBE, DirectionController, compChoice, motionReduced, report } from '../../primitives/index.js';
 import { ambientLocale, localeDirection, supportedLocale } from '../../primitives/locale-date.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { ANIMATIONS, ANIMATION_VALUES, CHOICE, COPIES, LIVE_VALUES, NOTATIONS, NUMBER_STYLES, SIGN_DISPLAYS, TRENDS, styles } from './number-ticker.styles.js';
@@ -55,7 +55,6 @@ const at = (p: number) => `translateY(${(-p * 100) / ROWS}%)`;
 const rest = (d: number) => 10 + d;
 /** How near a whole step a column reads while it stands there: within a fiftieth of a step (under a pixel at any text size a person reads). */
 const AT_REST = 0.02;
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const seconds = (value: string) => {
   const text = value.trim();
   const n = Number.parseFloat(text);
@@ -100,7 +99,7 @@ function watchLanguage(host: TanreiNumberTicker) {
  * A change moves each changed digit's column (`slide`), cross-fades it (`blur`, `blur-slide`) or turns it over as a
  * split-flap board (`flip`) over `comp.number-ticker.motion.duration`, every changed digit with the whole number by
  * default (`trend`); the width follows with the shared size transition (`AnimatedSize`). A change while one runs goes on
- * from what is drawn. Under `prefers-reduced-motion: reduce` the new number cross-fades in at once.
+ * from what is drawn. Where motion is reduced the new number cross-fades in at once.
  *
  * Assistive technology reads one text — `label`, then the number as written — and none of the drawn digits; with
  * `live="polite"` that text is a polite live region, written once each change has settled.
@@ -404,7 +403,7 @@ export class TanreiNumberTicker extends TanreiElement {
     this.written = written;
     digitsBox.style.direction = written.direction;
     const mode = this.mode();
-    const reduced = reducedMotion();
+    const reduced = motionReduced();
     const moving = animate && before !== null && was !== null && written.finite && before.finite && mode !== 'none' && !reduced && before.digits.join('') === written.digits.join('');
     if (!moving) {
       const fade = animate && reduced && before !== null && mode !== 'none';

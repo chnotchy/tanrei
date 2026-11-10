@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { focusGlow, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/one-time-code-input.tokens.json). A cell reads, for each state, that
 // state's tokens of its look — plain, or the `error.` parts while error is true — and never computes how a state looks:
@@ -294,7 +295,7 @@ export const styles = css`
   /* OTC-7: where the focus style is glow, the glow around the active cell (no ring ever). */
   ${focusGlow((focus) => (focus === ':focus-visible' ? ACTIVE : `.field[data-focus-style='glow'][data-focused] .cell[data-active]`))}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .cell,
     .cell::before,
     .mark {
@@ -303,7 +304,7 @@ export const styles = css`
     .caret {
       animation: none;
     }
-  }
+  `)}
 
   /* OTC-26: with forced colors an edge around every cell in the control text color, the focused width in the highlight
      color around the active cell; characters, marks and the caret in the text color; a disabled field in the disabled

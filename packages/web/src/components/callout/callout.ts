@@ -18,6 +18,7 @@ import {
   giveTone,
   giveVariant,
   hostAria,
+  motionReduced,
   report,
   returnFocus,
   SETTLING,
@@ -85,7 +86,6 @@ const followerEdge = (host: HTMLElement): number => {
   return parent ? parent.getBoundingClientRect().bottom : 0;
 };
 
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Text as it is read: one run, its white space collapsed. */
 const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/gu, ' ').trim();
@@ -454,7 +454,7 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
    */
   private prepareMotion(): 'open' | 'close' | null {
     const states = this.internals?.states;
-    if (!states || !this.isConnected || this.empty || this.hidden || reducedMotion() || this.hasAttribute(SETTLING)) return null;
+    if (!states || !this.isConnected || this.empty || this.hidden || motionReduced() || this.hasAttribute(SETTLING)) return null;
     const motion = this.open ? 'open' : 'close';
     try {
       // Closing, it stays drawn while it moves (callout.styles.ts) — before anything reads a style: an `open="false"`

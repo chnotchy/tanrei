@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeTrackStyles } from '../../primitives/index.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 /** The sizes every design system has; a layer may add more. The variant is not a token axis: the forms are drawn here. */
 export const CORE_SIZES = RANGE_SIZES;
@@ -57,7 +58,7 @@ export const styles = [
     /* PRG-7: under reduced motion (a value change shows at once: the shared drawing) the indeterminate form stands
        still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track
        that does not move. */
-    @media (prefers-reduced-motion: reduce) {
+    ${reducedMotion(css`
       .bar.indeterminate .indicator {
         inset-inline-start: 0;
         inline-size: 100%;
@@ -73,7 +74,7 @@ export const styles = [
       .ring.indeterminate .spin {
         animation: none;
       }
-    }
+    `)}
 
     /* PRG-14: off screen, nothing runs — over every animation above, the reduced-motion pulse included. */
     :host .paused .indicator,

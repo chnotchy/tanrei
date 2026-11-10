@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { directionProbeStyles, focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // What the shadow root draws: the navigation landmark, the ordered list, the separators and the overflow button
 // (tokens/comp/breadcrumbs.tokens.json). The levels themselves — the product's own anchors — are drawn by
@@ -208,11 +209,11 @@ export const styles = css`
   /* BRC-12, BRC-26: the direction it inherits, watched. */
   ${directionProbeStyles}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .overflow {
       transition: none;
     }
-  }
+  `)}
   /* BRC-24: the separators in the text color, the button's glyph in the button text color, focus in the highlight. */
   @media (forced-colors: active) {
     .separator {

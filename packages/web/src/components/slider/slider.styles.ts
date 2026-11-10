@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, conditionBlock, directionProbeStyles, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 /** The sizes every design system has; a layer may add more. */
 export const CORE_SIZES = ['small', 'medium', 'large'] as const;
@@ -478,7 +479,7 @@ export const styles = css`
   }
 
   /* SLD-11, SLD-14, SLD-16, SLD-17: where motion is reduced every change shows at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .root {
       --_vt: 0s;
       --_st: 0s;
@@ -487,7 +488,7 @@ export const styles = css`
     .root[data-value-indicator] .value-indicator {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .piece,
     .dot,

@@ -14,6 +14,7 @@ import { PressController, pressHold } from './press.js';
 import { RovingKeys } from './roving.js';
 import { SELECTION_STATES } from './selection.js';
 import { separationHost, syncSeparation, whenGap } from './separation.js';
+import { reducedMotion } from '../styles/motion.js';
 
 // A list of options that opens from a field (a select, SEL-24 … SEL-45; a combobox, which shares the field, the list
 // and the options and adds a text input). Three things are shared, and each is here once:
@@ -648,11 +649,11 @@ ${
      clip, never animated. Focus itself is on the field, so the row carries the mark (kf) and the focus style's name. */
   ${focusRing((focus) => (focus === ':focus-visible' ? '.row.kf' : ".row.kf[data-focus-style='glow']"), { inside: true })}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .check {
       transition: none;
     }
-  }
+  `)}
   /* Forced colors: an edge round the list, the active option in the highlight colors, a disabled option in the
      disabled text color; the chosen option is then shown by its check alone. */
   @media (forced-colors: active) {

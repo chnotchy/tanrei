@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/side-sheet.tokens.json). The sheet paints its panel per variant (standard or
 // modal: the color, elevation, start corners and start edge — `dev.tanrei.axes.variant.members`) and lays out its header,
@@ -318,13 +319,13 @@ export const styles = css`
   ${modalExitStyles('dialog')}
 
   /* SSH-1: where motion is reduced, a standard sheet opens and closes at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     :host(:not([variant='modal'])),
     :host(:not([variant='modal'])[open]) {
       transition-duration: 0s;
       transition-delay: 0s;
     }
-  }
+  `)}
 
   ${shape}
 

@@ -37,6 +37,7 @@ import {
   monthGrid,
   monthOf,
   monthYearText,
+  motionReduced,
   narrowWeekdays,
   numberText,
   parseIsoDate,
@@ -571,10 +572,6 @@ export class TanreiCalendar extends TanreiElement {
     return this.matches(':dir(rtl)');
   }
 
-  private get reducedMotion() {
-    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
   /** The axis the months move along, read from the cascade now (never cached). */
   private readAxis(): Axis {
     this.axis = compChoice(this, AXIS, AXES);
@@ -665,7 +662,7 @@ export class TanreiCalendar extends TanreiElement {
   /** Whether a month change can play: not where motion is reduced, the page motion is none, or the browser has no animation to keep its time. */
   private get canTravel(): boolean {
     const pages = this.pages;
-    if (!pages || this.reducedMotion || typeof pages.animate !== 'function') return false;
+    if (!pages || motionReduced() || typeof pages.animate !== 'function') return false;
     return this.pageMotion.duration > 0;
   }
 

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, appearStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/fab-menu.tokens.json). Each variant has three looks: the
 // closed toggle (its plain parts), the open toggle (`open.`) and the items (`item.`), each in every state. The component
@@ -265,13 +266,13 @@ export const menuStyles = css`
   }
   /* FBM-19: the list does not move; each item appears and leaves on its own (itemStyles). */
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .toggle,
     .toggle.turning,
     .glyph {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     /* The shadow is dropped in forced colors: an edge keeps the square visible. */
     .toggle {
@@ -325,11 +326,11 @@ const appearance = css`
   .appear.open {
     transition-delay: calc(var(--_order, 0) * ${t('motion-stagger')});
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .appear.open {
       transition-delay: 0s;
     }
-  }
+  `)}
   /* Drawn in place (a fixture's, FBM-13's verify) it is whole and never moves. Made whole at once by the controller, a
      box first drawn open in place in a document already painted would still play its entrance in WebKit, from the next
      frame on (as the menu's surface did). */
@@ -429,12 +430,12 @@ export const itemStyles = css`
   /* FBM-8 for an item: the label carries press-hold for PressController; it has no transition of its own. */
   ${pressHold('.label')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .icon {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .container {
       border: 1px solid CanvasText;

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { SCRIM_FILTER, appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/date-time-picker.tokens.json). The selectors have two conditions —
 // unselected and selected — which are their state variants: each colors the container, the label and the
@@ -179,12 +180,12 @@ export const styles = css`
       opacity: 0;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .surface.docked.entering,
     .surface.docked.leaving {
       animation: none;
     }
-  }
+  `)}
 
   /* DTM-10: the title row — the label at the start, the entry-mode tabs at the end — and, in a modal picker with a date,
      the pending value below it, header.gap apart, and the divider below the header. It grows with enlarged text; the
@@ -818,7 +819,7 @@ export const styles = css`
   }
 
   /* DTM-19, DTM-26, DTM-27, DTM-35: where motion is reduced every change is made at once (a modal surface still fades). */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .dial *,
     .selector,
     .range-field,
@@ -826,7 +827,7 @@ export const styles = css`
     .row {
       transition: none !important;
     }
-  }
+  `)}
 
   /* DTM-31: corner smoothing on the surface, the selectors, the range fields and the wheels' selection containers (data-tanrei-shape). */
   ${shape}

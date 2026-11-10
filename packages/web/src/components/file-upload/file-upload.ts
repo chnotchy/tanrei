@@ -15,6 +15,7 @@ import {
   CoalescedSync,
   countWork,
   missingValueMessage,
+  motionReduced,
   report,
 } from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
@@ -87,7 +88,6 @@ const BETWEEN = 'var(--tanrei-comp-list-gap-small)';
 const LEAVING = 'data-leaving';
 
 /** Whether motion is reduced for this person. */
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** FUP-29: every element in `roots` and in the shadow roots inside them that has an update still to draw. */
 function pendingUpdates(roots: readonly Element[]): Promise<unknown>[] {
@@ -1096,7 +1096,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** FUP-29: a change of the rows moves — not under reduced motion, and not while the file upload settles (MOT-3). */
   private get moves(): boolean {
-    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !motionReduced();
   }
 
   /**

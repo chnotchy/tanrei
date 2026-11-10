@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/card.tokens.json). For each state an interactive card reads that state's
 // tokens — it never computes how a state looks: hover, focus and press mix the variant's container with its
@@ -157,12 +158,12 @@ export const styles = css`
   /* CRD-8: the clip carries press-hold for PressController. */
   ${pressHold('.clip')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .outline {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .outline {
       border: var(--tanrei-comp-card-outline-width) solid CanvasText;

@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { groupItemReset, separationHost, whenGap } from '../../primitives/index.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 const PREFIX = '--tanrei-comp-button-group';
 const T = (name: string) => `var(${PREFIX}-${name})`;
@@ -217,12 +218,12 @@ export const styles = css`
   .divider.still::after {
     transition: none;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .divider::before,
     .divider::after {
       transition: none;
     }
-  }
+  `)}
   /* BGR-24: where a resting color is resolved; never drawn. */
   .probe {
     display: none;

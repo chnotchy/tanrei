@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import { reducedMotion } from '../../styles/motion.js';
 
 // The embedded text input draws the typing alone (ETI-1): the text, its placeholder, the caret and the selection, from
 // `comp.embedded-text-input` (tokens/comp/embedded-text-input.tokens.json). It has no container, fill, edge, corner,
@@ -59,11 +60,11 @@ export const styles = css`
     transition: block-size ${t('motion-resize-duration')} ${t('motion-resize-easing')};
   }
   /* ETI-9: where motion is reduced the height changes at once (the routine starts no motion either). */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .box[data-resizing] {
       transition: none;
     }
-  }
+  `)}
 
   /* ETI-1: the platform's own text element with no box of the platform's or of Tanrei's. */
   .input {

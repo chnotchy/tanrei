@@ -24,6 +24,7 @@ import {
   hostAria,
   linkAttributes,
   linkForm,
+  motionReduced,
   notifyItemUpdate,
   parseValues,
   placeFaults,
@@ -162,7 +163,6 @@ function itemOf(list: Element, event: Event): TanreiListItem | null {
 const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/g, ' ').trim();
 
 /** Whether motion is reduced for this person. */
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** LST-41: the time (in milliseconds) and the curve of one of the list's motions, as the cascade computes them. */
 interface Timing {
@@ -1439,7 +1439,7 @@ export class TanreiList extends TanreiElement {
     this.places = now;
     if (!moving.length) return;
     const { duration, easing } = this.motion();
-    if (!duration || reducedMotion()) return;
+    if (!duration || motionReduced()) return;
     for (const [item, dx, dy] of moving) {
       if (typeof item.animate !== 'function') continue;
       const motion = animateSafely(item, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }], { duration, easing });
@@ -1459,7 +1459,7 @@ export class TanreiList extends TanreiElement {
    * motion is reduced (LST-42).
    */
   private presenceTiming(): { resize: Timing; fade: Timing } | null {
-    if (!this.drawnOnce || reducedMotion() || this.hasAttribute(SETTLING)) return null;
+    if (!this.drawnOnce || motionReduced() || this.hasAttribute(SETTLING)) return null;
     const resize = this.motion('resize');
     const fade = this.motion('state');
     return resize.duration || fade.duration ? { resize, fade } : null;
@@ -1691,7 +1691,7 @@ export class TanreiList extends TanreiElement {
   /** LST-38: places every item but `skip` for the carried one landing at `target`, over the reorder motion (at once where motion is reduced). */
   private arrange(carry: Carry, skip: TanreiListItem | null) {
     const { duration, easing } = this.motion();
-    const still = !duration || reducedMotion();
+    const still = !duration || motionReduced();
     const offsets = this.offsets(carry, carry.target);
     for (const item of carry.items) {
       if (item === skip) continue;
@@ -1803,7 +1803,7 @@ export class TanreiList extends TanreiElement {
     // Settle into the gap: its place in the new order.
     const offsets = this.offsets(carry, target);
     const { duration, easing } = this.motion();
-    const still = !duration || reducedMotion();
+    const still = !duration || motionReduced();
     const own = offsets.get(item) ?? { x: 0, y: 0 };
     item.style.transition = still ? 'none' : `transform ${duration}ms ${easing}`;
     item.style.transform = `translate(${own.x}px, ${own.y}px)`;
@@ -1840,7 +1840,7 @@ export class TanreiList extends TanreiElement {
   /** Every item back to its laid-out place: over the reorder motion where `animated`, else at once. */
   private release(animated: boolean) {
     const { duration, easing } = this.motion();
-    const still = !animated || !duration || reducedMotion();
+    const still = !animated || !duration || motionReduced();
     for (const item of this.items) {
       if (!item.style.transform && !item.style.transition) continue;
       item.style.transition = still ? 'none' : `transform ${duration}ms ${easing}`;

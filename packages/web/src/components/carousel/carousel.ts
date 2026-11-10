@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, motionReduced, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -392,7 +392,7 @@ export class TanreiCarousel extends TanreiElement {
   private indicatorFits = true;
   /** CRL-31: the resting position nearest the indicator's position, from 0. */
   private current = 0;
-  /** CRL-34: `prefers-reduced-motion: reduce`, followed as it changes. */
+  /** CRL-34: whether motion is reduced (the person's setting or the product's, `motionReduced()`), followed as it changes. */
   private reducedMotion = false;
   /** CRL-38: whether the icon set can draw the playback glyphs. */
   private glyphReady = false;
@@ -408,7 +408,7 @@ export class TanreiCarousel extends TanreiElement {
    * does not come to rest within the frame.
    */
   private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.arrange());
-  private readonly motionQuery = typeof matchMedia === 'undefined' ? null : matchMedia('(prefers-reduced-motion: reduce)');
+  private stopWatchingMotion: (() => void) | null = null;
   /**
    * CRL-23: the row follows the direction it inherits, and a change of it while the page runs: the scroll offset and
    * where each item's content sits were written physically for the old direction, so the row is arranged again — the
@@ -486,8 +486,8 @@ export class TanreiCarousel extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.reducedMotion = this.motionQuery?.matches ?? false;
-    this.motionQuery?.addEventListener('change', this.onMotionChange);
+    this.reducedMotion = motionReduced();
+    this.stopWatchingMotion ??= watchMotionReduced(this.onMotionChange);
     this.documentHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden';
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('pointerup', this.onPointerUp, true);
@@ -501,7 +501,8 @@ export class TanreiCarousel extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.resize$?.disconnect();
-    this.motionQuery?.removeEventListener('change', this.onMotionChange);
+    this.stopWatchingMotion?.();
+    this.stopWatchingMotion = null;
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     window.removeEventListener('pointerup', this.onPointerUp, true);
     window.removeEventListener('pointercancel', this.onPointerUp, true);
@@ -1376,9 +1377,9 @@ export class TanreiCarousel extends TanreiElement {
   };
 
   /** CRL-34: reduced motion stops autoplay; when it stops being reduced, autoplay starts again with the time from zero. */
-  private readonly onMotionChange = (event: MediaQueryListEvent) => {
-    this.reducedMotion = event.matches;
-    if (!event.matches) {
+  private readonly onMotionChange = (reduced: boolean) => {
+    this.reducedMotion = reduced;
+    if (!reduced) {
       this.elapsed = 0;
       this.runningSince = null;
       this.stopClock();

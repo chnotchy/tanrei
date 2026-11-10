@@ -5,6 +5,7 @@ import { cornerRadius, shape } from '../styles/shape.js';
 import { arcStyles } from './arc.js';
 import type { OpenAxis } from './axes.js';
 import { separationHost, whenGap } from './separation.js';
+import { reducedMotion } from '../styles/motion.js';
 
 // A value on a track, drawn as a bar or a ring: the progress indicator's determinate form (PRG-1, PRG-3…6, PRG-11,
 // PRG-13, PRG-17) and the meter (MTR-1…6, MTR-10, MTR-12). Each component names its own tokens — the same members
@@ -252,11 +253,11 @@ export function rangeTrackStyles(prefix: `--${string}`, indicator = `var(${prefi
     )}
 
     /* Under reduced motion a value change shows at once. */
-    @media (prefers-reduced-motion: reduce) {
+    ${reducedMotion(css`
       .determinate .track,
       .determinate .indicator {
         transition: none;
       }
-    }
+    `)}
   `;
 }

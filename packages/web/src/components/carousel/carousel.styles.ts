@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { directionProbeStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/carousel.tokens.json). An item reads, per state, its content color,
 // opacity and corner shape, and its state layer — `item.state-layer.color` of the state at the system's state-layer
@@ -176,12 +177,12 @@ export const itemStyles = css`
   /* CRL-5: the clip carries press-hold for PressController. */
   ${pressHold('.clip')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .state-layer {
       transition: none;
     }
-  }
+  `)}
 `;
 
 const STATES = { '': '-r', hovered: '-h', focused: '-f', pressed: '-p' } as const;
@@ -502,7 +503,7 @@ export const carouselStyles = css`
   }
 
   /* CRL-14, CRL-18, CRL-22, CRL-30: at once where motion is reduced. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .scroller {
       animation-duration: 0s;
     }
@@ -511,7 +512,7 @@ export const carouselStyles = css`
     .navigation {
       transition: none;
     }
-  }
+  `)}
 
   @media (forced-colors: active) {
     .control,
