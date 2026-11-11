@@ -10,8 +10,9 @@ import { loadSystem } from '../src/scheme.js';
 
 const gaps = new Set(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'docs/governance/mimicry-gaps.json'), 'utf8')).gaps.map((g) => g.id));
 
-test('m3-like is measured', () => {
+test('m3-like and cupertino are measured', () => {
   assert.ok(fidelityMaps().includes('m3-like'));
+  assert.ok(fidelityMaps().includes('cupertino'));
 });
 
 for (const system of fidelityMaps()) {

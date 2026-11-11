@@ -1,0 +1,197 @@
+{
+  "$comment": "How the cupertino preset is measured against the figures Apple publishes in its Human Interface Guidelines. Every reference token in scope is MAPPED to something Tanrei resolves — and is then compared — or listed under a section's `outside` with the reason it lies outside what the preset reproduces. A mapped token that differs and is listed under `findings` is a measured difference awaiting a decision on the preset's value: it counts against the number, and the test fails once it is no longer true. `unpublished` names what cupertino sets for which Apple publishes no figure, so nothing there can be measured.",
+  "system": "cupertino",
+  "reference": "reference/apple-hig.json",
+  "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
+  "colors": {
+    "$comment": "apple.color.<name> is compared with tanrei.sys.color.<rename[name]> in light and dark. Apple's increased-contrast swatches are not in the reference: the harness compares the standard schemes only.",
+    "prefix": "apple.color.",
+    "rename": {
+      "blue": "primary",
+      "red": "error",
+      "green": "success",
+      "orange": "warning",
+      "cyan": "info"
+    },
+    "outside": [
+      {
+        "ref": "brown",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "indigo",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "mint",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "pink",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "purple",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "teal",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "yellow",
+        "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+      },
+      {
+        "ref": "gray*",
+        "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+      }
+    ]
+  },
+  "typescale": {
+    "$comment": "apple.typescale.<style>-<field> is compared with the Tanrei level `roles` names. An `-emphasized` weight is the level's weight plus its family's `emphasis.*` step.",
+    "prefix": "apple.typescale.",
+    "roles": {
+      "large-title": "display",
+      "title-1": "heading-1",
+      "title-2": "heading-2",
+      "title-3": "heading-3",
+      "headline": "heading-4",
+      "body": "body-large",
+      "callout": "body-callout",
+      "subhead": "body-subhead",
+      "footnote": "body-small",
+      "caption-1": "caption",
+      "caption-2": "caption-small"
+    },
+    "outside": [
+      {
+        "ref": "*-tracking",
+        "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+      }
+    ]
+  },
+  "values": {
+    "$comment": "apple.target.<platform>.<size> is compared with the Tanrei token its rule names.",
+    "prefix": "apple.target.",
+    "map": [
+      {
+        "ref": "ios.default",
+        "tanrei": "tanrei.sys.target.touch",
+        "note": "The least area a press is taken from under a finger."
+      },
+      {
+        "ref": "ios.minimum",
+        "tanrei": "tanrei.sys.target.minimum",
+        "note": "The least size a control is drawn at."
+      },
+      {
+        "ref": "macos.default",
+        "tanrei": "tanrei.sys.target.pointer",
+        "note": "The least area a press is taken from under a fine pointer: the Mac's figure."
+      }
+    ],
+    "outside": [
+      {
+        "ref": "macos.minimum",
+        "reason": "Tanrei has one least drawn size for every input (sys.target.minimum); cupertino takes the iOS figure, the larger of the two."
+      }
+    ]
+  },
+  "findings": [
+    {
+      "ref": "apple.color.blue",
+      "note": "primary is a tone of a palette seeded with #0a7aff (light tone 53, dark 60), not Apple's Blue in either appearance."
+    },
+    {
+      "ref": "apple.color.red",
+      "note": "error is a tone of a palette seeded with #f0382c, not Apple's Red."
+    },
+    {
+      "ref": "apple.color.green",
+      "note": "success is a tone of a palette seeded with #2fb84f, darker than Apple's Green in both appearances."
+    },
+    {
+      "ref": "apple.color.orange",
+      "note": "warning is a tone of a palette seeded with #f59a0b, much darker than Apple's Orange in both appearances."
+    },
+    {
+      "ref": "apple.color.cyan",
+      "note": "info is a tone of a palette seeded with #32a9e0, darker than Apple's Cyan in both appearances."
+    },
+    {
+      "ref": "apple.typescale.large-title-weight",
+      "note": "display is drawn at 700, Apple's emphasized Large Title weight; the style itself is Regular."
+    },
+    {
+      "ref": "apple.typescale.title-1-weight",
+      "note": "heading-1 is drawn at 700, Apple's emphasized weight; Title 1 is Regular."
+    },
+    {
+      "ref": "apple.typescale.title-2-weight",
+      "note": "heading-2 is drawn at 700, Apple's emphasized weight; Title 2 is Regular."
+    },
+    {
+      "ref": "apple.typescale.title-3-weight",
+      "note": "heading-3 is drawn at 600, Apple's emphasized weight; Title 3 is Regular."
+    },
+    {
+      "ref": "apple.typescale.large-title-emphasized-weight",
+      "note": "display 700 plus the display emphasis step 100 is 800; Apple's is Bold (700)."
+    },
+    {
+      "ref": "apple.typescale.title-1-emphasized-weight",
+      "note": "heading-1 700 plus the heading emphasis step 200 is 900; Apple's is Bold (700)."
+    },
+    {
+      "ref": "apple.typescale.title-2-emphasized-weight",
+      "note": "heading-2 700 plus the heading emphasis step 200 is 900; Apple's is Bold (700)."
+    },
+    {
+      "ref": "apple.typescale.title-3-emphasized-weight",
+      "note": "heading-3 600 plus the heading emphasis step 200 is 800; Apple's is Semibold (600)."
+    },
+    {
+      "ref": "apple.typescale.headline-emphasized-weight",
+      "note": "heading-4 600 plus the heading emphasis step 200 is 800; Apple's emphasized Headline stays Semibold (600)."
+    },
+    {
+      "ref": "apple.target.ios.default",
+      "note": "touch is 48, the value the preset kept from the root; Apple's default control size on iOS and iPadOS is 44 × 44 pt."
+    },
+    {
+      "ref": "apple.target.macos.default",
+      "note": "pointer is 44, the value the preset kept from the root; Apple's default control size on macOS is 28 × 28 pt."
+    }
+  ],
+  "unpublished": [
+    {
+      "tanrei": "tanrei.sys.shape.corner.*",
+      "note": "The Human Interface Guidelines publish no corner radius for an iOS, iPadOS or macOS control or container (the only figure is visionOS's: an alert's accessory view has a 16 pt corner radius)."
+    },
+    {
+      "tanrei": "tanrei.sys.shape.corner-smoothing",
+      "note": "Apple calls its corners continuous and publishes no figure for them; 0.6 is Figma's corner smoothing, not Apple's."
+    },
+    {
+      "tanrei": "tanrei.comp.*.container.height.*",
+      "note": "No iOS, iPadOS or macOS control height is published (Buttons gives sizes for visionOS only: mini 28, small 32, regular 44, large 52, extra large 64 pt). Only the target sizes above are."
+    },
+    {
+      "tanrei": "tanrei.sys.elevation.*",
+      "note": "No shadow offset, blur or opacity is published."
+    },
+    {
+      "tanrei": "tanrei.comp.*.pressed.opacity",
+      "note": "Buttons asks for a press state but publishes no figure for how much a pressed control dims."
+    },
+    {
+      "tanrei": "tanrei.sys.color.* (every role but primary, error, success, warning and info)",
+      "note": "Apple's semantic colors (labels, backgrounds, fills, separators) are published by name and API, without values; only the system colors and grays carry sRGB values."
+    },
+    {
+      "tanrei": "tanrei.sys.target.spacing",
+      "note": "Accessibility asks for \"about 12 points of padding around elements that include a bezel\" and about 24 without: an approximate padding around one element, not a spacing between targets. cupertino does not set it."
+    }
+  ]
+}
