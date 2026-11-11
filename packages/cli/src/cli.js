@@ -17,7 +17,7 @@ import { AUDITED_EXTENSIONS, auditContext, auditTexts } from '@tanrei/tokens-bui
 import { CATALOG_FILE, componentsManifest, readComponentCatalog } from '@tanrei/tokens-build/components-manifest';
 import { FONT_NOTE, fontLines, fontReport } from '@tanrei/tokens-build/fonts';
 import { glyphLines } from '@tanrei/tokens-build/glyphs';
-import { leadWithStructure } from '@tanrei/tokens-build/invariants';
+import { TARGET_THRESHOLDS, isRefusedEverywhere, leadWithStructure } from '@tanrei/tokens-build/invariants';
 import { buildIR } from '@tanrei/tokens-build/ir';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
 import { readSystemChain, resolveSystem, validateSystem } from '@tanrei/tokens-build/resolve';
@@ -152,8 +152,15 @@ async function validate(flags) {
   const resolved = await resolveSystem({ layerFile }, { validate: false });
   const fonts = fontReport(buildIR(await resolved.model()));
   for (const warning of fonts.warnings) console.warn(`⚠ ${warning}`);
-  // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already.
-  printWarnings(await resolved.warnings());
+  // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already, and what it
+  // refuses in a product layer too (a density of zero or less, a hit area under the drawn minimum) is a problem.
+  const warnings = await resolved.warnings();
+  const refused = warnings.filter(isRefusedEverywhere);
+  if (refused.length) {
+    console.error(`✖ ${refused.length} problem(s) \`tanrei build\` refuses in every layer:\n${refused.map((p) => `  - ${p}`).join('\n')}`);
+    return 1;
+  }
+  printWarnings(warnings);
   console.log(`✔ ${path.relative(process.cwd(), layerFile)} is a valid layer (${resolved.chain.map((l) => l.id).join(' → ')})`);
   return 0;
 }
@@ -203,6 +210,36 @@ async function explain(flags, [tokenId]) {
   return 0;
 }
 
+/** What `init` says a new layer can set first: the dials, and the three values that decide how big things are. */
+export function initGuide(parent) {
+  const ns = CONFIG.namespace;
+  // The dials as the vocabulary has them, read and never listed by hand.
+  const dials = [];
+  const walk = (node, at) => {
+    for (const [key, child] of Object.entries(node)) {
+      if (key.startsWith('$') || !child || typeof child !== 'object') continue;
+      if ('$value' in child) dials.push([...at, key].join('.'));
+      else walk(child, [...at, key]);
+    }
+  };
+  walk(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/dial/dial.tokens.json'), 'utf8'))[ns].dial, []);
+  const rows = [
+    [`${ns}.dial.size.unit`, 'the grid control heights and icon sizes sit on'],
+    [`${ns}.dial.density`, 'a plain number above 0, 1 in the core: below 1 draws controls and rows closer, above 1'],
+    ['', 'gives them more room (heights, block paddings, the gaps between rows; never text or corners)'],
+    [`${ns}.sys.target.minimum`, 'the least height anything a person presses is drawn at; no dial scales it.'],
+    ['', `${ns}.sys.target.pointer and .touch, the least areas a press is taken from, alias it`],
+    ['', 'in the core; a layer may set them higher, never lower'],
+  ];
+  const width = Math.max(...rows.map(([name]) => name.length)) + 3;
+  return `
+Start with the dials: ${dials.length} numbers every token is derived from (${ns}.dial.${dials.join(', ')}).
+Set one under "tokens" with { "$value": …, "reason": "…" }. How big things are is three values:
+${rows.map(([name, text]) => `  ${name.padEnd(width)}${text}`).join('\n')}
+A target under ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8) or a pressable height under the minimum is a warning; a density of 0 or
+less, or pointer or touch under the minimum, is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
+}
+
 function init([id], flags) {
   if (!id || !/^[a-z][a-z0-9-]*$/.test(id)) throw new Error('usage: tanrei init <id>   (lowercase letters, digits and hyphens)');
   const parent = typeof flags.extends === 'string' ? flags.extends : 'tanrei';
@@ -221,6 +258,7 @@ function init([id], flags) {
   fs.writeFileSync(layerFile, `${JSON.stringify(layer, null, 2)}\n`);
   fs.writeFileSync(CONFIG_FILE, `${JSON.stringify({ system: `design/${id}.system.json`, outputs: { tokens: `design/tokens/${id}`, web: 'src/styles' } }, null, 2)}\n`);
   console.log(`✔ wrote design/${id}.system.json and ${CONFIG_FILE}. Edit the layer, add the outputs you ship, then run \`tanrei build\`.`);
+  console.log(initGuide(parent));
   return 0;
 }
 
