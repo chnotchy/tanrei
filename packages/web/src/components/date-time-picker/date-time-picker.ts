@@ -79,7 +79,7 @@ import type { LinkedTabView, TanreiTabs } from '../tabs/tabs.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
-import { startFromNextFrame } from '../../primitives/motion.js';
+import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -2342,6 +2342,10 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.presenting = false;
       this.nextRing = null;
     }
+    // DTM-35: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
+    // after the opening task, as its entrance does (statesFromNextFrame). The focus moved in that task: the calendar's
+    // update it waited for is a microtask.
+    statesFromNextFrame([this]);
   }
 
   /** DTM-4: focus back where it was when the picker opened (the opener, then the anchor, when that is gone). */
@@ -2403,6 +2407,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     }
     if (restoreFocus && inside) this.returnFocus();
     this.returnTo = null;
+    // DTM-35: what closing began inside it — the colors of the day or the control that focus left — begins in the
+    // first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the frame drawn
+    // before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this]);
   }
 
   /** DTM-37: the element that opens a docked picker says it opens a dialog, whether it is open, and which. */

@@ -183,12 +183,23 @@ const press = async (page: P, keys: string[]) => {
 test.describe('presentation, focus and closing', () => {
   test('DTM-35: a docked picker opened at the end of a task that outlasts its motion grows in from the first frame drawn after that task, and closed the same way fades out from there', async ({ page }) => {
     // WebKit dates an animation begun in a task from the frame drawn before it: where opening took longer than the
-    // docked picker's entrance lasts, the picker was drawn whole at once, with no frame of it growing in.
+    // docked picker's entrance lasts, the picker was drawn whole at once, with no frame of it growing in. Closing also
+    // begins the colors of the day that focus leaves, which WebKit drew over at once about one time in six (Linux).
     await mount(page, [docked('d', { value: '2026-09-17' })]);
     await tabTo(page, opener(page, 'd'));
     await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = true; }', ['tanrei-date-time-picker div.surface docked-open'], 'opened');
     await motionEnded(page);
-    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = false; }', ['tanrei-date-time-picker div.surface docked-close'], 'closed');
+    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = false; }', ['tanrei-date-time-picker div.surface docked-close', 'tanrei-calendar span.box background-color'], 'closed');
+  });
+
+  test('DTM-35: a modal picker closed at the end of a task that outlasts its motion fades out from the first frame drawn after that task, and the colors of the day that focus leaves change from there', async ({ page }) => {
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    await tabTo(page, opener(page, 'm'));
+    await host(page, 'm').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    await expectFromNextFrame(host(page, 'm'), '(el) => { el.open = false; }', ['tanrei-calendar span.box background-color'], 'closed');
   });
 
   test('DTM-1: a modal picker opens as a modal dialog over the scrim, centred at least the margin from the edges, in its color, elevation and corners; everything else inert, the page held, focus kept inside', async ({ page }) => {
