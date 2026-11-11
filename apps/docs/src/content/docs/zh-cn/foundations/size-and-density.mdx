@@ -2,7 +2,7 @@
 title: 尺寸与密度
 description: 用一个数决定控件和行占多少空间，一组五级高度供控件的各个尺寸使用，任何可按下的东西都不会画得比最小尺寸更小，按钮组还会把尺寸传给其中的按钮。
 translationOf: foundations/size-and-density.mdx
-sourceHash: cda6be7d3de1653bdd528713c09823d8c8acf2bf
+sourceHash: d799891448855e1b29c2ef2aeec37a4132b1de22
 ---
 
 import DensityHeights from '../../../../components/tokens/DensityHeights.astro';
@@ -19,7 +19,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 跟随密度的高度都会取整到尺寸单位的网格上（`dial.size.unit`，默认 4px），正好居中时向上取整。
 
-没有按组件或按页面局部设置的密度。有几个承载行的组件（菜单、列表、树视图等）有一个自己的选项，名为 `density`，取值 `regular` 或 `compact`，用来在两组行令牌之间选择；两组的高度都跟随这个数。
+没有按组件或按页面局部设置的密度。有几个承载行的组件（菜单、列表等）有一个自己的选项，名为 `density`，取值 `regular` 或 `compact`，用来在两组行令牌之间选择；两组的高度都跟随这个数。
 
 ## 尺寸阶梯
 

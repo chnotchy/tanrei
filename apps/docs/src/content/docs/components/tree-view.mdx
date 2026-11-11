@@ -14,7 +14,7 @@ import Example from '../../../components/visuals/Example.astro';
 <ComponentAvailability name="tree-view" />
 
 <Example label="A file tree: open a folder by its row, or with the arrow keys">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Where the tokens live" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Where the tokens live" size="small" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>source of truth, edited by hand</small></bdi></span>
@@ -152,7 +152,7 @@ None of these fires for a change you make yourself.
 ## Specs
 
 <Example label="One item chosen: the row chooses, the chevron opens">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Every token" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Every token" selection="single" value="sys.color.primary" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>Reference</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
       <li data-open>
@@ -206,19 +206,19 @@ What a choice does is yours. Answer `change` to show the chosen file or the chos
 
 The tree draws the selected fill on the item's own row. It does not mark a parent because an item under it is selected, and it does not open a closed parent to show a selection. If the chosen item should be in view, set `data-open` on the parents above it: you know the path.
 
-### Density
+### Size
 
-| `density` | A row of one line | Use for |
+| `size` | A row of one line | Use for |
 | --- | --- | --- |
-| `regular` (default) | 48 | A product used by touch as well as by pointer. |
-| `compact` | 32 | A tool looked through with a pointer, and a small tree inside a page of text. |
+| `medium` (default) | 48 | A product used by touch as well as by pointer. |
+| `small` | 36 | A tool looked through with a pointer, and a small tree inside a page of text. |
 
-A compact row is lower than the pointer target. That is accepted because it is asked for by name and is never the default. For touch a row is the touch target high in both densities.
+A small row is held at the minimum target, 36 in the default system, and a row is never lower than the target at either size. Both heights follow the system's [density](/foundations/size-and-density/). A tree that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does.
 
 ### Chevron
 
 <Example label="chevron end: the mark after the value, as a menu draws it">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="end" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><bdi>src</bdi><span data-trailing-text>12</span></span>
@@ -239,7 +239,7 @@ A compact row is lower than the pointer target. That is accepted because it is a
 | `none` | Nowhere | Folders that show their state by their own glyph. |
 
 <Example label="chevron none: the folder glyph shows open and closed; the guides appear under the pointer">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="none" guides="hover" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -270,7 +270,7 @@ With `chevron="none"`, a parent whose icon names an open glyph (`data-open-icon=
 
 ### Icons and their room
 
-`icon-space="auto"` (the default) keeps an icon's room on a row without an icon while another row of its level has one, so that the labels of a level stand in one column. `always` keeps it on every row, and `never` only where there is an icon. `icon-gap` sets the room between the icon and the label in pixels; left `auto` it is the token `comp.tree-view.icon.gap`, the same in both densities.
+`icon-space="auto"` (the default) keeps an icon's room on a row without an icon while another row of its level has one, so that the labels of a level stand in one column. `always` keeps it on every row, and `never` only where there is an icon. `icon-gap` sets the room between the icon and the label in pixels; left `auto` it is the token `comp.tree-view.icon.gap`, the same at both sizes.
 
 ### Highlight
 
@@ -386,7 +386,7 @@ Everything is drawn before the script loads except the selected fill, which appe
 - The filter field is a search field named by `filter-label`, before the tree and a stop of its own, so the tree stays one stop. It says that it controls the tree and names no active descendant: the first match is read once Down Arrow moves focus to it. Its clear button is named by `filter-clear-label`.
 - The rows a filter hides are gone for assistive technology too, so every level, position and size a person hears is the filter's. Once typing pauses for a second, a status beside the tree says how many rows match, or that none does, politely and without moving focus: the one thing the tree ever announces. The count drawn at the top of the results is hidden from assistive technology, which hears the status instead.
 - A row that matches is not marked, so nothing is told by color alone, and the row's name stays its whole label.
-- An empty `label`, an item without a label, a label written as the row's own text, a control in a row, a value that names no item, two items with one value, an unknown `density`, `selection`, `chevron`, `guides`, `icon-space` or `highlight`, an `indent` or `icon-gap` that is not a number, a parent with no icon under `chevron="none"`, a field without `edit-label`, a filter field without `filter-label`, a clear button without a name and a `filter-shortcut` of more than one chord are reported in debug builds.
+- An empty `label`, an item without a label, a label written as the row's own text, a control in a row, a value that names no item, two items with one value, an unknown `size`, `selection`, `chevron`, `guides`, `icon-space` or `highlight`, an `indent` or `icon-gap` that is not a number, a parent with no icon under `chevron="none"`, a field without `edit-label`, a filter field without `filter-label`, a clear button without a name and a `filter-shortcut` of more than one chord are reported in debug builds.
 
 ### What you need to do
 

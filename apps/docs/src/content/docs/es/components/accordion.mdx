@@ -2,7 +2,7 @@
 title: Acordeón
 description: Contenido que una fila muestra y oculta sin salir de su lugar. Un solo elemento es un único desplegable; varios forman un conjunto cuyos elementos se abren cada uno por su cuenta o de uno en uno.
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: 4df43bed1d6395d0f95fef683745e6a1b6a6eb48
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -71,7 +71,7 @@ En la web es `<tanrei-accordion>` alrededor de tus propios elementos `<details>`
     import '@tanrei/web/icons.css';
     import '@tanrei/web/accordion.css';
 
-    <Accordion density="compact" exclusive>
+    <Accordion size="small" exclusive>
       {sections.map((section) => (
         <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
           <summary>
@@ -111,8 +111,8 @@ Un renderizador de Markdown deja pasar `<details>` tal cual, como HTML. Envuelve
 
 ## Especificaciones
 
-<Example label="Compact, con una segunda línea y un valor al final: pliegues en un panel">
-  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+<Example label="Small, con una segunda línea y un valor al final: pliegues en un panel">
+  <tanrei-accordion class="not-content tanrei-not-prose" size="small">
     <details open>
       <summary>Texto<span data-supporting-text>Cuerpo, etiquetas y títulos</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
       La pila de fuentes, en orden.
@@ -162,14 +162,14 @@ Leer un contenido cerrado cuesta una pulsación, y no se puede ver de un vistazo
 
 Ninguno de los dos aspectos rellena nada en reposo, y una cabecera conserva sus colores mientras su elemento está abierto. Que está abierto lo muestra únicamente el chevron.
 
-### Densidad
+### Tamaño
 
-| `density` | Una cabecera de una línea | Etiqueta | Úsalo para |
+| `size` | Una cabecera de una línea | Etiqueta | Úsalo para |
 | --- | --- | --- | --- |
-| `regular` (predeterminado) | 56 | 16 sobre un interlineado de 24, medium | Una página que se lee: preguntas, las secciones de un formulario largo. |
-| `compact` | 48 | 14 sobre 20, medium | Un panel entre controles: ajustes, un inspector, una tarjeta. |
+| `medium` (predeterminado) | 56 | 16 sobre un interlineado de 24, medium | Una página que se lee: preguntas, las secciones de un formulario largo. |
+| `small` | 48 | 14 sobre 20, medium | Un panel entre controles: ajustes, un inspector, una tarjeta. |
 
-Una cabecera crece con su texto. Una cabecera compact es la fila de un panel de navegación: la misma altura, el mismo estilo de texto y el mismo chevron.
+Una cabecera crece con su texto. Una cabecera `small` es la fila de un panel de navegación: la misma altura, el mismo estilo de texto y el mismo chevron. Las dos alturas siguen la [densidad](/es/foundations/size-and-density/) del sistema. Un acordeón que no fija `size` se dibuja con el tamaño que fija para su contenido un contenedor que lo rodea, y con `medium` donde ninguno lo fija. No pasa ningún tamaño a lo que contienen sus elementos: un acordeón dentro del contenido de un elemento tiene el suyo.
 
 ### Cómo distinguir los elementos
 
@@ -215,7 +215,7 @@ En la web, `exclusive` es el atributo `name` de `<details>`, que el elemento per
 - El foco nunca se mueve cuando se abre un elemento. Si un elemento se cierra con el foco dentro, el foco pasa a su cabecera.
 - El anillo de foco se dibuja dentro de la fila de la cabecera mientras el elemento está cerrado, y dentro del borde del elemento, alrededor de la cabecera y el contenido juntos, mientras está abierto, así que nada lo recorta.
 - La altura cambia con el movimiento de despliegue, y se dibuja de inmediato donde el movimiento está reducido.
-- Las dos densidades tienen al menos la altura del objetivo táctil.
+- Los dos tamaños tienen al menos la altura del objetivo táctil.
 - Con el texto al 200%, las etiquetas saltan de línea, las cabeceras crecen y el chevron se queda en la primera línea.
 - Con colores forzados, el borde y las líneas tienen el color del texto, y una cabecera deshabilitada tiene el color del texto deshabilitado.
 - Las compilaciones de depuración notifican una cabecera sin nombre, un control dentro de una etiqueta, un elemento sin contenido, un valor desconocido y más de tres niveles de anidamiento.

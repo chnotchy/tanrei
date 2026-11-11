@@ -2,7 +2,7 @@
 title: ツリービュー
 description: 開閉できる項目の階層です。行は段が深くなるごとに内側から始まり、ほかの項目を持つ行の先頭にはシェブロンが付きます。読んで開くだけのツリーにも、1 つまたは複数の項目を選ぶツリーにもなり、フォーカスが止まる位置は全体で 1 つです。
 translationOf: components/tree-view.mdx
-sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
+sourceHash: 1d9f126e6a6f45ff2adc017789b9960e3df7f130
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="tree-view" />
 
 <Example label="ファイルツリー：フォルダーは、行を押すか矢印キーで開く">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="トークンの置き場所" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="トークンの置き場所" size="small" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>手で編集する、信頼できる情報源</small></bdi></span>
@@ -154,7 +154,7 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 ## 仕様
 
 <Example label="1 つの項目を選ぶ：行で選び、シェブロンで開く">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="すべてのトークン" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="すべてのトークン" selection="single" value="sys.color.primary" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>リファレンス</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
       <li data-open>
@@ -208,19 +208,19 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 
 選択の塗りは、選ばれた項目自身の行に描きます。下位の項目が選ばれていても親に印は付けず、選択を見せるために閉じている親を開くこともしません。選ばれた項目を見える状態にしたいときは、その上の親に `data-open` を設定します。そこまでの経路を知っているのは利用者側です。
 
-### 密度
+### サイズ
 
-| `density` | テキストが 1 行の行の高さ | 用途 |
+| `size` | テキストが 1 行の行の高さ | 用途 |
 | --- | --- | --- |
-| `regular`（既定） | 48 | ポインターだけでなくタッチでも使うプロダクト。 |
-| `compact` | 32 | ポインターで見て回るツール、ページの文章の中に置く小さなツリー。 |
+| `medium`（既定） | 48 | ポインターだけでなくタッチでも使うプロダクト。 |
+| `small` | 36 | ポインターで見て回るツール、ページの文章の中に置く小さなツリー。 |
 
-compact の行は、ポインターのターゲットより低くなります。名前を指定して選ぶもので、既定にはならないため、これを認めています。タッチでは、どちらの密度でも行はタッチターゲットの高さになります。
+`small` の行は最小ターゲット（デフォルトシステムでは 36）で止まり、どちらのサイズでも行はターゲットより低くなりません。どちらの高さもシステムの[密度](/ja/foundations/size-and-density/)に従います。`size` を設定していないツリーは、まわりのコンテナが中身に設定したサイズで描かれ、どのコンテナも設定していなければ `medium` で描かれます。
 
 ### シェブロン
 
 <Example label="chevron end：メニューのように、値の後ろに印を置く">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="end" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><bdi>src</bdi><span data-trailing-text>12</span></span>
@@ -241,7 +241,7 @@ compact の行は、ポインターのターゲットより低くなります。
 | `none` | 置かない | 自分のグリフで開閉を示すフォルダー。 |
 
 <Example label="chevron none：フォルダーのグリフが開閉を示し、ガイドはポインターを重ねると現れる">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="none" guides="hover" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -272,7 +272,7 @@ compact の行は、ポインターのターゲットより低くなります。
 
 ### アイコンとその場所
 
-`icon-space="auto"`（既定）は、同じ段にアイコンを持つ行があるあいだ、アイコンのない行にもアイコンの場所を取り、段のラベルを 1 列にそろえます。`always` はすべての行で取り、`never` はアイコンのある行だけです。`icon-gap` はアイコンとラベルのあいだを px で決めます。`auto` のままなら、どちらの密度でも同じトークン `comp.tree-view.icon.gap` です。
+`icon-space="auto"`（既定）は、同じ段にアイコンを持つ行があるあいだ、アイコンのない行にもアイコンの場所を取り、段のラベルを 1 列にそろえます。`always` はすべての行で取り、`never` はアイコンのある行だけです。`icon-gap` はアイコンとラベルのあいだを px で決めます。`auto` のままなら、どちらのサイズでも同じトークン `comp.tree-view.icon.gap` です。
 
 ### ハイライト
 
@@ -388,7 +388,7 @@ tree.addEventListener('create', (event) => {
 - 絞り込みの入力欄は、`filter-label` を名前とする検索フィールドです。ツリーの前にある独立したフォーカスの止まる位置なので、ツリーは 1 つの止まる位置のままです。入力欄はツリーを操作することを伝え、アクティブな子孫は指しません。最初の一致は、下矢印でフォーカスが移ったときに読み上げられます。クリアボタンの名前は `filter-clear-label` です。
 - 絞り込みで隠した行は、支援技術からも消えます。そのため、聞こえる段、位置、数はどれも絞り込み後のものです。入力が 1 秒止まると、ツリーの横のステータスが、一致した行の数、または何も一致しないことを、フォーカスを動かさずに polite に伝えます。ツリーが読み上げるのはこれだけです。結果の先頭に描く件数は支援技術から隠し、代わりにステータスが伝えます。
 - 一致した行に印は付けないため、色だけで伝える情報はありません。行の名前はラベル全体のままです。
-- 空の `label`、ラベルのない項目、行に直接書いたラベル、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density`・`selection`・`chevron`・`guides`・`icon-space`・`highlight`、数値でない `indent`・`icon-gap`、`chevron="none"` でアイコンのない親、`edit-label` のない入力欄、`filter-label` のない絞り込みの入力欄、名前のないクリアボタン、2 つ以上の組み合わせを持つ `filter-shortcut` は、デバッグビルドで報告します。
+- 空の `label`、ラベルのない項目、行に直接書いたラベル、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `size`・`selection`・`chevron`・`guides`・`icon-space`・`highlight`、数値でない `indent`・`icon-gap`、`chevron="none"` でアイコンのない親、`edit-label` のない入力欄、`filter-label` のない絞り込みの入力欄、名前のないクリアボタン、2 つ以上の組み合わせを持つ `filter-shortcut` は、デバッグビルドで報告します。
 
 ### 利用者側で行うこと
 
