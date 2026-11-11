@@ -117,6 +117,25 @@ test.describe('presentation and focus', () => {
     await expectFromNextFrame(host(page, 'basic'), marked, ['tanrei-dialog dialog.container opacity', 'tanrei-button button background-color'], 'opened');
   });
 
+  test('DLG-4, DLG-13: closed at the end of a task that outlasts its motions, it fades out over its scrim and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the action focus left and the opener focus went back to were drawn at their end at once.
+    await mount(page, [closed('basic')]);
+    await page.locator('#open-basic').evaluate((el) => {
+      el.insertAdjacentHTML('afterend', '<tanrei-button id="opener-basic">Open</tanrei-button>');
+      el.nextElementSibling!.addEventListener('click', () => ((el.parentElement!.querySelector('tanrei-dialog') as HTMLElement & { open: boolean }).open = true));
+    });
+    await tabTo(page, page.locator('#opener-basic'));
+    await host(page, 'basic').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.querySelector('tanrei-button')?.setAttribute('autofocus', '');
+      el.open = true;
+    });
+    await motionEnded(page);
+    // The scrim's fade is named as the container's in WebKit (its pseudo-element is not reported), so it is not named
+    // here; every motion begun is held to its start all the same.
+    await expectFromNextFrame(host(page, 'basic'), '(el) => { el.open = false; }', ['tanrei-dialog dialog.container opacity', 'tanrei-button button background-color'], 'closed');
+  });
+
   test('DLG-1: opening presents it in the top layer over the scrim of its color, makes everything else inert and holds the page’s scroll until it closes', async ({ page }) => {
     await mount(page, [f('d')]);
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div style="block-size: 3000px"></div><button id="elsewhere">Elsewhere</button>'));

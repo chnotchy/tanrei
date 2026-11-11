@@ -2665,12 +2665,16 @@ export class TanreiMenu extends TanreiElement {
     // focused element, through shadow roots: a forwarded item is not in the menu's own tree. MNU-49: from whatever level.
     // MNU-62: a context menu's to the element that had focus when it was asked for; where none had, out of the menu.
     const active = deepActive();
+    const back = this.owns(active) ? this.focusReturn : null;
     if (this.owns(active)) {
-      const back = this.focusReturn;
       back?.focus();
       // MNU-65: an anchor that is no longer drawn takes no focus, and focus does not stay in a closed menu.
       if (this.owns(deepActive())) (active as HTMLElement).blur?.();
     }
+    // MNU-1, MNU-4: what closing began — the colors of the item focus left and of the anchor it went back to — begins
+    // in the first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the frame
+    // drawn before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this, back]);
     this.asked = null;
     this.returnTo = null;
     surface.classList.remove('open');
