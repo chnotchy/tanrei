@@ -102,7 +102,7 @@
             },
             "medium": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -142,17 +142,27 @@
           },
           "padding-inline-with-avatar": {
             "$type": "dimension",
-            "$description": "Padding at the start when an avatar is present: a round image sits closer to the edge than a glyph. Equal to (height − avatar) / 2 at each size, so the avatar is concentric with a pill's round end.",
+            "$description": "Padding at the start when an avatar is present: a round image sits closer to the edge than a glyph. Equal to (height − avatar) / 2 at each size, so the avatar is concentric with a pill's round end; the medium one follows the medium height as its block padding does (6 in the default system).",
             "small": {
               "$value": "{tanrei.sys.space.space50}"
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.chip.container.height.medium}"
+                }
+              }
             }
           },
           "padding-inline-with-remove": {
             "$type": "dimension",
-            "$description": "Padding at the end that holds an input chip's remove glyph. Equal to (height − icon) / 2 at each size (medium (32 − 24) / 2 = 4, small (24 − 20) / 2 = 2), so the glyph's center is the center of a pill's round end and the remove action's round container, which is centered on the glyph, is inset from the end by what it is inset from the top and the bottom: (height − remove.container.size) / 2, 2 at medium and 0 at small.",
+            "$description": "Padding at the end that holds an input chip's remove glyph. Equal to (height − icon) / 2 at each size (medium (36 − 24) / 2 = 6, small (24 − 20) / 2 = 2 in the default system), so the glyph's center is the center of a pill's round end and the remove action's round container, which is centered on the glyph, is inset from the end by what it is inset from the top and the bottom: (height − remove.container.size) / 2, 4 at medium and 0 at small. The medium one follows the medium height as its block padding does.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product pads the end that holds a round remove action apart from an end that holds a bare glyph: the remove action has a round shape of its own that shows on hover, focus and press, and that shape has to sit concentric with the chip's end, as an avatar does at the other end; a bare icon has no shape to align and is placed by eye.",
@@ -163,7 +173,17 @@
               "$value": "{tanrei.sys.space.space25}"
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.chip.container.height.medium}"
+                }
+              }
             }
           },
           "padding-block": {
@@ -174,7 +194,7 @@
             },
             "medium": {
               "$value": {
-                "value": 4,
+                "value": 6,
                 "unit": "px"
               },
               "$extensions": {
@@ -217,7 +237,7 @@
         "icon": {
           "size": {
             "$type": "dimension",
-            "$description": "The box of the leading icon, the check and the remove glyph, per size: the largest step of sys.icon that fits the height with the block padding (small 20 + 2 × 2 = 24; medium 24 + 2 × 4 = 32).",
+            "$description": "The box of the leading icon, the check and the remove glyph, per size: the largest step of sys.icon that fits the height with the block padding (small 20 + 2 × 2 = 24; medium 24 + 2 × 6 = 36 in the default system).",
             "small": {
               "$value": "{tanrei.sys.icon.small}"
             },

@@ -53,7 +53,7 @@
               "Do not mark the ancestors of the current item, and do not hide sub-levels until their heading is current: the list must not move while the reader scrolls.",
               "Where the list stands, that it stays in view while the page scrolls, and which presentation a window width gets are the layout's that places it, not this component's.",
               "Use presentation compact where there is no room beside the text. Do not build the compact form from an accordion and a list by hand.",
-              "density is how tall a row is, and is not the compact presentation. regular, the default, holds the pointer target; compact is lower than it, for a long list beside text read with a pointer. Choose compact explicitly, never by default, and never to fit a touch layout: for touch a row is the touch target in both.",
+              "density is how tall a row is, and is not the compact presentation. regular, the default, holds the pointer target; compact is the smallest row the minimum target allows, for a long list beside text read with a pointer. Choose compact explicitly, never by default, and never to fit a touch layout: for touch a row is the touch target in both.",
               "The title and every label are the product's words; Tanrei ships none.",
               "State tokens are valued by the design system's pattern rules; override one token or replace the rule.",
               "Restyle through these tokens in a layer; never style the anchors by hand."
@@ -89,7 +89,7 @@
         "row": {
           "height": {
             "$type": "dimension",
-            "$description": "An item's least height for a fine pointer, per density: one line of its label and its density's padding-block twice in the default system. Regular is the pointer target (sys.target.pointer), derived from the same dial by the same multiple, so that a row of the default density is never a smaller target than any other control. Compact is a table's compact row, lower than the pointer target: the density a product asks for by name, for a long list beside the text. A minimum in both: a row grows with a label that wraps and with enlarged text, and for touch it is never lower than the touch target.",
+            "$description": "An item's least height for a fine pointer, per density: one line of its label and its density's padding-block twice in the default system. Regular is 44 in the default system, above the pointer target, so that a row of the default density is never a smaller target than any other control. Compact is the small step of the control heights, never below the minimum target (36 in the default system): the density a product asks for by name, for a long list beside the text; where a system's pointer target is taller, a compact row is lower than it. A minimum in both: a row grows with a label that wraps and with enlarged text, and for touch it is never lower than the touch target.",
             "regular": {
               "$value": {
                 "value": 44,
@@ -108,7 +108,7 @@
             },
             "compact": {
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -144,7 +144,7 @@
             },
             "compact": {
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {
@@ -233,7 +233,7 @@
                   "min": "{tanrei.sys.target.minimum}"
                 }
               },
-              "$description": "The least height of the compact form's row: the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: 48 in the default system, above the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",

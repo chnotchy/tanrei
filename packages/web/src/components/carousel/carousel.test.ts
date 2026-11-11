@@ -829,7 +829,7 @@ test.describe('behavior', () => {
     const hit = (index: number) => container(page, id, index).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').width));
     expect(await hit(0)).toBe(232 + gap);
     expect(await hit(2)).toBe(smallMin + gap);
-    expect(smallMin + gap, 'the default tokens make the smallest item a touch target').toBe(touch);
+    expect(smallMin + gap, 'the default tokens make the smallest item at least a touch target').toBeGreaterThanOrEqual(touch);
     // A press in the gap goes to the nearer item.
     await listen(page, id);
     const [small, medium] = [await bounds(item(page, id, 2)), await bounds(item(page, id, 1))];

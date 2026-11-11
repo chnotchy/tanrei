@@ -489,8 +489,9 @@ test.describe('what is drawn', () => {
   test('PGN-12: one row at the start edge, comp.pagination.gap apart, items the size’s height high and at least as wide, numbers wider than the square padded, never wrapped', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('default'), fixture('small'), fixture('large-numbers')] });
     const [medium, small, gap, pad] = await Promise.all([T('container-height-medium'), T('container-height-small'), T('gap'), T('container-padding-inline')].map((n) => resolveToken(page, n)));
-    // The spec's verify, under the default system: medium items 40 high and 40 wide for one digit, 4 apart; small 32.
-    expect([medium, small, gap]).toEqual([40, 32, 4]);
+    // The spec's verify, under the default system: medium items 40 high and 40 wide for one digit, 4 apart; small 36,
+    // held at the minimum target.
+    expect([medium, small, gap]).toEqual([40, 36, 4]);
     const one = await bounds(pageItem(page, 'default', 2));
     expect(one.height).toBeCloseTo(medium, 1);
     expect(one.width).toBeCloseTo(medium, 1);
@@ -998,6 +999,9 @@ test.describe('states', () => {
 
   test('PGN-20: an item smaller than the minimum target reaches it on both axes — touch and fine pointer — without changing its size, and toward a neighbour no further than half the gap', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('small')] });
+    // The default system draws a small item at its target (36), so nothing reaches; under a system whose targets are
+    // larger (a platform guideline's 44 and 48) a small item reaches them.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     const [small, pointer, gap] = await Promise.all([T('container-height-small'), '--tanrei-sys-target-pointer', T('gap')].map((n) => resolveToken(page, n)));
     const item = pageItem(page, 'small', 2);
     const box = await bounds(item);
@@ -1013,8 +1017,9 @@ test.describe('states', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    // The spec's verify: a small item is 32 high and its hit area 44 for touch.
-    expect(small).toBe(32);
+    // The spec's verify: a small item is 36 high, and under a 48 touch target its hit area is 48 high for touch.
+    expect(small).toBe(36);
+    expect(touch).toBe(48);
     await expect.poll(async () => (await target(item)).height).toBeCloseTo(touch, 1);
     expect((await bounds(item)).height).toBeCloseTo(small, 1);
     // Along the row: half the gap on each side, so no two hit areas overlap.

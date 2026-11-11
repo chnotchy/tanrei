@@ -257,7 +257,7 @@
     {
       "id": "ACC-19",
       "text": "WHERE a header is lower than the minimum target THE accordion SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row, from the item's start edge to its end edge, its paddings, icon, texts and chevron included, SHALL be the header's hit area; WHILE the item is open, its content, down to the item's lower edge, SHALL be part of the item's hit area too: the open item is one target, as ACC-36 says.",
-      "verify": "Under the default system both densities already hold the touch target (56 and 48). Test under a layer that sets the compact height to 32: the header is drawn 48 high for touch and 44 for a fine pointer. A press on an open item's content closes it as ACC-36 says."
+      "verify": "Under the default system both densities already hold the touch target (56 and 48). Test under a layer that sets the compact height to 32, sys.target.pointer to 44 and sys.target.touch to 48: the header is drawn 48 high for touch and 44 for a fine pointer. A press on an open item's content closes it as ACC-36 says."
     },
     {
       "id": "ACC-20",

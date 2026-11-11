@@ -7,7 +7,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
@@ -3200,13 +3200,14 @@ test.describe('density', () => {
       ['item-container-height-compact', 'item-icon-size-compact', 'container-gap-compact', 'heading-height-compact', 'item-nest-indent-compact', 'item-gap'].map((n) => px(page, T(n))),
     );
     // The verify, under the default system.
-    expect([height, icon, gap, heading, nest, itemGap]).toEqual([32, 16, 2, 28, 24, 12]);
+    // The compact row is the small step of the control heights, held at the minimum target (36).
+    expect([height, icon, gap, heading, nest, itemGap]).toEqual([36, 16, 2, 28, 24, 12]);
     const p = await bounds(panel(page, 'compact'));
     const x = (b: { x: number }) => b.x - p.x;
     // compact: Home, then the section Projects › Tanrei (group) › Tokens, Components (group) › Button, Tree view; Archive.
     const home = item(page, 'compact', 0);
     const [row, homeIcon, homeLabel] = await Promise.all(['.row > .container', '.icon', '.label'].map((s) => bounds(home.locator(s))));
-    expect(row.height).toBe(32);
+    expect(row.height).toBe(36);
     expect([homeIcon.width, homeIcon.height]).toEqual([16, 16]);
     expect(x(homeIcon) + homeIcon.width / 2).toBe(28);
     expect(x(homeLabel)).toBe(48);
@@ -3241,13 +3242,13 @@ test.describe('density', () => {
     expect((await bounds(item(page, 'r', 0).locator('.icon'))).width).toBe(await px(page, T('item-icon-size-regular')));
   });
 
-  test('NVD-65: compact-collapsed is a 56 column of 32 by 32 cells, every icon, the menu button and the selection at the point it has in the same drawer expanded (NVD-31 in each density)', async ({ page }) => {
+  test('NVD-65: compact-collapsed is a 56 column of 36 by 36 cells, every icon, the menu button and the selection at the point it has in the same drawer expanded (NVD-31 in each density)', async ({ page }) => {
     await mount(page, [COMPACT_COLLAPSED], { reducedMotion: true });
     const p = await bounds(panel(page, 'compact-collapsed'));
     expect(p.width).toBe(await px(page, T('collapsed-container-width-compact')));
     expect(p.width).toBe(56);
     const pill = await bounds(box(page, 'compact-collapsed', 0));
-    expect([pill.width, pill.height]).toEqual([32, 32]);
+    expect([pill.width, pill.height]).toEqual([36, 36]);
     expect(pill.x - p.x + pill.width / 2).toBe(28);
     const at = async () => ({
       icons: await Promise.all([0, 1, 2].map(async (n) => centre(await bounds(item(page, 'compact-collapsed', n).locator('.icon'))))),
@@ -3255,7 +3256,7 @@ test.describe('density', () => {
       cells: await Promise.all([0, 1, 2].map(async (n) => (await bounds(cell(page, 'compact-collapsed', n))).height)),
     });
     const collapsed = await at();
-    expect(collapsed.cells).toEqual([32, 32, 32]);
+    expect(collapsed.cells).toEqual([36, 36, 36]);
     for (const icon of collapsed.icons) expect(icon.x - p.x).toBe(28);
     await setProps(page, 'compact-collapsed', { expanded: true });
     await page.waitForTimeout(50);
@@ -3300,13 +3301,17 @@ test.describe('density', () => {
     const c = cell(page, 'compact', 0);
     const hit = await c.evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBeCloseTo((await bounds(c)).height + gap, 1);
-    expect(hit).toBeLessThan(await px(page, '--tanrei-sys-target-pointer'));
+    // In the default system a compact cell is held at the minimum target, which the pointer target aliases.
+    expect((await bounds(c)).height).toBeCloseTo(await px(page, '--tanrei-sys-target-pointer'), 1);
     test.skip(browserName !== 'chromium', 'only Chromium emulates a device whose pointer is coarse');
     const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 600, height: 900 }, deviceScaleFactor: 2 });
     const touch = await context.newPage();
     await mount(touch, [COMPACT], { reducedMotion: true });
     expect(await touch.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    // Under a system whose touch target (48) is taller than the compact cell, as the default system's (36) is not.
+    await rootTokens(touch, { '--tanrei-sys-target-touch': '48px' });
     const target = await px(touch, '--tanrei-sys-target-touch');
+    expect(target).toBe(48);
     expect((await bounds(cell(touch, 'compact', 0))).height).toBeCloseTo(target, 2);
     expect((await bounds(box(touch, 'compact', 0))).height).toBeCloseTo(target, 2);
     await context.close();

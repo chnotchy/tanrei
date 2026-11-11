@@ -1946,7 +1946,7 @@ test.describe('behavior', () => {
     ]);
     const id = 'row-error-retryable';
     const [retry, remove] = [own(page, id, 'retry'), own(page, id, 'remove')];
-    const [size, pointer, touch, actionGap, inset] = [await token(page, 'action-size'), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await token(page, 'action-gap'), await token(page, 'tile-action-inset')];
+    const [size, pointer, actionGap, inset] = [await token(page, 'action-size'), await resolveToken(page, '--tanrei-sys-target-pointer'), await token(page, 'action-gap'), await token(page, 'tile-action-inset')];
     const target = (el: Locator) => el.evaluate((node) => [Number.parseFloat(getComputedStyle(node, '::before').width), Number.parseFloat(getComputedStyle(node, '::before').height), getComputedStyle(node, '::before').position] as const);
     const [w, h, position] = await target(remove);
     // Two actions side by side stand action.gap apart, or twice what the target exceeds their size by where that is more.
@@ -1975,7 +1975,8 @@ test.describe('behavior', () => {
     expect(coarse).toContain('.body.pressable::before');
     expect(coarse).toContain('--tanrei-sys-target-touch');
     // However large the target, the two actions stand far enough apart that each reaches it, and the two hit areas still do not overlap.
-    const large = touch + 40;
+    // 88: well above any target a system sets (it was the touch target and 40 while that was 48; the presses below are laid out for it).
+    const large = 88;
     await override(page, { '--tanrei-sys-target-pointer': `${large}px` });
     const [tw, th] = await target(remove);
     near((await box(remove)).x - ((await box(retry)).x + (await box(retry)).width), between(large), 'set apart by twice what the target exceeds their size by');

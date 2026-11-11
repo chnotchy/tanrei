@@ -30,6 +30,9 @@ const ripples = (page: P, id: string) => container(page, id).locator('.ripple');
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props });
+/** A system whose targets are larger than the default system's 36, which lies inside the 40 container: a platform guideline's 44 and 48. */
+const raiseTargets = (page: Page) =>
+  rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
 /** The duration (ms) of the running transition of `property` on the element, or null when none runs. */
 const running = (locator: Locator, property: string) =>
   locator.evaluate((el, p) => {
@@ -538,6 +541,7 @@ test.describe('behavior', () => {
 
   test('RAD-9: the hit area meets sys.target.pointer around the container while its size stays; the label is in it', async ({ page }) => {
     await mountGroup(page, [{}, {}]);
+    await raiseTargets(page);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const side = await resolveToken(page, T('container-size'));
     const c = await bounds(container(page, 'o0'));
@@ -558,6 +562,11 @@ test.describe('behavior', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    // In the default system the target (36) lies inside the 40 container: the hit area is the container.
+    const side = await resolveToken(page, T('container-size'));
+    const own = await host(page, 'unselected').locator('.control').evaluate((el) => { const r = getComputedStyle(el, '::before'); return [Number.parseFloat(r.width), Number.parseFloat(r.height)]; });
+    expect(own).toEqual([side, side]);
+    await raiseTargets(page);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const hit = await host(page, 'unselected').locator('.control').evaluate((el) => { const r = getComputedStyle(el, '::before'); return [Number.parseFloat(r.width), Number.parseFloat(r.height)]; });
     expect(hit).toEqual([touch, touch]);
@@ -1051,6 +1060,13 @@ test.describe('layout', () => {
       for (const stage of document.querySelectorAll<HTMLElement>('#group > .stage')) stage.style.display = 'contents';
     });
     expect(await page.locator('#group > .stage > tanrei-radio-button').count()).toBe(3);
+    // In the default system the token (the touch target, 36) is lower than the container (40): each option is the
+    // container's height, and options stacked with no gap still keep whole targets.
+    const own = await resolveToken(page, T('container-size'));
+    expect(await resolveToken(page, T('option-min-height'))).toBeLessThan(own);
+    for (const id of ['o0', 'o1', 'o2']) expect((await bounds(host(page, id))).height, id).toBeCloseTo(own, 3);
+    // Under a 48 touch target (a platform guideline) the token is taller than the container: what this test holds.
+    await raiseTargets(page);
     const tall = await resolveToken(page, T('option-min-height'));
     expect(tall).toBe(await resolveToken(page, '--tanrei-sys-target-touch'));
     const boxes = await Promise.all(['o0', 'o1', 'o2'].map((id) => bounds(host(page, id))));
@@ -1259,10 +1275,25 @@ test.describe('accessibility', () => {
       expect(await strokeOf(ringOf(page, id)), `${id}: the stroke`).toBe(await strokeOf(ringOf(page, plain)));
       expect((await rgba(page, await settledCss(fillOf(page, id), 'background-color'))).a, `${id}: no fill`).toBe(0);
       expect(await css(labelOf(page, id), 'color'), `${id}: the label`).toBe(await css(labelOf(page, plain), 'color'));
-      const [a, b] = [await page.locator(`[data-fixture="${id}"]`).screenshot({ animations: 'disabled' }), await page.locator(`[data-fixture="${plain}"]`).screenshot({ animations: 'disabled' })];
-      expect(a.equals(b), `${id} is the pixels of ${plain}`).toBe(true);
     }
     expect(await strokeOf(ringOf(page, 'error-selected'))).toBeGreaterThan(await strokeOf(ringOf(page, 'error-unselected')));
+    // The pixels: each fixture drawn alone, so the two compared are drawn at the same place on the page. Chromium
+    // rasterizes the page in tiles (a seam every 256 device pixels, measured) and antialiases a circle that crosses a
+    // seam a few levels differently on its edge rows, so the same ring drawn at two heights is not the same picture
+    // (it was not: 33 pixels, up to 28 levels, with the error-selected stage across the seam at 512 and the selected
+    // one clear of it). The same place is asserted, so the comparison cannot drift back to two places.
+    const drawn = async (id: string) => {
+      await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === id) });
+      await page.mouse.move(0, 0);
+      await settle(page, id);
+      const stage = page.locator(`[data-fixture="${id}"]`);
+      return { box: await stage.boundingBox(), pixels: await stage.screenshot({ animations: 'disabled' }) };
+    };
+    for (const [id, plain] of [['error-unselected', 'unselected'], ['error-selected', 'selected']] as const) {
+      const [a, b] = [await drawn(id), await drawn(plain)];
+      expect(a.box, `${id} is drawn where ${plain} is`).toEqual(b.box);
+      expect(a.pixels.equals(b.pixels), `${id} is the pixels of ${plain}`).toBe(true);
+    }
   });
 });
 

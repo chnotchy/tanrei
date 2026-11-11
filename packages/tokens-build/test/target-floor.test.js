@@ -43,8 +43,13 @@ test('the floored heights: every pressable height and row the core derives with 
   assert.deepEqual(targetFloors([doc]), [`${NS}.comp.x.a`, `${NS}.comp.x.b`, `${NS}.comp.x.c`]);
 });
 
-test('the default system: no target finding; the thresholds are constants', async () => {
-  const { failures } = auditInvariants(await (await resolveChain(chainOf({}))).model());
+test('the default system: one target of 36 for pointer and touch alike, no target finding; the thresholds are constants', async () => {
+  const model = await (await resolveChain(chainOf({}))).model();
+  assert.deepEqual(['minimum', 'pointer', 'touch'].map((name) => model.tokens[`${NS}.sys.target.${name}`].value.value), [36, 36, 36]);
+  // One value sets all three: pointer and touch follow the minimum a product sets, and may be set above it.
+  const moved = (await (await resolveChain(chainOf(dials({ minimum: 40 })))).model()).tokens;
+  assert.deepEqual(['minimum', 'pointer', 'touch'].map((name) => moved[`${NS}.sys.target.${name}`].value.value), [40, 40, 40]);
+  const { failures } = auditInvariants(model);
   assert.deepEqual(targetFindings(failures), []);
   assert.equal(TARGET_THRESHOLDS.minimum, 24);
   assert.ok(Object.isFrozen(TARGET_THRESHOLDS));
@@ -52,19 +57,20 @@ test('the default system: no target finding; the thresholds are constants', asyn
 
 test('a target under 24px, or a floored height pinned under the minimum: a criterion (an error in the default system, a warning in a product layer, information in a preset)', async () => {
   const low = targetFindings((await (await resolveChain(chainOf({ [`${NS}.sys.target.minimum`]: { $value: px(20), reason: REASON } }))).audit()).failures);
-  assert.deepEqual(low, ['target size: sys.target.minimum: 20px < 24px (WCAG 2.5.8: the least target a person presses)']);
+  // pointer and touch alias the minimum, so a product that lowers it lowers all three.
+  assert.deepEqual(low, ['minimum', 'pointer', 'touch'].map((name) => `target size: sys.target.${name}: 20px < 24px (WCAG 2.5.8: the least target a person presses)`));
   assert.ok(low.every(isCriterionFinding) && !low.some(isRefusedEverywhere));
 
   const pinned = targetFindings((await (await resolveChain(chainOf({ [`${NS}.comp.button.container.height.small`]: { $value: px(28), reason: REASON } }))).audit()).failures);
   // The small Button, and what is as tall as it by an alias: the stacked input box, the snackbar's controls.
   assert.deepEqual(pinned.map((f) => f.split(':')[1].trim()), ['comp.button.container.height.small', 'comp.input-box.stacked.container.height.small', 'comp.snackbar.controls.height']);
-  assert.match(pinned[0], /^target size: comp\.button\.container\.height\.small: 28px < sys\.target\.minimum 32px \(/);
+  assert.match(pinned[0], /^target size: comp\.button\.container\.height\.small: 28px < sys\.target\.minimum 36px \(/);
   assert.ok(pinned.every(isCriterionFinding));
 });
 
 test('a hit area under what is drawn, or a density of zero: refused in every system, a product layer’s too', async () => {
   const under = targetFindings((await (await resolveChain(chainOf({ [`${NS}.sys.target.pointer`]: { $value: px(30), reason: REASON } }))).audit()).failures);
-  assert.deepEqual(under, ['target floor: sys.target.pointer: 30px is under sys.target.minimum (32px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above']);
+  assert.deepEqual(under, ['target floor: sys.target.pointer: 30px is under sys.target.minimum (36px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above']);
   const none = targetFindings((await (await resolveChain(chainOf(dials({ density: 0 })))).audit()).failures);
   assert.deepEqual(none, ['target floor: dial.density: 0 — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)']);
   for (const finding of [...under, ...none]) assert.ok(isRefusedEverywhere(finding) && !isCriterionFinding(finding), finding);

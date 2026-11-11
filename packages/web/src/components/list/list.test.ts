@@ -1316,12 +1316,13 @@ test.describe('accessibility', () => {
       resolveToken(page, '--tanrei-comp-list-row-container-height-one-line-compact'),
       resolveToken(page, '--tanrei-sys-target-pointer'),
     ]);
-    // The default system's compact item: the tree view's compact row.
-    expect(height).toBe(32);
+    // The default system's compact item: the small step of the control heights, held at the minimum target (36).
+    expect(height).toBe(36);
     const heightOf = async (id: string, n: number) => (await bounds(item(page, id, n))).height;
-    // An option of plain text is the density's height, lower than the pointer target; one holding a row is the row's.
+    // An option of plain text is the density's height — in the default system the pointer target, which aliases the
+    // minimum; one holding a row is the row's.
     expect(await heightOf('density-compact', 2)).toBeCloseTo(height, 0);
-    expect(await heightOf('density-compact', 2)).toBeLessThan(pointer);
+    expect(await heightOf('density-compact', 2)).toBeCloseTo(pointer, 0);
     expect(await css(row(page, 'density-compact', 2), 'padding-top')).toBe(`${padBlock}px`);
     expect(await heightOf('density-compact', 0)).toBeCloseTo(rowOneLine, 0);
     const listRow = (id: string, n: number) => item(page, id, n).locator('tanrei-list-row');
@@ -1343,14 +1344,16 @@ test.describe('accessibility', () => {
     await list(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
     await expect.poll(() => heightOf('density-regular', 2)).toBeCloseTo(height, 0);
     await expect.poll(() => heightOf('density-regular', 0)).toBeCloseTo(rowOneLine, 0);
-    // LST-11: for touch a compact option is the touch target.
+    // LST-11: for touch a compact option is the touch target — seen under a system whose touch target (48) is taller
+    // than the compact row, as the default system's (36) is not.
     if (browserName !== 'chromium') return;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await page.reload();
     await mountFixtures(page, spec, { icons: true, fixtures: [compact] });
-    if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect(await heightOf('density-compact', 2)).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-touch')) - 0.5);
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect(await heightOf('density-compact', 2)).toBeGreaterThanOrEqual(48 - 0.5);
   });
 
   test('no axe violations in light and dark', async ({ page }) => {

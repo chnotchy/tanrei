@@ -2951,7 +2951,7 @@
               "value": 24,
               "unit": "px"
             },
-            "$description": "The height of the drag handle's box. With the margins above and below it, the handle's row is the touch target's height."
+            "$description": "The height of the drag handle's box. With the margins above and below it, the handle's row is at least the touch target's height (48 in the default system)."
           },
           "container-shape": {
             "$type": "dimension",
@@ -4049,10 +4049,10 @@
           "gap": {
             "$type": "dimension",
             "$value": {
-              "value": 16,
+              "value": 0,
               "unit": "px"
             },
-            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 48 − 32 = 16 in the default system."
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 36 − 36 = 0 in the default system, where every Button is drawn at least as large as the target, so the items touch."
           }
         }
       },
@@ -4099,7 +4099,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -4154,7 +4154,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -7969,7 +7969,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -8031,7 +8031,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -8054,7 +8054,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -20711,10 +20711,10 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 48,
+              "value": 40,
               "unit": "px"
             },
-            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, so both controls keep their whole target inside it."
+            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system."
           },
           "icon": {
             "size": {
@@ -22264,7 +22264,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge."
+            "$description": "The round state layer behind the box, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -25267,7 +25267,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -25283,7 +25283,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -25299,7 +25299,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -25331,7 +25331,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -29358,10 +29358,10 @@
           "action-gap": {
             "$type": "dimension",
             "$value": {
-              "value": 4,
+              "value": 6,
               "unit": "px"
             },
-            "$description": "Between the clear button and the chevron at the end of the container."
+            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36."
           }
         },
         "disabled": {
@@ -30568,7 +30568,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -30714,7 +30714,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -32597,7 +32597,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Between Cancel and OK, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, each keeps its whole target in a column, as the dialog's actions do."
+            "$description": "Between Cancel and OK, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, each keeps its whole target in a column, as the dialog's actions do."
           },
           "padding-block": {
             "$type": "dimension",
@@ -33444,7 +33444,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display. The touch target, because a press on it chooses which end the wheels or the dial set."
+              "$description": "The least height of a range field, one end of a span of times in the range display. 48 in the default system, above the touch target, because a press on it chooses which end the wheels or the dial set."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -34572,7 +34572,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap does."
+            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap does."
           },
           "margin-block-start": {
             "$type": "dimension",
@@ -35828,7 +35828,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between two selection controls: with their 40 containers it puts their marks 48 apart, so that each keeps a whole touch target of its own."
+            "$description": "Between two selection controls: with their 40 containers it puts their marks 48 apart, so that each keeps a whole touch target of its own, up to 48."
           },
           "fields": {
             "$type": "dimension",
@@ -39955,7 +39955,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next in the default system: 32 and 12 make sys.target.pointer's 44."
+            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
           },
           "height": {
             "$type": "dimension",
@@ -43988,7 +43988,7 @@
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 32,
+                  "value": 36,
                   "unit": "px"
                 }
               }
@@ -44011,7 +44011,7 @@
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 4,
+                  "value": 6,
                   "unit": "px"
                 }
               }
@@ -48396,7 +48396,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -48412,10 +48412,10 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 6,
                 "unit": "px"
               },
-              "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row."
+              "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
             },
             "regular": {
               "$type": "dimension",
@@ -52314,7 +52314,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -52330,7 +52330,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -56812,7 +56812,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, which is sys.target.touch, so that a title's touch target lies inside the bar."
+            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -61934,7 +61934,7 @@
                 "compact": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 8,
+                    "value": 10,
                     "unit": "px"
                   }
                 },
@@ -61966,7 +61966,7 @@
                 "compact": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 32,
+                    "value": 36,
                     "unit": "px"
                   }
                 },
@@ -62414,7 +62414,7 @@
               "compact": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 32,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -62571,7 +62571,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 2,
+                "value": 4,
                 "unit": "px"
               }
             },
@@ -64165,7 +64165,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row, so two 40 buttons stand 8 apart and two that are 48 or wider touch."
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 40 button is wider than the target, so the two touch; under a 48 target they would stand 8 apart."
           },
           "inset": {
             "$type": "dimension",
@@ -64266,7 +64266,7 @@
               "value": 48,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell (48): the text field’s medium height and the touch target, so that a code input and a text field in one form are equally tall."
+            "$description": "Minimum height of a cell (48): the text field’s medium height, so that a code input and a text field in one form are equally tall."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -65592,7 +65592,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -66448,7 +66448,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.dialog.actions.gap and comp.side-sheet.actions.gap do."
+            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, every action keeps its whole target in a column, as comp.dialog.actions.gap and comp.side-sheet.actions.gap do."
           },
           "margin-block-start": {
             "$type": "dimension",
@@ -67923,7 +67923,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring, 40; the 48 target reaches 4 beyond it on each side."
+            "$description": "The round state layer behind the ring, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -68769,7 +68769,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "From the container to the label. With the 40 container it starts the label where the 48 target ends."
+            "$description": "From the container to the label."
           },
           "typescale": {
             "$type": "typography",
@@ -68842,7 +68842,7 @@
           "min-height": {
             "$type": "dimension",
             "$value": {
-              "value": 48,
+              "value": 36,
               "unit": "px"
             },
             "$description": "The least height one option takes in layout, the container centered in it. At the target size, options stacked with no space between them keep whole targets that do not overlap; a layer may lower it, accepting shared target area, or raise it."
@@ -70619,15 +70619,15 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34), so two medium buttons (40) stand 8 apart and two that are 48 or wider touch."
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart."
           },
           "gap": {
             "$type": "dimension",
             "$value": {
-              "value": 16,
+              "value": 0,
               "unit": "px"
             },
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 48 − 32 = 16 in the default system. The action buttons stand button-gap from one another instead."
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead."
           },
           "height": {
             "$type": "dimension",
@@ -70651,7 +70651,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "From the bar's edge to an icon button in the leading or trailing slot, or to the clear button at the end. Where an icon button's hit area stops at the bar's edge, this is what gives it its whole target on that side: at least half of sys.target.touch minus the button's width. The default system's 8 is half of 48 minus the narrowest button there (the small clear button, 32)."
+            "$description": "From the bar's edge to an icon button in the leading or trailing slot, or to the clear button at the end. Where an icon button's hit area stops at the bar's edge, this is what gives it its whole target on that side: at least half of sys.target.touch minus the button's width. In the default system the narrowest button there (the small clear button, 36) is as wide as the target and needs none of it; 8 is the room the bar keeps around it."
           },
           "shape": {
             "$type": "dimension",
@@ -72028,7 +72028,7 @@
               "compact": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 32,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -72044,10 +72044,10 @@
               "compact": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 4,
+                  "value": 6,
                   "unit": "px"
                 },
-                "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row."
+                "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
               },
               "regular": {
                 "$type": "dimension",
@@ -72448,7 +72448,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -72471,7 +72471,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -73470,7 +73470,7 @@
           "action-gap": {
             "$type": "dimension",
             "$value": {
-              "value": 4,
+              "value": 6,
               "unit": "px"
             },
             "$description": "Between the clear button and the chevron at the end of the container."
@@ -74670,7 +74670,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -74747,7 +74747,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -76599,7 +76599,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap and comp.dialog.actions.gap do."
+            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, every action keeps its whole target in a column, as comp.button-group.standard.gap and comp.dialog.actions.gap do."
           },
           "padding-block": {
             "$type": "dimension",
@@ -80181,7 +80181,7 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 32,
+              "value": 36,
               "unit": "px"
             },
             "$description": "The action's height: a small Button's, so that the action stands as tall as the expand and close buttons, which are small Buttons, in the same row. A minimum, which grows with enlarged text. Every hit area meets the minimum target."
@@ -86091,7 +86091,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of the compact form's row: the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: 48 in the default system, above the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -86865,7 +86865,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -86889,7 +86889,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -88198,7 +88198,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -94461,7 +94461,7 @@
           "action-gap": {
             "$type": "dimension",
             "$value": {
-              "value": 4,
+              "value": 6,
               "unit": "px"
             },
             "$description": "Between the clear button and a button of the input's own after it, at the end of the container."
@@ -95078,7 +95078,7 @@
             "docked": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 0,
                 "unit": "px"
               }
             },
@@ -95916,7 +95916,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -95932,7 +95932,7 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -104080,7 +104080,7 @@
         "minimum": {
           "$type": "dimension",
           "$value": {
-            "value": 32,
+            "value": 36,
             "unit": "px"
           },
           "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
@@ -104088,9 +104088,10 @@
         "pointer": {
           "$type": "dimension",
           "$value": {
-            "value": 44,
+            "value": 36,
             "unit": "px"
-          }
+          },
+          "$description": "The least area a press is taken from under a fine pointer. The minimum by default; a system may set it above."
         },
         "spacing": {
           "$type": "dimension",
@@ -104102,9 +104103,10 @@
         "touch": {
           "$type": "dimension",
           "$value": {
-            "value": 48,
+            "value": 36,
             "unit": "px"
-          }
+          },
+          "$description": "The least area a press is taken from under a finger, or where the platform cannot tell the input type. The minimum by default; a system that follows a platform guideline sets it above."
         }
       },
       "typescale": {

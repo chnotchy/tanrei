@@ -81,7 +81,7 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
   assert.ok(listed.includes('button'));
   assert.ok(!listed.includes('segmented-button') && !listed.includes('fab-menu'), 'the default system has neither');
   assert.deepEqual(components.omitted.map((entry) => entry.name), ['fab-menu', 'segmented-button']);
-  // Larger type alone no longer fits the small button, nor the segmented button and the button with menu that share its 32px:
+  // Larger type alone no longer fits the small button, nor the segmented button and the button with menu that share its 36px:
   // the product is told, in the log and in the report. Other components whose heights 18px type outgrows are reported the same way; how many they are
   // follows the components that exist, so the test holds the kind of every warning and these three, not a count.
   const report = JSON.parse(read('out/tokens/a11y-report.json'));
@@ -94,7 +94,7 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
   assert.equal(report.checked.componentPairs, schemes.reduce((sum, n) => sum + n.componentPairs, 0));
   for (const warning of report.warnings) assert.match(warning, /^tanrei\.comp\.[a-z0-9-]+\.container\.height\.[a-z0-9-]+: [\d.]+px cannot hold its content/, 'the larger type is all this layer is warned about');
   for (const component of ['button', 'button-with-menu', 'segmented-button']) {
-    assert.ok(report.warnings.some((w) => w.startsWith(`tanrei.comp.${component}.container.height.small: 32px cannot hold its content`)), component);
+    assert.ok(report.warnings.some((w) => w.startsWith(`tanrei.comp.${component}.container.height.small: 36px cannot hold its content`)), component);
   }
   assert.ok(!report.warnings.some((w) => w.startsWith('tanrei.comp.chip.')), 'the chip’s label is the pinned 11px label-small, which still fits');
   assert.match(result.stderr, /cannot hold its content/);

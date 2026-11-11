@@ -398,7 +398,7 @@
             },
             "height": {
               "$type": "dimension",
-              "$description": "Minimum height of the container of a stacked box of one line, per size: as tall as a Button of the same size (32 / 40 / 56 in the default system), so that an input and a Button set side by side in one row stand as tall as each other. A stacked box draws no label inside it — the label of the Field that frames it stands above it — so nothing but the value's line needs the room. Where the box is shorter than the minimum target, its hit area reaches beyond the drawn box.",
+              "$description": "Minimum height of the container of a stacked box of one line, per size: as tall as a Button of the same size (36 / 40 / 56 in the default system, the small one held at the minimum target), so that an input and a Button set side by side in one row stand as tall as each other. A stacked box draws no label inside it — the label of the Field that frames it stands above it — so nothing but the value's line needs the room. Where a system's target is taller than the box, its hit area reaches beyond the drawn box.",
               "small": {
                 "$value": "{tanrei.comp.input-box.container.height.small}",
                 "$extensions": {}

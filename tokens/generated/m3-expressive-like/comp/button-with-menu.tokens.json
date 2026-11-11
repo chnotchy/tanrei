@@ -296,7 +296,7 @@
         "trailing": {
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (32, 40 and 56), before the outer padding is added.",
+            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (36, 40 and 56 in the default system), before the outer padding is added; the small one follows the small height as its block padding does.",
             "small": {
               "$value": "{tanrei.sys.space.space100}",
               "$extensions": {}

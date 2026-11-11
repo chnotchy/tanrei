@@ -421,7 +421,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display. The touch target, because a press on it chooses which end the wheels or the dial set.",
+              "$description": "The least height of a range field, one end of a span of times in the range display. 48 in the default system, above the touch target, because a press on it chooses which end the wheels or the dial set.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
@@ -611,7 +611,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space200}",
-            "$description": "Between Cancel and OK, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, each keeps its whole target in a column, as the dialog's actions do."
+            "$description": "Between Cancel and OK, in a row or stacked. At sys.target.touch minus the lowest Button (small, 36 in the default system) or more, each keeps its whole target in a column, as the dialog's actions do."
           },
           "padding-block": {
             "$type": "dimension",

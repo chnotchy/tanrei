@@ -362,7 +362,14 @@ test.describe('behavior', () => {
     expect(await css(box, 'transition-property')).not.toContain('outline');
   });
 
+  /** A system whose targets are larger than the default system's 36: a platform guideline's 44 and 48. */
+  const raiseTargets = (page: Page) =>
+    rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
+
   test('CHK-7: the hit area meets sys.target.pointer around the container while the container and box keep their size; the label is in it', async ({ page }) => {
+    // The default system's target (36) lies inside the 40 container; a mark reaches a larger one (a platform
+    // guideline's 44 and 48) past its container.
+    await raiseTargets(page);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const side = await resolveToken(page, T('container-size'));
     const c = await bounds(container(page, 'unselected'));
@@ -383,6 +390,7 @@ test.describe('behavior', () => {
   });
 
   test('CHK-7: in RTL the hit area stays centered on the container', async ({ page }) => {
+    await raiseTargets(page);
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     const c = await bounds(container(page, 'unselected'));
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
@@ -401,6 +409,7 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    await raiseTargets(page);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const hit = await host(page, 'unselected').locator('.control').evaluate((el) => { const r = getComputedStyle(el, '::before'); return [Number.parseFloat(r.width), Number.parseFloat(r.height)]; });
     expect(hit).toEqual([touch, touch]);

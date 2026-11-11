@@ -62,7 +62,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (32 / 40 / 56 under the default system), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.button.size"
     },
     {
@@ -74,7 +74,7 @@
         "wide"
       ],
       "default": "default",
-      "description": "How wide an icon-only button is. default: as wide as it is high (32 / 40 / 56). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
+      "description": "How wide an icon-only button is. default: as wide as it is high (36 / 40 / 56 under the default system). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
     },
     {
       "name": "fullWidth",
@@ -288,7 +288,7 @@
     {
       "id": "BTN-21",
       "text": "WHILE the button has a label THE button SHALL ignore width: a labelled button is as wide as its content and its paddings (BTN-11). WHEN width names a value the button does not define THE button SHALL render at the default width, and in debug builds report the unknown value. THE button SHALL meet the minimum target of BTN-5 at every width by extending its hit area: a narrow button SHALL NOT be drawn wider to reach it.",
-      "verify": "Fixture text-icon-narrow under the default system: 32 wide, with a hit area of at least sys.target.touch (48) across. A labelled button with width set to narrow or wide renders as filled-medium does."
+      "verify": "Fixture text-icon-narrow under the default system: 32 wide, with a hit area of at least sys.target.touch (36) across. A labelled button with width set to narrow or wide renders as filled-medium does."
     },
     {
       "id": "BTN-22",

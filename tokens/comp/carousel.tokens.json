@@ -149,8 +149,19 @@
           },
           "height": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.target.touch}",
-            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, so both controls keep their whole target inside it."
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.comp.carousel.controls.button-size}",
+                "by": 1,
+                "min": "{tanrei.sys.target.touch}"
+              }
+            }
           },
           "button-size": {
             "$type": "dimension",

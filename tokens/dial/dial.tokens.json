@@ -62,7 +62,7 @@
           },
           "$extensions": {
             "dev.tanrei.vocabulary": {
-              "rationale": "One product sets the scale of control heights, icon sizes and hit targets together.",
+              "rationale": "One product sets the scale of control heights and icon sizes together.",
               "since": "0.1.0"
             }
           }

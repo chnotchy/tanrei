@@ -269,20 +269,21 @@ test.describe('the bar', () => {
     expect((await bounds(item(page, 'four', 0).locator('.cell'))).height).toBeGreaterThanOrEqual(touch);
   });
 
-  test('NVB-6: a bar 200 wide with five destinations keeps the equal share — cells below the target — and stays within its space', async ({ page }) => {
+  test('NVB-6: a bar 160 wide with five destinations keeps the equal share — cells below the target — and stays within its space', async ({ page }) => {
     const five = { id: 'five', props: { value: 'd0', label: 'Main' }, items: Array.from({ length: 5 }, (_, i) => destination(`d${i}`, `Destination ${i}`, 'star')) };
     await mountFixtures(page, spec, { icons: true, fixtures: [five] });
-    await page.addStyleTag({ content: '.stage:has(> tanrei-navigation-bar) { inline-size: 200px !important; }' });
+    // 160 wide: five equal cells of about 30, below the default system's touch target (36; 200 gave 38).
+    await page.addStyleTag({ content: '.stage:has(> tanrei-navigation-bar) { inline-size: 160px !important; }' });
     const [touch, pad] = await Promise.all(['--tanrei-sys-target-touch', T('container-padding')].map((n) => resolveToken(page, n)));
     const stage = await bounds(page.locator('[data-fixture="five"]'));
     const own = await bounds(bar(page, 'five'));
-    expect(stage.width).toBeCloseTo(200, 0);
-    expect([own.x, own.width]).toEqual([expect.closeTo(stage.x, 0), expect.closeTo(200, 0)]);
+    expect(stage.width).toBeCloseTo(160, 0);
+    expect([own.x, own.width]).toEqual([expect.closeTo(stage.x, 0), expect.closeTo(160, 0)]);
     expect(await bar(page, 'five').evaluate((b) => b.scrollWidth <= b.clientWidth)).toBe(true);
     let end = own.x + pad;
     for (let n = 0; n < 5; n++) {
       const cell = await bounds(item(page, 'five', n).locator('.cell'));
-      expect(cell.width).toBeCloseTo((200 - 2 * pad) / 5, 0);
+      expect(cell.width).toBeCloseTo((160 - 2 * pad) / 5, 0);
       expect(cell.width).toBeLessThan(touch);
       expect(cell.x).toBeCloseTo(end, 0);
       end = cell.x + cell.width;

@@ -71,7 +71,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "Visual height (24 / 32 under the default system). Medium is never drawn below sys.target.minimum. Small is for dense places, such as entered items inside a field or tags in a table row: it sits inside another box and cannot be as tall as that box, so it keeps its height and its hit area reaches the target. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height (24 / 36 under the default system, the medium one held at the minimum). Medium is never drawn below sys.target.minimum. Small is for dense places, such as entered items inside a field or tags in a table row: it sits inside another box and cannot be as tall as that box, so it keeps its height and its hit area reaches the target. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.chip.size"
     },
     {
@@ -306,7 +306,7 @@
     {
       "id": "CHP-32",
       "text": "WHERE kind is input THE chip SHALL center the remove action's round container on the remove glyph, on the chip's midline, so that it lies from the chip's inline end comp.chip.container.padding-inline-with-remove.medium less half of what comp.chip.remove.container.size.medium exceeds comp.chip.icon.size.medium by (and so on for each size), and never less than nothing; the default system's values SHALL make that distance the same as the round container's distance from the chip's top and from its bottom at the height of its size, so that the round container is inset equally on three sides, its center is the center of the chip's round end, and the two curves are concentric, as an avatar's and the round end's are at the other end. The hover, focus and press of the remove action (CHP-20) and its focus ring SHALL be drawn in that same place.",
-      "verify": "Under the default system: a medium chip is 32 tall and its end a half circle of radius 16; the round container is 28 across, 2 from the top, 2 from the bottom and 2 from the end, and its center is 16 from the end on the midline (`input`, `input-avatar`, `input-disabled`, `input-destructive-remove`, `input-plain-remove`). A small chip is 24 tall and its round container 24 across: it coincides with the round end, 0 from the top, the bottom and the end, its center 12 from the end (`input-small`). A test measures the three distances in each of these fixtures, hovering the remove action so that its container shows, and requires them equal within half a device pixel, in left-to-right and in right-to-left. Under `m3-like` and `cupertino`, which pin the padding they had, the remove glyph is where it was."
+      "verify": "Under the default system: a medium chip is 36 tall and its end a half circle of radius 18; the round container is 28 across, 2 from the top, 2 from the bottom and 2 from the end, and its center is 16 from the end on the midline (`input`, `input-avatar`, `input-disabled`, `input-destructive-remove`, `input-plain-remove`). A small chip is 24 tall and its round container 24 across: it coincides with the round end, 0 from the top, the bottom and the end, its center 12 from the end (`input-small`). A test measures the three distances in each of these fixtures, hovering the remove action so that its container shows, and requires them equal within half a device pixel, in left-to-right and in right-to-left. Under `m3-like` and `cupertino`, which pin the padding they had, the remove glyph is where it was."
     },
     {
       "id": "CHP-33",

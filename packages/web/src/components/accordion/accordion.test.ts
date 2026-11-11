@@ -1252,11 +1252,11 @@ test.describe('states', () => {
     expect(await css(item(page, 'plain', 2), 'outline-style')).toBe('none');
   });
 
-  test('ACC-19: both densities hold the touch target in the default system; under a layer that sets the compact height to 32 a header is 44 high for a fine pointer and 48 for touch, and the whole row is the hit area', async ({ page, browserName }) => {
+  test('ACC-19: both densities hold the touch target in the default system; under a layer that sets the compact height to 32, the pointer target to 44 and the touch target to 48 a header is 44 high for a fine pointer and 48 for touch, and the whole row is the hit area', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('compact', 'plain') });
     expect((await edges(header(page, 'plain', 2))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
     expect((await edges(header(page, 'compact', 2))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
-    await override(page, { [T('container-height-compact')]: '32px', [T('container-padding-block-compact')]: '4px' });
+    await override(page, { [T('container-height-compact')]: '32px', [T('container-padding-block-compact')]: '4px', '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(44);
     expect((await edges(header(page, 'compact', 2))).height).toBe(44);
     // The whole row: its first and its last pixels toggle it.

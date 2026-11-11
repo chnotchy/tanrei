@@ -1106,10 +1106,10 @@ test.describe('size and layout', () => {
     expect(await button.evaluate((el) => [el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')!.textContent, el.getAttribute('part')])).toEqual(['small', false, 'close', 'close-button']);
     await page.mouse.move(0, 0);
     expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
-    // Small: 32 × 32 in the default system, the small Button's own height.
+    // Small: 36 × 36 in the default system, the small Button's own height (held at the minimum target).
     const box = await rect(button.locator('button'));
     expect(box.height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
-    expect([Math.round(box.width), Math.round(box.height)]).toEqual([32, 32]);
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([36, 36]);
     await expect(page.getByRole('button', { name: 'Close storage', exact: true })).toHaveCount(1);
     // It answers as any Button does: hover paints the Button's own hovered container.
     await button.hover();

@@ -101,19 +101,19 @@
           },
           "padding-inline-with-button": {
             "$type": "dimension",
-            "$description": "From the bar's edge to an icon button in the leading or trailing slot, or to the clear button at the end. Where an icon button's hit area stops at the bar's edge, this is what gives it its whole target on that side: at least half of sys.target.touch minus the button's width. The default system's 8 is half of 48 minus the narrowest button there (the small clear button, 32).",
+            "$description": "From the bar's edge to an icon button in the leading or trailing slot, or to the clear button at the end. Where an icon button's hit area stops at the bar's edge, this is what gives it its whole target on that side: at least half of sys.target.touch minus the button's width. In the default system the narrowest button there (the small clear button, 36) is as wide as the target and needs none of it; 8 is the room the bar keeps around it.",
             "$value": "{tanrei.sys.space.space50}",
             "$extensions": {}
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 48 − 32 = 16 in the default system. The action buttons stand button-gap from one another instead.",
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead.",
             "$value": "{tanrei.sys.space.space100}",
             "$extensions": {}
           },
           "button-gap": {
             "$type": "dimension",
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34), so two medium buttons (40) stand 8 apart and two that are 48 or wider touch.",
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product sets the actions at the end of its search bar as one tight cluster while the input keeps its distance from them: the space between two actions and the space between the text and an action are two decisions, and a system that draws its bar's icons evenly spaced gives both the same value.",
@@ -327,7 +327,7 @@
                   "value": 4,
                   "unit": "px"
                 },
-                "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row.",
+                "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row.",
                 "$extensions": {
                   "dev.tanrei.derive": {
                     "fn": "pad",
