@@ -882,6 +882,28 @@ test.describe('behavior', () => {
     }
   });
 
+  test('FBM-15, FBM-19: closed by Escape on an item at the end of a task that outlasts its motions, the toggle turns back and takes focus, and the item focus left loses its focused colors, from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the item focus left and the toggle focus went back to would be drawn at their end at once.
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    await tabTo(page, toggle(page, 'menu'));
+    await host(page, 'menu').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await expect.poll(() => shown(page, 'menu')).toBe(true);
+    await motionEnded(page);
+    // The person's Escape on the focused item: the product closes the menu in answer to close, in the same task.
+    await expectFromNextFrame(
+      host(page, 'menu'),
+      "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
+      ['tanrei-fab-menu button.toggle background-color', 'tanrei-fab-menu button.toggle border-top-left-radius', 'tanrei-fab-menu span.glyph opacity', 'tanrei-fab-menu-item div.container background-color'],
+      'closed by Escape',
+    );
+    expect(await log(page)).toContain('close:escape');
+    expect(await toggle(page, 'menu').evaluate((el) => el.matches(':focus'))).toBe(true);
+  });
+
   test('FBM-19: where motion is reduced the items only fade in and out, all together, over sys.motion.role.reduced — no scale, no distance, no blur, no stagger — and nothing else moves', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
