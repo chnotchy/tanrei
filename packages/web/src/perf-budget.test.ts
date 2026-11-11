@@ -5,6 +5,12 @@
 // The page is what a product ships: every element of the package (`@tanrei/web/all`) bundled with
 // `process.env.NODE_ENV` defined as "production" — no debug report runs, and reads nothing — and every stylesheet.
 //
+//   forced   the passes building N copies of a component's first fixture forced the browser to style or lay out the
+//            page for, in the task and the work it queued (a Chromium trace: the style and layout events that carry a
+//            script's stack), at 100 against 10. Every component is held to 1: the hosts of one turn read the cascade
+//            and the layout together after their renders (src/primitives/read-phase.ts), so a hundred instances cost
+//            the passes ten do. A component that still reads in its own turn has a budget of its own (`forced`): the
+//            growth it was measured at, a finding to bring down to 1.
 //   reads    what building N instances (or N items) reads of the page's layout and style — `getBoundingClientRect`,
 //            `getClientRects`, the offset, client and scroll sizes, `getComputedStyle` — at 100 against 10: the reads
 //            the 90 more cost. A read after a write makes the browser lay the page out again before it answers, so a
@@ -24,6 +30,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
+import { loadSpec, stageMarkup } from '../test/harness.js';
 import { twoFrames } from '../test/work-count.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,7 +40,7 @@ interface Budget {
   budget: number;
   measured: number;
 }
-const budgets = JSON.parse(read('perf-budgets.json')).runtime as Record<'reads' | 'updates' | 'sheets', Record<string, Budget>>;
+const budgets = JSON.parse(read('perf-budgets.json')).runtime as Record<'forced' | 'reads' | 'updates' | 'sheets', Record<string, Budget>>;
 
 /** `@tanrei/web/all` as a product's production build makes it. */
 let bundle: Promise<string> | undefined;
@@ -194,6 +201,87 @@ const held = (kind: 'reads' | 'updates' | 'sheets', name: string, count: number,
   expect(entry, `perf-budgets.json has no runtime.${kind}["${name}"]`).toBeTruthy();
   expect(count, line).toBeLessThanOrEqual(entry!.budget);
 };
+
+/**
+ * The passes script forced the browser to style or lay out the page for while `act` ran and the work it queued settled
+ * (two frames): the trace's `UpdateLayoutTree` and `Layout` events that carry a stack. A pass the frame makes for its
+ * own paint has none. Each is named by the four innermost frames of its stack (in the minified bundle: a hint).
+ */
+async function forcedDuring(page: Page, act: () => Promise<unknown>): Promise<{ forced: number; at: Record<string, number> }> {
+  const cdp = await page.context().newCDPSession(page);
+  type Frame = { lineNumber: number; columnNumber?: number; functionName: string };
+  const events: { name: string; args?: { beginData?: { stackTrace?: Frame[] } } }[] = [];
+  cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as typeof events)));
+  await cdp.send('Tracing.start', { traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline.stack'] }, transferMode: 'ReportEvents' });
+  await act();
+  await twoFrames(page);
+  const complete = new Promise<void>((resolve) => cdp.once('Tracing.tracingComplete', () => resolve()));
+  await cdp.send('Tracing.end');
+  await complete;
+  await cdp.detach();
+  const forced = events.filter((event) => (event.name === 'Layout' || event.name === 'UpdateLayoutTree') && event.args?.beginData?.stackTrace?.length);
+  const at: Record<string, number> = {};
+  for (const event of forced) {
+    const stack = event.args!.beginData!.stackTrace!.slice(0, 4).map((frame) => `${frame.functionName || '(anonymous)'}:${frame.lineNumber}:${frame.columnNumber ?? 0}`);
+    const where = `${event.name} ${stack.join(' < ')}`;
+    at[where] = (at[where] ?? 0) + 1;
+  }
+  return { forced: forced.length, at };
+}
+
+/** Every component, by its spec. */
+const SPECS = fs
+  .readdirSync(path.join(pkg, '../../specs'))
+  .filter((file) => file.endsWith('.spec.json'))
+  .map((file) => file.replace('.spec.json', ''))
+  .sort();
+
+/** What every component without a budget of its own is held to: 100 instances force at most one pass more than 10. */
+const FORCED_GROWTH = 1;
+
+test.describe('forced passes do not grow with the number of instances (a Chromium trace)', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium', 'the passes are counted from a Chromium trace');
+
+  test('every forced budget names a component, and allows more than every other component is held to', () => {
+    for (const [name, entry] of Object.entries(budgets.forced)) {
+      expect(SPECS, `runtime.forced["${name}"] names no spec`).toContain(name);
+      expect(entry.budget, `runtime.forced["${name}"] is no wider than ${FORCED_GROWTH}: remove it`).toBeGreaterThan(FORCED_GROWTH);
+    }
+  });
+
+  for (const name of SPECS) {
+    test(`forced: ${name} — building its first fixture 100 times forces no more passes than 10 times do, but one`, async ({ page }) => {
+      await budgetPage(page);
+      const spec = loadSpec(name);
+      const stage = stageMarkup(spec, spec.fixtures[0]!, 'data-copy');
+      const build = async (n: number) => {
+        await page.evaluate(() => {
+          document.querySelector('#pane')!.innerHTML = '';
+        });
+        await twoFrames(page);
+        return forcedDuring(page, () =>
+          page.evaluate((html) => {
+            document.querySelector('#pane')!.innerHTML = html;
+          }, times(n, () => stage)),
+        );
+      };
+      // The first build compiles what the others run, and loads what they draw with.
+      await build(10);
+      const small = await build(10);
+      const large = await build(100);
+      const growth = large.forced - small.forced;
+      const entry = budgets.forced[name];
+      const sites = Object.entries(large.at)
+        .sort((a, b) => b[1] - a[1])
+        .filter(([, count]) => count >= 50)
+        .map(([where, count]) => `${count} × ${where}`);
+      const line = `forced ${name}: ${growth} more at 100 than at 10 (${small.forced} → ${large.forced}; ${entry ? `budget ${entry.budget}, measured ${entry.measured}` : `held to ${FORCED_GROWTH}`})`;
+      console.log(`perf-budget ${line}`);
+      test.info().annotations.push({ type: 'cost', description: line });
+      expect(growth, [line, ...sites].join('\n')).toBeLessThanOrEqual(entry?.budget ?? FORCED_GROWTH);
+    });
+  }
+});
 
 test.describe('the run-time budgets (perf-budgets.json)', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the budgets are measured in Chromium');

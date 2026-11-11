@@ -664,11 +664,109 @@
     }
   },
   "runtimeMeasured": {
-    "date": "2026-11-07",
+    "date": "2026-11-11",
     "machine": "darwin arm64, 11 CPUs (Apple M3 Pro), Chromium of @playwright/test 1.63",
-    "load": "load average 5.36 (counts do not depend on it: the same in 3 runs here and in the Linux container of scripts/ci-like.sh)"
+    "load": "load average 10.45 (counts do not depend on it: forced the same in 3 runs here, image-preview within 1)"
   },
   "runtime": {
+    "forced": {
+      "bottom-sheet": {
+        "budget": 945,
+        "measured": 900
+      },
+      "button-with-menu": {
+        "budget": 189,
+        "measured": 180
+      },
+      "carousel": {
+        "budget": 661,
+        "measured": 630
+      },
+      "chat-composer": {
+        "budget": 1134,
+        "measured": 1080
+      },
+      "date-time-picker": {
+        "budget": 2646,
+        "measured": 2520
+      },
+      "dialog": {
+        "budget": 2646,
+        "measured": 2520
+      },
+      "image-preview": {
+        "budget": 1512,
+        "measured": 1440
+      },
+      "loading-indicator": {
+        "budget": 94,
+        "measured": 90
+      },
+      "marquee-text": {
+        "budget": 189,
+        "measured": 180
+      },
+      "menu": {
+        "budget": 189,
+        "measured": 180
+      },
+      "modal-layer": {
+        "budget": 756,
+        "measured": 720
+      },
+      "navigation-drawer": {
+        "budget": 94,
+        "measured": 90
+      },
+      "number-ticker": {
+        "budget": 94,
+        "measured": 90
+      },
+      "pagination": {
+        "budget": 189,
+        "measured": 180
+      },
+      "popover": {
+        "budget": 1019,
+        "measured": 971
+      },
+      "scroll-area": {
+        "budget": 141,
+        "measured": 135
+      },
+      "segmented-button": {
+        "budget": 189,
+        "measured": 180
+      },
+      "side-sheet": {
+        "budget": 283,
+        "measured": 270
+      },
+      "snackbar": {
+        "budget": 189,
+        "measured": 180
+      },
+      "split-view": {
+        "budget": 94,
+        "measured": 90
+      },
+      "stepper": {
+        "budget": 283,
+        "measured": 270
+      },
+      "toolbar": {
+        "budget": 567,
+        "measured": 540
+      },
+      "tooltip": {
+        "budget": 370,
+        "measured": 353
+      },
+      "tree-view": {
+        "budget": 94,
+        "measured": 90
+      }
+    },
     "reads": {
       "button": {
         "budget": 0,
@@ -687,16 +785,16 @@
         "measured": 0
       },
       "dialog, closed": {
-        "budget": 1228,
-        "measured": 1170
+        "budget": 1134,
+        "measured": 1080
       },
       "side-sheet, closed": {
-        "budget": 2457,
-        "measured": 2340
+        "budget": 1606,
+        "measured": 1530
       },
       "popover, closed": {
-        "budget": 94,
-        "measured": 90
+        "budget": 0,
+        "measured": 0
       },
       "chat-composer": {
         "budget": 1417,
@@ -705,8 +803,8 @@
     },
     "updates": {
       "button, disabled": {
-        "budget": 2,
-        "measured": 2
+        "budget": 1,
+        "measured": 1
       },
       "text-field, value": {
         "budget": 2,
@@ -739,8 +837,8 @@
         "measured": 0
       },
       "chat-composer": {
-        "budget": 103,
-        "measured": 99
+        "budget": 0,
+        "measured": 0
       }
     }
   }
