@@ -25,7 +25,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### Uso
 
-Una hoja inferior es un componente controlado y nunca se cierra por sí misma. La abres con `open`. Cuando la persona pide que se vaya, la hoja emite `close` con el motivo, y tú vuelves a poner `open` en false. SwiftUI es la única excepción: ahí `open` es un binding, así que la hoja escribe false en él y después llama a `onClose`. Si dejas `open` en true, la hoja se queda, y tras un arrastre vuelve a asentarse en su altura más baja. En la web esto difiere del diálogo: la hoja cancela el evento nativo `cancel` y emite `close` en su lugar, de modo que Escape no la cierra hasta que lo haces tú.
+Una hoja inferior es un componente controlado y nunca se cierra por sí misma. La abres con `open`. Cuando la persona pide que se vaya, la hoja emite `close` con el motivo, y tú vuelves a poner `open` en false. SwiftUI es la única excepción: ahí `open` es un binding, así que la hoja escribe false en él y después llama a `onClose`. Si dejas `open` en true, la hoja se queda, y tras un arrastre vuelve a asentarse en su altura más baja. En la web esto difiere del diálogo: la hoja cancela el evento nativo `cancel` y emite `close` en su lugar, de modo que Esc no la cierra hasta que lo haces tú.
 
 `close` lleva uno de cinco motivos, con las mayúsculas y minúsculas propias de la plataforma:
 
@@ -34,10 +34,10 @@ Una hoja inferior es un componente controlado y nunca se cierra por sí misma. L
 | `close` | Pulsó el botón de cierre de la hoja (`closable`) | Estándar y modal |
 | `drag` | Soltó la hoja por debajo de la mitad de su altura más baja, o la lanzó hacia abajo desde ahí | Estándar y modal |
 | `scrim` | Pulsó la zona atenuada que rodea una hoja modal | Modal |
-| `escape` | Pulsó Escape | Modal |
+| `escape` | Pulsó Esc | Modal |
 | `back` | Usó la acción de retroceso de la plataforma: el botón o el gesto de retroceso de Android, el gesto de escape de accesibilidad de iOS. En la web, una petición de cierre que llega sin una tecla, como el gesto de retroceso de Android en el navegador, es `back`. | Modal |
 
-La hoja emite `close` solo mientras `dismissible` es true, y exactamente una vez por cada petición. Mientras es false, el velo, Escape y la acción de retroceso no hacen nada, y un arrastre hacia abajo se asienta en la altura más baja. El botón de cierre es la excepción: pide cerrar con el motivo `close` diga lo que diga `dismissible`, porque es una salida que decidiste dibujar.
+La hoja emite `close` solo mientras `dismissible` es true, y exactamente una vez por cada petición. Mientras es false, el velo, Esc y la acción de retroceso no hacen nada, y un arrastre hacia abajo se asienta en la altura más baja. El botón de cierre es la excepción: pide cerrar con el motivo `close` diga lo que diga `dismissible`, porque es una salida que decidiste dibujar.
 
 La hoja tiene dos formas en `variant`. **Modal**, la predeterminada, es una superposición modal: atenúa toda la ventana, mantiene el foco dentro y lo devuelve cuando se cierra. **Estándar** es una región del diseño de página, no una superposición: cubre la parte inferior del padre en el que la colocas, no dibuja ningún velo y deja que la persona siga trabajando en el contenido que hay encima.
 
@@ -248,7 +248,7 @@ El tirador de arrastre es la barra corta de la parte superior de la hoja, en una
 - **Arrastrar para cerrar.** Soltar por debajo de la mitad de la altura más baja, o lanzar hacia abajo desde la altura más baja, pide a la hoja que se cierre con el motivo `drag`, mientras `dismissible` sea true. La hoja se mantiene durante un fotograma donde la dejó el arrastre, y después sale deslizándose si pusiste `open` en false, o vuelve a asentarse si no lo hiciste. Mientras `dismissible` es false, se asienta en su altura más baja.
 - **Contenido que se desplaza.** Un arrastre hacia arriba sobre el contenido primero sube la hoja a la altura completa y después desplaza el contenido. Un arrastre hacia abajo primero desplaza el contenido de vuelta a su inicio y después baja la hoja. Donde una plataforma no puede pasar un mismo gesto de la hoja al desplazamiento del contenido, la segunda parte requiere un segundo arrastre (consulta más abajo las carencias conocidas por plataforma). El teclado y la tecnología de apoyo pueden desplazar el contenido en cualquiera de las dos alturas.
 
-Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pulsación o desde el teclado, y una hoja modal también se cierra con el velo, con Escape o con la acción de retroceso. Una hoja estándar, y una modal cuyo `dismissible` es false, no tienen esa segunda manera de cerrarse, así que dales un botón que las cierre.
+Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pulsación o desde el teclado, y una hoja modal también se cierra con el velo, con Esc o con la acción de retroceso. Una hoja estándar, y una modal cuyo `dismissible` es false, no tienen esa segunda manera de cerrarse, así que dales un botón que las cierre.
 
 ### Apertura, foco y cierre
 
@@ -256,7 +256,7 @@ Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pu
 - **Entrada del foco.** Al abrirse, el foco pasa al elemento que marcaste, o a la hoja en sí, en ambas formas. El foco se mueve cuando la hoja se abre, no cuando termina su movimiento.
 - **Retención del foco, solo en la modal.** En una hoja modal, Tab desde el último elemento que puede recibir el foco va al primero, y Mayús+Tab desde el primero va al último. La navegación del lector de pantalla se queda dentro, y el contenido de detrás no se desplaza. Una hoja estándar no retiene nada: Tab continúa hacia el contenido, y la hoja sigue abierta.
 - **Cierre.** Cuando la hoja se cierra mientras el foco está dentro de ella, el foco vuelve al elemento que lo tenía cuando se abrió la hoja.
-- **Apilamiento.** Un diálogo, un menú u otra hoja modal abiertos desde una hoja modal se apilan encima de ella. Escape descarta solo la superior, y la hoja recupera el foco que esa superposición devuelve.
+- **Apilamiento.** Un diálogo, un menú u otra hoja modal abiertos desde una hoja modal se apilan encima de ella. Esc descarta solo la superior, y la hoja recupera el foco que esa superposición devuelve.
 - **Movimiento.** Donde el movimiento está reducido, la hoja aparece y desaparece con un fundido en su sitio, sin deslizarse. En Android, cuyo ajuste elimina todas las animaciones, aparece y desaparece de inmediato.
 
 ### Recomendado
@@ -283,7 +283,7 @@ Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pu
 - El titular es un encabezado. El botón de cierre es un botón de solo icono de Tanrei que recibe su nombre de `closeLabel`, con el objetivo mínimo, el anillo de foco y los estados del propio botón; pide a la hoja que se cierre con el motivo `close` en ambas formas, diga lo que diga `dismissible`. El divisor bajo la cabecera es decorativo.
 - Mientras una hoja modal está abierta, todo lo que queda fuera está inerte y oculto para la tecnología de apoyo, y el foco y la navegación del lector de pantalla permanecen dentro. Una hoja estándar no deja nada inerte.
 - Al abrirse, el foco pasa al elemento que marcaste, o a la hoja. Al cerrarse, el foco vuelve al elemento que lo tenía cuando se abrió la hoja. Esto vale para ambas formas.
-- Escape, la acción de retroceso de la plataforma y una pulsación en el velo piden a una hoja modal que se cierre, mientras `dismissible` sea true. Una hoja estándar ignora Escape y la acción de retroceso.
+- Esc, la acción de retroceso de la plataforma y una pulsación en el velo piden a una hoja modal que se cierre, mientras `dismissible` sea true. Una hoja estándar ignora Esc y la acción de retroceso.
 - El tirador de arrastre es un [tirador de tamaño](/es/components/handle/) que siempre se dibuja y que toma los tokens propios de la hoja. Mientras la hoja tiene dos alturas, es un único botón, que puede recibir el foco y recibe su nombre de `handleLabel`, expandido en la altura completa. Enter y Espacio llevan la hoja a su otra altura. Con una sola altura, el tirador queda oculto para la tecnología de apoyo. La barra del tirador siempre está oculta.
 - El área de pulsación del tirador es como mínimo el objetivo mínimo, y su anillo de foco solo se muestra para el foco del teclado.
 - El contenido se desplaza dentro de la hoja, y el foco del teclado y la tecnología de apoyo pueden desplazarlo en cualquiera de las dos alturas.
@@ -298,7 +298,7 @@ Carencias conocidas por plataforma:
 - Web: con el tacto, el navegador decide quién se queda con un gesto cuando este empieza, así que el traspaso entre la hoja y el desplazamiento del contenido requiere un segundo gesto. Un ratón o un lápiz hacen el traspaso dentro de un mismo arrastre. El arrastre táctil todavía no está cubierto por ninguna prueba. En Firefox la hoja se va de inmediato en lugar de salir deslizándose, igual que el diálogo.
 - SwiftUI no tiene rol de diálogo ni de región: la hoja es un contenedor que recibe su nombre de `label`, con el rasgo modal mientras es modal. El tirador no tiene estado expandido, así que su valor dice «expanded» o «collapsed», solo en inglés. SwiftUI no puede llevar el foco a la hoja en sí cuando no hay nada marcado, y al cerrarse no devuelve el foco del teclado a ningún elemento; en iOS, la cubierta modal devuelve el foco de VoiceOver. En macOS, una hoja modal cubre solo la vista a la que está aplicado el modificador, así que aplícalo a la raíz de la ventana.
 - SwiftUI en iOS: por debajo de su altura completa, un arrastre sobre el contenido sube la hoja y el siguiente arrastre desplaza, y ahí el contenido no se desplaza, ni siquiera para VoiceOver o el teclado. El texto simple del contenido toma la fuente de cuerpo sin su interlineado, así que dos líneas miden 40 puntos de alto donde las demás plataformas dibujan 44.
-- SwiftUI: el margen interior inferior y el teclado en pantalla, el teclado físico, Escape y el gesto de escape de iOS no se han ejecutado en un dispositivo ni se han probado pulsándolos.
+- SwiftUI: el margen interior inferior y el teclado en pantalla, el teclado físico, Esc y el gesto de escape de iOS no se han ejecutado en un dispositivo ni se han probado pulsándolos.
 - Compose: la hoja desplaza su contenido ella misma, así que dale una columna simple, no una lista perezosa. Mientras una hoja modal se cierra, su ventana conserva el foco hasta que termina el movimiento de salida. Sus arrastres solo se han verificado con Robolectric, no en un dispositivo.
 - Flutter: una hoja estándar es un contenedor con nombre, no una región de referencia, porque Flutter 3.32 no tiene ese rol. La hoja todavía no se ha comprobado con TalkBack y VoiceOver en un dispositivo.
 - React Native no puede saber qué elemento tenía el foco, así que, cuando la hoja se cierra, el foco va adonde lo pone la plataforma, no de vuelta al elemento que la abrió, igual que con el diálogo y el panel de navegación. Sin `initialFocusRef`, al abrirse solo se mueve el lector de pantalla, hacia la hoja.

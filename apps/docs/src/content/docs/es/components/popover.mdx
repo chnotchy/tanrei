@@ -60,7 +60,7 @@ Dale un nombre: `headline` donde dibuja un titular, `label` donde no lo dibuja.
 - espera antes de abrirse, para que un puntero que pasa por encima del ancla, o Tab recorriendo una fila de anclas, no abra nada. `showDelay` toma `comp.popover.motion.show-delay` (700 ms en el sistema predeterminado) cuando no lo indicas.
 - sigue abierto mientras el puntero está sobre el ancla, sobre el hueco entre el ancla y el popover o sobre el popover, y mientras el foco está dentro. El foco del teclado en el ancla también lo mantiene abierto cuando `focus` está entre los valores. El puntero puede cruzar el hueco con cualquier `hideDelay`.
 - pide cerrarse con `toggle`, motivo `leave`, cuando nada de eso se ha cumplido durante `hideDelay`, que toma `comp.popover.motion.hide-delay` (300 ms en el sistema predeterminado) cuando no lo indicas. Nunca se cierra por tiempo mientras algo de eso se cumpla.
-- se cierra con Escape esté donde esté el foco, y deja el foco donde está. Tras Escape no vuelve a abrirse hasta que el puntero o el foco salen del ancla y vuelven.
+- se cierra con Esc esté donde esté el foco, y deja el foco donde está. Tras Esc no vuelve a abrirse hasta que el puntero o el foco salen del ancla y vuelven.
 - se queda junto a su ancla en cualquier ventana, también en una compacta, porque una hoja tomaría el foco cuando la persona solo ha señalado el ancla.
 - aparece con el mismo movimiento que cualquier popover.
 
@@ -190,7 +190,7 @@ En una ventana más estrecha que `comp.popover.compact.window-width` (600 en el 
 - Se sitúa en el borde inferior de la ventana, tan ancho como la ventana hasta `comp.bottom-sheet.container.max-width`, con el color y la elevación de la hoja inferior. Sus esquinas superiores toman `comp.bottom-sheet.container.shape` y las inferiores son rectas. Con el teclado en pantalla, se apoya sobre él.
 - Es tan alto como sus partes, y nunca más que la ventana menos `comp.bottom-sheet.container.margin-block-start` arriba. Más allá, el contenido se desplaza entre la cabecera y las acciones.
 - No tiene flecha ni tirador de arrastre, y no sigue un arrastre. `placement`, `offset`, `crossOffset` y `width` no se aplican.
-- Es modal: el velo de la hoja inferior atenúa la página, todo lo que queda detrás se vuelve inerte y el foco se queda dentro. Lo cierran Escape, la acción de retroceso, una pulsación en el velo y el botón de cierre.
+- Es modal: el velo de la hoja inferior atenúa la página, todo lo que queda detrás se vuelve inerte y el foco se queda dentro. Lo cierran Esc, la acción de retroceso, una pulsación en el velo y el botón de cierre.
 - Sube desde el borde inferior con el movimiento de la hoja inferior y vuelve a bajar al cerrarse. Donde el movimiento está reducido, aparece y desaparece con un fundido en su sitio.
 - Si el ancho de la ventana cruza ese valor mientras el popover está abierto, cambia de forma de inmediato, sin movimiento, y el foco se queda donde estaba.
 
@@ -235,7 +235,7 @@ Aquí los menús no son popovers: un menú, la lista de un select o de un combob
 Un toggletip es una nota breve detrás de un pequeño botón de información, junto a lo que explica. No es un componente propio: es un botón que abre un popover. Úsalo donde un tooltip no basta, porque la nota tiene un enlace o se tiene que poder abrir con el tacto, y limítalo a una o dos frases.
 
 - **El botón.** Un botón de solo icono, `variant="text"` y `size="small"`, cuyo `label` dice de qué trata la nota («Sobre el almacenamiento») y no «Información». Una pulsación abre el popover y otra lo cierra; el popover nombra el botón como su `anchor`.
-- **El popover.** Dale nombre con `label`, o con `headline` donde dibuje un título. Como todo popover, recibe el foco al abrirse y se lo devuelve al botón al cerrarse, y Escape y una pulsación fuera lo cierran.
+- **El popover.** Dale nombre con `label`, o con `headline` donde dibuje un título. Como todo popover, recibe el foco al abrirse y se lo devuelve al botón al cerrarse, y Esc y una pulsación fuera lo cierran.
 - **No en lugar de la página.** Lo que hay que leer antes de seguir va en el texto de ayuda del campo o en la propia página, donde nadie tenga que pedirlo.
 
 <Example label="Un toggletip: pulsa el botón de información">
@@ -249,7 +249,7 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 - Usa `trigger="hover focus"` para una vista previa de adónde lleva un enlace, como una persona o un documento, a la que la persona también llega siguiendo el enlace.
 - Añade `press` a un popover que se abre con el puntero cuando su contenido tenga algo que manejar, para que quien usa el teclado o el tacto pueda abrirlo a propósito y entrar en él.
 - Mantén breve el contenido. Una sola tarea y, como mucho, unos pocos campos.
-- Añade `closable` cuando el popover sea lo bastante grande para tapar lo que una persona pulsaría fuera de él, y para el tacto, donde no hay Escape.
+- Añade `closable` cuando el popover sea lo bastante grande para tapar lo que una persona pulsaría fuera de él, y para el tacto, donde no hay Esc.
 - Usa `width="anchor"` e `initialFocus="anchor"` para una superficie situada bajo un campo en el que la persona está escribiendo.
 - Pon `compactPresentation` en `own` solo para un popover que en una ventana compacta deba quedarse junto a aquello a lo que pertenece, como una nota junto a la palabra que explica.
 - Mantén cortas las etiquetas de las acciones. Una etiqueta más ancha que el popover no salta de línea.
@@ -259,7 +259,7 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 - No pongas nada que una persona necesite solo en un popover que se abre con el puntero. En una pantalla táctil no hay puntero que pase por encima: da la misma información de otra manera, con el destino del enlace o con `press` entre los valores.
 - No acortes `showDelay` para que un popover de puntero parezca rápido. Un popover es mayor que un tooltip y taparía la página cada vez que pasa el puntero.
 - No pongas en un popover lo que una persona perdería con una sola pulsación fuera por descuido. Un formulario largo va en un diálogo o en una hoja.
-- No anides más de un popover dentro de un popover. Cada nivel es una pulsación más de Escape.
+- No anides más de un popover dentro de un popover. Cada nivel es una pulsación más de Esc.
 - No uses un popover para algo que la persona debe responder antes de continuar. Eso es un diálogo.
 
 ## Accesibilidad
@@ -271,10 +271,10 @@ Un toggletip es una nota breve detrás de un pequeño botón de información, ju
 - El contenedor es un diálogo no modal que recibe su nombre de `headline` o de `label`. Nada de lo que queda fuera se oculta ni se deja inerte.
 - Como hoja en una ventana compacta, el contenedor es un diálogo modal: todo lo que queda fuera se vuelve inerte, y Tab y Mayús+Tab dan la vuelta dentro de él. Al cerrarse, el foco vuelve al activador.
 - El activador expone que abre un diálogo y si ese diálogo está abierto, cuando `press` está entre los valores de `trigger`. Un ancla que solo lo abre con el puntero o con el foco no expone ninguna de las dos cosas. Su nombre y su rol no cambian.
-- Un popover abierto por el puntero o por el foco cumple WCAG 1.4.13 (contenido con hover o foco): Escape lo descarta sin mover el puntero ni el foco, el puntero puede cruzar el hueco hasta él, y sigue visible hasta que el puntero y el foco se van.
+- Un popover abierto por el puntero o por el foco cumple WCAG 1.4.13 (contenido con hover o foco): Esc lo descarta sin mover el puntero ni el foco, el puntero puede cruzar el hueco hasta él, y sigue visible hasta que el puntero y el foco se van.
 - Al abrirse, el foco pasa al elemento que marcaste, o al contenedor, de modo que lo primero que se lee es el nombre del popover. El indicador de foco se muestra en el contenedor solo cuando el popover se abrió con el teclado.
 - El popover va justo después de su activador en el orden de tabulación, esté donde esté en el documento. Tab desde su último elemento sigue hacia lo que viene después del activador, y eso lo cierra. El foco nunca queda retenido dentro.
-- Escape cierra solo la superposición que está más arriba y no va más allá: un diálogo en el que está el popover sigue abierto.
+- Esc cierra solo la superposición que está más arriba y no va más allá: un diálogo en el que está el popover sigue abierto.
 - Al cerrarse, el foco vuelve al activador si estaba dentro del popover. Si la persona llevó el foco a otro lugar, se queda ahí.
 - Una superposición abierta desde dentro del popover, como un menú o un tooltip, le pertenece: una pulsación en ella, o el foco en ella, no cierra el popover.
 - Con el texto al 200%, el contenido del popover salta de línea, y el popover crece hasta sus límites y se desplaza. En una ventana compacta es una hoja a todo el ancho de la ventana. Un popover que conserva su propia presentación tiene, en una ventana de 320 de ancho, la anchura de la ventana menos los márgenes.
