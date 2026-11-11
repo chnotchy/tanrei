@@ -389,7 +389,7 @@ test.describe('elements that read together after their render', () => {
     expect(drawn).toBe('horizontal');
   });
 
-  test('CCM-6: the send button a chat composer draws in its first render is drawn with the variant the system names from its first update — no transition from another variant starts', async ({ page }) => {
+  test('CCM-6: the send button a chat composer draws in its first render carries the variant the system names from its own first render — it never draws another one first, and no transition starts', async ({ page }) => {
     await open(page, pageHtml());
     const drawn = await page.evaluate(async (every) => {
       await customElements.whenDefined('tanrei-chat-composer');
@@ -398,11 +398,32 @@ test.describe('elements that read together after their render', () => {
       pane.style.setProperty('--tanrei-comp-chat-composer-send-button-variant', 'text');
       pane.innerHTML = '<tanrei-chat-composer label="Message"></tanrei-chat-composer>';
       const composer = pane.firstElementChild as HTMLElement;
+      // What the send Button draws, from its first render on. A microtask queued now runs after the composer's first
+      // update, which made that Button and its shadow root, and before the updates that update queued, the Button's
+      // first among them. A read the composer asks before its render runs before that update too, and the Button's
+      // first render carries the variant; a read asked after the render (in `updated`) runs after it, and the variant
+      // arrives as a change to what the Button has drawn — one that its settling keeps from animating here (MOT-3), but
+      // that any style or layout read between the two would have styled with the Button's own default first.
+      const records: MutationRecord[] = [];
+      let observer: MutationObserver | undefined;
+      queueMicrotask(() => {
+        observer = new MutationObserver((list) => records.push(...list));
+        observer.observe(composer.shadowRoot!.querySelector('.send > tanrei-button')!.shadowRoot!, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-host-variant'] });
+      });
       await new Promise((frame) => requestAnimationFrame(frame));
       await new Promise((frame) => requestAnimationFrame(frame));
+      records.push(...observer!.takeRecords());
+      observer!.disconnect();
       const button = composer.shadowRoot!.querySelector('.send > tanrei-button')!.shadowRoot!.querySelector<HTMLElement>('button')!;
-      return { variant: button.dataset.hostVariant, transitions: ((0, eval)(every) as (root: Element) => Animation[])(button).length };
+      return {
+        variant: button.dataset.hostVariant,
+        // The observer was there before the Button's first render: it saw the button drawn.
+        drawn: records.some((record) => [...record.addedNodes].some((node) => node === button || node.contains(button))),
+        // The variant the button was first drawn with is the one it has now.
+        changed: records.filter((record) => record.type === 'attributes').length,
+        transitions: ((0, eval)(every) as (root: Element) => Animation[])(button).length,
+      };
     }, EVERY_ANIMATION);
-    expect(drawn).toEqual({ variant: 'text', transitions: 0 });
+    expect(drawn).toEqual({ variant: 'text', drawn: true, changed: 0, transitions: 0 });
   });
 });
