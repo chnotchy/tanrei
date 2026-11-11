@@ -1,6 +1,6 @@
 // The panels of the sections the rail lists (./sections.ts): each a panel of what Groups was, or a few of its rows.
 import { HEX_PATTERN } from '../core.js';
-import { type Ctx, type Json, type Place, button, choice, codeField, fold, folds, format, h, isolated, linkButton, panel, rich, short, textField } from './dom';
+import { type Ctx, type Json, type Place, button, choice, codeField, fold, folds, format, h, isolated, linkButton, ltr, panel, rich, short, textField, trim } from './dom';
 import { tokenEditor } from './editor';
 import { addPanel, extensionsPanel } from './add';
 import type { Section } from './sections';
@@ -38,24 +38,32 @@ function basePanel(ctx: Ctx) {
 }
 
 // ── dials ────────────────────────────────────────────────────────────────────────────────────────
-function dialRow(ctx: Ctx, dial: Json, { name, note, reason: withReason, set }: { name: string; note: string; reason: boolean; set: (value: number) => Json }) {
+/**
+ * One number of the layer, a field and a slider, with its reset and — once it is changed — its reason: a dial, or the
+ * minimum target (which no dial scales). `current` is what the layer says now; `onvalue` hears every value shown,
+ * while it is typed, stepped or dragged too; `after` stands under the slider.
+ */
+function numberRow(ctx: Ctx, { id, name, note, current, set, setReason, onvalue, after }: { id: string; name: string; note: string; current: () => Json; set: (value: number) => Json; setReason: (reason: string) => Json; onvalue?: (value: number) => void; after?: HTMLElement }) {
   const { t } = ctx;
-  const current = () => ctx.studio.dials(ctx.layer()).find((d: Json) => d.id === dial.id)!;
+  const start = current();
   // Shown while it is typed, stepped or dragged; written when that ends (the field's and the slider's `change`).
-  const pair = numberWidget(ctx, { label: t.named(name, t.dials.value), rangeLabel: name, value: dial.value, min: dial.min, max: dial.max, step: dial.step, unit: dial.unit, range: true, attrs: { class: 'ts-num' }, onchange: (live) => pair.get() !== undefined && ctx.commit(set(pair.get()!), { preview: live }) });
-  const reset = linkButton(t.reset, () => ctx.commit(set(dial.base)), { 'aria-label': t.labelled(t.reset, name) });
-  // A dial's reason is asked once the dial is changed: the field is written then, not before.
+  const pair = numberWidget(ctx, { label: t.named(name, t.dials.value), rangeLabel: name, value: start.value, min: start.min, max: start.max, step: start.step, digits: start.step >= 1 ? 0 : 4, unit: start.unit, range: true, attrs: { class: 'ts-num' }, onchange: (live) => pair.get() !== undefined && (onvalue?.(pair.get()!), ctx.commit(set(pair.get()!), { preview: live })) });
+  const reset = linkButton(t.reset, () => ctx.commit(set(current().base)), { 'aria-label': t.labelled(t.reset, name) });
+  // A reason is asked once the value is changed: the field is written then, not before.
   let reason: ReturnType<typeof textField> | undefined;
   const row = h(
     'div',
-    { class: 'ts-row', 'data-dial': dial.id },
-    h('div', { class: 'ts-row-head' }, h('div', { class: 'ts-row-title' }, name, h('small', {}, rich((at) => (note ? t.listed(at(h('code', { text: short(dial.id, ctx.studio.namespace) })), note) : at(h('code', { text: short(dial.id, ctx.studio.namespace) })))))), pair.number, reset),
+    { class: 'ts-row', 'data-dial': id },
+    h('div', { class: 'ts-row-head' }, h('div', { class: 'ts-row-title' }, name, h('small', {}, rich((at) => (note ? t.listed(at(h('code', { text: short(id, ctx.studio.namespace) })), note) : at(h('code', { text: short(id, ctx.studio.namespace) })))))), pair.number, reset),
     pair.slider,
+    after ?? null,
   );
   const refresh = () => {
     const now = current();
+    // The limits can move with the layer (the minimum target stays under a touch or pointer target set apart from it).
+    for (const el of [pair.number, pair.slider]) if (el && el.max !== now.max) el.max = now.max;
     pair.sync(now.value);
-    if (withReason && now.changed && !reason) row.append((reason = textField({ label: t.dials.reason, placeholder: t.dials.reasonPlaceholder, attrs: { 'data-dial-reason': true }, oninput: (value) => ctx.commit(ctx.studio.setDial(ctx.layer(), dial.id, current().value, value)) })));
+    if (now.changed && !reason) row.append((reason = textField({ label: t.dials.reason, placeholder: t.dials.reasonPlaceholder, attrs: { 'data-dial-reason': true }, oninput: (value) => ctx.commit(setReason(value)) })));
     if (reason && document.activeElement !== reason) reason.value = now.reason;
     row.toggleAttribute('data-changed', now.changed);
     reset.hidden = !now.changed;
@@ -65,14 +73,20 @@ function dialRow(ctx: Ctx, dial: Json, { name, note, reason: withReason, set }: 
   ctx.onUpdate(refresh);
   return row;
 }
+/** A dial's row (`numberRow`). */
+function dialRow(ctx: Ctx, dial: Json, { name, note, onvalue, after }: { name: string; note: string; onvalue?: (value: number) => void; after?: HTMLElement }) {
+  const { studio } = ctx;
+  const current = () => studio.dials(ctx.layer()).find((d: Json) => d.id === dial.id)!;
+  return numberRow(ctx, { id: dial.id, name, note, current, onvalue, after, set: (value) => studio.setDial(ctx.layer(), dial.id, value), setReason: (reason) => studio.setDial(ctx.layer(), dial.id, current().value, reason) });
+}
 
 /** Dials, each a number and a slider: all eight, or the few a row of the rail edits (`keys`). */
-function dialsPanel(ctx: Ctx, { keys, title, help, key = 'dials' }: { keys?: string[]; title?: string; help?: string; key?: string } = {}, ...after: HTMLElement[]) {
+function dialsPanel(ctx: Ctx, { keys, title, help, key = 'dials', rowExtras }: { keys?: string[]; title?: string; help?: string; key?: string; rowExtras?: Record<string, { onvalue?: (value: number) => void; after?: HTMLElement }> } = {}, ...after: HTMLElement[]) {
   const { t, studio } = ctx;
   const shown = (dials: Json[]) => (keys ? keys.map((each) => dials.find((dial) => dial.key === each)!).filter(Boolean) : dials);
   const rows = shown(studio.dials(ctx.layer())).map((dial: Json) => {
     const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
-    return dialRow(ctx, dial, { name, note, reason: true, set: (value) => studio.setDial(ctx.layer(), dial.id, value) });
+    return dialRow(ctx, dial, { name, note, ...rowExtras?.[dial.key] });
   });
   const resetAll = linkButton(t.resetAll, () => ctx.commit(shown(studio.dials(ctx.layer())).reduce((layer: Json, dial: Json) => studio.setDial(layer, dial.id, dial.base), ctx.layer())), { 'data-reset-dials': key });
   return panel(ctx, { title: title ?? t.dials.title, help: help ?? t.dials.help, key, actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': key }, rows), ...after);
@@ -471,13 +485,57 @@ function aboutPanel(ctx: Ctx) {
   );
 }
 
-/** The size of what is pressed: density and the size unit, and the least size anything pressable is drawn at. */
+/**
+ * The size of what is pressed: density, with the heights it gives; the size unit; and the minimum target, the least
+ * size anything pressable is drawn at — a value of its own, which neither dial moves.
+ */
 function sizePanel(ctx: Ctx) {
   const { t, studio } = ctx;
-  const target = `${studio.namespace}.sys.target.minimum`;
-  const least = ctx.view().model.tokens[target] ? fold({ label: h('code', { text: short(target, studio.namespace) }), supporting: h('span', { text: t.rail.target }), attrs: { 'data-target': true } }) : null;
-  least?.addEventListener('toggle', () => least.open && least.children.length === 1 && least.append(tokenEditor(ctx, target, { compact: true })));
-  return dialsPanel(ctx, { keys: ['density', 'size.unit'], title: t.rail.rows.size, help: t.rail.help.size, key: 'size' }, ...(least ? [folds({}, least)] : []));
+  // What the density and the minimum give, as the engine works it out (core.heights): while either is dragged, at the
+  // value shown; else at the layer's.
+  const shown: { density?: number; minimum?: number } = {};
+  const heights = h('p', { class: 'ts-hint', 'data-heights': true, 'aria-live': 'polite' });
+  let said = '';
+  const drawHeights = () => {
+    const rows = studio.heights(ctx.view(), shown) as Json[];
+    const key = JSON.stringify(rows);
+    if (key === said) return;
+    said = key;
+    heights.hidden = !rows.length;
+    const px = (value: number, unit: string) => `${trim(value)}${unit}`;
+    heights.replaceChildren(...rich((at) => rows.reduce((line: string, row: Json) => {
+      const value = row.held ? t.rail.held(at(ltr(px(row.drawn, row.unit))), at(ltr(px(row.step, row.unit)))) : at(ltr(px(row.drawn, row.unit)));
+      const item = `${at(h('code', { text: row.size }))} ${value}`;
+      return line ? t.listed(line, item) : t.labelled(t.rail.heights, item);
+    }, '')));
+  };
+  const minimum = studio.targetMinimum(ctx.layer()) as Json | null;
+  const minimumRow = minimum
+    ? numberRow(ctx, {
+      id: minimum.id, name: t.rail.minimum, note: t.rail.target,
+      current: () => studio.targetMinimum(ctx.layer()) as Json,
+      set: (value) => studio.setTargetMinimum(ctx.layer(), value),
+      setReason: (reason) => studio.setTargetMinimum(ctx.layer(), (studio.targetMinimum(ctx.layer()) as Json).value, reason),
+      onvalue: (value) => ((shown.minimum = value), drawHeights()),
+    })
+    : null;
+  const dials = studio.dials(ctx.layer()) as Json[];
+  const rows = ['density', 'size.unit'].map((key) => dials.find((dial) => dial.key === key)).filter((dial): dial is Json => Boolean(dial)).map((dial) => {
+    const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
+    return dial.key === 'density' ? dialRow(ctx, dial, { name, note, onvalue: (value) => ((shown.density = value), drawHeights()), after: heights }) : dialRow(ctx, dial, { name, note });
+  });
+  // What the layer says once a value is committed (and every other change: an undo, another base).
+  ctx.onUpdate(() => {
+    delete shown.density;
+    delete shown.minimum;
+    drawHeights();
+  });
+  drawHeights();
+  const resetAll = linkButton(t.resetAll, () => {
+    const layer = dials.filter((dial) => dial.key === 'density' || dial.key === 'size.unit').reduce((next: Json, dial: Json) => studio.setDial(next, dial.id, dial.base), ctx.layer());
+    ctx.commit(minimum ? studio.setTargetMinimum(layer, (studio.targetMinimum(layer) as Json).base) : layer);
+  }, { 'data-reset-dials': 'size' });
+  return panel(ctx, { title: t.rail.rows.size, help: t.rail.help.size, key: 'size', actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': 'size' }, rows, minimumRow));
 }
 
 /**
