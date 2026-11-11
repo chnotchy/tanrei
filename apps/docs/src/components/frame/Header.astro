@@ -3,13 +3,11 @@
 // component replaces Starlight's `Header`, and with it its `SiteTitle`, `ThemeSelect`, `LanguageSelect` and
 // `SocialIcons`. PageFrame.astro puts it in the shell's `<header>`.
 //
-//   the menu button   the bar's navigation item, at every width, on pages that have a sidebar: the navigation's one
-//                     menu button, so the drawer has no row of its own for one. Two icon-only Buttons that look the
-//                     same take turns by the shell's window class: in a compact window the shell's own menu button
-//                     (`data-app-shell-menu`, APS-6, APS-7), which opens the drawer over the content; in a wider one
-//                     the site's, which asks the drawer for its other form — collapsed or expanded where it stands
-//                     beside the content, opened over it where it is a column (its presentation, NVD-53) — and says
-//                     which, as the drawer's own menu button would (NVD-37);
+//   the menu button   the bar's navigation item, at every width, on pages that have a sidebar: the shell's menu
+//                     button (`data-app-shell-menu`, APS-6, APS-7), the navigation's one, so the drawer has no row of
+//                     its own for one. The shell shows it in every window class and asks the drawer for its other form:
+//                     collapsed or expanded where it stands beside the content, opened over it below the header where
+//                     it is a column or has no place (its presentation, NVD-53), and says which;
 //   the brand         the bar's brand (APB-19 to APB-23): a link to the language's first page (`brand-href`) named by
 //                     the site's name (`brand-label`), drawn as Tanrei's wordmark (design/brand/wordmark.svg, inline,
 //                     in `comp.app-bar.brand.color`) at every width — the name is read here, so the wordmark, never
@@ -39,10 +37,7 @@
 // taken out (`app-bar-overflow="never"`), so the repository's link is the one action that leaves where the row has no
 // room for it — every page's foot links the repository too (Footer.astro). It stands first among the actions, so that
 // whether it is drawn moves nothing else, and until the bar is defined, and where no script runs, it is not drawn
-// (styles/frame.css). The bar holds one navigation item: of the two menu buttons, only the one of the window's
-// class is given its slot (the other's stays unassigned, and the bar draws nothing of it), first by the script that
-// follows the bar, before the bar is defined, then whenever the class changes. Until the bar is defined, and where no
-// script runs, the stylesheet shows the one or the other (styles/frame.css).
+// (styles/frame.css).
 //
 // The menus stand beside the bar, not in it: the bar draws its own slots only, and a menu is drawn where it is
 // written (its surface is in the top layer).
@@ -73,14 +68,9 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
 <tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle} overflow="hide">
   {
     route.hasSidebar && (
-      <>
-        <tanrei-button slot="navigation" class="docs-compact-only" data-docs-slot="navigation" data-app-shell-menu variant="text" label={words.menu}>
-          <span slot="icon">menu</span>
-        </tanrei-button>
-        <tanrei-button slot="navigation" id="docs-drawer-toggle" class="docs-wide-only" data-docs-slot="navigation" variant="text" label={words.menu} aria-controls="docs-sidebar" aria-expanded="true">
-          <span slot="icon">menu</span>
-        </tanrei-button>
-      </>
+      <tanrei-button slot="navigation" data-app-shell-menu variant="text" label={words.menu}>
+        <span slot="icon">menu</span>
+      </tanrei-button>
     )
   }
   <Fragment set:html={wordmark} />
@@ -106,9 +96,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
 
 {
   /* Before first paint: the appearance the head's script applied to the root, as the controls' starting values (an
-   attribute is what an element starts from) — the look's name on its button, the panel's choices, the mode's toggle
-   — and the bar's menu button for the window's class, read from the shell's stylesheet — before the bar is defined,
-   so that it never holds both. */
+   attribute is what an element starts from) — the look's name on its button, the panel's choices, the mode's toggle. */
 }
 <script is:inline>
   {
@@ -129,14 +117,6 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     const contrast = root.getAttribute('data-tanrei-contrast');
     if (contrast) for (const tabs of frame.querySelectorAll('.docs-appearance-contrast')) tabs.setAttribute('value', contrast);
     if (root.getAttribute('data-theme') === 'dark') frame.querySelector('#docs-mode')?.setAttribute('selected', '');
-    const bar = frame.querySelector('tanrei-app-bar.docs-app-bar');
-    if (bar) {
-      const compact = getComputedStyle(bar).getPropertyValue('--tanrei-app-shell-window-class').trim() === 'compact';
-      for (const item of bar.querySelectorAll(':scope > .docs-wide-only, :scope > .docs-compact-only')) {
-        if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', item.dataset.docsSlot);
-        else item.removeAttribute('slot');
-      }
-    }
   }
 </script>
 
@@ -251,38 +231,6 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     void tell({ message: words?.dataset.shared ?? '', action: words?.dataset.keep, closable: true, closeLabel: words?.dataset.close, duration: 'indefinite' }).then((result) => {
       if (result?.result === 'action') keepShared();
     });
-  }
-
-  // The bar's menu button follows the window's class (the script after the bar chose it before the bar was defined):
-  // the button of the class has its slot, and the other none, so the bar holds one navigation item.
-  const bar = document.querySelector('tanrei-app-bar.docs-app-bar');
-  const arrange = (windowClass: string) => {
-    const compact = windowClass.trim() === 'compact';
-    for (const item of bar?.querySelectorAll<HTMLElement>(':scope > .docs-wide-only, :scope > .docs-compact-only') ?? []) {
-      if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', item.dataset.docsSlot ?? '');
-      else item.removeAttribute('slot');
-    }
-  };
-  const shell = bar?.closest('tanrei-app-shell');
-  shell?.addEventListener('windowclasschange', (event) => arrange((event as CustomEvent<{ windowClass: string }>).detail.windowClass));
-  const decided = shell?.getAttribute('data-window-class');
-  if (decided) arrange(decided);
-
-  // The site's menu button of a wider window: it asks the drawer for its other form, as the drawer's own menu button
-  // would (NVD-37) — collapsed or expanded where the drawer stands beside the content, open over it where the drawer
-  // is a column — and says whether the navigation is expanded.
-  type Drawer = HTMLElement & { presentation: string | null; expanded: boolean; open: boolean };
-  const toggle = document.getElementById('docs-drawer-toggle');
-  const drawer = document.getElementById('docs-sidebar') as Drawer | null;
-  if (toggle && drawer) {
-    const say = () => toggle.setAttribute('aria-expanded', String(drawer.presentation === 'column' ? drawer.open : drawer.expanded));
-    toggle.addEventListener('click', () => {
-      if (drawer.presentation === 'column') drawer.open = !drawer.open;
-      else if (drawer.presentation === 'standard') drawer.expanded = !drawer.expanded;
-      say();
-    });
-    for (const type of ['presentationchange', 'expandedchange', 'close']) drawer.addEventListener(type, () => queueMicrotask(say));
-    void customElements.whenDefined('tanrei-navigation-drawer').then(say);
   }
 
   // A menu opens from its button and closes when it asks to (the menu never closes itself, MNU-1).

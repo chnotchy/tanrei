@@ -1,6 +1,6 @@
 // The site's header as it is drawn (components/frame/Header.astro), in each engine: the bar holds one menu button —
-// the shell's in a compact window, the site's in a wider one, which collapses and expands the drawer beside the
-// content and opens its column over it — the brand, the appearance's button in its context (not drawn in a compact
+// the shell's, at every width, which collapses and expands the drawer beside the content, and opens its column and a
+// compact window's drawer below the header with the regions under the scrim inert (APS-6, APS-7) — the brand, the appearance's button in its context (not drawn in a compact
 // window, where the drawer holds it), and four actions: the repository's link, which the bar hides where its row has no
 // room for it (APB-26, APB-30), and the search, the mode's toggle and the language, which it never hides. What the
 // appearance's panel does is test/browser/appearance.test.mjs's; the language's menu links the page in the six languages;
@@ -107,11 +107,11 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('a wide window: the site’s menu button, the appearance beside the brand, and four actions', LIMIT, async () => {
+    test('a wide window: the shell’s menu button, the appearance beside the brand, and four actions', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       const seen = await items(page);
       assert.equal(seen.windowClass, 'expanded');
-      assert.deepEqual(seen.navigation, { held: ['docs-drawer-toggle'], drawn: ['docs-drawer-toggle'] });
+      assert.deepEqual(seen.navigation, { held: ['shell-menu'], drawn: ['shell-menu'] });
       assert.deepEqual(seen.context, { held: ['docs-appearance'], drawn: ['docs-appearance'] });
       assert.deepEqual(seen.actions, { held: ['docs-repository', 'docs-search', 'docs-mode', 'docs-language'], drawn: ['docs-repository', 'docs-search', 'docs-mode', 'docs-language'] });
       // Beside the brand, on the row's centre line.
@@ -141,46 +141,73 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('a window that changes its class changes the menu button the bar holds, each way', LIMIT, async () => {
+    test('a window that changes its class keeps the one menu button, drawn, each way', LIMIT, async () => {
       const { context, page } = await open(WIDE);
-      await page.setViewportSize(COMPACT);
-      await windowClass(page, 'compact');
-      assert.deepEqual((await items(page)).navigation.held, ['shell-menu']);
-      await page.setViewportSize(WIDE);
-      await windowClass(page, 'expanded');
-      assert.deepEqual((await items(page)).navigation.held, ['docs-drawer-toggle']);
+      for (const [viewport, name] of [[MEDIUM, 'medium'], [COMPACT, 'compact'], [MEDIUM, 'medium'], [WIDE, 'expanded']]) {
+        await page.setViewportSize(viewport);
+        await windowClass(page, name);
+        assert.deepEqual((await items(page)).navigation, { held: ['shell-menu'], drawn: ['shell-menu'] }, name);
+      }
       await context.close();
     });
 
-    test('the site’s menu button collapses and expands the drawer beside the content, and opens its column over it', LIMIT, async () => {
+    test('the shell’s menu button collapses and expands the drawer beside the content; it opens the column, and a compact window’s drawer, below the header, the regions under the scrim inert until it closes', LIMIT, async () => {
       const { context, page } = await open(WIDE);
-      const toggle = page.locator('#docs-drawer-toggle');
+      const menu = page.locator('tanrei-app-bar [data-app-shell-menu]');
       const drawer = page.locator('#docs-sidebar');
-      // The state is said by the native button the toggle draws, which carries its role: the product's ARIA on the
-      // host is moved there (aria-controls by element reflection, where the engine has it).
-      const native = toggle.locator('button');
+      // The state is said by the native button the menu button draws, which carries its role: the shell states it there
+      // (aria-controls by element reflection, where the engine has it).
+      const native = menu.locator('button');
       const expanded = () => native.getAttribute('aria-expanded');
+      // The frame's regions that are inert, by name, and whether the header stands in an inert subtree.
+      const inert = () =>
+        page.evaluate(() => {
+          const shell = document.querySelector('tanrei-app-shell');
+          const regions = [...shell.children].filter((child) => child.inert).map((child) => child.getAttribute('slot') ?? child.localName);
+          return { regions: regions.sort(), header: !!document.querySelector('tanrei-app-bar').closest('[inert]') };
+        });
+      const NONE = { regions: [], header: false };
+      /** The shell and the drawer agree that the navigation is open over the content, or not. */
+      const shown = (open) => page.waitForFunction((open) => document.querySelector('tanrei-app-shell').navigationOpen === open && document.getElementById('docs-sidebar').open === open, open);
       assert.equal(await expanded(), 'true');
-      assert.deepEqual(await native.evaluate((button) => ('ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.id) : ['docs-sidebar'])), ['docs-sidebar']);
-      await toggle.click();
+      assert.deepEqual(await native.evaluate((button) => ('ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.id) : [button.getAttribute('aria-controls')])), ['docs-sidebar']);
+      await menu.click();
       await page.waitForFunction(() => document.getElementById('docs-sidebar').hasAttribute('collapsed'));
       assert.equal(await expanded(), 'false');
       assert.equal(await drawer.locator('.docs-listing-row').isVisible(), false, 'a collapsed drawer draws no switch');
-      await toggle.click();
+      assert.deepEqual(await inert(), NONE, 'a drawer beside the content makes nothing inert');
+      await menu.click();
       await page.waitForFunction(() => !document.getElementById('docs-sidebar').hasAttribute('collapsed'));
       assert.equal(await expanded(), 'true');
       assert.ok(await drawer.locator('.docs-listing').isVisible(), 'the switch stands first in the expanded drawer');
 
-      await page.setViewportSize(MEDIUM);
-      await windowClass(page, 'medium');
-      await page.waitForFunction(() => document.getElementById('docs-sidebar').presentation === 'column');
-      assert.equal(await expanded(), 'false');
-      await toggle.click();
-      await page.waitForFunction(() => document.getElementById('docs-sidebar').open === true);
-      assert.equal(await expanded(), 'true');
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => document.getElementById('docs-sidebar').open === false);
-      assert.equal(await expanded(), 'false');
+      for (const [viewport, name, presentation] of [[MEDIUM, 'medium', 'column'], [COMPACT, 'compact', 'modal']]) {
+        await page.setViewportSize(viewport);
+        await windowClass(page, name);
+        await page.waitForFunction((presentation) => document.getElementById('docs-sidebar').presentation === presentation, presentation);
+        assert.equal(await expanded(), 'false', name);
+        assert.deepEqual(await inert(), NONE, `${name}: nothing is inert while the navigation is closed`);
+        // Opened by the menu button: the shell follows the drawer, everything under the scrim is inert, the header is not.
+        await menu.click();
+        await shown(true);
+        assert.equal(await expanded(), 'true', name);
+        assert.deepEqual(await inert(), { regions: ['aside', 'main', 'skip-link'], header: false }, `${name}: open`);
+        const [headerEnd, drawerStart] = await page.evaluate(() => [document.querySelector('tanrei-app-shell > [slot="header"]').getBoundingClientRect().bottom, document.getElementById('docs-sidebar').getBoundingClientRect().top]);
+        assert.ok(Math.abs(headerEnd - drawerStart) < 1, `${name}: the drawer starts at the header's bottom edge: ${headerEnd}, ${drawerStart}`);
+        // The menu button, pressed again, closes it: nothing is inert.
+        await menu.click();
+        await shown(false);
+        assert.equal(await expanded(), 'false', name);
+        assert.deepEqual(await inert(), NONE, `${name}: closed by the menu button`);
+        // Opened again, Escape on the menu button closes it, and focus stays there.
+        await menu.click();
+        await shown(true);
+        await native.focus();
+        await page.keyboard.press('Escape');
+        await shown(false);
+        assert.deepEqual(await inert(), NONE, `${name}: closed by Escape`);
+        assert.equal(await page.evaluate(() => document.activeElement?.hasAttribute('data-app-shell-menu')), true, `${name}: focus is on the menu button`);
+      }
       await context.close();
     });
 
@@ -205,8 +232,8 @@ for (const engine of ENGINES) {
       for (const [dir, lang] of LANGUAGES) {
         const { context, page } = await open(WIDE, `/${dir}foundations/accessibility/`);
         const words = strings(lang).frame;
-        for (const [id, name] of [['docs-drawer-toggle', words.menu], ['docs-mode', words.darkMode], ['docs-language', words.language]]) {
-          assert.equal(await page.locator(`#${id}`).getByRole('button', { name, exact: true }).count(), 1, `${lang}: #${id} is named «${name}»`);
+        for (const [selector, name] of [['tanrei-app-bar [data-app-shell-menu]', words.menu], ['#docs-mode', words.darkMode], ['#docs-language', words.language]]) {
+          assert.equal(await page.locator(selector).getByRole('button', { name, exact: true }).count(), 1, `${lang}: ${selector} is named «${name}»`);
         }
         assert.equal(await page.locator('#docs-appearance').getAttribute('label'), words.appearanceOf.replace('{look}', 'tanrei'), `${lang}: the appearance's button`);
         await context.close();
