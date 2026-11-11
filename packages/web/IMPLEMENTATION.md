@@ -9511,7 +9511,7 @@ How it is built, and what follows from it:
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
 
-`specs/app-shell.spec.json` (APS-1 to APS-30): the frame of a page or an app. It places a header, the navigation, the
+`specs/app-shell.spec.json` (APS-1 to APS-34): the frame of a page or an app. It places a header, the navigation, the
 main content, an aside and a footer, decides from the window's width how each is shown, and lets a keyboard reach the
 content in one step. It draws the frame and none of what stands in it.
 
@@ -9542,6 +9542,18 @@ the one `<main>` child without one. **Write them in the order a keyboard walks t
 announcement, the header, the navigation, the aside while `aside-order` is `before`, the main region, the aside while
 it is `after`, the footer, the navigation bar. The stylesheet places them on a grid by name and never reorders focus.
 A region you leave out takes no space and adds no landmark.
+
+**A frame without a header** (APS-34) gives its menu button as a region of its own, in the header's place:
+`<tanrei-button slot="menu-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>`. It is
+shown only where the navigation has no place in the layout — as `menu-button-placement="drawer"` shows the header's,
+whatever that attribute says: in the column and beside the content the drawer runs from the top of the frame and its
+own first header button stands for it. Shown, it stands alone at the top start corner, the class's gutter from the top
+(inside the top inset) and from the start edge, with no band, fill or edge around it, and the main region begins below
+it; it is `position: sticky` at the same distance, so it stays there while the page scrolls under it, over every
+region as the header is (level 3), and the element publishes the gutter and its height as the scroll offset. The
+drawer it opens is the top-layer modal dialog it is outside a frame: over the whole window, the button under its
+scrim, focus kept inside until it closes and then back on the button. With a header, a `menu-button` child is not
+shown, and a debug build reports it.
 
 | Attribute | Values | Default | |
 |---|---|---|---|
@@ -9606,7 +9618,7 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
   `<aside>`; `aria-label` from `aside-label` on an aside without a name; `tabindex="-1"` on a `<main>` that lacks it;
 - the skip link's move at once, whatever the page's `scroll-behavior`; without script the anchor does the same;
 - debug reports: a navigation that is not a navigation drawer in a narrow window (APS-4), no main region or two, an
-  aside without a name (APS-21), an unknown value (APS-29).
+  aside without a name (APS-21), an unknown value (APS-29), a `menu-button` child of a frame that has a header (APS-34).
 
 Good to know:
 
@@ -9617,8 +9629,8 @@ Good to know:
   (`:focus-visible`); otherwise the link is clipped to nothing, never `display: none`. The Link keeps its color, its
   underline and its focus ring; its state container color is under the box and is not seen. These rules have an
   attribute's specificity (not none), because link.css says `position: relative` of the same anchor.
-- **The header, the navigation and the aside are `position: sticky`, and do not yet hold still when the page is
-  pulled past an end** (APS-5, APS-9 and APS-16 ask that they do): a browser that moves the document on an overscroll
+- **The header, the menu button of a frame without a header, the navigation and the aside are `position: sticky`, and
+  do not yet hold still when the page is pulled past an end** (APS-5, APS-9, APS-16 and APS-34 ask that they do): a browser that moves the document on an overscroll
   moves a sticky box that is not stuck with it, and only a `position: fixed` one stays — which would need the header
   to rest below an announcement and the navigation and the aside to end at the footer by positioning that follows the
   scroll, which the frame does not have yet.
