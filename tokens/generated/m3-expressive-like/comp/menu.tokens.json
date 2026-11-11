@@ -177,7 +177,18 @@
               }
             },
             "compact": {
-              "$value": "{tanrei.comp.tree-view.container.height.compact}"
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.control.height.small}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
+                }
+              }
             }
           },
           "padding-inline": {

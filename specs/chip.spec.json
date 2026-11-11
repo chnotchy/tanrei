@@ -71,7 +71,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "Visual height (24 / 32). Small is for dense places, such as entered items inside a field or tags in a table row. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height (24 / 32 under the default system). Medium is never drawn below sys.target.minimum. Small is for dense places, such as entered items inside a field or tags in a table row: it sits inside another box and cannot be as tall as that box, so it keeps its height and its hit area reaches the target. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.chip.size"
     },
     {

@@ -79,7 +79,7 @@
       ],
       "axis": "tanrei.comp.button-with-menu.size",
       "default": "medium",
-      "description": "Visual height (32 / 40 / 56), matching Button's heights. The hit area always meets the minimum target. A design system may add values."
+      "description": "Visual height: comp.button-with-menu.container.height.<size>, matching Button's heights and never drawn below sys.target.minimum (32 / 40 / 56 under the default system). The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "separation",

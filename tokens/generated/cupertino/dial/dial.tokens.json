@@ -3812,6 +3812,20 @@
               },
               "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
             },
+            "tanrei.sys.target.touch": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "reason": "This preset keeps the value it drew when the root held this. Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
+            },
+            "tanrei.sys.target.pointer": {
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "reason": "This preset keeps the value it drew when the root held this. Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
+            },
             "tanrei.comp.button.container.height.small": {
               "derive": {
                 "fn": "mul",
