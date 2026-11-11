@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/split-view.tokens.json); the handle is a `<tanrei-handle>`, drawn by its
 // own tokens. The element writes the primary pane's share as `--_spv-share` on that pane's box (a number of percent),
@@ -80,11 +81,11 @@ export const styles = css`
     visibility: hidden;
     transition: visibility 0s linear var(--_spv-hide-after, 0s);
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .pane.folded > .content {
       transition: none;
     }
-  }
+  `)}
 
   /* SPV-1: the divider, divider.width thick across the whole region, in divider.color. */
   .divider {

@@ -1,6 +1,7 @@
 import { css } from 'lit';
 import { FRAME_PARTS, frameColors, frameStyles } from '../../primitives/field-frame.js';
 import { productText } from '../../styles/product-text.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/field.tokens.json). The field draws a frame and nothing else (FLD-1): no
 // container, edge, fill or elevation, no padding, and nothing of its control. For each state the frame reads that
@@ -110,12 +111,12 @@ export const styles = css`
   }
   /* FLD-21: the count is a run of its own, in the direction of its first strong character, as wide as itself. */
   ${productText('.counter')}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .counter,
     .error-text {
       transition: none !important;
     }
-  }
+  `)}
   /* FLD-17: under forced colors the count and the error text are in the platform's text color, as the help is: the two
      texts are then told apart by their words and their order, the help first. */
   @media (forced-colors: active) {
@@ -167,11 +168,11 @@ export const styles = css`
     unicode-bidi: isolate;
   }
   ${productText('.value-text[data-own-direction]', { align: 'start' })}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .value-text {
       transition: none !important;
     }
-  }
+  `)}
   /* FLD-17: under forced colors the value text is in the platform's text color, as the label beside it. */
   @media (forced-colors: active) {
     .value-text {

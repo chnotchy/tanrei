@@ -3,6 +3,7 @@ import { appearStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleSty
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/snackbar.tokens.json). The action is the snackbar's one control of its own:
 // it has its container and content colors per state, and its geometry under `controls.*`. The expand and close buttons
@@ -521,11 +522,11 @@ export const styles = css`
      drawn in place (SNK-19) carries no edge, so none of this applies to it: it is at rest and takes no transition. */
   ${appearStyles({ motion: ".bar[data-edge='block-end']", open: '.bar.open', role: 'toast', origin: 'block-end', enter: ENTER, exit: EXIT })}
   ${appearStyles({ motion: ".bar[data-edge='block-start']", open: '.bar.open', role: 'toast', origin: 'block-start', enter: ENTER, exit: EXIT })}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .control {
       transition: none;
     }
-  }
+  `)}
 
   /* SNK-8, SNK-24: the timeouts and the expand motion, read through real properties by script; these draw nothing. */
   .timing {

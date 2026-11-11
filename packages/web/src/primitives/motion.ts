@@ -1,5 +1,5 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
-import { APPEARING, SETTLING } from '../styles/motion.js';
+import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, reducedMotion } from '../styles/motion.js';
 
 // How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-6):
 //
@@ -48,7 +48,52 @@ export const documentPainted = (): boolean => painted;
 /** Resolves once the document has been painted (MOT-4); never on a server. */
 export const afterFirstPaint = (): Promise<void> => whenPainted;
 
-const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// ── Reduced motion (MOT-6) ────────────────────────────────────────────────────────────────────────────────────────────
+
+// The person's setting, or the product's on the root element (src/styles/motion.ts says how a stylesheet reads both).
+// A motion that script plays or holds asks here, never `matchMedia` itself: the attribute is read as it is, with no
+// style to work out first. The media query is asked again each time: a list kept from before answers in WebKit what
+// held at its last rendering update, so a setting changed since (emulated, in a test) would be read a frame late. The
+// kept list is only the one the watchers listen to.
+const reducedQuery = typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION_MEDIA) : null;
+const reducedByPerson = () => typeof matchMedia === 'function' && matchMedia(REDUCED_MOTION_MEDIA).matches;
+const reducedInApp = () => typeof document !== 'undefined' && document.documentElement?.getAttribute(REDUCED_MOTION_ATTRIBUTE) === REDUCED_MOTION_VALUE;
+
+/** Whether motion is reduced now (MOT-6): the person's `prefers-reduced-motion`, or the product's `data-tanrei-motion="reduce"` on the root. */
+export const motionReduced = (): boolean => reducedByPerson() || reducedInApp();
+
+const reducedWatchers = new Set<(reduced: boolean) => void>();
+let reducedShown = false;
+let reducedObserver: MutationObserver | null = null;
+const reducedChanged = () => {
+  const now = motionReduced();
+  if (now === reducedShown) return;
+  reducedShown = now;
+  for (const watcher of [...reducedWatchers]) watcher(now);
+};
+
+/**
+ * Calls `changed` with the new answer each time `motionReduced()` changes — the person changes their setting, or the
+ * product sets or takes off the root's attribute — and returns the function that stops. One media query listener and
+ * one observer of the root's attribute serve every watcher, and only while there is one.
+ */
+export const watchMotionReduced = (changed: (reduced: boolean) => void): (() => void) => {
+  if (!reducedWatchers.size) {
+    reducedShown = motionReduced();
+    reducedQuery?.addEventListener('change', reducedChanged);
+    if (typeof MutationObserver === 'function' && typeof document !== 'undefined') {
+      reducedObserver = new MutationObserver(reducedChanged);
+      reducedObserver.observe(document.documentElement, { attributes: true, attributeFilter: [REDUCED_MOTION_ATTRIBUTE] });
+    }
+  }
+  reducedWatchers.add(changed);
+  return () => {
+    if (!reducedWatchers.delete(changed) || reducedWatchers.size) return;
+    reducedQuery?.removeEventListener('change', reducedChanged);
+    reducedObserver?.disconnect();
+    reducedObserver = null;
+  };
+};
 
 // ── The appearance (appearStyles) ─────────────────────────────────────────────────────────────────────────────────────
 
@@ -239,7 +284,7 @@ export function appearStyles(options: AppearOptions): CSSResult {
       ${closed}
     }
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     :is(${motion}) {
       ${reducedClosed}
       ${timing({ duration: fade, easing: exit.easing }, reducedProperties)}
@@ -253,7 +298,7 @@ export function appearStyles(options: AppearOptions): CSSResult {
         ${reducedClosed}
       }
     }
-  }
+  `)}
 `);
 }
 
@@ -748,7 +793,7 @@ export class AnimatedSize implements ReactiveController {
     const shown = this.resizing ? this.sizes(box) : this.drawn(box);
     // …and the natural one, with the motion stopped (it would hold the box at its value otherwise).
     this.stop(box);
-    if (!animate || !shown || this.options.still?.() || reduced() || !box.isConnected) return;
+    if (!animate || !shown || this.options.still?.() || motionReduced() || !box.isConnected) return;
     const end = this.sizes(box);
     const after = box.getBoundingClientRect();
     const px = (value: string | undefined) => Number.parseFloat(value ?? '') || 0;

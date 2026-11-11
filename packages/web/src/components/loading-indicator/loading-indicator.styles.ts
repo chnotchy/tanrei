@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, arcStyles } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 /** The sizes every design system has; a layer may add more. */
 export const CORE_SIZES = ['small', 'medium', 'large'] as const;
@@ -82,7 +83,7 @@ export const styles = css`
 
   /* LDG-4: under reduced motion it does not turn — the whole circle, its opacity easing from 1 to 0 and back once per
      cycle with sys.motion.easing.standard; a container stays still and opaque. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .indicator {
       animation: pulse ${T('motion-cycle-duration')} var(--tanrei-sys-motion-easing-standard) infinite;
     }
@@ -90,7 +91,7 @@ export const styles = css`
       stroke-dasharray: none;
       stroke-dashoffset: 0;
     }
-  }
+  `)}
 
   /* LDG-7: off screen, nothing runs. */
   :host .paused {

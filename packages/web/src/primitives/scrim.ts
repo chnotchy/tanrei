@@ -1,4 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
+import { reducedMotion } from '../styles/motion.js';
 
 /**
  * The blur a modal surface's scrim draws behind it (MDL-1: "WHILE comp.modal-layer.scrim.blur is above 0"), as a
@@ -73,10 +74,10 @@ export function sheetScrimStyles({ dialog, color, blur, enter, exit, reduced = '
       opacity: 0;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     ${dialog}::backdrop,
     ${dialog}[open]::backdrop {
       transition-duration: ${reduced};
     }
-  }`);
+  `)}`);
 }

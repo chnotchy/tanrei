@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, GlyphDrawnController, PressController, containedWheel, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, PressController, containedWheel, motionReduced, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiTableOfContentsDensityRegistry } from '../../registry.js';
@@ -156,7 +156,6 @@ function pixels(value: string, whole: number): number {
 
 const scrolls = (element: Element) => /^(auto|scroll|overlay)$/.test(getComputedStyle(element).overflowY) && element.scrollHeight - element.clientHeight > UNIT;
 const isPage = (element: Element) => element === document.documentElement || element === document.body;
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * Lists the headings of the page being read as links to them and marks the one whose section is being read.
@@ -695,7 +694,7 @@ export class TanreiTableOfContents extends TanreiElement {
     // A row taller than the region is shown from its start.
     const by = box.top < top || box.height > region.clientHeight ? box.top - top : box.bottom > bottom ? box.bottom - bottom : 0;
     if (Math.abs(by) < SLACK) return;
-    region.scrollTo({ top: region.scrollTop + by, behavior: atOnce || reducedMotion() ? 'instant' : 'smooth' });
+    region.scrollTo({ top: region.scrollTop + by, behavior: atOnce || motionReduced() ? 'instant' : 'smooth' });
   }
 
   /** TOC-27: the list is shown — its current row is brought into its visible part without a motion, and kept there while the list's height moves. */

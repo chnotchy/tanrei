@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { heldFocusGlow } from '../../primitives/focus-ring.js';
 import { heldRadius, heldShape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // What the chat composer draws itself and how it arranges what it holds (tokens/comp/chat-composer.tokens.json): the
 // capsule — its fill, its lift, its edge and its corners, in two conditions and four states, and while files are
@@ -315,13 +316,13 @@ export const styles = css`
   }
 
   /* CCM-35: where motion is reduced a change of state is made at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .capsule,
     .outline,
     .counter {
       transition: none;
     }
-  }
+  `)}
 
   /* CCM-33: with a person's own colors the capsule stands on the platform's background with an edge in its text color
      at rest and in error; in its highlight at the focused width while the typing area has focus, and at twice the

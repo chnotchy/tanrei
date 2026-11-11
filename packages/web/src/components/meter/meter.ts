@@ -42,7 +42,7 @@ export type TanreiMeterSize = keyof TanreiMeterSizeRegistry;
  * The host is the meter (`role="meter"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and
  * `aria-valuetext` from `value-text`); never a progressbar, never busy, never focusable, never a live region. A change of
  * value or status moves the end and fades the color over `motion.value-duration`, from the second frame on; under
- * `prefers-reduced-motion: reduce` the end moves at once and the color still fades.
+ * reduced motion the end moves at once and the color still fades.
  *
  * @tag tanrei-meter
  * @csspart track - The whole range: the bar's track, or the ring's circle (the form the separation draws).

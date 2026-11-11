@@ -1,4 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
+import { reducedMotion } from './motion.js';
 
 type Property = `--${string}`;
 
@@ -168,11 +169,11 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
   }${mirrorRules(on)}${
     moves
       ? `
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     ${on} {
       transition: none;
     }
-  }`
+  `)}`
       : ''
   }
 `);
@@ -295,9 +296,9 @@ ${opticalSize('.tanrei-icon', { size: 'var(--_size)', fill: 'var(--_fill)' })}
   /* Right to left: a glyph the icon set flags (marked by script) or the product forces, unless the product forbids it. */
   .tanrei-icon${MIRRORED_GLYPH} { ${MIRROR_DECLARATION} }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .tanrei-icon { transition: none; }
-  }
+  `)}
 
   /* Hidden: the icon's own display is an author's rule, and beats the browser's for the attribute. */
   .tanrei-icon[hidden]:not([hidden='until-found' i]) { display: none; }

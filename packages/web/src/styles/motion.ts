@@ -37,3 +37,55 @@ export const settleStyles: CSSResult = unsafeCSS(`${withPseudos([`:host([${SETTL
 export const settleRule = (host: string): string => `${withPseudos([`:where(${host})[${SETTLING}]:not([${APPEARING}])`, `:where(${host})[${SETTLING}] :not([${APPEARING}])`])} {
   ${QUIET}
 }`;
+
+// Reduced motion (MOT-6, docs/architecture/motion.md): motion is reduced where the person asks their system for it
+// (`prefers-reduced-motion: reduce`) or where the product reduces it from inside the app (`data-tanrei-motion="reduce"`
+// on the root element). The root's tokens (the generated tokens.css) say either as one inherited value,
+// `--tanrei-motion: reduce`, which a style container query reads in a shadow root as in the document. A browser without
+// style container queries (inside the package's floor: Safari 17, a Firefox before them) reads the media query alone,
+// so every reduced form is written under both conditions: the two never disagree, and either is enough.
+
+/** The person's setting, as a media query. */
+export const REDUCED_MOTION_MEDIA = '(prefers-reduced-motion: reduce)';
+/** The root element's attribute by which a product reduces motion from inside the app. */
+export const REDUCED_MOTION_ATTRIBUTE = 'data-tanrei-motion';
+/** The attribute's one value: there is none that turns motion back on against the person's setting. */
+export const REDUCED_MOTION_VALUE = 'reduce';
+/** The style container query of the root's `--tanrei-motion`, which the tokens set from either. */
+export const REDUCED_MOTION_STYLE = `style(--tanrei-motion: ${REDUCED_MOTION_VALUE})`;
+
+/**
+ * The rules a component draws where motion is reduced (MOT-6) — only what is particular to it. They are written under
+ * the media query and again under the root's style query, in place, so they stand where the component writes them in
+ * its cascade. Pass a `css` template inside a `css` stylesheet (it is minified with it), or text inside text.
+ */
+export const reducedMotion = (rules: CSSResult | string): CSSResult => {
+  const text = String(rules).trim();
+  return unsafeCSS(`@media ${REDUCED_MOTION_MEDIA} {\n${text}\n}\n@container ${REDUCED_MOTION_STYLE} {\n${text}\n}`);
+};
+
+/** What `writeReducedMotion()` finds: the opening of a light-DOM stylesheet's reduced block. */
+const REDUCED_BLOCK = `@media ${REDUCED_MOTION_MEDIA} {`;
+
+/**
+ * A light-DOM stylesheet (src/styles/*.css, read by scripts/build.js) writes its reduced form as plain CSS, under the
+ * media query, so that its source is a stylesheet as it stands; the build writes each such block again right after
+ * it, under the root's style query, as `reducedMotion()` does in a shadow root.
+ */
+export const writeReducedMotion = (source: string): string => {
+  let out = '';
+  let from = 0;
+  for (let at = source.indexOf(REDUCED_BLOCK); at >= 0; at = source.indexOf(REDUCED_BLOCK, from)) {
+    let depth = 0;
+    let end = at + REDUCED_BLOCK.length - 1;
+    for (; end < source.length; end++) {
+      if (source[end] === '{') depth++;
+      else if (source[end] === '}' && --depth === 0) break;
+    }
+    if (depth !== 0) throw new Error(`writeReducedMotion: the reduced block at ${at} is not closed`);
+    const indent = /[ \t]*$/.exec(source.slice(0, at))?.[0] ?? '';
+    out += `${source.slice(from, end + 1)}\n${indent}@container ${REDUCED_MOTION_STYLE} {${source.slice(at + REDUCED_BLOCK.length, end)}}`;
+    from = end + 1;
+  }
+  return out + source.slice(from);
+};

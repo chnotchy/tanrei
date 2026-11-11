@@ -19,6 +19,7 @@ import {
   isDividerVisibility,
   keyboardCover,
   modalSheetKeys,
+  motionReduced,
   onBackdrop,
   openModal,
   report,
@@ -530,7 +531,7 @@ export class TanreiBottomSheet extends TanreiElement {
     const duration = style ? Number.parseFloat(style.transitionDuration) * 1000 : 0;
     const easing = style?.transitionTimingFunction || 'ease';
     const moves = Math.abs(from.height - target) >= 0.5 || from.offset >= 0.5;
-    const animate = moves && duration > 0 && typeof sheet.animate === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animate = moves && duration > 0 && typeof sheet.animate === 'function' && !motionReduced();
     this.cancelSettle();
     // No transition of the sheet's own may start from the resting layout: the motion is the animation below.
     sheet.classList.add('settling');

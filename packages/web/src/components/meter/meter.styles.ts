@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { RANGE_SIZES, RANGE_VARIANTS, directionProbeStyles, rangeAxes, rangeTrackStyles } from '../../primitives/index.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 /** The sizes every design system has; a layer may add more. The variant is not a token axis: the forms are drawn here. */
 export const CORE_SIZES = RANGE_SIZES;
@@ -43,12 +44,12 @@ export const styles = [
       transition-duration: ${T('motion-value-duration')};
       transition-timing-function: ${T('motion-value-easing')};
     }
-    @media (prefers-reduced-motion: reduce) {
+    ${reducedMotion(css`
       .determinate .indicator,
       .determinate .stop {
         transition: background-color ${T('motion-value-duration')} ${T('motion-value-easing')}, stroke ${T('motion-value-duration')} ${T('motion-value-easing')};
       }
-    }
+    `)}
 
     /* MTR-15: with a person's own forced colors, the track is an edge sys.border.hairline wide and the indicator is
        filled, both in the text color, whatever the status — the value is still read where the indicator ends. */

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { DISABLED, type OpenAxis, focusRing, groupItemStyles, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token. For each state the component reads that state's tokens — it never
 // computes how a state looks. Whether hover is a state-layer mix, an explicit color, a dim, or
@@ -485,7 +486,7 @@ const buttonStyles = css`
     white-space: nowrap;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     button,
     .label {
       transition: none;
@@ -498,7 +499,7 @@ const buttonStyles = css`
       stroke-dasharray: none;
       stroke-dashoffset: 0;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     button {
       border: var(--_outline-width) solid ButtonText;

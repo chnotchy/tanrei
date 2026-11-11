@@ -4,6 +4,7 @@ import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token. The select is two things: the trigger reads the one set of tokens every input box is
 // drawn from (tokens/comp/input-box.tokens.json; SEL-65), the list the select's own (tokens/comp/select.tokens.json).
@@ -406,7 +407,7 @@ export const styles = css`
   }
 
   /* SEL-15, SEL-20: where motion is reduced, the label and the states change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .field,
     .container,
     .value,
@@ -420,7 +421,7 @@ export const styles = css`
     .indicator {
       transition: none !important;
     }
-  }
+  `)}
   /* SEL-52, SEL-53: forced colors — an edge outline.width wide in the control text color around the container in
      every variant, in the highlight color at the focused width while focused; every text in the text color; a disabled
      select in the disabled text color. */

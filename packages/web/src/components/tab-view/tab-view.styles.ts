@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/tab-view.tokens.json). The Tab view draws nothing of its own: it holds its
 // panels in one place, clips them to its corners and moves, fades and blurs two of them while a switch runs.
@@ -73,7 +74,7 @@ export const tabViewStyles = css`
     animation-duration: ${t('motion-fade-duration')};
     animation-timing-function: ${t('motion-fade-easing')};
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .probe {
       inline-size: 0;
       block-size: 0;
@@ -81,6 +82,6 @@ export const tabViewStyles = css`
       transition-duration: ${t('motion-fade-duration')};
       transition-timing-function: ${t('motion-fade-easing')};
     }
-  }
+  `)}
   ${shape}
 `;

@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, WordsController, report } from '../../primitives/index.js';
+import { AvailabilityController, DIRECTION_PROBE, DirectionController, WordsController, motionReduced, report, watchMotionReduced } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
 import { flatParent } from '../../primitives/flat-tree.js';
@@ -181,7 +181,7 @@ export class TanreiMarqueeText extends TanreiElement {
   private sizes: ResizeObserver | null = null;
   private mutations: MutationObserver | null = null;
   private sight: IntersectionObserver | null = null;
-  private motionQuery: MediaQueryList | null = null;
+  private stopWatchingMotion: (() => void) | null = null;
   private reportedPause = false;
   /** The width is read again when a face arrives, and once the faces are ready after a read taken while one loaded. */
   private readonly faces = new FacesWatch(() => this.measure());
@@ -269,11 +269,8 @@ export class TanreiMarqueeText extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    if (typeof matchMedia === 'function') {
-      this.motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
-      this.reduced = this.motionQuery.matches;
-      this.motionQuery.addEventListener('change', this.onMotionChange);
-    }
+    this.reduced = motionReduced();
+    this.stopWatchingMotion ??= watchMotionReduced(this.onMotionChange);
     document.addEventListener('visibilitychange', this.onVisibility);
     this.pageVisible = document.visibilityState !== 'hidden';
     this.mutations = new MutationObserver(this.onContent);
@@ -285,7 +282,8 @@ export class TanreiMarqueeText extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.stop();
-    this.motionQuery?.removeEventListener('change', this.onMotionChange);
+    this.stopWatchingMotion?.();
+    this.stopWatchingMotion = null;
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.mutations?.disconnect();
     this.faces.disconnect();
@@ -476,8 +474,8 @@ export class TanreiMarqueeText extends TanreiElement {
     }
   };
 
-  private readonly onMotionChange = (event: MediaQueryListEvent) => {
-    this.reduced = event.matches;
+  private readonly onMotionChange = (reduced: boolean) => {
+    this.reduced = reduced;
     this.stop();
     void this.updateComplete.then(() => this.decide());
   };

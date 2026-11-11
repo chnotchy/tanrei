@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusGlow, focusGlowEnds, minimumTarget, stateRules } from '../../primitives/index.js';
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json; CLI-45), and for the swatch's shape and
 // hairline the color input's own (tokens/comp/color-input.tokens.json). The input draws the box and what is in it, and
@@ -337,7 +338,7 @@ export const styles = css`
   ${shape}
 
   /* CLI-15, CLI-22: where motion is reduced, the label and the states change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .field,
     .container,
     .input,
@@ -349,7 +350,7 @@ export const styles = css`
     .indicator {
       transition: none !important;
     }
-  }
+  `)}
   /* CLI-35: forced colors — an edge outline.width wide in the control text color around the container in every
      variant, in the highlight color at the focused width while focused; the value in the text color; a disabled color
      input in the disabled text color. The swatch ALONE is kept out of the forced palette (forced-color-adjust: none,

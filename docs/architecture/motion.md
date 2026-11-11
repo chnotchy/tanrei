@@ -24,9 +24,10 @@ cites them by id rather than restating them.
 - **MOT-5** — WHEN a box changes its size because its content changed THE box SHALL change its size in its layout at
   every frame, keeping its content fixed to the box's anchor edge (its start by default; its end where the box is docked
   to its container's end), and nothing inside it SHALL scroll during the motion.
-- **MOT-6** — WHERE motion is reduced THE component SHALL replace every movement, scaling and blur with a change of
-  opacity over `sys.motion.role.reduced`, and SHALL make changes of size at once. (WCAG 2.3.3 counts an element that
-  moves into place or changes its size as it appears as motion, and a change of color or opacity as none.)
+- **MOT-6** — WHERE motion is reduced — by the person's setting on their platform, or by the product's own setting in
+  the app ([Reduced motion](#reduced-motion)) — THE component SHALL replace every movement, scaling and blur with a
+  change of opacity over `sys.motion.role.reduced`, and SHALL make changes of size at once. (WCAG 2.3.3 counts an
+  element that moves into place or changes its size as it appears as motion, and a change of color or opacity as none.)
 
 Under MOT-2 a surface that appears and leaves runs one path both ways: it leaves the way it came, and a surface turned
 round in the middle of either goes back from where it is.
@@ -90,6 +91,32 @@ Each `appear.*` token is derived by a `pick` rule: one value per name of the cho
 system's choice names. A layer that sets the appearance gets the values that go with it; a layer that pins one of them
 keeps its pin whatever the appearance, as a pin holds against a dial. A component that must start from somewhere else
 says so with a component token of its own that aliases the system's.
+
+## Reduced motion
+
+Motion is reduced (MOT-6) where either of two settings says so:
+
+- **The person's**, on their platform: the operating system's or the browser's reduce-motion setting.
+- **The product's**, in the app: a product that offers its own "reduce motion" setting, or that reduces motion on a
+  screen of its own, says so once for the whole app, in the platform's idiom for an app-wide setting.
+
+The two are one condition, and every component answers it the same way, whichever set it. The product's setting can
+only add to the person's: there is no value that turns motion back on where the person asked for less (WCAG 2.3.3).
+
+| Platform | The person's setting | The product's setting | Owed |
+|---|---|---|---|
+| Web | `prefers-reduced-motion: reduce` | `data-tanrei-motion="reduce"` on the root element (`<html>`) | — |
+| SwiftUI | `\.accessibilityReduceMotion` | an environment value set once at the root of the app's scene | the environment value, read wherever `\.accessibilityReduceMotion` is read now (`TanreiMotion` and each component that reads it) |
+| Jetpack Compose | the animator duration scale ("Remove animations"), as the composition's `MotionDurationScale` | a `CompositionLocal` provided once at the root of the app's content | the local, read by `tanreiMotionReduced()` and by every transition, which today follows the duration scale alone |
+| Flutter | `MediaQuery.disableAnimations` | the same `MediaQuery`, which an app overrides above its widgets (`MediaQuery(data: … .copyWith(disableAnimations: true))`) | nothing new: a component reads `MediaQuery.disableAnimationsOf(context)` wherever it moves, never the platform's setting directly |
+| React Native | `AccessibilityInfo.isReduceMotionEnabled()` | a prop of `TanreiProvider` | the prop, read by `useReduceMotion()` and `useReduceMotionSetting()` (the product's answer needs no wait) |
+
+On the web the root's tokens say either setting as one inherited value, `--tanrei-motion: reduce` (the generated
+`tokens.css`: under the media query, and under the attribute). A component's reduced form is written once and drawn
+under both the media query and a style container query of that value (`reducedMotion()`, `src/styles/motion.ts`); a
+motion played from script asks `motionReduced()` and follows a change with `watchMotionReduced()`
+(`src/primitives/motion.ts`). A browser without style container queries answers the media query alone: there the
+attribute reduces only the motions played from script.
 
 ## The first frames on the web
 

@@ -14,6 +14,7 @@ import { report } from './report.js';
 import { markConditionChange, conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
 import { TanreiElement } from './element.js';
+import { reducedMotion } from '../styles/motion.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -484,7 +485,7 @@ export function destinationStyles(
     display: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .cell,
     .indicator,
     .icon,
@@ -495,7 +496,7 @@ export function destinationStyles(
     .indicator {
       animation-duration: 0s;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     /* The mode draws everything inside a link in the person's own link color, whatever a stylesheet says: an
        unselected link destination's icon and label are left to it. The selected one and a disabled one (which has no

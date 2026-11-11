@@ -145,10 +145,10 @@ test.describe('drawn by Button', () => {
     await expect(host(page, 'labelled').locator('.labels .shown')).toHaveText('Copy JSON');
     expect(await css(native(page, 'labelled-tonal'), 'background-color')).toBe(await resolveColor(page, B('tonal-container-color')));
     expect((await box(native(page, 'labelled-outlined-large'))).height).toBe(await resolveToken(page, B('container-height-large')));
-    // No color, shape or measure of its own: the stylesheet names its times only — the duration, and the motion of a
-    // fitting label's width (CPY-19).
+    // No color, shape or measure of its own: the stylesheet names its times only — the duration, the motion of a
+    // fitting label's width (CPY-19), and the reduced-motion setting every component's stylesheet reads (MOT-6).
     const tokens = await host(page, 'icon').evaluate((el) => [...((el.constructor as unknown as { styles: { cssText: string } }).styles.cssText.matchAll(/--tanrei-[a-z0-9-]+/g))].map((m) => m[0]));
-    expect([...new Set(tokens)].sort()).toEqual([DURATION, '--tanrei-comp-copy-button-motion-resize-duration', '--tanrei-comp-copy-button-motion-resize-easing'].sort());
+    expect([...new Set(tokens)].sort()).toEqual([DURATION, '--tanrei-comp-copy-button-motion-resize-duration', '--tanrei-comp-copy-button-motion-resize-easing', '--tanrei-motion'].sort());
   });
 
   test('CPY-12: a press — a click, Enter, Space — is shown as pressed without delay and for at least sys.motion.duration.press-hold, by the Button', async ({ page }) => {

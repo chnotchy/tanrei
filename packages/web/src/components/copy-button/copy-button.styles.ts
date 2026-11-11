@@ -1,4 +1,5 @@
 import { css } from 'lit';
+import { reducedMotion } from '../../styles/motion.js';
 
 // The copy button has no look of its own (CPY-1): it is drawn by the Button in its shadow root, from the
 // Button's tokens in every state. What is here is what the behaviour needs — the three labels in one box, the live
@@ -63,11 +64,11 @@ export const styles = css`
   .labels[data-instant] {
     transition: none;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .labels[data-fit] {
       transition: none;
     }
-  }
+  `)}
 
   /* CPY-5: the announcements — read, never drawn. */
   .live {

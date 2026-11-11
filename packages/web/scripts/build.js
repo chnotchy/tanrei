@@ -13,9 +13,12 @@ import { cssLiteralsPlugin, minifyCssLiterals, remapSourceMap } from './css-lite
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
 // components' shadow styles. A light-DOM stylesheet writes a `script-tracking` mark where the rules go, and every
-// stylesheet is read through `sheet()`, which writes them in place.
+// stylesheet is read through `sheet()`, which writes them in place. Reduced motion likewise (MOT-6,
+// src/styles/motion.ts): a light-DOM stylesheet writes its reduced form under `prefers-reduced-motion` alone, and
+// `sheet()` writes it again under the root's `--tanrei-motion`, which `data-tanrei-motion="reduce"` sets too.
 const { writeScriptTracking } = await import('../dist/styles/script-tracking.js');
-const sheet = (file) => writeScriptTracking(fs.readFileSync(file, 'utf8'));
+const { writeReducedMotion } = await import('../dist/styles/motion.js');
+const sheet = (file) => writeReducedMotion(writeScriptTracking(fs.readFileSync(file, 'utf8')));
 // dist/tokens.css is the generated tokens, and nothing else. It registers no custom property: one registered name in
 // a document makes every transition that starts on a page of ten thousand tokens dear (src/styles/registered-properties.ts),
 // and this is the sheet every page loads.

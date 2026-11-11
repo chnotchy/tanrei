@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // What the shadow root draws: the navigation landmark, the title, and the compact presentation's block and row
 // (tokens/comp/table-of-contents.tokens.json). The list itself — the product's own anchors — is drawn by
@@ -207,14 +208,14 @@ export const styles = css`
   [data-at-once] * {
     transition: none !important;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .row,
     .chevron,
     .compact .clip,
     .compact.open .clip {
       transition: none;
     }
-  }
+  `)}
   /* TOC-34: the compact form with an edge in the text color in place of its fill, the row's texts in the text color. */
   @media (forced-colors: active) {
     .compact {

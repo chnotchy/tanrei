@@ -12,6 +12,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/checkbox.tokens.json). The conditions are the checkbox's state variants:
 // each has its own container, box, mark, outline and label color in every state, and the component only
@@ -198,7 +199,7 @@ export const styles = css`
 
   /* CHK-17: where motion is reduced the new condition is drawn whole in the first frame after the change, and a motion
      still running ends there (removing a transition ends it at its end value). */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .box,
     .box::before,
@@ -206,7 +207,7 @@ export const styles = css`
     .mark {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     /* The outline is a border and the fill a background here: one opaque system color beside another, nothing to add. */
     .box::before,

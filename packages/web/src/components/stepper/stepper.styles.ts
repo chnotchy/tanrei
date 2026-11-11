@@ -3,6 +3,7 @@ import { conditionBlock, conditionStates, focusRing, minimumTarget, pressHold, r
 import { iconGlyph } from '../../styles/icons.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/stepper.tokens.json). A step has four conditions — incomplete, current,
 // complete and error — which are its state variants: each colors the container, the marker's fill, ring and content,
@@ -147,11 +148,11 @@ export const stepperStyles = css`
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .segment {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .segment {
       forced-color-adjust: none;
@@ -382,7 +383,7 @@ export const stepStyles = css`
     transition-property: none !important;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .marker,
     .label,
@@ -390,7 +391,7 @@ export const stepStyles = css`
     .connector {
       transition: none;
     }
-  }
+  `)}
   /* SPR-23: forced colors. */
   @media (forced-colors: active) {
     .container,

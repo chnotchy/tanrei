@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { appearStyles, focusRing, iconGlyph, modalExitStyles } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/image-preview.tokens.json). The preview draws no state of its own
 // (IMP-42): its five controls are Tanrei Buttons with their own tokens, which it places, names and gives a variant
@@ -383,7 +384,7 @@ export const styles = css`
 
   /* IMP-34: where motion is reduced it opens and closes by fading without growing; the zoom steps, the change of
      image, the settle of a released drag and the controls change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .pages.settling .page,
     .image.stepping,
     .bar,
@@ -393,7 +394,7 @@ export const styles = css`
     dialog.returning :is(.surface, .bar, .previous, .next, .caption) {
       transition: none;
     }
-  }
+  `)}
 
   ${shape}
 

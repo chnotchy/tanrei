@@ -23,6 +23,7 @@ import {
   holdPageScroll,
   isLeaving,
   modalSheetKeys,
+  motionReduced,
   openModal,
   report,
   returnFocus,
@@ -401,7 +402,7 @@ export class TanreiImagePreview extends TanreiElement {
   }
 
   private get reduced(): boolean {
-    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return motionReduced();
   }
 
   private get rtl(): boolean {
