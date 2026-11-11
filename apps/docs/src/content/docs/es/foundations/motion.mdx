@@ -1,45 +1,98 @@
 ---
 title: Movimiento
-description: Tokens de movimiento basados en muelles, transiciones de estado breves y la obligación estricta de respetar la preferencia de reducir movimiento.
+description: Duraciones según lo que se mueve, cuatro curvas de aceleración, una sola manera de aparecer para todas las superficies, nada que se mueva al cargar la página y movimiento reducido por el ajuste de la persona o por el de la propia app.
 translationOf: foundations/motion.mdx
-sourceHash: 4f9955bbb670ba3ae000b5c9d1b530622521450b
+sourceHash: b9967a8a8bcb0016233ef21e9c37cb60d8cd39c3
 ---
 
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
-En Tanrei, el movimiento explica un cambio y luego se aparta. La mayor parte es una capa de estado que aparece con un fundido de 200 a 250 milisegundos.
+En Tanrei, el movimiento muestra qué ha cambiado y termina enseguida. Todos los componentes se mueven ya con los tokens de movimiento, así que un producto que solo usa los componentes no tiene que configurar nada. Esta página explica qué son los tokens, qué hacen los componentes con ellos y con qué se puede contar.
 
-## Dos tipos de movimiento
+## Duraciones por papel
 
-Los tokens de movimiento se organizan como muelles a lo largo de dos ejes:
+Lo que tarda un cambio no se elige de una escala: lo decide lo que se mueve, su **papel**. Un cambio de estado de un control pequeño, una marca de selección, una caja que cambia de tamaño, un menú que aparece: cada uno es un papel bajo `tanrei.sys.motion.role`, y todos los componentes de un mismo papel llevan el mismo ritmo. Una superficie se va más rápido de lo que aparece.
 
-- Los muelles **espaciales** mueven o redimensionan cosas. Pueden sobrepasar ligeramente su destino, como un objeto físico al asentarse.
-- Los muelles de **efectos** cambian el color y la opacidad. Nunca se sobrepasan, porque un color que rebota parece un fallo.
+<MotionTokens part="role" />
 
-Cada tipo viene en **rápido**, **predeterminado** y **lento**. Las plataformas con animación de muelles real usan los valores de rigidez y amortiguación; CSS usa la duración y la aproximación con cubic-bezier que se guardan junto a ellos.
+El token de duración de un componente es un alias de su papel: `tanrei.comp.menu.motion.open-duration` apunta a `tanrei.sys.motion.role.appear.anchored.enter`. Por eso una capa cambia el ritmo de todos los componentes de un papel con una sola línea:
 
-Hay dos esquemas. **Estándar** es el predeterminado y tiene una amortiguación casi crítica. **Expresivo** es una capa adicional con más rebote, para los productos que lo quieran.
+```json
+"tokens": {
+  "tanrei.sys.motion.role.appear.anchored.enter": { "$value": "{tanrei.sys.motion.duration.medium1}", "reason": "Our menus open quickly." }
+}
+```
 
-## Duraciones y curvas de aceleración
+Los papeles siguen el dial de movimiento, `dial.motion.unit`, que cambia todas las duraciones a la vez ([Sistemas de diseño y personalización](/es/foundations/design-systems/)). Lo que ningún papel describe usa directamente un paso de la escala de duraciones: un ciclo (el giro de un indicador de carga, el pulso de un esqueleto), una barra de progreso que avanza hasta su valor, un desplazamiento y una espera, como un retardo.
 
-Para las transiciones que no son muelles se ofrecen duraciones y curvas de aceleración fijas.
+## Curvas de aceleración
 
-| Tipo de cambio | Pauta |
-| --- | --- |
-| Cambio de estado (paso del cursor, pulsación, selección) | 200–250ms |
-| Un elemento que entra | 300–400ms, más cuanto mayor es la superficie |
-| Una revelación grande | hasta 800ms, con los elementos escalonados cada 100ms |
-| Todo lo que sale | más rápido de lo que entró |
+Hay cuatro curvas por papel, y cada una apunta a una curva de la escala: `enter` para una superficie que aparece, `exit` para una que se va, `state` para un cambio de estado en su sitio y `spatial` para algo que se mueve o cambia de tamaño en su sitio. En el sistema predeterminado, `enter`, `state` y `spatial` son la curva estándar; `exit` acelera, de modo que una superficie que se va gana velocidad y desaparece.
 
 <MotionTokens part="easing" />
 
-## Lo que no se mueve
+## Usar los tokens en tu propio CSS
 
-- **El anillo de foco aparece al instante.** Quien usa el teclado necesita ver dónde está sin esperar a una animación.
-- **Sin onda de forma predeterminada.** La respuesta a la pulsación es la capa de estado; la onda es una opción del tema, no un punto de partida.
+Cada token es una propiedad personalizada de `tokens.css`. Da a tus propias transiciones la duración del papel de lo que se mueve: así llevan el ritmo de los componentes y siguen cada capa y cada dial.
+
+```css
+.result-row {
+  transition: background-color var(--tanrei-sys-motion-role-state-large) var(--tanrei-sys-motion-easing-state);
+}
+```
+
+## Lo que hacen los componentes por sí solos
+
+- **Todas las superficies aparecen igual.** Un menú, la lista de un select, un popover, un tooltip, un diálogo, un snackbar: todos parten de la misma opacidad, escala, distancia y desenfoque (`tanrei.sys.motion.appear.*`) y se van por el mismo camino de vuelta. En el sistema predeterminado aparecen con un fundido desde una escala de 0.96 y crecen desde donde vienen: el borde que mira a su ancla, el centro en una superficie modal, el borde de la ventana en un snackbar. Una hoja entra deslizándose desde su borde, sea cual sea la forma de aparecer. Una sola elección, `sys.behavior.appearance`, fija todos esos valores ([Desde dónde aparece una superficie](/es/tokens/motion/#desde-dónde-aparece-una-superficie)).
+- **Un movimiento que cambia de sentido sigue desde donde está.** Si un menú se cierra a mitad de su entrada, se va desde el valor que muestra en ese momento, sin saltos y sin que asome otro estado.
+- **Una caja que cambia de tamaño se mueve en el diseño.** Un campo de texto que crece una línea, o un mensaje de error que se abre bajo un campo, cambia de tamaño en cada fotograma, así que lo que hay después se mueve con él. Su contenido se queda sujeto a su borde y nada se desplaza dentro de él por el camino.
+- **Un movimiento empieza en su primer fotograma.** Una superficie que se abre, o un estado que cambia, al final de una tarea larga (una lista que dibuja muchas filas al abrirse) reproduce su movimiento desde el primer fotograma dibujado tras esa tarea, en lugar de aparecer ya terminada. Un movimiento que un componente detiene y reanuda, como la pasada de un texto en marquesina o el progreso de la reproducción automática de un carrusel, sigue desde donde se detuvo.
+- **El anillo de foco nunca se anima.** Aparece al instante, para que quien usa el teclado vea dónde está sin esperar.
+- **Una pulsación se responde con la capa de estado.** En el sistema predeterminado, `sys.behavior.pressed-feedback` es `overlay`; un sistema que elige `ripple` da a la onda la duración de `tanrei.sys.motion.role.feedback`.
+
+## Nada se mueve al cargar la página
+
+Un componente dibuja su primer fotograma en el estado que le dan sus atributos y su contenido, sin ninguna transición hacia ese estado. Una casilla de verificación escrita con `checked`, un elemento de acordeón escrito abierto o un campo que se mide después de su primer renderizado ya están así cuando aparece la página. Cada elemento del paquete lleva `data-tanrei-settling` desde que se conecta hasta dos fotogramas después de su primer renderizado, y mientras tanto nada dentro de él inicia una transición.
+
+Una superposición escrita abierta en el marcado de la página, como `<tanrei-dialog open>`, está ahí desde el primer fotograma, sin su entrada. Una superposición que se abre, o que se añade abierta, después de que la página se haya pintado reproduce su entrada como siempre.
 
 ## Movimiento reducido
 
-Toda implementación debe respetar el ajuste de reducir movimiento de la plataforma. Con él activo, el movimiento espacial se elimina o se sustituye por un fundido cruzado breve, y nada se repite en bucle. Esto forma parte de la definición de terminado de cada componente, no es una mejora.
+El movimiento se reduce cuando lo pide cualquiera de estos dos ajustes:
+
+- **El de la persona**, en su sistema operativo o su navegador: el ajuste de reducir movimiento (`prefers-reduced-motion: reduce`).
+- **El de tu app**: el atributo `data-tanrei-motion="reduce"` en el elemento raíz.
+
+Los dos tienen el mismo efecto en todos los componentes. El desplazamiento, el escalado y el desenfoque se sustituyen por un breve cambio de opacidad durante `tanrei.sys.motion.role.reduced` (100 ms), y los cambios de tamaño ocurren al instante. Un texto en marquesina deja de moverse, un indicador de carga deja de girar y en su lugar cambia de opacidad, y un esqueleto se queda quieto. Los retardos antes de mostrarse se mantienen, porque miden una espera, no un movimiento.
+
+Si tu producto tiene su propio ajuste de reducir movimiento, pon el atributo una vez en `<html>`:
+
+```html
+<html data-tanrei-motion="reduce">
+```
+
+o desde un script, cuando el ajuste cambie:
+
+```js
+function setReducedMotion(reduce) {
+  if (reduce) document.documentElement.dataset.tanreiMotion = 'reduce';
+  else delete document.documentElement.dataset.tanreiMotion;
+}
+```
+
+Los componentes siguen el cambio al momento, sin recargar. El atributo solo puede reducir el movimiento: su único valor es `reduce`, y no hay ningún valor que vuelva a activarlo cuando la persona ha pedido menos (WCAG 2.3.3). Depende de las consultas de contenedor de estilo; un navegador que no las tiene sigue solo `prefers-reduced-motion`, y entonces el atributo reduce únicamente el movimiento que los componentes reproducen desde script.
+
+`tokens.css` expresa cualquiera de los dos ajustes como un único valor heredado, `--tanrei-motion: reduce`. Para reducir el movimiento en tu propio CSS con ambos ajustes, escribe las mismas reglas bajo la consulta de medios y bajo una consulta de estilo de ese valor, como hacen los componentes:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+@container style(--tanrei-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+```
+
+Esta página describe el paquete web. Los paquetes nativos siguen el ajuste de la propia plataforma (`accessibilityReduceMotion` en SwiftUI, la escala de duración de animaciones en Android, `MediaQuery.disableAnimations` en Flutter, `AccessibilityInfo.isReduceMotionEnabled()` en React Native). En Flutter, una app reduce el movimiento por su cuenta sobrescribiendo `MediaQuery` por encima de sus widgets; SwiftUI, Jetpack Compose y React Native aún no tienen un ajuste propio para toda la app.
 
 Todos los valores figuran en la [referencia de tokens de movimiento](/es/tokens/motion/).

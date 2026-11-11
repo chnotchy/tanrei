@@ -1,43 +1,96 @@
 ---
 title: Motion
-description: Spring-based motion tokens, short state transitions, and a hard requirement to respect reduced motion.
+description: Durations chosen by what moves, four easing curves, one way for every surface to appear, nothing that moves as the page loads, and reduced motion from the person's setting or the app's own.
 ---
 
 import MotionTokens from '../../../components/tokens/MotionTokens.astro';
 
-Motion in Tanrei explains a change and then gets out of the way. Most of it is a state layer fading in over 200 to 250 milliseconds.
+Motion in Tanrei shows what changed, and is over quickly. Every component already moves by the motion tokens, so a product that only uses the components sets nothing. This page says what the tokens are, what the components do with them, and what you can rely on.
 
-## Two kinds of movement
+## Durations by role
 
-Motion tokens are organised as springs along two axes:
+How long a change takes depends on what moves — its **role** — not on a step picked from a scale. A change of state of a small control, a selection mark, a box that resizes, a menu that appears: each is a role under `tanrei.sys.motion.role`, and every component of one role keeps one pace. A surface leaves faster than it appears.
 
-- **Spatial** springs move or resize things. They may overshoot slightly, the way a physical object settles.
-- **Effects** springs change color and opacity. They never overshoot, because a color that bounces looks like a glitch.
+<MotionTokens part="role" />
 
-Each kind comes in **fast**, **default** and **slow**. Platforms with real spring animation use the stiffness and damping values; CSS uses the duration and the cubic-bezier approximation stored alongside them.
+A component's own duration token aliases its role: `tanrei.comp.menu.motion.open-duration` is `tanrei.sys.motion.role.appear.anchored.enter`. So a layer re-times every component of one role in one line:
 
-There are two schemes. **Standard** is the default and is nearly critically damped. **Expressive** is an additive layer with more bounce for products that want it.
+```json
+"tokens": {
+  "tanrei.sys.motion.role.appear.anchored.enter": { "$value": "{tanrei.sys.motion.duration.medium1}", "reason": "Our menus open quickly." }
+}
+```
 
-## Durations and easing
+The roles follow the motion dial, `dial.motion.unit`, which re-times every duration at once ([Design systems](/foundations/design-systems/)). What no role describes keeps a step of the duration scale: a cycle (a loading indicator's turn, a skeleton's pulse), a progress bar moving to its value, a scroll, and a wait such as a delay.
 
-Fixed durations and easing curves are provided for transitions that are not springs.
+## Easing
 
-| Kind of change | Guideline |
-| --- | --- |
-| State change (hover, press, selection) | 200–250ms |
-| An element entering | 300–400ms, longer for a larger surface |
-| A large reveal | up to 800ms, with items staggered 100ms apart |
-| Anything leaving | faster than it entered |
+Four curves by role, each pointing to a curve of the scale: `enter` for a surface that appears, `exit` for one that leaves, `state` for a change of state in place, and `spatial` for something that moves or resizes in place. In the default system `enter`, `state` and `spatial` are the standard curve; `exit` accelerates, so a leaving surface gathers speed and is gone.
 
 <MotionTokens part="easing" />
 
-## What does not move
+## Using the tokens in your own CSS
 
-- **The focus ring appears instantly.** Keyboard users need to see where they are without waiting for an animation.
-- **No ripple by default.** Press feedback is the state layer; ripple is a theme-level option, not a baseline.
+Each token is a custom property in `tokens.css`. Time your own transitions by the role of what moves, so that they keep pace with the components and follow every layer and dial:
+
+```css
+.result-row {
+  transition: background-color var(--tanrei-sys-motion-role-state-large) var(--tanrei-sys-motion-easing-state);
+}
+```
+
+## What the components do on their own
+
+- **Every surface appears the same way.** A menu, a select's list, a popover, a tooltip, a dialog, a snackbar: each starts from the same opacity, scale, distance and blur (`tanrei.sys.motion.appear.*`), and leaves the same way back. In the default system it fades in from a scale of 0.96, grown from where it comes from: the edge that faces its anchor, a modal surface's centre, the window's edge for a snackbar. A sheet slides in from its edge whatever the appearance. One choice, `sys.behavior.appearance`, sets them together ([Where a surface appears from](/tokens/motion/#where-a-surface-appears-from)).
+- **A motion turned round goes on from where it is.** Close a menu halfway through its entrance and it leaves from the value shown, with no jump and no flash of another state.
+- **A box that changes size moves in its layout.** A text field that grows by a line, or an error message that opens below a field, changes its size at every frame, so what stands after it moves with it. Its content stays fixed to its edge, and nothing inside it scrolls on the way.
+- **A motion starts at its first frame.** A surface opened, or a state changed, at the end of a long task — a list that renders many rows as it opens — plays its motion from the first frame drawn after that task, instead of appearing already finished. A motion a component pauses and resumes, such as a marquee text's pass or a carousel's autoplay progress, goes on from where it was held.
+- **The focus ring is never animated.** It appears at once, so a keyboard user never waits to see where they are.
+- **A press is answered by the state layer.** `sys.behavior.pressed-feedback` is `overlay` in the default system; a system that chooses `ripple` times the ripple by `tanrei.sys.motion.role.feedback`.
+
+## Nothing moves as the page loads
+
+A component draws its first frame in the state its attributes and content give it, with no transition into that state. A checkbox written `checked`, an accordion item written open, or a field that measures itself after its first render is simply there when the page appears. Each of the package's elements carries `data-tanrei-settling` from the moment it is connected until two frames after its first render, and nothing inside it starts a transition meanwhile.
+
+An overlay written open in the page's markup, such as `<tanrei-dialog open>`, is there in the first frame without its entrance. An overlay opened, or added open, after the page has been painted plays its entrance as usual.
 
 ## Reduced motion
 
-Every implementation must honour the platform's reduced-motion setting. Under it, spatial movement is removed or replaced by a short cross-fade, and nothing loops. This is part of each component's definition of done, not an enhancement.
+Motion is reduced when either of two settings asks for it:
 
-All values are listed in the [motion token reference](/tokens/motion/).
+- **The person's setting**, in their operating system or browser: `prefers-reduced-motion: reduce`.
+- **Your app's own setting**: the `data-tanrei-motion="reduce"` attribute on the root element.
+
+Both have the same effect on every component. Movement, scaling and blur are replaced by a short change of opacity over `tanrei.sys.motion.role.reduced` (100 ms), and changes of size happen at once. A marquee text stops moving, a loading indicator stops turning and fades its opacity instead, and a skeleton stays still. Show delays are kept, because they measure a wait, not a motion.
+
+If your product has a "reduce motion" setting of its own, set the attribute once on `<html>`:
+
+```html
+<html data-tanrei-motion="reduce">
+```
+
+or from script, when the setting changes:
+
+```js
+function setReducedMotion(reduce) {
+  if (reduce) document.documentElement.dataset.tanreiMotion = 'reduce';
+  else delete document.documentElement.dataset.tanreiMotion;
+}
+```
+
+The components follow the change at once, with no reload. The attribute can only reduce motion: `reduce` is its only value, and there is no value that turns motion back on when the person has asked for less (WCAG 2.3.3). It relies on style container queries; a browser without them follows `prefers-reduced-motion` alone, and the attribute then reduces only the motion that components play from script.
+
+`tokens.css` gives either setting as one inherited value, `--tanrei-motion: reduce`. To reduce motion in your own CSS under both settings, write the same rules under the media query and under a style query of that value, as the components do:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+@container style(--tanrei-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+```
+
+This page describes the web package. The native packages follow the platform's own setting (`accessibilityReduceMotion` in SwiftUI, the animator duration scale on Android, `MediaQuery.disableAnimations` in Flutter, `AccessibilityInfo.isReduceMotionEnabled()` in React Native). On Flutter an app reduces motion for itself by overriding `MediaQuery` above its widgets; SwiftUI, Jetpack Compose and React Native do not have an app-wide setting of their own yet.
+
+Every value is listed in the [motion token reference](/tokens/motion/).

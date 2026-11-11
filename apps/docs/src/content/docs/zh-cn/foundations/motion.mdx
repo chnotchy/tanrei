@@ -1,45 +1,98 @@
 ---
 title: 动效
-description: 基于弹簧的动效令牌、短促的状态过渡，以及必须尊重“减弱动态效果”设置的硬性要求。
+description: 时长由动的是什么决定，四条缓动曲线，所有界面同一种出现方式，页面加载时什么都不动，以及按用户的设置或应用自己的设置减弱动态效果。
 translationOf: foundations/motion.mdx
-sourceHash: 4f9955bbb670ba3ae000b5c9d1b530622521450b
+sourceHash: b9967a8a8bcb0016233ef21e9c37cb60d8cd39c3
 ---
 
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
-在 Tanrei 中，动效解释完一次变化，就立刻退场。其中大部分只是一层用 200 到 250 毫秒淡入的状态层。
+Tanrei 的动效只交代发生了什么变化，然后很快结束。每个组件本来就按动效令牌运动，所以只使用组件的产品什么都不用设置。本页说明这些令牌是什么、组件用它们做了什么，以及哪些行为可以放心依赖。
 
-## 两类运动
+## 按角色划分的时长
 
-动效令牌按两个维度组织成弹簧：
+一次变化需要多长时间，不是从刻度里挑一档，而是由动的是什么——它的**角色**——决定。小控件的状态变化、选中标记、改变大小的盒子、出现的菜单：每一种都是 `tanrei.sys.motion.role` 下的一个角色，同一角色的组件保持同样的节奏。界面离开时比出现时更快。
 
-- **空间**（spatial）弹簧负责移动物体或改变其大小。它们可以略微过冲，就像实物停稳前的那一下。
-- **效果**（effects）弹簧负责改变颜色和不透明度。它们从不过冲，因为会回弹的颜色看起来像是出了故障。
+<MotionTokens part="role" />
 
-每一类都分为 **fast**、**default** 和 **slow**。具备真实弹簧动画的平台使用刚度和阻尼值；CSS 则使用与它们一同保存的时长和 cubic-bezier 近似曲线。
+组件自己的时长令牌是其角色的别名：`tanrei.comp.menu.motion.open-duration` 指向 `tanrei.sys.motion.role.appear.anchored.enter`。因此一个层只需一行，就能调整同一角色下所有组件的时长：
 
-共有两套方案。**standard** 是默认方案，接近临界阻尼。**expressive** 是一个附加的层，为想要更多弹性的产品提供。
+```json
+"tokens": {
+  "tanrei.sys.motion.role.appear.anchored.enter": { "$value": "{tanrei.sys.motion.duration.medium1}", "reason": "Our menus open quickly." }
+}
+```
 
-## 时长与缓动
+各角色的时长跟随动效调节量 `dial.motion.unit`，改动它就会一次性调整所有时长（[设计系统与定制](/zh-cn/foundations/design-systems/)）。没有角色描述的动效直接使用时长刻度中的一档：循环（加载指示器的旋转、骨架屏的脉动）、进度条走到它的值、滚动，以及延迟这类等待。
 
-对于不使用弹簧的过渡，另外提供固定的时长和缓动曲线。
+## 缓动
 
-| 变化的种类 | 参考值 |
-| --- | --- |
-| 状态变化（悬停、按下、选中） | 200–250ms |
-| 元素进入 | 300–400ms，界面越大越长 |
-| 大范围的展开 | 最长 800ms，各项之间错开 100ms |
-| 任何元素离开 | 比进入时更快 |
+按角色分的四条曲线，各自指向刻度中的一条：`enter` 用于出现的界面，`exit` 用于离开的界面，`state` 用于原地的状态变化，`spatial` 用于原地移动或改变大小的东西。在默认系统中，`enter`、`state` 和 `spatial` 都是标准曲线；`exit` 是加速曲线，离开的界面越走越快，随即消失。
 
 <MotionTokens part="easing" />
 
-## 不动的东西
+## 在自己的 CSS 中使用令牌
 
-- **焦点环立即出现。** 键盘用户需要马上看到自己所在的位置，而不是等一段动画播完。
-- **默认没有涟漪。** 按下反馈就是状态层；涟漪是主题层面的可选项，而不是基线。
+每个令牌都是 `tokens.css` 中的一个自定义属性。自己写的过渡也请按动的东西的角色来定时长，这样它们与组件保持同一节奏，并跟随每个层和调节量的变化：
+
+```css
+.result-row {
+  transition: background-color var(--tanrei-sys-motion-role-state-large) var(--tanrei-sys-motion-easing-state);
+}
+```
+
+## 组件自己会做的事
+
+- **所有界面以同一种方式出现。** 菜单、下拉选择框的列表、弹出框、工具提示、对话框、消息条，都从同样的不透明度、缩放、距离和模糊（`tanrei.sys.motion.appear.*`）开始，离开时沿原路返回。在默认系统中，界面从 0.96 的缩放淡入，并从它出来的一侧展开：朝向锚点的那条边、模态界面的中心、消息条所在的窗口边缘。底部面板和侧边面板无论出现方式如何设置，都从边缘滑入。这些值由一个选择 `sys.behavior.appearance` 一并决定（[界面从何处出现](/zh-cn/tokens/motion/#界面从何处出现)）。
+- **中途掉头的动效从当前位置继续。** 菜单出现到一半时关闭，它会从当前画出的值开始离开，不会跳变，也不会闪过另一个状态。
+- **改变大小的盒子在布局中运动。** 多出一行的文本字段、在字段下方展开的错误提示，每一帧都在改变大小，后面的内容随之移动。内容固定在盒子的一侧，过程中盒子内部不会滚动。
+- **动效从第一帧开始。** 在一个长任务的末尾打开的界面或改变的状态（例如打开时要渲染很多行的列表），会从该任务之后绘制的第一帧开始播放动效，而不是一出现就已经播完。组件暂停后又恢复的动效，例如跑马灯文本的一轮滚动、轮播自动播放的进度，会从暂停的位置继续。
+- **焦点环从不做动画。** 它立即出现，键盘用户无需等待就能看到自己在哪里。
+- **按下由状态层来回应。** 默认系统中 `sys.behavior.pressed-feedback` 为 `overlay`；选择 `ripple` 的系统用 `tanrei.sys.motion.role.feedback` 作为涟漪的时长。
+
+## 页面加载时什么都不动
+
+组件按属性和内容给出的状态绘制第一帧，不会有进入该状态的过渡。写了 `checked` 的复选框、写成展开状态的折叠面板的项、在首次渲染后才测量自身大小的字段，在页面出现时就已经是那个样子。本包的每个元素从连接到文档起，直到首次渲染后的两帧，都带有 `data-tanrei-settling`，在此期间其内部不会开始任何过渡。
+
+在页面标记中写成打开状态的浮层（例如 `<tanrei-dialog open>`），在第一帧就已经在那里，没有出现动效。页面绘制之后才打开、或以打开状态加入的浮层，照常播放出现动效。
 
 ## 减弱动态效果
 
-每个实现都必须遵循平台的“减弱动态效果”设置。在该设置下，空间上的运动会被移除，或替换为短暂的交叉淡化，并且没有任何循环播放的动画。这是每个组件“完成定义”的一部分，而不是锦上添花。
+以下两个设置中任何一个提出要求，动效就会减弱：
+
+- **用户的设置**：操作系统或浏览器中的减弱动态效果设置（`prefers-reduced-motion: reduce`）。
+- **应用自己的设置**：根元素上的 `data-tanrei-motion="reduce"` 属性。
+
+两者对每个组件的效果相同。移动、缩放和模糊被替换为 `tanrei.sys.motion.role.reduced`（100 ms）内的一次简短的不透明度变化，大小的变化则立即完成。跑马灯文本不再滚动，加载指示器不再旋转，改为渐变不透明度，骨架屏保持静止。显示前的延迟保持不变，因为它衡量的是等待，而不是动效。
+
+如果你的产品有自己的“减弱动态效果”设置，在 `<html>` 上设置一次这个属性：
+
+```html
+<html data-tanrei-motion="reduce">
+```
+
+或者在设置改变时用脚本设置：
+
+```js
+function setReducedMotion(reduce) {
+  if (reduce) document.documentElement.dataset.tanreiMotion = 'reduce';
+  else delete document.documentElement.dataset.tanreiMotion;
+}
+```
+
+组件会立即跟随变化，无需重新加载。这个属性只能减弱动效：它唯一的值是 `reduce`，当用户已经要求减弱时，没有任何值能把动效重新打开（WCAG 2.3.3）。它依赖样式容器查询；不支持样式容器查询的浏览器只遵循 `prefers-reduced-motion`，此时该属性只会减弱组件通过脚本播放的动效。
+
+`tokens.css` 把这两种设置表示为同一个可继承的值 `--tanrei-motion: reduce`。要在自己的 CSS 中同时遵循两种设置，就像组件那样，把同样的规则分别写在媒体查询和针对这个值的样式查询之下：
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+@container style(--tanrei-motion: reduce) {
+  .promo-banner { animation: none; }
+}
+```
+
+本页描述的是 Web 包。原生包遵循平台自己的设置（SwiftUI 的 `accessibilityReduceMotion`、Android 的动画程序时长缩放、Flutter 的 `MediaQuery.disableAnimations`、React Native 的 `AccessibilityInfo.isReduceMotionEnabled()`）。在 Flutter 中，应用可以在其组件之上覆盖 `MediaQuery` 来自行减弱动效；SwiftUI、Jetpack Compose 和 React Native 目前还没有应用级的独立设置。
 
 所有的值都列在[动效令牌参考](/zh-cn/tokens/motion/)中。
