@@ -348,6 +348,9 @@ export class TanreiAppShell extends TanreiLightElement {
     this.mutations?.disconnect();
     this.navigationMutations?.disconnect();
     this.sizes?.disconnect();
+    this.navigationSizes?.disconnect();
+    this.resizing = null;
+    this.reading = null;
     this.removeEventListener('click', this.onClick);
     this.removeEventListener('keydown', this.onKeyDown);
     this.removeEventListener('focusin', this.onFocusIn);
@@ -659,6 +662,64 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     const kept = this.scrolls !== 'main' && size !== undefined && size > 0;
     publish(this, OFFSET, kept ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : null);
+  }
+
+  // ---- APS-5: the place being read while a person changes the navigation's width ----
+
+  /** APS-5: the element at the top of what is being read in the main region, and where it stood then. */
+  private reading: { element: Element; top: number } | null = null;
+  /** APS-5: the drawer whose width is followed, in every frame it changes. */
+  private resizing: Element | null = null;
+  private readonly navigationSizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.holdReading());
+
+  /**
+   * @internal APS-5: the navigation drawer is about to change its width at a person's doing (NVD-98 to NVD-101): the
+   * place being read in the main region is noted now, and held there in every frame the width changes while the drawer
+   * says a person is changing it (its `data-person-resize`). The main region itself has no motion: the grid gives it
+   * the room that is left in the same frame.
+   */
+  keepReading(drawer: Element) {
+    const element = this.readingAt();
+    this.reading = element ? { element, top: element.getBoundingClientRect().top } : null;
+    if (this.navigationSizes && this.resizing !== drawer) {
+      this.navigationSizes.disconnect();
+      this.navigationSizes.observe(drawer);
+      this.resizing = drawer;
+    }
+  }
+
+  /** APS-5: the main content scrolled by as much as the place being read moved, so that it stands where it stood. */
+  private holdReading() {
+    const kept = this.reading;
+    if (!kept || !kept.element.isConnected || !this.resizing?.hasAttribute('data-person-resize')) return;
+    const moved = kept.element.getBoundingClientRect().top - kept.top;
+    if (Math.abs(moved) < 0.5) return;
+    const main = this.main();
+    if (this.scrolls === 'main' && main) main.scrollTop += moved;
+    else window.scrollBy(0, moved);
+  }
+
+  /**
+   * APS-5: what is being read — the first element of the main region that begins at or below the top of what is seen
+   * (below what the frame keeps over the page), or, where one runs across that line, the first of its own that does.
+   */
+  private readingAt(): Element | null {
+    const main = this.main();
+    if (!main) return null;
+    const kept = this.scrolls === 'main' ? 0 : Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(OFFSET)) || 0;
+    const line = Math.max(main.getBoundingClientRect().top, kept);
+    let found: Element | null = null;
+    for (let at: Element = main, depth = 0; depth < 8; depth++) {
+      const next = [...at.children].find((child) => {
+        const box = child.getBoundingClientRect();
+        return box.height > 0 && box.bottom > line;
+      });
+      if (!next) break;
+      found = next;
+      if (next.getBoundingClientRect().top >= line || !next.firstElementChild) break;
+      at = next;
+    }
+    return found;
   }
 
   // ---- APS-6, APS-7: the menu button and the navigation ----

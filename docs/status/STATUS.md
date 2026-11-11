@@ -37,7 +37,7 @@ Listing: 90 default · 8 advanced. A component of the first value is shown where
 | Main action button | base | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Navigation bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Navigation drawer | composed: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Navigation drawer | composed: Modal layer, Handle | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider field | composed: Field, Slider | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Search | feature: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
@@ -101,7 +101,7 @@ Listing: 90 default · 8 advanced. A component of the first value is shown where
 | Embedded text input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Handle | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Handle | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Resizable frame | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Split view | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |

@@ -14,7 +14,13 @@ interface Declaration {
   converter?: ((text: string | null, type?: unknown) => unknown) | Converter;
 }
 /** A Lit element's class: its declarations are complete once it is finalized (`finalize` is protected, and idempotent). */
-type Declared = { prototype: object; elementProperties?: Map<PropertyKey, Declaration>; finalize?: () => void };
+type Declared = {
+  prototype: object;
+  elementProperties?: Map<PropertyKey, Declaration>;
+  finalize?: () => void;
+  /** The inline style a page rendered before the element is defined needs, from the props (a navigation drawer's width). */
+  serverStyle?: (props: Record<string, unknown>) => Record<string, string> | null;
+};
 
 // Props that are React's, not the element's.
 const REACT_PROPS = new Set(['children', 'ref', 'key']);
@@ -60,6 +66,9 @@ function serverProps(elementClass: Declared, attributes: ServerAttributes, props
     // A property with no attribute (an object, an array) is the client's to set.
     else if (!(key in elementClass.prototype)) html[key] = value;
   }
+  // What the element's own stylesheet reads before it is defined, beside the product's own style.
+  const style = elementClass.serverStyle?.(props);
+  if (style) html.style = { ...(props.style && typeof props.style === 'object' ? (props.style as Record<string, unknown>) : {}), ...style };
   return html;
 }
 
