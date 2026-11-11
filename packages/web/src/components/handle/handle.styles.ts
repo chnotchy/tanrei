@@ -15,6 +15,8 @@ const DEFAULT_SIZE = 'medium';
 /** The axes and the corners the component defines (HDL-20: anything else is drawn as the first). */
 export const AXES_OF_RESIZE = ['vertical', 'horizontal', 'both'] as const;
 export const CORNERS = ['bottom-end', 'bottom-start', 'top-end', 'top-start'] as const;
+/** How far along its line it takes a press (HDL-27). */
+export const REACHES = ['container', 'edge'] as const;
 
 const PREFIX = '--tanrei-comp-handle';
 const T = (name: string) => `var(${PREFIX}-${name})`;
@@ -64,6 +66,24 @@ export const styles = css`
   }
   :host([hidden]) {
     display: none;
+  }
+
+  /* HDL-27: reach edge — the host is as long as the box its owner gives it along the line (100 % of it, unless the owner
+     places it otherwise) and its box's breadth across it; the box is drawn at its middle. It is a size container, so
+     that the target below can be as long as the host. */
+  :host([data-edge]) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    container-type: size;
+  }
+  :host([data-edge][axis='horizontal']) {
+    inline-size: var(--_box-br);
+    block-size: 100%;
+  }
+  :host([data-edge]:not([axis='horizontal'])) {
+    inline-size: 100%;
+    block-size: var(--_box-br);
   }
 
   /* HDL-3: the box — a pill of container.length × container.breadth across the line, turned for a width, a square of
@@ -195,6 +215,14 @@ export const styles = css`
   /* HDL-5: the target reaches sys.target.pointer for a fine pointer and sys.target.touch for a coarse one, centred on the
      box, without changing what is drawn. */
   ${minimumTarget('.container')}
+  /* HDL-27: reach edge — the target is the host's whole length along the line, and HDL-5's across it; the cursor and the
+     line's coming into sight answer anywhere on it, as they answer on the target. */
+  :host([data-edge][axis='horizontal']) .container::before {
+    block-size: 100cqb;
+  }
+  :host([data-edge]:not([axis='horizontal'])) .container::before {
+    inline-size: 100cqi;
+  }
 
   /* HDL-4, HDL-12: each state paints the box, the line and the opacity from that state's tokens, pressed over focused
      over hovered; under a fine pointer and a press the line takes its larger form. */

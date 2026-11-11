@@ -1,4 +1,4 @@
-// <tanrei-handle>, driven by specs/handle.spec.json: every behaviour id (HDL-1…25) is cited by a test title, every
+// <tanrei-handle>, driven by specs/handle.spec.json: every behaviour id (HDL-1…27) is cited by a test title, every
 // fixture has a baseline, and every value is read back from the tokens.
 // HDL-26: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
@@ -419,6 +419,61 @@ test.describe('target and cursor', () => {
     }
     const cursors = { revealed: 'ns-resize', horizontal: 'ew-resize', small: 'ns-resize', 'both-bottom-end': 'nwse-resize', 'both-bottom-start': 'nesw-resize', 'both-top-end': 'nesw-resize', 'both-top-start': 'nwse-resize' } as const;
     for (const [id, cursor] of Object.entries(cursors)) await expect(box(page, id), id).toHaveCSS('cursor', cursor);
+  });
+
+  test('HDL-27: reach edge takes a press, shows the resize cursor and comes into sight along the whole length its owner gives it; the box and the line are drawn at its middle, the target across the line is HDL-5’s, and the focus ring stays around the box', async ({ page }) => {
+    // The owner lays the handle out along a 600-high edge: a pane's.
+    await mount(page, [fx('edge', { axis: 'horizontal', reach: 'edge', value: 240, min: 200, max: 400 }), fx('plain', { axis: 'horizontal', value: 240 })], {
+      lead: `<style>.stage[data-fixture='edge'] > .owner { block-size: 600px; }</style>`,
+    });
+    await listen(page);
+    await expect(host(page, 'edge')).toHaveAttribute('reach', 'edge');
+    const edge = await bounds(owner(page, 'edge'));
+    const hostBox = await bounds(host(page, 'edge'));
+    expect(hostBox.height).toBeCloseTo(edge.height, 0);
+    const drawn = await bounds(box(page, 'edge'));
+    const plain = await bounds(box(page, 'plain'));
+    // The box is the plain handle's, at the middle of the length.
+    expect([drawn.width, drawn.height]).toEqual([plain.width, plain.height]);
+    expect(drawn.y + drawn.height / 2).toBeCloseTo(edge.y + edge.height / 2, 0);
+    const pointer = await px(page, '--tanrei-sys-target-pointer');
+    const x = drawn.x + drawn.width / 2;
+    // Near either end, and just inside the target's breadth: the handle's.
+    const hit = (px: number, py: number) => page.evaluate(([hx, hy]) => document.elementFromPoint(hx!, hy!)?.closest('tanrei-handle')?.closest('[data-fixture]')?.getAttribute('data-fixture') ?? null, [px, py]);
+    for (const y of [edge.y + 10, edge.y + edge.height - 10]) {
+      expect(await hit(x, y), `y ${y}`).toBe('edge');
+      expect(await hit(x + pointer / 2 - 2, y), `y ${y}, at the target's side`).toBe('edge');
+      expect(await hit(x + pointer / 2 + 2, y), `y ${y}, past the target`).not.toBe('edge');
+    }
+    // Out of sight at rest; a mouse near the top brings the line into sight at the middle, with the resize cursor.
+    expect(await opacity(capsule(page, 'edge'))).toBe(0);
+    await page.mouse.move(x, edge.y + 10);
+    await expect.poll(() => opacity(capsule(page, 'edge'))).toBe(1);
+    await expect(box(page, 'edge')).toHaveCSS('cursor', 'ew-resize');
+    const line = await bounds(capsule(page, 'edge'));
+    expect(line.y + line.height / 2).toBeCloseTo(edge.y + edge.height / 2, 0);
+    // A drag from near the bottom end is the handle's.
+    await page.mouse.move(x, edge.y + edge.height - 10);
+    await page.mouse.down();
+    await page.mouse.move(x + 40, edge.y + edge.height - 10);
+    await page.mouse.up();
+    expect((await log(page)).filter((entry) => entry.startsWith('resize'))).toEqual(['resizestart {"pointerType":"mouse"}', 'resize {"inline":40,"block":0}', 'resizeend {"inline":40,"block":0,"cancelled":false}']);
+    // HDL-14: the focus ring is around the box, not along the edge.
+    await tabTo(page, box(page, 'edge'));
+    const ring = await box(page, 'edge').evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { width: style.outlineWidth, offset: style.outlineOffset };
+    });
+    expect(Number.parseFloat(ring.width)).toBeGreaterThan(0);
+    expect(await bounds(box(page, 'edge'))).toEqual(drawn);
+  });
+
+  test('HDL-20, HDL-27: a reach the handle does not define is drawn as container and reported; reach is ignored for an arc', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('odd', { axis: 'horizontal', reach: 'far', value: 1, revealed: true }), fx('arc', { axis: 'both', reach: 'edge', value: 1, revealed: true })]);
+    await expect.poll(() => seen.filter((w) => w.includes('HDL-20')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/reach "far" is not a value of the handle; it is drawn as "container"/);
+    for (const id of ['odd', 'arc']) await expect(host(page, id), id).not.toHaveAttribute('data-edge');
   });
 
   test('HDL-5: a coarse pointer’s target reaches sys.target.touch', async ({ browser, browserName }) => {

@@ -49,6 +49,13 @@
       "axis": "tanrei.comp.handle.size"
     },
     {
+      "name": "reach",
+      "type": "enum",
+      "values": ["container", "edge"],
+      "default": "container",
+      "description": "How far along its line the handle takes a press. container: around its own box (a sheet's grip, a field's corner). edge: along the whole length of the box its owner lays it out in — the edge of a pane, which a person takes anywhere along it, as the divider between the panes of a desktop application is taken. The line is drawn at the middle either way. Ignored while axis is both."
+    },
+    {
       "name": "value",
       "type": "number",
       "default": null,
@@ -200,7 +207,7 @@
     },
     {
       "id": "HDL-20",
-      "text": "WHEN size names a value that the active design system does not have, or axis or corner a value the component does not define, THE handle SHALL render with the default value (medium, vertical, bottom-end), and in debug builds report the unknown value."
+      "text": "WHEN size names a value that the active design system does not have, or axis, corner or reach a value the component does not define, THE handle SHALL render with the default value (medium, vertical, bottom-end, container), and in debug builds report the unknown value."
     },
     {
       "id": "HDL-21",
@@ -226,6 +233,10 @@
     {
       "id": "HDL-26",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE handle SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role (HDL-8) — its separator WHILE value is not null, its button otherwise — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — except those the handle owns (aria-disabled, aria-expanded), which it SHALL move and not expose. WHILE label is not empty it is the handle's name, over a name given so; WHILE label is empty, a name given so is the handle's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE handle SHALL take it off that element. WHEN the product sets an aria- attribute the handle owns THE handle SHALL report it in debug builds."
+    },
+    {
+      "id": "HDL-27",
+      "text": "WHILE reach is edge and axis is vertical or horizontal THE handle SHALL take a press along the whole length of the box its owner lays it out in along its line — from one end of the edge it stands on to the other — and across the line as far as HDL-5 makes its target, SHALL draw its container and its line at the middle of that length at the sizes HDL-1 and HDL-3 give them, and SHALL show its resize cursor (HDL-5) and come into sight (HDL-23) for a fine pointer anywhere along it; its focus indicator SHALL stay around its container (HDL-14). WHILE reach is container its target SHALL be as HDL-5 says."
     }
   ],
   "accessibility": {
@@ -260,42 +271,43 @@
     { "id": "small-both", "props": { "size": "small", "axis": "both", "value": 4, "revealed": true, "label": "Resize message" } },
     { "id": "button-expanded", "props": { "expanded": true, "revealed": true, "label": "Sheet height" } },
     { "id": "disabled", "props": { "disabled": true, "value": 50, "revealed": true, "label": "Resize preview" } },
-    { "id": "rtl-both", "direction": "rtl", "props": { "axis": "both", "value": 6, "revealed": true, "label": "Resize message" } }
+    { "id": "rtl-both", "direction": "rtl", "props": { "axis": "both", "value": 6, "revealed": true, "label": "Resize message" } },
+    { "id": "reach-edge", "props": { "axis": "horizontal", "reach": "edge", "revealed": true, "value": 240, "min": 200, "max": 400, "label": "Resize navigation" } }
   ],
   "platforms": {
     "web": {
-      "status": "alpha",
+      "status": "lagging",
       "name": "tanrei-handle",
-      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed", "reach": "reach" },
       "events": { "resizeStart": "resizestart", "resize": "resize", "resizeEnd": "resizeend", "step": "step", "activate": "activate" },
       "parts": { "container": "container", "line": "line", "target": { "noBox": "The hit area is the container's ::before, which paints nothing: it has no element of its own to measure." }, "focus-ring": "container@focus-ring" },
-      "notes": "`<tanrei-handle axis corner size value min max value-text expanded label disabled revealed>`. The shadow root holds one focusable element: `role=\"separator\"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` and `aria-orientation` while `value` is set, a `<button>` with `aria-expanded` while it is not. The capsule is a box with round ends, the arc an SVG circle drawn a quarter of the way round by its dash; both are `aria-hidden`. Out of sight (HDL-23) is `opacity: 0` on the box and the line, under `@media (hover: hover)` only (HDL-25). The drag uses Pointer Events with `setPointerCapture` and `touch-action: none` on the target, and a pointer press refuses its `mousedown`, so that it takes no focus and selects nothing; an owner that holds an iframe sets `pointer-events: none` on it between resizestart and resizeend (HDL-6). Events are `CustomEvent`s that bubble out of the shadow root: `resizestart` `{ pointerType }`, `resize` `{ inline, block }`, `resizeend` `{ inline, block, cancelled }`, `step` `{ axis, direction, amount }`, `activate` (no detail)."
+      "notes": "`<tanrei-handle axis corner size value min max value-text expanded label disabled revealed>`. The shadow root holds one focusable element: `role=\"separator\"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` and `aria-orientation` while `value` is set, a `<button>` with `aria-expanded` while it is not. The capsule is a box with round ends, the arc an SVG circle drawn a quarter of the way round by its dash; both are `aria-hidden`. Out of sight (HDL-23) is `opacity: 0` on the box and the line, under `@media (hover: hover)` only (HDL-25). The drag uses Pointer Events with `setPointerCapture` and `touch-action: none` on the target, and a pointer press refuses its `mousedown`, so that it takes no focus and selects nothing; an owner that holds an iframe sets `pointer-events: none` on it between resizestart and resizeend (HDL-6). Events are `CustomEvent`s that bubble out of the shadow root: `resizestart` `{ pointerType }`, `resize` `{ inline, block }`, `resizeend` `{ inline, block, cancelled }`, `step` `{ axis, direction, amount }`, `activate` (no detail). `reach=\"edge\"` makes the host a block as tall (or as wide) as the box its owner gives it, with the target filling it across the length and the container centred in it (HDL-27). It lags the spec only in the baseline of its `reach-edge` fixture, which is recorded on CI's own renderer: the element follows every sentence, HDL-27 included."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiHandle",
-      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "range.lowerBound", "max": "range.upperBound", "valueText": "valueText", "expanded": "isExpanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "range.lowerBound", "max": "range.upperBound", "valueText": "valueText", "expanded": "isExpanded", "label": "label", "disabled": "disabled", "revealed": "revealed", "reach": "reach" },
       "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
       "notes": "A `DragGesture(minimumDistance:)` with the platform's slop; `accessibilityAdjustableAction` for HDL-10 while `value` is set, the button trait while it is not. The resize cursor is `NSCursor` on macOS and the pointer style on iPadOS. Out of sight (HDL-23) only where a pointer hovers (macOS, iPadOS with a pointer); on a touch screen the line is always drawn (HDL-25)."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiHandle",
-      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "valueRange.start", "max": "valueRange.endInclusive", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed" },
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "valueRange.start", "max": "valueRange.endInclusive", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed", "reach": "reach" },
       "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
       "notes": "`enabled` is the inverse of disabled. `Modifier.pointerInput` with `detectDragGestures`; semantics `progressBarRangeInfo` and `setProgress` while `value` is set, `Role.Button` while it is not; `pointerHoverIcon` for the cursor on desktop. Out of sight (HDL-23) only where a pointer hovers (a desktop window, a mouse); on a touch screen the line is always drawn (HDL-25)."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiHandle",
-      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed" },
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed", "reach": "reach" },
       "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
       "notes": "`enabled` is the inverse of disabled. A `GestureDetector` with pan callbacks; `Semantics(slider: true, value:, increasedValue:, onIncrease:)` while `value` is set, `button: true` while it is not; `MouseRegion(cursor:)` for the resize cursor. Out of sight (HDL-23) only where a pointer hovers (a desktop or web target with a mouse); on a touch screen the line is always drawn (HDL-25)."
     },
     "react-native": {
       "status": "planned",
       "name": "Handle",
-      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed", "reach": "reach" },
       "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
       "notes": "A `PanResponder` (or Gesture Handler where the product has it); `accessibilityRole=\"adjustable\"` with `accessibilityActions` increment and decrement while `value` is set, `button` while it is not. A touch screen has no hover, so the line is always drawn there (HDL-25); where a pointer hovers (react-native-web, Windows, macOS) it is out of sight as HDL-23 says."
     }
