@@ -12,6 +12,7 @@ import {
   type PlacingGroup,
   SEPARATION_VALUES,
   type SeparationProp,
+  SizeProviderController,
   SystemWatchController,
   assignSlot,
   hostAria,
@@ -19,6 +20,7 @@ import {
   syncSeparation,
 } from '../../primitives/index.js';
 import { styles } from './button-group.styles.js';
+import type { TanreiButtonSize } from '../button/button.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
@@ -92,6 +94,7 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
     orientation: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
+    size: { type: String, reflect: true },
     label: { type: String },
     placed: { state: true },
   };
@@ -123,6 +126,17 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
    * width): the `full-width` attribute. For the actions at the foot of a dialog, a picker or a side sheet.
    */
   fullWidth = false;
+
+  /**
+   * The size of the Buttons it holds, as the Button's `size`: set on the group, it is the size of every Button in it
+   * that sets none of its own (BGR-26, BTN-48). Only a size set on the group is passed: a group that sets none (`null`,
+   * the default) leaves each Button at its own default, `medium`, or at the size a container around the group sets. A
+   * Button's own size always wins. A size a design system added to the Button may be named.
+   */
+  size: TanreiButtonSize | null = null;
+
+  /** BGR-26: the size set on the group is passed to its Buttons (src/primitives/size-cascade.ts). */
+  private readonly sizes = new SizeProviderController(this, () => this.size);
 
   /**
    * The group's accessible name ("Text style"). When it is set the group is a `role="group"` named by it; when it is

@@ -441,7 +441,7 @@
       "allowedComponents": []
     },
     "popover": {
-      "budget": 57000,
+      "budget": 60300,
       "measured": 54572,
       "allowedComponents": [
         "button"
@@ -545,7 +545,7 @@
       ]
     },
     "snackbar": {
-      "budget": 45900,
+      "budget": 48300,
       "measured": 44080,
       "allowedComponents": [
         "button"

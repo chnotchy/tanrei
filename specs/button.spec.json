@@ -62,7 +62,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. While it is not set the button is drawn at the size its nearest container sets — a button group's size (BTN-48) — and at medium where none does. A design system may add values.",
       "axis": "tanrei.comp.button.size"
     },
     {
@@ -412,6 +412,11 @@
       "id": "BTN-47",
       "text": "WHERE the component that places the button makes it one choice of a single selection through the internal channel (BTN-10) — a member of a toolbar group whose selection is single (TBR-28) — and WHILE toggle is true THE button SHALL expose itself to assistive technology as a radio button, checked while selected and not checked otherwise, with no pressed state, and SHALL keep its looks, its name and its keys as a toggle (BTN-15, BTN-16). WHEN the user activates it while it is not selected it SHALL become selected and emit click and then change, as BTN-14 says; WHEN the user activates it while it is selected it SHALL emit click alone and stay selected, because a choice of one is changed by choosing another. WHILE no component gives it that place THE button SHALL be the toggle BTN-14 describes.",
       "verify": "In the toolbar fixture inline-selection-groups: each member of the Alignment group has the radio role and aria-checked, and no aria-pressed; a press of the checked member emits click and no change and leaves it checked; the members of the multiple group keep aria-pressed."
+    },
+    {
+      "id": "BTN-48",
+      "text": "WHILE size is not set and a container around the button sets a size for what it holds — a button group's size (BGR-26), the nearest such container where several do — THE button SHALL be drawn at that size, its height following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE button SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the button moved into or out of such a container — THE button SHALL be drawn at the size it now takes at once.",
+      "verify": "In a button group whose size is small, a Button without a size is as high as comp.button.container.height.small and one with size large as high as comp.button.container.height.large, at density 0.75, 1 and 1.5; removing the group's size, or moving the Button out, draws it at medium; a Button whose size is set to medium keeps medium in a small group."
     }
   ],
   "accessibility": {

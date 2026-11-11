@@ -11,7 +11,7 @@ const ButtonGroupElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const ButtonGroupAttributes = { variant: ['variant', 'standard'], orientation: ['orientation', 'horizontal'], separation: ['separation', 'auto'], fullWidth: ['full-width', false], label: ['label', ''] } as const;
+const ButtonGroupAttributes = { variant: ['variant', 'standard'], orientation: ['orientation', 'horizontal'], separation: ['separation', 'auto'], fullWidth: ['full-width', false], size: ['size', null], label: ['label', ''] } as const;
 /**
  * Lays out a few related Buttons in one row or one column, spaced apart or joined into one shape, places the confirming and the dismissive ones by the orientation, and names them as a group.
  *
