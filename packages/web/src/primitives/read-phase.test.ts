@@ -16,6 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
+import { EVERY_ANIMATION } from '../../test/motions.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
@@ -390,7 +391,7 @@ test.describe('elements that read together after their render', () => {
 
   test('CCM-6: the send button a chat composer draws in its first render is drawn with the variant the system names from its first update — no transition from another variant starts', async ({ page }) => {
     await open(page, pageHtml());
-    const drawn = await page.evaluate(async () => {
+    const drawn = await page.evaluate(async (every) => {
       await customElements.whenDefined('tanrei-chat-composer');
       const pane = document.getElementById('pane')!;
       // A system whose send button is not the Button's own default (filled).
@@ -400,8 +401,8 @@ test.describe('elements that read together after their render', () => {
       await new Promise((frame) => requestAnimationFrame(frame));
       await new Promise((frame) => requestAnimationFrame(frame));
       const button = composer.shadowRoot!.querySelector('.send > tanrei-button')!.shadowRoot!.querySelector<HTMLElement>('button')!;
-      return { variant: button.dataset.hostVariant, transitions: button.getAnimations().length };
-    });
+      return { variant: button.dataset.hostVariant, transitions: ((0, eval)(every) as (root: Element) => Animation[])(button).length };
+    }, EVERY_ANIMATION);
     expect(drawn).toEqual({ variant: 'text', transitions: 0 });
   });
 });
