@@ -22,6 +22,9 @@
  *     <tanrei-navigation-bar slot="navigation-bar" label="Sections">…</tanrei-navigation-bar>
  *   </tanrei-app-shell>
  *
+ * A frame without a header gives its menu button as a region of its own, in the header's place (APS-34):
+ * `<tanrei-button slot="menu-button" variant="text" label="Menu">…</tanrei-button>`.
+ *
  * The regions are children with a `slot` attribute (no shadow root reads it: it is the region's name) and the one
  * `main` without one, written in the order a keyboard walks them (APS-22): the skip link, the announcement, the
  * header, the navigation, the aside while `aside-order` is `before`, the main region, the aside while it is `after`,
@@ -86,6 +89,8 @@
     /* APS-8: the gutter of the class, and what centres a contained main region in its room. */
     --_aps-gutter: var(--tanrei-comp-app-shell-gutter-compact);
     --_aps-centring: calc((100% - var(--tanrei-comp-app-shell-main-max-width)) / 2);
+    /* APS-34: how far a frame without a header keeps its menu button from the top of the window. */
+    --_aps-menu-top: calc(env(safe-area-inset-top, 0px) + var(--_aps-gutter));
     /* APS-27: the system insets at the start, the end and the bottom. */
     --_aps-inset-start: env(safe-area-inset-left, 0px);
     --_aps-inset-end: env(safe-area-inset-right, 0px);
@@ -179,6 +184,26 @@
   }
   :where(tanrei-app-shell[header-position='static'], tanrei-app-shell[scroll='main']) > :where([slot='header']) {
     position: static;
+  }
+  /* APS-34: a frame without a header has its menu button alone in the header's place, the gutter of the class from the
+     top of that place and from the frame's start edge, inside the insets, with no band, fill or edge around it. While
+     the page scrolls it is kept the same gutter from the top of the window, whatever header-position says: its margin
+     and its inset are one length, so it rests where it sticks. Over every region, as a sticky header is (APS-32). */
+  :where(tanrei-app-shell) > :where([slot='menu-button']) {
+    grid-area: header / frame-start / auto / frame-end;
+    justify-self: start;
+    margin-block-start: var(--_aps-menu-top);
+    margin-inline-start: var(--_aps-inline-start);
+    position: sticky;
+    inset-block-start: var(--_aps-menu-top);
+    z-index: 3;
+  }
+  :where(tanrei-app-shell[scroll='main']) > :where([slot='menu-button']) {
+    position: static;
+  }
+  /* APS-34: with a header, the menu button is the header's; what the menu-button slot holds is not shown. */
+  :where(tanrei-app-shell) > :where([slot='header'] ~ [slot='menu-button'], [slot='menu-button']:has(~ [slot='header'])) {
+    display: none;
   }
 
   /* APS-4, APS-5: the navigation. In a compact window it has no place in the layout: a navigation drawer presents
@@ -294,12 +319,14 @@
   /* ── The menu button (APS-6): shown in every class for a drawer (menu-button-placement header), else only while the
      navigation has no place in the layout; never restyled ─────────────────────────────────────────────────────── */
   @container style(--_aps-menu: hidden) {
-    :where(tanrei-app-shell) :where([data-app-shell-menu]) {
+    :where(tanrei-app-shell) :where([data-app-shell-menu]),
+    :where(tanrei-app-shell) > :where([slot='menu-button']) {
       display: none;
     }
   }
   /* …and where the browser has no style queries, by the element's own word. */
-  :where(tanrei-app-shell[data-menu='hidden']) :where([data-app-shell-menu]) {
+  :where(tanrei-app-shell[data-menu='hidden']) :where([data-app-shell-menu]),
+  :where(tanrei-app-shell[data-menu='hidden']) > :where([slot='menu-button']) {
     display: none;
   }
 
@@ -362,9 +389,11 @@
       --_aps-inset-bottom: env(safe-area-inset-bottom, 0px);
     }
     /* APS-4, APS-6: a navigation with a collapsed form stands as its column. The menu button stays for a drawer — it
-       widens the column over the content and narrows it back — unless menu-button-placement is drawer, where the
-       drawer's own menu button stands for it (NVD-37); anything else with a collapsed form has no use for it. */
+       widens the column over the content and narrows it back — unless menu-button-placement is drawer, or the frame
+       has no header (APS-34), where the drawer's own menu button stands for it (NVD-37); anything else with a
+       collapsed form has no use for it. */
     :where(tanrei-app-shell[menu-button-placement='drawer']):where(:has(> [slot='navigation'][collapsible])),
+    :where(tanrei-app-shell):where(:not(:has(> [slot='header']))):where(:has(> [slot='navigation'][collapsible])),
     :where(tanrei-app-shell):where(:has(> [slot='navigation'][collapsible]:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
@@ -388,8 +417,10 @@
       --_aps-gutter: var(--tanrei-comp-app-shell-gutter-expanded);
     }
     /* APS-4, APS-6: the navigation stands beside the main region, whatever it is. The menu button stays for a drawer —
-       it shows, hides or collapses it — unless menu-button-placement is drawer; anything else is not changed by it. */
+       it shows, hides or collapses it — unless menu-button-placement is drawer, or the frame has no header (APS-34);
+       anything else is not changed by it. */
     :where(tanrei-app-shell[menu-button-placement='drawer']):where(:has(> [slot='navigation'])),
+    :where(tanrei-app-shell):where(:not(:has(> [slot='header']))),
     :where(tanrei-app-shell):where(:has(> [slot='navigation']:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
@@ -488,6 +519,11 @@
     --tanrei-app-shell-scroll-offset: var(--tanrei-comp-app-bar-container-height-small);
     scroll-padding-block-start: var(--tanrei-app-shell-scroll-offset);
   }
+  /* APS-34: a frame without a header keeps its menu button over the top of the page while it is shown — no length until
+     the element has measured it (the button is not shown in every class). */
+  :where(:root):where(:has(tanrei-app-shell:not([scroll='main']) > [slot='menu-button'])) {
+    scroll-padding-block-start: var(--tanrei-app-shell-scroll-offset, auto);
+  }
   @media (width < token(comp.app-shell.breakpoint.medium)) {
     :where(:root):where(:has(tanrei-app-shell:not([scroll='main']) > [slot='navigation-bar'])) {
       --tanrei-app-shell-scroll-offset-end: var(--tanrei-comp-navigation-bar-container-height);
@@ -518,7 +554,7 @@
       position: static;
     }
     :where(tanrei-app-shell) > [slot='skip-link'],
-    :where(tanrei-app-shell) > :where([slot='navigation'], [slot='navigation-bar']) {
+    :where(tanrei-app-shell) > :where([slot='menu-button'], [slot='navigation'], [slot='navigation-bar']) {
       display: none;
     }
   }

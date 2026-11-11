@@ -175,7 +175,9 @@ let ids = 0;
  *   no place in the layout). It asks the drawer for what the drawer's own menu button asks: where the navigation has no
  *   place (or only its column) `navigationOpen` and the drawer's `open` become true, and a second press, Escape or the
  *   drawer's `close` makes them false again; where it stands beside the content it collapses and expands it, or hides
- *   and shows one with no collapsed form. The button says `aria-expanded` and what it controls;
+ *   and shows one with no collapsed form. The button says `aria-expanded` and what it controls. A frame without a
+ *   header takes it from its `menu-button` slot instead, and shows it only where the navigation has no place in the
+ *   layout, alone in the header's place and kept at the top of the window (APS-34);
  * - **the navigation open over the content**, drawn below the header with its scrim (the drawer is then no dialog
  *   and keeps no focus): the skip link, the main region, the aside, the footer and the navigation bar are inert and
  *   the page does not scroll, until closing begins. The header and the announcement stay usable;
@@ -195,6 +197,7 @@ let ids = 0;
  * @slot skip-link - The skip link: a standalone Link (`class="tanrei-link" data-standalone`) whose `href` is the main region's id, with the product's words. Shown only while it has keyboard focus.
  * @slot announcement - The notice above the header: an element around a callout, across the frame's width.
  * @slot header - The header: a `<header>` around the product's app bar, with the menu button in the bar's navigation slot.
+ * @slot menu-button - The menu button of a frame without a header: an icon-only `<tanrei-button slot="menu-button">`, placed alone in the header's place at the top start corner and kept at the top of the window while the page scrolls (APS-34). Not shown while the header slot is filled.
  * @slot navigation - The navigation: a `<tanrei-navigation-drawer responsive>`. Anything else is placed beside the content in an expanded window and is not shown in a narrower one.
  * @slot aside - The aside: an `<aside>` with the product's supporting content, or a side sheet.
  * @slot footer - The footer: a `<footer>` with the product's own layout.
@@ -290,6 +293,8 @@ export class TanreiAppShell extends TanreiLightElement {
   private readonly sizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver((entries) => this.resized(entries));
   /** The regions read last. */
   private header: Element | null = null;
+  /** APS-17, APS-34: what the frame keeps over the top of the page — the header, or the menu button of a frame without one. */
+  private top: Element | null = null;
   private bar: Element | null = null;
   private footer: Element | null = null;
   /** APS-23: what last took focus in the frame, until focus goes elsewhere by a person's doing. */
@@ -542,6 +547,7 @@ export class TanreiAppShell extends TanreiLightElement {
       this.given.delete(element);
     }
     const header = this.region('header');
+    const menuSlot = this.region('menu-button');
     const footer = this.region('footer');
     const aside = this.region('aside');
     const navigation = this.region('navigation');
@@ -550,6 +556,8 @@ export class TanreiAppShell extends TanreiLightElement {
 
     // APS-21: the landmark of a region whose element does not give it.
     if (header && header.localName !== 'header') this.give(header, 'role', 'banner');
+    // APS-34: the menu-button slot is for a frame without a header; with one, it is not shown.
+    if (header && menuSlot) report(this, 'APS-34', 'the menu-button slot is for a frame without a header: put the menu button in the header, marked data-app-shell-menu');
     if (footer && footer.localName !== 'footer') this.give(footer, 'role', 'contentinfo');
     if (aside) {
       // A side sheet is named by its own headline, and is the landmark itself (SSH-22).
@@ -573,13 +581,15 @@ export class TanreiAppShell extends TanreiLightElement {
     }
 
     // APS-17: what the frame keeps over the top and the bottom of the page is measured.
-    if (header !== this.header || bar !== this.bar || footer !== this.footer) {
+    const top = header ?? menuSlot;
+    if (header !== this.header || top !== this.top || bar !== this.bar || footer !== this.footer) {
       this.sizes?.disconnect();
       this.header = header;
+      this.top = top;
       this.bar = bar;
       this.footer = footer;
-      for (const observed of [header, bar, footer]) if (observed) this.sizes?.observe(observed);
-      if (!header) publish(this, OFFSET, null);
+      for (const observed of [top, bar, footer]) if (observed) this.sizes?.observe(observed);
+      if (!top) publish(this, OFFSET, null);
       if (!bar) publish(this, OFFSET_END, null);
       if (!footer) this.style.removeProperty(FOOTER);
     }
@@ -624,7 +634,7 @@ export class TanreiAppShell extends TanreiLightElement {
   private resized(entries: ResizeObserverEntry[]) {
     for (const entry of entries) {
       const size = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
-      if (entry.target === this.header) this.measure(size);
+      if (entry.target === this.top) this.measure(size);
       else if (entry.target === this.bar) publish(this, OFFSET_END, this.scrolls !== 'main' && size > 0 ? size : null);
       else if (entry.target === this.footer) {
         // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
@@ -635,20 +645,31 @@ export class TanreiAppShell extends TanreiLightElement {
     }
   }
 
-  /** The header's height, while the header is kept over the top of the page; nothing otherwise (APS-17). */
-  private measure(size: number | undefined = this.header?.getBoundingClientRect().height) {
-    const kept = this.scrolls !== 'main' && this.headerPosition !== 'static';
-    publish(this, OFFSET, kept && size !== undefined && size > 0 ? size : null);
+  /**
+   * The header's height, while the header is kept over the top of the page (APS-17); in a frame without a header, the
+   * menu button's height and the gutter it is kept from the top of the window by, while it is shown (APS-34); nothing
+   * otherwise.
+   */
+  private measure(size: number | undefined = this.top?.getBoundingClientRect().height) {
+    const top = this.top;
+    if (!top || top === this.header) {
+      const kept = this.scrolls !== 'main' && this.headerPosition !== 'static';
+      publish(this, OFFSET, kept && size !== undefined && size > 0 ? size : null);
+      return;
+    }
+    const kept = this.scrolls !== 'main' && size !== undefined && size > 0;
+    publish(this, OFFSET, kept ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : null);
   }
 
   // ---- APS-6, APS-7: the menu button and the navigation ----
 
   /**
    * APS-6: whether the menu button is shown: in every class while the navigation region holds a navigation drawer and
-   * `menuButtonPlacement` is not `drawer`; otherwise only while the navigation has no place in the layout.
+   * `menuButtonPlacement` is not `drawer`; otherwise only while the navigation has no place in the layout. APS-34: a
+   * frame without a header shows its menu-button slot's button as `drawer` does.
    */
   private get menuShown(): boolean {
-    if (this.drawer && this.menuButtonPlacement !== 'drawer') return true;
+    if (this.header && this.drawer && this.menuButtonPlacement !== 'drawer') return true;
     return this.presentation === 'modal';
   }
 
@@ -702,8 +723,10 @@ export class TanreiAppShell extends TanreiLightElement {
     this.syncInert();
   }
 
+  /** APS-6, APS-34: the menu button — the header's marked one, or the menu-button slot's in a frame without a header. */
   private get menu(): HTMLElement | null {
-    return this.header?.querySelector<HTMLElement>(MENU) ?? null;
+    if (this.header) return this.header.querySelector<HTMLElement>(MENU);
+    return this.querySelector<HTMLElement>(':scope > [slot="menu-button"]');
   }
 
   /** The drawer whose `close` and `expandedchange` the frame follows: one at a time. */
