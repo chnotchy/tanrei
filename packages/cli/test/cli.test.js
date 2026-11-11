@@ -236,6 +236,28 @@ test('explain, systems, init, help', () => {
   fs.rmSync(path.join(dir, 'tanrei.json'));
   const init = spawnSync(process.execPath, [bin, 'init', 'fresh', '--extends', 'm3-like'], { cwd: tempDir('init'), encoding: 'utf8', env: { ...process.env, TANREI_CLI_FROM_SOURCE: '1' } });
   assert.equal(init.status, 0, init.stderr);
+  // init names every dial the vocabulary has, and the three values that decide how big things are.
+  const dialFile = JSON.parse(fs.readFileSync(path.resolve(pkg, '../../tokens/dial/dial.tokens.json'), 'utf8')).tanrei.dial;
+  const dials = Object.entries(dialFile).filter(([key]) => !key.startsWith('$')).flatMap(([key, node]) => ('$value' in node ? [key] : Object.keys(node).filter((k) => !k.startsWith('$')).map((k) => `${key}.${k}`)));
+  assert.equal(dials.length, 8);
+  assert.match(init.stdout, new RegExp(`Start with the dials: ${dials.length} numbers every token is derived from \\(tanrei\\.dial\\.${dials.join(', ').replaceAll('.', '\\.')}\\)`));
+  for (const id of ['tanrei.dial.size.unit', 'tanrei.dial.density', 'tanrei.sys.target.minimum', 'tanrei.sys.target.pointer']) assert.match(init.stdout, new RegExp(id.replaceAll('.', '\\.')));
+  assert.match(init.stdout, /a density of 0 or\nless, or pointer or touch under the minimum, is refused/);
+  assert.doesNotMatch(init.stdout, /\b(44|48)px\b/, 'no platform figure is named as the default');
+});
+
+test('validate refuses what build refuses in every layer: a density of zero, a hit area under the minimum', () => {
+  const zero = product({ ...acme, tokens: { 'tanrei.dial.density': { $value: 0, reason: 'A density of zero, to be refused.' } } }, { web: 'out/web' });
+  const refused = zero.run(['validate']);
+  assert.equal(refused.status, 1, refused.stdout);
+  assert.match(refused.stderr, /✖ 1 problem\(s\) `tanrei build` refuses in every layer:\n {2}- target floor: dial\.density: 0 — a density is above zero/);
+  assert.match(zero.run(['build']).stderr, /cannot be built:\n {2}- target floor: dial\.density: 0/, 'the build refuses the same layer');
+  const under = product({ ...acme, tokens: { 'tanrei.sys.target.touch': { $value: { value: 30, unit: 'px' }, reason: 'A touch target under the minimum.' } } }, { web: 'out/web' });
+  assert.match(under.run(['validate']).stderr, /target floor: sys\.target\.touch: 30px is under sys\.target\.minimum \(36px\)/);
+  // A density that is above zero is a value like any other.
+  const dense = product({ ...acme, tokens: { 'tanrei.dial.density': { $value: 0.75, reason: 'A tool looked through all day.' } } }, { web: 'out/web' });
+  const valid = dense.run(['validate']);
+  assert.equal(valid.status, 0, valid.stderr);
 });
 
 test('fonts: build and systems list the named families a system references; validate warns about a stack without a fallback', () => {
