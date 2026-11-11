@@ -16,10 +16,14 @@ export const languages = [source, ...translations].map((language) => ({ dir: lan
 const byLang = (lang: string | undefined) => languages.find((language) => language.lang === lang) ?? languages[0];
 const byDir = (dir: string | undefined) => languages.find((language) => language.dir === (dir ?? '')) ?? languages[0];
 
-/** The page's language as `og:locale` writes it (`ja_JP`), and every other language of the site, as `og:locale:alternate`. */
-export function ogLocales(lang: string | undefined): { locale: string; alternates: string[] } {
+/**
+ * The page's language as `og:locale` writes it (`ja_JP`), and every other language the page is in, as
+ * `og:locale:alternate`: every language of the site, but for a page that exists in some only (a post of the blog,
+ * whose languages are given by their tags).
+ */
+export function ogLocales(lang: string | undefined, among?: readonly string[]): { locale: string; alternates: string[] } {
   const own = byLang(lang);
-  return { locale: own.ogLocale, alternates: languages.filter((language) => language !== own).map((language) => language.ogLocale) };
+  return { locale: own.ogLocale, alternates: languages.filter((language) => language !== own && (!among || among.includes(language.lang))).map((language) => language.ogLocale) };
 }
 
 /** Whether a language's pages have images of their own: the build has a face for its script (i18n/locales.mjs, `imageFaces`). */

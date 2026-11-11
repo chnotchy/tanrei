@@ -61,6 +61,9 @@ const en = {
   // first page and the button that opens the search.
   fileTree: { label: 'Files and folders' },
   notFound: { title: 'This page does not exist', text: 'The address may be mistyped, or the page may have moved.', home: 'Go to the start page', search: 'Search the docs' },
+  // The blog (lib/blog.ts): its title and description, the title of its feed, what an empty list says, the line that names
+  // the languages that have posts (on a list) or the post in (on a post), and the link to the feed.
+  blog: { title: 'Blog', description: 'Writing on how {name} is designed and built.', feedTitle: '{name} blog', empty: 'No posts have been published in English yet.', otherLanguages: 'Posts in other languages', alsoIn: 'This post in other languages', feed: 'RSS feed' },
   // Theme Studio's page (components/StudioPage.astro), which stands outside the documentation's frame: the document's
   // title and description, the name of the brand's link back to the documentation, and the link to the page about the tool.
   studioPage: { title: 'Theme Studio · Tanrei', description: 'Make a theme for Tanrei: move a few controls, watch real components follow, and export one layer file that builds for every platform.', back: 'Back to the documentation', about: 'About Theme Studio' },
@@ -387,6 +390,7 @@ const ja: typeof en = {
   wordKeys: { table: 'プロダクトの言葉のキー', key: 'キー', readBy: '読み取るプロパティ', places: '埋める場所', english: '英語の言葉のパック' },
   fileTree: { label: 'ファイルとフォルダー' },
   notFound: { title: 'このページは存在しません', text: 'アドレスの入力が間違っているか、ページが移動した可能性があります。', home: 'トップページへ', search: 'ドキュメントを検索' },
+  blog: { title: 'ブログ', description: '{name} の設計と開発についての記事です。', feedTitle: '{name} ブログ', empty: '日本語の記事はまだありません。', otherLanguages: 'ほかの言語の記事', alsoIn: 'この記事のほかの言語版', feed: 'RSS フィード' },
   studioPage: { title: 'Theme Studio · Tanrei', description: 'Tanrei のテーマを作ります。いくつかの操作で本物のコンポーネントが変わるのを確かめ、すべてのプラットフォーム向けにビルドできるレイヤーファイルを 1 つ書き出します。', back: 'ドキュメントに戻る', about: 'Theme Studio について' },
   availability: '提供状況',
   variantsNotShippedIn: '提供しないバリアント',
@@ -651,6 +655,7 @@ const zh: typeof en = {
   wordKeys: { table: '产品文字的键', key: '键', readBy: '读取它的属性', places: '填入的位置', english: '英语文字包中的文字' },
   fileTree: { label: '文件和文件夹' },
   notFound: { title: '此页面不存在', text: '地址可能输入有误，或者页面已被移走。', home: '前往首页', search: '搜索文档' },
+  blog: { title: '博客', description: '关于 {name} 如何设计与构建的文章。', feedTitle: '{name} 博客', empty: '还没有中文文章。', otherLanguages: '其他语言的文章', alsoIn: '本文的其他语言版本', feed: 'RSS 订阅' },
   studioPage: { title: 'Theme Studio · Tanrei', description: '为 Tanrei 制作主题：调整几个控件，看着真实的组件随之变化，再导出一个可以为所有平台构建的层文件。', back: '返回文档', about: '关于 Theme Studio' },
   availability: '可用情况',
   variantsNotShippedIn: '不提供的变体',
@@ -914,6 +919,7 @@ const es: typeof en = {
   wordKeys: { table: 'Las claves de los textos del producto', key: 'Clave', readBy: 'Propiedad que la lee', places: 'Lugares que rellena', english: 'En el paquete de textos en inglés' },
   fileTree: { label: 'Archivos y carpetas' },
   notFound: { title: 'Esta página no existe', text: 'Puede que la dirección esté mal escrita o que la página se haya movido.', home: 'Ir a la página de inicio', search: 'Buscar en la documentación' },
+  blog: { title: 'Blog', description: 'Artículos sobre cómo se diseña y se construye {name}.', feedTitle: 'Blog de {name}', empty: 'Todavía no se ha publicado ningún artículo en español.', otherLanguages: 'Artículos en otros idiomas', alsoIn: 'Este artículo en otros idiomas', feed: 'Feed RSS' },
   studioPage: { title: 'Theme Studio · Tanrei', description: 'Crea un tema para Tanrei: mueve unos pocos controles, mira cómo cambian los componentes reales y exporta un único archivo de capa que se compila para todas las plataformas.', back: 'Volver a la documentación', about: 'Acerca de Theme Studio' },
   availability: 'Disponibilidad',
   variantsNotShippedIn: 'Variantes que no se incluyen en',
@@ -1177,6 +1183,7 @@ const hi: typeof en = {
   wordKeys: { table: 'प्रॉडक्ट के शब्दों की कुंजियाँ', key: 'कुंजी', readBy: 'पढ़ने वाली प्रॉपर्टी', places: 'भरी जाने वाली जगहें', english: 'अंग्रेज़ी शब्दों के पैक में' },
   fileTree: { label: 'फ़ाइलें और फ़ोल्डर' },
   notFound: { title: 'यह पेज मौजूद नहीं है', text: 'हो सकता है पता ग़लत टाइप हुआ हो, या पेज कहीं और चला गया हो।', home: 'शुरुआती पेज पर जाएँ', search: 'दस्तावेज़ खोजें' },
+  blog: { title: 'ब्लॉग', description: '{name} के डिज़ाइन और निर्माण पर लेख।', feedTitle: '{name} ब्लॉग', empty: 'हिन्दी में अभी तक कोई पोस्ट प्रकाशित नहीं हुई है।', otherLanguages: 'दूसरी भाषाओं में पोस्ट', alsoIn: 'यह पोस्ट दूसरी भाषाओं में', feed: 'RSS फ़ीड' },
   studioPage: { title: 'Theme Studio · Tanrei', description: 'Tanrei के लिए थीम बनाएँ: कुछ कंट्रोल बदलें, असली कंपोनेंट को साथ-साथ बदलते देखें, और एक लेयर फ़ाइल एक्सपोर्ट करें जो हर प्लेटफ़ॉर्म के लिए बिल्ड होती है।', back: 'दस्तावेज़ पर वापस जाएँ', about: 'Theme Studio के बारे में' },
   availability: 'उपलब्धता',
   variantsNotShippedIn: 'वे वेरिएंट जो इनमें शामिल नहीं',
@@ -1440,6 +1447,7 @@ const ar: typeof en = {
   wordKeys: { table: 'مفاتيح كلمات المنتج', key: 'المفتاح', readBy: 'تقرؤه', places: 'المواضع التي تُملأ', english: 'في حزمة الكلمات الإنجليزية' },
   fileTree: { label: 'الملفات والمجلدات' },
   notFound: { title: 'هذه الصفحة غير موجودة', text: 'ربما كُتب عنوان الصفحة خطأً، أو نُقلت الصفحة.', home: 'الانتقال إلى الصفحة الرئيسية', search: 'البحث في التوثيق' },
+  blog: { title: 'المدونة', description: 'مقالات عن طريقة تصميم {name} وبنائه.', feedTitle: 'مدونة {name}', empty: 'لم تُنشر أي مقالات باللغة العربية بعد.', otherLanguages: 'مقالات بلغات أخرى', alsoIn: 'هذه المقالة بلغات أخرى', feed: 'خلاصة RSS' },
   studioPage: { title: 'Theme Studio · Tanrei', description: 'أنشئ سمة لـ Tanrei: حرّك بعض عناصر التحكم، وشاهد المكوّنات الحقيقية تتغيّر معها، ثم صدّر ملف طبقة واحدًا يُبنى لكل المنصات.', back: 'العودة إلى التوثيق', about: 'حول Theme Studio' },
   availability: 'التوفر',
   variantsNotShippedIn: 'أشكال غير متوفرة في',

@@ -100,6 +100,31 @@ describe("a page's sources", () => {
     for (const prefix of ['', ...languages.map((dir) => `/${dir}`)]) assert.deepEqual(pageSources(`${prefix}/studio/`, where), ['apps/docs/src/components/StudioPage.astro']);
   });
 
+  test('of the blog: a post’s own file in its language, and a list’s component with every post of its language', () => {
+    for (const prefix of ['', ...languages.map((dir) => `/${dir}`)]) assert.equal(pageSources(`${prefix}/blog/`, where)[0], 'apps/docs/src/components/blog/BlogList.astro');
+    const root = tempDir('docs-lastmod-blog');
+    const write = (file) => {
+      fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+      fs.writeFileSync(path.join(root, file), '');
+    };
+    write('src/components/blog/BlogList.astro');
+    write('src/content/blog/.gitkeep');
+    write('src/content/blog/hello.md');
+    write('src/content/blog/later.mdx');
+    write('src/content/blog/ja/hello.md');
+    write('src/content/blog/hi/only.md');
+    const at = { repoRoot: root, contentDir: 'src/content/docs', languages: ['ja', 'hi'] };
+    assert.deepEqual(pageSources('/blog/', at), ['src/components/blog/BlogList.astro', 'src/content/blog/hello.md', 'src/content/blog/later.mdx']);
+    assert.deepEqual(pageSources('/ja/blog/', at), ['src/components/blog/BlogList.astro', 'src/content/blog/ja/hello.md']);
+    assert.deepEqual(pageSources('/hi/blog/', at), ['src/components/blog/BlogList.astro', 'src/content/blog/hi/only.md']);
+    assert.deepEqual(pageSources('/blog/hello/', at), ['src/content/blog/hello.md']);
+    assert.deepEqual(pageSources('/ja/blog/hello/', at), ['src/content/blog/ja/hello.md']);
+    assert.deepEqual(pageSources('/hi/blog/only/', at), ['src/content/blog/hi/only.md']);
+    // A post is in the languages it is written in, and no other: no English page stands in for it.
+    assert.deepEqual(pageSources('/ja/blog/later/', at), []);
+    assert.deepEqual(pageSources('/blog/only/', at), []);
+  });
+
   test('of a translation that does not exist yet are the English page it shows; an address with no page has none', () => {
     const root = tempDir('docs-lastmod-sources');
     const write = (file, text = '') => {
