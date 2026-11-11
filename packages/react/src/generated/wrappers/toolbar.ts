@@ -11,7 +11,7 @@ const ToolbarElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const ToolbarAttributes = { variant: ['variant', 'inline'], orientation: ['orientation', 'horizontal'], label: ['label', ''], overflow: ['overflow', 'menu'], overflowLabel: ['overflow-label', ''], separation: ['separation', 'auto'] } as const;
+const ToolbarAttributes = { variant: ['variant', 'inline'], orientation: ['orientation', 'horizontal'], label: ['label', ''], overflow: ['overflow', 'menu'], overflowLabel: ['overflow-label', ''], separation: ['separation', 'auto'], size: ['size', null] } as const;
 /**
  * Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked across the bottom edge, or floating over the content.
  *

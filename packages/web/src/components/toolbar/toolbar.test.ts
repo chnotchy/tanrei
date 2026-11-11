@@ -963,6 +963,94 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     await expect(bar(page, 'inline-vertical')).toHaveAttribute('aria-orientation', 'vertical');
   });
 
+  test('TBR-31: a size set on the toolbar is the size of its Buttons and Buttons with menu that set none, and of its overflow button (the fixture inline-small) — one that sets its own keeps it; set, changed or removed, they are drawn at the size they now take at once and laid out again; the toolbar draws nothing of its own by it: an inline toolbar stays inline.size high around small items and grows to large ones, and its gaps keep the targets from the lengths its items are drawn at', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spec.fixtures.filter((f) => f.id === 'inline-small' || f.id === 'inline-button-with-menu'),
+        fixture('small-own-large', [a('undo'), a('redo', { size: 'large' })], { size: 'small' }),
+        fixture('small-overflow', GLYPHS.map((g) => a(g)), { size: 'small', overflowLabel: 'More actions' }),
+        fixture('small-group', [{ kind: 'group', props: { label: 'Text style' }, items: [a('format_bold'), a('format_italic')] }], { size: 'small' }),
+      ],
+    });
+    await page.addStyleTag({ content: `.stage[data-fixture='small-overflow'] { inline-size: 240px; }` });
+    const height = (name: string) => resolveToken(page, `--tanrei-comp-button-container-height-${name}`);
+    const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
+    const halves = await resolveToken(page, '--tanrei-comp-button-with-menu-container-height-small');
+    const size = await resolveToken(page, T('container-size-inline'));
+    const gap = await resolveToken(page, T('container-gap-inline'));
+    const touch = await resolveToken(page, '--tanrei-sys-target-touch');
+    // Under the default system: small 36 (held at the minimum), the inline toolbar 40, its gap 4.
+    expect([small, medium, large, halves, size, gap]).toEqual([36, 40, 56, 36, 40, 4]);
+    /** The heights of the first `count` items' boxes, a Button with menu's by its two halves. */
+    const heights = (id: string, count: number) =>
+      bar(page, id).evaluate(
+        (el, n) =>
+          [...el.children]
+            .filter((child) => child.localName !== 'tanrei-divider')
+            .flatMap((child) => (child.localName === 'tanrei-toolbar-group' ? [...child.children] : [child]))
+            .slice(0, n)
+            .flatMap((child) => [...child.shadowRoot!.querySelectorAll('button')].map((button) => button.getBoundingClientRect().height)),
+        count,
+      );
+    // The fixture: inline-button-with-menu's items, the size set once on the toolbar.
+    expect(await heights('inline-small', 3)).toEqual([small, small, halves, halves]);
+    expect(await heights('inline-button-with-menu', 3)).toEqual([medium, medium, medium, medium]);
+    // What they take is not theirs: no size attribute is written on them.
+    expect(await bar(page, 'inline-small').evaluate((el) => [...el.querySelectorAll('tanrei-button, tanrei-button-with-menu')].map((child) => child.getAttribute('size')))).toEqual([null, null, null]);
+    const [undo, redo] = [await bounds(inner(page, 'inline-small', 0)), await bounds(inner(page, 'inline-small', 1))];
+    expect([undo.width, redo.width]).toEqual([small, small]);
+    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(kept(gap, touch, small, small), 1);
+    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(4, 1);
+    // Its own size across the axis, around smaller items; as large as a larger one.
+    expect((await bounds(bar(page, 'inline-small'))).height).toBeCloseTo(size, 1);
+    expect(await heights('small-own-large', 2)).toEqual([small, large]);
+    expect((await bounds(bar(page, 'small-own-large'))).height).toBeCloseTo(large, 1);
+    // A group's items take it as the toolbar's own do.
+    expect(await heights('small-group', 2)).toEqual([small, small]);
+    // The overflow button sets none: it is drawn at the toolbar's size.
+    await expect(overflowButton(page, 'small-overflow')).toBeVisible();
+    await expect.poll(async () => (await bounds(overflowButton(page, 'small-overflow').locator('button'))).height).toBe(small);
+    await expect(overflowButton(page, 'small-overflow')).not.toHaveAttribute('size');
+    // Set, changed and removed: drawn in the next frame, and laid out again.
+    const next = (id: string, change: string, count: number) =>
+      bar(page, id).evaluate(
+        async (el, [code, n]) => {
+          new Function('el', code as string)(el);
+          await new Promise(requestAnimationFrame);
+          return [...el.children]
+            .filter((child) => child.localName !== 'tanrei-divider')
+            .slice(0, n as number)
+            .flatMap((child) => [...child.shadowRoot!.querySelectorAll('button')].map((button) => button.getBoundingClientRect().height));
+        },
+        [change, count] as const,
+      );
+    expect(await next('inline-small', "el.setAttribute('size', 'large')", 3)).toEqual([large, large, large, large]);
+    await expect.poll(async () => (await bounds(bar(page, 'inline-small'))).height).toBeCloseTo(large, 1);
+    expect(await next('inline-small', "el.removeAttribute('size')", 3)).toEqual([medium, medium, medium, medium]);
+    expect(await next('small-own-large', 'el.size = null', 2)).toEqual([medium, large]);
+    expect(await next('inline-button-with-menu', "el.size = 'small'", 3)).toEqual([small, small, halves, halves]);
+    await expect(bar(page, 'inline-button-with-menu')).toHaveAttribute('size', 'small');
+    await expect.poll(async () => (await bounds(bar(page, 'inline-button-with-menu'))).height).toBeCloseTo(size, 1);
+    await bar(page, 'small-overflow').evaluate((el) => el.removeAttribute('size'));
+    await expect.poll(async () => (await bounds(overflowButton(page, 'small-overflow').locator('button'))).height).toBe(medium);
+
+    // Under a 48 touch target the gaps follow the lengths the items are drawn at: small ones (36) stand 12 apart, as
+    // TBR-16 says of small items that set their own size.
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('floating-small', GLYPHS.slice(0, 3).map((g) => a(g)), { variant: 'floating', size: 'small' })],
+      lead: '<style>:root { --tanrei-sys-target-touch: 48px; }</style>',
+    });
+    await expect
+      .poll(async () => {
+        const boxes = await Promise.all([0, 1, 2].map((n) => bounds(inner(page, 'floating-small', n))));
+        return boxes.slice(1).map((box, n) => Math.round((box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
+      })
+      .toEqual([12, 12]);
+    expect((await bounds(inner(page, 'floating-small', 0))).height).toBe(small);
+  });
+
   test('TBR-18: items that do not fit are hidden from the end, one at a time, skipping those whose overflow is never; the overflow button — an icon-only text Button showing more_horiz (more_vert in a column), named by overflowLabel or the product’s words, a button that opens a menu — stands after the last item that remains; right-to-left from the right', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
@@ -998,9 +1086,11 @@ test.describe('inline, groups, separators and the overflow menu', () => {
       const touch = await resolveToken(page, '--tanrei-sys-target-touch');
       expect(count * medium + count * kept(4, touch, medium, medium) + medium).toBeLessThanOrEqual(stage.width + 0.5);
       expect((count + 1) * medium + (count + 1) * kept(4, touch, medium, medium) + medium).toBeGreaterThan(stage.width);
-      // The Button it is: icon-only, text, medium, the glyph more_horiz; named, and a button that opens a menu.
+      // The Button it is: icon-only, text, medium (it sets no size: the toolbar sets none, TBR-31), the glyph
+      // more_horiz; named, and a button that opens a menu.
       await expect(button).toHaveAttribute('variant', 'text');
-      await expect(button).toHaveAttribute('size', 'medium');
+      await expect(button).not.toHaveAttribute('size');
+      expect([own.width, own.height]).toEqual([medium, medium]);
       await expect(button.locator('[slot="icon"]')).toHaveText('more_horiz');
       const native = button.locator('button');
       await expect(native).toHaveAttribute('aria-label', 'More actions');

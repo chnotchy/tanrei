@@ -10,6 +10,7 @@ import {
   PressController,
   SEPARATION_VALUES,
   type SeparationProp,
+  SizeConsumerController,
   SystemWatchController,
   report,
   syncFocusStyle,
@@ -19,7 +20,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiButtonWithMenuSizeRegistry, TanreiButtonWithMenuVariantRegistry } from '../../registry.js';
 import { TanreiMenu, type TanreiMenuCloseDetail, type TanreiMenuCloseReason } from '../menu/menu.js';
-import { AXES, TRAILING_WIDTHS, styles } from './button-with-menu.styles.js';
+import { AXES, CORE_SIZES, TRAILING_WIDTHS, styles } from './button-with-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -133,7 +134,9 @@ export class TanreiButtonWithMenu extends TanreiElement {
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
     destructive: { type: Boolean, reflect: true },
-    size: { type: String, reflect: true },
+    // SPB-37: the size the product set, or none: one that sets none draws the size its container sets. A custom accessor,
+    // so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     separation: { type: String, reflect: true },
     trailingWidth: { type: String, reflect: true, attribute: 'trailing-width' },
     label: { type: String },
@@ -162,8 +165,31 @@ export class TanreiButtonWithMenu extends TanreiElement {
    */
   destructive = false;
 
-  /** Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target. */
-  size: TanreiButtonWithMenuSize = 'medium';
+  /**
+   * Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`
+   * (36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum
+   * target. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`
+   * (SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`
+   * included) makes it its own, whatever a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiButtonWithMenuSize {
+    return (this.sizes.own ?? 'medium') as TanreiButtonWithMenuSize;
+  }
+
+  set size(value: TanreiButtonWithMenuSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** SPB-37: the size the product set, and the one the nearest container around it sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal SPB-37: the size it draws — its own, else its nearest container's (as its nearest size), else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** SPB-37: carries the drawn size to the styles as a custom state (`size-<name>`). */
+  private readonly internals = this.attachInternals();
 
   /**
    * How the two halves are joined. `divider`: they touch, and a line is drawn on the seam. `gap`: they stand a narrow gap
@@ -588,6 +614,9 @@ export class TanreiButtonWithMenu extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // SPB-37: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, SPB-8).
+    this.sizes.syncState(this.internals);
     // SPB-22: a hoverDelay the button with menu cannot use waits for the token; a debug build says so.
     if (changed.has('hoverDelay') && this.hoverDelay !== null && this.hoverDelay !== undefined && !this.validHoverDelay) {
       report(this, 'SPB-22', `hoverDelay ${String(this.hoverDelay)} is not a number of milliseconds of 0 or more; the menu opens on hover after comp.button-with-menu.motion.hover-open-delay`);

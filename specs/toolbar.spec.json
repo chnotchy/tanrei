@@ -96,12 +96,23 @@
       ],
       "default": "auto",
       "description": "How two groups, or a separator item, set items apart: divider draws a line across the toolbar with space on each side, gap leaves empty space and no line. Auto takes comp.toolbar.separation, the design system's answer (divider in the default system)."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The size of the Buttons and Buttons with menu it holds, as the Button's size: set on the toolbar, it is the size of every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set on the toolbar is passed down, not this default: a toolbar that sets none leaves each item at its own default, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of the toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system adds to the Button may be named."
     }
   ],
   "items": [
     {
       "name": "action",
-      "summary": "An icon action: a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, laid out by the toolbar and not restyled; a toggle (bold, mute) is one with toggle set.",
+      "summary": "An icon action: a Button of the text variant with an icon and no label, at the toolbar's size where one is set (TBR-31) and the medium size otherwise, unless the product sets otherwise, laid out by the toolbar and not restyled; a toggle (bold, mute) is one with toggle set.",
       "component": "button",
       "props": [
         {
@@ -183,7 +194,7 @@
     },
     {
       "name": "button",
-      "summary": "A labelled action: the button component, medium unless the product sets otherwise, laid out by the toolbar and not restyled.",
+      "summary": "A labelled action: the button component, at the toolbar's size where one is set (TBR-31) and medium otherwise, unless the product sets otherwise, laid out by the toolbar and not restyled.",
       "component": "button",
       "props": [
         {
@@ -313,7 +324,7 @@
     },
     {
       "name": "button-with-menu",
-      "summary": "A Button with menu: a main action and a menu of related ones, each half a stop of the toolbar's arrow keys (TBR-25), laid out by the toolbar and not restyled.",
+      "summary": "A Button with menu: a main action and a menu of related ones, each half a stop of the toolbar's arrow keys (TBR-25), at the toolbar's size where one is set and it sets none (TBR-31), laid out by the toolbar and not restyled.",
       "component": "button-with-menu",
       "props": [
         {
@@ -634,7 +645,7 @@
     },
     {
       "id": "TBR-9",
-      "text": "THE toolbar SHALL NOT restyle its items: each SHALL render as the Button it is, from its own tokens, variant and size, and SHALL keep its own press, focus, target and disabled behaviour and its own semantics, a toggle Button staying a toggle. WHEN a toggle item's selected changes THE toolbar SHALL let it change between its selected and unselected looks as that Button does anywhere: over the state duration of the Button's own size (comp.button.motion.state-duration.medium, sys.motion.role.state.default, at the medium size the toolbar's items take unless the product sets otherwise) on comp.button.motion.state-easing, its selected state and its pressed state for assistive technology changing at once, not at the end of the motion, and its look changing at once where motion is reduced and in the frames in which the toolbar is first drawn; THE toolbar SHALL add no motion, duration or state token of its own to it. Between two items the hit areas SHALL never overlap (as BGR-4): in a docked toolbar they SHALL meet at the middle of the gap, and in a floating or an inline one where the lengths TBR-16 keeps for the two items meet; each item SHALL keep its full target on every side that has no neighbour. In a docked toolbar the gap (at least comp.toolbar.container.gap.docked) is what keeps an item's target whole between its neighbours: at sys.target.touch minus the item's length or more, every item keeps its full target there, as the default system's gap does for every Button size; a layer that narrows that gap narrows the targets between items. In a floating or an inline toolbar TBR-16 keeps it, whatever comp.toolbar.container.gap.floating or comp.toolbar.container.gap.inline is.",
+      "text": "THE toolbar SHALL NOT restyle its items: each SHALL render as the Button it is, from its own tokens, variant and size, and SHALL keep its own press, focus, target and disabled behaviour and its own semantics, a toggle Button staying a toggle. WHEN a toggle item's selected changes THE toolbar SHALL let it change between its selected and unselected looks as that Button does anywhere: over the state duration of the size the Button is drawn at — its own size, else the toolbar's (TBR-31), else medium: comp.button.motion.state-duration.small, comp.button.motion.state-duration.medium (sys.motion.role.state.default) or comp.button.motion.state-duration.large — on comp.button.motion.state-easing, its selected state and its pressed state for assistive technology changing at once, not at the end of the motion, and its look changing at once where motion is reduced and in the frames in which the toolbar is first drawn; THE toolbar SHALL add no motion, duration or state token of its own to it. Between two items the hit areas SHALL never overlap (as BGR-4): in a docked toolbar they SHALL meet at the middle of the gap, and in a floating or an inline one where the lengths TBR-16 keeps for the two items meet; each item SHALL keep its full target on every side that has no neighbour. In a docked toolbar the gap (at least comp.toolbar.container.gap.docked) is what keeps an item's target whole between its neighbours: at sys.target.touch minus the item's length or more, every item keeps its full target there, as the default system's gap does for every Button size; a layer that narrows that gap narrows the targets between items. In a floating or an inline toolbar TBR-16 keeps it, whatever comp.toolbar.container.gap.floating or comp.toolbar.container.gap.inline is.",
       "verify": "Under the default system comp.toolbar.container.gap.docked is 0, sys.target.touch (36) minus the small icon-only Button (36), comp.toolbar.container.gap.floating is 0, and comp.toolbar.container.padding-inline.floating is 12, the space across the row around a medium item ((64 − 40) / 2): in floating, floating-filled-action, floating-vertical and the docked fixtures every item's hit area is at least 36 along the axis and 36 across it. Under a layer whose targets are 44 and 48, small items (36) reach and are capped where their neighbours' lengths meet, and docked items keep 48 between neighbours. A test switches a toggle in each fixture that holds one (floating, inline-formatting, inline-separation-gap, inline-labelled-toggles, inline-selection-groups, inline-fields) and samples the change on a held motion clock: its container, label and icon colors change over more than one frame on the Button's state duration and curve, and its aria-pressed has changed in the first frame; under reduced motion the first frame is at rest."
     },
     {
@@ -674,7 +685,7 @@
     },
     {
       "id": "TBR-18",
-      "text": "WHILE overflow is menu and the items, at their own sizes and with the least gaps, need more length along the axis than the layout offers the toolbar — the length it would take with every item shown, which a parent as long as its content passes on from further up, so that it can grow while the toolbar and its parent stay as long as the items still shown — THE toolbar SHALL hide items from its end, in reverse reading order and one at a time, skipping every item whose overflow is never and every Select, Number input, Text input and Slider (TBR-29), until the items that remain and the overflow button fit; SHALL draw the overflow button after the last item that remains — an icon-only Tanrei Button of the text variant and the medium size, showing the glyph more_horiz in a horizontal toolbar and more_vert in a vertical one, named by overflowLabel or the product's words, exposed as a button that opens a menu, with its expanded state; and SHALL NOT hide an item whose overflow is never even when the items then do not fit, in which case TBR-8 applies to what remains.",
+      "text": "WHILE overflow is menu and the items, at their own sizes and with the least gaps, need more length along the axis than the layout offers the toolbar — the length it would take with every item shown, which a parent as long as its content passes on from further up, so that it can grow while the toolbar and its parent stay as long as the items still shown — THE toolbar SHALL hide items from its end, in reverse reading order and one at a time, skipping every item whose overflow is never and every Select, Number input, Text input and Slider (TBR-29), until the items that remain and the overflow button fit; SHALL draw the overflow button after the last item that remains — an icon-only Tanrei Button of the text variant that sets no size of its own, so that it is drawn at the toolbar's size (TBR-31) and at the medium size where none is set, showing the glyph more_horiz in a horizontal toolbar and more_vert in a vertical one, named by overflowLabel or the product's words, exposed as a button that opens a menu, with its expanded state; and SHALL NOT hide an item whose overflow is never even when the items then do not fit, in which case TBR-8 applies to what remains.",
       "verify": "Fixture inline-overflow: eight items in a 240-wide stage; the items that fit and the overflow button, nothing past the stage's end. inline-overflow-pinned: Send stays and the items before it are hidden. The same toolbar in a parent as long as its content — an inline-block, a flex item, a float, an absolutely placed box — inside a 240-wide box: the items that fit; the box widened to 600: every item, in the frame after the widening; narrowed to 320: the items that fit again. rtl-inline-overflow: inline-overflow, from the right."
     },
     {
@@ -724,6 +735,11 @@
       "id": "TBR-30",
       "text": "WHILE overflow is scroll and the items scroll (TBR-8) THE toolbar SHALL keep the run of items that ends its line and whose overflow is never, with the last Text input or Slider (TBR-29), in place at its end edge, outside what scrolls, and SHALL scroll only the items before them, clipped where the kept items begin, the space between the two being what TBR-16 or TBR-2 keeps between neighbours; an item that receives keyboard focus SHALL be brought fully into view inside what scrolls (TBR-8). An item whose overflow is never and that stands before an item that may scroll SHALL scroll with the others, and a group's items SHALL scroll with the group.",
       "verify": "Fixture inline-scroll-pinned: in a 240-wide stage, five actions and a filled Send whose overflow is never: Send stands at the end edge; the actions before it scroll, and none is drawn over or under Send; scrolled to the end and back to the start, Send has not moved. The same toolbar right-to-left: Send at the left edge."
+    },
+    {
+      "id": "TBR-31",
+      "text": "WHILE size is set THE toolbar SHALL give it to every Button and Button with menu it holds, in a group or not, that sets no size of its own, which is then drawn at it (BTN-48, SPB-37), and an item that sets its own SHALL keep it; WHILE size is not set THE toolbar SHALL give none, so that each item is drawn at its own default, or at the size a container around the toolbar sets: only a size set on a container is passed down. Its overflow button sets no size of its own, and SHALL be drawn at the size the toolbar gives, or else as an item that sets none. WHEN size is set, changed or removed THE toolbar SHALL have its items drawn at the size they now take at once, and SHALL lay them out again as for any change of their lengths (TBR-18, TBR-19). A size the Button or the Button with menu does not have SHALL be drawn as BTN-7 and SPB-8 say. THE toolbar SHALL draw nothing of its own by its size: its container size across its axis, its paddings, its gaps and its dividers stay those of its variant — an inline toolbar is still at least comp.toolbar.container.size.inline across its axis around smaller items, and as large as larger ones (TBR-14, TBR-17) — and its items keep their targets apart as TBR-9 and TBR-16 say, from the lengths they are drawn at. A Select, a Number input, a Text input or a Slider it holds takes none of it: each keeps the size the product gives it, and its own default where the product gives none.",
+      "verify": "The fixture inline-small is the inline-button-with-menu fixture's items at the small size, set once on the toolbar. Under the default system its actions and both halves of its Button with menu are as high as comp.button.container.height.small and comp.button-with-menu.container.height.small (36, held at the minimum), its two icon-only actions as long, 4 apart (the inline gap: they lack nothing of the 36 target), and the toolbar is 40 high (comp.toolbar.container.size.inline). An item that sets large keeps 56 and the toolbar is then 56 high; removing the toolbar's size draws the others at medium; in a narrow toolbar the overflow button is as high as the small items; a floating toolbar of size small under a 48 target stands its 36 items 12 apart, as TBR-16 says."
     }
   ],
   "accessibility": {
@@ -1368,6 +1384,42 @@
       ]
     },
     {
+      "id": "inline-small",
+      "props": {
+        "label": "Document actions",
+        "overflowLabel": "More document actions",
+        "size": "small"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Undo"
+          },
+          "content": "undo"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Redo"
+          },
+          "content": "redo"
+        },
+        {
+          "kind": "separator",
+          "props": {}
+        },
+        {
+          "kind": "button-with-menu",
+          "props": {
+            "label": "Save",
+            "menuLabel": "More save options",
+            "variant": "tonal"
+          }
+        }
+      ]
+    },
+    {
       "id": "inline-labelled-toggles",
       "props": {
         "label": "Filters",
@@ -1776,7 +1828,8 @@
         "label": "label",
         "overflow": "overflow",
         "overflowLabel": "overflowLabel",
-        "separation": "separation"
+        "separation": "separation",
+        "size": "size"
       },
       "parts": {
         "container": "container",
@@ -1785,7 +1838,7 @@
         "overflow-button": "overflow-button",
         "outline": "container@outline"
       },
-      "notes": "The items are `<tanrei-button>` children, icon-only and labelled, `<tanrei-button-with-menu>` children, `<tanrei-toolbar-group>` children holding them, and `<tanrei-divider>` separators; a `<tanrei-menu anchor>` child anchored to an item's id is that item's Menu and is not laid out. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`; a group with a label has `role=\"group\"` and `aria-label`. The toolbar assigns each of its children, and a group each of its items, to a slot of its own (manual slot assignment), so that the toolbar draws the separations between them and leaves a hidden item unassigned: a hidden item is not drawn and keeps its place, its listeners and its state in the page. The overflow button and its menu are elements of the toolbar's shadow root. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): an item delegates focus to the button in its shadow root, and a host whose tabindex is -1 takes that button out of the Tab order; a Button with menu is told which of its halves is the Tab stop through the internal channel (SPB-33). A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4, TBR-6 and TBR-18. A selection group is `<tanrei-toolbar-group selection value values>`: `values` is a JSON array or whitespace-separated values (the property is the array: assign a new one), and its members are `<tanrei-button toggle value>` children. While single, the group's host has `role=\"radiogroup\"` and each member is told through the group-item channel that it is a choice (BTN-47); while multiple, the host is a group as any labelled one. The group fires `change` (a bubbling `CustomEvent` whose `detail` is `{ value, values }`) and stops a member's `change` at its host. The fields are `<tanrei-select>`, `<tanrei-number-input>`, `<tanrei-text-input>` and `<tanrei-slider>` children: a Select or a Number input that is not the Tab stop has `tabindex=\"-1\"`, and the stop has none, so that the control inside its shadow root is the one that takes focus; the last Text input or Slider keeps its own Tab stop and is never given a `tabindex`. While the items scroll, the run kept at the end stands after an element of the toolbar's shadow root that holds the items before it and is the one that scrolls.",
+      "notes": "The items are `<tanrei-button>` children, icon-only and labelled, `<tanrei-button-with-menu>` children, `<tanrei-toolbar-group>` children holding them, and `<tanrei-divider>` separators; a `<tanrei-menu anchor>` child anchored to an item's id is that item's Menu and is not laid out. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`; a group with a label has `role=\"group\"` and `aria-label`. The toolbar assigns each of its children, and a group each of its items, to a slot of its own (manual slot assignment), so that the toolbar draws the separations between them and leaves a hidden item unassigned: a hidden item is not drawn and keeps its place, its listeners and its state in the page. The overflow button and its menu are elements of the toolbar's shadow root. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): an item delegates focus to the button in its shadow root, and a host whose tabindex is -1 takes that button out of the Tab order; a Button with menu is told which of its halves is the Tab stop through the internal channel (SPB-33). A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4, TBR-6 and TBR-18. A selection group is `<tanrei-toolbar-group selection value values>`: `values` is a JSON array or whitespace-separated values (the property is the array: assign a new one), and its members are `<tanrei-button toggle value>` children. While single, the group's host has `role=\"radiogroup\"` and each member is told through the group-item channel that it is a choice (BTN-47); while multiple, the host is a group as any labelled one. The group fires `change` (a bubbling `CustomEvent` whose `detail` is `{ value, values }`) and stops a member's `change` at its host. The fields are `<tanrei-select>`, `<tanrei-number-input>`, `<tanrei-text-input>` and `<tanrei-slider>` children: a Select or a Number input that is not the Tab stop has `tabindex=\"-1\"`, and the stop has none, so that the control inside its shadow root is the one that takes focus; the last Text input or Slider keeps its own Tab stop and is never given a `tabindex`. While the items scroll, the run kept at the end stands after an element of the toolbar's shadow root that holds the items before it and is the one that scrolls. `size` (TBR-31) is passed through the size cascade (src/primitives/size-cascade.ts): the host provides the size set on it, and the Buttons and Buttons with menu in it that set none take it; the overflow button sets none.",
       "items": {
         "action": {
           "name": "tanrei-button",
@@ -1936,7 +1989,8 @@
         "label": "label",
         "overflow": "overflow",
         "overflowLabel": "overflowLabel",
-        "separation": "separation"
+        "separation": "separation",
+        "size": "size"
       },
       "notes": "`TanreiToolbar(_ label: String, variant:, orientation:) { items }`, a view builder of `TanreiButton`s, icon-only and labelled. A docked toolbar is placed with `.safeAreaInset(edge: .bottom)`, its background ignoring the bottom safe area. SwiftUI's own `.toolbar` with a bottom-bar placement is not used: its bar cannot take the tokens. SwiftUI has no toolbar role: the toolbar is an accessibility container (`.accessibilityElement(children: .contain)`) labelled by `label`. The roving Tab stop is one focus group for the keyboard: Full Keyboard Access moves among its items with the arrow keys and leaves it with Tab. Lagging: the inline variant, the overflow menu, groups, selection groups, separators, menu buttons, Buttons with menu, Selects, Number inputs, Text inputs and Sliders as items, and the items kept at the end while the toolbar scrolls, are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `.toolbarOverflow(.never)` on an item keeps it; the overflow menu is a SwiftUI `Menu` drawn from the Tanrei Menu's tokens.",
       "items": {
@@ -2089,7 +2143,8 @@
         "label": "contentDescription",
         "overflow": "overflow",
         "overflowLabel": "overflowContentDescription",
-        "separation": "separation"
+        "separation": "separation",
+        "size": "size"
       },
       "notes": "`TanreiToolbar(contentDescription, modifier, variant, orientation, windowInsets) { … }`, the items called in its content lambda. `windowInsets` defaults to `WindowInsets.navigationBars` for a docked toolbar and to none for a floating one. Compose has no toolbar role: the toolbar is a traversal group (`isTraversalGroup`) labelled by `contentDescription`, and the README says so. The roving Tab stop is `TanreiRovingFocus`, the primitive the list, menu and tabs use, horizontal or vertical by orientation; the toolbar registers each item it holds. Lagging: the inline variant, the overflow menu, groups, selection groups, separators, menu buttons, Buttons with menu, Selects, Number inputs, Text inputs and Sliders as items, and the items kept at the end while the toolbar scrolls, are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `Modifier.toolbarOverflow(TanreiToolbarOverflow.Never)` on an item keeps it; the overflow menu is a `TanreiMenu`.",
       "items": {
@@ -2242,7 +2297,8 @@
         "label": "semanticLabel",
         "overflow": "overflow",
         "overflowLabel": "overflowSemanticLabel",
-        "separation": "separation"
+        "separation": "separation",
+        "size": "size"
       },
       "notes": "`TanreiToolbar(semanticLabel:, variant:, orientation:, children: [...])` (`orientation` is Flutter's `Axis`). A docked toolbar applies the bottom `MediaQuery.padding` itself, as `SafeArea` would, with its color under it. Flutter's widgets library has no toolbar role: the toolbar is a `Semantics(container: true, explicitChildNodes: true, label:)`, and the README says so. The roving Tab stop is `TanreiItemGroupMixin`, the primitive the list, menu and tabs use, with its item axis set by orientation. Lagging: the inline variant, the overflow menu, groups, selection groups, separators, menu buttons, Buttons with menu, Selects, Number inputs, Text inputs and Sliders as items, and the items kept at the end while the toolbar scrolls, are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. An item wrapped in `TanreiToolbarItem(overflow: TanreiToolbarOverflow.never, child:)` is kept; the overflow menu is a `TanreiMenu`.",
       "items": {
@@ -2395,7 +2451,8 @@
         "label": "accessibilityLabel",
         "overflow": "overflow",
         "overflowLabel": "overflowAccessibilityLabel",
-        "separation": "separation"
+        "separation": "separation",
+        "size": "size"
       },
       "notes": "`<Toolbar variant orientation accessibilityLabel insets>{items}</Toolbar>`, the items being `Button` elements, icon-only and labelled. The view has `role=\"toolbar\"`. A docked toolbar takes the bottom inset from its own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. The roving Tab stop and the arrow keys work where a hardware keyboard is attached, as the tabs row's do. Lagging: the inline variant, the overflow menu, groups, selection groups, separators, menu buttons, Buttons with menu, Selects, Number inputs, Text inputs and Sliders as items, and the items kept at the end while the toolbar scrolls, are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `toolbarOverflow=\"never\"` on an item keeps it; the overflow menu is a `Menu`.",
       "items": {

@@ -2389,7 +2389,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // SPB-37: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (SPB-8): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2542,10 +2542,8 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target.",
-              "attribute": "size",
-              "reflects": true
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -2690,8 +2688,7 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target.",
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -3002,9 +2999,8 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
-              "attribute": "size",
-              "reflects": true
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -3357,7 +3353,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -14104,10 +14100,8 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "default": "'medium'",
-              "description": "The Button size it is drawn at: `small` (32), `medium` (40) or `large` (56).",
-              "attribute": "size",
-              "reflects": true
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -14212,8 +14206,7 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "default": "DEFAULT_SIZE",
-              "description": "The Button size it is drawn at: `small` (32), `medium` (40) or `large` (56).",
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -52544,7 +52537,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked\nacross the bottom edge, or floating over the content.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token: per variant the container's\ncolor, elevation, corners, cross-axis size, end padding and minimum gap and the edge's color, the edge's width, and the\nspace, the line and the choice between them that set groups apart. It draws no text, glyph or state of its own. Its\nitems are the product's `<tanrei-button>` and `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s,\ndrawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the\nseparation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit\ninto an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow=\"scroll\"`, TBR-8) — and makes them one Tab stop moved\nthrough with the arrow keys (TBR-10, TBR-25).\n\nEach child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws\nthe space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a\nhidden item out of the line while it stays in the page with its listeners and its state. What is hidden is decided\nbefore a frame is drawn — when the toolbar is first laid out, and in the frame its length or its items change\n(TBR-19) — from the lengths measured then, with no motion.\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one); a\nButton with menu is told which half is the stop (SPB-33). Between two items each item's hit area stops at the middle of\nthe gap, which the toolbar measures and gives its items through an internal channel (src/primitives/group-item.ts) — not\na styling API.",
+          "description": "Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked\nacross the bottom edge, or floating over the content.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token: per variant the container's\ncolor, elevation, corners, cross-axis size, end padding and minimum gap and the edge's color, the edge's width, and the\nspace, the line and the choice between them that set groups apart. It draws no text, glyph or state of its own. Its\nitems are the product's `<tanrei-button>` and `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s,\ndrawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the\nseparation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit\ninto an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow=\"scroll\"`, TBR-8) — and makes them one Tab stop moved\nthrough with the arrow keys (TBR-10, TBR-25). A `size` set on it is the size of the Buttons and Buttons with menu in\nit that set none of their own (TBR-31).\n\nEach child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws\nthe space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a\nhidden item out of the line while it stays in the page with its listeners and its state. What is hidden is decided\nbefore a frame is drawn — when the toolbar is first laid out, and in the frame its length or its items change\n(TBR-19) — from the lengths measured then, with no motion.\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one); a\nButton with menu is told which half is the stop (SPB-33). Between two items each item's hit area stops at the middle of\nthe gap, which the toolbar measures and gives its items through an internal channel (src/primitives/group-item.ts) — not\na styling API.",
           "name": "TanreiToolbar",
           "cssParts": [
             {
@@ -52649,6 +52642,18 @@
               "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
               "attribute": "separation",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of\nevery one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set\non the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,\n`medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of\nthe toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the\nButton may be named.",
+              "attribute": "size",
+              "reflects": true
             }
           ],
           "attributes": [
@@ -52705,6 +52710,15 @@
               "default": "'auto'",
               "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
               "fieldName": "separation"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of\nevery one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set\non the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,\n`medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of\nthe toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the\nButton may be named.",
+              "fieldName": "size"
             }
           ],
           "superclass": {

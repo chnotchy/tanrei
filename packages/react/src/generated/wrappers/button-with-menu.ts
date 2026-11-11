@@ -15,7 +15,7 @@ const ButtonWithMenuElement = /* @__PURE__ */ createComponent({
     onClose: 'close' as EventName<TanreiEvent<TanreiButtonWithMenuElement, CustomEvent<TanreiButtonWithMenuCloseDetail>>>,
   },
 });
-const ButtonWithMenuAttributes = { variant: ['variant', 'filled'], destructive: ['destructive', false], size: ['size', 'medium'], separation: ['separation', 'auto'], trailingWidth: ['trailing-width', 'default'], label: ['label', ''], menuLabel: ['menu-label', ''], open: ['open', false], disabled: ['disabled', false], hoverOpen: ['hover-open', false], hoverDelay: ['hover-delay', null] } as const;
+const ButtonWithMenuAttributes = { variant: ['variant', 'filled'], destructive: ['destructive', false], size: ['size'], separation: ['separation', 'auto'], trailingWidth: ['trailing-width', 'default'], label: ['label', ''], menuLabel: ['menu-label', ''], open: ['open', false], disabled: ['disabled', false], hoverOpen: ['hover-open', false], hoverDelay: ['hover-delay', null] } as const;
 /**
  * Performs a main action with one press, and offers related actions in a menu from a second, joined button beside it.
  *
