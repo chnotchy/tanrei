@@ -5,6 +5,7 @@ import type { TanreiLoadingIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './loading-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { readTogether } from '../../primitives/read-phase.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLoadingIndicatorSize = keyof TanreiLoadingIndicatorSizeRegistry;
@@ -101,21 +102,51 @@ export class TanreiLoadingIndicator extends TanreiElement {
   private timer: ReturnType<typeof setTimeout> | undefined;
   private entering = false;
   private entry: Animation | null = null;
+  /** LDG-14: an inert element the duration tokens are computed through, kept in the shadow root. */
+  private readonly probe = Object.assign(document.createElement('span'), { className: 'timing' });
+  /** Counts the insertions: a read asked for by one is not taken by the next. */
+  private insertions = 0;
 
   override connectedCallback() {
     super.connectedCallback();
     // LDG-16: every insertion waits its whole delay, with the values of that moment.
     clearTimeout(this.timer);
+    this.timer = undefined;
     this.cancelEntrance();
     this.shown = false;
+    this.run = null;
     this.requestUpdate();
-    this.run = this.resolve();
-    if (this.run.delay === 0) this.show();
+    const insertion = ++this.insertions;
+    // The probe is placed as the host is inserted, before any host of the turn reads: a probe added in the read would
+    // have the next host's read style the page again.
+    if (!this.probe.isConnected) this.renderRoot.appendChild(this.probe);
+    // A delay the product gives needs no token: it starts now. The token's is read with the tokens of the entrance.
+    const given = usable(this.showDelay) ? this.showDelay : null;
+    if (given === 0) this.show();
     else {
       this.expose();
-      // LDG-15: a wait, not motion — kept under reduced motion, and counted while the indicator cannot be seen.
-      this.timer = setTimeout(() => this.show(), this.run.delay);
+      if (given !== null) this.wait(given);
     }
+    // The tokens are read with every other host's of the turn (src/primitives/read-phase.ts): a hundred indicators
+    // inserted at once style the page once, not once each — still before any frame, so the first frame draws them.
+    readTogether(() => {
+      if (insertion !== this.insertions || !this.isConnected) return;
+      const run = this.resolve();
+      return () => {
+        if (insertion !== this.insertions || !this.isConnected) return;
+        this.run = run;
+        if (given === null) {
+          if (run.delay === 0) this.show();
+          else this.wait(run.delay);
+        }
+        this.startEntrance();
+      };
+    });
+  }
+
+  /** LDG-15: a wait, not motion — kept under reduced motion, and counted while the indicator cannot be seen. */
+  private wait(delay: number) {
+    this.timer = setTimeout(() => this.show(), delay);
   }
 
   override disconnectedCallback() {
@@ -130,13 +161,9 @@ export class TanreiLoadingIndicator extends TanreiElement {
   /** LDG-14: the delay, the entrance's duration, curve and kind, from the props or else from the tokens as they resolve now. */
   private resolve(): Run {
     // A duration token is an expression: it is computed through real properties, never parsed.
-    const probe = document.createElement('span');
-    probe.className = 'timing';
-    this.renderRoot.appendChild(probe);
-    const style = getComputedStyle(probe);
+    const style = getComputedStyle(this.probe);
     const ms = (value: string) => (Number.parseFloat(value) || 0) * 1000;
     const token = { delay: ms(style.transitionDelay), duration: ms(style.transitionDuration), easing: style.transitionTimingFunction };
-    probe.remove();
     const named = (ENTRANCES as readonly string[]).includes(this.entrance) ? (this.entrance as Entrance) : null;
     // The system's choice of kind arrives as its name; an unknown name is the first kind.
     const system = getComputedStyle(this).getPropertyValue(ENTRANCE_TOKEN).trim() as Entrance;
@@ -207,7 +234,12 @@ export class TanreiLoadingIndicator extends TanreiElement {
   }
 
   protected override updated() {
-    if (!this.entering) return;
+    this.startEntrance();
+  }
+
+  /** LDG-13: the entrance starts once the indicator is drawn shown and the tokens of its insertion are read. */
+  private startEntrance() {
+    if (!this.entering || !this.run || !this.hasUpdated || this.isUpdatePending) return;
     this.entering = false;
     const container = this.renderRoot.querySelector<HTMLElement>('.container');
     if (container) this.enter(container);
