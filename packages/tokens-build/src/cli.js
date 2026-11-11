@@ -9,6 +9,7 @@ import { dartSystemNames, emitDart } from './emit/dart.js';
 import { KOTLIN_PACKAGE, emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitTs } from './emit/ts.js';
+import { resolvedDocument } from './emit/resolved.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
 import { DEFAULT_SYSTEM, ROOT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, outsideStandIns, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
 import { nativeChain, sheetAvailability } from './layers.js';
@@ -41,27 +42,7 @@ function generateSchemes() {
 
 /** Resolved, alias-free DTCG per scheme — the hand-off format for Figma, Penpot and other design tools. */
 function designToolExports(model, dir = 'design/tokens') {
-  const files = {};
-  for (const scheme of model.schemes) {
-    const doc = { $description: `Tanrei tokens resolved for scheme "${scheme}". Generated; do not edit.` };
-    for (const token of Object.values(model.tokens)) {
-      // Colors that vary by scheme: the roles, and every component color (resting and per state). Other tokens have
-      // one value in every scheme.
-      const source =
-        token.path[0] === 'sys' && token.path[1] === 'color'
-          ? model.colors[scheme][token.path[2]]
-          : (model.componentColors[scheme]?.[token.id] ?? token);
-      let node = doc;
-      for (const part of [CONFIG.namespace, ...token.path.slice(0, -1)]) node = node[part] ??= {};
-      node[token.path.at(-1)] = {
-        $type: source.type,
-        $value: source.value,
-        ...(token.description ? { $description: token.description } : {}),
-      };
-    }
-    files[`${dir}/tanrei.${scheme}.tokens.json`] = doc;
-  }
-  return files;
+  return Object.fromEntries(model.schemes.map((scheme) => [`${dir}/${CONFIG.namespace}.${scheme}.tokens.json`, resolvedDocument(model, scheme)]));
 }
 
 /** Every hand-authored DTCG source the resolver names (generated documents are the engine's own output). */

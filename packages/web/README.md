@@ -126,6 +126,24 @@ use instead.
 `data-tanrei-theme="light|dark"` and `data-tanrei-contrast="medium|high"` choose the scheme the same way, on the root
 or on a subtree. Every color pair of every scheme is checked for contrast when the tokens are built.
 
+A program that needs values and not custom properties — a canvas, a chart, a native app, a language model — reads them
+resolved, one file per scheme, from `tanrei build`'s `tokens` output (`<id>.<scheme>.json`). Every token is there by its
+id, with no alias and no expression: a color is `#rrggbb` (`#rrggbbaa` when it is not opaque), a dimension or a duration
+one string with its unit. The shipped systems' values, with their types, are the resolved DTCG files in the
+repository's `design/tokens/`. This package does not carry them: every install would.
+
+The browser paints its own interface (the address bar, a window's title bar) in the page's theme color.
+`themeColorMeta()` from `@tanrei/web/theme-script` writes a `<meta name="theme-color">` per scheme from a system's
+theme colors, `@tanrei/web/systems/<id>.theme-color.json` (the surface of each scheme). Put the tags in `<head>` before
+`themeScript()`, and they follow a theme a person chose as well:
+
+```js
+import { themeColorMeta, themeScript } from '@tanrei/web/theme-script';
+import colors from '@tanrei/web/systems/tanrei.theme-color.json' with { type: 'json' };
+
+const head = `${themeColorMeta(colors)}<script>${themeScript()}</script>`;
+```
+
 Motion is reduced where the person's system asks for it (`prefers-reduced-motion: reduce`). An app that has a "reduce
 motion" setting of its own reduces it the same way with one attribute on the root element:
 

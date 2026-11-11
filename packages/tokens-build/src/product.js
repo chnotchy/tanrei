@@ -11,6 +11,7 @@ import { emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitShadcnTheme, emitTailwindTheme } from './emit/theme-exports.js';
 import { emitTs } from './emit/ts.js';
+import { resolvedDocument, resolvedValues, themeColors } from './emit/resolved.js';
 import { checkedPairs, isRefusedEverywhere } from './invariants.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
@@ -106,12 +107,20 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
     const native = nativeChain(chain, held);
     const nativeIr = native === chain || !targets.some((t) => NATIVE.has(t)) ? ir : buildIR(await (await resolveChain(native, { model: false })).model());
     const note = warnings.length ? `⚠ ${warnings.length} accessibility/structure warning(s) in system "${id}" — see a11y-report.json in the tokens output.` : null;
+    let resolvedDocuments;
+    const documents = () => (resolvedDocuments ??= Object.fromEntries(model.schemes.map((scheme) => [scheme, resolvedDocument(model, scheme)])));
     const flat = (emitted) => Object.fromEntries(Object.entries(emitted).map(([file, text]) => [path.basename(file), note ? `// ${note}\n${text}` : text]));
     const all = {
-      tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', checked: checkedPairs(checked), count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
+      tokens: () => ({
+        ...bundle,
+        'a11y-report.json': { system: id, severity: 'warning', checked: checkedPairs(checked), count: warnings.length, warnings },
+        'components.json': productComponents(chain, held, command),
+        // Every token as each scheme draws it, resolved: what a program reads without the resolver (emit/resolved.js).
+        ...Object.fromEntries(Object.entries(documents()).map(([scheme, doc]) => [`${id}.${scheme}.json`, resolvedValues(doc, { system: id, scheme })])),
+      }),
       // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
       // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
-      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id) }),
+      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id), [`${id}.theme-color.json`]: themeColors(documents()) }),
       swiftui: () => flat(emitSwift(nativeIr, { external: true })),
       compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),
       flutter: () => flat(emitDart(nativeIr, { external: true })),
