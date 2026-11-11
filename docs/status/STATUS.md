@@ -107,7 +107,7 @@ Listing: 91 default · 8 advanced. A component of the first value is shown where
 | Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Marquee text | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Rating | base | default | selection | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Size transition | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Size transition | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 
 ## Not shipped by a system
 

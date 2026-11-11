@@ -180,7 +180,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-size-transition",
       "props": {
         "axis": "axis",

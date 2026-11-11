@@ -24,7 +24,7 @@ motion, so that what follows it moves instead of jumping, while the edge it is a
   size, the text size or the direction is made at once; a size transition whose content holds a moving one follows it;
   reduced motion makes every change at once. Nothing scrolls while it moves, and it exposes nothing to assistive
   technology.
-- Web: `<tanrei-size-transition>` (`SizeTransition` in React). The web is lagging until its baselines are recorded;
-  SwiftUI, Compose, Flutter and React Native are planned.
+- Web: `<tanrei-size-transition>` (`SizeTransition` in React), alpha, with its baselines; SwiftUI, Compose, Flutter
+  and React Native are planned.
 - Web, the size motion inside it (`AnimatedSize`): its duration may be a function of the distance the motion covers,
   and `fit()` may be told the size the last frame drew.
