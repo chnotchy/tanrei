@@ -2,7 +2,7 @@
 title: Accesibilidad
 description: Los requisitos de accesibilidad que Tanrei incorpora en los tokens y en las especificaciones de los componentes, y las comprobaciones que los imponen.
 translationOf: foundations/accessibility.mdx
-sourceHash: 5fef4e4236fc321309c4c0f09d0fdd9cef986c8e
+sourceHash: 9ce59f04b5c628d94d33919520348b8d37908225
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -58,7 +58,7 @@ Las interfaces deben seguir siendo utilizables con el texto al **200%**. Los con
 
 ## Movimiento reducido
 
-Cuando el sistema pide reducir el movimiento, la animación espacial se elimina o se sustituye por un fundido breve, y nada se repite en bucle. Consulta [Movimiento](/es/foundations/motion/).
+El movimiento se reduce cuando lo pide el ajuste de reducir movimiento del sistema, o cuando el producto pone `data-tanrei-motion="reduce"` en el elemento raíz por un ajuste propio. Entonces la animación espacial se elimina o se sustituye por un fundido breve, y lo que muestra un trabajo en curso —un indicador de carga, un indicador de progreso indeterminado, un botón ocupado— deja de girar o de desplazarse y, en su lugar, baja su opacidad y la recupera una vez por ciclo. Consulta [Movimiento](/es/foundations/motion/).
 
 ## Semántica
 
