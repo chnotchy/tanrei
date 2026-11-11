@@ -345,18 +345,21 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
    * each.
    */
   private static sizes: ResizeObserver | null = null;
-  /** The popover each watched element belongs to. */
-  private static readonly parts = new WeakMap<Element, TanreiPopover>();
+  /**
+   * The popover each watched element belongs to. Not `parts`: a class's static `parts` is the list of the CSS parts it
+   * exports (src/primitives/composed.ts), which the composed elements read.
+   */
+  private static readonly owners = new WeakMap<Element, TanreiPopover>();
 
   private watchSize(element: Element) {
     if (typeof ResizeObserver === 'undefined') return;
     // Observed again, an element is reported again in the next frame, as it was when the popover had a watch of its own.
     this.watched.add(element);
-    TanreiPopover.parts.set(element, this);
+    TanreiPopover.owners.set(element, this);
     (TanreiPopover.sizes ??= new ResizeObserver((entries) => {
       const changed = new Set<TanreiPopover>();
       for (const entry of entries) {
-        const popover = TanreiPopover.parts.get(entry.target);
+        const popover = TanreiPopover.owners.get(entry.target);
         if (popover) changed.add(popover);
       }
       for (const popover of changed) popover.#onResize();
@@ -366,7 +369,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private unwatchSizes() {
     for (const element of this.watched) {
       TanreiPopover.sizes?.unobserve(element);
-      TanreiPopover.parts.delete(element);
+      TanreiPopover.owners.delete(element);
     }
     this.watched.clear();
   }
