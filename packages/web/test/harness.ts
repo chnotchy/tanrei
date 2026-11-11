@@ -162,9 +162,10 @@ export const popoverWindow = { width: 360, height: 640 } as const;
 /**
  * The window a navigation drawer fixture is drawn in when it is drawn alone: 480 × 640, and for the three responsive
  * fixtures the width NVD-53's verify names — `responsive-wide` 1280, `responsive-medium` 800, `responsive-narrow` 400 —
- * because a responsive drawer is what the window's width makes it. (A fixture cannot state its window.)
+ * because a responsive drawer is what the window's width makes it; `responsive-wide-resized`, the wide one at a width
+ * of its own, is drawn in the wide one's window. (A fixture cannot state its window.)
  */
-export const DRAWER_WINDOW_WIDTHS: Record<string, number> = { 'responsive-wide': 1280, 'responsive-medium': 800, 'responsive-narrow': 400 };
+export const DRAWER_WINDOW_WIDTHS: Record<string, number> = { 'responsive-wide': 1280, 'responsive-wide-resized': 1280, 'responsive-medium': 800, 'responsive-narrow': 400 };
 export const drawerWindow = (id: string) => ({ width: DRAWER_WINDOW_WIDTHS[id] ?? 480, height: 640 });
 
 /**

@@ -6406,6 +6406,8 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   collapsedItemContainerShape: 9999,
   collapsedItemGap: 4,
   collapsedItemLabelTypescale: m3LikeTypescale.labelSmall,
+  containerMaxWidth: 400,
+  containerMinWidth: 200,
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 360,

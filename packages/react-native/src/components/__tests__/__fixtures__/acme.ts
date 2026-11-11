@@ -10710,6 +10710,8 @@ export const acme = {
       collapsedItemContainerShape: 6,
       collapsedItemGap: 4,
       collapsedItemLabelTypescale: "labelSmall",
+      containerMaxWidth: 400,
+      containerMinWidth: 200,
       containerPaddingBlock: 12,
       containerPaddingInline: 12,
       containerWidth: 240,

@@ -13,7 +13,7 @@ import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, l
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('app-shell');
@@ -335,8 +335,10 @@ test.describe('the navigation', () => {
     const wide = await edges(drawer(page));
     expect([wide.left, wide.width]).toEqual([0, await resolveToken(page, '--tanrei-comp-navigation-drawer-container-width')]);
     expect((await edges(main(page))).left).toBe(wide.right);
-    // Tab leaves the drawer: it has a place in the layout, and does not hold focus.
+    // Tab leaves the drawer: it has a place in the layout, and does not hold focus — after its resize handle (NVD-102).
     await drawer(page).locator('tanrei-navigation-drawer-item').last().evaluate((el) => (el as HTMLElement).focus());
+    await tab(page);
+    expect(await active(page)).toContain('tanrei-handle');
     await tab(page);
     expect(await active(page)).not.toContain('tanrei-navigation-drawer');
 
@@ -426,6 +428,42 @@ test.describe('the navigation', () => {
     await page.mouse.move(box.left + 100, 400);
     await page.mouse.wheel(0, 400);
     await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
+  });
+
+  test('APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content; the drawer is never wider than the window less a touch target; the frame keeps nothing', async ({ page }) => {
+    await mount(page, real({ navigation: DRAWER('responsive collapsible max-width="4000"') }), { width: 1280 });
+    // A long text before the place being read, which reflows as the main region narrows and widens.
+    await main(page).evaluate((el) => {
+      const text = 'The quick brown fox jumps over the lazy dog, and the lazy dog lets it, for the fox is quick and the dog is not. '.repeat(6);
+      el.insertAdjacentHTML('afterbegin', `${Array.from({ length: 24 }, () => `<p>${text}</p>`).join('')}<h2 id="reading" style="margin: 0">Reading here</h2><p style="block-size: 2000px">${text}</p>`);
+    });
+    const reading = page.locator('#reading');
+    // The heading is what is read: at the top of what is seen, just below the header.
+    const header = await edges(region(page, 'header'));
+    await page.evaluate((below) => {
+      const at = document.getElementById('reading')!.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, at - below);
+    }, header.height + 8);
+    const line = Number.parseFloat(await css(page.locator('#reading + p'), 'line-height')) || 24;
+    const before = (await edges(reading)).top;
+    const panel = await edges(drawer(page));
+    const at = { x: panel.right, y: panel.top + 200 };
+    await page.mouse.move(at.x, at.y);
+    await page.mouse.down();
+    for (const dx of [20, 60, 120, -40]) {
+      await page.mouse.move(at.x + dx, at.y);
+      const [nav, content] = [await edges(drawer(page)), await edges(main(page))];
+      near(content.left, nav.right);
+      expect(await motionCount(main(page)), `dx ${dx}`).toBe(0);
+      expect(Math.abs((await edges(reading)).top - before), `the place read, dx ${dx}`).toBeLessThanOrEqual(line);
+    }
+    // As far as it goes: the window less a touch target.
+    await page.mouse.move(1270, at.y);
+    expect((await edges(drawer(page))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
+    near((await edges(main(page))).left, (await edges(drawer(page))).right);
+    await page.mouse.up();
+    // The frame keeps nothing of it: the drawer holds the width, and nothing is written but the drawer's own property.
+    expect(await shell(page).evaluate((el) => [...el.attributes].map((a) => a.name).filter((n) => /width/.test(n)))).toEqual([]);
   });
 });
 

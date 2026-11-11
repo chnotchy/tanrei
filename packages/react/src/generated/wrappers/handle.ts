@@ -18,7 +18,7 @@ const HandleElement = /* @__PURE__ */ createComponent({
     onStep: 'step' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleStepDetail>>>,
   },
 });
-const HandleAttributes = { axis: ['axis', 'vertical'], corner: ['corner', 'bottom-end'], size: ['size', 'medium'], value: ['value', null], min: ['min', 0], max: ['max', 100], valueText: ['value-text', ''], expanded: ['expanded', null], label: ['label', ''], disabled: ['disabled', false], revealed: ['revealed', false] } as const;
+const HandleAttributes = { axis: ['axis', 'vertical'], corner: ['corner', 'bottom-end'], size: ['size', 'medium'], value: ['value', null], min: ['min', 0], max: ['max', 100], valueText: ['value-text', ''], expanded: ['expanded', null], label: ['label', ''], disabled: ['disabled', false], revealed: ['revealed', false], reach: ['reach', 'container'] } as const;
 /**
  * The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text field's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that bows toward its corner.
  *

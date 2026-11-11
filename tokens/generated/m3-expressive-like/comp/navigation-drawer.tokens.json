@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state. Also, for a filterable drawer: the gap under its filter field, the status line's text style and color, and the key hint's text style and color.",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), the least and greatest width a person can give it beside the content, padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state. Also, for a filterable drawer: the gap under its filter field, the status line's text style and color, and the key hint's text style and color.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -50,6 +50,7 @@
               "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
               "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
               "breakpoint.expanded and breakpoint.collapsed are widths of the window, read only by a responsive drawer. They are not sizes of anything drawn, and alias the system's window classes (sys.breakpoint.expanded, sys.breakpoint.medium); set them here only to part this one component from the rest.",
+              "container.min-width ≤ container.width ≤ container.max-width, and container.min-width above collapsed.container.width in every density: the drawer opens at its width and folds to its column below the least.",
               "Restyle through these tokens in a layer; never fork the component.",
               "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content drawn on that container.",
               "The row model is the tree view's: chevron (start, end, none), guides (none, shown, hover), indent (auto, or a number), highlight (indented, full), iconSpace (auto, always, never), expandable, one-line labels with a tooltip only where cut, supporting text below or inline, and sticky parent rows. Read the tree view's tokens' rules for what each means; the drawer's tokens carry the same names."
@@ -144,6 +145,44 @@
               }
             },
             "$description": "The expanded drawer's width, not counting the system inset at its start. With the default padding a row is 216 wide: room for an icon, a name of some twenty characters and a short count."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 50
+              },
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person narrow its drawer beside the content, but no further than a row still shows its icon and a readable part of its name.",
+                "since": "0.1.0"
+              }
+            },
+            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width in every density; halfway between the two is where a drag folds a collapsible drawer to its column."
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 400,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 100
+              },
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person widen its drawer for long names, but no further than the content beside it keeps room to be read.",
+                "since": "0.1.0"
+              }
+            },
+            "$description": "The greatest width a person can give the expanded drawer beside the content (maxWidth null). The room the drawer's parent gives it holds it narrower still."
           },
           "padding-inline": {
             "$type": "dimension",

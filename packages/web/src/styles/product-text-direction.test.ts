@@ -149,6 +149,11 @@ const SUBJECTS: Record<string, Subject> = {
       'highlight-full', 'icon-space', 'not-expandable', 'one-line', 'label-wrap', 'sticky',
     ],
     inParts: true,
+    // `.text` of a tooltip is a cut row's whole text (NVD-75): the modal drawer written open moves focus to its selected
+    // row (NVD-19), and where the drawer's width cuts that row's text (`resized-modal` with `+1 555 0100`, in Chromium
+    // and WebKit) the focus opens the row's tooltip. Whether it opens is the engine's measure of the text, so it is not
+    // a box this row expects; it is the tooltip's, under productText() and held by the tooltip's row of this table.
+    except: ['tanrei-tooltip .text'],
     boxes: [
       'tanrei-main-action-button .label',
       'tanrei-navigation-drawer-group .label',

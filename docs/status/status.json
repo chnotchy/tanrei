@@ -571,7 +571,8 @@
       "level": "composed",
       "listing": "default",
       "builtFrom": [
-        "modal-layer"
+        "modal-layer",
+        "handle"
       ],
       "uses": [
         "badge",
