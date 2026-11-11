@@ -56,7 +56,7 @@ Interfaces must remain usable with text at **200%**. Containers grow with their 
 
 ## Reduced motion
 
-When the system asks for reduced motion, spatial animation is removed or replaced by a brief fade and nothing loops. See [Motion](/foundations/motion/).
+Motion is reduced when the person's system setting asks for it, or when the product sets `data-tanrei-motion="reduce"` on the root element for a setting of its own. Spatial animation is then removed or replaced by a brief fade, and what shows work under way — a loading indicator, an indeterminate progress indicator, a busy button — stops turning or sliding and fades its opacity out and back once per cycle instead. See [Motion](/foundations/motion/).
 
 ## Semantics
 
