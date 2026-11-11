@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { NativeTextController, delegatedAria, delegatesAria, report } from '../../primitives/index.js';
+import { NativeTextController, delegatedAria, delegatesAria, readTogether, report } from '../../primitives/index.js';
 import { AutoHeight } from '../../primitives/auto-height.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
@@ -50,14 +50,14 @@ const STRONG = /\p{L}/u;
 /** ETI-6: an on-screen keyboard cannot be told from a hardware one by any web API. The guess: the primary pointer is coarse and cannot hover. */
 const onScreenKeyboard = () => typeof matchMedia === 'function' && matchMedia('(pointer: coarse) and (hover: none)').matches;
 
-/** The faces the page has asked for have arrived: the text may wrap otherwise then. One promise for every input of a turn. */
-let faces: Promise<unknown> | null | undefined;
+/**
+ * The faces the page has asked for have arrived: the text may wrap otherwise then. Asked once the text was first laid
+ * out — the layout asks for the faces it draws with — and none while no face is loading: the text was measured with
+ * the faces it is drawn with already.
+ */
 function facesArrived(): Promise<unknown> | null {
-  if (faces === undefined) {
-    faces = typeof document === 'undefined' ? null : (document.fonts?.ready ?? null);
-    queueMicrotask(() => (faces = undefined));
-  }
-  return faces;
+  const fonts = typeof document === 'undefined' ? undefined : document.fonts;
+  return fonts && fonts.status === 'loading' ? fonts.ready : null;
 }
 
 /**
@@ -248,7 +248,13 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   private readonly composition = new CompositionEnd();
   /** ETI-25: the selection of the native element that `multiline` is about to replace, where it had focus. */
   private carried: { start: number; end: number } | null = null;
-  private sizes: ResizeObserver | undefined;
+  /**
+   * ETI-9: one observer watches the native element of every embedded text input, so that a frame reports all that were
+   * laid out again in one callback, all of them read before any writes (src/primitives/auto-height.ts).
+   */
+  private static sizeWatch: ResizeObserver | null = null;
+  /** The input each watched native element belongs to. */
+  private static readonly natives = new WeakMap<Element, TanreiEmbeddedTextInput>();
   private watched: Element | null = null;
   /** ETI-27: the product's own text element, written as a child for a page without script. */
   private readonly children$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.adopt());
@@ -596,8 +602,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$?.disconnect();
-    this.sizes?.disconnect();
-    this.watched = null;
+    this.unwatch();
     this.composition.reset();
     this.ownerDocument.defaultView?.removeEventListener('keydown', this.onKey);
     this.onPointerUp();
@@ -607,11 +612,22 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   private watch() {
     const input = this.textarea;
     if (input === this.watched) return;
-    this.sizes?.disconnect();
-    this.watched = input;
+    this.unwatch();
     if (!input || typeof ResizeObserver === 'undefined') return;
-    this.sizes ??= new ResizeObserver(() => this.height.relaid());
-    this.sizes.observe(input);
+    const watch = (TanreiEmbeddedTextInput.sizeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiEmbeddedTextInput.natives.get(entry.target)?.height.relaid();
+    }));
+    TanreiEmbeddedTextInput.natives.set(input, this);
+    watch.observe(input);
+    this.watched = input;
+  }
+
+  private unwatch() {
+    const input = this.watched;
+    if (!input) return;
+    TanreiEmbeddedTextInput.sizeWatch?.unobserve(input);
+    TanreiEmbeddedTextInput.natives.delete(input);
+    this.watched = null;
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -657,8 +673,12 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     this.watch();
     if (!this.drawn) {
       this.drawn = true;
-      // The text may be laid out again when its face arrives: the height follows, at once.
-      if (this.textarea) void facesArrived()?.then(() => this.isConnected && this.height.fit(false));
+      // The text may be laid out again when its face arrives: the height follows, at once. Asked after the first fit
+      // has read the layout (src/primitives/read-phase.ts), which is what asks for the face.
+      if (this.textarea)
+        readTogether(() => {
+          void facesArrived()?.then(() => this.isConnected && this.height.fit(false));
+        });
     }
     this.sync();
     this.reports(changed);

@@ -21,8 +21,16 @@
 // It holds no token and writes no duration: the component's stylesheet says how `[data-resizing]` moves
 // (`transition: block-size <its duration> <its curve>`), and a stylesheet that says none — reduced motion — is a change
 // made at once. It asks for no frame and no layout at rest: it runs when it is called, and reads the layout only then.
+//
+// A change made at once (`fit(false)`: a first drawing, a new width, a face that arrived) is read with every other
+// host's of the turn (src/primitives/read-phase.ts), in two steps: the line and the width first; then, every text area
+// of the turn given no height at once — its box held at the height it has, so nothing around it moves — the lines each
+// needs, and the heights written from them. A text area that measured in its own update had the browser lay the page
+// out for it three times, once per instance. A change that follows the value moves from the height shown, and is
+// measured there and then: it is one element's, at a keystroke.
 
 import { motionReduced } from './motion.js';
+import { readTogether } from './read-phase.js';
 
 /** What the routine reads and writes; each is asked for when it runs, so an element drawn again is found again. */
 export interface AutoHeightOptions {
@@ -69,6 +77,8 @@ export class AutoHeight {
   scrolling = false;
   /** The width and the line the last fit was made for: a different one is a change that is made at once (ETI-9). */
   private laid: { width: number; line: number } | null = null;
+  /** A change made at once has been asked for and not read yet: a second request of the turn is the same one. */
+  private asked = false;
 
   constructor(private readonly options: AutoHeightOptions) {}
 
@@ -95,6 +105,7 @@ export class AutoHeight {
 
   /** The component shows one line and has no text area: one line, nothing scrolling up or down, no box that moves. */
   single() {
+    this.asked = false;
     const box = this.options.box();
     if (box) this.settle(box);
     this.laid = null;
@@ -106,39 +117,103 @@ export class AutoHeight {
    * the one shown to the new one; a change that arrives while it moves goes on from the height then shown, and nothing
    * is queued. Without it, and where the element is not laid out, a pointer is held down in the text or motion is
    * reduced, the change is made at once.
+   *
+   * A change made at once is read with every other host's of the turn (see the top of this file); one that follows the
+   * value is made here. One that follows the value while a change made at once waits is made at once, here: what was
+   * asked first is not undone by a motion.
    */
   fit(animate: boolean) {
+    if (animate && !this.asked) {
+      this.fitNow(true);
+      return;
+    }
+    if (animate) {
+      this.asked = false;
+      this.fitNow(false);
+      return;
+    }
+    if (this.asked) return;
+    this.asked = true;
+    readTogether(() => {
+      if (!this.asked) return;
+      this.asked = false;
+      return this.readAtOnce();
+    });
+  }
+
+  /** The first step of a change made at once: the line, the width and the box's height, read before any write. */
+  private readAtOnce(): (() => void) | void {
     const box = this.options.box();
     const input = this.options.input();
     if (!box || !input) return;
     const line = this.lineOf(input);
     const width = input.clientWidth;
-    const { min, max } = this.bounds();
-    // An element that is not shown has no lines to measure: it stands at its fewest until it is laid out.
-    if (!line || !width) {
+    if (!line || !width) return () => this.unlaid(box, input);
+    const held = box.getBoundingClientRect().height;
+    return () => {
+      if (this.asked) return;
+      // The box keeps the height it has while its text area has none, so that nothing around it is laid out anew.
       this.settle(box);
-      input.style.setProperty('--_rows', String(Math.max(min, Math.min(this.rows || min, max))));
-      this.laid = null;
-      if (!this.rows) this.tell(min, false);
-      return;
-    }
-    const moving = box.hasAttribute('data-resizing');
-    const shown = animate || moving ? box.getBoundingClientRect().height : 0;
-    // The lines the text needs: what the element scrolls when it is given no height.
-    const { blockSize } = input.style;
-    input.style.blockSize = '0px';
+      box.style.blockSize = `${held}px`;
+      const { blockSize } = input.style;
+      input.style.blockSize = '0px';
+      // The second step: every text area of the turn has no height, and the page is laid out once for all of them.
+      readTogether(() => {
+        const needed = this.needed(input, line);
+        return () => {
+          input.style.blockSize = blockSize;
+          this.write(box, input, needed, { width, line });
+        };
+      });
+    };
+  }
+
+  /** The lines the text needs: what the element scrolls while it is given no height, and its placeholder's (ETI-22). */
+  private needed(input: HTMLTextAreaElement, line: number): number {
     let needed = wholeLines(input.scrollHeight / line);
-    input.style.blockSize = blockSize;
-    // ETI-22: an empty input is as tall as its placeholder's lines.
     const hint = input.value ? null : (this.options.placeholder?.() ?? null);
     if (hint) needed = Math.max(needed, wholeLines(hint.scrollHeight / line));
+    return needed;
+  }
+
+  /** An element that is not shown has no lines to measure: it stands at its fewest until it is laid out. */
+  private unlaid(box: HTMLElement, input: HTMLTextAreaElement) {
+    const { min, max } = this.bounds();
+    this.settle(box);
+    input.style.setProperty('--_rows', String(Math.max(min, Math.min(this.rows || min, max))));
+    this.laid = null;
+    if (!this.rows) this.tell(min, false);
+  }
+
+  /** The lines shown, from the lines needed, and the box as tall as they are. */
+  private write(box: HTMLElement, input: HTMLTextAreaElement, needed: number, laid: { width: number; line: number }) {
+    const { min, max } = this.bounds();
     const rows = Math.max(min, Math.min(needed, max));
     const scrolling = needed > rows;
     this.tell(rows, scrolling);
-    this.laid = { width, line };
+    this.laid = laid;
     input.style.setProperty('--_rows', String(rows));
     input.toggleAttribute('data-overflows', scrolling);
     this.settle(box);
+  }
+
+  /** `fit()` there and then: what it reads, and what it writes. */
+  private fitNow(animate: boolean) {
+    const box = this.options.box();
+    const input = this.options.input();
+    if (!box || !input) return;
+    const line = this.lineOf(input);
+    const width = input.clientWidth;
+    if (!line || !width) {
+      this.unlaid(box, input);
+      return;
+    }
+    const shown = animate ? box.getBoundingClientRect().height : 0;
+    const { blockSize } = input.style;
+    input.style.blockSize = '0px';
+    const needed = this.needed(input, line);
+    input.style.blockSize = blockSize;
+    this.write(box, input, needed, { width, line });
     if (!animate || this.options.still?.() || motionReduced()) return;
     const end = box.getBoundingClientRect().height;
     if (Math.abs(end - shown) < 0.5) return;

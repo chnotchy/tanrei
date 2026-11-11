@@ -682,10 +682,6 @@
         "budget": 661,
         "measured": 630
       },
-      "chat-composer": {
-        "budget": 1134,
-        "measured": 1080
-      },
       "date-time-picker": {
         "budget": 2646,
         "measured": 2520
@@ -793,8 +789,8 @@
         "measured": 0
       },
       "chat-composer": {
-        "budget": 1417,
-        "measured": 1350
+        "budget": 1228,
+        "measured": 1170
       }
     },
     "updates": {
