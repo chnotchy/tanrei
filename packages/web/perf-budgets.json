@@ -761,10 +761,6 @@
       "tooltip": {
         "budget": 370,
         "measured": 353
-      },
-      "tree-view": {
-        "budget": 94,
-        "measured": 90
       }
     },
     "reads": {

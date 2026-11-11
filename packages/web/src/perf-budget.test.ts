@@ -30,7 +30,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
-import { loadSpec, stageMarkup } from '../test/harness.js';
+import { loadSpec, stageMarkup, withoutIconFont } from '../test/harness.js';
 import { twoFrames } from '../test/work-count.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,13 +105,20 @@ function counters() {
   };
 }
 
-/** A page with every stylesheet of the package, the counters, the production bundle, and an empty `#pane`. */
+/**
+ * A page with every stylesheet of the package, the counters, the production bundle, and an empty `#pane`. The icon set
+ * names a family no machine has (`withoutIconFont`): its font is missing on every machine, as on a page that has not
+ * loaded it yet. The default's family may be installed locally — a Mac with Material Symbols drew every glyph and took
+ * none of the branches a missing face takes, where the Linux runner took them all — and a count must not depend on
+ * which machine made it.
+ */
 async function budgetPage(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
   const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>body { margin: 0; }</style><script>(${counters.toString()})()</script>`;
   await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${await production()}</script></body></html>`);
   await page.waitForFunction(() => !!customElements.get('tanrei-chat-composer'));
+  await withoutIconFont(page);
 }
 
 /** The counts from `act` to two frames after it (the work it queued for a microtask, an observer or a frame included). */
