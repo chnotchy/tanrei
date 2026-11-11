@@ -7,6 +7,7 @@ import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type An
 import { keyboardCover } from './sheet.js';
 import { flatParent } from './flat-tree.js';
 import { cssZoom } from './layout-scale.js';
+import { readTogether } from './read-phase.js';
 
 // A surface that opens beside a control and stays with it (a popover, POP-1 to POP-5, POP-7, POP-8, POP-10, POP-26,
 // POP-27, POP-36; and every surface that cites those rules — a select's, a combobox's, a color field's). What the
@@ -83,12 +84,16 @@ export interface AnchoredSurfaceOptions {
   /** The anchor has gone out of sight while the surface is shown: called once each time it goes. */
   gone: () => void;
   /**
-   * The surface's limits were set and it is about to be measured: whatever the component lays out by script for the
-   * width it has (a row of actions that stacks) is laid out now.
+   * Whatever the component lays out by script for the width it has (a row of actions that stacks), in two halves: this
+   * reads what it needs that the surface's limits do not change (the cascade), with the placement's other reads, and
+   * returns what lays it out, which runs once the limits are set and before the surface is measured.
    */
-  arrange?: () => void;
-  /** The surface was placed. */
-  placed?: (place: AnchoredPlace) => void;
+  arrange?: () => (() => void) | void;
+  /**
+   * The surface was placed: this reads what follows from where it is (what scrolls in it), with the reads of every other
+   * surface placed in the turn, and returns what it writes.
+   */
+  placed?: (place: AnchoredPlace) => (() => void) | void;
   /** Whatever else the placement depends on, as one comparable string (a choice of the system read from the cascade). */
   depends?: () => string;
 }
@@ -179,6 +184,55 @@ function positionedIn(surface: HTMLElement, seen: HTMLElement): HTMLElement {
   return seen;
 }
 
+/** A step of a placement: a read, returning the write that follows from it, which may return the next read. */
+type Read = () => Write | void;
+type Write = () => Read | void;
+/**
+ * What a placement ends with, told whether it placed the surface: called in its last read (placed) or in the write that
+ * found it could not place (not placed), and returning what it then writes.
+ */
+type Then = (placed: boolean) => (() => void) | void;
+
+/** What the first steps of a placement read and wrote, for the ones that measure the surface and place it. */
+interface Measuring {
+  surface: HTMLElement;
+  style: CSSStyleDeclaration;
+  frame: { x: number; y: number; width: number; height: number; cover: number; shift: { x: number; y: number } };
+  inline: boolean;
+  zoom: number;
+  own: (value: number) => string;
+  margin: number;
+  anchor: { x: number; y: number; width: number; height: number };
+  viewport: { width: number; height: number };
+  placement: AnchoredPlacement;
+  rtl: boolean;
+  scroller: HTMLElement | null;
+  scrolled: number;
+  limit: (name: 'inline' | 'block', value: number) => void;
+}
+
+/** Makes a placement's steps now, one after another (a frame's check, which is alone in its frame). */
+function stepNow(read: Read | void) {
+  while (read) {
+    const write = read();
+    read = write ? write() : undefined;
+  }
+}
+
+/**
+ * Makes a placement's steps with every other host's of the turn (src/primitives/read-phase.ts): each read with theirs,
+ * before any of the writes, so that a hundred surfaces opened at once lay the page out once for each step, not once for
+ * each surface and step.
+ */
+function stepTogether(read: Read | void) {
+  if (!read) return;
+  readTogether(() => {
+    const write = read();
+    if (!write) return;
+    return () => stepTogether(write());
+  });
+}
+
 /**
  * Presents, places and follows a surface beside its anchor. `show()` when the component opens, `hide()` when it
  * closes; `place()` when something the placement depends on changed in a way no event tells (the host rendering again
@@ -200,6 +254,8 @@ export class AnchoredSurfaceController implements ReactiveController {
   private cover = 0;
   /** The width it was last arranged for. */
   private arranged = Number.NaN;
+  /** Counts the times it was shown: a placement asked for by one opening finishes no later one. */
+  private showings = 0;
   private readonly following: FollowController;
   /** Its appearance: opened and closed, turned round, made at once (src/primitives/motion.ts). */
   private readonly appear: AppearController;
@@ -305,58 +361,98 @@ export class AnchoredSurfaceController implements ReactiveController {
 
   /** Places the surface against its anchor now. Returns whether it could (it is shown, and there is an anchor in the page). */
   place(): boolean {
-    const surface = this.options.surface();
-    const motion = this.options.motion();
-    const element = this.options.anchor();
-    if (!surface || !motion || !this.shown) return false;
-    const inline = this.inline;
-    const style = getComputedStyle(surface);
-    const frame = this.frame(surface, style);
-    const root = document.documentElement;
-    const box = element?.getBoundingClientRect();
-    // POP-5: the anchor removed, hidden or out of sight — told once each time it goes. (In place there is no window to leave.)
-    const gone = !element || !box || (!inline && anchorGone(element, box, { width: root.clientWidth, height: root.clientHeight }));
-    if (gone && !this.wasGone) {
-      this.wasGone = true;
-      this.options.gone();
-    } else if (!gone) this.wasGone = false;
-    if (!this.shown || !element || !box || !element.isConnected) return false;
+    let placed = false;
+    stepNow(
+      this.steps((done) => {
+        placed = done;
+      }),
+    );
+    return placed;
+  }
 
-    // Placed in the window's pixels. Under an ancestor's zoom, which reaches the top layer, the surface's own pixels are
-    // larger (`cssZoom()`): what is read from its style and its layout is turned into the window's (times `zoom`), and
-    // what is written on it back into its own (`own()`), so that it stands at its anchor with every distance at the zoom.
-    const zoom = cssZoom(surface);
-    const own = (value: number) => `${value / zoom}px`;
-    const margin = px(style.scrollMarginBlockEnd) * zoom;
-    const anchor = { x: box.x - frame.x, y: box.y - frame.y, width: box.width, height: box.height };
-    const viewport = { width: frame.width, height: frame.height };
-    const limit = (name: 'inline' | 'block', value: number) => surface.style.setProperty(`--_anchored-max-${name}`, own(Math.max(0, value)));
-    const scroller = this.options.scroller?.() ?? null;
-    const scrolled = scroller?.scrollTop ?? 0;
-    // Measured at the most it may be in this window: its own size, within its own limits.
-    limit('inline', viewport.width - 2 * margin);
-    limit('block', viewport.height - 2 * margin);
-    if (this.options.matchWidth?.()) surface.style.setProperty('--_anchored-anchor-inline', own(anchor.width));
-    else surface.style.removeProperty('--_anchored-anchor-inline');
+  /**
+   * Places the surface with every other host's placement of the turn, after the renders, still before any frame
+   * (src/primitives/read-phase.ts). `arrange`: the component lays out what it lays out for its width again, whether or
+   * not the width changed (a prop that decides it changed).
+   */
+  placeTogether(arrange = false) {
+    if (arrange) this.arranged = Number.NaN;
+    stepTogether(this.steps());
+  }
+
+  /**
+   * The placement, as reads and the writes that follow from them: the window, the anchor and the surface's style read;
+   * the limits written; the surface measured, then placed; what follows from its place read, then written; and what it
+   * was placed for read last, for a frame's check to compare. `then` is told whether it was placed (`Then`).
+   */
+  private steps(then?: Then): Read {
+    return () => {
+      const surface = this.options.surface();
+      const motion = this.options.motion();
+      const element = this.options.anchor();
+      if (!surface || !motion || !this.shown) return () => then?.(false)?.();
+      const inline = this.inline;
+      const style = getComputedStyle(surface);
+      const frame = this.frame(surface, style);
+      const root = document.documentElement;
+      const box = element?.getBoundingClientRect();
+      // POP-5: the anchor removed, hidden or out of sight — told once each time it goes. (In place there is no window to leave.)
+      const gone = !element || !box || (!inline && anchorGone(element, box, { width: root.clientWidth, height: root.clientHeight }));
+      // Placed in the window's pixels. Under an ancestor's zoom, which reaches the top layer, the surface's own pixels
+      // are larger (`cssZoom()`): what is read from its style and its layout is turned into the window's (times
+      // `zoom`), and what is written on it back into its own (`own()`), so that it stands at its anchor with every
+      // distance at the zoom.
+      const zoom = cssZoom(surface);
+      const own = (value: number) => `${value / zoom}px`;
+      const margin = px(style.scrollMarginBlockEnd) * zoom;
+      const viewport = { width: frame.width, height: frame.height };
+      const scroller = this.options.scroller?.() ?? null;
+      const scrolled = scroller?.scrollTop ?? 0;
+      const rtl = getComputedStyle(this.host).direction === 'rtl';
+      const width = Math.max(0, viewport.width - 2 * margin);
+      // What the component lays out for the width it has is laid out again when that width's limit changes.
+      const arranging = width === this.arranged ? undefined : this.options.arrange?.();
+      const limit = (name: 'inline' | 'block', value: number) => surface.style.setProperty(`--_anchored-max-${name}`, own(Math.max(0, value)));
+      return () => {
+        if (gone && !this.wasGone) {
+          this.wasGone = true;
+          this.options.gone();
+        } else if (!gone) this.wasGone = false;
+        if (!this.shown || !element || !box || !element.isConnected) {
+          then?.(false)?.();
+          return;
+        }
+        const anchor = { x: box.x - frame.x, y: box.y - frame.y, width: box.width, height: box.height };
+        // Measured at the most it may be in this window: its own size, within its own limits.
+        limit('inline', viewport.width - 2 * margin);
+        limit('block', viewport.height - 2 * margin);
+        if (this.options.matchWidth?.()) surface.style.setProperty('--_anchored-anchor-inline', own(anchor.width));
+        else surface.style.removeProperty('--_anchored-anchor-inline');
+        const named = this.options.placement();
+        const placement = ANCHORED_PLACEMENTS.includes(named) ? named : this.options.fallback;
+        // Another placement or direction is another place, taken at once: the side it was on says nothing.
+        if (this.placedFor !== `${placement} ${rtl}`) this.side = null;
+        this.placedFor = `${placement} ${rtl}`;
+        if (width !== this.arranged) {
+          this.arranged = width;
+          arranging?.();
+        }
+        return () => this.measured({ surface, style, frame, inline, zoom, own, margin, anchor, viewport, placement, rtl, scroller, scrolled, limit }, then);
+      };
+    };
+  }
+
+  /** The placement's steps from the surface measured within its limits on (`steps()`). */
+  private measured(
+    { surface, style, frame, inline, zoom, own, margin, anchor, viewport, placement, rtl, scroller, scrolled, limit }: Measuring,
+    then?: Then,
+  ): Write {
     // Its drawn size, not `offsetWidth` / `offsetHeight`: those are rounded to whole pixels (the box is never transformed).
     const measure = () => {
       const drawn = surface.getBoundingClientRect();
       return { width: drawn.width, height: drawn.height };
     };
-    const rtl = getComputedStyle(this.host).direction === 'rtl';
-    const named = this.options.placement();
-    const placement = ANCHORED_PLACEMENTS.includes(named) ? named : this.options.fallback;
-    // Another placement or direction is another place, taken at once: the side it was on says nothing.
-    if (this.placedFor !== `${placement} ${rtl}`) this.side = null;
-    this.placedFor = `${placement} ${rtl}`;
     const painted = this.options.box();
-    // What the component lays out for the width it has is laid out again when that width's limit changes.
-    const arrange = (width: number) => {
-      if (width === this.arranged) return;
-      this.arranged = width;
-      this.options.arrange?.();
-    };
-    arrange(Math.max(0, viewport.width - 2 * margin));
     let size = measure();
     const arrow: AnchoredArrow = {
       width: px(style.scrollMarginInlineStart) * zoom,
@@ -383,56 +479,83 @@ export class AnchoredSurfaceController implements ReactiveController {
     let at = placeAnchored({ ...input, surface: size, keep: this.side });
     if (!at.fits) {
       // POP-5: neither side has room. Limited to the room of the one with more — unless that is less than its least
-      // size, where it keeps the window's limit and is moved back over the anchor.
+      // size, where it keeps the window's limit and is moved back over the anchor. (Measured again at once: only a
+      // surface with room on neither side lays the page out for itself.)
       const vertical = at.side === 'top' || at.side === 'bottom';
       const least = this.options.least?.() ?? { width: 0, height: 0 };
       if (at.room > 0 && at.room >= (vertical ? least.height : least.width) * zoom) {
         limit(vertical ? 'block' : 'inline', at.room);
-        if (!vertical) arrange(at.room);
+        if (!vertical && at.room !== this.arranged) {
+          this.arranged = at.room;
+          this.options.arrange?.()?.();
+        }
         size = measure();
         at = placeAnchored({ ...input, surface: size, keep: at.side });
       }
     }
-    if (scroller && scroller.scrollTop !== scrolled) scroller.scrollTop = scrolled;
-    this.side = at.side;
-    this.at = at;
-    // In place the surface's `top` and `left` are counted from the box CSS positions it in (`positionedIn()`): the box
-    // it is kept in, or a positioned box of a shadow tree it is slotted through (a Field's frame around a control).
-    surface.style.top = own(at.top + (inline ? frame.shift.y : frame.y));
-    surface.style.left = own(at.left + (inline ? frame.shift.x : frame.x));
-    // POP-26: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
-    surface.dataset.side = at.side;
-    surface.toggleAttribute('data-held', at.held);
-    // POP-10: the arrow on the edge that faces the anchor, and the elevation round the surface and the arrow together.
-    if (at.arrow) {
-      surface.style.setProperty('--_arrow-at', own(at.point));
-      const shade = this.readShade();
-      if (shade !== this.shade) {
-        this.shade = shade;
-        this.layers = shadowLayers(shade);
-        this.host.requestUpdate();
+    const place = at;
+    // What scrolls inside keeps its position: read here, while the surface is measured, and put back with the place.
+    const moved = !!scroller && scroller.scrollTop !== scrolled;
+    return () => {
+      if (moved && scroller) scroller.scrollTop = scrolled;
+      this.side = place.side;
+      this.at = place;
+      // In place the surface's `top` and `left` are counted from the box CSS positions it in (`positionedIn()`): the
+      // box it is kept in, or a positioned box of a shadow tree it is slotted through (a Field's frame around a control).
+      surface.style.top = own(place.top + (inline ? frame.shift.y : frame.y));
+      surface.style.left = own(place.left + (inline ? frame.shift.x : frame.x));
+      // POP-26: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
+      surface.dataset.side = place.side;
+      surface.toggleAttribute('data-held', place.held);
+      // POP-10: the arrow on the edge that faces the anchor, and the elevation round the surface and the arrow together
+      // (its elevation is read in the next step, with what follows from the place).
+      if (place.arrow) surface.style.setProperty('--_arrow-at', own(place.point));
+      else {
+        delete surface.dataset.arrow;
+        shadeOn(surface);
       }
-      surface.dataset.arrow = this.layers.length ? 'shaded' : 'flat';
-    } else delete surface.dataset.arrow;
-    shadeOn(surface);
-    this.options.placed?.(at);
-    // POP-36: the keyboard came up over it: what has focus inside is scrolled into the room left.
-    if (frame.cover > 0 && frame.cover !== this.cover) {
-      const active = deepActive();
-      if (active && active !== surface && this.host.contains(active)) (active as HTMLElement).scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-    }
-    this.cover = frame.cover;
-    this.lastLayout = this.layout();
-    return true;
+      return () => {
+        const shade = place.arrow ? this.readShade() : null;
+        const placed = this.options.placed?.(place);
+        // POP-36: the keyboard came up over it: what has focus inside is scrolled into the room left.
+        const active = frame.cover > 0 && frame.cover !== this.cover ? deepActive() : null;
+        return () => {
+          if (shade !== null) {
+            if (shade !== this.shade) {
+              this.shade = shade;
+              this.layers = shadowLayers(shade);
+              this.host.requestUpdate();
+            }
+            surface.dataset.arrow = this.layers.length ? 'shaded' : 'flat';
+            shadeOn(surface);
+          }
+          placed?.();
+          if (active && active !== surface && this.host.contains(active)) (active as HTMLElement).scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+          this.cover = frame.cover;
+          // What it was placed for, read once everything above is written: what a frame's check compares.
+          return () => {
+            const layout = this.layout();
+            const after = then?.(true);
+            return () => {
+              this.lastLayout = layout;
+              after?.();
+            };
+          };
+        };
+      };
+    };
   }
 
   /**
    * POP-1, POP-26, POP-27: into the top layer — the newest in it, so above a dialog opened since — placed, and
    * appearing from the anchor's side: from where it had got to if it was still closing. Returns whether it is shown
    * (no surface, no anchor in the page: it is not). `instant`: whole at once, with no entrance — for a surface drawn
-   * anew in another presentation while it is open (POP-42).
+   * anew in another presentation while it is open (POP-42). `together`: placed with every other host's placement of
+   * the turn, after the renders (`placeTogether()`), for a component that reads nothing of where the surface is in the
+   * rest of its update; it is then shown wherever its anchor is in the page, and the placement hides it again if the
+   * anchor has gone by then.
    */
-  show(instant = false): boolean {
+  show(instant = false, { together = false }: { together?: boolean } = {}): boolean {
     const surface = this.options.surface();
     const motion = this.options.motion();
     if (!surface || !motion || !this.host.isConnected || !this.options.anchor()?.isConnected) return false;
@@ -453,18 +576,36 @@ export class AnchoredSurfaceController implements ReactiveController {
     this.wasGone = false;
     this.arranged = Number.NaN;
     if (!leaving) this.side = null;
-    if (!this.place()) {
-      // Its anchor left the page as it opened.
-      this.hide(false);
-      return false;
+    const showing = ++this.showings;
+    let shown = true;
+    const steps = this.steps((placed) => {
+      if (showing !== this.showings || !this.shown) return;
+      if (!placed) {
+        // Its anchor left the page as it opened.
+        shown = false;
+        return () => this.hide(false);
+      }
+      // With the last reads: it reads where what it follows is.
+      this.following.start();
+      return () => {
+        if (showing !== this.showings || !this.shown) return;
+        // Drawn in place, or asked to be, it is whole at once.
+        const whole = inline || instant;
+        // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a
+        // surface still closing goes on from where it is. One drawn whole at once is drawn so by its entrance.
+        if (!leaving && !whole) this.appear.drawAtOnce();
+        surface.classList.add('open');
+        this.appear.enter(whole);
+      };
+    });
+    if (!together) {
+      stepNow(steps);
+      return shown;
     }
-    this.following.start();
-    // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a
-    // surface still closing goes on from where it is.
-    if (!leaving) this.appear.drawAtOnce();
-    surface.classList.add('open');
-    // Drawn in place, or asked to be, it is whole at once.
-    this.appear.enter(inline || instant);
+    // Placed with every other surface shown in the turn, after the renders: a hundred popovers mounted open lay the
+    // page out once for each step of the placement, not once for each popover and step — still before any frame, and
+    // before a script that waits for the host's update goes on.
+    stepTogether(steps);
     return true;
   }
 
