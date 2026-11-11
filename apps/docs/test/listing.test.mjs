@@ -144,7 +144,8 @@ describe('the index of components', () => {
   test('draws every row of the status file, marks the ones shown on request, and says each one’s level', () => {
     assert.match(text, /statusComponents\.filter\(\(c\) => groupOf\(c\) === category\)\.map\(/);
     assert.match(text, /const onRequest = isOnRequest\(c, listings\);/);
-    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\} \{\.\.\.absent\(absentFrom\(c\.name, manifests\)\)\}>/);
+    assert.match(text, /const lacking = absentFrom\(c\.name, manifests\);/);
+    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\} \{\.\.\.absent\(lacking\)\}>/);
     assert.match(text, /<span class="title">\{c\.title\}<\/span>/);
     assert.match(text, /const meta = `\$\{shipped\}\/\$\{platforms\.length\} · \$\{\(role && t\.level\[role\]\) \?\? c\.level\}`;/);
     assert.match(text, /<ListingSwitch lang=\{lang\} \/>/);
@@ -165,8 +166,10 @@ describe('the switch', () => {
     assert.match(text, /<tanrei-switch class="docs-listing" label=\{t\.listing\.showAll\} data-docs-listing-switch \/>/);
     for (const lang of languages) {
       const words = strings(lang).listing;
-      for (const key of ['showAll', 'advanced', 'placedInstead']) assert.ok(String(words[key] ?? '').trim(), `${lang}: listing.${key}`);
+      for (const key of ['showAll', 'advanced', 'placedInstead', 'notIn']) assert.ok(String(words[key] ?? '').trim(), `${lang}: listing.${key}`);
       assert.equal(words.placedInstead.split('{components}').length, 2, `${lang}: one place for the components`);
+      assert.deepEqual([...words.notIn.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['system'], `${lang}: listing.notIn has one place, the system`);
+      if (lang !== source.lang) assert.notEqual(words.notIn, strings(source.lang).listing.notIn, `${lang}: listing.notIn is not translated`);
       assert.ok(String(strings(lang).usedIn ?? '').trim(), `${lang}: usedIn`);
       if (lang !== source.lang) assert.notEqual(words.showAll, strings(source.lang).listing.showAll, `${lang}: not translated`);
     }
@@ -242,21 +245,34 @@ describe('the choice of design system', () => {
     const [bare] = sidebarTree(given('components'), statusComponents, listings, '', (category) => category);
     assert.ok(links(bare.entries).every((link) => !link.absentFrom));
   });
-  test('the page being read stays in the sidebar whatever system is chosen, and so does its group', () => {
+  test('the page being read is marked as any other row: no system takes a row out of the sidebar', () => {
     const [components] = sidebarTree(given('components/fab-menu'), statusComponents, listings, '', (category) => category, manifests);
     const own = links(components.entries).find((link) => link.isCurrent);
     assert.equal(own.href, '/components/fab-menu/');
-    assert.equal(own.absentFrom, undefined);
-    assert.equal(components.entries.find((entry) => entry.type === 'group' && entry.entries.includes(own)).absentFrom, undefined);
+    assert.deepEqual(own.absentFrom, absentFrom('fab-menu', manifests));
+    assert.ok(own.absentFrom.includes(DEFAULT), 'the premise: the default system does not have the FAB menu');
   });
 
-  test('the index’s select chooses the reader’s look, one option for each shipped system', () => {
-    const text = read('src/components/SystemSelect.astro');
-    assert.match(text, /setAppearance\(\{ look: control\.value \}\)/);
-    assert.match(text, /<tanrei-select-field class="docs-system" size="small" label=\{t\.system\.choice\}/);
-    assert.match(text, /manifests\.map\(\(manifest\) => <tanrei-option value=\{manifest\.system\} supporting-text=\{manifest\.name\}>\{manifest\.system\}<\/tanrei-option>\)/);
+  test('a row a system does not have is drawn faint under it, never taken out: the lists’ script marks it and gives a sidebar row the words that say so', () => {
+    const filter = read('src/lib/list-filter.ts');
+    assert.match(filter, /for \(const row of document\.querySelectorAll\(`\[\$\{ABSENT_ATTR\}\]`\)\) markFaint\(row, system\);/);
+    assert.match(filter, /row\.toggleAttribute\(FAINT_ATTR, faint\);/);
+    // What the script takes out of the document is what is shown on request and what is said under another system only.
+    assert.match(filter, /document\.querySelectorAll\(`\[\$\{ON_REQUEST_ATTR\}\], \[\$\{SYSTEM_ONLY_ATTR\}\]`\)/);
+    // The head's rule hides only what is said under another system.
+    assert.doesNotMatch(read('src/lib/appearance.ts'), /\$\{absent\}~=/);
+    const sidebar = read('src/components/frame/Sidebar.astro');
+    assert.match(sidebar, /\$\{NOT_IN_ATTR\}="\$\{escape\(t\.listing\.notIn\)\}"/);
+    assert.match(sidebar, /<span class="docs-sidebar-supporting" \$\{SYSTEM_ONLY_ATTR\}="\$\{escape\(id\)\}">\$\{escape\(t\.listing\.notIn\.replace\('\{system\}', id\)\)\}<\/span>/);
+    assert.match(filter, /if \(faint\) row\.setAttribute\('supporting-text', words\.replace\('\{system\}', system \?\? ''\)\);\s*else row\.removeAttribute\('supporting-text'\);/);
+    const index = read('src/components/ComponentIndex.astro');
+    assert.match(index, /lacking\.map\(\(id\) => <>\{' '\}<span \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: id \}\}>\{t\.listing\.notIn\.replace\('\{system\}', id\)\}<\/span><\/>\)/);
+    // Faint is the secondary text role, which holds text's contrast — never an opacity or a lighter color.
+    assert.match(index, /tanrei-list-item\[data-docs-faint\] \.title \{\s*color: var\(--tanrei-sys-color-on-surface-variant\);\s*\}/);
+    for (const file of ['src/components/ComponentIndex.astro', 'src/styles/frame.css']) assert.doesNotMatch(read(file), /\[data-docs-faint\][^{]*\{[^}]*opacity/, file);
   });
-  test('is the header’s Appearance panel beside the brand (in a compact window, first in the drawer), the index’s select beside the switch, and the index says what the chosen system does not have', () => {
+  test('no list has a choice of system of its own: the look is chosen in the header’s Appearance panel (in a compact window, first in the drawer), and the index says what the chosen system does not have', () => {
+    assert.ok(!fs.existsSync(here('../src/components/SystemSelect.astro')), 'the index’s select of the system is gone');
     const panel = read('src/components/frame/Appearance.astro');
     assert.match(panel, /<tanrei-list class="docs-appearance-look" selection="single" label=\{t\.system\.choice\} value=\{look\}/);
     assert.match(panel, /const looks = manifests\.map\(/);
@@ -265,11 +281,12 @@ describe('the choice of design system', () => {
     assert.match(header, /<Fragment set:html=\{wordmark\} \/>\s*<Appearance id="docs-appearance" part="button" slot="context" \/>/);
     assert.match(read('src/components/frame/Sidebar.astro'), /<Appearance id="docs-appearance-drawer" part="button" \/>/);
     const index = read('src/components/ComponentIndex.astro');
-    assert.match(index, /<SystemSelect lang=\{lang\} \/>\s*<ListingSwitch lang=\{lang\} \/>/);
+    assert.match(index, /<div class="controls">\s*<ListingSwitch lang=\{lang\} \/>\s*<\/div>/);
+    assert.doesNotMatch(index, /tanrei-select-field|setAppearance/);
     assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
   });
   test('its words are in the six languages, each sentence with its places', () => {
-    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
+    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], listed: [], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
     for (const lang of languages) {
       const words = strings(lang).system;
       for (const [key, want] of Object.entries(places)) {
@@ -280,7 +297,7 @@ describe('the choice of design system', () => {
     }
   });
   test('no source of the lists writes the name of a system, or of a component a system does not have', () => {
-    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/frame/Appearance.astro', 'src/components/frame/Header.astro', 'src/components/frame/ThemeProvider.astro', 'src/lib/appearance.ts', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
+    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/frame/Appearance.astro', 'src/components/frame/Header.astro', 'src/components/frame/ThemeProvider.astro', 'src/lib/appearance.ts', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
     const left = [...new Set(onDisk.flatMap((manifest) => manifest.omitted.map((entry) => entry.name)))];
     for (const file of files) {
       const text = read(file).replace(/^\s*(\/\/|\*|\/\*).*$/gm, '');

@@ -298,6 +298,26 @@
     letter-spacing: var(--tanrei-comp-navigation-drawer-item-trailing-text-typescale-letter-spacing);
     white-space: nowrap;
   }
+  /* A row whose component some systems do not have: its label over the words that say it is not in the look (said
+     under that look only), as the drawer draws a label over its supporting text — each on one line, cut with an
+     ellipsis, between the row's padding above and below — so that the row is as tall as the drawer draws it. */
+  .docs-sidebar:not(:defined) .docs-sidebar-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+    padding-block: var(--tanrei-comp-navigation-drawer-item-padding-block-regular);
+  }
+  .docs-sidebar:not(:defined) :is(.docs-sidebar-label, .docs-sidebar-supporting) {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .docs-sidebar:not(:defined) .docs-sidebar-supporting {
+    font: var(--tanrei-comp-navigation-drawer-item-supporting-text-typescale-font);
+    letter-spacing: var(--tanrei-comp-navigation-drawer-item-supporting-text-typescale-letter-spacing);
+  }
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-item > a[aria-current='page'] {
     background: var(--tanrei-sys-color-secondary-container);
     color: var(--tanrei-sys-color-on-secondary-container);

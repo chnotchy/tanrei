@@ -133,7 +133,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
 
   // ── The appearance ────────────────────────────────────────────────────────────────────────────────────────────────
   // Every control says what is shown: the look's buttons (the bar's, and the drawer's of a compact window), every
-  // panel's choices and the mode's toggle. (The index's select of the system its lists show says it itself: SystemSelect.astro.)
+  // panel's choices and the mode's toggle.
   /** A choice's value: its property once the element is defined, its attribute (what it starts from) until then. */
   const choose = (control: Choice, value: string) => {
     if (customElements.get(control.localName)) control.value = value;
