@@ -11,7 +11,7 @@ const ListRowElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const ListRowAttributes = { headline: ['headline', ''], overline: ['overline', ''], supportingText: ['supporting-text', ''], supportingLines: ['supporting-lines', 1], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], trailingIcon: ['trailing-icon', ''], density: ['density', 'regular'] } as const;
+const ListRowAttributes = { headline: ['headline', ''], overline: ['overline', ''], supportingText: ['supporting-text', ''], supportingLines: ['supporting-lines', 1], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], trailingIcon: ['trailing-icon', ''], size: ['size'] } as const;
 /**
  * One row of text with something before it and something after it: an overline, a headline and a line or two of supporting text; a glyph, an avatar, a picture or a control at its start; a short value, a control and a glyph at its end. Placed as the direct child of a `<tanrei-list-item>`, which tells it what the item is, or standing alone.
  *

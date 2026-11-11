@@ -34,13 +34,15 @@ import {
   slottedInteractive,
   syncFocusStyle,
   OpenAxesController,
+  SizeConsumerController,
+  SizeProviderController,
 } from '../../primitives/index.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import '../button/button.js';
 import type { TanreiButton } from '../button/button.js';
 import '../menu/menu.js';
-import { AXES, itemStyles, listStyles } from './list.styles.js';
-import type { TanreiListDensityRegistry } from '../../registry.js';
+import { AXES, CORE_SIZES, itemStyles, listStyles } from './list.styles.js';
+import type { TanreiListSizeRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { SETTLING } from '../../styles/motion.js';
 import { startFromNextFrame } from '../../primitives/motion.js';
@@ -65,8 +67,8 @@ const SELECTIONS: readonly TanreiListSelection[] = ['none', 'single', 'multiple'
 
 /** Whether a List row keeps the room of a leading glyph it does not draw (LST-50): the menu's and the tree view's values. A closed set. */
 export type TanreiListIconSpace = 'auto' | 'always' | 'never';
-/** How much room an item takes (LST-51): `regular`, `compact`, or a density a design system added. */
-export type TanreiListDensity = keyof TanreiListDensityRegistry;
+/** How much room an item takes (LST-51): `small`, `medium`, or a size a design system added. */
+export type TanreiListSize = keyof TanreiListSizeRegistry;
 const ICON_SPACES: readonly TanreiListIconSpace[] = ['auto', 'always', 'never'];
 
 /** What `move` carries: the index the item had when the move began and the index it is to have, both from 0. */
@@ -106,8 +108,6 @@ interface ItemContext {
   divider: 'none' | 'block' | 'inline';
   /** LST-50: a List row of the item keeps the room of a leading glyph where it draws no leading part. */
   leadingRoom: boolean;
-  /** LST-51: the list's density, which a List row of the item draws in place of its own. */
-  density: string;
   /** LST-32, LST-33, LST-47: the handle's name and description and the four move words; empty where nobody gave them. */
   handleLabel: string;
   handleHint: string;
@@ -128,8 +128,6 @@ export interface TanreiListItemFrame {
   disabled: boolean;
   /** The list asks the element to keep the room of a leading glyph where it draws no leading part (LST-50). */
   leadingRoom: boolean;
-  /** The list's density, which the element draws in place of its own (LST-51, LRW-17). */
-  density: string;
 }
 
 /**
@@ -272,7 +270,7 @@ export class TanreiListItem extends TanreiElement {
   download: string | null = null;
 
   /** What the list says about this item. */
-  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', leadingRoom: false, density: 'regular', handleLabel: '', handleHint: '', moves: NO_MOVES };
+  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', leadingRoom: false, handleLabel: '', handleHint: '', moves: NO_MOVES };
 
   /** LST-33: whether the move menu is open, and whether it has been drawn yet (it is drawn the first time it opens). */
   private menuOpen = false;
@@ -386,7 +384,6 @@ export class TanreiListItem extends TanreiElement {
       selected: this.selected,
       disabled: mode !== 'static' && this.disabled,
       leadingRoom: this.context.leadingRoom,
-      density: this.context.density,
     };
     const key = JSON.stringify(frame);
     const now = new Set(this.fitted);
@@ -925,7 +922,10 @@ export class TanreiList extends TanreiElement {
     gap: { type: String, reflect: true },
     dividers: { type: Boolean, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
-    density: { type: String, reflect: true, useDefault: true },
+    // LST-51: the size the product set, or none: a list that sets none draws the size its container sets, and passes
+    // none to its rows. A custom accessor, so that a size set to the default's name is set all the same; it reflects
+    // the own size itself.
+    size: { type: String, noAccessor: true },
     selection: { type: String, reflect: true },
     label: { type: String },
     value: { type: String },
@@ -963,14 +963,37 @@ export class TanreiList extends TanreiElement {
 
   /**
    * How much room an item takes (LST-51): the least height of an action, a link and an option and the padding above and
-   * below its content, and the density of every List row that is an item's direct child. `regular` (the default) is for a
-   * product used by touch as well as by pointer; `compact` for a tool used with a pointer. For touch an item is never
-   * lower than the touch target (LST-11). A design system may add values.
+   * below its content. `medium` is for a product used by touch as well as by pointer; `small` for a tool used with a
+   * pointer. An item is never lower than the target at either (LST-11). Set, it is also the size of every List row the
+   * list holds that sets none of its own (LRW-17). While it is not set the list draws the size its nearest container
+   * sets, and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium` included)
+   * makes it the list's own and passes it to the rows; removing the attribute gives that back. A design system may add
+   * values.
    */
-  density: TanreiListDensity = 'regular';
+  get size(): TanreiListSize {
+    return (this.sizes.own ?? 'medium') as TanreiListSize;
+  }
 
-  /** LST-51: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
-  private readonly densities = new OpenAxesController(this, { component: 'list', behavior: 'LST-51', axes: AXES });
+  set size(value: TanreiListSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** LST-51: the size the product set, and the one the nearest container around the list sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** LST-51, LRW-17: only the size set on the list is passed to the rows it holds (src/primitives/size-cascade.ts). */
+  private readonly passes = new SizeProviderController(this, () => this.sizes.own);
+
+  /** @internal LST-51: the size the list draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** LST-51: carries the size the list draws to its styles, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** LST-51: a size a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly sizeAxes = new OpenAxesController(this, { component: 'list', behavior: 'LST-51', axes: AXES });
 
   /** Whether people choose items: `none` shows or opens things; `single` chooses one; `multiple` any number. */
   selection: TanreiListSelection = 'none';
@@ -1186,7 +1209,6 @@ export class TanreiList extends TanreiElement {
         orientation,
         divider: item === first ? 'none' : divider,
         leadingRoom,
-        density: String(this.density ?? ''),
         handleLabel: reorder ? this.handleName : '',
         handleHint: reorder ? this.handleHintText : '',
         moves: reorder ? this.moveNames : NO_MOVES,
@@ -2265,6 +2287,9 @@ export class TanreiList extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // LST-51: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules).
+    this.sizes.syncState(this.internals);
     // LST-52: while reorderable the list role is carried inside: what the product writes on the host is moved there.
     syncDelegation(this);
     // LST-6: a value the list does not define is drawn as the default; a debug build says so.

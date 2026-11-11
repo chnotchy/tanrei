@@ -48,8 +48,8 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `trailing-control` | <img src="../../packages/web/snapshots/list-row/trailing-control.png" alt="web trailing-control" width="160"> |
 | `all-parts` | <img src="../../packages/web/snapshots/list-row/all-parts.png" alt="web all-parts" width="160"> |
 | `long-text` | <img src="../../packages/web/snapshots/list-row/long-text.png" alt="web long-text" width="160"> |
-| `compact` | <img src="../../packages/web/snapshots/list-row/compact.png" alt="web compact" width="160"> |
-| `compact-one-line` | <img src="../../packages/web/snapshots/list-row/compact-one-line.png" alt="web compact-one-line" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/list-row/small.png" alt="web small" width="160"> |
+| `small-one-line` | <img src="../../packages/web/snapshots/list-row/small-one-line.png" alt="web small-one-line" width="160"> |
 | `rtl` | <img src="../../packages/web/snapshots/list-row/rtl.png" alt="web rtl" width="160"> |
 
 ## List
@@ -78,7 +78,7 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `icon-space-auto` | <img src="../../packages/web/snapshots/list/icon-space-auto.png" alt="web icon-space-auto" width="160"> |
 | `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
 | `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
-| `density-compact` | <img src="../../packages/web/snapshots/list/density-compact.png" alt="web density-compact" width="160"> |
+| `size-small` | <img src="../../packages/web/snapshots/list/size-small.png" alt="web size-small" width="160"> |
 
 ## Marquee text
 

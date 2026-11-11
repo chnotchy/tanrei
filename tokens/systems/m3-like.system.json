@@ -663,7 +663,7 @@
     "tanrei.comp.slider.track.gap": {"$value": "{tanrei.sys.space.space75}", "reason": "Material 3 sets the tracks 6dp apart from the handle."},
     "tanrei.comp.slider.container.size": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 8}, "reason": "This preset's own track inset, not the default's, which follows its round state layer of 40. Material's bar handle draws no round state layer, so the value only sets how far the track stops short of the ends."},
     "tanrei.comp.chip.container.shape": {"$value": "{tanrei.sys.shape.corner.small}", "reason": "Material 3's chips are rounded rectangles (8dp), not pills."},
-    "tanrei.comp.list.container.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 14}},
+    "tanrei.comp.list.container.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 14}},
     "tanrei.comp.list.container.padding-inline-end": {"$value": "{tanrei.sys.space.space300}"},
     "tanrei.comp.list.container.gap": {"$value": "{tanrei.sys.space.space200}"},
     "tanrei.comp.list.content.typescale": {"$value": "{tanrei.sys.typescale.body-large}"},

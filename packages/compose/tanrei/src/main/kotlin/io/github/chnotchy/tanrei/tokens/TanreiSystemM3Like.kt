@@ -5087,9 +5087,9 @@ private object M3LikeSystemSource {
             trailingIconSize = 24.dp,
             trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             trailingTextTypescale = typescale.bodySmall,
-            densitys = TanreiListRowDensitys(
-                regular = TanreiListRowDensityTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListRowDensityTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+            sizes = TanreiListRowSizes(
+                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+                medium = TanreiListRowSizeTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
             ),
         )
 
@@ -5187,9 +5187,9 @@ private object M3LikeSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiListDensitys(
-                regular = TanreiListDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
+            sizes = TanreiListSizes(
+                small = TanreiListSizeTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
+                medium = TanreiListSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 8.dp),
             ),
         )
 

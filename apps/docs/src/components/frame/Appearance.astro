@@ -79,7 +79,7 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
           <tanrei-tab value="high" label={t.contrastHigh} />
         </tanrei-tabs>
         <p class="docs-appearance-heading" id={ids.look}>{t.system.choice}</p>
-        <tanrei-list class="docs-appearance-look" selection="single" label={t.system.choice} value={look} density="compact">
+        <tanrei-list class="docs-appearance-look" selection="single" label={t.system.choice} value={look} size="small">
           {looks.map((each) => (
             <tanrei-list-item value={each.id} label={each.id}>
               <tanrei-list-row headline={each.id} supporting-text={each.supporting} supporting-lines="2" translate="no">

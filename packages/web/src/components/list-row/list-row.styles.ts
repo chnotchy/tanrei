@@ -3,41 +3,41 @@ import type { OpenAxis } from '../../primitives/index.js';
 import { iconGlyph } from '../../primitives/index.js';
 
 // Every visual value is a token (tokens/comp/list-row.tokens.json). A row has no state of its own: what changes what it
-// draws is its density, its number of lines (LRW-3) and what the list item it is in tells it (LRW-8, LRW-9).
-/** The densities every design system has. A layer may add more; those get their rules on demand (LRW-14). */
-export const CORE_DENSITIES = ['regular', 'compact'] as const;
-const DEFAULT_DENSITY = 'regular';
+// draws is its size, its number of lines (LRW-3) and what the list item it is in tells it (LRW-8, LRW-9).
+/** The sizes every design system has. A layer may add more; those get their rules on demand (LRW-14). */
+export const CORE_SIZES = ['small', 'medium'] as const;
+const DEFAULT_SIZE = 'medium';
 
 const PREFIX = '--tanrei-comp-list-row';
 const T = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 // A value the core does not have may be missing from the active design system: fall back to the default's token.
-const ref = (member: string, density: string, fallback: string | null) =>
-  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+const ref = (member: string, size: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${size}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${size})`;
 
 /**
- * Per density (LRW-1, LRW-3): the least height of one, two and three lines, and the space above and below the text; and
- * the list's padding of that density, which an item that pads its content takes off the row's height (LRW-8, LST-51).
- * Written on the row's box, which carries the density it draws (LRW-17): its own, or the one its list tells it.
+ * Per size (LRW-1, LRW-3): the least height of one, two and three lines, and the space above and below the text.
+ * Written on the row's box, under the custom state that carries the size it draws (LRW-17): its own, or the one its
+ * nearest container sets.
  */
-const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
-  --_h1: ${ref('container-height-one-line', density, fallback)};
-  --_h2: ${ref('container-height-two-line', density, fallback)};
-  --_h3: ${ref('container-height-three-line', density, fallback)};
-  --_pb: ${ref('container-padding-block', density, fallback)};
-  --_lpb: var(--tanrei-comp-list-container-padding-block-${density}, var(--tanrei-comp-list-container-padding-block-${DEFAULT_DENSITY}));
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {
+  --_h1: ${ref('container-height-one-line', size, fallback)};
+  --_h2: ${ref('container-height-two-line', size, fallback)};
+  --_h3: ${ref('container-height-three-line', size, fallback)};
+  --_pb: ${ref('container-padding-block', size, fallback)};
 }`;
-const drawnAt = (density: string) => `.row[data-density='${density}']`;
+/** LRW-17: the selector of the size the row draws (`size-<name>`, a custom state the row sets). */
+const drawnAt = (size: string) => `:host(:state(size-${size})) .row`;
 
-/** LRW-14: a density a layer added gets its block on demand, falling back to the default's tokens. */
+/** LRW-14: a size a layer added gets its block on demand, falling back to the default's tokens. */
 export const AXES: readonly OpenAxis[] = [
   {
-    name: 'density',
-    core: CORE_DENSITIES,
-    default: DEFAULT_DENSITY,
-    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    name: 'size',
+    core: CORE_SIZES,
+    default: DEFAULT_SIZE,
+    rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-padding-block-${value}` as const,
-    // LRW-17: the density the row draws — the list's inside an item of a list, else its own.
-    drawn: { read: (host) => String((host as HTMLElement & { drawnDensity: string }).drawnDensity ?? ''), selector: drawnAt },
+    // LRW-17: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
+    drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt },
   },
 ];
 
@@ -45,10 +45,10 @@ export const AXES: readonly OpenAxis[] = [
 const role = (part: string) => unsafeCSS(`font: var(${PREFIX}-${part}-typescale-font);\n    letter-spacing: var(${PREFIX}-${part}-typescale-letter-spacing);`);
 
 export const styles = css`
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, '.row'))}
+  ${unsafeCSS(sizeBlock(DEFAULT_SIZE, '.row'))}
   ${unsafeCSS(
-    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
-      .map((density) => densityBlock(density, drawnAt(density)))
+    CORE_SIZES.filter((size) => size !== DEFAULT_SIZE)
+      .map((size) => sizeBlock(size, drawnAt(size)))
       .join('\n'),
   )}
 
@@ -86,9 +86,11 @@ export const styles = css`
   .row.handled {
     padding-inline-start: 0;
   }
+  /* LRW-8: the padding the item draws is the one of the size its list draws, which the list sets on its host for its
+     items (LST-51) and which reaches the row through them. */
   .row.boxed {
     padding: 0;
-    min-block-size: calc(var(--_h) - 2 * var(--_lpb));
+    min-block-size: calc(var(--_h) - 2 * var(--_lst-padding-block, var(--tanrei-comp-list-container-padding-block-medium)));
   }
 
   /* LRW-1: leading, text, trailing text, trailing slot, trailing glyph, the gap apart; an absent part takes no room.

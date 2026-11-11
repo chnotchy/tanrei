@@ -5423,7 +5423,7 @@
               "$value": "{tanrei.sys.shape.corner.small}",
               "reason": "Material 3's chips are rounded rectangles (8dp), not pills."
             },
-            "tanrei.comp.list.container.height.regular": {
+            "tanrei.comp.list.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",

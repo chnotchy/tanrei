@@ -9499,27 +9499,27 @@ public struct TanreiLinkTokens: Sendable, Equatable {
   }
 }
 
-/// A value of list-row's `density` axis.
+/// A value of list-row's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiListRowDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiListRowDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiListRowSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiListRowSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiListRowDensity(rawValue: "regular")
-  public static let compact = TanreiListRowDensity(rawValue: "compact")
+  public static let small = TanreiListRowSize(rawValue: "small")
+  public static let medium = TanreiListRowSize(rawValue: "medium")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiListRowDensity] = [.regular, .compact]
+  public static let core: [TanreiListRowSize] = [.small, .medium]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiListRowDensity.regular
+  public static let fallback = TanreiListRowSize.medium
 }
 
-/// Everything of list-row that depends on its density.
-public struct TanreiListRowDensityTokens: Sendable, Equatable {
+/// Everything of list-row that depends on its size.
+public struct TanreiListRowSizeTokens: Sendable, Equatable {
   public var containerHeightOneLine: CGFloat
   public var containerHeightTwoLine: CGFloat
   public var containerHeightThreeLine: CGFloat
@@ -9538,43 +9538,43 @@ public struct TanreiListRowDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of list-row: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiListRowDensitys: Sendable, Equatable {
-  public var regular: TanreiListRowDensityTokens
-  public var compact: TanreiListRowDensityTokens
+/// The sizes of list-row: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiListRowSizes: Sendable, Equatable {
+  public var small: TanreiListRowSizeTokens
+  public var medium: TanreiListRowSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiListRowDensity: TanreiListRowDensityTokens]
+  public var extra: [TanreiListRowSize: TanreiListRowSizeTokens]
 
   public init(
-    regular: TanreiListRowDensityTokens,
-    compact: TanreiListRowDensityTokens,
-    extra: [TanreiListRowDensity: TanreiListRowDensityTokens] = [:]
+    small: TanreiListRowSizeTokens,
+    medium: TanreiListRowSizeTokens,
+    extra: [TanreiListRowSize: TanreiListRowSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.small = small
+    self.medium = medium
     self.extra = extra
   }
 
-  /// The tokens of one list-row density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiListRowDensity) -> TanreiListRowDensityTokens? {
+  /// The tokens of one list-row size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiListRowSize) -> TanreiListRowSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .small: return small
+    case .medium: return medium
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a list-row density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a list-row size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiListRowDensity) -> TanreiListRowDensityTokens {
+  public subscript(key: TanreiListRowSize) -> TanreiListRowSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no list-row density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no list-row size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every list-row density of this design system: the core ones, then what it added.
-  public var keys: [TanreiListRowDensity] { TanreiListRowDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every list-row size of this design system: the core ones, then what it added.
+  public var keys: [TanreiListRowSize] { TanreiListRowSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Component tokens of list-row (comp.list-row).
@@ -9594,7 +9594,7 @@ public struct TanreiListRowTokens: Sendable, Equatable {
   public var trailingIconSize: CGFloat
   public var trailingTextColor: TanreiPaint
   public var trailingTextTypescale: TanreiTextStyle
-  public var densitys: TanreiListRowDensitys
+  public var sizes: TanreiListRowSizes
 
   public init(
     containerGap: CGFloat,
@@ -9612,7 +9612,7 @@ public struct TanreiListRowTokens: Sendable, Equatable {
     trailingIconSize: CGFloat,
     trailingTextColor: TanreiPaint,
     trailingTextTypescale: TanreiTextStyle,
-    densitys: TanreiListRowDensitys
+    sizes: TanreiListRowSizes
   ) {
     self.containerGap = containerGap
     self.containerPaddingInlineEnd = containerPaddingInlineEnd
@@ -9629,7 +9629,7 @@ public struct TanreiListRowTokens: Sendable, Equatable {
     self.trailingIconSize = trailingIconSize
     self.trailingTextColor = trailingTextColor
     self.trailingTextTypescale = trailingTextTypescale
-    self.densitys = densitys
+    self.sizes = sizes
   }
 }
 
@@ -9746,27 +9746,27 @@ public struct TanreiListConditions: Sendable, Equatable {
   public var keys: [TanreiListCondition] { TanreiListCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// A value of list's `density` axis.
+/// A value of list's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiListDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiListDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiListSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiListSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiListDensity(rawValue: "regular")
-  public static let compact = TanreiListDensity(rawValue: "compact")
+  public static let small = TanreiListSize(rawValue: "small")
+  public static let medium = TanreiListSize(rawValue: "medium")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiListDensity] = [.regular, .compact]
+  public static let core: [TanreiListSize] = [.small, .medium]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiListDensity.regular
+  public static let fallback = TanreiListSize.medium
 }
 
-/// Everything of list that depends on its density.
-public struct TanreiListDensityTokens: Sendable, Equatable {
+/// Everything of list that depends on its size.
+public struct TanreiListSizeTokens: Sendable, Equatable {
   public var containerHeight: CGFloat
   public var containerPaddingBlock: CGFloat
 
@@ -9779,43 +9779,43 @@ public struct TanreiListDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of list: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiListDensitys: Sendable, Equatable {
-  public var regular: TanreiListDensityTokens
-  public var compact: TanreiListDensityTokens
+/// The sizes of list: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiListSizes: Sendable, Equatable {
+  public var small: TanreiListSizeTokens
+  public var medium: TanreiListSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiListDensity: TanreiListDensityTokens]
+  public var extra: [TanreiListSize: TanreiListSizeTokens]
 
   public init(
-    regular: TanreiListDensityTokens,
-    compact: TanreiListDensityTokens,
-    extra: [TanreiListDensity: TanreiListDensityTokens] = [:]
+    small: TanreiListSizeTokens,
+    medium: TanreiListSizeTokens,
+    extra: [TanreiListSize: TanreiListSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.small = small
+    self.medium = medium
     self.extra = extra
   }
 
-  /// The tokens of one list density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiListDensity) -> TanreiListDensityTokens? {
+  /// The tokens of one list size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiListSize) -> TanreiListSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .small: return small
+    case .medium: return medium
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a list density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a list size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiListDensity) -> TanreiListDensityTokens {
+  public subscript(key: TanreiListSize) -> TanreiListSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no list density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no list size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every list density of this design system: the core ones, then what it added.
-  public var keys: [TanreiListDensity] { TanreiListDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every list size of this design system: the core ones, then what it added.
+  public var keys: [TanreiListSize] { TanreiListSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Values of list that depend on the state but not on the variant.
@@ -9856,7 +9856,7 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var conditions: TanreiListConditions
-  public var densitys: TanreiListDensitys
+  public var sizes: TanreiListSizes
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiListStateTokens
   /// Values of the focused state shared by every variant.
@@ -9889,7 +9889,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     conditions: TanreiListConditions,
-    densitys: TanreiListDensitys,
+    sizes: TanreiListSizes,
     hovered: TanreiListStateTokens,
     focused: TanreiListStateTokens,
     pressed: TanreiListStateTokens,
@@ -9917,7 +9917,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.conditions = conditions
-    self.densitys = densitys
+    self.sizes = sizes
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed

@@ -8827,9 +8827,9 @@ export const acme = {
       trailingIconSize: 24,
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
-      densitys: {
-        regular: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
-        compact: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+      sizes: {
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
     list: {
@@ -8978,9 +8978,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 48, containerPaddingBlock: 8 },
-        compact: { containerHeight: 36, containerPaddingBlock: 6 },
+      sizes: {
+        small: { containerHeight: 36, containerPaddingBlock: 6 },
+        medium: { containerHeight: 48, containerPaddingBlock: 8 },
       },
     },
     loadingIndicator: {
