@@ -4577,6 +4577,41 @@ test.describe('resizable', () => {
     await expect.poll(async () => (await bounds(drawer(page, 'm').locator('dialog'))).width).toBe(width);
   });
 
+  test('NVD-97: in a parent narrower than its width the drawer lays its rows out at the room — every row within the drawer, a label that no longer fits cut with an ellipsis — resizable or not, and at its width again when the room comes back', async ({ page }) => {
+    await wide(page);
+    const rows = [d('inbox', 'Inbox for everything the team writes', 'inbox', { trailingText: '24' }), d('sent', 'Sent', 'send'), d('drafts', 'Drafts', 'draft')];
+    await mount(page, [fixture('n', rows, { width: 360 }), fixture('n-off', rows, { width: 360, resizable: false })]);
+    const pad = await px(page, T('container-padding-inline'));
+    for (const id of ['n', 'n-off']) {
+      const stage = page.locator(`[data-fixture="${id}"]`);
+      expect((await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
+      expect(await item(page, id, 0).locator('.label').evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(false);
+      // The stage's padding at its end is 16: its content box is 280 wide.
+      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '296px'));
+      await expect.poll(() => drawnWidth(page, id), id).toBe(280);
+      // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer).
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+      const p = await bounds(panel(page, id));
+      const host = await bounds(drawer(page, id));
+      expect([p.x, p.width], id).toEqual([host.x, 280]);
+      for (const n of [0, 1, 2]) {
+        const row = await bounds(box(page, id, n));
+        expect([row.x, row.width], `${id} row ${n}`).toEqual([p.x + pad, 280 - 2 * pad]);
+        const c = await bounds(cell(page, id, n));
+        expect([c.x, c.width], `${id} cell ${n}`).toEqual([p.x, 280]);
+      }
+      const trailing = await bounds(item(page, id, 0).locator('.trailing-text'));
+      expect(trailing.x + trailing.width, id).toBeLessThanOrEqual(p.x + p.width - pad);
+      const label = item(page, id, 0).locator('.label');
+      expect(await label.evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(true);
+      expect(await css(label, 'text-overflow'), id).toBe('ellipsis');
+      // The room comes back: the width, and the rows at it.
+      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await expect.poll(() => drawnWidth(page, id), id).toBe(360);
+      await expect.poll(async () => (await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
+    }
+  });
+
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {
     await wide(page);
     await mount(page, [fixture('d', SIDE, { width: 300 })]);

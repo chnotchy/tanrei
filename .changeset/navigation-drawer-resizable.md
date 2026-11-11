@@ -31,7 +31,9 @@ What it does (NVD-96 to NVD-104):
 
 - **A drag** on the edge follows the press without a motion, between the least width (`min-width`, else
   `comp.navigation-drawer.container.min-width`, 200) and the greatest (`max-width`, else
-  `comp.navigation-drawer.container.max-width`, 400, and never more than the room the parent gives). A collapsible drawer
+  `comp.navigation-drawer.container.max-width`, 400, and never more than the room the parent gives — in a parent
+  narrower than its width, the drawer and its rows are laid out at the room, labels cut with an ellipsis, and the width
+  comes back with the room). A collapsible drawer
   folds to its column past halfway between its column and its least width, over its change of form's motion, and
   unfolds again past it; a drawer that cannot fold stops at its least width. While a drag lasts the document selects
   nothing and no iframe takes the pointer.
