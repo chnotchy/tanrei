@@ -3,9 +3,10 @@
 // A component whose `listing` is the status file's `listings.onRequest` is shown only when the reader asks for
 // everything; nothing here hides a page, and no name of a value is written here: the callers pass `listings`.
 //
-// A second axis is the design system: a list shows the components of the system the reader chose (the default system
-// until they choose another), and a component that system does not have — one its components manifest lists among
-// what it does not have, `omitted` — is not shown. The callers pass the manifests; no system's name is written here.
+// A second axis is the design system: a list follows the reader's look (the default system until they choose another
+// in the Appearance panel), and a component that system does not have — one its components manifest lists among what
+// it does not have, `omitted` — is still listed, marked as not in it (lib/list-filter.ts): a reader is never left
+// without a way to a page. The callers pass the manifests; no system's name is written here.
 //
 // Plain functions with no browser and no Vite in them: `astro.config.mjs` builds the sidebar with them, the site's
 // components mark their rows with them, and Node tests them (test/listing.test.mjs).
@@ -27,7 +28,7 @@
 export const absentFrom = (name, manifests) => manifests.filter((manifest) => manifest.omitted.some((entry) => entry.name === name)).map((manifest) => manifest.system);
 
 /**
- * What a list shows under one system: the rows of the components it has.
+ * The rows of the components one system has: what a list draws in full under it (the others it marks).
  *
  * @template {Pick<Row, 'name'>} T
  * @param {T[]} rows
@@ -37,7 +38,7 @@ export const absentFrom = (name, manifests) => manifests.filter((manifest) => ma
  */
 export const shownUnder = (rows, manifests, system) => rows.filter((row) => !absentFrom(row.name, manifests).includes(system));
 
-/** The systems every one of `lists` is absent from: a group none of whose rows a system has is not shown under it. */
+/** The systems every one of `lists` is absent from: a group none of whose rows a system has is marked under it too. */
 const absentFromAll = (/** @type {string[][]} */ lists) => (lists.length ? lists.reduce((all, list) => all.filter((system) => list.includes(system))) : []);
 
 /** The address of a page among the components' own pages (`/components/button/`): a component documented elsewhere (a foundation) has none. */
@@ -111,8 +112,9 @@ export const usedIn = (all, name) => all.filter((other) => (other.builtFrom ?? [
 /**
  * The sidebar as it is drawn, from the sidebar the framework gives a page: in the group that holds the components'
  * pages, each component stands in a group of its category — named in the page's language by `categoryLabel` — and one
- * that is shown on request is marked (`onRequest`), and one that some systems do not have is marked with those systems
- * (`absentFrom`), unless it is the page being read: a reader who followed a link is never nowhere. A group whose every
+ * that is shown on request is marked (`onRequest`), unless it is the page being read: a reader who followed a link is
+ * never nowhere. One that some systems do not have is marked with those systems (`absentFrom`), the page being read
+ * too, since such a row is drawn under them all the same, said to be not in the reader's look. A group whose every
  * component a system does not have is marked with that system too. A link that is no component's page (the index)
  * stays where it was, before the categories.
  *
@@ -131,11 +133,10 @@ export function sidebarTree(sidebar, rows, listings, base, categoryLabel, manife
     const own = entry.entries.filter((child) => child.type === 'link' && byHref.has(child.href));
     if (own.length === 0) return { ...entry, entries: sidebarTree(entry.entries, rows, listings, base, categoryLabel, manifests) };
     const rowOf = (/** @type {Entry} */ child) => /** @type {Row} */ (byHref.get(/** @type {LinkEntry} */ (child).href));
-    /** A component's link as it is drawn: marked with what hides it, unless it is the page being read. */
+    /** A component's link as it is drawn: marked with the systems that do not have it, and as shown on request unless it is the page being read. */
     const drawn = (/** @type {LinkEntry} */ child) => {
-      if (child.isCurrent) return child;
       const absent = absentFrom(rowOf(child).name, manifests);
-      return { ...child, ...(isOnRequest(rowOf(child), listings) ? { onRequest: true } : {}), ...(absent.length ? { absentFrom: absent } : {}) };
+      return { ...child, ...(!child.isCurrent && isOnRequest(rowOf(child), listings) ? { onRequest: true } : {}), ...(absent.length ? { absentFrom: absent } : {}) };
     };
     const groups = categoriesOf(own.map(rowOf)).map((category) => {
       const entries = own.filter((child) => groupOf(rowOf(child)) === category).map((child) => drawn(/** @type {LinkEntry} */ (child)));
@@ -161,11 +162,18 @@ export const ON_REQUEST_ATTR = 'data-docs-on-request';
  */
 export const listingBootstrap = `try{if(localStorage.getItem(${JSON.stringify(LISTING_KEY)})!==${JSON.stringify(LISTING_EVERYTHING)})throw 0}catch(e){document.documentElement.setAttribute(${JSON.stringify(LISTING_ATTR)},'listed')}`;
 
-/** The attribute of `<html>` that names the system the lists show: the reader's look (lib/appearance.ts). */
+/** The attribute of `<html>` that names the system the lists follow: the reader's look (lib/appearance.ts). */
 export const SYSTEM_ATTR = 'data-docs-system';
 /** The mark of a row, or a group, that some systems do not have: those systems' ids, separated by spaces. */
 export const ABSENT_ATTR = 'data-docs-absent-from';
-/** The mark of what is said under one system only (the index's line of what that system does not have): its id. */
+/** The mark the lists' script gives a row, or a group, that the reader's look does not have (lib/list-filter.ts): it is drawn faint. */
+export const FAINT_ATTR = 'data-docs-faint';
+/**
+ * On a row of the sidebar that some systems do not have: the words that say it is not in the reader's look, `{system}`
+ * where the look's id stands, which the lists' script writes as the row's supporting text while the look does not have it.
+ */
+export const NOT_IN_ATTR = 'data-docs-not-in';
+/** The mark of what is said under one system only (the index's line of what that system does not have, a row's words that it is not in it): its id. */
 export const SYSTEM_ONLY_ATTR = 'data-docs-system-only';
 /** The `id` of the rule the head's script writes (lib/appearance.ts, `listRuleOf`), which the lists' script takes away once it holds the rows itself. */
 export const SYSTEM_RULE_ID = 'docs-system-rule';

@@ -1,12 +1,12 @@
 ---
-// "All components": a control of the lists of components (the other is the choice of design system,
-// SystemSelect.astro), Tanrei's Switch. Off — a reader's first visit — the sidebar and the index show the components
+// "All components": the one control of the lists of components (which otherwise follow the reader's look, chosen in
+// the header's Appearance panel), Tanrei's Switch. Off — a reader's first visit — the sidebar and the index show the components
 // every list shows; on, also the ones a spec marks to be shown on request (`listing`), each in its place and marked.
 // Every switch of a page says the same, and the choice is the reader's: kept in the origin's storage under the key the
 // head's script reads before the first paint (lib/listing.mjs, `listingBootstrap`).
 //
 // What is not shown is taken out of the document, not only out of sight: a list counts its items and moves focus
-// among them, and must count what the reader sees (lib/list-filter.ts holds the rows, for both controls). The rule
+// among them, and must count what the reader sees (lib/list-filter.ts holds the rows). The rule
 // that hides a marked row before the script runs is the stylesheet's below.
 //
 // Without script nothing is hidden and nothing could be switched: the control is not drawn.

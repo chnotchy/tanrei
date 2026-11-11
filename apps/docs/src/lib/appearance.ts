@@ -45,7 +45,7 @@
 // (components/frame/ThemeProvider.astro) — where the head's script found no sheet kept, at once, before the document is
 // parsed, and in the worker the head's script starts then (`EARLY_WORKER`). After `REVEAL_AFTER` it shows the page
 // whatever happens — without the sheet, in the default system, which that page keeps.
-import { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
+import { SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 export type Mode = 'system' | 'light' | 'dark';
 export type Contrast = 'standard' | 'medium' | 'high';
@@ -227,9 +227,12 @@ export function attributesOf(appearance: Appearance, deviceDark: boolean, names:
   return out;
 }
 
-/** The rule that hides, from the first paint, what the look does not have in the lists, and what is said under another look only. */
-export function listRuleOf(look: string, absent: string, only: string): string {
-  return `[${absent}~="${look}"],[${only}]:not([${only}="${look}"]){display:none}`;
+/**
+ * The rule that hides, from the first paint, what is said under another look only. What the look does not have stays in
+ * the lists: the words that say so are said under it only (lib/list-filter.ts).
+ */
+export function listRuleOf(look: string, only: string): string {
+  return `[${only}]:not([${only}="${look}"]){display:none}`;
 }
 
 /** What the head's script and the module are told: the looks and the names. */
@@ -239,7 +242,7 @@ export interface BootConfig {
   defaultLook: string;
   names: { theme: string; tanreiTheme: string; mode: string; contrast: string; look: string };
   shared: string;
-  rule: { id: string; absent: string; only: string };
+  rule: { id: string; only: string };
   /**
    * The reader's own theme: where it is kept, its marks on the root, where its stylesheet is kept, the build that
    * computes it, and the worker that does (its script's address, null where the build does not name it; and where the
@@ -259,7 +262,7 @@ export const bootConfig = (looks: string[], build = '', worker: string | null = 
   defaultLook: looks[0] ?? '',
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
   shared: SHARED_ATTR,
-  rule: { id: SYSTEM_RULE_ID, absent: ABSENT_ATTR, only: SYSTEM_ONLY_ATTR },
+  rule: { id: SYSTEM_RULE_ID, only: SYSTEM_ONLY_ATTR },
   custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, base: CUSTOM_BASE_ATTR, pending: PENDING_ATTR, late: LATE_ATTR, missing: MISSING_ATTR, style: CUSTOM_STYLE_ID, db: SHEET_STORE.db, store: SHEET_STORE.store, build, wait: REVEAL_AFTER, held: SHEET_HELD_KEY, worker, early: EARLY_WORKER },
 });
 
@@ -276,7 +279,7 @@ export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
  * build names its script) and runs at once the module after it, which takes the worker.
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.absent,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
+  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
 }
 
 /**

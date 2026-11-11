@@ -9,12 +9,14 @@
 // everything with the switch above the list (ListingSwitch.astro), which is the sidebar's switch too. A category whose
 // components are all shown on request is marked with them, so that no heading stands over nothing.
 //
-// The list follows the design system the reader chose beside the switch (SystemSelect.astro; the header's menu beside
-// the brand is the same choice, Header.astro):
-// a component that system does not have — its components manifest lists it among what it does not have — is marked
-// with the systems that do not have it and not drawn under them, and so is a category none of whose components the
-// system has. In their place one line under the controls says what the chosen system does not have and what it uses
-// instead, each a link (lib/systems.ts). Without script every item is drawn, and every system's line.
+// The list follows the reader's look, the design system chosen in the header's Appearance panel (lib/appearance.ts);
+// it has no choice of its own. A component that system does not have — its components manifest lists it among what
+// it does not have — is marked with the systems that do not have it, and so is a category none of whose components the
+// system has. Under them it is still drawn and still a link, faint: its title in the secondary text role, the quietest
+// that holds text's contrast, and its row ending with the words that say it is not in that system — said under that
+// system only, and part of the link's name (lib/list-filter.ts). One line under the switch says what the chosen system
+// does not have and what it uses instead, each a link (lib/systems.ts). Without script every item is drawn, and every
+// system's words.
 import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings, manifests } from '../lib/repo';
 import { contentLang, localeBase, strings } from '../lib/i18n';
 import { ABSENT_ATTR, SYSTEM_ONLY_ATTR, absentFrom, categoriesOf, groupOf, isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
@@ -22,7 +24,6 @@ import { titleOf } from '../lib/systems';
 import ListingSwitch from './ListingSwitch.astro';
 import Sentence from './Sentence.astro';
 import SourceNote from './SourceNote.astro';
-import SystemSelect from './SystemSelect.astro';
 
 interface Props {
   /**
@@ -50,7 +51,6 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
 
 <div class="not-content index">
   <div class="controls">
-    <SystemSelect lang={lang} />
     <ListingSwitch lang={lang} />
   </div>
   {manifests.filter((manifest) => manifest.omitted.length > 0).map((manifest) => (
@@ -79,18 +79,27 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
           const onRequest = isOnRequest(c, listings);
           // What the end of the row says: that nothing documents it yet, or that it is shown on request.
           const end = href ? (onRequest ? t.listing.advanced : undefined) : t.status.planned;
+          const lacking = absentFrom(c.name, manifests);
           // The content of the item: the title over the line of platforms and level, and the word at the end. The
           // item is the link (its own anchor, drawn by the list) or, without a page, a static item; the spaces between
           // the parts, and after each item, are for the search index, which reads words, not one run.
           return (
             <>
-              <tanrei-list-item href={href} {...marked(onRequest)} {...absent(absentFrom(c.name, manifests))}>
+              <tanrei-list-item href={href} {...marked(onRequest)} {...absent(lacking)}>
                 <span class="entry">
                   <span class="text">
                     <span class="title">{c.title}</span>{' '}
                     <span class="meta">{meta}</span>
                   </span>
-                  {end && <>{' '}<span class="meta end">{end}</span></>}
+                  {(end || lacking.length > 0) && (
+                    <>
+                      {' '}
+                      <span class="meta end">
+                        {end && <span>{end}</span>}
+                        {lacking.map((id) => <>{' '}<span {...{ [SYSTEM_ONLY_ATTR]: id }}>{t.listing.notIn.replace('{system}', id)}</span></>)}
+                      </span>
+                    </>
+                  )}
                 </span>
               </tanrei-list-item>{' '}
             </>
@@ -113,7 +122,7 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
     gap: 2rem;
     margin-top: 1.5rem;
   }
-  /* The two controls of the lists, side by side where they fit, the select first. */
+  /* The control of the lists: the switch that shows every component. */
   .controls {
     display: flex;
     flex-wrap: wrap;
@@ -179,5 +188,10 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
   }
   .end {
     flex: none;
+  }
+  /* A component the reader's look does not have, faint: its title in the secondary text role, as its meta line is (a
+     lighter color would not hold text's contrast), and the words at its end that say why (lib/list-filter.ts). */
+  tanrei-list-item[data-docs-faint] .title {
+    color: var(--tanrei-sys-color-on-surface-variant);
   }
 </style>

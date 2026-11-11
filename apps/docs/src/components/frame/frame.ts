@@ -4,7 +4,7 @@ import { strings } from '../../lib/i18n';
 
 /** A sidebar entry as the framework gives it to every page (`Astro.locals.starlightRoute.sidebar`). */
 export type Entry =
-  | { type: 'link'; label: string; href: string; isCurrent: boolean; badge?: { text: string }; attrs?: Record<string, unknown>; /** Drawn only to a reader who asked for everything (lib/listing.mjs, `sidebarTree`). */ onRequest?: boolean; /** The systems that do not have it: not drawn under them. */ absentFrom?: string[] }
+  | { type: 'link'; label: string; href: string; isCurrent: boolean; badge?: { text: string }; attrs?: Record<string, unknown>; /** Drawn only to a reader who asked for everything (lib/listing.mjs, `sidebarTree`). */ onRequest?: boolean; /** The systems that do not have it: drawn faint under them, said to be not in the look. */ absentFrom?: string[] }
   | { type: 'group'; label: string; entries: Entry[]; collapsed: boolean; badge?: { text: string }; /** The systems none of its entries is in. */ absentFrom?: string[] };
 
 /** The frame's words: the language of the address (a page shown in English under `/ar/` keeps an Arabic frame). */
