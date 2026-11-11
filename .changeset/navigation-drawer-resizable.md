@@ -18,9 +18,10 @@ What breaks:
   before what follows the drawer, exposed as a window splitter (`role="separator"`). It is out of sight until a mouse
   comes over the edge or it has keyboard focus; on a touch screen its line is drawn at rest. `resizable="false"`
   (React `resizable={false}`) leaves it out.
-- The drawer's own end edge takes a press: 18 px on each side of it (half of `sys.target.pointer`, or of
-  `sys.target.touch` for a coarse pointer), over the drawer's rows and over the content beside it. Where the items show
-  a scrollbar that takes room, the whole of it lies over the content instead.
+- The drawer's end edge takes a press over the content beside it: a band 36 px wide (`sys.target.pointer`, or
+  `sys.target.touch` for a coarse pointer) from the edge outward, with the handle's box at its middle. It never lies
+  over the drawer, so a row's hit area keeps the drawer's full width, a group's chevron keeps its whole target, and a
+  scrollbar at the drawer's end edge is still taken.
 - In an app shell, a navigation drawer stands over the main region (`z-index: 1` among the frame's regions) so that the
   edge takes the press there; the footer is still drawn over it.
 - The navigation drawer's host is no longer `overflow: hidden`: what slides in and out is cut by a `clip-path` at its

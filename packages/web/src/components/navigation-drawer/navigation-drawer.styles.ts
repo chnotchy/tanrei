@@ -746,10 +746,10 @@ export const drawerStyles = css`
     --_held-hide: ${t('motion-expand-duration')};
   }
 
-  /* NVD-96: the resize handle — a Handle with reach edge on the end edge, the edge's whole height, its box centred on the
-     edge and its target reaching half over the drawer and half over the content (HDL-5's width, sys.target.pointer for
-     a fine pointer and sys.target.touch for a coarse one). Where the items show a scrollbar that takes room, the target
-     lies wholly beside the drawer, over the content, so that the scrollbar is still taken. Over the drawer's parts. */
+  /* NVD-96: the resize handle — a Handle with reach edge beside the end edge, the edge's whole height, its target (HDL-5's
+     width, sys.target.pointer for a fine pointer and sys.target.touch for a coarse one) lying wholly over the content
+     from the end edge, its box at the target's middle: it covers no row's end (NVD-6), no group's chevron (NVD-67) and
+     no scrollbar at the end edge. Over the drawer's parts. */
   :host {
     --_hdl-reach: var(--tanrei-sys-target-pointer);
   }
@@ -762,11 +762,8 @@ export const drawerStyles = css`
     position: absolute;
     z-index: 2;
     inset-block: 0;
-    inset-inline-start: calc(100% - var(--tanrei-comp-handle-container-breadth-medium) / 2);
-    block-size: 100%;
-  }
-  :host([data-scrollbar]) .resize {
     inset-inline-start: calc(100% + var(--_hdl-reach) / 2 - var(--tanrei-comp-handle-container-breadth-medium) / 2);
+    block-size: 100%;
   }
   /* The lengths the element reads to reckon a drag, a key and the handle's values in: never drawn. */
   .resize-probes {
