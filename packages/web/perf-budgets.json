@@ -698,10 +698,6 @@
         "budget": 1512,
         "measured": 1440
       },
-      "loading-indicator": {
-        "budget": 94,
-        "measured": 90
-      },
       "marquee-text": {
         "budget": 189,
         "measured": 180
