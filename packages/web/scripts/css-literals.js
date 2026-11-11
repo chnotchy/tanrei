@@ -278,7 +278,7 @@ export function findCssTemplates(source) {
 
 /**
  * The source with every `css` template's comments and whitespace taken out, and the edits made (offsets into the
- * old source), which `remapSourceMap` needs.
+ * old source; none when the module has nothing to take out).
  */
 export function minifyCssLiterals(source) {
   const edits = [];
@@ -303,125 +303,6 @@ export function minifyCssLiterals(source) {
   }
   code += source.slice(at);
   return { code, edits };
-}
-
-const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-const DIGIT = Object.fromEntries([...BASE64].map((char, index) => [char, index]));
-
-function decodeMappings(mappings) {
-  const lines = [];
-  const state = [0, 0, 0, 0, 0];
-  for (const line of mappings.split(';')) {
-    const segments = [];
-    state[0] = 0;
-    for (const text of line ? line.split(',') : []) {
-      const values = [];
-      let value = 0;
-      let shift = 0;
-      for (const char of text) {
-        const digit = DIGIT[char];
-        value += (digit & 31) << shift;
-        if (digit & 32) shift += 5;
-        else {
-          values.push(value & 1 ? -(value >>> 1) : value >>> 1);
-          value = 0;
-          shift = 0;
-        }
-      }
-      values.forEach((delta, index) => (state[index] += delta));
-      segments.push(state.slice(0, values.length));
-    }
-    lines.push(segments);
-  }
-  return lines;
-}
-
-function encodeVlq(value) {
-  let vlq = value < 0 ? (-value << 1) | 1 : value << 1;
-  let text = '';
-  do {
-    let digit = vlq & 31;
-    vlq >>>= 5;
-    if (vlq) digit |= 32;
-    text += BASE64[digit];
-  } while (vlq);
-  return text;
-}
-
-function encodeMappings(lines) {
-  const state = [0, 0, 0, 0, 0];
-  return lines
-    .map((segments) => {
-      state[0] = 0;
-      return segments
-        .map((segment) => {
-          const text = segment.map((value, index) => encodeVlq(value - state[index])).join('');
-          segment.forEach((value, index) => (state[index] = value));
-          return text;
-        })
-        .join(',');
-    })
-    .join(';');
-}
-
-const lineStarts = (text) => {
-  const starts = [0];
-  for (let i = 0; i < text.length; i++) if (text[i] === '\n') starts.push(i + 1);
-  return starts;
-};
-
-/**
- * A source map for the old code (as JSON text or an object), moved onto the code `minifyCssLiterals` made from it:
- * every generated position after an edit moves with the text, and one inside an edit goes to the edit's start.
- */
-export function remapSourceMap(map, oldCode, edits) {
-  const json = typeof map === 'string' ? JSON.parse(map) : map;
-  const oldStarts = lineStarts(oldCode);
-  const newOffsets = [];
-  let shift = 0;
-  for (const edit of edits) {
-    newOffsets.push(edit.start + shift);
-    shift += edit.text.length - (edit.end - edit.start);
-  }
-  let newCode = '';
-  let at = 0;
-  for (const { start, end, text } of edits) {
-    newCode += oldCode.slice(at, start) + text;
-    at = end;
-  }
-  newCode += oldCode.slice(at);
-  const newStarts = lineStarts(newCode);
-  const moved = (offset) => {
-    let delta = 0;
-    for (let k = 0; k < edits.length; k++) {
-      const edit = edits[k];
-      if (offset < edit.start) break;
-      if (offset < edit.end) return newOffsets[k] + Math.min(offset - edit.start, edit.text.length);
-      delta += edit.text.length - (edit.end - edit.start);
-    }
-    return offset + delta;
-  };
-  const lines = [];
-  decodeMappings(json.mappings).forEach((segments, line) => {
-    for (const segment of segments) {
-      const offset = moved(oldStarts[line] + segment[0]);
-      let newLine = 0;
-      let low = 0;
-      let high = newStarts.length - 1;
-      while (low <= high) {
-        const mid = (low + high) >> 1;
-        if (newStarts[mid] <= offset) {
-          newLine = mid;
-          low = mid + 1;
-        } else high = mid - 1;
-      }
-      while (lines.length <= newLine) lines.push([]);
-      lines[newLine].push([offset - newStarts[newLine], ...segment.slice(1)]);
-    }
-  });
-  while (lines.length < newStarts.length) lines.push([]);
-  for (const segments of lines) segments.sort((a, b) => a[0] - b[0]);
-  return { ...json, mappings: encodeMappings(lines) };
 }
 
 /** The esbuild plugin: every TypeScript module of the package's own source is read with its `css` templates minified. */
