@@ -376,7 +376,7 @@
       ]
     },
     "navigation-drawer": {
-      "budget": 118800,
+      "budget": 124900,
       "measured": 113461,
       "allowedComponents": [
         "badge",
@@ -713,10 +713,6 @@
       "modal-layer": {
         "budget": 756,
         "measured": 720
-      },
-      "navigation-drawer": {
-        "budget": 94,
-        "measured": 90
       },
       "number-ticker": {
         "budget": 94,

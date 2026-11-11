@@ -62128,6 +62128,22 @@
               }
             }
           },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 400,
+              "unit": "px"
+            },
+            "$description": "The greatest width a person can give the expanded drawer beside the content (maxWidth null). The room the drawer's parent gives it holds it narrower still."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width in every density; halfway between the two is where a drag folds a collapsible drawer to its column."
+          },
           "padding-block": {
             "$type": "dimension",
             "$value": {

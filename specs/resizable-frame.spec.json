@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "resizable-frame",
   "title": "Resizable frame",
-  "summary": "Gives content — a component preview, a page in an embedded document, a navigation drawer, a side bar — a width and a height that a person changes by dragging a handle on its edge or its corner, from the keyboard or by activating the handle: outlined, a box to check how the content responds to the room it is given; plain, the edge of a pane.",
+  "summary": "Gives content — a component preview, a page in an embedded document, a pane or side bar of the product's own — a width and a height that a person changes by dragging a handle on its edge or its corner, from the keyboard or by activating the handle: outlined, a box to check how the content responds to the room it is given; plain, the edge of a pane.",
   "category": "containment",
   "level": "composed",
   "listing": "default",
@@ -15,7 +15,7 @@
     },
     {
       "id": "content",
-      "description": "Whatever the product puts in the frame: a component, an embedded document, a layout, a navigation drawer. The frame gives it its width and its height and does nothing else to it."
+      "description": "Whatever the product puts in the frame: a component, an embedded document, a layout, a pane of the product's own. The frame gives it its width and its height and does nothing else to it."
     },
     {
       "id": "start-handle",
@@ -49,19 +49,19 @@
       "type": "enum",
       "values": ["outlined", "plain"],
       "default": "outlined",
-      "description": "outlined: a box with rounded corners and one hairline, its handles outside it so that they cover nothing — where a person checks how content responds to its room (a preview). plain: no edge and no corners of its own, the content drawing its own surface, and each handle centred on its edge — the edge of a pane (a navigation drawer, a side bar)."
+      "description": "outlined: a box with rounded corners and one hairline, its handles outside it so that they cover nothing — where a person checks how content responds to its room (a preview). plain: no edge and no corners of its own, the content drawing its own surface, and each handle centred on its edge — the edge of a pane of the product's own (a side bar; a navigation drawer has an edge of its own, NVD-96)."
     },
     {
       "name": "handles",
       "type": "strings",
       "default": ["end"],
-      "description": "Which handles the frame draws: any of start, end, bottom and bottom-end, in any combination. start is for content at the end of a layout, which grows toward the start (a side bar); end for content at its start (a preview, a navigation drawer). An empty list draws none, and the frame is a box of the size the product sets."
+      "description": "Which handles the frame draws: any of start, end, bottom and bottom-end, in any combination. start is for content at the end of a layout, which grows toward the start (a side bar); end for content at its start (a preview, a pane at the start of a layout). An empty list draws none, and the frame is a box of the size the product sets."
     },
     {
       "name": "width",
       "type": "number",
       "default": null,
-      "description": "The width of the box in pixels. Null takes the width the layout gives. A drag, a key or an activation changes it, and the frame keeps the width the person gave until the product sets another; a product that keeps a person's width (a drawer's, from one visit to the next) stores it from change and sets it again."
+      "description": "The width of the box in pixels. Null takes the width the layout gives. A drag, a key or an activation changes it, and the frame keeps the width the person gave until the product sets another; a product that keeps a person's width (a pane's, from one visit to the next) stores it from change and sets it again."
     },
     {
       "name": "height",
@@ -73,7 +73,7 @@
       "name": "minWidth",
       "type": "number",
       "default": null,
-      "description": "The least width a person can give. Null takes comp.resizable-frame.container.min-width (320 in the default system: the width at which content must reflow without scrolling sideways, WCAG 1.4.10). A pane sets its own (a navigation drawer's least)."
+      "description": "The least width a person can give. Null takes comp.resizable-frame.container.min-width (320 in the default system: the width at which content must reflow without scrolling sideways, WCAG 1.4.10). A pane sets its own."
     },
     {
       "name": "maxWidth",
@@ -116,7 +116,7 @@
       "type": "enum",
       "values": ["none", "active", "always"],
       "default": "active",
-      "description": "When the size indicator is drawn: never; while a handle is held or has keyboard focus; or all the time. A pane that is not checked for its size (a navigation drawer) sets none."
+      "description": "When the size indicator is drawn: never; while a handle is held or has keyboard focus; or all the time. A pane that is not checked for its size (a side bar) sets none."
     },
     {
       "name": "widthLabel",
@@ -150,7 +150,7 @@
   "slots": [
     {
       "name": "default",
-      "description": "The content: a component, an embedded document, a layout, a navigation drawer. A fixture's string is drawn as plain text in it.",
+      "description": "The content: a component, an embedded document, a layout, a pane of the product's own. A fixture's string is drawn as plain text in it.",
       "fixture": "text"
     }
   ],

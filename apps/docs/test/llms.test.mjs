@@ -288,7 +288,7 @@ describe('llms-full.txt', () => {
   });
   // A watch on its size, before gzip: every spec's requirements are in it, so it grows with them. Raise the ceiling
   // when the specs have grown, and say so in the pull request.
-  const CEILING = 4_000_000;
+  const CEILING = 4_500_000;
   test(`stays under ${CEILING} bytes`, () => {
     const bytes = Buffer.byteLength(text);
     assert.ok(bytes < CEILING, `llms-full.txt is ${bytes} bytes`);

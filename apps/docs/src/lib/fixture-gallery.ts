@@ -102,7 +102,7 @@ export function windowOf(spec: Spec, fixture: Fixture): Size {
     case 'side-sheet':
       return { width: 720, height: 480 };
     case 'navigation-drawer':
-      return { width: ({ 'responsive-wide': 1280, 'responsive-medium': 800, 'responsive-narrow': 400 } as Record<string, number>)[id] ?? 480, height: ['site-sidebar-long', 'site-sidebar-restored'].includes(id) ? 800 : 640 };
+      return { width: ({ 'responsive-wide': 1280, 'responsive-wide-resized': 1280, 'responsive-medium': 800, 'responsive-narrow': 400 } as Record<string, number>)[id] ?? 480, height: ['site-sidebar-long', 'site-sidebar-restored'].includes(id) ? 800 : 640 };
     case 'app-shell':
       return id === 'compact-narrowest' ? { width: 320, height: 640 } : id.startsWith('expanded') ? { width: 1280, height: 800 } : id.startsWith('medium') ? { width: 800, height: 800 } : { width: 400, height: 800 };
     case 'tooltip':

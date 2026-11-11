@@ -17007,6 +17007,8 @@ class TanreiNavigationDrawerTokens {
     required this.collapsedItemContainerShape,
     required this.collapsedItemGap,
     required this.collapsedItemLabelTypescale,
+    required this.containerMaxWidth,
+    required this.containerMinWidth,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerWidth,
@@ -17068,6 +17070,10 @@ class TanreiNavigationDrawerTokens {
   final double collapsedItemGap;
   /// `comp.navigation-drawer.collapsed-item-label-typescale`
   final TanreiTextStyle collapsedItemLabelTypescale;
+  /// `comp.navigation-drawer.container-max-width`
+  final double containerMaxWidth;
+  /// `comp.navigation-drawer.container-min-width`
+  final double containerMinWidth;
   /// `comp.navigation-drawer.container-padding-block`
   final double containerPaddingBlock;
   /// `comp.navigation-drawer.container-padding-inline`
@@ -17171,6 +17177,8 @@ class TanreiNavigationDrawerTokens {
     double? collapsedItemContainerShape,
     double? collapsedItemGap,
     TanreiTextStyle? collapsedItemLabelTypescale,
+    double? containerMaxWidth,
+    double? containerMinWidth,
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerWidth,
@@ -17225,6 +17233,8 @@ class TanreiNavigationDrawerTokens {
         collapsedItemContainerShape: collapsedItemContainerShape ?? this.collapsedItemContainerShape,
         collapsedItemGap: collapsedItemGap ?? this.collapsedItemGap,
         collapsedItemLabelTypescale: collapsedItemLabelTypescale ?? this.collapsedItemLabelTypescale,
+        containerMaxWidth: containerMaxWidth ?? this.containerMaxWidth,
+        containerMinWidth: containerMinWidth ?? this.containerMinWidth,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,

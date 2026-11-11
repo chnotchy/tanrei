@@ -4,11 +4,13 @@ import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { AvailabilityController, OpenAxesController, PressController, TOUCH_SLOP, report, syncFocusStyle } from '../../primitives/index.js';
 import type { TanreiHandleSizeRegistry } from '../../registry.js';
-import { AXES, AXES_OF_RESIZE, CORNERS, styles } from './handle.styles.js';
+import { AXES, AXES_OF_RESIZE, CORNERS, REACHES, styles } from './handle.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** Which size the handle changes: a height (`vertical`), a width (`horizontal`), or both at once at a corner. */
 export type TanreiHandleAxis = 'vertical' | 'horizontal' | 'both';
+/** How far along its line the handle takes a press: around its own box, or along the whole box its owner lays it out in (HDL-27). */
+export type TanreiHandleReach = 'container' | 'edge';
 /** The corner an arc bows toward, in logical terms: `end` is the right in a left-to-right layout, the left in a right-to-left one. */
 export type TanreiHandleCorner = 'bottom-end' | 'bottom-start' | 'top-end' | 'top-start';
 /** The core sizes, plus any a design system's generated `.d.ts` registers. */
@@ -85,6 +87,11 @@ interface Drag {
  *
  * Assistive technology's increment and decrement (HDL-10) reach a web page as the arrow keys, which HDL-9 answers.
  *
+ * With `reach="edge"` (HDL-27) the host is a block as long as the box its owner gives it along its line — as tall as
+ * that box for a width (`horizontal`), as wide for a height (`vertical`) — and a press is taken anywhere along it; the
+ * box and the line are drawn at its middle and the focus ring stays around the box. The owner places and sizes the
+ * host (`position: absolute; inset-block: 0` on a pane's edge, say).
+ *
  * @tag tanrei-handle
  * @csspart container - The box the line is drawn in, which carries the states and the focus ring: a `role="separator"` element with a value, a `<button>` without one.
  * @csspart line - The drawn line: the capsule, or the arc's SVG (hidden from assistive technology).
@@ -115,6 +122,7 @@ export class TanreiHandle extends TanreiElement {
     label: { type: String },
     disabled: { type: Boolean, reflect: true },
     revealed: { type: Boolean, reflect: true },
+    reach: { type: String, reflect: true },
   };
 
   /** Which size it changes: `vertical` a height (the line lies across it), `horizontal` a width (the line stands upright), `both` a height and a width at a corner (an arc). */
@@ -150,6 +158,13 @@ export class TanreiHandle extends TanreiElement {
   /** Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip). */
   revealed = false;
 
+  /**
+   * How far along its line it takes a press (HDL-27): `container`, around its own box (a sheet's grip, a field's
+   * corner); `edge`, along the whole length of the box its owner lays it out in — the edge of a pane, which a person
+   * takes anywhere along it. The line is drawn at the middle either way. Ignored while `axis` is both. Reflected.
+   */
+  reach: TanreiHandleReach = 'container';
+
   private readonly axes = new OpenAxesController(this, { component: 'handle', behavior: 'HDL-20', axes: AXES });
 
   /** HDL-11, HDL-12: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
@@ -173,6 +188,10 @@ export class TanreiHandle extends TanreiElement {
   }
   private get shownCorner(): TanreiHandleCorner {
     return (CORNERS as readonly string[]).includes(this.corner) ? this.corner : 'bottom-end';
+  }
+  /** HDL-20: a reach the component does not define is drawn as container. */
+  private get shownReach(): TanreiHandleReach {
+    return (REACHES as readonly string[]).includes(this.reach) ? this.reach : 'container';
   }
   /** HDL-8: a value makes it a separator; none makes it a button. */
   private get separator(): boolean {
@@ -351,6 +370,8 @@ export class TanreiHandle extends TanreiElement {
   }
 
   override willUpdate(changed: PropertyValues<this>) {
+    // HDL-27: the styles read the reach drawn — an unknown one as container (HDL-20), none for an arc — from the first frame.
+    this.toggleAttribute('data-edge', this.shownReach === 'edge' && this.shownAxis !== 'both');
     // HDL-15: a handle disabled while it is dragged takes no more input; its drag ends, cancelled.
     if (changed.has('disabled') && this.disabled && this.drag) {
       this.press.hostDisconnected();
@@ -362,6 +383,7 @@ export class TanreiHandle extends TanreiElement {
     if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'HDL-8', 'label is empty, so the handle has no accessible name; give it a label that says what it resizes');
     if (changed.has('axis') && this.axis !== this.shownAxis) report(this, 'HDL-20', `axis "${this.axis}" is not a value of the handle; it is drawn as "vertical"`);
     if (changed.has('corner') && this.corner !== this.shownCorner) report(this, 'HDL-20', `corner "${this.corner}" is not a value of the handle; it is drawn as "bottom-end"`);
+    if (changed.has('reach') && this.reach !== this.shownReach) report(this, 'HDL-20', `reach "${this.reach}" is not a value of the handle; it is drawn as "container"`);
   }
 
   private lineTemplate() {

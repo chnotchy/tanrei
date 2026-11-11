@@ -131,7 +131,16 @@ export const drawerStyles = css`
     --_inset-top: env(safe-area-inset-top, 0px);
     --_inset-bottom: env(safe-area-inset-bottom, 0px);
     --_inset-start: env(safe-area-inset-left, 0px);
-    --_form-width: ${t('container-width')};
+    /* NVD-97: the expanded width beside the content — the person's (\`--tanrei-navigation-drawer-width\`, which the
+       element writes from \`width\` and a product writes for a page rendered before the element is defined), else
+       container.width — held between the least width and the greatest, the least winning (minWidth and maxWidth, which
+       the element writes as \`--_nvd-min-given\` and \`--_nvd-max-given\`, else container.min-width and .max-width).
+       Everything inside the drawer is laid out at it (ONE LAYOUT FOR BOTH FORMS); the room the parent gives holds the
+       host narrower still (\`max-inline-size\`, below). */
+    --_nvd-least: var(--_nvd-min-given, ${t('container-min-width')});
+    --_nvd-most: var(--_nvd-max-given, ${t('container-max-width')});
+    --_nvd-w: max(var(--_nvd-least), min(var(--tanrei-navigation-drawer-width, ${t('container-width')}), var(--_nvd-most)));
+    --_form-width: var(--_nvd-w);
     --_width: calc(var(--_form-width) + var(--_inset-start));
     --_column-width: calc(${d('--_nvd-column')} + var(--_inset-start));
   }
@@ -140,6 +149,10 @@ export const drawerStyles = css`
   }
   :host([collapsed]) {
     --_form-width: ${d('--_nvd-column')};
+  }
+  /* NVD-97: over the content a drawer keeps container.width, whatever width says. */
+  :host([data-as='modal']) {
+    --_nvd-w: ${t('container-width')};
   }
   /* NVD-35: while the drawer changes form, every part the form recolors cross-fades over the change's motion, and a
      group's items move with it (inherited by the cells, groups and sections). */
@@ -262,7 +275,7 @@ export const drawerStyles = css`
     grid-template-columns: ${d('--_nvd-column')} minmax(0, 1fr);
     align-items: center;
     row-gap: ${t('header-item-gap')};
-    inline-size: ${t('container-width')};
+    inline-size: var(--_nvd-w, ${t('container-width')});
     padding-block-start: ${t('container-padding-block')};
   }
   .header:not(.filled) {
@@ -370,7 +383,7 @@ export const drawerStyles = css`
   .filter-box {
     box-sizing: border-box;
     flex: none;
-    inline-size: ${t('container-width')};
+    inline-size: var(--_nvd-w, ${t('container-width')});
     padding-inline: ${t('container-padding-inline')};
     padding-block: ${t('container-padding-block')} ${t('filter-gap')};
   }
@@ -401,7 +414,7 @@ export const drawerStyles = css`
   .filter-status {
     box-sizing: border-box;
     flex: none;
-    inline-size: ${t('container-width')};
+    inline-size: var(--_nvd-w, ${t('container-width')});
     padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
     font: ${t('filter-status-typescale-font')};
     letter-spacing: ${t('filter-status-typescale-letter-spacing')};
@@ -438,10 +451,19 @@ export const drawerStyles = css`
     position: relative;
     block-size: 100%;
     inline-size: var(--_width);
-    overflow: hidden;
+    /* NVD-97: never wider than the room its parent gives it (an app shell's own limit wins over this one). */
+    max-inline-size: 100%;
     transition:
       inline-size ${unsafeCSS(MORPH)},
       visibility 0s;
+  }
+  /* NVD-18: the panel that slides in and out is cut at the host's start edge, top and bottom; past its end edge the
+     resize handle's target reaches over the content (NVD-96), so nothing is cut there. */
+  :host(:not([data-as='modal']):not([data-held])) {
+    clip-path: inset(0 calc(-2 * var(--_hdl-reach)) 0 0);
+  }
+  :host(:not([data-as='modal']):not([data-held]):dir(rtl)) {
+    clip-path: inset(0 0 0 calc(-2 * var(--_hdl-reach)));
   }
   :host(:not([data-as='modal'])[data-sliding][data-open]) {
     transition:
@@ -724,6 +746,66 @@ export const drawerStyles = css`
     --_held-hide: ${t('motion-expand-duration')};
   }
 
+  /* NVD-96: the resize handle — a Handle with reach edge on the end edge, the edge's whole height, its box centred on the
+     edge and its target reaching half over the drawer and half over the content (HDL-5's width, sys.target.pointer for
+     a fine pointer and sys.target.touch for a coarse one). Where the items show a scrollbar that takes room, the target
+     lies wholly beside the drawer, over the content, so that the scrollbar is still taken. Over the drawer's parts. */
+  :host {
+    --_hdl-reach: var(--tanrei-sys-target-pointer);
+  }
+  @media (pointer: coarse) {
+    :host {
+      --_hdl-reach: var(--tanrei-sys-target-touch);
+    }
+  }
+  .resize {
+    position: absolute;
+    z-index: 2;
+    inset-block: 0;
+    inset-inline-start: calc(100% - var(--tanrei-comp-handle-container-breadth-medium) / 2);
+    block-size: 100%;
+  }
+  :host([data-scrollbar]) .resize {
+    inset-inline-start: calc(100% + var(--_hdl-reach) / 2 - var(--tanrei-comp-handle-container-breadth-medium) / 2);
+  }
+  /* The lengths the element reads to reckon a drag, a key and the handle's values in: never drawn. */
+  .resize-probes {
+    position: absolute;
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .resize-probes > span {
+    position: absolute;
+    display: block;
+    block-size: 0;
+  }
+  .resize-probes > .least {
+    inline-size: var(--_nvd-least);
+  }
+  .resize-probes > .most {
+    inline-size: var(--_nvd-most);
+  }
+  .resize-probes > .column {
+    inline-size: ${d('--_nvd-column')};
+  }
+  .resize-probes > .fallback {
+    inline-size: ${t('container-width')};
+  }
+  /* NVD-98, NVD-100: a drag follows the press, and a key's step is drawn, without a motion — but a change of form on the
+     way (NVD-99) takes its own (data-form-change). */
+  :host([data-resizing]:not([data-form-change])),
+  :host([data-resizing]:not([data-form-change])) .drawer,
+  :host([data-resizing]:not([data-form-change])) .held {
+    transition: none;
+  }
+  /* NVD-98: while a drag lasts, no row answers a pointer that passes over it. */
+  :host([data-resize-drag]) :is(.header, .items, .filter-box) {
+    pointer-events: none;
+  }
+
   ${shape}
 
   ${reducedMotion(css`
@@ -803,7 +885,7 @@ export const sectionStyles = css`
   .heading-text {
     box-sizing: border-box;
     flex: none;
-    inline-size: ${t('container-width')};
+    inline-size: var(--_nvd-w, ${t('container-width')});
     padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
     font: ${t('heading-typescale-font')};
     letter-spacing: ${t('heading-typescale-letter-spacing')};
@@ -1033,7 +1115,7 @@ export const cellStyles = css`
     display: flex;
     align-items: center;
     gap: ${t('item-gap')};
-    inline-size: calc(${t('container-width')} - 2 * ${t('container-padding-inline')});
+    inline-size: calc(var(--_nvd-w, ${t('container-width')}) - 2 * ${t('container-padding-inline')});
     min-block-size: ${d('--_nvd-height')};
     padding-inline-start: ${unsafeCSS(INSET)};
     padding-inline-end: ${d('--_nvd-pad')};
