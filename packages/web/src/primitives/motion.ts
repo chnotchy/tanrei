@@ -839,6 +839,12 @@ export class AnimatedSize implements ReactiveController {
       return;
     }
     this.resizing = true;
+    // Begun in the task that changed the content, they start in the first frame drawn after it: WebKit dates them from
+    // the frame drawn before that task, and where the task outlasted the motion (a chat composer's strip, its File
+    // items rendered and measured in the task that adds them, on a loaded machine) drew the end size at once, with no
+    // frame of the motion. Played even where a page clock holds frame callbacks (`leaving`): the size runs on the
+    // document's timeline, and the box would stand at its old size for as long as the clock is held.
+    startFromNextFrame(running, { leaving: true });
     void Promise.allSettled(running.map((animation) => animation.finished)).then(() => {
       if (run === this.run) this.stop(box);
     });
