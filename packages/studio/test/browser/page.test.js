@@ -36,7 +36,6 @@ const FOLDS = {
   typeface: ['[data-typeface="mono"] > summary'],
   vocabulary: ['[data-extension="tanrei.comp.button.size.3x"] > summary'],
   components: ['[data-component="button"]:not([open]) > summary', '[data-component="button"] [data-common] > summary'],
-  size: ['[data-target]:not([open]) > summary'],
 };
 async function unfoldNow(page, view) {
   // The two lists that scroll in a box of their own: everything the build reports, and the rules a layer inherits.
