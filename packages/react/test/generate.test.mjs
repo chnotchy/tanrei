@@ -40,9 +40,12 @@ test('every event prop is `on` and the event in camelCase; the event it listens 
   const all = fs.readdirSync(path.join(root, 'packages/react/src/generated/wrappers')).flatMap((file) => eventsOf(wrapper(root, file.replace(/\.ts$/, ''))));
   assert.ok(all.length > 100);
   for (const [prop, event] of all) assert.equal(prop.slice(2).toLowerCase(), event, `${prop} listens for ${event}`);
-  assert.deepEqual(eventsOf(wrapper(root, 'navigation-drawer')).filter(([, event]) => event.endsWith('change') && event !== 'change'), [
-    ['onFilterChange', 'filterchange'],
+  // A wrapper lists its events in the manifest's order, which is where the element's source first fires each: the
+  // names are what is asked here, not that order.
+  const byEvent = ([, a], [, b]) => a.localeCompare(b);
+  assert.deepEqual(eventsOf(wrapper(root, 'navigation-drawer')).filter(([, event]) => event.endsWith('change') && event !== 'change').sort(byEvent), [
     ['onExpandedChange', 'expandedchange'],
+    ['onFilterChange', 'filterchange'],
     ['onPresentationChange', 'presentationchange'],
   ]);
   // The snackbar's spec maps its `toggle` onto `expandedchange`: the prop is the event's own name, cased as another spec writes it.
