@@ -6,6 +6,7 @@ import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { playFromThisFrame } from '../../primitives/motion.js';
 
 export type { TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 
@@ -1347,7 +1348,10 @@ export class TanreiCarousel extends TanreiElement {
       animation.pause();
     }
     animation.currentTime = Math.min(interval, this.passed());
-    if (this.runningSince !== null) animation.play();
+    // Played on from the frame being drawn (`playFromThisFrame`): a clock that runs again while a frame is drawn (the
+    // pointer leaving, which Chromium sends there; the row coming to rest) after a hold that began in a task before it,
+    // with no time counted between, played with `play()`, left the fill standing where it was held in Chromium, for good.
+    if (this.runningSince !== null) playFromThisFrame(animation);
     else if (animation.playState !== 'paused') animation.pause();
   }
 

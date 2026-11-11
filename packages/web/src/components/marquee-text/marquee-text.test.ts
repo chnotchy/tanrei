@@ -432,6 +432,81 @@ test.describe('behavior', () => {
     await expect.poll(async () => (await state(line)).animations).toBe(2);
   });
 
+  test('MRQ-9: a hold that begins in a task after the passes started, before a frame is drawn, and ends in the next frame’s callbacks leaves them moving on', async ({ page }) => {
+    // The passes start — focus leaves the line and the run it held goes on, or the page is shown again and a new run
+    // starts — and focus comes back in a later task, before a frame is drawn: the run is held. A frame callback moves
+    // focus away again (a product that moves focus there), and the run is played on. Chromium never gave a start time
+    // to an animation it had been waiting to start since before it was held, played with play() from a frame's
+    // callbacks: the text stood where it was held, for good. In every engine it moves on from there in the frames after.
+    await mount(page, only('always-control'));
+    const line = host(page, 'always-control');
+    await expect.poll(async () => (await state(line)).animations).toBe(2);
+    const seen = await line.evaluate(async (el) => {
+      const root = el.shadowRoot!;
+      const away = document.createElement('button');
+      document.body.append(away);
+      const control = root.querySelector<HTMLElement>('.control')!;
+      const runs = () => [...root.querySelector('.track')!.getAnimations(), ...root.querySelector('.viewport')!.getAnimations()];
+      const frame = () => new Promise<number>((resolve) => requestAnimationFrame(resolve));
+      /** A task of its own after this one (a message): no frame comes between unless one was due. */
+      const task = () =>
+        new Promise<void>((resolve) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => resolve();
+          channel.port2.postMessage(0);
+        });
+      const shown = (visible: boolean) => {
+        Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (visible ? 'visible' : 'hidden') });
+        document.dispatchEvent(new Event('visibilitychange'));
+      };
+      /** How the passes start: focus leaves (the run it held goes on), or the page is shown again (a new run). */
+      const starts: Record<string, { before(): void; start(): void }> = {
+        'focus leaves': { before: () => control.focus(), start: () => away.focus() },
+        'shown again': { before: () => shown(false), start: () => shown(true) },
+      };
+      const out: { how: string; states: string[]; moved: number[] }[] = [];
+      let missed = 0;
+      for (const [how, { before, start }] of Object.entries(starts))
+        for (let trial = 0; trial < 4; trial++) {
+          away.focus();
+          await frame();
+          before();
+          await frame();
+          await frame();
+          const drawn = document.timeline.currentTime;
+          start();
+          await task();
+          const motions = runs();
+          if (motions.length !== 2 || motions.some((motion) => motion.playState !== 'running')) throw new Error(`the passes did not start (${how})`);
+          // The case is a hold before a frame is drawn: one after a frame is not it.
+          if (document.timeline.currentTime !== drawn) {
+            missed++;
+            continue;
+          }
+          control.focus();
+          if (motions.some((motion) => motion.playState !== 'paused')) throw new Error('focus within did not hold the passes');
+          const heldAt = motions.map((motion) => Number(motion.currentTime));
+          await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => {
+              away.focus();
+              resolve();
+            }),
+          );
+          for (let frames = 0; frames < 6; frames++) await frame();
+          out.push({
+            how,
+            states: motions.map((motion) => `${motion.playState}${motion.pending ? ', pending' : ''}`),
+            moved: motions.map((motion, index) => Number(motion.currentTime) - heldAt[index]!),
+          });
+        }
+      away.remove();
+      return { out, missed };
+    });
+    expect(seen.out.length, `the cases met (${seen.missed} missed: a frame came first)`).toBeGreaterThanOrEqual(6);
+    const stuck = seen.out.filter(({ states, moved }) => states.some((each) => each !== 'running') || moved.some((each) => !(each > 0)));
+    expect(stuck, 'every run played on, nothing left pending, and moved on from where it was held').toEqual([]);
+  });
+
   test('MRQ-10: the playback control — a small text Button at the line’s end, pause while it moves and play_arrow while paused, toggling paused once, focus kept', async ({ page }) => {
     await mount(page, only('always-control'));
     const line = host(page, 'always-control');
