@@ -15,6 +15,7 @@ import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { pageLastmod } from './src/lib/lastmod.mjs';
 import { pageMarkdownFiles } from './src/lib/page-markdown.mjs';
+import { strings } from './src/lib/i18n.ts';
 import { pagePolicies } from './src/lib/csp.mjs';
 import { sheetKeyPlugin } from './src/lib/sheet-key.mjs';
 import { sheetWorkerPlugin } from './src/lib/sheet-worker.mjs';
@@ -125,9 +126,9 @@ export default defineConfig({
     // After Starlight, so that its passes run after Starlight's: Markdown's tables, notices and fenced code are drawn by
     // Tanrei's Table, Callout and Code block (src/lib/markdown.mjs).
     tanreiMarkdown(),
-    // Every page as Markdown beside it (`<path>.md`), from the built page, dated as the sitemap dates it
-    // (src/lib/page-markdown.mjs).
-    pageMarkdownFiles({ languages: translations.map(({ dir }) => dir), lastmod: lastmod.of }),
+    // Every page as Markdown beside it (`<path>.md`), from the built page, dated as the sitemap dates it, and led by the
+    // sentence in its language that points to the indexes for language models (src/lib/page-markdown.mjs).
+    pageMarkdownFiles({ languages: translations.map(({ dir }) => dir), lastmod: lastmod.of, indexSentence: (lang) => strings(lang).markdownIndex.replaceAll('{name}', title) }),
     // Each language's not-found page also as `<language>/404.html`, for a host that answers with the nearest one.
     notFoundFiles(translations),
     // Last, so that it reads every page as it is served: each page's own script policy, the hashes of the inline scripts

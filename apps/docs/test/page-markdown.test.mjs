@@ -7,14 +7,20 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { register } from 'node:module';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { tempDir } from '../../../packages/tools/src/test-tmp.js';
-import { translations } from '../i18n/locales.mjs';
-import { decodeEntities, demoteHeadings, frontMatter, markdownMark, markdownOfIn, markdownPathOf, pageMarkdown, pageMarkdownFiles, readPage, specSection } from '../src/lib/page-markdown.mjs';
+import { source, translations } from '../i18n/locales.mjs';
+import { decodeEntities, demoteHeadings, frontMatter, indexPointer, markdownMark, markdownOfIn, markdownPathOf, pageMarkdown, pageMarkdownFiles, readPage, specSection } from '../src/lib/page-markdown.mjs';
+
+register('./vite-shim.mjs', import.meta.url);
+const { strings } = await import('../src/lib/i18n.ts');
 
 const here = (file) => fileURLToPath(new URL(file, import.meta.url));
 const languages = translations.map(({ dir }) => dir);
+/** The sentence that leads to the indexes, as the site gives it (astro.config.mjs): the dictionary's, named. */
+const indexSentence = (lang) => strings(lang).markdownIndex.replaceAll('{name}', 'Tanrei');
 const url = 'https://tanrei.example/guide/';
 
 /** A built page as the site writes it: its head, the page header and a body the search reads. */
@@ -53,6 +59,11 @@ describe('reading the built page', () => {
     assert.equal(read?.description, 'What the guide is for.');
     assert.equal(read?.url, 'https://tanrei.example/es/guide/');
     assert.equal(read?.lang, 'en');
+  });
+  test("the page's language is its body's: a page shown in English where its translation does not exist yet is English", () => {
+    const fallback = page('<p>Text.</p>').replace('<html lang="en"', '<html lang="ja"');
+    assert.equal(readPage(fallback)?.lang, 'en');
+    assert.equal(readPage(fallback.replace(/(<main[^>]*) lang="en"/, '$1'))?.lang, 'ja', 'the document’s, where the body says none');
   });
   test('the page header, the breadcrumbs, the page’s facts and anything outside the body are left out of it', () => {
     const body = bodyOf(page('<p>Only this.</p>'));
@@ -198,6 +209,36 @@ describe('the front matter', () => {
   });
 });
 
+describe('the sentence that leads to the indexes for language models', () => {
+  const site = 'https://tanrei.example/';
+  test('stands between the front matter and the title, as a quote, in the language of the page’s words', () => {
+    const markdown = pageMarkdown(page('<p>Body.</p>', { lang: 'ja' }), { url, index: (lang) => indexPointer(indexSentence(lang), site) });
+    assert.equal(markdown, `---\ntitle: "Guide"\ndescription: "What the guide is for."\nurl: "${url}"\n---\n\n${indexPointer(indexSentence('ja'), site)}\n\n# Guide\n\n> What the guide is for.\n\nBody.\n`);
+  });
+  test('links to /llms.txt and /llms-full.txt on the site by their absolute addresses, and to nothing else', () => {
+    for (const lang of [source, ...translations].map((each) => each.lang)) {
+      const quote = indexPointer(indexSentence(lang), site);
+      assert.match(quote, /^> [^\n]+$/, `${lang}: one line of a quote`);
+      assert.deepEqual([...quote.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)].map(([, text, href]) => [text, href]), [['llms.txt', 'https://tanrei.example/llms.txt'], ['llms-full.txt', 'https://tanrei.example/llms-full.txt']], lang);
+      assert.match(quote, /Tanrei/, `${lang}: names the system`);
+      assert.doesNotMatch(quote, /\{\w+\}/, `${lang}: a place left unfilled`);
+    }
+  });
+  test('is each language’s own sentence, and a translation says the indexes are in English', () => {
+    const english = strings('en').markdownIndex;
+    const inEnglish = { ja: '英語', 'zh-CN': '英文', es: 'en inglés', hi: 'अंग्रेज़ी', ar: 'بالإنجليزية' };
+    for (const { lang } of translations) {
+      const sentence = strings(lang).markdownIndex;
+      assert.notEqual(sentence, english, `${lang}: the English sentence`);
+      assert.ok(sentence.includes(inEnglish[lang]), `${lang}: does not say the indexes are in English`);
+    }
+    assert.ok(!/English/.test(english));
+  });
+  test('a sentence without its places stops the build', () => {
+    assert.throws(() => indexPointer('The index is at [llms.txt]({index}).', site), /\{full\}/);
+  });
+});
+
 describe('the build', () => {
   /** A built site in a folder: two pages, a translation, a component's page with its spec, a page the search does not read. */
   function site() {
@@ -212,7 +253,7 @@ describe('the build', () => {
     return dir;
   }
   async function build(dir, lastmod) {
-    const integration = pageMarkdownFiles({ languages, lastmod });
+    const integration = pageMarkdownFiles({ languages, lastmod, indexSentence });
     const messages = [];
     await integration.hooks['astro:config:done']({ config: { site: 'https://tanrei.example' } });
     await integration.hooks['astro:build:done']({ dir: new URL(`file://${dir}/`), logger: { info: (message) => messages.push(message) } });
@@ -231,6 +272,14 @@ describe('the build', () => {
     assert.doesNotMatch(read('ja/index.md'), /last_updated/, 'a page no commit dates has no date');
     assert.ok(!fs.existsSync(path.join(dir, '404.md')));
   });
+  test('every file leads to the indexes for language models, in its page’s language', async () => {
+    const dir = site();
+    await build(dir, () => undefined);
+    const read = (file) => fs.readFileSync(path.join(dir, file), 'utf8');
+    for (const [file, lang] of [['index.md', 'en'], ['components/button.md', 'en'], ['ja/index.md', 'ja'], ['ja/components/button.md', 'ja']]) {
+      assert.ok(read(file).includes(`\n---\n\n${indexPointer(indexSentence(lang), 'https://tanrei.example')}\n\n# `), file);
+    }
+  });
   test("a component's page holds its spec, in every language, and its English page takes the spec's place", async () => {
     const dir = site();
     await build(dir, () => undefined);
@@ -248,7 +297,8 @@ describe('the build', () => {
   });
   test('the site gives it the sitemap’s dates: the same function, read once (astro.config.mjs)', () => {
     const config = fs.readFileSync(here('../astro.config.mjs'), 'utf8');
-    assert.match(config, /pageMarkdownFiles\(\{ languages: translations\.map\(\(\{ dir \}\) => dir\), lastmod: lastmod\.of \}\)/);
+    assert.match(config, /pageMarkdownFiles\(\{ languages: translations\.map\(\(\{ dir \}\) => dir\), lastmod: lastmod\.of, indexSentence: \(lang\) => strings\(lang\)\.markdownIndex\.replaceAll\('\{name\}', title\) \}\)/);
+    assert.match(config, /^const title = config\.name;$/m, 'the system’s name, from tanrei.config.json');
     assert.match(config, /const date = lastmod\.of\(item\.url\);/);
   });
 });
