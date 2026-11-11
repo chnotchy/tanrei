@@ -150,7 +150,7 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 48,
+              "value": 44,
               "unit": "px"
             },
             "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system.",

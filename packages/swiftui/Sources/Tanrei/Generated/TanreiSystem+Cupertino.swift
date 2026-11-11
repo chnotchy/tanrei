@@ -2267,7 +2267,7 @@ private let cupertinoCarouselTokens = TanreiCarouselTokens(
   containerSmallMaxWidth: 56,
   containerSmallMinWidth: 40,
   controlsButtonSize: 40,
-  controlsHeight: 48,
+  controlsHeight: 44,
   controlsIconSize: 24,
   controlsIndicatorPaddingInline: 12,
   controlsShape: 9999,
@@ -7037,7 +7037,7 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
   motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionMinHeight: 48,
+  optionMinHeight: 44,
   ringSelectedWidthShare: 0.625,
   ringSize: 16,
   ringWidth: 1,
@@ -9953,9 +9953,9 @@ extension TanreiSystem {
       iconMedium: 24,
       iconSmall: 20,
       targetMinimum: 28,
-      targetPointer: 44,
+      targetPointer: 28,
       targetSpacing: 8,
-      targetTouch: 48
+      targetTouch: 44
     ),
     typefaces: cupertinoTypefaces,
     icon: TanreiIconStyle(
