@@ -1357,7 +1357,16 @@
       "title": "Size transition",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-size-transition",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/size-transition"
+      },
+      "react": {
+        "name": "SizeTransition",
+        "import": "@tanrei/react/cupertino"
+      }
     },
     {
       "name": "skeleton",

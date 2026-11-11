@@ -156,6 +156,20 @@
       "content": "A reply that grew to a second line keeps its last line where it was."
     },
     {
+      "id": "anchor-center",
+      "props": {
+        "anchor": "center"
+      },
+      "content": "A notice in the middle of its panel grows from its middle."
+    },
+    {
+      "id": "both",
+      "props": {
+        "axis": "both"
+      },
+      "content": "Uploading 3 files"
+    },
+    {
       "id": "rtl-inline",
       "props": {
         "axis": "inline"
@@ -166,7 +180,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-size-transition",
       "props": {
         "axis": "axis",
@@ -177,7 +191,11 @@
       "events": {
         "settle": "settle"
       },
-      "notes": "`<tanrei-size-transition axis=\"block\" anchor=\"start\">…</tanrei-size-transition>`, built on the package's size-motion primitive (`AnimatedSize`). The shadow root holds a box and, in it, a wrapper around the slot at its natural size. A resize observer of the wrapper sees a change of the content's size after layout and before the frame is painted; the box then moves from the size the last frame drew to the new one in pixels, with a CSS transition, clipped with `overflow: clip` (never `hidden`, which lets a focused descendant scroll the box). The box is a flex container that justifies the wrapper to the anchor's edge (`flex-start`, `flex-end`, `center`), so that the content is laid out at its own size and overflows the edge that moves; justification follows the direction, so the inline axis mirrors in right-to-left. `interpolate-size: allow-keywords` is not used: it is experimental and not Baseline. SZT-6: a change of the window's size, of the box's own inline size (the room it is given, for axis block), of its font size or of its direction is applied at once, as is any change while a size transition in its content carries `data-resizing` (the host carries it while it moves). `settle` is a CustomEvent that does not bubble, whose `detail` is `{ width, height }` in CSS pixels; a run that is retargeted ends with the run that replaced it. `duration` is a number property, the `duration` attribute parsed as the tooltip's delays are (an empty attribute is not a number). The host is `display: block` (axis inline: `display: inline-block`)."
+      "parts": {
+        "box": "host",
+        "content": "slot"
+      },
+      "notes": "`<tanrei-size-transition axis=\"block\" anchor=\"start\">…</tanrei-size-transition>`, built on the package's size-motion primitive (`AnimatedSize`). The shadow root holds a box and, in it, a wrapper around the slot at its natural size. A resize observer of the wrapper sees a change of the content's size after layout and before the frame is painted; the box then moves from the size the last frame drew to the new one in pixels, with a CSS transition, clipped with `overflow: clip` (never `hidden`, which lets a focused descendant scroll the box). The box is a flex container that justifies the wrapper to the anchor's edge (`flex-start`, `flex-end`, `center`), so that the content is laid out at its own size and overflows the edge that moves; justification follows the direction, so the inline axis mirrors in right-to-left. `interpolate-size: allow-keywords` is not used: it is experimental and not Baseline. SZT-6: a change of the window's size, of the box's own inline size (the room it is given, for axis block), of its font size or of its direction is applied at once, as is any change while a size transition in its content carries `data-resizing` (the host carries it while it moves). `settle` is a CustomEvent that does not bubble, whose `detail` is `{ width, height }` in CSS pixels; a run that is retargeted ends with the run that replaced it. `duration` is a number property, the `duration` attribute parsed as the tooltip's delays are (an empty attribute is not a number). The host is `display: block` (axis inline or both: `display: inline-block`), as large as the box."
     },
     "swiftui": {
       "status": "planned",

@@ -1324,7 +1324,16 @@
       "title": "Size transition",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-size-transition",
+        "import": "@tanrei/web",
+        "module": "@tanrei/web/components/size-transition"
+      },
+      "react": {
+        "name": "SizeTransition",
+        "import": "@tanrei/react"
+      }
     },
     {
       "name": "skeleton",

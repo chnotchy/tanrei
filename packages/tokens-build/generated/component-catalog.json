@@ -1812,7 +1812,14 @@
       "title": "Size transition",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-size-transition",
+        "module": "@tanrei/web/components/size-transition"
+      },
+      "react": {
+        "name": "SizeTransition"
+      }
     }
   ]
 }
