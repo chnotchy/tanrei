@@ -1,5 +1,5 @@
 // <tanrei-description-list> and description-list.css, driven by specs/description-list.spec.json: every behaviour id
-// (DSL-1…24) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
+// (DSL-1…25) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
 // tokens — never from a number written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -145,14 +145,14 @@ test.describe('the parts and their text', () => {
     }
   });
 
-  test('DSL-2: a term in its text style and color and a value in its own, by density (14 on 20 at 500 and 14 on 22; compact 12 on 16 and 13 on 20), digits of equal width; no mark after a term, and nothing done to the weight, case or family of what was written', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: some('inline', 'inline-compact') });
-    for (const [id, density, numbers] of [['inline', 'regular', [14, 20, 14, 22]], ['inline-compact', 'compact', [12, 16, 13, 20]]] as const) {
+  test('DSL-2: a term in its text style and color and a value in its own, by size (14 on 20 at 500 and 14 on 22; small 12 on 16 and 13 on 20), digits of equal width; no mark after a term, and nothing done to the weight, case or family of what was written', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('inline', 'inline-small') });
+    for (const [id, ofSize, numbers] of [['inline', 'medium', [14, 20, 14, 22]], ['inline-small', 'small', [12, 16, 13, 20]]] as const) {
       const [t, v] = [term(page, id, 2), value(page, id, 2)];
       for (const [part, name] of [[t, 'term'], [v, 'value']] as const) {
-        expect(await px(part, 'font-size'), `${id} ${name}`).toBe(await resolveToken(page, T(`${name}-typescale-${density}-font-size`)));
-        near(await px(part, 'line-height'), (await resolveToken(page, T(`${name}-typescale-${density}-font-size`))) * Number(await css(page.locator('html'), T(`${name}-typescale-${density}-line-height`))), 0.05);
-        expect(await css(part, 'font-weight')).toBe((await css(page.locator('html'), T(`${name}-typescale-${density}-font-weight`))).trim());
+        expect(await px(part, 'font-size'), `${id} ${name}`).toBe(await resolveToken(page, T(`${name}-typescale-${ofSize}-font-size`)));
+        near(await px(part, 'line-height'), (await resolveToken(page, T(`${name}-typescale-${ofSize}-font-size`))) * Number(await css(page.locator('html'), T(`${name}-typescale-${ofSize}-line-height`))), 0.05);
+        expect(await css(part, 'font-weight')).toBe((await css(page.locator('html'), T(`${name}-typescale-${ofSize}-font-weight`))).trim());
         expect(await css(part, 'color')).toBe(await resolveColor(page, T(`${name}-color`)));
         expect(await css(part, 'text-transform')).toBe('none');
         expect(await css(part, 'font-style')).toBe('normal');
@@ -171,11 +171,11 @@ test.describe('the parts and their text', () => {
 });
 
 test.describe('layouts', () => {
-  test('DSL-3: inline — one column of facts, every term in one column as wide as the widest term on one line, every value in a column that takes the rest, term.gap apart by density (16 and 8), the first lines on one baseline', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: some('inline', 'inline-compact', 'inline-long-values') });
-    for (const [id, density, apart] of [['inline', 'regular', 16], ['inline-compact', 'compact', 8], ['inline-long-values', 'regular', 16]] as const) {
+  test('DSL-3: inline — one column of facts, every term in one column as wide as the widest term on one line, every value in a column that takes the rest, term.gap apart by size (16 and 8), the first lines on one baseline', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('inline', 'inline-small', 'inline-long-values') });
+    for (const [id, ofSize, apart] of [['inline', 'medium', 16], ['inline-small', 'small', 8], ['inline-long-values', 'medium', 16]] as const) {
       const count = fixture(id).items!.length;
-      const gap = await resolveToken(page, T(`term-gap-${density}`));
+      const gap = await resolveToken(page, T(`term-gap-${ofSize}`));
       expect(gap).toBe(apart);
       const wrapper = await edges(host(page, id));
       const terms = await Promise.all(Array.from({ length: count }, (_, i) => textBox(term(page, id, i + 1))));
@@ -204,7 +204,7 @@ test.describe('layouts', () => {
     page.on('pageerror', (error) => errors.push(error.message));
     await mountFixtures(page, spec, { fixtures: [fx('own', {}, [f1(wide(96), 'A value'), f1('Short', 'Another value')]), ...some('inline-falls-back', 'inline')] });
     await page.evaluate(() => window.addEventListener('error', (event) => ((window as unknown as { __errors: string[] }).__errors ??= []).push(event.message)));
-    const [least, gap] = [await resolveToken(page, T('column-min-width')), await resolveToken(page, T('term-gap-regular'))];
+    const [least, gap] = [await resolveToken(page, T('column-min-width')), await resolveToken(page, T('term-gap-medium'))];
     expect([least, gap]).toEqual([144, 16]);
     // The verify: two columns at 256, stacked at 255 — both facts — and two columns again.
     await size(page, 'own', 256);
@@ -275,9 +275,9 @@ test.describe('layouts', () => {
   });
 
   test('DSL-5:stacked — the term on lines of its own and its values below it after stack.gap, both at the start edge of the fact’s column and no wider than it', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [...some('stacked', 'stacked-compact', 'columns'), fx('long-term', { layout: 'stacked', columns: 3 }, [f1('A term that is long enough to run over more than one line of the column it is drawn in, whatever the face', 'Value'), f1('B', 'Value'), f1('C', 'Value')])] });
+    await mountFixtures(page, spec, { fixtures: [...some('stacked', 'stacked-small', 'columns'), fx('long-term', { layout: 'stacked', columns: 3 }, [f1('A term that is long enough to run over more than one line of the column it is drawn in, whatever the face', 'Value'), f1('B', 'Value'), f1('C', 'Value')])] });
     const gap = await resolveToken(page, T('stack-gap'));
-    for (const id of ['stacked', 'stacked-compact', 'columns', 'long-term']) {
+    for (const id of ['stacked', 'stacked-small', 'columns', 'long-term']) {
       const count = fixture(id)?.items!.length ?? 3;
       for (let n = 1; n <= count; n++) {
         const [group, t, v] = [await edges(fact(page, id, n)), await edges(term(page, id, n)), await edges(value(page, id, n))];
@@ -292,15 +292,15 @@ test.describe('layouts', () => {
     expect(await lines(value(page, 'stacked', 1))).toBeGreaterThan(1);
   });
 
-  test('DSL-6: stat — the first value first, as a figure in the stat text style by density (32 on 40, 20 on 28) in the value’s color with digits of equal width, on one line; the term stack.gap below it in its own style; no negative letter-spacing in Japanese; the term is still exposed first', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: some('stat', 'stat-compact', 'stat-single', 'japanese-stat') });
+  test('DSL-6: stat — the first value first, as a figure in the stat text style by size (32 on 40, 20 on 28) in the value’s color with digits of equal width, on one line; the term stack.gap below it in its own style; no negative letter-spacing in Japanese; the term is still exposed first', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('stat', 'stat-small', 'stat-single', 'japanese-stat') });
     const gap = await resolveToken(page, T('stack-gap'));
     expect(gap).toBe(4);
-    for (const [id, density, numbers] of [['stat', 'regular', [32, 40]], ['stat-compact', 'compact', [20, 28]], ['stat-single', 'regular', [32, 40]]] as const) {
+    for (const [id, ofSize, numbers] of [['stat', 'medium', [32, 40]], ['stat-small', 'small', [20, 28]], ['stat-single', 'medium', [32, 40]]] as const) {
       for (let n = 1; n <= fixture(id).items!.length; n++) {
         const [group, t, v] = [await edges(fact(page, id, n)), await edges(term(page, id, n)), await edges(value(page, id, n))];
         const figure = value(page, id, n);
-        expect(await px(figure, 'font-size')).toBe(await resolveToken(page, T(`stat-value-typescale-${density}-font-size`)));
+        expect(await px(figure, 'font-size')).toBe(await resolveToken(page, T(`stat-value-typescale-${ofSize}-font-size`)));
         expect([Math.round(await px(figure, 'font-size')), Math.round(await px(figure, 'line-height'))]).toEqual([...numbers]);
         expect(await css(figure, 'color')).toBe(await resolveColor(page, T('value-color')));
         expect(await css(figure, 'font-variant-numeric')).toBe('tabular-nums');
@@ -309,7 +309,7 @@ test.describe('layouts', () => {
         near(t.top - v.bottom, gap);
         near(v.left, group.left);
         near(t.left, group.left);
-        expect(await px(term(page, id, n), 'font-size')).toBe(await resolveToken(page, T(`term-typescale-${density}-font-size`)));
+        expect(await px(term(page, id, n), 'font-size')).toBe(await resolveToken(page, T(`term-typescale-${ofSize}-font-size`)));
         expect(await css(term(page, id, n), 'color')).toBe(await resolveColor(page, T('term-color')));
         // What is read is the document's order: the term before its value.
         expect(await fact(page, id, n).evaluate((el) => [...el.children].map((child) => child.localName))).toEqual(['dt', 'dd']);
@@ -322,7 +322,7 @@ test.describe('layouts', () => {
       - definition: "37"
     `);
     // The heading style's letter-spacing is the figure's; in Japanese a negative one is not applied.
-    const tracking = Number.parseFloat((await css(page.locator('html'), T('stat-value-typescale-regular-letter-spacing'))).trim());
+    const tracking = Number.parseFloat((await css(page.locator('html'), T('stat-value-typescale-medium-letter-spacing'))).trim());
     expect(tracking).toBeLessThan(0);
     near(await px(value(page, 'stat', 1), 'letter-spacing'), tracking * 32, 0.01);
     expect(await css(value(page, 'japanese-stat', 1), 'letter-spacing')).toMatch(/^(0px|normal)$/);
@@ -428,8 +428,8 @@ test.describe('layouts', () => {
       const [figure, t, note] = [await edges(value(page, 'stat-note', n, 1)), await edges(term(page, 'stat-note', n)), await edges(value(page, 'stat-note', n, 2))];
       near(t.top - figure.bottom, gap);
       near(note.top - t.bottom, gap);
-      expect(await px(value(page, 'stat-note', n, 2), 'font-size')).toBe(await resolveToken(page, T('value-typescale-regular-font-size')));
-      expect(await px(value(page, 'stat-note', n, 1), 'font-size')).toBe(await resolveToken(page, T('stat-value-typescale-regular-font-size')));
+      expect(await px(value(page, 'stat-note', n, 2), 'font-size')).toBe(await resolveToken(page, T('value-typescale-medium-font-size')));
+      expect(await px(value(page, 'stat-note', n, 1), 'font-size')).toBe(await resolveToken(page, T('stat-value-typescale-medium-font-size')));
     }
   });
 
@@ -520,23 +520,23 @@ test.describe('layouts', () => {
 
 test.describe('telling facts apart', () => {
   /** The form a list draws between its first two rows of facts: read from the second fact (or the last, in columns). */
-  const form = async (page: P, id: string, density: 'regular' | 'compact' = 'regular', n = 2) => {
-    const [thickness, gap] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T(`fact-gap-${density}`))];
+  const form = async (page: P, id: string, ofSize: 'medium' | 'small' = 'medium', n = 2) => {
+    const [thickness, gap] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T(`fact-gap-${ofSize}`))];
     const group = fact(page, id, n);
     const [line, margin, padding] = [await px(group, 'border-top-width'), await px(group, 'margin-top'), await px(group, 'padding-top')];
     if (line === thickness && Math.abs(margin + line + padding - 2 * gap) < 0.01 && Math.abs(margin - padding) < 0.01) return 'divider';
     return line === 0 && padding === 0 && Math.abs(margin - gap) < 0.01 ? 'gap' : `neither (${line}, ${margin}, ${padding})`;
   };
 
-  test('DSL-12: while the separation is divider one line of divider.thickness in divider.color above every fact that is not in the first row, as wide as its column, fact.gap on each side of it and taking no room of its own (24 between two facts, 12 compact); none above the first row, below the last, between columns or between a term and its value', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [...some('separation-divider', 'separation-divider-columns'), { ...fixture('inline-compact'), id: 'compact-divider', props: { density: 'compact', separation: 'divider' } }] });
+  test('DSL-12: while the separation is divider one line of divider.thickness in divider.color above every fact that is not in the first row, as wide as its column, fact.gap on each side of it and taking no room of its own (24 between two facts, 12 small); none above the first row, below the last, between columns or between a term and its value', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [...some('separation-divider', 'separation-divider-columns'), { ...fixture('inline-small'), id: 'small-divider', props: { size: 'small', separation: 'divider' } }] });
     const thickness = await resolveToken(page, T('divider-thickness'));
     const color = await resolveColor(page, T('divider-color'));
     expect(color).toBe(await resolveColor(page, '--tanrei-sys-color-outline-variant'));
-    for (const [id, density, between] of [['separation-divider', 'regular', 24], ['compact-divider', 'compact', 12]] as const) {
-      const gap = await resolveToken(page, T(`fact-gap-${density}`));
+    for (const [id, ofSize, between] of [['separation-divider', 'medium', 24], ['small-divider', 'small', 12]] as const) {
+      const gap = await resolveToken(page, T(`fact-gap-${ofSize}`));
       expect(2 * gap).toBe(between);
-      const count = fixture(id === 'compact-divider' ? 'inline-compact' : id).items!.length;
+      const count = fixture(id === 'small-divider' ? 'inline-small' : id).items!.length;
       for (let n = 2; n <= count; n++) {
         const [above, group] = [await edges(fact(page, id, n - 1)), fact(page, id, n)];
         // The last line of a fact to the first of the next: twice the gap, the line in the middle.
@@ -584,7 +584,7 @@ test.describe('telling facts apart', () => {
   test('DSL-13: separation auto is what comp.description-list.separation names, which follows the system’s choice; divider and gap are themselves whatever the tokens say; a change is drawn at once; an unknown value is auto and reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { fixtures: some('inline', 'separation-divider', 'separation-gap', 'separation-divider-columns', 'separation-gap-stat', 'stat') });
-    expect([await form(page, 'inline'), await form(page, 'separation-divider'), await form(page, 'separation-gap'), await form(page, 'separation-divider-columns', 'regular', 4), await form(page, 'separation-gap-stat', 'regular', 4), await form(page, 'stat', 'regular', 4)]).toEqual(['divider', 'divider', 'gap', 'divider', 'gap', 'divider']);
+    expect([await form(page, 'inline'), await form(page, 'separation-divider'), await form(page, 'separation-gap'), await form(page, 'separation-divider-columns', 'medium', 4), await form(page, 'separation-gap-stat', 'medium', 4), await form(page, 'stat', 'medium', 4)]).toEqual(['divider', 'divider', 'gap', 'divider', 'gap', 'divider']);
     // A browser without style queries is told the choice by the element, which reads it when it reads the list: a
     // change of a token is then seen at its next reading (README). Where the queries work, `override` is all there is.
     const set = async (vars: Record<string, string>) => {
@@ -596,7 +596,7 @@ test.describe('telling facts apart', () => {
     // The system's choice is followed by auto alone (the verify: the named fixtures draw the same under every system)…
     await set({ '--tanrei-sys-behavior-separation': 'gap' });
     await expect.poll(() => form(page, 'inline')).toBe('gap');
-    expect([await form(page, 'separation-divider'), await form(page, 'separation-gap'), await form(page, 'separation-divider-columns', 'regular', 4), await form(page, 'separation-gap-stat', 'regular', 4), await form(page, 'stat', 'regular', 4)]).toEqual(['divider', 'gap', 'divider', 'gap', 'gap']);
+    expect([await form(page, 'separation-divider'), await form(page, 'separation-gap'), await form(page, 'separation-divider-columns', 'medium', 4), await form(page, 'separation-gap-stat', 'medium', 4), await form(page, 'stat', 'medium', 4)]).toEqual(['divider', 'gap', 'divider', 'gap', 'gap']);
     // …and the list's own token sets it apart from the system.
     await set({ [T('separation')]: 'divider' });
     await expect.poll(() => form(page, 'inline')).toBe('divider');
@@ -640,15 +640,15 @@ test.describe('telling facts apart', () => {
     });
     await page.addStyleTag({ content: fs.readFileSync(path.join(pkg, 'dist/description-list.css'), 'utf8').replaceAll('tanrei-description-list', 'tanrei-description-list-undefined') });
     const second = page.locator('#attribute dl > div:nth-child(2)');
-    expect([await px(second, 'border-top-width'), await px(second, 'padding-top'), await px(second, 'margin-top')]).toEqual([0, 0, await resolveToken(page, T('fact-gap-regular'))]);
+    expect([await px(second, 'border-top-width'), await px(second, 'padding-top'), await px(second, 'margin-top')]).toEqual([0, 0, await resolveToken(page, T('fact-gap-medium'))]);
   });
 
-  test('DSL-14: while the separation is gap, fact.gap of empty space between a fact and the fact below it by density (12 and 6), none of the lines, and no such space above the first row or below the last; the facts are still facts', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [...some('separation-gap', 'separation-gap-stat'), { ...fixture('inline-compact'), id: 'compact-gap', props: { density: 'compact', separation: 'gap' } }] });
-    for (const [id, density, apart] of [['separation-gap', 'regular', 12], ['compact-gap', 'compact', 6]] as const) {
-      const gap = await resolveToken(page, T(`fact-gap-${density}`));
+  test('DSL-14: while the separation is gap, fact.gap of empty space between a fact and the fact below it by size (12 and 6), none of the lines, and no such space above the first row or below the last; the facts are still facts', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [...some('separation-gap', 'separation-gap-stat'), { ...fixture('inline-small'), id: 'small-gap', props: { size: 'small', separation: 'gap' } }] });
+    for (const [id, ofSize, apart] of [['separation-gap', 'medium', 12], ['small-gap', 'small', 6]] as const) {
+      const gap = await resolveToken(page, T(`fact-gap-${ofSize}`));
       expect(gap).toBe(apart);
-      const count = fixture(id === 'compact-gap' ? 'inline-compact' : id).items!.length;
+      const count = fixture(id === 'small-gap' ? 'inline-small' : id).items!.length;
       for (let n = 2; n <= count; n++) {
         near((await edges(value(page, id, n))).top - (await edges(fact(page, id, n - 1).locator('> dd:last-of-type'))).bottom, gap, 0.1);
         expect(await fact(page, id, n).evaluate((el) => ['top', 'right', 'bottom', 'left'].map((side) => getComputedStyle(el).getPropertyValue(`border-${side}-width`)))).toEqual(Array(4).fill('0px'));
@@ -699,7 +699,7 @@ test.describe('input, changes and what is exposed', () => {
     // A longer term widens the term column of every fact…
     await term(page, 'own', 2).evaluate((el) => (el.textContent = 'Seats in use'));
     await expect.poll(async () => (await edges(value(page, 'own', 1))).left).toBeGreaterThan(before);
-    near((await edges(value(page, 'own', 1))).left, (await textBox(term(page, 'own', 2))).right + (await resolveToken(page, T('term-gap-regular'))), 1);
+    near((await edges(value(page, 'own', 1))).left, (await textBox(term(page, 'own', 2))).right + (await resolveToken(page, T('term-gap-medium'))), 1);
     // …and one that leaves the values too little room stacks the list, and back.
     await term(page, 'own', 2).evaluate((el) => (el.textContent = 'The number of seats this subscription has in use today'));
     await expect.poll(() => drawn(page, 'own')).toBe('stacked');
@@ -794,7 +794,7 @@ test.describe('direction, text size, forced colors, unknown values', () => {
 
   test('DSL-19: in a right-to-left layout the term column is at the right and the value column at its left, every term and value begins at the right edge of its column, columns of facts fill from the right, and every gap is applied by start and end', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...some('rtl', 'rtl-stat'), { ...fixture('inline-falls-back'), id: 'rtl-stacked', props: { layout: 'stacked' }, direction: 'rtl' }] });
-    const gap = await resolveToken(page, T('term-gap-regular'));
+    const gap = await resolveToken(page, T('term-gap-medium'));
     const wrapper = await edges(host(page, 'rtl'));
     const count = fixture('rtl').items!.length;
     const narrowest = Math.min(...(await Promise.all(Array.from({ length: count }, (_, i) => textBox(term(page, 'rtl', i + 1))))).map((t) => t.left));
@@ -929,17 +929,17 @@ test.describe('direction, text size, forced colors, unknown values', () => {
     }
   });
 
-  test('DSL-23: a density the active design system does not have renders with the default’s tokens and a layout the spec does not have as inline, each reported; a density a design system adds is drawn from its tokens', async ({ page }) => {
+  test('DSL-23: a size the active design system does not have renders with the default’s tokens and a layout the spec does not have as inline, each reported; a size a design system adds is drawn from its tokens', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       fixtures: [
-        { ...fixture('inline'), id: 'unknown-density', props: { density: 'roomy' } },
+        { ...fixture('inline'), id: 'unknown-size', props: { size: 'roomy' } },
         { ...fixture('inline'), id: 'unknown-layout', props: { layout: 'grid' } },
-        { ...fixture('inline'), id: 'added', props: { density: 'airy' } },
+        { ...fixture('inline'), id: 'added', props: { size: 'airy' } },
         ...some('inline'),
       ],
     });
-    for (const id of ['unknown-density', 'unknown-layout']) {
+    for (const id of ['unknown-size', 'unknown-layout']) {
       expect(await drawn(page, id), id).toBe('inline');
       expect(await px(term(page, id, 1), 'font-size')).toBe(await px(term(page, 'inline', 1), 'font-size'));
       expect(await px(fact(page, id, 2), 'padding-top')).toBe(await px(fact(page, 'inline', 2), 'padding-top'));
@@ -947,18 +947,89 @@ test.describe('direction, text size, forced colors, unknown values', () => {
     }
     await expect.poll(() => seen.filter((m) => m.includes('DSL-23') && m.includes('"roomy"')).length).toBe(1);
     expect(seen.filter((m) => m.includes('DSL-23') && m.includes('"grid"'))).toHaveLength(1);
-    // A density a design system adds: its tokens, and the default's for those it leaves out.
+    // A size a design system adds: its tokens, and the default's for those it leaves out.
     await override(page, { [T('fact-gap-airy')]: '20px', [T('term-gap-airy')]: '40px' });
     await host(page, 'added').evaluate((el) => {
-      (el as unknown as { density: string }).density = 'regular';
+      (el as unknown as { size: string }).size = 'medium';
     });
     await frame(page);
     await host(page, 'added').evaluate((el) => {
-      (el as unknown as { density: string }).density = 'airy';
+      (el as unknown as { size: string }).size = 'airy';
     });
     await expect.poll(async () => (await px(fact(page, 'added', 2), 'padding-top')) + (await px(fact(page, 'added', 2), 'border-top-width')) / 2).toBe(20);
     near((await edges(value(page, 'added', 1))).left - (await textBox(term(page, 'added', 4))).right, 40, 1);
     expect(await px(term(page, 'added', 1), 'font-size')).toBe(await px(term(page, 'inline', 1), 'font-size'));
+  });
+
+  test('DSL-25: without a size of its own a description list is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its values hold; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 the space between facts is its size’s', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('inline') });
+    // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
+    // here (it reports content that is not a Button, BGR-10, and still lays it out).
+    await page.evaluate(() => {
+      const facts = '<dl><div><dt>Category</dt><dd>Actions</dd></div><div><dt>Owner</dt><dd><tanrei-button label="Change"></tanrei-button></dd></div></dl>';
+      const dl = (id: string, size = '') => `<tanrei-description-list id="${id}" separation="divider" ${size ? `size="${size}"` : ''}>${facts}</tanrei-description-list>`;
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">${dl('taken')}${dl('own-medium', 'medium')}</tanrei-button-group>
+        <tanrei-button-group id="unset">${dl('free')}</tanrei-button-group>
+        <tanrei-button-group id="outer" size="small"><tanrei-button-group id="inner" size="medium">${dl('nearest')}</tanrei-button-group></tanrei-button-group>
+        ${dl('alone')}${dl('own-small', 'small')}`;
+      document.body.append(stage);
+    });
+    const all = ['taken', 'own-medium', 'free', 'nearest', 'alone'];
+    /** Each list's term size and the space between its two facts (DSL-12: fact.gap on each side of the line), in one frame. */
+    const measure = `return Object.fromEntries(ids.map((id) => {
+      const list = document.getElementById(id);
+      const second = getComputedStyle(list.querySelector('dl > div:nth-child(2)'));
+      return [id, [Number.parseFloat(getComputedStyle(list.querySelector('dt')).fontSize), Number.parseFloat(second.paddingTop) + Number.parseFloat(second.borderTopWidth) / 2]];
+    }));`;
+    const drawnAt = () => page.evaluate(([code, ids]) => new Function('ids', code)(ids) as Record<string, number[]>, [measure, all] as const);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, read, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return new Function('ids', read)(list) as Record<string, number[]>;
+        },
+        [change, measure, ids] as const,
+      );
+    const sizes = async () => ({
+      small: [await resolveToken(page, T('term-typescale-small-font-size')), await resolveToken(page, T('fact-gap-small'))],
+      medium: [await resolveToken(page, T('term-typescale-medium-font-size')), await resolveToken(page, T('fact-gap-medium'))],
+    });
+    // A size it takes, or the default, is not its own: no size attribute is written on a list that sets none.
+    expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const size = await sizes();
+      await expect.poll(drawnAt, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await sizes();
+    expect(size.medium[0]).toBeGreaterThan(size.small[0]);
+    // Every member of the size: the term column's gap and the value's text style are small's too.
+    const taken = page.locator('#taken');
+    expect(await px(taken.locator('dl'), 'column-gap')).toBe(await resolveToken(page, T('term-gap-small')));
+    expect(await px(taken.locator('dd').first(), 'font-size')).toBe(await resolveToken(page, T('value-typescale-small-font-size')));
+    // It passes no size to what its values hold: a Button in a value is at its own default, whatever the list's size.
+    const button = await resolveToken(page, '--tanrei-comp-button-container-height-medium');
+    for (const id of ['own-small', 'alone']) expect((await edges(page.locator(`#${id} tanrei-button`))).height, id).toBe(button);
+    // A size it lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium')).toEqual({ taken: size.small, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken')).toEqual({ taken: size.medium });
+    // Set, given back and set to the default's name on the list.
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('free'))", 'free')).toEqual({ free: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 });
 
@@ -987,14 +1058,14 @@ test.describe('the element and its stylesheet', () => {
     const fixtures = spec.fixtures.filter((f) => f.id !== 'tags');
     await withoutScript(page, fixtures);
     expect(await page.evaluate(() => customElements.get('tanrei-description-list'))).toBeUndefined();
-    // Drawn without script: the term column, the columns of facts, the figure, the lines and the density.
+    // Drawn without script: the term column, the columns of facts, the figure, the lines and the size.
     expect(await drawn(page, 'inline')).toBe('inline');
-    near((await edges(value(page, 'inline', 1))).left, (await textBox(term(page, 'inline', 4))).right + (await resolveToken(page, T('term-gap-regular'))), 1);
+    near((await edges(value(page, 'inline', 1))).left, (await textBox(term(page, 'inline', 4))).right + (await resolveToken(page, T('term-gap-medium'))), 1);
     expect(await columnsOf(page, 'stat')).toBe(4);
     expect(await columnsOf(page, 'columns-legend')).toBe(3);
-    expect(await px(value(page, 'stat', 1), 'font-size')).toBe(await resolveToken(page, T('stat-value-typescale-regular-font-size')));
+    expect(await px(value(page, 'stat', 1), 'font-size')).toBe(await resolveToken(page, T('stat-value-typescale-medium-font-size')));
     expect(await px(fact(page, 'separation-divider', 2), 'border-top-width')).toBe(await resolveToken(page, T('divider-thickness')));
-    expect(await px(term(page, 'inline-compact', 1), 'font-size')).toBe(await resolveToken(page, T('term-typescale-compact-font-size')));
+    expect(await px(term(page, 'inline-small', 1), 'font-size')).toBe(await resolveToken(page, T('term-typescale-small-font-size')));
     expect(await drawn(page, 'stacked')).toBe('stacked');
     // DSL-4 without script: the term is wrapped beside its value, which keeps the least width; nothing is cut.
     expect(await drawn(page, 'inline-falls-back')).toBe('inline');
@@ -1022,13 +1093,13 @@ test.describe('the element and its stylesheet', () => {
       outer.id = 'outer';
       outer.style.inlineSize = '400px';
       const root = outer.attachShadow({ mode: 'open' });
-      root.innerHTML = '<tanrei-description-list density="compact"><dl><div><dt><span style="display: inline-block; inline-size: 96px">Term</span></dt><dd>A value</dd></div></dl></tanrei-description-list>';
+      root.innerHTML = '<tanrei-description-list size="small"><dl><div><dt><span style="display: inline-block; inline-size: 96px">Term</span></dt><dd>A value</dd></div></dl></tanrei-description-list>';
       document.body.append(outer);
     });
     const inner = page.locator('#outer tanrei-description-list');
     await expect(inner).toHaveAttribute('data-stacks-below', '248');
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(1);
-    expect(await px(inner.locator('dt'), 'font-size')).toBe(await resolveToken(page, T('term-typescale-compact-font-size')));
+    expect(await px(inner.locator('dt'), 'font-size')).toBe(await resolveToken(page, T('term-typescale-small-font-size')));
     expect((await edges(inner.locator('dd'))).left).toBeGreaterThan((await edges(inner.locator('dt'))).right);
     await page.locator('#outer').evaluate((el) => ((el as HTMLElement).style.inlineSize = '247px'));
     expect((await edges(inner.locator('dd'))).top).toBeGreaterThanOrEqual((await edges(inner.locator('dt'))).bottom);
@@ -1041,7 +1112,7 @@ test.describe('the element and its stylesheet', () => {
       fixtures: [raw('bare', {}, bare), raw('bare-stacked', { layout: 'stacked' }, bare), raw('bare-stat', { layout: 'stat', columns: 3 }, bare), raw('bare-gap', { separation: 'gap' }, bare), raw('nested', {}, '<dl><div><dt>Outer</dt><dd><dl id="inner"><dt>Inner term</dt><dd>Inner value</dd></dl></dd></div></dl>')],
     });
     const part = (id: string, selector: string) => list(page, id).locator(`> ${selector}`);
-    const [thickness, gap, termGap, stack] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('fact-gap-regular')), await resolveToken(page, T('term-gap-regular')), await resolveToken(page, T('stack-gap'))];
+    const [thickness, gap, termGap, stack] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('fact-gap-medium')), await resolveToken(page, T('term-gap-medium')), await resolveToken(page, T('stack-gap'))];
     // Inline: the terms in one column, the values in the other, several values under one another.
     const owners = await textBox(part('bare', 'dt:nth-of-type(2)'));
     for (const n of [1, 2, 3, 4]) near((await textBox(part('bare', `dd:nth-of-type(${n})`))).left, (await textBox(part('bare', 'dt:nth-of-type(1)'))).right + termGap, 1);
@@ -1077,7 +1148,7 @@ test.describe('fixtures', () => {
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toHaveCount(1);
       await expect(list(page, f.id), f.id).toBeVisible();
-      for (const prop of ['layout', 'columns', 'density', 'separation'] as const) {
+      for (const prop of ['layout', 'columns', 'size', 'separation'] as const) {
         expect(await host(page, f.id).getAttribute(prop), `${f.id} ${prop}`).toBe(f.props[prop] === undefined ? null : String(f.props[prop]));
       }
       if (f.direction) await expect(stage(page, f.id)).toHaveAttribute('dir', f.direction);

@@ -8992,23 +8992,23 @@ class TanreiDateTimePickerTokens {
       };
 }
 
-/// The key of a density of description-list (`comp.description-list`, axis `density`).
+/// The key of a size of description-list (`comp.description-list`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiDescriptionListDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiDescriptionListDensity(String name) {
-  static const regular = TanreiDescriptionListDensity('regular');
-  static const compact = TanreiDescriptionListDensity('compact');
+/// `const TanreiDescriptionListSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiDescriptionListSize(String name) {
+  static const small = TanreiDescriptionListSize('small');
+  static const medium = TanreiDescriptionListSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiDescriptionListDensity> core = <TanreiDescriptionListDensity>[regular, compact];
+  static const List<TanreiDescriptionListSize> core = <TanreiDescriptionListSize>[small, medium];
 }
 
-/// The tokens of one description-list density.
+/// The tokens of one description-list size.
 @immutable
-class TanreiDescriptionListDensityTokens {
-  const TanreiDescriptionListDensityTokens({
+class TanreiDescriptionListSizeTokens {
+  const TanreiDescriptionListSizeTokens({
     required this.factGap,
     required this.termGap,
     required this.termTypescale,
@@ -9016,25 +9016,25 @@ class TanreiDescriptionListDensityTokens {
     required this.statValueTypescale,
   });
 
-  /// `comp.description-list.fact-gap.<density>`
+  /// `comp.description-list.fact-gap.<size>`
   final double factGap;
-  /// `comp.description-list.term-gap.<density>`
+  /// `comp.description-list.term-gap.<size>`
   final double termGap;
-  /// `comp.description-list.term-typescale.<density>`
+  /// `comp.description-list.term-typescale.<size>`
   final TanreiTextStyle termTypescale;
-  /// `comp.description-list.value-typescale.<density>`
+  /// `comp.description-list.value-typescale.<size>`
   final TanreiTextStyle valueTypescale;
-  /// `comp.description-list.stat-value-typescale.<density>`
+  /// `comp.description-list.stat-value-typescale.<size>`
   final TanreiTextStyle statValueTypescale;
 
   /// A copy with the given tokens replaced.
-  TanreiDescriptionListDensityTokens copyWith({
+  TanreiDescriptionListSizeTokens copyWith({
     double? factGap,
     double? termGap,
     TanreiTextStyle? termTypescale,
     TanreiTextStyle? valueTypescale,
     TanreiTextStyle? statValueTypescale,
-  }) => TanreiDescriptionListDensityTokens(
+  }) => TanreiDescriptionListSizeTokens(
         factGap: factGap ?? this.factGap,
         termGap: termGap ?? this.termGap,
         termTypescale: termTypescale ?? this.termTypescale,
@@ -9043,58 +9043,58 @@ class TanreiDescriptionListDensityTokens {
       );
 }
 
-/// Every density of description-list: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of description-list: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiDescriptionListDensitys {
-  const TanreiDescriptionListDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiDescriptionListDensity, TanreiDescriptionListDensityTokens>{},
+class TanreiDescriptionListSizes {
+  const TanreiDescriptionListSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiDescriptionListSize, TanreiDescriptionListSizeTokens>{},
   });
 
-  /// `comp.description-list` density `regular`
-  final TanreiDescriptionListDensityTokens regular;
-  /// `comp.description-list` density `compact`
-  final TanreiDescriptionListDensityTokens compact;
+  /// `comp.description-list` size `small`
+  final TanreiDescriptionListSizeTokens small;
+  /// `comp.description-list` size `medium`
+  final TanreiDescriptionListSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiDescriptionListDensity, TanreiDescriptionListDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiDescriptionListSize, TanreiDescriptionListSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiDescriptionListDensitys copyWith({
-    TanreiDescriptionListDensityTokens? regular,
-    TanreiDescriptionListDensityTokens? compact,
-    Map<TanreiDescriptionListDensity, TanreiDescriptionListDensityTokens>? extra,
-  }) => TanreiDescriptionListDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiDescriptionListDensity, TanreiDescriptionListDensityTokens>{...this.extra, ...extra},
+  TanreiDescriptionListSizes copyWith({
+    TanreiDescriptionListSizeTokens? small,
+    TanreiDescriptionListSizeTokens? medium,
+    Map<TanreiDescriptionListSize, TanreiDescriptionListSizeTokens>? extra,
+  }) => TanreiDescriptionListSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiDescriptionListSize, TanreiDescriptionListSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiDescriptionListDensityTokens operator [](TanreiDescriptionListDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiDescriptionListSizeTokens operator [](TanreiDescriptionListSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiDescriptionListDensity density) => TanreiDescriptionListDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiDescriptionListSize size) => TanreiDescriptionListSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiDescriptionListDensity> get keys => <TanreiDescriptionListDensity>[...TanreiDescriptionListDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiDescriptionListSize> get keys => <TanreiDescriptionListSize>[...TanreiDescriptionListSize.core, ...extra.keys];
 
-  TanreiDescriptionListDensityTokens _fallback(TanreiDescriptionListDensity density) {
+  TanreiDescriptionListSizeTokens _fallback(TanreiDescriptionListSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('description-list density', density.name, 'regular');
+      debugTanreiReportUnknownValue('description-list size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -9110,7 +9110,7 @@ class TanreiDescriptionListTokens {
     required this.stackGap,
     required this.termColor,
     required this.valueColor,
-    required this.densitys,
+    required this.sizes,
   });
 
   /// `comp.description-list.column-gap`
@@ -9129,8 +9129,8 @@ class TanreiDescriptionListTokens {
   final TanreiPaint termColor;
   /// `comp.description-list.value-color`
   final TanreiPaint valueColor;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiDescriptionListDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiDescriptionListSizes sizes;
 
   /// A copy with the given tokens replaced.
   TanreiDescriptionListTokens copyWith({
@@ -9142,7 +9142,7 @@ class TanreiDescriptionListTokens {
     double? stackGap,
     TanreiPaint? termColor,
     TanreiPaint? valueColor,
-    TanreiDescriptionListDensitys? densitys,
+    TanreiDescriptionListSizes? sizes,
   }) => TanreiDescriptionListTokens(
         columnGap: columnGap ?? this.columnGap,
         columnMinWidth: columnMinWidth ?? this.columnMinWidth,
@@ -9152,7 +9152,7 @@ class TanreiDescriptionListTokens {
         stackGap: stackGap ?? this.stackGap,
         termColor: termColor ?? this.termColor,
         valueColor: valueColor ?? this.valueColor,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
       );
 }
 
@@ -24462,94 +24462,94 @@ class TanreiTableOfContentsParts {
   }
 }
 
-/// The key of a density of table-of-contents (`comp.table-of-contents`, axis `density`).
+/// The key of a size of table-of-contents (`comp.table-of-contents`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiTableOfContentsDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiTableOfContentsDensity(String name) {
-  static const regular = TanreiTableOfContentsDensity('regular');
-  static const compact = TanreiTableOfContentsDensity('compact');
+/// `const TanreiTableOfContentsSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiTableOfContentsSize(String name) {
+  static const small = TanreiTableOfContentsSize('small');
+  static const medium = TanreiTableOfContentsSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiTableOfContentsDensity> core = <TanreiTableOfContentsDensity>[regular, compact];
+  static const List<TanreiTableOfContentsSize> core = <TanreiTableOfContentsSize>[small, medium];
 }
 
-/// The tokens of one table-of-contents density.
+/// The tokens of one table-of-contents size.
 @immutable
-class TanreiTableOfContentsDensityTokens {
-  const TanreiTableOfContentsDensityTokens({
+class TanreiTableOfContentsSizeTokens {
+  const TanreiTableOfContentsSizeTokens({
     required this.rowHeight,
     required this.rowPaddingBlock,
   });
 
-  /// `comp.table-of-contents.row-height.<density>`
+  /// `comp.table-of-contents.row-height.<size>`
   final double rowHeight;
-  /// `comp.table-of-contents.row-padding-block.<density>`
+  /// `comp.table-of-contents.row-padding-block.<size>`
   final double rowPaddingBlock;
 
   /// A copy with the given tokens replaced.
-  TanreiTableOfContentsDensityTokens copyWith({
+  TanreiTableOfContentsSizeTokens copyWith({
     double? rowHeight,
     double? rowPaddingBlock,
-  }) => TanreiTableOfContentsDensityTokens(
+  }) => TanreiTableOfContentsSizeTokens(
         rowHeight: rowHeight ?? this.rowHeight,
         rowPaddingBlock: rowPaddingBlock ?? this.rowPaddingBlock,
       );
 }
 
-/// Every density of table-of-contents: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of table-of-contents: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiTableOfContentsDensitys {
-  const TanreiTableOfContentsDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiTableOfContentsDensity, TanreiTableOfContentsDensityTokens>{},
+class TanreiTableOfContentsSizes {
+  const TanreiTableOfContentsSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiTableOfContentsSize, TanreiTableOfContentsSizeTokens>{},
   });
 
-  /// `comp.table-of-contents` density `regular`
-  final TanreiTableOfContentsDensityTokens regular;
-  /// `comp.table-of-contents` density `compact`
-  final TanreiTableOfContentsDensityTokens compact;
+  /// `comp.table-of-contents` size `small`
+  final TanreiTableOfContentsSizeTokens small;
+  /// `comp.table-of-contents` size `medium`
+  final TanreiTableOfContentsSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiTableOfContentsDensity, TanreiTableOfContentsDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiTableOfContentsSize, TanreiTableOfContentsSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiTableOfContentsDensitys copyWith({
-    TanreiTableOfContentsDensityTokens? regular,
-    TanreiTableOfContentsDensityTokens? compact,
-    Map<TanreiTableOfContentsDensity, TanreiTableOfContentsDensityTokens>? extra,
-  }) => TanreiTableOfContentsDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiTableOfContentsDensity, TanreiTableOfContentsDensityTokens>{...this.extra, ...extra},
+  TanreiTableOfContentsSizes copyWith({
+    TanreiTableOfContentsSizeTokens? small,
+    TanreiTableOfContentsSizeTokens? medium,
+    Map<TanreiTableOfContentsSize, TanreiTableOfContentsSizeTokens>? extra,
+  }) => TanreiTableOfContentsSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiTableOfContentsSize, TanreiTableOfContentsSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiTableOfContentsDensityTokens operator [](TanreiTableOfContentsDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiTableOfContentsSizeTokens operator [](TanreiTableOfContentsSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiTableOfContentsDensity density) => TanreiTableOfContentsDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiTableOfContentsSize size) => TanreiTableOfContentsSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiTableOfContentsDensity> get keys => <TanreiTableOfContentsDensity>[...TanreiTableOfContentsDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiTableOfContentsSize> get keys => <TanreiTableOfContentsSize>[...TanreiTableOfContentsSize.core, ...extra.keys];
 
-  TanreiTableOfContentsDensityTokens _fallback(TanreiTableOfContentsDensity density) {
+  TanreiTableOfContentsSizeTokens _fallback(TanreiTableOfContentsSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('table-of-contents density', density.name, 'regular');
+      debugTanreiReportUnknownValue('table-of-contents size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -24603,7 +24603,7 @@ class TanreiTableOfContentsTokens {
     required this.titleColor,
     required this.titleTypescale,
     required this.parts,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -24665,8 +24665,8 @@ class TanreiTableOfContentsTokens {
   final TanreiTextStyle titleTypescale;
   /// The `part` axis: `parts[part]`.
   final TanreiTableOfContentsParts parts;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiTableOfContentsDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiTableOfContentsSizes sizes;
   /// `comp.table-of-contents.hovered.*`
   final TanreiTableOfContentsStateTokens hovered;
   /// `comp.table-of-contents.focused.*`
@@ -24704,7 +24704,7 @@ class TanreiTableOfContentsTokens {
     TanreiPaint? titleColor,
     TanreiTextStyle? titleTypescale,
     TanreiTableOfContentsParts? parts,
-    TanreiTableOfContentsDensitys? densitys,
+    TanreiTableOfContentsSizes? sizes,
     TanreiTableOfContentsStateTokens? hovered,
     TanreiTableOfContentsStateTokens? focused,
     TanreiTableOfContentsStateTokens? pressed,
@@ -24737,7 +24737,7 @@ class TanreiTableOfContentsTokens {
         titleColor: titleColor ?? this.titleColor,
         titleTypescale: titleTypescale ?? this.titleTypescale,
         parts: parts ?? this.parts,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
@@ -26390,92 +26390,6 @@ class TanreiTimelineSizes {
   }
 }
 
-/// The key of a density of timeline (`comp.timeline`, axis `density`).
-///
-/// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiTimelineDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiTimelineDensity(String name) {
-  static const regular = TanreiTimelineDensity('regular');
-  static const compact = TanreiTimelineDensity('compact');
-
-  /// The core values, in the order the component declares them.
-  static const List<TanreiTimelineDensity> core = <TanreiTimelineDensity>[regular, compact];
-}
-
-/// The tokens of one timeline density.
-@immutable
-class TanreiTimelineDensityTokens {
-  const TanreiTimelineDensityTokens({
-    required this.itemGap,
-  });
-
-  /// `comp.timeline.item-gap.<density>`
-  final double itemGap;
-
-  /// A copy with the given tokens replaced.
-  TanreiTimelineDensityTokens copyWith({
-    double? itemGap,
-  }) => TanreiTimelineDensityTokens(
-        itemGap: itemGap ?? this.itemGap,
-      );
-}
-
-/// Every density of timeline: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
-@immutable
-class TanreiTimelineDensitys {
-  const TanreiTimelineDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiTimelineDensity, TanreiTimelineDensityTokens>{},
-  });
-
-  /// `comp.timeline` density `regular`
-  final TanreiTimelineDensityTokens regular;
-  /// `comp.timeline` density `compact`
-  final TanreiTimelineDensityTokens compact;
-
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiTimelineDensity, TanreiTimelineDensityTokens> extra;
-
-  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
-  /// those with the same key): a copy never loses a value the design system added.
-  TanreiTimelineDensitys copyWith({
-    TanreiTimelineDensityTokens? regular,
-    TanreiTimelineDensityTokens? compact,
-    Map<TanreiTimelineDensity, TanreiTimelineDensityTokens>? extra,
-  }) => TanreiTimelineDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiTimelineDensity, TanreiTimelineDensityTokens>{...this.extra, ...extra},
-      );
-
-  /// The tokens of [density].
-  ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
-  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiTimelineDensityTokens operator [](TanreiTimelineDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
-      };
-
-  /// Whether this design system has [density].
-  bool has(TanreiTimelineDensity density) => TanreiTimelineDensity.core.contains(density) || extra.containsKey(density);
-
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiTimelineDensity> get keys => <TanreiTimelineDensity>[...TanreiTimelineDensity.core, ...extra.keys];
-
-  TanreiTimelineDensityTokens _fallback(TanreiTimelineDensity density) {
-    assert(() {
-      debugTanreiReportUnknownValue('timeline density', density.name, 'regular');
-      return true;
-    }());
-    return regular;
-  }
-}
-
 /// `comp.timeline.*`
 @immutable
 class TanreiTimelineTokens {
@@ -26484,6 +26398,7 @@ class TanreiTimelineTokens {
     required this.connectorColor,
     required this.connectorGap,
     required this.connectorThickness,
+    required this.itemGap,
     required this.markerCurrentContainerColor,
     required this.markerCurrentIconColor,
     required this.markerDotColor,
@@ -26498,7 +26413,6 @@ class TanreiTimelineTokens {
     required this.timeGap,
     required this.titleGap,
     required this.sizes,
-    required this.densitys,
   });
 
   /// `comp.timeline.body-gap`
@@ -26509,6 +26423,8 @@ class TanreiTimelineTokens {
   final double connectorGap;
   /// `comp.timeline.connector-thickness`
   final double connectorThickness;
+  /// `comp.timeline.item-gap`
+  final double itemGap;
   /// `comp.timeline.marker-current-container-color`
   final TanreiPaint markerCurrentContainerColor;
   /// `comp.timeline.marker-current-icon-color`
@@ -26537,8 +26453,6 @@ class TanreiTimelineTokens {
   final double titleGap;
   /// The `size` axis: `sizes[size]`.
   final TanreiTimelineSizes sizes;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiTimelineDensitys densitys;
 
   /// A copy with the given tokens replaced.
   TanreiTimelineTokens copyWith({
@@ -26546,6 +26460,7 @@ class TanreiTimelineTokens {
     TanreiPaint? connectorColor,
     double? connectorGap,
     double? connectorThickness,
+    double? itemGap,
     TanreiPaint? markerCurrentContainerColor,
     TanreiPaint? markerCurrentIconColor,
     TanreiPaint? markerDotColor,
@@ -26560,12 +26475,12 @@ class TanreiTimelineTokens {
     double? timeGap,
     double? titleGap,
     TanreiTimelineSizes? sizes,
-    TanreiTimelineDensitys? densitys,
   }) => TanreiTimelineTokens(
         bodyGap: bodyGap ?? this.bodyGap,
         connectorColor: connectorColor ?? this.connectorColor,
         connectorGap: connectorGap ?? this.connectorGap,
         connectorThickness: connectorThickness ?? this.connectorThickness,
+        itemGap: itemGap ?? this.itemGap,
         markerCurrentContainerColor: markerCurrentContainerColor ?? this.markerCurrentContainerColor,
         markerCurrentIconColor: markerCurrentIconColor ?? this.markerCurrentIconColor,
         markerDotColor: markerDotColor ?? this.markerDotColor,
@@ -26580,7 +26495,6 @@ class TanreiTimelineTokens {
         timeGap: timeGap ?? this.timeGap,
         titleGap: titleGap ?? this.titleGap,
         sizes: sizes ?? this.sizes,
-        densitys: densitys ?? this.densitys,
       );
 }
 

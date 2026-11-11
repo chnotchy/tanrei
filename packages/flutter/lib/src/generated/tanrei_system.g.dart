@@ -3701,20 +3701,20 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     stackGap: 4.0,
     termColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     valueColor: TanreiPaint.role(TanreiColorRole.onSurface),
-    densitys: TanreiDescriptionListDensitys(
-      regular: TanreiDescriptionListDensityTokens(
-        factGap: 12.0,
-        termGap: 16.0,
-        termTypescale: _typescaleLabel,
-        valueTypescale: _typescaleBody,
-        statValueTypescale: _typescaleHeading1,
-      ),
-      compact: TanreiDescriptionListDensityTokens(
+    sizes: TanreiDescriptionListSizes(
+      small: TanreiDescriptionListSizeTokens(
         factGap: 6.0,
         termGap: 8.0,
         termTypescale: _typescaleLabelSmall,
         valueTypescale: _typescaleBodySmall,
         statValueTypescale: _typescaleHeading3,
+      ),
+      medium: TanreiDescriptionListSizeTokens(
+        factGap: 12.0,
+        termGap: 16.0,
+        termTypescale: _typescaleLabel,
+        valueTypescale: _typescaleBody,
+        statValueTypescale: _typescaleHeading1,
       ),
     ),
   ),
@@ -8994,14 +8994,14 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTableOfContentsDensitys(
-      regular: TanreiTableOfContentsDensityTokens(
-        rowHeight: 44.0,
-        rowPaddingBlock: 12.0,
-      ),
-      compact: TanreiTableOfContentsDensityTokens(
+    sizes: TanreiTableOfContentsSizes(
+      small: TanreiTableOfContentsSizeTokens(
         rowHeight: 36.0,
         rowPaddingBlock: 8.0,
+      ),
+      medium: TanreiTableOfContentsSizeTokens(
+        rowHeight: 44.0,
+        rowPaddingBlock: 12.0,
       ),
     ),
     hovered: TanreiTableOfContentsStateTokens(
@@ -9698,6 +9698,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     connectorColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     connectorGap: 4.0,
     connectorThickness: 1.0,
+    itemGap: 16.0,
     markerCurrentContainerColor: TanreiPaint.role(TanreiColorRole.primary),
     markerCurrentIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
     markerDotColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
@@ -9723,14 +9724,6 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         timeTypescale: _typescaleBody,
         titleTypescale: _typescaleHeading5,
         bodyTypescale: _typescaleBodyLarge,
-      ),
-    ),
-    densitys: TanreiTimelineDensitys(
-      regular: TanreiTimelineDensityTokens(
-        itemGap: 16.0,
-      ),
-      compact: TanreiTimelineDensityTokens(
-        itemGap: 8.0,
       ),
     ),
   ),

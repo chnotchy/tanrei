@@ -165,9 +165,9 @@ export interface TanreiCodeBlockVariantRegistry {
   outlined: true;
 }
 
-export interface TanreiDescriptionListDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiDescriptionListSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiFigureVariantRegistry {
@@ -232,9 +232,9 @@ export interface TanreiPageHeaderSizeRegistry {
   large: true;
 }
 
-export interface TanreiTableOfContentsDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTableOfContentsSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiFieldGroupSpacingRegistry {

@@ -57,7 +57,7 @@ const MINIMUM_TARGET_36 = new Set([
   'comp.tabs.container.height.small', 'comp.snackbar.controls.height',
   'comp.tree-view.container.height.compact', 'comp.tree-view.container.padding-block.compact',
   'comp.navigation-drawer.item.container.height.compact', 'comp.navigation-drawer.item.padding-block.compact', 'comp.navigation-drawer.collapsed.item.container.width.compact',
-  'comp.table-of-contents.row.height.compact', 'comp.table-of-contents.row.padding-block.compact',
+  'comp.table-of-contents.row.height.small', 'comp.table-of-contents.row.padding-block.small',
   'comp.menu.container.height.compact', 'comp.menu.container.padding-block.compact',
   'comp.select.option.height.compact', 'comp.select.option.padding-block.compact',
   'comp.combobox.option.height.compact', 'comp.combobox.option.padding-block.compact',

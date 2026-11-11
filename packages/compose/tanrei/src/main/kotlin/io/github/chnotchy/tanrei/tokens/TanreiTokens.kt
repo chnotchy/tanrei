@@ -3822,23 +3822,23 @@ public data class TanreiDateTimePickerTokens(
 }
 
 /**
- * A density of description-list: the key of one entry of [TanreiDescriptionListDensitys]. The set is OPEN — the constants are the core
+ * A size of description-list: the key of one entry of [TanreiDescriptionListSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
+ * A key the current system does not have draws as [Medium].
  */
 @JvmInline
-public value class TanreiDescriptionListDensity(public val key: String) {
+public value class TanreiDescriptionListSize(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
-        public val Regular: TanreiDescriptionListDensity = TanreiDescriptionListDensity("regular")
-        public val Compact: TanreiDescriptionListDensity = TanreiDescriptionListDensity("compact")
+        public val Small: TanreiDescriptionListSize = TanreiDescriptionListSize("small")
+        public val Medium: TanreiDescriptionListSize = TanreiDescriptionListSize("medium")
     }
 }
 
-/** The tokens of one density of description-list. */
+/** The tokens of one size of description-list. */
 @Immutable
-public data class TanreiDescriptionListDensityTokens(
+public data class TanreiDescriptionListSizeTokens(
     public val factGap: Dp,
     public val termGap: Dp,
     public val termTypescale: TanreiTextStyle,
@@ -3847,32 +3847,32 @@ public data class TanreiDescriptionListDensityTokens(
 )
 
 /**
- * Every density of description-list: a named member per core value, plus [extra] for the values a design system added.
+ * Every size of description-list: a named member per core value, plus [extra] for the values a design system added.
  */
 @Immutable
-public data class TanreiDescriptionListDensitys(
-    public val regular: TanreiDescriptionListDensityTokens,
-    public val compact: TanreiDescriptionListDensityTokens,
+public data class TanreiDescriptionListSizes(
+    public val small: TanreiDescriptionListSizeTokens,
+    public val medium: TanreiDescriptionListSizeTokens,
     /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiDescriptionListDensity, TanreiDescriptionListDensityTokens> = emptyMap(),
+    public val extra: Map<TanreiDescriptionListSize, TanreiDescriptionListSizeTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiDescriptionListDensity> get() = linkedSetOf(TanreiDescriptionListDensity.Regular, TanreiDescriptionListDensity.Compact) + extra.keys
+    public val keys: Set<TanreiDescriptionListSize> get() = linkedSetOf(TanreiDescriptionListSize.Small, TanreiDescriptionListSize.Medium) + extra.keys
 
-    public operator fun contains(key: TanreiDescriptionListDensity): Boolean = find(key) != null
+    public operator fun contains(key: TanreiDescriptionListSize): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiDescriptionListDensity): TanreiDescriptionListDensityTokens? = when (key) {
-        TanreiDescriptionListDensity.Regular -> regular
-        TanreiDescriptionListDensity.Compact -> compact
+    public fun find(key: TanreiDescriptionListSize): TanreiDescriptionListSizeTokens? = when (key) {
+        TanreiDescriptionListSize.Small -> small
+        TanreiDescriptionListSize.Medium -> medium
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiDescriptionListDensity): TanreiDescriptionListDensityTokens = find(key) ?: regular
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiDescriptionListSize): TanreiDescriptionListSizeTokens = find(key) ?: medium
 }
 
-/** `comp.description-list`. Members are flat tokens, then per-state tokens, then one holder per axis (`densitys[density]`). */
+/** `comp.description-list`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`). */
 @Immutable
 public data class TanreiDescriptionListTokens(
     public val columnGap: Dp,
@@ -3883,7 +3883,7 @@ public data class TanreiDescriptionListTokens(
     public val stackGap: Dp,
     public val termColor: TanreiPaint,
     public val valueColor: TanreiPaint,
-    public val densitys: TanreiDescriptionListDensitys,
+    public val sizes: TanreiDescriptionListSizes,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(dividerColor.roles())
@@ -10513,51 +10513,51 @@ public data class TanreiTableOfContentsParts(
 }
 
 /**
- * A density of table-of-contents: the key of one entry of [TanreiTableOfContentsDensitys]. The set is OPEN — the constants are the core
+ * A size of table-of-contents: the key of one entry of [TanreiTableOfContentsSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
+ * A key the current system does not have draws as [Medium].
  */
 @JvmInline
-public value class TanreiTableOfContentsDensity(public val key: String) {
+public value class TanreiTableOfContentsSize(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
-        public val Regular: TanreiTableOfContentsDensity = TanreiTableOfContentsDensity("regular")
-        public val Compact: TanreiTableOfContentsDensity = TanreiTableOfContentsDensity("compact")
+        public val Small: TanreiTableOfContentsSize = TanreiTableOfContentsSize("small")
+        public val Medium: TanreiTableOfContentsSize = TanreiTableOfContentsSize("medium")
     }
 }
 
-/** The tokens of one density of table-of-contents. */
+/** The tokens of one size of table-of-contents. */
 @Immutable
-public data class TanreiTableOfContentsDensityTokens(
+public data class TanreiTableOfContentsSizeTokens(
     public val rowHeight: Dp,
     public val rowPaddingBlock: Dp,
 )
 
 /**
- * Every density of table-of-contents: a named member per core value, plus [extra] for the values a design system added.
+ * Every size of table-of-contents: a named member per core value, plus [extra] for the values a design system added.
  */
 @Immutable
-public data class TanreiTableOfContentsDensitys(
-    public val regular: TanreiTableOfContentsDensityTokens,
-    public val compact: TanreiTableOfContentsDensityTokens,
+public data class TanreiTableOfContentsSizes(
+    public val small: TanreiTableOfContentsSizeTokens,
+    public val medium: TanreiTableOfContentsSizeTokens,
     /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiTableOfContentsDensity, TanreiTableOfContentsDensityTokens> = emptyMap(),
+    public val extra: Map<TanreiTableOfContentsSize, TanreiTableOfContentsSizeTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiTableOfContentsDensity> get() = linkedSetOf(TanreiTableOfContentsDensity.Regular, TanreiTableOfContentsDensity.Compact) + extra.keys
+    public val keys: Set<TanreiTableOfContentsSize> get() = linkedSetOf(TanreiTableOfContentsSize.Small, TanreiTableOfContentsSize.Medium) + extra.keys
 
-    public operator fun contains(key: TanreiTableOfContentsDensity): Boolean = find(key) != null
+    public operator fun contains(key: TanreiTableOfContentsSize): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiTableOfContentsDensity): TanreiTableOfContentsDensityTokens? = when (key) {
-        TanreiTableOfContentsDensity.Regular -> regular
-        TanreiTableOfContentsDensity.Compact -> compact
+    public fun find(key: TanreiTableOfContentsSize): TanreiTableOfContentsSizeTokens? = when (key) {
+        TanreiTableOfContentsSize.Small -> small
+        TanreiTableOfContentsSize.Medium -> medium
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTableOfContentsDensity): TanreiTableOfContentsDensityTokens = find(key) ?: regular
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiTableOfContentsSize): TanreiTableOfContentsSizeTokens = find(key) ?: medium
 }
 
 /** What every variant of table-of-contents shares in one interaction state. */
@@ -10566,7 +10566,7 @@ public data class TanreiTableOfContentsStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.table-of-contents`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`, `densitys[density]`). */
+/** `comp.table-of-contents`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`, `sizes[size]`). */
 @Immutable
 public data class TanreiTableOfContentsTokens(
     public val compactContainerColor: TanreiPaint,
@@ -10600,7 +10600,7 @@ public data class TanreiTableOfContentsTokens(
     public val focused: TanreiTableOfContentsStateTokens,
     public val pressed: TanreiTableOfContentsStateTokens,
     public val parts: TanreiTableOfContentsParts,
-    public val densitys: TanreiTableOfContentsDensitys,
+    public val sizes: TanreiTableOfContentsSizes,
 ) {
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
     public fun opacity(state: TanreiInteractionState): Float = when (state) {
@@ -11362,60 +11362,14 @@ public data class TanreiTimelineSizes(
     public operator fun get(key: TanreiTimelineSize): TanreiTimelineSizeTokens = find(key) ?: medium
 }
 
-/**
- * A density of timeline: the key of one entry of [TanreiTimelineDensitys]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
- */
-@JvmInline
-public value class TanreiTimelineDensity(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Regular: TanreiTimelineDensity = TanreiTimelineDensity("regular")
-        public val Compact: TanreiTimelineDensity = TanreiTimelineDensity("compact")
-    }
-}
-
-/** The tokens of one density of timeline. */
-@Immutable
-public data class TanreiTimelineDensityTokens(
-    public val itemGap: Dp,
-)
-
-/**
- * Every density of timeline: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiTimelineDensitys(
-    public val regular: TanreiTimelineDensityTokens,
-    public val compact: TanreiTimelineDensityTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiTimelineDensity, TanreiTimelineDensityTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiTimelineDensity> get() = linkedSetOf(TanreiTimelineDensity.Regular, TanreiTimelineDensity.Compact) + extra.keys
-
-    public operator fun contains(key: TanreiTimelineDensity): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiTimelineDensity): TanreiTimelineDensityTokens? = when (key) {
-        TanreiTimelineDensity.Regular -> regular
-        TanreiTimelineDensity.Compact -> compact
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTimelineDensity): TanreiTimelineDensityTokens = find(key) ?: regular
-}
-
-/** `comp.timeline`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `densitys[density]`). */
+/** `comp.timeline`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`). */
 @Immutable
 public data class TanreiTimelineTokens(
     public val bodyGap: Dp,
     public val connectorColor: TanreiPaint,
     public val connectorGap: Dp,
     public val connectorThickness: Dp,
+    public val itemGap: Dp,
     public val markerCurrentContainerColor: TanreiPaint,
     public val markerCurrentIconColor: TanreiPaint,
     public val markerDotColor: TanreiPaint,
@@ -11430,7 +11384,6 @@ public data class TanreiTimelineTokens(
     public val timeGap: Dp,
     public val titleGap: Dp,
     public val sizes: TanreiTimelineSizes,
-    public val densitys: TanreiTimelineDensitys,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(connectorColor.roles())

@@ -3486,9 +3486,9 @@ private object CupertinoSystemSource {
             stackGap = 4.dp,
             termColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             valueColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-            densitys = TanreiDescriptionListDensitys(
-                regular = TanreiDescriptionListDensityTokens(factGap = 12.dp, termGap = 16.dp, termTypescale = typescale.label, valueTypescale = typescale.body, statValueTypescale = typescale.heading1),
-                compact = TanreiDescriptionListDensityTokens(factGap = 6.dp, termGap = 8.dp, termTypescale = typescale.labelSmall, valueTypescale = typescale.bodySmall, statValueTypescale = typescale.heading3),
+            sizes = TanreiDescriptionListSizes(
+                small = TanreiDescriptionListSizeTokens(factGap = 6.dp, termGap = 8.dp, termTypescale = typescale.labelSmall, valueTypescale = typescale.bodySmall, statValueTypescale = typescale.heading3),
+                medium = TanreiDescriptionListSizeTokens(factGap = 12.dp, termGap = 16.dp, termTypescale = typescale.label, valueTypescale = typescale.body, statValueTypescale = typescale.heading1),
             ),
         )
 
@@ -8305,9 +8305,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTableOfContentsDensitys(
-                regular = TanreiTableOfContentsDensityTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
-                compact = TanreiTableOfContentsDensityTokens(rowHeight = 32.dp, rowPaddingBlock = 6.dp),
+            sizes = TanreiTableOfContentsSizes(
+                small = TanreiTableOfContentsSizeTokens(rowHeight = 32.dp, rowPaddingBlock = 6.dp),
+                medium = TanreiTableOfContentsSizeTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
             ),
         )
 
@@ -8956,6 +8956,7 @@ private object CupertinoSystemSource {
             connectorColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             connectorGap = 4.dp,
             connectorThickness = 1.dp,
+            itemGap = 16.dp,
             markerCurrentContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
             markerCurrentIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
             markerDotColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
@@ -8972,10 +8973,6 @@ private object CupertinoSystemSource {
             sizes = TanreiTimelineSizes(
                 medium = TanreiTimelineSizeTokens(markerHeight = 24.dp, timeTypescale = typescale.bodySmall, titleTypescale = typescale.heading6, bodyTypescale = typescale.body),
                 large = TanreiTimelineSizeTokens(markerHeight = 28.dp, timeTypescale = typescale.body, titleTypescale = typescale.heading5, bodyTypescale = typescale.bodyLarge),
-            ),
-            densitys = TanreiTimelineDensitys(
-                regular = TanreiTimelineDensityTokens(itemGap = 16.dp),
-                compact = TanreiTimelineDensityTokens(itemGap = 8.dp),
             ),
         )
 

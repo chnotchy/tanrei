@@ -56,7 +56,7 @@ const CASES: Case[] = [
   { id: 'TML-4', tokens: [C('timeline-title-typescale-medium-letter-spacing')], markup: '<ol class="tanrei-timeline" LANG STYLE><li><p class="tanrei-timeline-title">Title 見出し</p><p>Body</p></li></ol>', title: '.tanrei-timeline-title' },
   { id: 'PGH-4', tokens: [C('page-header-title-typescale-medium-letter-spacing')], markup: '<tanrei-page-header LANG STYLE><h1>Title 見出し</h1></tanrei-page-header>', title: 'h1' },
   { id: 'PGH-4', tokens: [C('page-header-eyebrow-typescale-letter-spacing')], markup: '<tanrei-page-header LANG STYLE><p data-part="eyebrow">Eyebrow</p><h1>Title</h1></tanrei-page-header>', title: '[data-part="eyebrow"]' },
-  { id: 'DSL-6', tokens: [C('description-list-stat-value-typescale-regular-letter-spacing')], markup: '<tanrei-description-list LANG STYLE layout="stat"><dl><div><dt>Term 用語</dt><dd>1,234</dd></div></dl></tanrei-description-list>', title: 'dd' },
+  { id: 'DSL-6', tokens: [C('description-list-stat-value-typescale-medium-letter-spacing')], markup: '<tanrei-description-list LANG STYLE layout="stat"><dl><div><dt>Term 用語</dt><dd>1,234</dd></div></dl></tanrei-description-list>', title: 'dd' },
   { id: 'PRS-20', tokens: ['--tanrei-sys-typescale-heading-2-letter-spacing'], markup: '<div class="tanrei-prose" LANG STYLE><h2>Title 見出し</h2><p>Body</p></div>', title: 'h2' },
   { id: 'PRS-20', tokens: ['--tanrei-sys-typescale-heading-2-letter-spacing'], markup: '<div class="tanrei-prose" STYLE><h2 LANG>Title 見出し</h2><p>Body</p></div>', title: 'h2' },
 ];

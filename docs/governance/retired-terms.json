@@ -778,6 +778,356 @@
       ]
     },
     {
+      "term": "comp.table-of-contents.density",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size, which it takes from its container where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.table-of-contents.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.density",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size, which it takes from its container where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.description-list.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.timeline.density",
+      "since": "2026-11-12",
+      "reason": "the timeline has no density of its own: the space between its events follows the system's density",
+      "replacedBy": "dial.density, the system's",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table-of-contents.row.height.regular",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: regular is medium",
+      "replacedBy": "comp.table-of-contents.row.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table-of-contents.row.height.compact",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: compact is small",
+      "replacedBy": "comp.table-of-contents.row.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table-of-contents.row.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: regular is medium",
+      "replacedBy": "comp.table-of-contents.row.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table-of-contents.row.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: compact is small",
+      "replacedBy": "comp.table-of-contents.row.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-of-contents-row-height-regular",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-of-contents-row-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-of-contents-row-height-compact",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-of-contents-row-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-of-contents-row-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-of-contents-row-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-of-contents-row-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the table of contents' density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-of-contents-row-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.fact.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "comp.description-list.fact.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.fact.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "comp.description-list.fact.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.term.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "comp.description-list.term.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.term.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "comp.description-list.term.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.term.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "comp.description-list.term.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.term.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "comp.description-list.term.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.value.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "comp.description-list.value.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.value.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "comp.description-list.value.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.stat.value.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "comp.description-list.stat.value.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.description-list.stat.value.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "comp.description-list.stat.value.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-fact-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-description-list-fact-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-fact-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-description-list-fact-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-term-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-description-list-term-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-term-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-description-list-term-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-term-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-description-list-term-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-term-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-description-list-term-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-value-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-description-list-value-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-value-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-description-list-value-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-stat-value-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-description-list-stat-value-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-description-list-stat-value-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the description list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-description-list-stat-value-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.timeline.item.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the timeline has no density of its own: one space between events, which the system's density moves",
+      "replacedBy": "comp.timeline.item.gap",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.timeline.item.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the timeline has no density of its own: one space between events, which the system's density moves",
+      "replacedBy": "comp.timeline.item.gap",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-timeline-item-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the timeline has no density of its own: one space between events, which the system's density moves",
+      "replacedBy": "--tanrei-comp-timeline-item-gap",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-timeline-item-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the timeline has no density of its own: one space between events, which the system's density moves",
+      "replacedBy": "--tanrei-comp-timeline-item-gap",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
       "term": "split-button",
       "notPrecededBy": "missing-font-rule-chip-",
       "notFollowedBy": "-(chevron-slot-and-hover|chevron-slots-hover|code-after-the-rename|halves-outlines-meet|device-check|menu-anchor-trailing-half|empty-menu-(frame|report-when|report-traps)|keyboard-end-to-end|macos-toggle-while-open|disabled-open(-form)?|item-click-stops|web-implemented|label-overflows-below-min-content|turn-timer)",

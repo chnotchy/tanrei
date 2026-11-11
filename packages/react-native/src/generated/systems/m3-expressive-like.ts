@@ -5704,9 +5704,9 @@ export const m3ExpressiveLike = {
       stackGap: 4,
       termColor: { kind: "role", role: "onSurfaceVariant" },
       valueColor: { kind: "role", role: "onSurface" },
-      densitys: {
-        regular: { factGap: 12, termGap: 16, termTypescale: "label", valueTypescale: "body", statValueTypescale: "heading1" },
-        compact: { factGap: 6, termGap: 8, termTypescale: "labelSmall", valueTypescale: "bodySmall", statValueTypescale: "heading3" },
+      sizes: {
+        small: { factGap: 6, termGap: 8, termTypescale: "labelSmall", valueTypescale: "bodySmall", statValueTypescale: "heading3" },
+        medium: { factGap: 12, termGap: 16, termTypescale: "label", valueTypescale: "body", statValueTypescale: "heading1" },
       },
     },
     dialog: {
@@ -13234,9 +13234,9 @@ export const m3ExpressiveLike = {
           },
         },
       },
-      densitys: {
-        regular: { rowHeight: 44, rowPaddingBlock: 12 },
-        compact: { rowHeight: 32, rowPaddingBlock: 6 },
+      sizes: {
+        small: { rowHeight: 32, rowPaddingBlock: 6 },
+        medium: { rowHeight: 44, rowPaddingBlock: 12 },
       },
     },
     table: {
@@ -14315,6 +14315,7 @@ export const m3ExpressiveLike = {
       connectorColor: { kind: "role", role: "outlineVariant" },
       connectorGap: 4,
       connectorThickness: 1,
+      itemGap: 16,
       markerCurrentContainerColor: { kind: "role", role: "primary" },
       markerCurrentIconColor: { kind: "role", role: "onPrimary" },
       markerDotColor: { kind: "role", role: "onSurfaceVariant" },
@@ -14331,10 +14332,6 @@ export const m3ExpressiveLike = {
       sizes: {
         medium: { markerHeight: 24, timeTypescale: "bodySmall", titleTypescale: "heading6", bodyTypescale: "body" },
         large: { markerHeight: 28, timeTypescale: "body", titleTypescale: "heading5", bodyTypescale: "bodyLarge" },
-      },
-      densitys: {
-        regular: { itemGap: 16 },
-        compact: { itemGap: 8 },
       },
     },
     toolbar: {

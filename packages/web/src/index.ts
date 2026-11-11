@@ -227,7 +227,7 @@ export {
   type TanreiDateTimePickerPresentation,
   type TanreiDateTimePickerUnit,
 } from './components/date-time-picker/date-time-picker.js';
-export { TanreiDescriptionList, type TanreiDescriptionListDensity, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation } from './components/description-list/description-list.js';
+export { TanreiDescriptionList, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation, type TanreiDescriptionListSize } from './components/description-list/description-list.js';
 export { TanreiDialog, type TanreiDialogClosedBy } from './components/dialog/dialog.js';
 export { TanreiModalLayer, type TanreiModalLayerCloseDetail, type TanreiModalLayerCloseReason, type TanreiModalLayerClosedBy } from './components/modal-layer/modal-layer.js';
 export { TanreiEmptyState, type TanreiEmptyStateAlign, type TanreiEmptyStateSize } from './components/empty-state/empty-state.js';
@@ -426,9 +426,9 @@ export {
 export {
   TanreiTableOfContents,
   type TanreiTableOfContentsCurrentChangeDetail,
-  type TanreiTableOfContentsDensity,
   type TanreiTableOfContentsPresentation,
   type TanreiTableOfContentsSelectDetail,
+  type TanreiTableOfContentsSize,
   type TanreiTableOfContentsToggleDetail,
   type TanreiTableOfContentsTracking,
 } from './components/table-of-contents/table-of-contents.js';

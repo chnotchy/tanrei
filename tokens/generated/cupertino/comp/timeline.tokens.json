@@ -4,7 +4,7 @@
       "timeline": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product shows what happened and what is to come in the order of time — the releases of a product, the history of an order, the milestones of a plan, the activity on a record — each event with its date, what it was and, where there is more to say, a few lines; it marks which of them are done, which one is under way and which are still ahead without relying on a color; and it shows a long log of one-line events closer together than a plan of five milestones.",
+            "rationale": "One product shows what happened and what is to come in the order of time — the releases of a product, the history of an order, the milestones of a plan, the activity on a record — each event with its date, what it was and, where there is more to say, a few lines; and it marks which of them are done, which one is under way and which are still ahead without relying on a color.",
             "since": "0.1.0"
           },
           "dev.tanrei.axes": {
@@ -20,20 +20,10 @@
                 "title.typescale",
                 "body.typescale"
               ]
-            },
-            "density": {
-              "default": "regular",
-              "values": [
-                "regular",
-                "compact"
-              ],
-              "members": [
-                "item.gap"
-              ]
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a timeline reads: per size, the marker column's box and the text styles of an event's time, title and body; the dot's size and color; the ring's corners and edge; the glyph's size and color; the fill and the mark of the event that is under way; the space between the marker and the event's content; the connector's color, thickness and its distance from the markers it joins; per density, the space between two events; the time's color; and the spaces between a time, a title and a body.",
+            "usage": "Everything a timeline reads: per size, the marker column's box and the text styles of an event's time, title and body; the dot's size and color; the ring's corners and edge; the glyph's size and color; the fill and the mark of the event that is under way; the space between the marker and the event's content; the connector's color, thickness and its distance from the markers it joins; the space between two events, which follows the system's density; the time's color; and the spaces between a time, a title and a body.",
             "rules": [
               "A timeline is a record to read: events in the order of time, each with a time, a title and an optional body. It is an ordered list and nothing in it is pressed.",
               "A procedure a reader works through, numbered, is steps, not a timeline. A timeline has no numbers: its order is time's, and its marker is a dot or a glyph.",
@@ -41,7 +31,7 @@
               "Give status only where the events have one (a plan, an order's tracking): done, current, upcoming. A log of things that happened has none. A status is drawn as a shape — a check in a ring, a filled circle, an empty ring — and said in words through statusLabel; never rely on the color.",
               "The order is the product's: oldest first or newest first, as the events are given. Hiding old events, loading more and grouping by day are the product's too.",
               "A timeline brings no color for a title or a body: they take the content color of the surface. The time is secondary content; the ring and the connector are the system's one hairline; the one filled marker is the event that is under way.",
-              "Use size large on a page whose purpose is reading; medium among controls. Use density compact for a long log of short events.",
+              "Use size large on a page whose purpose is reading; medium among controls.",
               "Restyle through these tokens in a layer; never draw a dotted rail by hand."
             ]
           }
@@ -172,35 +162,18 @@
         "item": {
           "gap": {
             "$type": "dimension",
-            "$description": "The space between the end of one event and the beginning of the next, per density. Regular is the space prose puts between two blocks in the default system; compact, half of it, is for a long log of one-line events.",
-            "regular": {
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.sys.space.space200}",
-                  "by": 1,
-                  "times": "{tanrei.dial.density}",
-                  "round": "{tanrei.sys.space.space25}"
-                }
-              }
+            "$description": "The space between the end of one event and the beginning of the next: the space prose puts between two blocks in the default system, times the system's density, so a denser system draws its events closer together.",
+            "$value": {
+              "value": 16,
+              "unit": "px"
             },
-            "compact": {
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.sys.space.space100}",
-                  "by": 1,
-                  "times": "{tanrei.dial.density}",
-                  "round": "{tanrei.sys.space.space25}"
-                }
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.sys.space.space200}",
+                "by": 1,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.sys.space.space25}"
               }
             }
           }
@@ -258,7 +231,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space100}",
-            "$description": "The space between two blocks of one event's body: half the regular space between two events, so what belongs to one event is closer together than two events are."
+            "$description": "The space between two blocks of one event's body: half the space between two events at density 1, so what belongs to one event is closer together than two events are."
           }
         }
       }

@@ -32,11 +32,11 @@
               "default": "item",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "row.height",
@@ -45,7 +45,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a table of contents reads: the text style and color of its title, the text style of its items, per density (regular, compact) a row's least height and the room above and below its label, a row's inline padding and corners, how far each level of nesting sets a label in, the rail along the list's start edge and the marker of the current item on it, the compact form's fill, corners, row height, paddings, glyph and the text of the current section it shows, the timing of a state change and of the compact form opening, and for each pressable part (an item, the current item, the compact form's row) its fill, label and state-layer colors at rest and in each state.",
+            "usage": "Everything a table of contents reads: the text style and color of its title, the text style of its items, per size (small, medium) a row's least height and the room above and below its label, a row's inline padding and corners, how far each level of nesting sets a label in, the rail along the list's start edge and the marker of the current item on it, the compact form's fill, corners, row height, paddings, glyph and the text of the current section it shows, the timing of a state change and of the compact form opening, and for each pressable part (an item, the current item, the compact form's row) its fill, label and state-layer colors at rest and in each state.",
             "rules": [
               "A table of contents lists the headings of the page the person is on, as links to them. It is not the product's navigation between pages: that is a navigation drawer, a navigation bar or tabs.",
               "Its items are links and are not underlined: they are rows of a list in a navigation landmark, not phrases in a sentence. Never give an item a press handler in place of a destination.",
@@ -53,7 +53,7 @@
               "Do not mark the ancestors of the current item, and do not hide sub-levels until their heading is current: the list must not move while the reader scrolls.",
               "Where the list stands, that it stays in view while the page scrolls, and which presentation a window width gets are the layout's that places it, not this component's.",
               "Use presentation compact where there is no room beside the text. Do not build the compact form from an accordion and a list by hand.",
-              "density is how tall a row is, and is not the compact presentation. regular, the default, holds the pointer target; compact is the smallest row the minimum target allows, for a long list beside text read with a pointer. Choose compact explicitly, never by default, and never to fit a touch layout: for touch a row is the touch target in both.",
+              "size is how tall a row is, and is not the compact presentation. medium, the default, is taller than the pointer target; small is the smallest row the minimum target allows, for a long list beside text read with a pointer. A row is never lower than the target at either size. A table of contents that sets no size takes the one its container sets.",
               "The title and every label are the product's words; Tanrei ships none.",
               "State tokens are valued by the design system's pattern rules; override one token or replace the rule.",
               "Restyle through these tokens in a layer; never style the anchors by hand."
@@ -89,8 +89,8 @@
         "row": {
           "height": {
             "$type": "dimension",
-            "$description": "An item's least height for a fine pointer, per density: one line of its label and its density's padding-block twice in the default system. Regular is 44 in the default system, above the pointer target, so that a row of the default density is never a smaller target than any other control. Compact is the small step of the control heights, never below the minimum target (36 in the default system): the density a product asks for by name, for a long list beside the text; where a system's pointer target is taller, a compact row is lower than it. A minimum in both: a row grows with a label that wraps and with enlarged text, and for touch it is never lower than the touch target.",
-            "regular": {
+            "$description": "An item's least height, per size: one line of its label and its size's padding-block twice in the default system. Medium is 44 in the default system, above the pointer target, so that a row of the default size is never a smaller target than any other control. Small is the small step of the control heights, never below the minimum target (36 in the default system): the size a product asks for by name, for a long list beside the text. A minimum at both: a row grows with a label that wraps and with enlarged text, and it is never lower than the touch target for touch nor the pointer target for a fine pointer, whatever this says (TOC-24).",
+            "medium": {
               "$value": {
                 "value": 44,
                 "unit": "px"
@@ -106,7 +106,7 @@
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 36,
                 "unit": "px"
@@ -124,12 +124,12 @@
           "padding-inline": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same in both densities: density changes how tall a row is, not where its label starts."
+            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same at both sizes: size changes how tall a row is, not where its label starts."
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Above and below a row's label, per density. With one line of the label it gives the density's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
-            "regular": {
+            "$description": "Above and below a row's label, per size. With one line of the label it gives the size's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
+            "medium": {
               "$value": {
                 "value": 12,
                 "unit": "px"
@@ -138,11 +138,11 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space150}",
-                  "height": "{tanrei.comp.table-of-contents.row.height.regular}"
+                  "height": "{tanrei.comp.table-of-contents.row.height.medium}"
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 8,
                 "unit": "px"
@@ -151,7 +151,7 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space75}",
-                  "height": "{tanrei.comp.table-of-contents.row.height.compact}"
+                  "height": "{tanrei.comp.table-of-contents.row.height.small}"
                 }
               }
             }

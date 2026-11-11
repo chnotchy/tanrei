@@ -34,8 +34,8 @@ const html = list(items);
 {
   toc && (
     <>
-      <tanrei-table-of-contents class="docs-toc-list" label={words.onThisPage} density="compact" set:html={html} />
-      <tanrei-table-of-contents class="docs-toc-compact" label={words.onThisPage} density="compact" presentation="compact" set:html={html} />
+      <tanrei-table-of-contents class="docs-toc-list" label={words.onThisPage} size="small" set:html={html} />
+      <tanrei-table-of-contents class="docs-toc-compact" label={words.onThisPage} size="small" presentation="compact" set:html={html} />
     </>
   )
 }

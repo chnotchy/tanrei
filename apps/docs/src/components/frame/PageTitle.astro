@@ -118,7 +118,7 @@ const actions = head && route.entry.data.pagefind !== false;
   </Callout>
 )}
 {spec && (
-  <tanrei-description-list class="docs-page-facts" layout="stacked" columns="3" density="compact" separation="gap" data-pagefind-meta={indexLevel}>
+  <tanrei-description-list class="docs-page-facts" layout="stacked" columns="3" size="small" separation="gap" data-pagefind-meta={indexLevel}>
     <dl data-pagefind-meta={indexOnRequest}>
       <div><dt>{t.category_}</dt><dd>{t.category[spec.category] ?? spec.category}</dd></div>
       <div><dt>{t.tokens}</dt><dd><code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">{spec.tokens}</code></dd></div>

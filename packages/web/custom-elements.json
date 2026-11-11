@@ -15282,15 +15282,13 @@
             },
             {
               "kind": "field",
-              "name": "density",
+              "name": "size",
               "privacy": "public",
               "type": {
-                "text": "TanreiDescriptionListDensity"
+                "text": "TanreiDescriptionListSize"
               },
-              "default": "'regular'",
-              "description": "How close the facts are and how large their text is: regular for facts a person reads, compact for facts a person scans. A design system may add values.",
-              "attribute": "density",
-              "reflects": true
+              "description": "How close the facts are and how large their text is: `medium` for facts a person reads, `small` for facts a person\nscans. While it is not set the list draws the size its nearest container sets (DSL-25), and `medium` where none does;\nreading it then gives `medium`. Setting it (to any value, `medium` included) makes it the list's own; removing the\nattribute gives that back. It is not passed to what the values hold. A design system may add values.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -15325,13 +15323,12 @@
               "fieldName": "columns"
             },
             {
-              "name": "density",
+              "name": "size",
               "type": {
-                "text": "TanreiDescriptionListDensity"
+                "text": "TanreiDescriptionListSize"
               },
-              "default": "'regular'",
-              "description": "How close the facts are and how large their text is: regular for facts a person reads, compact for facts a person scans. A design system may add values.",
-              "fieldName": "density"
+              "description": "How close the facts are and how large their text is: `medium` for facts a person reads, `small` for facts a person\nscans. While it is not set the list draws the size its nearest container sets (DSL-25), and `medium` where none does;\nreading it then gives `medium`. Setting it (to any value, `medium` included) makes it the list's own; removing the\nattribute gives that back. It is not passed to what the values hold. A design system may add values.",
+              "fieldName": "size"
             },
             {
               "name": "separation",
@@ -47094,15 +47091,13 @@
             },
             {
               "kind": "field",
-              "name": "density",
+              "name": "size",
               "privacy": "public",
               "type": {
-                "text": "TanreiTableOfContentsDensity"
+                "text": "TanreiTableOfContentsSize"
               },
-              "default": "'regular'",
-              "description": "How tall a row of the list is: `regular` holds the pointer target; `compact` is lower, for a long list beside the text of a product read with a pointer. For touch a row is the touch target in both. A design system may add values.",
-              "attribute": "density",
-              "reflects": true
+              "description": "How tall a row of the list is: `medium` is taller than the pointer target; `small` is the minimum target, for a long\nlist beside the text of a product read with a pointer. A row is never lower than the target at either. While it is\nnot set the table of contents draws the size its nearest container sets (TOC-42), and `medium` where none does;\nreading it then gives `medium`. Setting it (to any value, `medium` included) makes it its own; removing the\nattribute gives that back. A design system may add values.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -47192,13 +47187,12 @@
               "fieldName": "presentation"
             },
             {
-              "name": "density",
+              "name": "size",
               "type": {
-                "text": "TanreiTableOfContentsDensity"
+                "text": "TanreiTableOfContentsSize"
               },
-              "default": "'regular'",
-              "description": "How tall a row of the list is: `regular` holds the pointer target; `compact` is lower, for a long list beside the text of a product read with a pointer. For touch a row is the touch target in both. A design system may add values.",
-              "fieldName": "density"
+              "description": "How tall a row of the list is: `medium` is taller than the pointer target; `small` is the minimum target, for a long\nlist beside the text of a product read with a pointer. A row is never lower than the target at either. While it is\nnot set the table of contents draws the size its nearest container sets (TOC-42), and `medium` where none does;\nreading it then gives `medium`. Setting it (to any value, `medium` included) makes it its own; removing the\nattribute gives that back. A design system may add values.",
+              "fieldName": "size"
             },
             {
               "name": "open",

@@ -203,7 +203,7 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
     const row = (label: string, ...value: (Node | string | null | (Node | string)[])[]) => h('div', { class: 'ts-fact' }, h('dt', { text: label }), h('dd', {}, ...value));
     // What the value is and who set it: short answers, beside their terms. What follows the token and what it is for:
     // rows of chips and whole sentences, each under its term, as wide as the pane (a phone's included).
-    const list = (layout: 'inline' | 'stacked', ...rows: (HTMLElement | null)[]) => h('tanrei-description-list', { layout, density: 'compact', separation: 'gap' }, h('dl', {}, ...rows));
+    const list = (layout: 'inline' | 'stacked', ...rows: (HTMLElement | null)[]) => h('tanrei-description-list', { layout, size: 'small', separation: 'gap' }, h('dl', {}, ...rows));
     const tag = (text: string, attrs: Json = {}) => h('tanrei-tag', { size: 'small', variant: 'outlined', label: text, ...attrs });
     facts.replaceChildren(
       list(

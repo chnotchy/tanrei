@@ -6076,27 +6076,27 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   }
 }
 
-/// A value of description-list's `density` axis.
+/// A value of description-list's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiDescriptionListDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiDescriptionListDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiDescriptionListSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiDescriptionListSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiDescriptionListDensity(rawValue: "regular")
-  public static let compact = TanreiDescriptionListDensity(rawValue: "compact")
+  public static let small = TanreiDescriptionListSize(rawValue: "small")
+  public static let medium = TanreiDescriptionListSize(rawValue: "medium")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiDescriptionListDensity] = [.regular, .compact]
+  public static let core: [TanreiDescriptionListSize] = [.small, .medium]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiDescriptionListDensity.regular
+  public static let fallback = TanreiDescriptionListSize.medium
 }
 
-/// Everything of description-list that depends on its density.
-public struct TanreiDescriptionListDensityTokens: Sendable, Equatable {
+/// Everything of description-list that depends on its size.
+public struct TanreiDescriptionListSizeTokens: Sendable, Equatable {
   public var factGap: CGFloat
   public var termGap: CGFloat
   public var termTypescale: TanreiTextStyle
@@ -6118,43 +6118,43 @@ public struct TanreiDescriptionListDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of description-list: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiDescriptionListDensitys: Sendable, Equatable {
-  public var regular: TanreiDescriptionListDensityTokens
-  public var compact: TanreiDescriptionListDensityTokens
+/// The sizes of description-list: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiDescriptionListSizes: Sendable, Equatable {
+  public var small: TanreiDescriptionListSizeTokens
+  public var medium: TanreiDescriptionListSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiDescriptionListDensity: TanreiDescriptionListDensityTokens]
+  public var extra: [TanreiDescriptionListSize: TanreiDescriptionListSizeTokens]
 
   public init(
-    regular: TanreiDescriptionListDensityTokens,
-    compact: TanreiDescriptionListDensityTokens,
-    extra: [TanreiDescriptionListDensity: TanreiDescriptionListDensityTokens] = [:]
+    small: TanreiDescriptionListSizeTokens,
+    medium: TanreiDescriptionListSizeTokens,
+    extra: [TanreiDescriptionListSize: TanreiDescriptionListSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.small = small
+    self.medium = medium
     self.extra = extra
   }
 
-  /// The tokens of one description-list density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiDescriptionListDensity) -> TanreiDescriptionListDensityTokens? {
+  /// The tokens of one description-list size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiDescriptionListSize) -> TanreiDescriptionListSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .small: return small
+    case .medium: return medium
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a description-list density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a description-list size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiDescriptionListDensity) -> TanreiDescriptionListDensityTokens {
+  public subscript(key: TanreiDescriptionListSize) -> TanreiDescriptionListSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no description-list density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no description-list size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every description-list density of this design system: the core ones, then what it added.
-  public var keys: [TanreiDescriptionListDensity] { TanreiDescriptionListDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every description-list size of this design system: the core ones, then what it added.
+  public var keys: [TanreiDescriptionListSize] { TanreiDescriptionListSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Component tokens of description-list (comp.description-list).
@@ -6167,7 +6167,7 @@ public struct TanreiDescriptionListTokens: Sendable, Equatable {
   public var stackGap: CGFloat
   public var termColor: TanreiPaint
   public var valueColor: TanreiPaint
-  public var densitys: TanreiDescriptionListDensitys
+  public var sizes: TanreiDescriptionListSizes
 
   public init(
     columnGap: CGFloat,
@@ -6178,7 +6178,7 @@ public struct TanreiDescriptionListTokens: Sendable, Equatable {
     stackGap: CGFloat,
     termColor: TanreiPaint,
     valueColor: TanreiPaint,
-    densitys: TanreiDescriptionListDensitys
+    sizes: TanreiDescriptionListSizes
   ) {
     self.columnGap = columnGap
     self.columnMinWidth = columnMinWidth
@@ -6188,7 +6188,7 @@ public struct TanreiDescriptionListTokens: Sendable, Equatable {
     self.stackGap = stackGap
     self.termColor = termColor
     self.valueColor = valueColor
-    self.densitys = densitys
+    self.sizes = sizes
   }
 }
 
@@ -16937,27 +16937,27 @@ public struct TanreiTableOfContentsParts: Sendable, Equatable {
   public var keys: [TanreiTableOfContentsPart] { TanreiTableOfContentsPart.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// A value of table-of-contents's `density` axis.
+/// A value of table-of-contents's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiTableOfContentsDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiTableOfContentsDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiTableOfContentsSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiTableOfContentsSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiTableOfContentsDensity(rawValue: "regular")
-  public static let compact = TanreiTableOfContentsDensity(rawValue: "compact")
+  public static let small = TanreiTableOfContentsSize(rawValue: "small")
+  public static let medium = TanreiTableOfContentsSize(rawValue: "medium")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiTableOfContentsDensity] = [.regular, .compact]
+  public static let core: [TanreiTableOfContentsSize] = [.small, .medium]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTableOfContentsDensity.regular
+  public static let fallback = TanreiTableOfContentsSize.medium
 }
 
-/// Everything of table-of-contents that depends on its density.
-public struct TanreiTableOfContentsDensityTokens: Sendable, Equatable {
+/// Everything of table-of-contents that depends on its size.
+public struct TanreiTableOfContentsSizeTokens: Sendable, Equatable {
   public var rowHeight: CGFloat
   public var rowPaddingBlock: CGFloat
 
@@ -16970,43 +16970,43 @@ public struct TanreiTableOfContentsDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of table-of-contents: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiTableOfContentsDensitys: Sendable, Equatable {
-  public var regular: TanreiTableOfContentsDensityTokens
-  public var compact: TanreiTableOfContentsDensityTokens
+/// The sizes of table-of-contents: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiTableOfContentsSizes: Sendable, Equatable {
+  public var small: TanreiTableOfContentsSizeTokens
+  public var medium: TanreiTableOfContentsSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiTableOfContentsDensity: TanreiTableOfContentsDensityTokens]
+  public var extra: [TanreiTableOfContentsSize: TanreiTableOfContentsSizeTokens]
 
   public init(
-    regular: TanreiTableOfContentsDensityTokens,
-    compact: TanreiTableOfContentsDensityTokens,
-    extra: [TanreiTableOfContentsDensity: TanreiTableOfContentsDensityTokens] = [:]
+    small: TanreiTableOfContentsSizeTokens,
+    medium: TanreiTableOfContentsSizeTokens,
+    extra: [TanreiTableOfContentsSize: TanreiTableOfContentsSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.small = small
+    self.medium = medium
     self.extra = extra
   }
 
-  /// The tokens of one table-of-contents density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiTableOfContentsDensity) -> TanreiTableOfContentsDensityTokens? {
+  /// The tokens of one table-of-contents size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiTableOfContentsSize) -> TanreiTableOfContentsSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .small: return small
+    case .medium: return medium
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a table-of-contents density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a table-of-contents size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiTableOfContentsDensity) -> TanreiTableOfContentsDensityTokens {
+  public subscript(key: TanreiTableOfContentsSize) -> TanreiTableOfContentsSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no table-of-contents density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no table-of-contents size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every table-of-contents density of this design system: the core ones, then what it added.
-  public var keys: [TanreiTableOfContentsDensity] { TanreiTableOfContentsDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every table-of-contents size of this design system: the core ones, then what it added.
+  public var keys: [TanreiTableOfContentsSize] { TanreiTableOfContentsSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Values of table-of-contents that depend on the state but not on the variant.
@@ -17050,7 +17050,7 @@ public struct TanreiTableOfContentsTokens: Sendable, Equatable {
   public var titleColor: TanreiPaint
   public var titleTypescale: TanreiTextStyle
   public var parts: TanreiTableOfContentsParts
-  public var densitys: TanreiTableOfContentsDensitys
+  public var sizes: TanreiTableOfContentsSizes
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiTableOfContentsStateTokens
   /// Values of the focused state shared by every variant.
@@ -17087,7 +17087,7 @@ public struct TanreiTableOfContentsTokens: Sendable, Equatable {
     titleColor: TanreiPaint,
     titleTypescale: TanreiTextStyle,
     parts: TanreiTableOfContentsParts,
-    densitys: TanreiTableOfContentsDensitys,
+    sizes: TanreiTableOfContentsSizes,
     hovered: TanreiTableOfContentsStateTokens,
     focused: TanreiTableOfContentsStateTokens,
     pressed: TanreiTableOfContentsStateTokens
@@ -17120,7 +17120,7 @@ public struct TanreiTableOfContentsTokens: Sendable, Equatable {
     self.titleColor = titleColor
     self.titleTypescale = titleTypescale
     self.parts = parts
-    self.densitys = densitys
+    self.sizes = sizes
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
@@ -18309,81 +18309,13 @@ public struct TanreiTimelineSizes: Sendable, Equatable {
   public var keys: [TanreiTimelineSize] { TanreiTimelineSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// A value of timeline's `density` axis.
-///
-/// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiTimelineDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiTimelineDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
-  /// The token key of the value, for example `"medium"`.
-  public let rawValue: String
-  public init(rawValue: String) { self.rawValue = rawValue }
-  public var description: String { rawValue }
-
-  public static let regular = TanreiTimelineDensity(rawValue: "regular")
-  public static let compact = TanreiTimelineDensity(rawValue: "compact")
-
-  /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiTimelineDensity] = [.regular, .compact]
-  /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTimelineDensity.regular
-}
-
-/// Everything of timeline that depends on its density.
-public struct TanreiTimelineDensityTokens: Sendable, Equatable {
-  public var itemGap: CGFloat
-
-  public init(
-    itemGap: CGFloat
-  ) {
-    self.itemGap = itemGap
-  }
-}
-
-/// The densitys of timeline: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiTimelineDensitys: Sendable, Equatable {
-  public var regular: TanreiTimelineDensityTokens
-  public var compact: TanreiTimelineDensityTokens
-  /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiTimelineDensity: TanreiTimelineDensityTokens]
-
-  public init(
-    regular: TanreiTimelineDensityTokens,
-    compact: TanreiTimelineDensityTokens,
-    extra: [TanreiTimelineDensity: TanreiTimelineDensityTokens] = [:]
-  ) {
-    self.regular = regular
-    self.compact = compact
-    self.extra = extra
-  }
-
-  /// The tokens of one timeline density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiTimelineDensity) -> TanreiTimelineDensityTokens? {
-    switch key {
-    case .regular: return regular
-    case .compact: return compact
-    default: return extra[key]
-    }
-  }
-
-  /// Total lookup: a timeline density this design system does not have reads the tokens of `regular`, the
-  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiTimelineDensity) -> TanreiTimelineDensityTokens {
-    if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no timeline density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
-  }
-
-  /// Every timeline density of this design system: the core ones, then what it added.
-  public var keys: [TanreiTimelineDensity] { TanreiTimelineDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
-}
-
 /// Component tokens of timeline (comp.timeline).
 public struct TanreiTimelineTokens: Sendable, Equatable {
   public var bodyGap: CGFloat
   public var connectorColor: TanreiPaint
   public var connectorGap: CGFloat
   public var connectorThickness: CGFloat
+  public var itemGap: CGFloat
   public var markerCurrentContainerColor: TanreiPaint
   public var markerCurrentIconColor: TanreiPaint
   public var markerDotColor: TanreiPaint
@@ -18398,13 +18330,13 @@ public struct TanreiTimelineTokens: Sendable, Equatable {
   public var timeGap: CGFloat
   public var titleGap: CGFloat
   public var sizes: TanreiTimelineSizes
-  public var densitys: TanreiTimelineDensitys
 
   public init(
     bodyGap: CGFloat,
     connectorColor: TanreiPaint,
     connectorGap: CGFloat,
     connectorThickness: CGFloat,
+    itemGap: CGFloat,
     markerCurrentContainerColor: TanreiPaint,
     markerCurrentIconColor: TanreiPaint,
     markerDotColor: TanreiPaint,
@@ -18418,13 +18350,13 @@ public struct TanreiTimelineTokens: Sendable, Equatable {
     timeColor: TanreiPaint,
     timeGap: CGFloat,
     titleGap: CGFloat,
-    sizes: TanreiTimelineSizes,
-    densitys: TanreiTimelineDensitys
+    sizes: TanreiTimelineSizes
   ) {
     self.bodyGap = bodyGap
     self.connectorColor = connectorColor
     self.connectorGap = connectorGap
     self.connectorThickness = connectorThickness
+    self.itemGap = itemGap
     self.markerCurrentContainerColor = markerCurrentContainerColor
     self.markerCurrentIconColor = markerCurrentIconColor
     self.markerDotColor = markerDotColor
@@ -18439,7 +18371,6 @@ public struct TanreiTimelineTokens: Sendable, Equatable {
     self.timeGap = timeGap
     self.titleGap = titleGap
     self.sizes = sizes
-    self.densitys = densitys
   }
 }
 
