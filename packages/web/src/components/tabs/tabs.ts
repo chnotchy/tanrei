@@ -15,6 +15,7 @@ import {
   answersPress,
   choiceAttribute,
   compChoice,
+  compChoices,
   containedWheel,
   countWork,
   findInteractive,
@@ -2487,8 +2488,9 @@ export class TanreiTabs extends TanreiElement {
       delete row.dataset.transition;
       return;
     }
-    row.dataset.track = compChoice(this, TRACK_PROPERTY, TRACK_CHOICE);
-    row.dataset.transition = compChoice(this, TRANSITION_PROPERTY, TRANSITION_CHOICE);
+    const { track, transition } = compChoices(this, { track: [TRACK_PROPERTY, TRACK_CHOICE], transition: [TRANSITION_PROPERTY, TRANSITION_CHOICE] });
+    row.dataset.track = track;
+    row.dataset.transition = transition;
   }
 
   /** TAB-5: every row in the page, for the one listener that hears a press beside them. */

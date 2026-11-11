@@ -16,6 +16,7 @@ import {
   giveVariant,
   modalLayer,
   motionReduced,
+  readTogether,
   report,
   styleQueries,
   syncFocusStyle,
@@ -461,20 +462,28 @@ export class TanreiSnackbar extends TanreiElement {
       // A style query follows a system switched on the root by itself; here the choice is read again when it is.
       this.systemWatch ??= new SystemWatchController(this);
     }
+    this.giveButtons();
   }
 
   /**
    * SNK-34: the expand and close Buttons, given through the Button's internal channel the variant the snackbar's token
-   * names — read now, so a system switch is seen at the next render or layout — and the tone of the form, which is the
-   * same two custom properties in every form: each form's block sets them on the bar (snackbar.styles.ts), so a change of
-   * form recolors the Buttons with no word to them.
+   * names — read at each render and layout, so a system switch is seen at the next one — and the tone of the form, which
+   * is the same two custom properties in every form: each form's block sets them on the bar (snackbar.styles.ts), so a
+   * change of form recolors the Buttons with no word to them. Read with every other host's of the turn, after the render
+   * (src/primitives/read-phase.ts); asked before it (`willUpdate`), so a Button the render makes is given both before
+   * it first draws itself.
    */
   private giveButtons() {
-    const variant = compChoice(this, '--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS);
-    for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
-      giveVariant(button, variant);
-      giveTone(button, BUTTON_TONE);
-    }
+    readTogether(() => {
+      if (!this.isConnected) return;
+      const variant = compChoice(this, '--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS);
+      return () => {
+        for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
+          giveVariant(button, variant);
+          giveTone(button, BUTTON_TONE);
+        }
+      };
+    });
   }
 
   /**
@@ -496,7 +505,7 @@ export class TanreiSnackbar extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     const has = (name: string) => changed.has(name as keyof TanreiSnackbar);
     if (has('expanded') || has('expandable')) void this.stateExpand();
-    // SNK-34: layout() gives a Button drawn in this render its variant and tone, before it first draws itself.
+    // SNK-34: a Button drawn in this render was given its variant and tone before it first draws itself (willUpdate).
     if (['message', 'headline', 'action', 'status', 'closable', 'expanded', 'stacked', 'expandable'].some(has)) this.layout();
     if (has('expanded') || has('expandable')) {
       if (!this.showsExpanded) this.renderRoot.querySelector('.text')?.scrollTo({ top: 0 });

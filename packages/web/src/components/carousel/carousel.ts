@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, motionReduced, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, motionReduced, readTogether, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -1233,10 +1233,19 @@ export class TanreiCarousel extends TanreiElement {
   private readonly onPrevious = () => this.navigate(-1);
   private readonly onNext = () => this.navigate(1);
 
-  /** CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10). */
+  /**
+   * CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that
+   * places it (BTN-10). Asked before the render and read after it, with every other host's of the turn
+   * (src/primitives/read-phase.ts): a control the render makes is drawn with its variant from its first update.
+   */
   private giveVariants() {
-    const variant = compChoice(this, '--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS);
-    for (const control of NAV_CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), variant);
+    readTogether(() => {
+      if (!this.isConnected) return;
+      const variant = compChoice(this, '--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS);
+      return () => {
+        for (const control of NAV_CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), variant);
+      };
+    });
   }
 
   private navControl(control: NavControl) {
@@ -1428,6 +1437,11 @@ export class TanreiCarousel extends TanreiElement {
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────────────────────────
 
+  protected override willUpdate(changed: PropertyValues<this>) {
+    super.willUpdate(changed);
+    this.giveVariants();
+  }
+
   protected override firstUpdated() {
     this.observeRow();
     this.arrange();
@@ -1458,7 +1472,6 @@ export class TanreiCarousel extends TanreiElement {
       if (!this.words.get('previousItemLabel', this.previousLabel)) this.words.missing('previousItemLabel', { prop: 'previousLabel', id: 'CRL-20', effect: 'the previous control is drawn and has no accessible name' });
       if (!this.words.get('nextItemLabel', this.nextLabel)) this.words.missing('nextItemLabel', { prop: 'nextLabel', id: 'CRL-20', effect: 'the next control is drawn and has no accessible name' });
     }
-    this.giveVariants();
     // CRL-24: an unknown alignment is drawn as the default; an itemWidth or autoplayInterval that is not a positive number is null.
     if (changed.has('heroAlignment') && !HERO_ALIGNMENTS.includes(this.heroAlignment)) {
       this.reportOnce('heroAlignment', this.heroAlignment, 'CRL-24', `heroAlignment "${this.heroAlignment}" is not a hero alignment of the carousel; it is drawn as "center"`);

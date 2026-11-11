@@ -13,6 +13,7 @@ import {
   assignSlot,
   closeModal,
   compChoice,
+  compChoices,
   containedWheel,
   giveVariant,
   SHEET_FLING_VELOCITY,
@@ -400,7 +401,8 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
       (node) => (node instanceof Element && !node.hasAttribute('slot')) || (node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()),
     );
     this.placement.read(nodes.filter((node) => node instanceof Element && node.getAttribute('slot') === 'actions') as Element[]);
-    this.placement.give(this.choice('actions-variant', BUTTON_VARIANTS));
+    // SSH-17: the actions are given the sheet's variant as it lays them out — here, or in the update a change of whether
+    // there are any requests (an action asks for it itself as it connects: HOST_VARIANT).
     const filled = this.placement.actions.length > 0;
     if (filled !== this.hasActions) this.hasActions = filled;
     else {
@@ -418,24 +420,22 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   }
 
   /**
-   * SSH-5, SSH-17: the variants the sheet's tokens name, read now (a system switch is seen at the next layout): the close
-   * button's, and the one every action without its own draws.
-   */
-  private giveVariants() {
-    giveVariant(this.renderRoot?.querySelector('tanrei-button.close'), this.choice('close-button-variant', BUTTON_VARIANTS));
-    this.placement.give(this.choice('actions-variant', BUTTON_VARIANTS));
-  }
-
-  /**
    * SSH-11: the actions as the system's arrangement places them — `fill` a row while every label fits its equal share,
    * `start` while the row at their own widths fits the inner width, and a column otherwise; SSH-10: a content that
-   * scrolls is a Tab stop, so the keyboard can scroll it; SSH-19: the divider below the header.
+   * scrolls is a Tab stop, so the keyboard can scroll it; SSH-19: the divider below the header. SSH-5, SSH-17: first,
+   * the variants the sheet's tokens name, read now with the arrangement in one computed style (a system switch is seen
+   * at the next layout): the close button's, and the one every action without its own draws.
    */
   private layout() {
     const sheet = this.sheet;
     if (!sheet) return;
-    this.giveVariants();
-    const arrangement = this.choice('actions-arrangement', ARRANGEMENTS);
+    const { close, actions: variant, arrangement } = compChoices(this, {
+      close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+      actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
+      arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
+    });
+    giveVariant(this.renderRoot.querySelector('tanrei-button.close'), close);
+    this.placement.give(variant);
     sheet.dataset.arrangement = arrangement;
     const actions = this.renderRoot.querySelector<HTMLElement>('.actions');
     if (actions && this.hasActions) {
