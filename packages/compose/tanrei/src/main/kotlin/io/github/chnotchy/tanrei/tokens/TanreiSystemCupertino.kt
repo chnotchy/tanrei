@@ -773,9 +773,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiAccordionDensitys(
-                regular = TanreiAccordionDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 16.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
-                compact = TanreiAccordionDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
+            sizes = TanreiAccordionSizes(
+                small = TanreiAccordionSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
+                medium = TanreiAccordionSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 16.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
             ),
         )
 
@@ -9166,9 +9166,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTreeViewDensitys(
-                regular = TanreiTreeViewDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
-                compact = TanreiTreeViewDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
+            sizes = TanreiTreeViewSizes(
+                small = TanreiTreeViewSizeTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
+                medium = TanreiTreeViewSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
             ),
         )
 }

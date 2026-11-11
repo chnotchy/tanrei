@@ -87,7 +87,7 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
  * (its own minimum) whatever the pointer.
  *
  * `pointer` is what a fine pointer's row is held to: the pointer target, or — for a compact density, the one place a
- * row is lower than it (MNU-12, SEL-37, CMB-34, SRC-16, LST-11, TRV-26) — a private switch the component sets to `0px`.
+ * row is lower than it (MNU-12, SEL-37, CMB-34, SRC-16, LST-11) — a private switch the component sets to `0px`.
  * Touch is never given less than the touch target.
  */
 export function rowTarget(selector: string, height: string, pointer = 'var(--tanrei-sys-target-pointer)'): CSSResult {

@@ -184,25 +184,25 @@ test.describe('the column, the rows and their parts', () => {
     near(box.bottom, rows.at(-1)![1], 0.1);
   });
 
-  test('TRV-2: a row is at least its density’s height and grows with its text, padded by its density’s paddings; from the start it holds the chevron’s box, the icon, the text, the trailing content and the trailing text, a gap between each two and the icon gap — the same in every density — after the icon; each is centred on the label’s first line, and height beyond the text is shared above and below', async ({ page }) => {
+  test('TRV-2: a row is at least its size’s height and the pointer target and grows with its text, padded by its size’s paddings; from the start it holds the chevron’s box, the icon, the text, the trailing content and the trailing text, a gap between each two and the icon gap — the same at every size — after the icon; each is centred on the label’s first line, and height beyond the text is shared above and below', async ({ page }) => {
     await mount(page, {
       fixtures: [
-        ...some('all-parts', 'all-parts-compact', 'long-labels-wrap'),
+        ...some('all-parts', 'all-parts-small', 'long-labels-wrap'),
         raw('parts', { label: 'Parts' }, '<ul><li><span><span class="tanrei-icon">folder</span><bdi>Label</bdi><span data-trailing><span id="mark" style="display:block;inline-size:8px;block-size:30px;background:currentColor"></span></span><span data-trailing-text>12</span></span></li></ul>'),
         raw('small-trailing', { label: 'Small' }, '<ul><li><span><bdi>Label</bdi><small data-trailing id="small" style="font-size: 10px">new</small></span></li></ul>'),
       ],
     });
     const iconGap = await resolveToken(page, T('icon-gap'));
-    for (const [id, density] of [
-      ['all-parts', 'regular'],
-      ['all-parts-compact', 'compact'],
+    for (const [id, size] of [
+      ['all-parts', 'medium'],
+      ['all-parts-small', 'small'],
     ] as const) {
-      const height = await resolveToken(page, T(`container-height-${density}`));
-      const padInline = await resolveToken(page, T(`container-padding-inline-${density}`));
-      const gap = await resolveToken(page, T(`container-gap-${density}`));
-      const chevron = await resolveToken(page, T(`chevron-size-${density}`));
-      const icon = await resolveToken(page, T(`icon-size-${density}`));
-      const target = density === 'regular' ? await resolveToken(page, '--tanrei-sys-target-pointer') : 0;
+      const height = await resolveToken(page, T(`container-height-${size}`));
+      const padInline = await resolveToken(page, T(`container-padding-inline-${size}`));
+      const gap = await resolveToken(page, T(`container-gap-${size}`));
+      const chevron = await resolveToken(page, T(`chevron-size-${size}`));
+      const icon = await resolveToken(page, T(`icon-size-${size}`));
+      const target = await resolveToken(page, '--tanrei-sys-target-pointer');
       const r = row(page, id, 'package.json');
       const d = await drawn(r);
       expect(d.row.height).toBe(Math.max(height, target));
@@ -223,16 +223,16 @@ test.describe('the column, the rows and their parts', () => {
       near(middle, (d.row.top + d.row.bottom) / 2);
       expect(await css(r, 'border-top-left-radius', '::after')).toBe(`${await resolveToken(page, T('container-shape'))}px`);
     }
-    // The icon gap is the same in both densities.
-    const regular = await drawn(row(page, 'all-parts', 'package.json'));
-    const compact = await drawn(row(page, 'all-parts-compact', 'package.json'));
-    const regularGlyph = await edges(row(page, 'all-parts', 'package.json').locator('> .tanrei-icon'));
-    const compactGlyph = await edges(row(page, 'all-parts-compact', 'package.json').locator('> .tanrei-icon'));
-    near(regular.text!.left - regularGlyph.right, compact.text!.left - compactGlyph.right);
+    // The icon gap is the same in both sizes.
+    const atMedium = await drawn(row(page, 'all-parts', 'package.json'));
+    const atSmall = await drawn(row(page, 'all-parts-small', 'package.json'));
+    const mediumGlyph = await edges(row(page, 'all-parts', 'package.json').locator('> .tanrei-icon'));
+    const smallGlyph = await edges(row(page, 'all-parts-small', 'package.json').locator('> .tanrei-icon'));
+    near(atMedium.text!.left - mediumGlyph.right, atSmall.text!.left - smallGlyph.right);
     // A row that grows (labelWrap): the padding above its first line and below its last, the parts still on the first line.
     const long = row(page, 'long-labels-wrap', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift');
     const d = await drawn(long);
-    const pad = await resolveToken(page, T('container-padding-block-regular'));
+    const pad = await resolveToken(page, T('container-padding-block-medium'));
     expect(d.text!.lines).toBeGreaterThan(1);
     near(d.firstLine, d.row.top + pad);
     const lastLine = await long.locator('[data-supporting-text]').evaluate((el) => Math.max(...[...el.getClientRects()].map((rect) => rect.bottom)));
@@ -244,7 +244,7 @@ test.describe('the column, the rows and their parts', () => {
     const parts = await drawn(row(page, 'parts', 'Label'));
     const mark = await edges(page.locator('#mark'));
     const text = await edges(row(page, 'parts', 'Label').locator('> [data-trailing-text]'));
-    near(mark.right + (await resolveToken(page, T('container-gap-regular'))), text.left);
+    near(mark.right + (await resolveToken(page, T('container-gap-medium'))), text.left);
     near((mark.top + mark.bottom) / 2, parts.firstLine + parts.line / 2);
     // … and whatever font size the product gives its element: its box is one line of the LABEL high, on that line.
     const small = await drawn(row(page, 'small-trailing', 'Label'));
@@ -255,7 +255,7 @@ test.describe('the column, the rows and their parts', () => {
 
   test('TRV-3: with indent auto a child’s content begins where its parent’s label begins — the step follows the chevron and the icon before the parent’s label — and with a number it steps that far, 0 none; with highlight indented each container begins where its level does, and all end at the tree’s end edge; past half of the width a row begins at half, its true level is still exposed, and the depth is reported once', async ({ page, browserName }) => {
     const seen = warnings(page);
-    await mount(page, { fixtures: some('deep', 'compact', 'basic', 'icons', 'indent-16', 'indent-0', 'guides-label') });
+    await mount(page, { fixtures: some('deep', 'small', 'basic', 'icons', 'indent-16', 'indent-0', 'guides-label') });
     // (Wide enough that no label of these reaches half of the width, where TRV-3 holds a deeper row back.)
     await page.addStyleTag({ content: `.stage:has(> tanrei-tree-view) { inline-size: 640px !important; }` });
     const start = async (id: string, label: string) => {
@@ -268,19 +268,19 @@ test.describe('the column, the rows and their parts', () => {
     for (const [id, chain] of [
       ['basic', ['src', 'components', 'button.ts']],
       ['icons', ['src', 'components', 'button.ts']],
-      ['compact', ['src', 'components', 'button.ts']],
+      ['small', ['src', 'components', 'button.ts']],
     ] as const) {
       for (let level = 1; level < chain.length; level += 1) near(await start(id, chain[level]), await labelAt(id, chain[level - 1]));
     }
-    const pad = await resolveToken(page, T('container-padding-inline-regular'));
-    const chevron = await resolveToken(page, T('chevron-size-regular'));
-    const gap = await resolveToken(page, T('container-gap-regular'));
-    const icon = await resolveToken(page, T('icon-size-regular'));
+    const pad = await resolveToken(page, T('container-padding-inline-medium'));
+    const chevron = await resolveToken(page, T('chevron-size-medium'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
+    const icon = await resolveToken(page, T('icon-size-medium'));
     const iconGap = await resolveToken(page, T('icon-gap'));
     near(await start('basic', 'components'), pad + chevron + gap);
     near(await start('icons', 'components'), pad + chevron + gap + icon + iconGap);
     // Nothing before the parent's label: the level's indent token.
-    near(await start('guides-label', 'components'), pad + (await resolveToken(page, T('level-indent-regular'))));
+    near(await start('guides-label', 'components'), pad + (await resolveToken(page, T('level-indent-medium'))));
     // A number: that many pixels a level; 0: none.
     near(await start('indent-16', 'components'), pad + 16);
     near(await start('indent-16', 'button.ts'), pad + 32);
@@ -288,12 +288,12 @@ test.describe('the column, the rows and their parts', () => {
     // Each container begins where its level does and ends at the end edge; the row is the whole width.
     for (const [id, labels] of [
       ['deep', ['Catalogue', 'Furniture', 'Seating', 'Chairs']],
-      ['compact', ['src', 'components', 'button.ts']],
+      ['small', ['src', 'components', 'button.ts']],
     ] as const) {
       const tree = await edges(host(page, id));
       for (const label of labels) {
         const d = await drawn(row(page, id, label));
-        near(d.container.left, tree.left + (await start(id, label)) - (id === 'deep' ? pad : await resolveToken(page, T('container-padding-inline-compact'))));
+        near(d.container.left, tree.left + (await start(id, label)) - (id === 'deep' ? pad : await resolveToken(page, T('container-padding-inline-small'))));
         near(d.container.right, tree.right);
         near(d.row.left, tree.left);
         near(d.row.right, tree.right);
@@ -320,12 +320,12 @@ test.describe('the column, the rows and their parts', () => {
   });
 
   test('TRV-4: every row keeps the chevron’s box at its start; a parent’s draws chevron_right in the chevron color, as drawn while it is closed and turned a quarter turn while it is open; a leaf’s draws nothing, so that the names of one level begin on one line; nothing else about a row tells open from closed; a disabled parent keeps its chevron', async ({ page }) => {
-    await mount(page, { fixtures: some('basic', 'compact', 'trailing-text', 'disabled') });
-    for (const [id, density] of [
-      ['basic', 'regular'],
-      ['compact', 'compact'],
+    await mount(page, { fixtures: some('basic', 'small', 'trailing-text', 'disabled') });
+    for (const [id, step] of [
+      ['basic', 'medium'],
+      ['small', 'small'],
     ] as const) {
-      const size = await resolveToken(page, T(`chevron-size-${density}`));
+      const size = await resolveToken(page, T(`chevron-size-${step}`));
       const open = await drawn(row(page, id, 'src'));
       const closed = await drawn(row(page, id, 'styles'));
       const leaf = await drawn(row(page, id, 'index.ts'));
@@ -342,7 +342,7 @@ test.describe('the column, the rows and their parts', () => {
     // The glyph is the icon set's, outlined; an item that says it will hold items is a parent.
     expect(unquoted(await css(row(page, 'basic', 'src'), 'font-family', '::before'))).toBe(unquoted(await css(page.locator('html'), '--tanrei-sys-icon-family-unselected')));
     // The optical size is the box's, written by hand (src/styles/icons.ts): not every engine draws font-optical-sizing: auto.
-    expect(await drawnOpticalSize(row(page, 'basic', 'src'), '::before')).toBe(await opticalSize(page, await resolveToken(page, T('chevron-size-regular'))));
+    expect(await drawnOpticalSize(row(page, 'basic', 'src'), '::before')).toBe(await opticalSize(page, await resolveToken(page, T('chevron-size-medium'))));
     expect((await drawn(row(page, 'trailing-text', 'test'))).chevron.content).toContain('chevron_right');
     // Open and closed rows are the same but for the chevron.
     for (const property of ['color', 'font', 'min-height', 'padding-left']) expect(await css(row(page, 'basic', 'src'), property)).toBe(await css(row(page, 'basic', 'test'), property));
@@ -353,20 +353,20 @@ test.describe('the column, the rows and their parts', () => {
     expect((await drawn(row(page, 'disabled', 'generated'))).chevron.content).toContain('chevron_right');
   });
 
-  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the density’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; an item that names no open icon draws the same glyph open and closed', async ({ page }) => {
-    await mount(page, { fixtures: some('icons', 'basic', 'single-parent-selected', 'compact') });
-    const size = await resolveToken(page, T('icon-size-regular'));
+  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the size’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; an item that names no open icon draws the same glyph open and closed', async ({ page }) => {
+    await mount(page, { fixtures: some('icons', 'basic', 'single-parent-selected', 'small') });
+    const size = await resolveToken(page, T('icon-size-medium'));
     const glyph = row(page, 'icons', 'src').locator('> .tanrei-icon');
     expect((await edges(glyph)).width).toBe(size);
     expect((await edges(glyph)).height).toBe(size);
-    expect((await edges(row(page, 'compact', 'src').locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-compact')));
+    expect((await edges(row(page, 'small', 'src').locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-small')));
     expect(await css(glyph, 'color')).toBe(await resolveColor(page, T('unselected-icon-color')));
     await expect(glyph).toHaveAttribute('aria-hidden', 'true');
     expect(await glyph.textContent()).toBe('folder');
     expect(await row(page, 'icons', 'styles').locator('> .tanrei-icon').textContent()).toBe('folder');
     // No icon: the label begins a gap after the chevron's box.
     const bare = await drawn(row(page, 'basic', 'src'));
-    near(bare.text!.left, bare.chevron.right + (await resolveToken(page, T('container-gap-regular'))));
+    near(bare.text!.left, bare.chevron.right + (await resolveToken(page, T('container-gap-medium'))));
     // Selected: the selected family and fill, on its own row and not on the rows under it.
     const fill = (locator: Locator) => css(locator, 'font-variation-settings');
     const selected = row(page, 'single-parent-selected', 'components').locator('> .tanrei-icon');
@@ -381,28 +381,28 @@ test.describe('the column, the rows and their parts', () => {
     expect(unquoted(await css(selected, 'font-family'))).toBe(unquoted(await css(page.locator('html'), '--tanrei-sys-icon-family-selected')));
   });
 
-  test('TRV-6: the label is drawn in its density’s text style and its condition’s color, on one line cut with an ellipsis — with labelWrap it wraps, breaks where it must and is never cut — and its accessible name is whole either way; content in the label’s place is drawn in the label’s style and a code span keeps its typeface; a control in a row is still rendered, and reported', async ({ page }) => {
+  test('TRV-6: the label is drawn in its size’s text style and its condition’s color, on one line cut with an ellipsis — with labelWrap it wraps, breaks where it must and is never cut — and its accessible name is whole either way; content in the label’s place is drawn in the label’s style and a code span keeps its typeface; a control in a row is still rendered, and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, {
       fixtures: [
-        ...some('long-labels', 'long-labels-wrap', 'compact', 'single'),
+        ...some('long-labels', 'long-labels-wrap', 'small', 'single'),
         raw('slots', { label: 'Slots' }, '<ul><li><span><bdi>The <code style="font-family: monospace">id</code> of a <mark>tok</mark>en</bdi></span></li><li><span>Plain <a href="#x">a link</a></span></li><li><span><bdi>ok</bdi><span data-trailing><button>x</button></span></span></li></ul>'),
       ],
     });
-    const probe = async (density: string) => {
+    const probe = async (size: string) => {
       await page.evaluate((d) => {
         const el = document.createElement('p');
         el.id = `probe-${d}`;
         el.style.cssText = `font: var(--tanrei-comp-tree-view-label-typescale-${d}-font); letter-spacing: var(--tanrei-comp-tree-view-label-typescale-${d}-letter-spacing)`;
         document.body.append(el);
-      }, density);
-      return page.locator(`#probe-${density}`);
+      }, size);
+      return page.locator(`#probe-${size}`);
     };
-    for (const [id, density, label] of [
-      ['long-labels', 'regular', 'packages'],
-      ['compact', 'compact', 'src'],
+    for (const [id, size, label] of [
+      ['long-labels', 'medium', 'packages'],
+      ['small', 'small', 'src'],
     ] as const) {
-      const expected = await probe(density);
+      const expected = await probe(size);
       for (const property of ['font-size', 'line-height', 'font-weight', 'letter-spacing']) expect(await css(row(page, id, label).locator('> bdi'), property)).toBe(await css(expected, property));
       expect(await css(row(page, id, label), 'color')).toBe(await resolveColor(page, T('unselected-label-color')));
     }
@@ -445,7 +445,7 @@ test.describe('the column, the rows and their parts', () => {
         raw('half', { label: 'Half' }, '<ul><li><span><bdi>Name</bdi><span data-trailing-text id="long-value">a trailing value that is far longer than half of the width of the row it stands in</span></span></li><li><span><bdi>Tag</bdi><span data-trailing id="slot"><b>new</b></span><span data-trailing-text>3</span></span></li></ul>'),
       ],
     });
-    const gap = await resolveToken(page, T('container-gap-regular'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
     const firstRect = (locator: Locator) =>
       locator.evaluate((el) => {
         const range = document.createRange();
@@ -497,7 +497,7 @@ test.describe('the column, the rows and their parts', () => {
     });
     expect(await css(long, 'text-overflow')).toBe('ellipsis');
     expect(await long.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
-    const lead = (await resolveToken(page, T('chevron-size-regular'))) + gap;
+    const lead = (await resolveToken(page, T('chevron-size-medium'))) + gap;
     expect((await edges(long)).width + gap).toBeLessThanOrEqual((inner - lead) / 2 + 0.5);
     // The trailing content: before the trailing text, with no style of the tree's.
     const slot = await edges(page.locator('#slot'));
@@ -507,7 +507,7 @@ test.describe('the column, the rows and their parts', () => {
   });
 
   test('TRV-8: with guides, each open parent that shows a row draws one line of guide.width in guide.color from the lower edge of its row to the lower edge of the last row under it, centred under its chevron’s box; it keeps its color beside a disabled row, takes no space, and is not drawn without guides', async ({ page }) => {
-    await mount(page, { fixtures: [...some('guides', 'icons', 'compact-guides', 'multiple-parent-and-child'), raw('guided-loading', { label: 'Guided', guides: true, loadingLabel: 'Loading…' }, '<ul><li data-open data-expandable data-loading><span>Remote</span></li><li data-open><span>Dim</span><ul><li data-disabled><span>Off</span></li></ul></li></ul>')] });
+    await mount(page, { fixtures: [...some('guides', 'icons', 'small-guides', 'multiple-parent-and-child'), raw('guided-loading', { label: 'Guided', guides: true, loadingLabel: 'Loading…' }, '<ul><li data-open data-expandable data-loading><span>Remote</span></li><li data-open><span>Dim</span><ul><li data-disabled><span>Off</span></li></ul></li></ul>')] });
     const line = (id: string, label: string) =>
       item(page, id, label)
         .locator('> ul')
@@ -517,9 +517,9 @@ test.describe('the column, the rows and their parts', () => {
           const left = r.left + Number.parseFloat(s.left);
           return { content: s.content, width: Number.parseFloat(s.borderLeftWidth), color: s.borderLeftColor, left, top: r.top + Number.parseFloat(s.top), bottom: r.bottom - Number.parseFloat(s.bottom), opacity: s.opacity, events: s.pointerEvents };
         });
-    for (const [id, density] of [
-      ['guides', 'regular'],
-      ['compact-guides', 'compact'],
+    for (const [id, size] of [
+      ['guides', 'medium'],
+      ['small-guides', 'small'],
     ] as const) {
       const width = await resolveToken(page, T('guide-width'));
       for (const [parent, last] of [
@@ -535,7 +535,7 @@ test.describe('the column, the rows and their parts', () => {
         near(l.bottom, (await drawn(row(page, id, last))).row.bottom);
         expect(l.events).toBe('none');
       }
-      expect(density).toBeTruthy();
+      expect(size).toBeTruthy();
     }
     // The same layout with and without; no line without.
     const boxes = (id: string) => host(page, id).evaluate((tree) => [...tree.querySelectorAll('li > :first-child, li > :first-child > *')].map((r) => r.getBoundingClientRect()).map((r) => [r.left, r.top, r.width, r.height]));
@@ -773,11 +773,11 @@ test.describe('open and closed', () => {
     await expect(indicator).toHaveAttribute('size', 'small');
     await expect(indicator).toHaveAttribute('label', 'Loading…');
     const spinner = await edges(indicator);
-    near((spinner.left + spinner.right) / 2, contentStart + (await resolveToken(page, T('chevron-size-regular'))) / 2);
+    near((spinner.left + spinner.right) / 2, contentStart + (await resolveToken(page, T('chevron-size-medium'))) / 2);
     const words = loader.locator('[data-tanrei-loading-label]');
     await expect(words).toHaveText('Loading…');
     expect(await css(words, 'color')).toBe(await resolveColor(page, T('unselected-supporting-text-color')));
-    expect((await edges(words)).left).toBeGreaterThanOrEqual(spinner.right + (await resolveToken(page, T('container-gap-regular'))) - 1);
+    expect((await edges(words)).left).toBeGreaterThanOrEqual(spinner.right + (await resolveToken(page, T('container-gap-medium'))) - 1);
     // Not an item: no role of an item, no focus, nothing on a press, not reached by the arrow keys.
     await expect(loader).toHaveAttribute('role', 'none');
     // Kept from assistive technology whole: a tree holds tree items alone, and the parent says that it is busy.
@@ -1218,7 +1218,7 @@ test.describe('states', () => {
     expect(await css(r, 'border-top-color', '::after')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
     // Inside the container: the stroke is its own edge, which begins where the level does; the inner stroke is within it.
     const d = await drawn(r);
-    near(d.container.left, d.row.left + (await resolveToken(page, T('level-indent-regular'))));
+    near(d.container.left, d.row.left + (await resolveToken(page, T('level-indent-medium'))));
     near(d.container.top, d.row.top);
     expect(await px(r, 'outline-offset', '::after')).toBe(-(outer + inner));
     expect(await css(r, 'box-sizing', '::after')).toBe('border-box');
@@ -1230,8 +1230,8 @@ test.describe('states', () => {
     expect(await px(row(page, 'basic', 'test'), 'border-top-width', '::after')).toBe(0);
   });
 
-  test('TRV-26: a row’s hit area is the tree’s whole width, however far its container is set in, and its whole height; a regular row is at least the pointer target high and a compact one as high as its density gives, and for touch both are at least the touch target; the chevron’s own hit area runs from the start edge to the middle of the gap after its box, and is at least the target wide', async ({ page, browserName }) => {
-    await mount(page, { fixtures: [raw('small', { label: 'Small', selection: 'single' }, SMALL), raw('tight', { label: 'Tight', selection: 'single', density: 'compact' }, SMALL)] });
+  test('TRV-26: a row’s hit area is the tree’s whole width, however far its container is set in, and its whole height; a row of either size is at least the pointer target high for a fine pointer — a small one too, under a layer whose pointer target is above its height — and the touch target high for touch; the chevron’s own hit area runs from the start edge to the middle of the gap after its box, and is at least the target wide', async ({ page, browserName }) => {
+    await mount(page, { fixtures: [raw('small', { label: 'Small', selection: 'single' }, SMALL), raw('tight', { label: 'Tight', selection: 'single', size: 'small' }, SMALL)] });
     await nameItems(page);
     await watch(page);
     // The first and the last pixels of a row two levels in choose it.
@@ -1244,10 +1244,14 @@ test.describe('states', () => {
     expect(await events(page)).toEqual(['change:{"value":"d"}']);
     // Heights.
     expect(leaf.row.height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-pointer'));
-    expect((await drawn(row(page, 'tight', 'Delta'))).row.height).toBe(await resolveToken(page, T('container-height-compact')));
+    expect((await drawn(row(page, 'tight', 'Delta'))).row.height).toBe(Math.max(await resolveToken(page, T('container-height-small')), await resolveToken(page, '--tanrei-sys-target-pointer')));
+    // The small row is held to the pointer target too, where a layer sets it above the row's height.
+    await override(page, { '--tanrei-sys-target-pointer': '48px' });
+    if (await page.evaluate(() => matchMedia('(pointer: fine)').matches)) await expect.poll(async () => (await edges(row(page, 'tight', 'Delta'))).height).toBe(48);
+    await override(page, { '--tanrei-sys-target-pointer': '' });
     // The chevron's hit area: to the middle of the gap after its box; and at least the target wide, where that is more.
     const beta = await drawn(row(page, 'small', 'Beta'));
-    const gap = await resolveToken(page, T('container-gap-regular'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     const reach = Math.max(beta.chevron.right + gap / 2 - beta.row.left, target);
     const y = (beta.row.top + beta.row.bottom) / 2;
@@ -1613,7 +1617,7 @@ test.describe('accessibility', () => {
     await page.setViewportSize({ width: 320, height: 900 });
     await mount(page, { fixtures: some('long-labels-wrap', 'all-parts', 'deep') });
     const normal = await px(row(page, 'all-parts', 'src').locator('> bdi'), 'font-size');
-    const chevron = await resolveToken(page, T('chevron-size-regular'));
+    const chevron = await resolveToken(page, T('chevron-size-medium'));
     await page.addStyleTag({ content: `html { font-size: 200%; } main { display: block !important; } .stage { box-sizing: border-box; inline-size: 320px !important; }` });
     const whole = async (when: string) => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${when}: no sideways scroll`).toBe(true);
@@ -1634,7 +1638,7 @@ test.describe('accessibility', () => {
     await whole('200 %');
     // The glyphs' boxes are a token in rem here; they stay on the first line, centred.
     const d = await drawn(row(page, 'long-labels-wrap', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift'));
-    expect(d.chevron.size).toBe(await resolveToken(page, T('chevron-size-regular')));
+    expect(d.chevron.size).toBe(await resolveToken(page, T('chevron-size-medium')));
     expect(chevron).toBeGreaterThan(0);
     near(d.chevron.top + d.chevron.size / 2, d.firstLine + d.line / 2);
     expect(d.row.height).toBeGreaterThan(d.line * 3);
@@ -1687,12 +1691,12 @@ test.describe('accessibility', () => {
 
 test.describe('right to left', () => {
   test('TRV-36: in a right-to-left layout a row is mirrored — the tree’s start edge is its right edge, each level begins further to the left, the chevron’s box is at the right with the icon, the text and the trailing text after it toward the left, and the guides stand under the chevrons; a closed parent’s chevron points left and an open one’s down; Left opens and steps in, Right closes and steps out; a ripple still grows from the point of contact', async ({ page }) => {
-    await mount(page, { fixtures: some('rtl', 'rtl-guides-compact'), reducedMotion: true });
+    await mount(page, { fixtures: some('rtl', 'rtl-guides-small'), reducedMotion: true });
     await page.addStyleTag({ content: `.stage[data-fixture="rtl"] { inline-size: 640px !important; }` });
     await watch(page);
     const tree = await edges(host(page, 'rtl'));
-    const pad = await resolveToken(page, T('container-padding-inline-regular'));
-    const gap = await resolveToken(page, T('container-gap-regular'));
+    const pad = await resolveToken(page, T('container-padding-inline-medium'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
     const iconGap = await resolveToken(page, T('icon-gap'));
     let parentLabel: number | null = null;
     for (const label of ['المشروع', 'المكوّنات', 'زر']) {
@@ -1717,13 +1721,13 @@ test.describe('right to left', () => {
     expect(open.scale).toBe('-1 1');
     expect(open.rotate).toBe('-90deg');
     // The guide under the parent's chevron.
-    const line = await item(page, 'rtl-guides-compact', 'المشروع')
+    const line = await item(page, 'rtl-guides-small', 'المشروع')
       .locator('> ul')
       .evaluate((list) => {
         const s = getComputedStyle(list, '::before');
         return list.getBoundingClientRect().right - Number.parseFloat(s.right) - Number.parseFloat(s.borderRightWidth) / 2 - Number.parseFloat(s.borderLeftWidth) / 2;
       });
-    const parent = (await drawn(row(page, 'rtl-guides-compact', 'المشروع'))).chevron;
+    const parent = (await drawn(row(page, 'rtl-guides-small', 'المشروع'))).chevron;
     near(line, (parent.left + parent.right) / 2);
     // The keys follow the direction.
     await row(page, 'rtl', 'الأنماط').focus();
@@ -1780,7 +1784,7 @@ test.describe('right to left', () => {
     expect(await css(glyph('icons-rtl', 'الملفات'), 'transform')).toBe('none');
     expect(await css(host(page, 'forbidden').locator('.tanrei-icon'), 'transform')).toBe('none');
     // In its own box: the same place and size as its unmirrored neighbour's.
-    const size = await resolveToken(page, T('icon-size-regular'));
+    const size = await resolveToken(page, T('icon-size-medium'));
     expect((await edges(glyph('icons-rtl', 'اللغة'))).width).toBe(size);
     near((await edges(glyph('icons-rtl', 'اللغة'))).right, (await edges(glyph('icons-rtl', 'المظهر'))).right);
     // Left to right, nothing is mirrored.
@@ -1858,7 +1862,7 @@ test.describe('right to left', () => {
         raw('named-ltr', { label: 'Named' }, `<ul>${item('قائمة/', 'edited by hand.', '40px')}${item('tokens/', 'مصدر الحقيقة', '12')}</ul>`),
       ],
     });
-    const gap = await resolveToken(page, T('container-gap-regular'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
     const parts = async (id: string, index: number) => {
       const r = host(page, id).locator('li').nth(index).locator('> :first-child');
       const letters = (locator: Locator) =>
@@ -1911,8 +1915,8 @@ test.describe('missing, unknown, empty, changed', () => {
     await expect(host(page, 'icons')).toHaveAttribute('data-glyphs', 'pending');
     expect(await css(r, 'visibility', '::before')).toBe('hidden');
     expect(await css(r.locator('> .tanrei-icon'), 'visibility')).toBe('hidden');
-    expect(await px(r, 'width', '::before')).toBe(await resolveToken(page, T('chevron-size-regular')));
-    expect((await edges(r.locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-regular')));
+    expect(await px(r, 'width', '::before')).toBe(await resolveToken(page, T('chevron-size-medium')));
+    expect((await edges(r.locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-medium')));
     await r.click();
     await expect(item(page, 'icons', 'styles')).toHaveAttribute('data-open', '');
     // The box the name is measured in is no item and no row.
@@ -1923,26 +1927,26 @@ test.describe('missing, unknown, empty, changed', () => {
     await expect(host(page, 'icons').locator('[data-tanrei-glyph-probe]')).toHaveCount(0);
   });
 
-  test('TRV-41: a density the active design system does not have is drawn as the default and a selection the tree does not define as none, each reported; a density a design system adds is drawn from its tokens; a change of selection is drawn at once, keeping every parent’s open and the focus, and emits no change', async ({ page }) => {
+  test('TRV-41: a size the active design system does not have is drawn as the default and a selection the tree does not define as none, each reported; a size a design system adds is drawn from its tokens; a change of selection is drawn at once, keeping every parent’s open and the focus, and emits no change', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, { fixtures: [raw('unknown', { label: 'Unknown', density: 'huge', selection: 'several', value: 'a1' }, SMALL), raw('added', { label: 'Added', density: 'roomy' }, SMALL), raw('turned', { label: 'Turned', value: 'a1' }, SMALL)] });
+    await mount(page, { fixtures: [raw('unknown', { label: 'Unknown', size: 'huge', selection: 'several', value: 'a1' }, SMALL), raw('added', { label: 'Added', size: 'roomy' }, SMALL), raw('turned', { label: 'Turned', value: 'a1' }, SMALL)] });
     await nameItems(page);
     await watch(page);
-    const regular = await resolveToken(page, T('container-height-regular'));
-    expect((await edges(row(page, 'unknown', 'Alpha'))).height).toBe(Math.max(regular, await resolveToken(page, '--tanrei-sys-target-pointer')));
+    const medium = await resolveToken(page, T('container-height-medium'));
+    expect((await edges(row(page, 'unknown', 'Alpha'))).height).toBe(Math.max(medium, await resolveToken(page, '--tanrei-sys-target-pointer')));
     await expect(host(page, 'unknown').locator('[aria-selected]')).toHaveCount(0);
     await row(page, 'unknown', 'Delta').click();
     expect(await events(page)).toEqual([]);
     expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"huge"'))).toHaveLength(1);
     expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"several"'))).toHaveLength(1);
-    // A density a design system adds: its tokens, the default's where it has none.
+    // A size a design system adds: its tokens, the default's where it has none.
     await override(page, { [T('container-height-roomy')]: '72px', [T('container-gap-roomy')]: '20px' });
     await host(page, 'added').evaluate((el) => {
-      el.setAttribute('density', 'regular');
-      el.setAttribute('density', 'roomy');
+      el.setAttribute('size', 'medium');
+      el.setAttribute('size', 'roomy');
     });
     await expect.poll(async () => (await edges(row(page, 'added', 'Alpha'))).height).toBe(72);
-    near((await drawn(row(page, 'added', 'Apple'))).container.left, (await edges(host(page, 'added'))).left + (await resolveToken(page, T('chevron-size-regular'))) + 20);
+    near((await drawn(row(page, 'added', 'Apple'))).container.left, (await edges(host(page, 'added'))).left + (await resolveToken(page, T('chevron-size-medium'))) + 20);
     expect(await css(row(page, 'added', 'Alpha'), 'font-size')).toBe(await css(row(page, 'turned', 'Alpha'), 'font-size'));
     // A change of selection.
     await tabTo(page, row(page, 'turned', 'Alpha'));
@@ -1955,6 +1959,75 @@ test.describe('missing, unknown, empty, changed', () => {
     await host(page, 'turned').evaluate((el) => el.setAttribute('selection', 'none'));
     await expect(host(page, 'turned').locator('[aria-selected]')).toHaveCount(0);
     expect(await events(page)).toEqual([]);
+  });
+
+  test('TRV-73: without a size of its own a tree draws every row at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping every parent’s open and the focus; at density 0.75, 1 and 1.5 every row is its size’s height', async ({ page }) => {
+    await mount(page, { fixtures: [raw('anchor', { label: 'Anchor' }, SMALL)] });
+    // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
+    // here (it reports content that is not a Button, BGR-10, and still lays it out).
+    await page.evaluate((content) => {
+      const tree = (id: string, size = '') => `<tanrei-tree-view id="${id}" label="${id}" selection="single" ${size ? `size="${size}"` : ''}>${content}</tanrei-tree-view>`;
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">${tree('taken')}${tree('own-medium', 'medium')}</tanrei-button-group>
+        <tanrei-button-group id="unset">${tree('free')}</tanrei-button-group>
+        <tanrei-button-group id="outer" size="small"><tanrei-button-group id="inner" size="medium">${tree('nearest')}</tanrei-button-group></tanrei-button-group>
+        ${tree('alone')}`;
+      document.body.append(stage);
+    }, SMALL);
+    const all = ['taken', 'own-medium', 'free', 'nearest', 'alone'];
+    /** The height of each tree's row "Delta", measured in one frame. */
+    const measure = `return Object.fromEntries(ids.map((id) => [id, document.querySelector('#' + id + ' li[data-value="d"] > span').getBoundingClientRect().height]));`;
+    const heights = () => page.evaluate(([code, ids]) => new Function('ids', code)(ids) as Record<string, number>, [measure, all] as const);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, read, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return new Function('ids', read)(list) as Record<string, number>;
+        },
+        [change, measure, ids] as const,
+      );
+    const rows = async () => {
+      const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+      return { small: Math.max(pointer, await resolveToken(page, T('container-height-small'))), medium: Math.max(pointer, await resolveToken(page, T('container-height-medium'))) };
+    };
+    // A size it takes, or the default, is not its own: no size attribute is written on a tree that sets none.
+    expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const size = await rows();
+      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '1.5' });
+    const roomy = (await rows()).small;
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await rows();
+    expect(roomy).toBeGreaterThan(size.small);
+    // The tree's own rules for the size it draws: the label's text style and the glyphs' boxes are the small ones.
+    expect(await page.evaluate(() => (document.getElementById('taken') as HTMLElement & { drawnSize: string }).drawnSize)).toBe('small');
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('#taken li[data-value="d"] > span')!).fontSize)).toBe(`${await resolveToken(page, T('label-typescale-small-font-size'))}px`);
+    // A size the tree lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    // Focus on a row of the tree and a parent open: kept through every change.
+    await page.locator('#taken li[data-value="d"] > span').focus();
+    // Set, changed and removed on the container; set, given back and set to the default's name on the tree.
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium')).toEqual({ taken: size.small, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken')).toEqual({ taken: size.medium });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'small')", 'taken')).toEqual({ taken: size.small });
+    expect(await page.evaluate(() => document.activeElement?.parentElement?.getAttribute('data-value'))).toBe('d');
+    expect(await page.locator('#taken li[data-value="a"]').getAttribute('data-open')).toBe('');
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('free'))", 'free')).toEqual({ free: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 
   test('TRV-42: a tree with no items draws nothing, takes no space, exposes nothing and is no stop; an item that holds no items and is not expandable is a leaf whatever its open and loading say; items added or removed are drawn at once, without motion, keeping the selection, every other parent’s open and the focus', async ({ page }) => {
@@ -2016,9 +2089,9 @@ test.describe('the row model', () => {
     await mount(page, { fixtures: [...some('chevron-end'), raw('end-small', { label: 'Small', selection: 'single', chevron: 'end' }, SMALL)] });
     await nameItems(page);
     await watch(page);
-    const gap = await resolveToken(page, T('container-gap-regular'));
-    const pad = await resolveToken(page, T('container-padding-inline-regular'));
-    const size = await resolveToken(page, T('chevron-size-regular'));
+    const gap = await resolveToken(page, T('container-gap-medium'));
+    const pad = await resolveToken(page, T('container-padding-inline-medium'));
+    const size = await resolveToken(page, T('chevron-size-medium'));
     for (const label of ['src', 'index.ts']) {
       const r = row(page, 'chevron-end', label);
       const box = await r.evaluate((el) => {
@@ -2050,7 +2123,7 @@ test.describe('the row model', () => {
     await nameItems(page);
     await watch(page);
     const id = 'chevron-none';
-    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    const pad = await resolveToken(page, T('container-padding-inline-medium'));
     for (const label of ['src', 'components', 'styles', 'index.ts', 'test', 'package.json']) expect(await css(row(page, id, label), 'display', '::before'), label).toBe('none');
     near(await fromStart(page, id, row(page, id, 'src').locator('> .tanrei-icon')), pad);
     const glyph = (label: string) => row(page, id, label).locator('> .tanrei-icon').evaluate((icon) => getComputedStyle(icon, '::before').content);
@@ -2109,9 +2182,9 @@ test.describe('the row model', () => {
     // auto: the labels of a level with an icon stand in one column; a level with none keeps no room.
     near(await labelAt('icon-space-auto', 'notes'), await labelAt('icon-space-auto', 'index.ts'));
     near(await labelAt('icon-space-auto', 'LICENSE'), await labelAt('icon-space-auto', 'src'));
-    const icon = await resolveToken(page, T('icon-size-regular'));
+    const icon = await resolveToken(page, T('icon-size-medium'));
     const iconGap = await resolveToken(page, T('icon-gap'));
-    near(await labelAt('icon-space-auto', 'intro'), (await drawn(row(page, 'icon-space-auto', 'intro'))).chevron.right + (await resolveToken(page, T('container-gap-regular'))));
+    near(await labelAt('icon-space-auto', 'intro'), (await drawn(row(page, 'icon-space-auto', 'intro'))).chevron.right + (await resolveToken(page, T('container-gap-medium'))));
     // never: a row without an icon begins its label where its icon would begin.
     near((await labelAt('icon-space-never', 'index.ts')) - (await labelAt('icon-space-never', 'notes')), icon + iconGap);
     // always: every label an icon and its gap in.
@@ -2412,10 +2485,10 @@ test.describe('editing in place', () => {
     await expect.poll(() => missingWords(page)).toContain('editLabel');
   });
 
-  test('TRV-46: opening and closing the field moves nothing — the row, its neighbours and the text stand where they stood, to a pixel, in both densities', async ({ page }) => {
-    await mount(page, { fixtures: [raw('still', editable({ label: 'Still', selection: 'single' }), SMALL), raw('still-compact', editable({ label: 'Still', density: 'compact' }), SMALL)] });
+  test('TRV-46: opening and closing the field moves nothing — the row, its neighbours and the text stand where they stood, to a pixel, at both sizes', async ({ page }) => {
+    await mount(page, { fixtures: [raw('still', editable({ label: 'Still', selection: 'single' }), SMALL), raw('still-small', editable({ label: 'Still', size: 'small' }), SMALL)] });
     await nameItems(page);
-    for (const id of ['still', 'still-compact']) {
+    for (const id of ['still', 'still-small']) {
       const boxes = () => host(page, id).evaluate((tree) => [...tree.querySelectorAll('li > :first-child')].map((row) => row.getBoundingClientRect().toJSON() as DOMRect));
       const textAt = () =>
         row(page, id, 'Apple').evaluate((el) => {
@@ -2507,7 +2580,7 @@ test.describe('editing in place', () => {
 
 test.describe('before the element is defined, without script, in a shadow root', () => {
   test('TRV-1, TRV-9: the stylesheet alone draws the whole look — the indent, the chevrons and their turn, closed rows not shown, the guides, the room of a loading row — and nothing moves when the element is defined', async ({ page }) => {
-    const fixtures = some('all-parts', 'compact-guides', 'disabled', 'loading', 'deep', 'rtl', 'long-labels', 'studio-tokens');
+    const fixtures = some('all-parts', 'small-guides', 'disabled', 'loading', 'deep', 'rtl', 'long-labels', 'studio-tokens');
     const markup = await fixturesDocument(spec, { icons: true, fixtures });
     const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
     await page.setContent(markup.replace(bundle, ''));
@@ -2534,10 +2607,10 @@ test.describe('before the element is defined, without script, in a shadow root',
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
     expect((await drawn(row(page, 'all-parts', 'components'))).chevron.rotate).toBe('none');
-    near((await drawn(row(page, 'all-parts', 'index.ts'))).container.left + (await resolveToken(page, T('container-padding-inline-regular'))), src.text!.left);
+    near((await drawn(row(page, 'all-parts', 'index.ts'))).container.left + (await resolveToken(page, T('container-padding-inline-medium'))), src.text!.left);
     expect(await row(page, 'all-parts', 'button.ts').evaluate((el) => el.checkVisibility())).toBe(false);
     expect(await css(row(page, 'disabled', 'typeface'), 'color')).toBe(await resolveColor(page, T('unselected-disabled-label-color')));
-    expect(await item(page, 'compact-guides', 'src').locator('> ul').evaluate((list) => getComputedStyle(list, '::before').content)).not.toBe('none');
+    expect(await item(page, 'small-guides', 'src').locator('> ul').evaluate((list) => getComputedStyle(list, '::before').content)).not.toBe('none');
     // A selected row is the one thing drawn at upgrade: written by the server, it is drawn in the first frame.
     expect(await css(row(page, 'all-parts', 'index.ts'), 'background-color', '::after')).toMatch(CLEAR);
     await page.evaluate(() => {
@@ -2597,7 +2670,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     const first = inner.locator('li').first().locator('> span');
     expect((await edges(first)).height).toBe(48);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
-    near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-regular'))) + (await resolveToken(page, T('container-gap-regular'))));
+    near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the
     // motion may be over before a slow runner's answer.
     await inner.locator('li[data-value="b"] > ul').evaluate((el) => {
@@ -2873,7 +2946,7 @@ test.describe('the filter', () => {
     expect(await host(page, 'filter-none').locator('[role="treeitem"][tabindex="0"]').count()).toBe(0);
     expect(await css(line(page, 'filter-none'), 'color')).toBe(await resolveColor(page, T('filter-status-color')));
     expect(await px(line(page, 'filter-none'), 'font-size')).toBe(await resolveToken(page, T('filter-status-typescale-font-size')));
-    near(await px(line(page, 'filter-none'), 'padding-left'), await resolveToken(page, T('container-padding-inline-regular')));
+    near(await px(line(page, 'filter-none'), 'padding-left'), await resolveToken(page, T('container-padding-inline-medium')));
     // Without the words, nothing is drawn in their place, and the words are asked for.
     await setTree(page, 'filter-none', { filterEmptyText: '' });
     await expect(line(page, 'filter-none')).toBeHidden();

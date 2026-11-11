@@ -5,17 +5,17 @@
       "accordion": {
         "chevron": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -31,49 +31,49 @@
             "$description": "Between the icon, the text, the trailing text and the chevron of a header: a navigation drawer row's gap."
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 48,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 56,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -89,17 +89,17 @@
         },
         "content": {
           "padding-block-end": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -148,17 +148,17 @@
         },
         "icon": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -176,29 +176,7 @@
         },
         "label": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 17,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.2941
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -218,6 +196,28 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.3125
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 17,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.2941
               }
             }
           }
@@ -1387,29 +1387,7 @@
         },
         "supporting-text": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 13,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3846
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -1429,35 +1407,35 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.3333
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
               }
             }
           }
         },
         "trailing-text": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 13,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3846
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -1477,6 +1455,28 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.3333
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
               }
             }
           }
@@ -93678,17 +93678,17 @@
       "tree-view": {
         "chevron": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 20,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -93696,65 +93696,65 @@
         },
         "container": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 48,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -93865,20 +93865,20 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "The room between the icon (or the icon's kept room) and the label, the same in every density: a compact tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a regular one does. A product's iconGap overrides it."
+            "$description": "The room between the icon (or the icon's kept room) and the label, the same at every size and density: a small tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a medium one does. A product's iconGap overrides it."
           },
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 20,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -93886,29 +93886,7 @@
         },
         "label": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 13,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3846
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -93929,22 +93907,44 @@
                 },
                 "lineHeight": 1.3333
               }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
+              }
             }
           }
         },
         "level": {
           "indent": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 32,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
                 "unit": "px"
               }
             }
@@ -94601,7 +94601,7 @@
               },
               "lineHeight": 1.3846
             },
-            "$description": "The note after the label, in both densities: the size of the compact label, at a regular weight."
+            "$description": "The note after the label, at both sizes: the size of the small label, at a regular weight."
           }
         },
         "trailing-text": {
@@ -94626,7 +94626,7 @@
               },
               "lineHeight": 1.3846
             },
-            "$description": "The short value at the end of a row, in both densities: a navigation drawer row's trailing text."
+            "$description": "The short value at the end of a row, at both sizes: a navigation drawer row's trailing text."
           }
         },
         "unselected": {

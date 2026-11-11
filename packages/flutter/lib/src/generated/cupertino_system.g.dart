@@ -655,19 +655,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiAccordionDensitys(
-      regular: TanreiAccordionDensityTokens(
-        containerHeight: 56.0,
-        containerPaddingBlock: 16.0,
-        containerPaddingInline: 16.0,
-        labelTypescale: _typescaleHeading5,
-        supportingTextTypescale: _typescaleBody,
-        trailingTextTypescale: _typescaleBody,
-        iconSize: 24.0,
-        chevronSize: 24.0,
-        contentPaddingBlockEnd: 16.0,
-      ),
-      compact: TanreiAccordionDensityTokens(
+    sizes: TanreiAccordionSizes(
+      small: TanreiAccordionSizeTokens(
         containerHeight: 48.0,
         containerPaddingBlock: 12.0,
         containerPaddingInline: 12.0,
@@ -677,6 +666,17 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         iconSize: 20.0,
         chevronSize: 20.0,
         contentPaddingBlockEnd: 12.0,
+      ),
+      medium: TanreiAccordionSizeTokens(
+        containerHeight: 56.0,
+        containerPaddingBlock: 16.0,
+        containerPaddingInline: 16.0,
+        labelTypescale: _typescaleHeading5,
+        supportingTextTypescale: _typescaleBody,
+        trailingTextTypescale: _typescaleBody,
+        iconSize: 24.0,
+        chevronSize: 24.0,
+        contentPaddingBlockEnd: 16.0,
       ),
     ),
     hovered: TanreiAccordionStateTokens(
@@ -9918,18 +9918,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTreeViewDensitys(
-      regular: TanreiTreeViewDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 12.0,
-        containerPaddingInline: 12.0,
-        containerGap: 12.0,
-        levelIndent: 32.0,
-        labelTypescale: _typescaleBody,
-        iconSize: 20.0,
-        chevronSize: 20.0,
-      ),
-      compact: TanreiTreeViewDensityTokens(
+    sizes: TanreiTreeViewSizes(
+      small: TanreiTreeViewSizeTokens(
         containerHeight: 32.0,
         containerPaddingBlock: 6.0,
         containerPaddingInline: 8.0,
@@ -9938,6 +9928,16 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         labelTypescale: _typescaleBodySmall,
         iconSize: 16.0,
         chevronSize: 16.0,
+      ),
+      medium: TanreiTreeViewSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingBlock: 12.0,
+        containerPaddingInline: 12.0,
+        containerGap: 12.0,
+        levelIndent: 32.0,
+        labelTypescale: _typescaleBody,
+        iconSize: 20.0,
+        chevronSize: 20.0,
       ),
     ),
     hovered: TanreiTreeViewStateTokens(

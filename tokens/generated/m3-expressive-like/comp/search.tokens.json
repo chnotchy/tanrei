@@ -303,7 +303,7 @@
                 "$value": "{tanrei.sys.space.space200}"
               },
               "compact": {
-                "$value": "{tanrei.comp.tree-view.container.padding-inline.compact}"
+                "$value": "{tanrei.comp.tree-view.container.padding-inline.small}"
               }
             },
             "padding-block": {
@@ -343,7 +343,7 @@
                 "$value": "{tanrei.sys.space.space200}"
               },
               "compact": {
-                "$value": "{tanrei.comp.tree-view.container.gap.compact}"
+                "$value": "{tanrei.comp.tree-view.container.gap.small}"
               }
             },
             "shape": {

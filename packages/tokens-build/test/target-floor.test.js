@@ -29,7 +29,7 @@ test('the floored heights: every pressable height and row the core derives with 
     'comp.button.container.height.small',
     'comp.button.container.height.large',
     'comp.input-box.stacked.container.height.small', // an alias of the small Button
-    'comp.tree-view.container.height.compact', // the small step of the ladder, with the minimum
+    'comp.tree-view.container.height.small', // the small step of the ladder, with the minimum
     'comp.menu.container.height.compact',
     'comp.select.option.height.compact', // an alias of the menu's
     'comp.list-row.container.height.three-line.regular',
@@ -126,7 +126,7 @@ test('the sweep: at every density and minimum no floored height is under the min
         const expected = Math.max(minimum, tokens[`${NS}.sys.control.height.${step}`].$value.value);
         assert.deepEqual(ids.filter((id) => tokens[id].$value.value !== expected), [], `${at}: controls of the ${step} step`);
       }
-      if (minimum === 36) table[density] = ['button.container.height.small', 'button.container.height.medium', 'button.container.height.large', 'tree-view.container.height.regular', 'tree-view.container.height.compact', 'list-row.container.height.one-line.regular'].map((id) => tokens[`${NS}.comp.${id}`].$value.value);
+      if (minimum === 36) table[density] = ['button.container.height.small', 'button.container.height.medium', 'button.container.height.large', 'tree-view.container.height.medium', 'tree-view.container.height.small', 'list-row.container.height.one-line.regular'].map((id) => tokens[`${NS}.comp.${id}`].$value.value);
     }
   }
   // Heights by density at a minimum of 36: Button small, medium and large, a row, a compact row, a one-line list row.

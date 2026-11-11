@@ -186,14 +186,14 @@ export interface TanreiAccordionVariantRegistry {
   outlined: true;
 }
 
-export interface TanreiAccordionDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiAccordionSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiTreeViewDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTreeViewSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiListRowDensityRegistry {

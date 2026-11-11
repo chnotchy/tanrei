@@ -1381,6 +1381,706 @@
       ]
     },
     {
+      "term": "comp.tree-view.density",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size, which it takes from its container where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.tree-view.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.density",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size, which it takes from its container where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.accordion.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.height.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.container.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.height.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.container.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.container.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.container.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.container.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.container.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.container.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.level.indent.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.level.indent.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.level.indent.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.level.indent.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.label.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.label.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.label.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.label.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.chevron.size.regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "comp.tree-view.chevron.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.tree-view.chevron.size.compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "comp.tree-view.chevron.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-height-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-container-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-height-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-container-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-container-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-container-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-container-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-container-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-container-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-level-indent-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-level-indent-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-level-indent-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-level-indent-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-label-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-label-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-label-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-label-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-chevron-size-regular",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-tree-view-chevron-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-tree-view-chevron-size-compact",
+      "since": "2026-11-12",
+      "reason": "the tree view's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-tree-view-chevron-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.height.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.container.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.height.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.container.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.container.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.container.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.container.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.label.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.label.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.label.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.label.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.supporting-text.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.supporting-text.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.supporting-text.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.supporting-text.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.trailing-text.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.trailing-text.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.trailing-text.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.trailing-text.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.chevron.size.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.chevron.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.chevron.size.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.chevron.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.content.padding-block-end.regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "comp.accordion.content.padding-block-end.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.accordion.content.padding-block-end.compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "comp.accordion.content.padding-block-end.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-height-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-container-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-height-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-container-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-container-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-container-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-container-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-label-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-label-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-label-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-label-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-supporting-text-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-supporting-text-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-supporting-text-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-supporting-text-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-trailing-text-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-trailing-text-typescale-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-trailing-text-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-trailing-text-typescale-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-chevron-size-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-chevron-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-chevron-size-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-chevron-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-content-padding-block-end-regular",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-accordion-content-padding-block-end-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-accordion-content-padding-block-end-compact",
+      "since": "2026-11-12",
+      "reason": "the accordion's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-accordion-content-padding-block-end-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
       "term": "comp-callout-pressed-opacity",
       "since": "2026-10-18",
       "reason": "the callout's state opacities were its close button's, which is now a Button",

@@ -229,7 +229,7 @@ test.describe('the custom properties a page has registered', () => {
         const scope = where === 'document' ? document : document.getElementById('host')!.shadowRoot!;
         const element = scope.querySelector('tanrei-tree-view')!;
         const probe = document.body.appendChild(document.createElement('div'));
-        probe.style.cssText = 'position:absolute;inline-size:var(--tanrei-comp-tree-view-level-indent-regular);block-size:var(--tanrei-sys-target-pointer)';
+        probe.style.cssText = 'position:absolute;inline-size:var(--tanrei-comp-tree-view-level-indent-medium);block-size:var(--tanrei-sys-target-pointer)';
         const expected = [probe.getBoundingClientRect().width, probe.getBoundingClientRect().height];
         probe.remove();
         const rows = [...element.querySelectorAll('li > :first-child:not(ul)')];

@@ -819,23 +819,23 @@ public data class TanreiAccordionVariants(
 }
 
 /**
- * A density of accordion: the key of one entry of [TanreiAccordionDensitys]. The set is OPEN — the constants are the core
+ * A size of accordion: the key of one entry of [TanreiAccordionSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
+ * A key the current system does not have draws as [Medium].
  */
 @JvmInline
-public value class TanreiAccordionDensity(public val key: String) {
+public value class TanreiAccordionSize(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
-        public val Regular: TanreiAccordionDensity = TanreiAccordionDensity("regular")
-        public val Compact: TanreiAccordionDensity = TanreiAccordionDensity("compact")
+        public val Small: TanreiAccordionSize = TanreiAccordionSize("small")
+        public val Medium: TanreiAccordionSize = TanreiAccordionSize("medium")
     }
 }
 
-/** The tokens of one density of accordion. */
+/** The tokens of one size of accordion. */
 @Immutable
-public data class TanreiAccordionDensityTokens(
+public data class TanreiAccordionSizeTokens(
     public val containerHeight: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
@@ -848,29 +848,29 @@ public data class TanreiAccordionDensityTokens(
 )
 
 /**
- * Every density of accordion: a named member per core value, plus [extra] for the values a design system added.
+ * Every size of accordion: a named member per core value, plus [extra] for the values a design system added.
  */
 @Immutable
-public data class TanreiAccordionDensitys(
-    public val regular: TanreiAccordionDensityTokens,
-    public val compact: TanreiAccordionDensityTokens,
+public data class TanreiAccordionSizes(
+    public val small: TanreiAccordionSizeTokens,
+    public val medium: TanreiAccordionSizeTokens,
     /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiAccordionDensity, TanreiAccordionDensityTokens> = emptyMap(),
+    public val extra: Map<TanreiAccordionSize, TanreiAccordionSizeTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiAccordionDensity> get() = linkedSetOf(TanreiAccordionDensity.Regular, TanreiAccordionDensity.Compact) + extra.keys
+    public val keys: Set<TanreiAccordionSize> get() = linkedSetOf(TanreiAccordionSize.Small, TanreiAccordionSize.Medium) + extra.keys
 
-    public operator fun contains(key: TanreiAccordionDensity): Boolean = find(key) != null
+    public operator fun contains(key: TanreiAccordionSize): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiAccordionDensity): TanreiAccordionDensityTokens? = when (key) {
-        TanreiAccordionDensity.Regular -> regular
-        TanreiAccordionDensity.Compact -> compact
+    public fun find(key: TanreiAccordionSize): TanreiAccordionSizeTokens? = when (key) {
+        TanreiAccordionSize.Small -> small
+        TanreiAccordionSize.Medium -> medium
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiAccordionDensity): TanreiAccordionDensityTokens = find(key) ?: regular
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiAccordionSize): TanreiAccordionSizeTokens = find(key) ?: medium
 }
 
 /** What every variant of accordion shares in one interaction state. */
@@ -879,7 +879,7 @@ public data class TanreiAccordionStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.accordion`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `densitys[density]`). */
+/** `comp.accordion`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `sizes[size]`). */
 @Immutable
 public data class TanreiAccordionTokens(
     public val containerGap: Dp,
@@ -901,7 +901,7 @@ public data class TanreiAccordionTokens(
     public val pressed: TanreiAccordionStateTokens,
     public val disabled: TanreiAccordionStateTokens,
     public val variants: TanreiAccordionVariants,
-    public val densitys: TanreiAccordionDensitys,
+    public val sizes: TanreiAccordionSizes,
 ) {
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
     public fun opacity(state: TanreiInteractionState): Float = when (state) {
@@ -11689,23 +11689,23 @@ public data class TanreiTreeViewConditions(
 }
 
 /**
- * A density of tree-view: the key of one entry of [TanreiTreeViewDensitys]. The set is OPEN — the constants are the core
+ * A size of tree-view: the key of one entry of [TanreiTreeViewSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
+ * A key the current system does not have draws as [Medium].
  */
 @JvmInline
-public value class TanreiTreeViewDensity(public val key: String) {
+public value class TanreiTreeViewSize(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
-        public val Regular: TanreiTreeViewDensity = TanreiTreeViewDensity("regular")
-        public val Compact: TanreiTreeViewDensity = TanreiTreeViewDensity("compact")
+        public val Small: TanreiTreeViewSize = TanreiTreeViewSize("small")
+        public val Medium: TanreiTreeViewSize = TanreiTreeViewSize("medium")
     }
 }
 
-/** The tokens of one density of tree-view. */
+/** The tokens of one size of tree-view. */
 @Immutable
-public data class TanreiTreeViewDensityTokens(
+public data class TanreiTreeViewSizeTokens(
     public val containerHeight: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
@@ -11717,29 +11717,29 @@ public data class TanreiTreeViewDensityTokens(
 )
 
 /**
- * Every density of tree-view: a named member per core value, plus [extra] for the values a design system added.
+ * Every size of tree-view: a named member per core value, plus [extra] for the values a design system added.
  */
 @Immutable
-public data class TanreiTreeViewDensitys(
-    public val regular: TanreiTreeViewDensityTokens,
-    public val compact: TanreiTreeViewDensityTokens,
+public data class TanreiTreeViewSizes(
+    public val small: TanreiTreeViewSizeTokens,
+    public val medium: TanreiTreeViewSizeTokens,
     /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiTreeViewDensity, TanreiTreeViewDensityTokens> = emptyMap(),
+    public val extra: Map<TanreiTreeViewSize, TanreiTreeViewSizeTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiTreeViewDensity> get() = linkedSetOf(TanreiTreeViewDensity.Regular, TanreiTreeViewDensity.Compact) + extra.keys
+    public val keys: Set<TanreiTreeViewSize> get() = linkedSetOf(TanreiTreeViewSize.Small, TanreiTreeViewSize.Medium) + extra.keys
 
-    public operator fun contains(key: TanreiTreeViewDensity): Boolean = find(key) != null
+    public operator fun contains(key: TanreiTreeViewSize): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiTreeViewDensity): TanreiTreeViewDensityTokens? = when (key) {
-        TanreiTreeViewDensity.Regular -> regular
-        TanreiTreeViewDensity.Compact -> compact
+    public fun find(key: TanreiTreeViewSize): TanreiTreeViewSizeTokens? = when (key) {
+        TanreiTreeViewSize.Small -> small
+        TanreiTreeViewSize.Medium -> medium
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTreeViewDensity): TanreiTreeViewDensityTokens = find(key) ?: regular
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiTreeViewSize): TanreiTreeViewSizeTokens = find(key) ?: medium
 }
 
 /** What every variant of tree-view shares in one interaction state. */
@@ -11748,7 +11748,7 @@ public data class TanreiTreeViewStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.tree-view`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`, `densitys[density]`). */
+/** `comp.tree-view`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`, `sizes[size]`). */
 @Immutable
 public data class TanreiTreeViewTokens(
     public val containerShape: Dp,
@@ -11773,7 +11773,7 @@ public data class TanreiTreeViewTokens(
     public val pressed: TanreiTreeViewStateTokens,
     public val disabled: TanreiTreeViewStateTokens,
     public val conditions: TanreiTreeViewConditions,
-    public val densitys: TanreiTreeViewDensitys,
+    public val sizes: TanreiTreeViewSizes,
 ) {
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
     public fun opacity(state: TanreiInteractionState): Float = when (state) {

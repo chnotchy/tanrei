@@ -35,7 +35,7 @@ function lists(open: 'all' | 'first'): string {
   }
   return `${html}</ul>`;
 }
-const tree = (open: 'all' | 'first') => `<tanrei-tree-view id="tree" label="Every token" selection="single" density="compact" guides>${lists(open)}</tanrei-tree-view>`;
+const tree = (open: 'all' | 'first') => `<tanrei-tree-view id="tree" label="Every token" selection="single" size="small" guides>${lists(open)}</tanrei-tree-view>`;
 
 /** One row's change may style this many elements again, in all the style passes it takes: the row, its parts, the item, and what the page asks of its root. Counted: 12 for an arrow key (the row that loses focus and the row that takes it, six boxes each), 15 to 18 for a choice. */
 const ROW_ELEMENTS = 16;

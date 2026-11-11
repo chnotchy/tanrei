@@ -2090,23 +2090,23 @@ class TanreiAccordionVariants {
   }
 }
 
-/// The key of a density of accordion (`comp.accordion`, axis `density`).
+/// The key of a size of accordion (`comp.accordion`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiAccordionDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiAccordionDensity(String name) {
-  static const regular = TanreiAccordionDensity('regular');
-  static const compact = TanreiAccordionDensity('compact');
+/// `const TanreiAccordionSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiAccordionSize(String name) {
+  static const small = TanreiAccordionSize('small');
+  static const medium = TanreiAccordionSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiAccordionDensity> core = <TanreiAccordionDensity>[regular, compact];
+  static const List<TanreiAccordionSize> core = <TanreiAccordionSize>[small, medium];
 }
 
-/// The tokens of one accordion density.
+/// The tokens of one accordion size.
 @immutable
-class TanreiAccordionDensityTokens {
-  const TanreiAccordionDensityTokens({
+class TanreiAccordionSizeTokens {
+  const TanreiAccordionSizeTokens({
     required this.containerHeight,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
@@ -2118,27 +2118,27 @@ class TanreiAccordionDensityTokens {
     required this.contentPaddingBlockEnd,
   });
 
-  /// `comp.accordion.container-height.<density>`
+  /// `comp.accordion.container-height.<size>`
   final double containerHeight;
-  /// `comp.accordion.container-padding-block.<density>`
+  /// `comp.accordion.container-padding-block.<size>`
   final double containerPaddingBlock;
-  /// `comp.accordion.container-padding-inline.<density>`
+  /// `comp.accordion.container-padding-inline.<size>`
   final double containerPaddingInline;
-  /// `comp.accordion.label-typescale.<density>`
+  /// `comp.accordion.label-typescale.<size>`
   final TanreiTextStyle labelTypescale;
-  /// `comp.accordion.supporting-text-typescale.<density>`
+  /// `comp.accordion.supporting-text-typescale.<size>`
   final TanreiTextStyle supportingTextTypescale;
-  /// `comp.accordion.trailing-text-typescale.<density>`
+  /// `comp.accordion.trailing-text-typescale.<size>`
   final TanreiTextStyle trailingTextTypescale;
-  /// `comp.accordion.icon-size.<density>`
+  /// `comp.accordion.icon-size.<size>`
   final double iconSize;
-  /// `comp.accordion.chevron-size.<density>`
+  /// `comp.accordion.chevron-size.<size>`
   final double chevronSize;
-  /// `comp.accordion.content-padding-block-end.<density>`
+  /// `comp.accordion.content-padding-block-end.<size>`
   final double contentPaddingBlockEnd;
 
   /// A copy with the given tokens replaced.
-  TanreiAccordionDensityTokens copyWith({
+  TanreiAccordionSizeTokens copyWith({
     double? containerHeight,
     double? containerPaddingBlock,
     double? containerPaddingInline,
@@ -2148,7 +2148,7 @@ class TanreiAccordionDensityTokens {
     double? iconSize,
     double? chevronSize,
     double? contentPaddingBlockEnd,
-  }) => TanreiAccordionDensityTokens(
+  }) => TanreiAccordionSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -2161,58 +2161,58 @@ class TanreiAccordionDensityTokens {
       );
 }
 
-/// Every density of accordion: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of accordion: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiAccordionDensitys {
-  const TanreiAccordionDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiAccordionDensity, TanreiAccordionDensityTokens>{},
+class TanreiAccordionSizes {
+  const TanreiAccordionSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiAccordionSize, TanreiAccordionSizeTokens>{},
   });
 
-  /// `comp.accordion` density `regular`
-  final TanreiAccordionDensityTokens regular;
-  /// `comp.accordion` density `compact`
-  final TanreiAccordionDensityTokens compact;
+  /// `comp.accordion` size `small`
+  final TanreiAccordionSizeTokens small;
+  /// `comp.accordion` size `medium`
+  final TanreiAccordionSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiAccordionDensity, TanreiAccordionDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiAccordionSize, TanreiAccordionSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiAccordionDensitys copyWith({
-    TanreiAccordionDensityTokens? regular,
-    TanreiAccordionDensityTokens? compact,
-    Map<TanreiAccordionDensity, TanreiAccordionDensityTokens>? extra,
-  }) => TanreiAccordionDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiAccordionDensity, TanreiAccordionDensityTokens>{...this.extra, ...extra},
+  TanreiAccordionSizes copyWith({
+    TanreiAccordionSizeTokens? small,
+    TanreiAccordionSizeTokens? medium,
+    Map<TanreiAccordionSize, TanreiAccordionSizeTokens>? extra,
+  }) => TanreiAccordionSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiAccordionSize, TanreiAccordionSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiAccordionDensityTokens operator [](TanreiAccordionDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiAccordionSizeTokens operator [](TanreiAccordionSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiAccordionDensity density) => TanreiAccordionDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiAccordionSize size) => TanreiAccordionSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiAccordionDensity> get keys => <TanreiAccordionDensity>[...TanreiAccordionDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiAccordionSize> get keys => <TanreiAccordionSize>[...TanreiAccordionSize.core, ...extra.keys];
 
-  TanreiAccordionDensityTokens _fallback(TanreiAccordionDensity density) {
+  TanreiAccordionSizeTokens _fallback(TanreiAccordionSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('accordion density', density.name, 'regular');
+      debugTanreiReportUnknownValue('accordion size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -2253,7 +2253,7 @@ class TanreiAccordionTokens {
     required this.outlineWidth,
     required this.separation,
     required this.variants,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -2290,8 +2290,8 @@ class TanreiAccordionTokens {
   final double separation;
   /// The `variant` axis: `variants[variant]`.
   final TanreiAccordionVariants variants;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiAccordionDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiAccordionSizes sizes;
   /// `comp.accordion.hovered.*`
   final TanreiAccordionStateTokens hovered;
   /// `comp.accordion.focused.*`
@@ -2318,7 +2318,7 @@ class TanreiAccordionTokens {
     double? outlineWidth,
     double? separation,
     TanreiAccordionVariants? variants,
-    TanreiAccordionDensitys? densitys,
+    TanreiAccordionSizes? sizes,
     TanreiAccordionStateTokens? hovered,
     TanreiAccordionStateTokens? focused,
     TanreiAccordionStateTokens? pressed,
@@ -2339,7 +2339,7 @@ class TanreiAccordionTokens {
         outlineWidth: outlineWidth ?? this.outlineWidth,
         separation: separation ?? this.separation,
         variants: variants ?? this.variants,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
@@ -27157,23 +27157,23 @@ class TanreiTreeViewConditions {
   }
 }
 
-/// The key of a density of tree-view (`comp.tree-view`, axis `density`).
+/// The key of a size of tree-view (`comp.tree-view`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiTreeViewDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiTreeViewDensity(String name) {
-  static const regular = TanreiTreeViewDensity('regular');
-  static const compact = TanreiTreeViewDensity('compact');
+/// `const TanreiTreeViewSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiTreeViewSize(String name) {
+  static const small = TanreiTreeViewSize('small');
+  static const medium = TanreiTreeViewSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiTreeViewDensity> core = <TanreiTreeViewDensity>[regular, compact];
+  static const List<TanreiTreeViewSize> core = <TanreiTreeViewSize>[small, medium];
 }
 
-/// The tokens of one tree-view density.
+/// The tokens of one tree-view size.
 @immutable
-class TanreiTreeViewDensityTokens {
-  const TanreiTreeViewDensityTokens({
+class TanreiTreeViewSizeTokens {
+  const TanreiTreeViewSizeTokens({
     required this.containerHeight,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
@@ -27184,25 +27184,25 @@ class TanreiTreeViewDensityTokens {
     required this.chevronSize,
   });
 
-  /// `comp.tree-view.container-height.<density>`
+  /// `comp.tree-view.container-height.<size>`
   final double containerHeight;
-  /// `comp.tree-view.container-padding-block.<density>`
+  /// `comp.tree-view.container-padding-block.<size>`
   final double containerPaddingBlock;
-  /// `comp.tree-view.container-padding-inline.<density>`
+  /// `comp.tree-view.container-padding-inline.<size>`
   final double containerPaddingInline;
-  /// `comp.tree-view.container-gap.<density>`
+  /// `comp.tree-view.container-gap.<size>`
   final double containerGap;
-  /// `comp.tree-view.level-indent.<density>`
+  /// `comp.tree-view.level-indent.<size>`
   final double levelIndent;
-  /// `comp.tree-view.label-typescale.<density>`
+  /// `comp.tree-view.label-typescale.<size>`
   final TanreiTextStyle labelTypescale;
-  /// `comp.tree-view.icon-size.<density>`
+  /// `comp.tree-view.icon-size.<size>`
   final double iconSize;
-  /// `comp.tree-view.chevron-size.<density>`
+  /// `comp.tree-view.chevron-size.<size>`
   final double chevronSize;
 
   /// A copy with the given tokens replaced.
-  TanreiTreeViewDensityTokens copyWith({
+  TanreiTreeViewSizeTokens copyWith({
     double? containerHeight,
     double? containerPaddingBlock,
     double? containerPaddingInline,
@@ -27211,7 +27211,7 @@ class TanreiTreeViewDensityTokens {
     TanreiTextStyle? labelTypescale,
     double? iconSize,
     double? chevronSize,
-  }) => TanreiTreeViewDensityTokens(
+  }) => TanreiTreeViewSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -27223,58 +27223,58 @@ class TanreiTreeViewDensityTokens {
       );
 }
 
-/// Every density of tree-view: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of tree-view: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiTreeViewDensitys {
-  const TanreiTreeViewDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiTreeViewDensity, TanreiTreeViewDensityTokens>{},
+class TanreiTreeViewSizes {
+  const TanreiTreeViewSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiTreeViewSize, TanreiTreeViewSizeTokens>{},
   });
 
-  /// `comp.tree-view` density `regular`
-  final TanreiTreeViewDensityTokens regular;
-  /// `comp.tree-view` density `compact`
-  final TanreiTreeViewDensityTokens compact;
+  /// `comp.tree-view` size `small`
+  final TanreiTreeViewSizeTokens small;
+  /// `comp.tree-view` size `medium`
+  final TanreiTreeViewSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiTreeViewDensity, TanreiTreeViewDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiTreeViewSize, TanreiTreeViewSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiTreeViewDensitys copyWith({
-    TanreiTreeViewDensityTokens? regular,
-    TanreiTreeViewDensityTokens? compact,
-    Map<TanreiTreeViewDensity, TanreiTreeViewDensityTokens>? extra,
-  }) => TanreiTreeViewDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiTreeViewDensity, TanreiTreeViewDensityTokens>{...this.extra, ...extra},
+  TanreiTreeViewSizes copyWith({
+    TanreiTreeViewSizeTokens? small,
+    TanreiTreeViewSizeTokens? medium,
+    Map<TanreiTreeViewSize, TanreiTreeViewSizeTokens>? extra,
+  }) => TanreiTreeViewSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiTreeViewSize, TanreiTreeViewSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiTreeViewDensityTokens operator [](TanreiTreeViewDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiTreeViewSizeTokens operator [](TanreiTreeViewSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiTreeViewDensity density) => TanreiTreeViewDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiTreeViewSize size) => TanreiTreeViewSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiTreeViewDensity> get keys => <TanreiTreeViewDensity>[...TanreiTreeViewDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiTreeViewSize> get keys => <TanreiTreeViewSize>[...TanreiTreeViewSize.core, ...extra.keys];
 
-  TanreiTreeViewDensityTokens _fallback(TanreiTreeViewDensity density) {
+  TanreiTreeViewSizeTokens _fallback(TanreiTreeViewSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('tree-view density', density.name, 'regular');
+      debugTanreiReportUnknownValue('tree-view size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -27318,7 +27318,7 @@ class TanreiTreeViewTokens {
     required this.supportingTextTypescale,
     required this.trailingTextTypescale,
     required this.conditions,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -27361,8 +27361,8 @@ class TanreiTreeViewTokens {
   final TanreiTextStyle trailingTextTypescale;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiTreeViewConditions conditions;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiTreeViewDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiTreeViewSizes sizes;
   /// `comp.tree-view.hovered.*`
   final TanreiTreeViewStateTokens hovered;
   /// `comp.tree-view.focused.*`
@@ -27392,7 +27392,7 @@ class TanreiTreeViewTokens {
     TanreiTextStyle? supportingTextTypescale,
     TanreiTextStyle? trailingTextTypescale,
     TanreiTreeViewConditions? conditions,
-    TanreiTreeViewDensitys? densitys,
+    TanreiTreeViewSizes? sizes,
     TanreiTreeViewStateTokens? hovered,
     TanreiTreeViewStateTokens? focused,
     TanreiTreeViewStateTokens? pressed,
@@ -27416,7 +27416,7 @@ class TanreiTreeViewTokens {
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
         trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
         conditions: conditions ?? this.conditions,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
