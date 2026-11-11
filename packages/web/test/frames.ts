@@ -33,7 +33,8 @@
 // runs, and its frames are read whole; where the engine draws the frame first (once in about twenty runs of a 300 ms
 // transition behind a 500 ms task, in either), the sampling fails with it as missed. A component starts such a motion
 // from the next frame itself (an appearance's entrance and exit: `AppearController`, src/primitives/motion.ts; a modal
-// dialog's entrance and exit and its scrim's fade: `openModal()` and `closeModal()`, src/primitives/modal-exit.ts).
+// dialog's entrance and exit and its scrim's fade: `openModal()` and `closeModal()`, src/primitives/modal-exit.ts; a
+// box whose size follows its content: `AnimatedSize`, src/primitives/motion.ts).
 //
 // Held motions stand still while the test acts: an act of several inputs (a key, then another) is one moment, however
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
