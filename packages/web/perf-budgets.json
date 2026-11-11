@@ -722,10 +722,6 @@
         "budget": 1019,
         "measured": 971
       },
-      "scroll-area": {
-        "budget": 141,
-        "measured": 135
-      },
       "segmented-button": {
         "budget": 189,
         "measured": 180
