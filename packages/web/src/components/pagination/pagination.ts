@@ -10,6 +10,7 @@ import {
   OpenAxesController,
   PressController,
   pressGivesFocus,
+  readTogether,
   report,
   syncFocusStyle,
 } from '../../primitives/index.js';
@@ -189,8 +190,7 @@ export class TanreiPagination extends TanreiElement {
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.row .glyph' });
   /** An arrow is drawn only while the icon set can draw it (src/primitives/glyph.ts). */
   private readonly drawnGlyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.row .glyph') ?? []);
-  /** PGN-11: the width the element is given, and the width its numbered row needs. */
-  private readonly sizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.decide());
+  /** PGN-11: what the shared resize watch observes of this element: the width it is given, and the width its numbered row needs. */
   private observed: Element[] = [];
 
   /** PGN-15, PGN-16: one press for each item element, made when it is first pressed. */
@@ -203,8 +203,7 @@ export class TanreiPagination extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.sizes?.disconnect();
-    this.observed = [];
+    this.unobserve();
     for (const { press } of this.pressControllers) press.hostDisconnected();
     this.pressControllers.clear();
   }
@@ -392,17 +391,44 @@ export class TanreiPagination extends TanreiElement {
 
   // ── The form that fits (PGN-11, PGN-22) ───────────────────────────────────────────────────────────────────────────
 
-  /** PGN-11: the numbered form does not fit while its row is wider than the room the element is given. */
+  /**
+   * PGN-11: the numbered form does not fit while its row is wider than the room the element is given. Read with every
+   * other element's of the turn (src/primitives/read-phase.ts), after the renders, before any of them writes: a
+   * pagination that measured in its own update had the browser lay the page out for it, once per instance.
+   */
   private decide() {
+    readTogether(() => this.readFit());
+  }
+
+  /** What `decide()` reads, returning what it then writes. */
+  private readFit(): (() => void) | void {
     if (!this.isConnected) return;
     const measure = this.renderRoot?.querySelector<HTMLElement>('.measure');
     const sizer = measure?.querySelector<HTMLElement>('.sizer');
-    if (this.variant === 'compact' || !measure || !sizer || measure.dataset.form !== 'numbered') {
-      if (this.narrow) this.narrow = false;
-      return;
-    }
-    const narrow = sizer.getBoundingClientRect().width > measure.getBoundingClientRect().width + SLACK;
-    if (narrow !== this.narrow) this.narrow = narrow;
+    const narrow = this.variant === 'compact' || !measure || !sizer || measure.dataset.form !== 'numbered' ? false : sizer.getBoundingClientRect().width > measure.getBoundingClientRect().width + SLACK;
+    return () => {
+      if (narrow !== this.narrow) this.narrow = narrow;
+    };
+  }
+
+  /**
+   * PGN-11: one observer watches the rows of every pagination, so that a frame reports all that changed in one callback,
+   * all of them read before any writes.
+   */
+  private static sizeWatch: ResizeObserver | null = null;
+  /** The pagination each watched element (a measure, or its sizer) belongs to. */
+  private static readonly watched = new WeakMap<Element, TanreiPagination>();
+
+  private static watchSizes(): ResizeObserver | null {
+    if (typeof ResizeObserver === 'undefined') return null;
+    return (TanreiPagination.sizeWatch ??= new ResizeObserver((entries) => {
+      const changed = new Set<TanreiPagination>();
+      for (const entry of entries) {
+        const owner = TanreiPagination.watched.get(entry.target);
+        if (owner) changed.add(owner);
+      }
+      for (const owner of changed) owner.decide();
+    }));
   }
 
   private observe() {
@@ -410,9 +436,21 @@ export class TanreiPagination extends TanreiElement {
     const sizer = measure?.querySelector('.sizer');
     const now = [measure, sizer].filter((each): each is Element => !!each);
     if (now.length === this.observed.length && now.every((each, at) => each === this.observed[at])) return;
-    this.sizes?.disconnect();
-    for (const each of now) this.sizes?.observe(each);
+    this.unobserve();
+    const watch = TanreiPagination.watchSizes();
+    for (const each of now) {
+      TanreiPagination.watched.set(each, this);
+      watch?.observe(each);
+    }
     this.observed = now;
+  }
+
+  private unobserve() {
+    for (const each of this.observed) {
+      TanreiPagination.sizeWatch?.unobserve(each);
+      TanreiPagination.watched.delete(each);
+    }
+    this.observed = [];
   }
 
   // ── Drawing ───────────────────────────────────────────────────────────────────────────────────────────────────────

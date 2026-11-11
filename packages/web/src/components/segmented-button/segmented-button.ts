@@ -14,6 +14,7 @@ import {
   namedByProduct,
   notifyItemUpdate,
   parseValues,
+  readTogether,
   report,
   syncFocusStyle,
 } from '../../primitives/index.js';
@@ -339,7 +340,15 @@ export class TanreiSegmentedButton extends TanreiElement {
 
   private readonly keys = new RovingKeys({ wrap: true });
   private readonly children$ = new MutationObserver(() => this.sync());
-  private readonly probe$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
+  /**
+   * SEG-16: one observer watches the probe of every set, so that a frame reports all that changed in one callback, all
+   * of them read before any writes (`measure()`).
+   */
+  private static probeWatch: ResizeObserver | null = null;
+  /** The set each watched probe belongs to. */
+  private static readonly probes = new WeakMap<Element, TanreiSegmentedButton>();
+  /** The probe this set's watch observes now. */
+  private watchedProbe: Element | null = null;
   /** SEG-19: the segment that had focus last, the multiple-choice set's Tab stop while it is enabled. */
   private lastFocused: TanreiSegment | null = null;
   private readonly reported = new Set<string>();
@@ -356,12 +365,33 @@ export class TanreiSegmentedButton extends TanreiElement {
     super.connectedCallback();
     this.children$.observe(this, { childList: true });
     this.sync();
+    if (this.hasUpdated) this.watchProbe();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$.disconnect();
-    this.probe$?.disconnect();
+    this.unwatchProbe();
+  }
+
+  private watchProbe() {
+    const probe = this.renderRoot.querySelector('.probe');
+    if (!probe || probe === this.watchedProbe || typeof ResizeObserver === 'undefined') return;
+    this.unwatchProbe();
+    const watch = (TanreiSegmentedButton.probeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiSegmentedButton.probes.get(entry.target)?.measure();
+    }));
+    TanreiSegmentedButton.probes.set(probe, this);
+    watch.observe(probe);
+    this.watchedProbe = probe;
+  }
+
+  private unwatchProbe() {
+    const probe = this.watchedProbe;
+    if (!probe) return;
+    TanreiSegmentedButton.probeWatch?.unobserve(probe);
+    TanreiSegmentedButton.probes.delete(probe);
+    this.watchedProbe = null;
   }
 
   /** The set's segments, in order. */
@@ -466,13 +496,21 @@ export class TanreiSegmentedButton extends TanreiElement {
     }
   };
 
-  /** SEG-16: whether the size draws a check, from its measured check size. */
+  /**
+   * SEG-16: whether the size draws a check, from its measured check size. Read with every other element's of the turn
+   * (src/primitives/read-phase.ts), after the renders, before any of them writes: a set that measured in its own update
+   * had the browser lay the page out for it, once per instance.
+   */
   private measure() {
-    const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
-    if (!probe) return;
-    const check = probe.getBoundingClientRect().width > 0;
-    if (check !== this.check) this.check = check;
-    this.sync();
+    readTogether(() => {
+      const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
+      if (!probe || !this.isConnected) return;
+      const check = probe.getBoundingClientRect().width > 0;
+      return () => {
+        if (check !== this.check) this.check = check;
+        this.sync();
+      };
+    });
   }
 
   /** A debug report, once per problem while it lasts (it is reported again after it went away and came back). */
@@ -526,8 +564,7 @@ export class TanreiSegmentedButton extends TanreiElement {
   }
 
   protected override firstUpdated() {
-    const probe = this.renderRoot.querySelector('.probe');
-    if (probe) this.probe$?.observe(probe);
+    this.watchProbe();
     this.measure();
   }
 
