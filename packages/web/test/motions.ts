@@ -65,6 +65,36 @@ export const OUT_OF_MOTION = `(() => {
 })()`;
 
 /**
+ * The source of an in-page function `(motions) => Promise<void>` that keeps `motions` — which a test has just paused,
+ * in the task that began them, to read a change at the times it chooses — paused where they were paused, through the
+ * frames in which a component plays the motions it held at their start. `startFromNextFrame()` (src/primitives/motion.ts)
+ * holds a motion by pausing it at 0 and plays it in the next frame drawn if it still stands paused at 0 there — and a
+ * test's pause of a motion at its start looks the same: the component played it on from that frame (a number ticker's
+ * width, read wider than it began once a frame or two had passed). It waits `HELD_FRAMES` drawn frames — a resize
+ * observer's first report of the root, which every drawn frame gives and no page clock holds, as the component's own
+ * wait under a held clock — and pauses each motion played in them again at the time it was paused at. In a hidden
+ * document no frame is drawn, and no motion is held: it returns at once. For a script the test writes into the page.
+ */
+export const KEEP_PAUSED = `(async (motions) => {
+  const at = motions.map((animation) => [animation, animation.currentTime]);
+  if (document.visibilityState === 'hidden') return;
+  for (let frame = 0; frame < ${HELD_FRAMES}; frame++) {
+    await new Promise((resolve) => {
+      const observer = new ResizeObserver(() => {
+        observer.disconnect();
+        resolve(undefined);
+      });
+      observer.observe(document.documentElement);
+    });
+  }
+  for (const [animation, time] of at) {
+    if (animation.playState !== 'running') continue;
+    animation.pause();
+    animation.currentTime = time;
+  }
+})`;
+
+/**
  * Waits until nothing of `target` is in motion: the element's own motions, its subtree's, and those in every shadow
  * root inside it — or, given the page, every motion in it. Those it has when it is asked are waited for (asking
  * flushes style, so a motion the last change starts is among them), each until it finishes, is cancelled or is held —

@@ -5,7 +5,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveToken, rootTokens } from '../../../test/harness.js';
-import { motionCount, motionEnded } from '../../../test/motions.js';
+import { KEEP_PAUSED, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('number-ticker');
@@ -24,14 +24,20 @@ function warnings(page: P) {
 
 /**
  * Sets props on the ticker and returns once it has updated, its animations paused at their start — the moment the
- * change begins — so a test reads the change at the times it chooses with `seek()`.
+ * change begins — so a test reads the change at the times it chooses with `seek()`. They are kept paused through the
+ * frames in which the width's motion, held at its start for the next frame drawn, would be played (`KEEP_PAUSED`).
  */
 const set = (locator: Locator, props: Record<string, unknown>) =>
-  locator.evaluate(async (el: HTMLElement & { updateComplete: Promise<unknown> }, given) => {
-    Object.assign(el, given);
-    await el.updateComplete;
-    for (const animation of el.shadowRoot!.getAnimations()) animation.pause();
-  }, props);
+  locator.evaluate(
+    async (el: HTMLElement & { updateComplete: Promise<unknown> }, [given, keepPaused]) => {
+      Object.assign(el, given);
+      await el.updateComplete;
+      const motions = el.shadowRoot!.getAnimations();
+      for (const animation of motions) animation.pause();
+      await ((0, eval)(keepPaused) as (motions: Animation[]) => Promise<void>)(motions);
+    },
+    [props, KEEP_PAUSED] as const,
+  );
 /** Moves every animation of the ticker (paused by `set`) to `ms` after the change began. */
 const seek = (locator: Locator, ms: number) =>
   locator.evaluate((el, at) => {
