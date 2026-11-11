@@ -11,6 +11,7 @@ import {
   hostAria,
   notifyItemUpdate,
   placeFaults,
+  readTogether,
   report,
   reportPlaces,
   syncFocusStyle,
@@ -324,7 +325,17 @@ export class TanreiStepper extends TanreiElement {
 
   private readonly words = new WordsController(this);
   private readonly children$ = new MutationObserver(() => this.requestUpdate());
-  private readonly size$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
+  /**
+   * SPR-6: one observer watches every stepper, so that a frame reports all that were resized in one callback, all of
+   * them read before any writes (`measure()`).
+   */
+  private static sizeWatch: ResizeObserver | null = null;
+  private static watchSizes(): ResizeObserver | null {
+    if (typeof ResizeObserver === 'undefined') return null;
+    return (TanreiStepper.sizeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) if (entry.target instanceof TanreiStepper) entry.target.measure();
+    }));
+  }
   private readonly reported = new Set<string>();
 
   /** SPR-27: the compact form's glyph is drawn only while the icon set can draw it. */
@@ -339,13 +350,13 @@ export class TanreiStepper extends TanreiElement {
   override connectedCallback() {
     super.connectedCallback();
     this.children$.observe(this, { childList: true });
-    this.size$?.observe(this);
+    TanreiStepper.watchSizes()?.observe(this);
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$.disconnect();
-    this.size$?.disconnect();
+    TanreiStepper.sizeWatch?.unobserve(this);
   }
 
   /** The stepper's steps, in order. */
@@ -381,13 +392,21 @@ export class TanreiStepper extends TanreiElement {
     return current >= 0 && index < current ? 'complete' : 'incomplete';
   }
 
-  /** SPR-6: the least width of every step, against the width given. */
+  /**
+   * SPR-6: the least width of every step, against the width given. Read with every other element's of the turn
+   * (src/primitives/read-phase.ts), after the renders, before any of them writes: a stepper that measured in its own
+   * update had the browser lay the page out for it, once per instance.
+   */
   private measure() {
-    const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
-    if (!probe) return;
-    const least = probe.getBoundingClientRect().width * this.steps.length;
-    const narrow = this.getBoundingClientRect().width < least;
-    if (narrow !== this.narrow) this.narrow = narrow;
+    readTogether(() => {
+      const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
+      if (!probe || !this.isConnected) return;
+      const least = probe.getBoundingClientRect().width * this.steps.length;
+      const narrow = this.getBoundingClientRect().width < least;
+      return () => {
+        if (narrow !== this.narrow) this.narrow = narrow;
+      };
+    });
   }
 
   /** SPR-10: a press on a pressable step — its click, from a pointer, Enter, Space or `step.click()` — fires select once. */
@@ -495,10 +514,6 @@ export class TanreiStepper extends TanreiElement {
     }
     if (current >= 0 && steps[current].disabled) this.reportOnce(seen, 'SPR-11', `the current step ("${steps[current].label}") is disabled; it is drawn current`);
     for (const message of this.reported) if (!seen.has(message)) this.reported.delete(message);
-  }
-
-  protected override firstUpdated() {
-    this.measure();
   }
 
   protected override updated() {

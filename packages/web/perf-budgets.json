@@ -746,10 +746,6 @@
         "budget": 94,
         "measured": 90
       },
-      "stepper": {
-        "budget": 283,
-        "measured": 270
-      },
       "toolbar": {
         "budget": 567,
         "measured": 540
