@@ -1806,6 +1806,13 @@
       "react": {
         "name": "Rating"
       }
+    },
+    {
+      "name": "size-transition",
+      "title": "Size transition",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
     }
   ]
 }

@@ -1997,11 +1997,29 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "size-transition",
+      "title": "Size transition",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": null,
+      "platforms": {
+        "web": "planned",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
-      "planned": 0,
+      "planned": 1,
       "lagging": 83,
       "alpha": 15,
       "beta": 0,
@@ -2009,7 +2027,7 @@
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 69,
+      "planned": 70,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -2017,7 +2035,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 69,
+      "planned": 70,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -2025,7 +2043,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 69,
+      "planned": 70,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -2033,7 +2051,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 69,
+      "planned": 70,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

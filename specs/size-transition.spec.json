@@ -1,0 +1,239 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "size-transition",
+  "title": "Size transition",
+  "summary": "Wraps content whose size changes — a message that grows, a section that gains a line, a panel that loses a row — and moves its own size to the content's new size as one motion, so that what stands after it moves smoothly instead of jumping, while the edge it is anchored to stays still.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "box",
+      "description": "The size transition itself: a box with no look of its own, laid out where it stands, whose size along its axis is the one that moves. It clips what lies beyond it while it moves."
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in it, laid out at its own natural size and fixed to the box's anchor edge. It is measured, never scaled or stretched."
+    }
+  ],
+  "props": [
+    {
+      "name": "axis",
+      "type": "enum",
+      "values": [
+        "block",
+        "inline",
+        "both"
+      ],
+      "default": "block",
+      "description": "Which of its sizes follows the content. block: its height in a horizontal writing mode (the size across lines); its width is the layout's. inline: its width (the size along a line); its height is the layout's. both: both sizes."
+    },
+    {
+      "name": "anchor",
+      "type": "enum",
+      "values": [
+        "start",
+        "end",
+        "center"
+      ],
+      "default": "start",
+      "description": "Which edge stays still while the box grows or shrinks. start: the block-start edge (the top) for block, the inline-start edge for inline, so that a growing box uncovers what is new below or after and never moves the first line. end: the opposite edges, for a box docked at its container's end that grows upward (a composer above the keyboard). center: both edges move by half."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": null,
+      "description": "How long one change takes, in milliseconds, used as given for every distance. Null, the default, takes the system's answer, which grows with the distance moved (SZT-3). Set it only where one place needs another tempo than every other size transition of the product."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the box follow its content's size at once, without a motion: for a change the person should not watch (a list replaced by a search's results) or a stretch of time in which the content changes at every frame."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content whose size the box follows. Any content: text, a list, another component.",
+      "fixture": "text"
+    }
+  ],
+  "events": [
+    {
+      "name": "settle",
+      "description": "The box's size has come to rest after a change, by a motion or at once: emitted once per change, after the last frame, with the box's new width and height in the platform's layout units. A motion that is turned round or retargeted (SZT-2) emits once, at its final rest."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "SZT-1",
+      "text": "WHEN the size transition is first drawn THE size transition SHALL take its content's size along its axis in its first frame, without a motion, as every component draws its first frame at rest (MOT-3); content that arrives or changes before that frame is drawn is part of the first frame."
+    },
+    {
+      "id": "SZT-2",
+      "text": "WHEN its content's size along its axis changes after the first frame THE size transition SHALL move its own size in the layout, at every frame, from the size it shows to the new one, over the duration SZT-3 gives with comp.size-transition.motion.easing, so that what stands after it moves with it; WHEN the content changes again during the motion THE size transition SHALL go on from the size then shown towards the newest size as one motion, never jumping to the old target or restarting from the old size (MOT-2)."
+    },
+    {
+      "id": "SZT-3",
+      "text": "WHILE duration is null THE size transition SHALL take the duration of a change from the distance its size moves: comp.size-transition.motion.duration for a distance of up to comp.size-transition.motion.distance-step, plus comp.size-transition.motion.duration-step for each further distance-step begun, and never more than comp.size-transition.motion.duration-max; WHILE duration is a number THE size transition SHALL take that many milliseconds for every distance, 0 meaning at once. The duration of a retargeted motion SHALL be computed from the distance between the size shown and the newest size."
+    },
+    {
+      "id": "SZT-4",
+      "text": "WHILE its size differs from its content's THE size transition SHALL clip what lies beyond its box and keep the content fixed to the edge anchor names, mirrored for inline in a right-to-left layout: WHILE anchor is start a growing box SHALL uncover what is new at its block-end (or inline-end) edge and never move its first line, WHILE anchor is end it SHALL uncover what is new at its start edge, the content moving with its end edge, and WHILE anchor is center both edges SHALL move by half the change."
+    },
+    {
+      "id": "SZT-5",
+      "text": "WHILE it moves THE size transition SHALL scroll nothing — neither itself nor its content nor an ancestor — to bring a part of the content into view, also WHILE an element inside it has focus, and SHALL leave focus, the caret and a selection where they are (MOT-5)."
+    },
+    {
+      "id": "SZT-6",
+      "text": "WHEN its content's size changes because the room the layout gives it changed — the window or a pane was resized or turned, the text size changed, the layout direction changed — THE size transition SHALL take the new size at once, so that it never lags behind a person resizing the window; and WHILE a size transition inside its content is moving THE size transition SHALL follow its content at every frame, so that two nested motions move as one and do not compound."
+    },
+    {
+      "id": "SZT-7",
+      "text": "WHERE motion is reduced THE size transition SHALL take every new size at once, as size changes are made where motion is reduced (MOT-6), and SHALL still emit settle once per change."
+    },
+    {
+      "id": "SZT-8",
+      "text": "WHILE disabled is true THE size transition SHALL follow its content's size at once; WHEN disabled becomes true during a motion THE size transition SHALL take the newest size at once and emit settle."
+    },
+    {
+      "id": "SZT-9",
+      "text": "WHILE the size transition is not drawn — hidden, outside a view that is shown, or in an app in the background — THE size transition SHALL take every new size at once, and WHEN it is drawn again it SHALL show its content's size without a motion."
+    },
+    {
+      "id": "SZT-10",
+      "text": "THE size transition SHALL expose nothing of its own to assistive technology — no role, no name, no state — and SHALL NOT be a focus stop: its content is read and reached as if the box were not there, including content that the box clips during a motion."
+    },
+    {
+      "id": "SZT-11",
+      "text": "WHEN its size has come to rest after a change, by a motion or at once, THE size transition SHALL emit settle exactly once, after the last frame, with its new width and height; it SHALL emit nothing WHEN its content changes without changing its size along its axis."
+    },
+    {
+      "id": "SZT-12",
+      "text": "THE size transition SHALL draw nothing of its own — no color, edge, shadow, corner or padding — and SHALL take, on the axes it does not follow, the size its layout gives it; WHILE axis is both it SHALL follow the content's width and height together in one motion of one duration, computed from the larger of the two distances (SZT-3)."
+    },
+    {
+      "id": "SZT-13",
+      "text": "THE size transition SHALL take its layout direction from where it is used and SHALL have no direction setting of its own; WHEN axis or anchor names a value it does not define THE size transition SHALL use the default value and in debug builds report the unknown value; WHILE duration is a negative number or not a finite number THE size transition SHALL treat it as null and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "none (a generic container that exposes nothing of its own)",
+    "keyboard": [],
+    "labeling": "The size transition names nothing and is not named; its content keeps its own names, roles and order.",
+    "minimumTarget": true,
+    "notes": [
+      "It takes no input, so it has no target of its own; its content keeps its own hit areas.",
+      "A size change is a motion in the sense of WCAG 2.3.3 (animation from interactions): where motion is reduced it happens at once (SZT-7). The opacity of the content is never changed by this component.",
+      "Content that the box clips while it moves stays in the reading and focus order: a person who tabs into it during the motion reaches it, and nothing scrolls to show it (SZT-5) — the motion ends within comp.size-transition.motion.duration-max.",
+      "Browsers count an element moved by a layout change as a layout shift unless a person's input preceded it within a short window. Moving what follows over a motion does not remove it from that count; it removes the jump a person sees. Measure layout shift in a product's own pages."
+    ]
+  },
+  "tokens": "comp.size-transition",
+  "fixtures": [
+    {
+      "id": "block",
+      "props": {},
+      "content": "The quarterly report is ready. Three sections were added since the last version: costs, staffing and the plan for the next quarter."
+    },
+    {
+      "id": "inline",
+      "props": {
+        "axis": "inline"
+      },
+      "content": "Saved"
+    },
+    {
+      "id": "anchor-end",
+      "props": {
+        "anchor": "end"
+      },
+      "content": "A reply that grew to a second line keeps its last line where it was."
+    },
+    {
+      "id": "rtl-inline",
+      "props": {
+        "axis": "inline"
+      },
+      "content": "تم الحفظ",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-size-transition",
+      "props": {
+        "axis": "axis",
+        "anchor": "anchor",
+        "duration": "duration",
+        "disabled": "disabled"
+      },
+      "events": {
+        "settle": "settle"
+      },
+      "notes": "`<tanrei-size-transition axis=\"block\" anchor=\"start\">…</tanrei-size-transition>`, built on the package's size-motion primitive (`AnimatedSize`). The shadow root holds a box and, in it, a wrapper around the slot at its natural size. A resize observer of the wrapper sees a change of the content's size after layout and before the frame is painted; the box then moves from the size the last frame drew to the new one in pixels, with a CSS transition, clipped with `overflow: clip` (never `hidden`, which lets a focused descendant scroll the box). The box is a flex container that justifies the wrapper to the anchor's edge (`flex-start`, `flex-end`, `center`), so that the content is laid out at its own size and overflows the edge that moves; justification follows the direction, so the inline axis mirrors in right-to-left. `interpolate-size: allow-keywords` is not used: it is experimental and not Baseline. SZT-6: a change of the window's size, of the box's own inline size (the room it is given, for axis block), of its font size or of its direction is applied at once, as is any change while a size transition in its content carries `data-resizing` (the host carries it while it moves). `settle` is a CustomEvent that does not bubble, whose `detail` is `{ width, height }` in CSS pixels; a run that is retargeted ends with the run that replaced it. `duration` is a number property, the `duration` attribute parsed as the tooltip's delays are (an empty attribute is not a number). The host is `display: block` (axis inline: `display: inline-block`)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSizeTransition",
+      "props": {
+        "axis": "axis",
+        "anchor": "anchor",
+        "duration": "duration",
+        "disabled": "isDisabled"
+      },
+      "events": {
+        "settle": "onSettle"
+      },
+      "notes": "A container view that measures its content with a geometry reader and animates its frame with `withAnimation` on the measured size, `.clipped()`, aligned by anchor; reduced motion from `accessibilityReduceMotion`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSizeTransition",
+      "props": {
+        "axis": "axis",
+        "anchor": "anchor",
+        "duration": "durationMillis",
+        "disabled": "enabled"
+      },
+      "events": {
+        "settle": "onSettle"
+      },
+      "notes": "A Box with `Modifier.animateContentSize(animationSpec, alignment)` and `clipToBounds()`; `enabled` is the inverse of disabled. The spec of SZT-3 is computed from the measured distance before each animation."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSizeTransition",
+      "props": {
+        "axis": "axis",
+        "anchor": "anchor",
+        "duration": "duration",
+        "disabled": "disabled"
+      },
+      "events": {
+        "settle": "onSettle"
+      },
+      "notes": "Built on `AnimatedSize` with `alignment` from anchor and `clipBehavior: Clip.hardEdge`; the duration of SZT-3 is set from the size the child reports before the animation starts."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "SizeTransition",
+      "props": {
+        "axis": "axis",
+        "anchor": "anchor",
+        "duration": "duration",
+        "disabled": "disabled"
+      },
+      "events": {
+        "settle": "onSettle"
+      },
+      "notes": "A View that measures its child with `onLayout` and animates its own height or width with Reanimated, `overflow: 'hidden'` (React Native has no `clip` distinction)."
+    }
+  }
+}

@@ -1353,6 +1353,13 @@
       ]
     },
     {
+      "name": "size-transition",
+      "title": "Size transition",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "skeleton",
       "title": "Skeleton",
       "level": "base",

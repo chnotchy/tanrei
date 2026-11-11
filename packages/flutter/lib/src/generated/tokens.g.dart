@@ -21776,6 +21776,44 @@ class TanreiSideSheetTokens {
       );
 }
 
+/// `comp.size-transition.*`
+@immutable
+class TanreiSizeTransitionTokens {
+  const TanreiSizeTransitionTokens({
+    required this.motionDistanceStep,
+    required this.motionDuration,
+    required this.motionDurationMax,
+    required this.motionDurationStep,
+    required this.motionEasing,
+  });
+
+  /// `comp.size-transition.motion-distance-step`
+  final double motionDistanceStep;
+  /// `comp.size-transition.motion-duration`
+  final int motionDuration;
+  /// `comp.size-transition.motion-duration-max`
+  final int motionDurationMax;
+  /// `comp.size-transition.motion-duration-step`
+  final int motionDurationStep;
+  /// `comp.size-transition.motion-easing`
+  final TanreiCubicBezier motionEasing;
+
+  /// A copy with the given tokens replaced.
+  TanreiSizeTransitionTokens copyWith({
+    double? motionDistanceStep,
+    int? motionDuration,
+    int? motionDurationMax,
+    int? motionDurationStep,
+    TanreiCubicBezier? motionEasing,
+  }) => TanreiSizeTransitionTokens(
+        motionDistanceStep: motionDistanceStep ?? this.motionDistanceStep,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionDurationMax: motionDurationMax ?? this.motionDurationMax,
+        motionDurationStep: motionDurationStep ?? this.motionDurationStep,
+        motionEasing: motionEasing ?? this.motionEasing,
+      );
+}
+
 /// `comp.skeleton.*`
 @immutable
 class TanreiSkeletonTokens {
@@ -27523,6 +27561,7 @@ class TanreiSystem {
     required this.segmentedButton,
     required this.select,
     required this.sideSheet,
+    required this.sizeTransition,
     required this.skeleton,
     required this.slider,
     required this.snackbar,
@@ -27629,6 +27668,7 @@ class TanreiSystem {
   final TanreiSegmentedButtonTokens segmentedButton;
   final TanreiSelectTokens select;
   final TanreiSideSheetTokens sideSheet;
+  final TanreiSizeTransitionTokens sizeTransition;
   final TanreiSkeletonTokens skeleton;
   final TanreiSliderTokens slider;
   final TanreiSnackbarTokens snackbar;
@@ -27734,6 +27774,7 @@ class TanreiSystem {
     TanreiSegmentedButtonTokens? segmentedButton,
     TanreiSelectTokens? select,
     TanreiSideSheetTokens? sideSheet,
+    TanreiSizeTransitionTokens? sizeTransition,
     TanreiSkeletonTokens? skeleton,
     TanreiSliderTokens? slider,
     TanreiSnackbarTokens? snackbar,
@@ -27837,6 +27878,7 @@ class TanreiSystem {
         segmentedButton: segmentedButton ?? this.segmentedButton,
         select: select ?? this.select,
         sideSheet: sideSheet ?? this.sideSheet,
+        sizeTransition: sizeTransition ?? this.sizeTransition,
         skeleton: skeleton ?? this.skeleton,
         slider: slider ?? this.slider,
         snackbar: snackbar ?? this.snackbar,

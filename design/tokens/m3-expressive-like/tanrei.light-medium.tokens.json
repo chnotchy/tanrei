@@ -81055,6 +81055,52 @@
           }
         }
       },
+      "size-transition": {
+        "motion": {
+          "distance-step": {
+            "$type": "dimension",
+            "$value": {
+              "value": 64,
+              "unit": "px"
+            },
+            "$description": "The distance by which a change's time grows by one duration-step."
+          },
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long a change of size takes over a distance of up to distance-step: the role of a box that changes its size in place."
+          },
+          "duration-max": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "The longest a change of size takes, however far it moves: the role of a large change of size, so that a far change does not keep the person waiting."
+          },
+          "duration-step": {
+            "$type": "duration",
+            "$value": {
+              "value": 50,
+              "unit": "ms"
+            },
+            "$description": "How much longer a change takes for each further distance-step it moves, so that a large change does not look hurried beside a small one."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of a change of size: something that changes its size in place."
+          }
+        }
+      },
       "skeleton": {
         "container": {
           "gap": {

@@ -127,6 +127,7 @@ private object CupertinoSystemSource {
             segmentedButton = segmentedButton(typescale, elevation),
             select = select(typescale, elevation),
             sideSheet = sideSheet(typescale, elevation),
+            sizeTransition = sizeTransition(typescale, elevation),
             skeleton = skeleton(typescale, elevation),
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
@@ -7419,6 +7420,16 @@ private object CupertinoSystemSource {
                 standard = TanreiSideSheetVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 modal = TanreiSideSheetVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), containerElevation = elevation.level2, containerShape = 14.dp, outlineColor = TanreiPaint.None),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun sizeTransition(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSizeTransitionTokens =
+        TanreiSizeTransitionTokens(
+            motionDistanceStep = 64.dp,
+            motionDuration = 300,
+            motionDurationMax = 400,
+            motionDurationStep = 50,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")

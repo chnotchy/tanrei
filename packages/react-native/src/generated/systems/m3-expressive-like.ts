@@ -11927,6 +11927,13 @@ export const m3ExpressiveLike = {
         },
       },
     },
+    sizeTransition: {
+      motionDistanceStep: 64,
+      motionDuration: 200,
+      motionDurationMax: 500,
+      motionDurationStep: 50,
+      motionEasing: [0.27, 1.06, 0.18, 1],
+    },
     skeleton: {
       containerGap: 8,
       motionAnimation: 0,

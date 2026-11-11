@@ -9712,6 +9712,13 @@ export const cupertino = {
         },
       },
     },
+    sizeTransition: {
+      motionDistanceStep: 64,
+      motionDuration: 300,
+      motionDurationMax: 400,
+      motionDurationStep: 50,
+      motionEasing: [0.2, 0, 0, 1],
+    },
     skeleton: {
       containerGap: 8,
       motionAnimation: 0,

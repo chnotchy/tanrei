@@ -7782,6 +7782,13 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
       ),
     ),
   ),
+  sizeTransition: TanreiSizeTransitionTokens(
+    motionDistanceStep: 64.0,
+    motionDuration: 300,
+    motionDurationMax: 400,
+    motionDurationStep: 50,
+    motionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+  ),
   skeleton: TanreiSkeletonTokens(
     containerGap: 8.0,
     motionAnimation: 0.0,

@@ -687,6 +687,13 @@
       "category": "selection",
       "level": "base",
       "listing": "default"
+    },
+    {
+      "name": "size-transition",
+      "title": "Size transition",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }
