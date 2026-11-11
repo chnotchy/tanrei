@@ -174,6 +174,14 @@ describe('each adoption', () => {
     assert.match(choice, /<tanrei-tag-group class="docs-name-tags" spacing="tags" label=\{t\.choiceValues\}>/);
     said(['states', 'choiceValues', 'choiceDefault']);
   });
+  test('a key of a keyboard map is the Keyboard shortcut, named in the page’s language, a word in a cap’s box until it is defined', () => {
+    const map = read('components/visuals/KeyboardMap.astro');
+    assert.match(template(map), /<tanrei-keyboard-shortcut class="docs-key" size="small" keys=\{shortcutKeys\(segment\.chord\)\} label=\{label\}>\s*\{label\}\s*<\/tanrei-keyboard-shortcut>/);
+    assert.match(map, /const label = spokenChord\(segment\.chord, t\.keys\);/);
+    assert.match(map, /\.docs-key:not\(:defined\) \{[^}]*min-block-size: var\(--tanrei-comp-keyboard-shortcut-container-height-small\);/);
+    assert.doesNotMatch(template(map), /<kbd\b/);
+    said(['keysColumn', 'keyboard', 'action']);
+  });
   test('the platforms of a component are a Description list, a platform to a fact', () => {
     const text = template(read('components/ComponentAvailability.astro'));
     assert.match(text, /<div role="group" aria-label=\{t\.availability\}>\s*<tanrei-description-list class="platforms" layout="stacked" separation="gap" columns=\{platforms\.length\}>\s*<dl>/);
