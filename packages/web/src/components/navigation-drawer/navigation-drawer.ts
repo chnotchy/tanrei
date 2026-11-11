@@ -647,9 +647,14 @@ abstract class DrawerCell extends TanreiElement {
     return html`<span part="icon" class="icon" aria-hidden="true">${this.glyphName}</span>`;
   }
 
-  /** NVD-68: an end chevron's room, kept empty on a destination's row so that the trailing texts of a level stand in one column. */
-  protected endRoom(): TemplateResult | typeof nothing {
-    return this.context.chevron === 'end' && !this.context.collapsed ? html`<span class="chevron end room" aria-hidden="true"></span>` : nothing;
+  /**
+   * NVD-68: an end chevron's room, kept empty after a destination's trailing content so that the trailing content of a
+   * level stands in one column. A row with nothing at its end keeps none: its label has that room. `mark`: the row ends
+   * with the mark of a link that opens a new context (NVD-63).
+   */
+  protected endRoom(mark: boolean): TemplateResult | typeof nothing {
+    const trailing = this.trailing.filled || !!this.trailingText || mark;
+    return trailing && this.context.chevron === 'end' && !this.context.collapsed ? html`<span class="chevron end room" aria-hidden="true"></span>` : nothing;
   }
 
   /** NVD-68: what the start chevron's box holds — nothing on a destination's row, which keeps the room. */
@@ -887,7 +892,7 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     const [supporting, ...rest] = this.supportingText ? this.rowDescription : ['', ...this.rowDescription];
     // The product's aria-description on the host comes first (src/primitives/delegated-aria.ts).
     const description = this.link.describe(this.getAttribute('data-aria-description'), supporting, badgeDescription(this.badge, this.badgeCount, this.badgeLabel), ...rest);
-    const content = this.row(this.trailingContent(!!link?.opensNew, this.endRoom()));
+    const content = this.row(this.trailingContent(!!link?.opensNew, this.endRoom(!!link?.opensNew)));
     if (link) {
       return html`<a
         part="cell"
