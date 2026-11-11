@@ -286,7 +286,7 @@ describe('the choice of design system', () => {
     assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
   });
   test('its words are in the six languages, each sentence with its places', () => {
-    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
+    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], listed: [], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
     for (const lang of languages) {
       const words = strings(lang).system;
       for (const [key, want] of Object.entries(places)) {

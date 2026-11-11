@@ -230,6 +230,7 @@ for (const engine of ENGINES) {
             for (const href of ['/components/main-action-button/', '/components/bottom-sheet/']) assert.equal(await note.locator(`a[href="${href}"]`).count(), 1, href);
             const text = await note.innerText();
             for (const id of [DEFAULT, 'cupertino', 'm3-like']) assert.match(text, new RegExp(`\\b${id}\\b`), id);
+            assert.ok(text.includes(strings('en').system.listed), 'the note says the lists still show it, marked');
             assert.match(text, /"from": "m3-like"/);
             assert.match(text, /@tanrei\/web\/components\/fab-menu/);
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width);
