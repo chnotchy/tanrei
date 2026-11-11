@@ -42,16 +42,12 @@ function providedTo(element: Element): string | null {
  * as it is, for the component's open axis to draw or report (BTN-7).
  */
 export function nearestSize(size: string, own: readonly string[]): string {
-  if (own.includes(size)) return size;
   const at = (SIZE_LADDER as readonly string[]).indexOf(size);
-  const steps = own.map((name) => (SIZE_LADDER as readonly string[]).indexOf(name)).filter((step) => step >= 0);
-  if (at < 0 || !steps.length) return size;
-  const best = steps.reduce((a, b) => {
-    const da = Math.abs(a - at);
-    const db = Math.abs(b - at);
-    return db < da || (db === da && b > a) ? b : a;
-  });
-  return SIZE_LADDER[best];
+  // Outwards from the size itself, one step at a time, the larger first.
+  for (let step = 0; at >= 0 && step < SIZE_LADDER.length; step++) {
+    for (const name of [SIZE_LADDER[at + step], SIZE_LADDER[at - step]]) if (own.includes(name)) return name;
+  }
+  return size;
 }
 
 /**
