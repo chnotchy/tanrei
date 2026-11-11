@@ -31,7 +31,7 @@ Tres componentes dibujan un atajo con él, a partir de una propiedad `shortcut` 
 
 `keys` contiene una combinación por cadena, y las combinaciones se pulsan en orden. Una combinación consta de nombres de teclas unidos por `+`, y los nombres no distinguen mayúsculas de minúsculas.
 
-- **Modificadores:** `mod` (Comando en las plataformas de Apple, Control en las demás), `ctrl`, `alt`, `shift`.
+- **Modificadores:** `mod` (Comando en las plataformas de Apple, Ctrl en las demás), `ctrl`, `alt`, `shift`.
 - **Teclas con nombre:** `enter`, `escape`, `tab`, `backspace`, `delete`, `space`, `arrow-up`, `arrow-down`, `arrow-left`, `arrow-right`, `home`, `end`, `page-up`, `page-down`, `caps-lock`, de `f1` a `f24`, y `plus` para la tecla +.
 - **Cualquier otro carácter suelto** es la tecla de ese carácter: `k`, `/`, `,`.
 
@@ -129,7 +129,7 @@ En el sistema predeterminado, un capuchón es un relleno tenue sin borde, y su l
 
 ### Cómo escribir las teclas
 
-- **Escribe `mod` para el modificador principal,** no `ctrl`: es Comando en un teclado de Apple y Control en los demás. Escribe `ctrl` solo para un atajo que sea Control en todos los teclados.
+- **Escribe `mod` para el modificador principal,** no `ctrl`: es Comando en un teclado de Apple y Ctrl en los demás. Escribe `ctrl` solo para un atajo que sea Ctrl en todos los teclados.
 - **En cualquier orden.** El componente escribe los modificadores en el orden propio del teclado: ⌃ ⌥ ⇧ ⌘ para Apple, y Ctrl, Alt, Shift para los nombres estándar.
 - **Una letra se dibuja en mayúscula,** y no añade Shift: `mod+k` y `mod+K` dibujan ambos ⌘K. Shift solo se dibuja donde lo nombras.
 - **Una tecla por combinación,** además de sus modificadores. Una combinación sin tecla, o con dos, se dibuja como se pueda, y las compilaciones de depuración lo notifican.
@@ -147,8 +147,8 @@ La convención nunca procede del sistema de diseño. Las teclas siguen al teclad
 ### Recomendado
 
 - Muestra el atajo que funciona de verdad. Vincula las teclas en tu producto y mantén ambas cosas sincronizadas.
-- Da un `label` a cada atajo que se lea en voz alta: el atajo dicho con las palabras de tu producto («Mayúsculas Comando K»). Sin él, un lector de pantalla lee la notación `Meta+Shift+K`.
-- Con `convention="auto"`, las teclas dibujadas siguen al teclado de la persona, y un `label` que has escrito tú no puede hacerlo. Escribe uno que sea cierto en los dos teclados («Comando o Control, Mayúsculas, K»), como hacen los ejemplos de esta página, o define el `label` cuando ya conozcas el teclado.
+- Da un `label` a cada atajo que se lea en voz alta: el atajo dicho con las palabras de tu producto («Mayús Comando K»). Sin él, un lector de pantalla lee la notación `Meta+Shift+K`.
+- Con `convention="auto"`, las teclas dibujadas siguen al teclado de la persona, y un `label` que has escrito tú no puede hacerlo. Escribe uno que sea cierto en los dos teclados («Comando o Ctrl, Mayús, K»), como hacen los ejemplos de esta página, o define el `label` cuando ya conozcas el teclado.
 - Usa `disabled` para el atajo de un comando que ahora no está disponible, junto a ese comando. Las teclas se siguen mostrando, atenuadas.
 - Mantén un atajo en una sola línea. Una combinación nunca se parte; una secuencia puede saltar de línea entre combinaciones.
 
@@ -165,7 +165,7 @@ La convención nunca procede del sistema de diseño. Las teclas siguen al teclad
 
 ### De qué se encarga el componente
 
-- Los capuchones, las leyendas y los separadores quedan ocultos para la tecnología de apoyo. En su lugar se lee un único texto, allí donde está el atajo: `label`, de modo que ⇧⌘K se lee «Mayúsculas Comando K» y nunca los nombres de carácter de los símbolos. Sin un `label`, es el atajo en la notación de `aria-keyshortcuts` (`Meta+Shift+K`, o `Control+K Control+C` para una secuencia), que pertenece a un estándar y es la misma en todos los idiomas, y el componente lo notifica una vez en desarrollo.
+- Los capuchones, las leyendas y los separadores quedan ocultos para la tecnología de apoyo. En su lugar se lee un único texto, allí donde está el atajo: `label`, de modo que ⇧⌘K se lee «Mayús Comando K» y nunca los nombres de carácter de los símbolos. Sin un `label`, es el atajo en la notación de `aria-keyshortcuts` (`Meta+Shift+K`, o `Control+K Control+C` para una secuencia), que pertenece a un estándar y es la misma en todos los idiomas, y el componente lo notifica una vez en desarrollo.
 - El componente no tiene nombres para las teclas: no escribe con su nombre un modificador, una flecha ni una tecla de puntuación en ningún idioma. Un lector de pantalla puede saltarse un carácter suelto, como una coma, y esa es una razón más para escribir el `label`.
 - No tiene rol, no recibe foco ni entrada, y no es un objetivo: es texto.
 - Dentro de un anfitrión (un elemento de menú, un tooltip simple, una búsqueda) no expone nada por sí mismo. El anfitrión expone el atajo como el atajo de teclado de su control: `aria-keyshortcuts` en la web.

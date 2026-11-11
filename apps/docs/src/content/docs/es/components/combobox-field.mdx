@@ -191,13 +191,13 @@ La lista se abre a una distancia de `comp.combobox.list.offset` por debajo del c
 | Entrada | Qué ocurre |
 | --- | --- |
 | Escribir | Edita el texto y abre la lista, filtrada. La primera coincidencia es la opción activa, y se lee cuando la escritura se detiene; con `allowCustomValue` no lo es ninguna |
-| Flecha abajo, Flecha arriba, con la lista cerrada; el chevron | Abre la lista con todas las opciones. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
-| Flecha abajo, Flecha arriba, con la lista abierta | La opción siguiente o la anterior, atravesando los grupos y dando la vuelta en los extremos (a través del texto, con `allowCustomValue`), salvo que `wrap` sea false |
+| Flecha abajo, flecha arriba, con la lista cerrada; el chevron | Abre la lista con todas las opciones. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
+| Flecha abajo, flecha arriba, con la lista abierta | La opción siguiente o la anterior, atravesando los grupos y dando la vuelta en los extremos (a través del texto, con `allowCustomValue`), salvo que `wrap` sea false |
 | Av Pág, Re Pág | Diez opciones hacia abajo o hacia arriba |
-| Inicio, Fin, Flecha izquierda, Flecha derecha | Mueven el cursor de texto |
+| Inicio, Fin, flecha izquierda, flecha derecha | Mueven el cursor de texto |
 | Enter, con una opción activa; una pulsación en una opción | La elige y cierra la lista. No envía el formulario |
 | Enter, sin ninguna opción activa | Confirma el texto, emite `action` y envía el formulario, salvo que `action` se cancele |
-| Escape | Cierra la lista abierta y conserva el texto. Pulsada otra vez, restablece el texto del valor confirmado. Nunca borra un valor |
+| Esc | Cierra la lista abierta y conserva el texto. Pulsada otra vez, restablece el texto del valor confirmado. Nunca borra un valor |
 | Tab; una pulsación fuera | Sale del campo: el texto se resuelve y la lista se cierra. La opción activa no se elige |
 | Una pulsación en la etiqueta | Lleva el foco al campo de entrada y no abre nada. Mientras la lista está abierta, es una pulsación fuera del cuadro combinado: la lista se cierra y el foco se queda en el campo de entrada |
 
@@ -276,9 +276,9 @@ Mientras un método de entrada está componiendo, todas las teclas le pertenecen
 - Una coincidencia se marca con el peso, nunca solo con el color. La etiqueta se lee como un solo texto.
 - La fila de estado es una región activa (live region): su texto se lee de forma cortés cuando cambia, y de inmediato cuando la fuente de datos ha fallado. Durante la carga, la lista se marca como ocupada y no se anuncia nada.
 - Mientras un método de entrada está componiendo, el cuadro combinado no atiende ninguna tecla.
-- El chevron es un botón para el puntero y para la exploración táctil, fuera del orden del foco. El teclado abre la lista con Flecha abajo.
+- El chevron es un botón para el puntero y para la exploración táctil, fuera del orden del foco. El teclado abre la lista con flecha abajo.
 - El botón de borrar es un botón que recibe su nombre de `clearLabel`, y es la siguiente parada del foco después del campo de entrada.
-- Escape cierra la lista y no va más allá, de modo que un diálogo que rodee al cuadro combinado permanece abierto.
+- Esc cierra la lista y no va más allá, de modo que un diálogo que rodee al cuadro combinado permanece abierto.
 - El área de pulsación del campo cumple el objetivo mínimo, y las opciones son al menos tan altas como el objetivo mínimo.
 - Con el texto al 200%, la etiqueta, la ayuda, las opciones, los títulos y la fila de estado saltan de línea. Solo el texto del campo de entrada se queda en una línea, y se desplaza.
 - Con colores forzados, el campo y la lista ganan un borde, la opción activa toma los colores de resaltado y la opción elegida se muestra con su marca de verificación.

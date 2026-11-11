@@ -142,7 +142,7 @@ SwiftUI, Compose, Flutter y React Native van con retraso: ofrecen la lista anter
 
 `reorderable` permite a las personas poner los elementos en otro orden, en una columna, una fila o una cuadrícula. Cada elemento dibuja un tirador al principio, la señal de que se puede mover. Se puede arrastrar el elemento entero, no solo el tirador: el ratón lo toma en cuanto se mueve unos píxeles, y un dedo o un lápiz tras una pulsación larga, de modo que un deslizamiento sigue desplazando la página (un toque en el tirador arrastra al instante). Los demás elementos se apartan, el elemento sigue al puntero por encima de ellos y se asienta en su sitio al soltarlo.
 
-Arrastrar nunca es la única forma. El tirador es un botón: pulsarlo, o Intro, abre un menú con cuatro movimientos (al principio, un lugar antes, un lugar después, al final). Con el teclado, Espacio sobre el tirador levanta el elemento, las teclas de flecha lo llevan de un lugar en otro (Inicio y Fin, al primero y al último), Espacio o Intro lo sueltan y Escape lo devuelve. Cada paso se anuncia.
+Arrastrar nunca es la única forma. El tirador es un botón: pulsarlo, o Enter, abre un menú con cuatro movimientos (al principio, un lugar antes, un lugar después, al final). Con el teclado, Espacio sobre el tirador levanta el elemento, las teclas de flecha lo llevan de un lugar en otro (Inicio y Fin, al primero y al último), Espacio o Enter lo sueltan y Esc lo devuelve. Cada paso se anuncia.
 
 El orden son tus datos, así que la lista nunca lo cambia. Toda forma de mover dispara `move` con `from`, el índice del elemento, y `to`, el índice que debe tener, ambos contados desde 0. Reordena tus elementos en respuesta. La lista dibuja entonces cómo cambian de lugar, mantiene el foco en el tirador del elemento movido y comunica a la tecnología de asistencia dónde queda. Si no cambias nada en el tiempo de `comp.list.motion.reorder-duration`, el movimiento se rechazó: los elementos vuelven y no se anuncia nada.
 
@@ -229,7 +229,7 @@ La lista no dibuja nada propio: ni fondo, ni relleno alrededor de sus elementos,
 | --- | --- | --- | --- |
 | Estático | `selection` none, `interactive` false, sin `href` | Tu contenido tal cual. Sin foco, sin paso del cursor ni pulsación. | Elementos que solo se leen y elementos que contienen sus propios controles. |
 | Interactivo | `interactive` | Un botón dentro de su elemento de lista. | Elementos que cambian algo o lo abren en el sitio. |
-| Enlace | `href` | Un enlace dentro de su elemento de lista, dibujado exactamente como un elemento interactivo. Intro lo sigue y Espacio no. | Elementos que llevan cada uno a una página con dirección propia. |
+| Enlace | `href` | Un enlace dentro de su elemento de lista, dibujado exactamente como un elemento interactivo. Enter lo sigue y Espacio no. | Elementos que llevan cada uno a una página con dirección propia. |
 | Opción | `selection` single o multiple | Una opción de un cuadro de lista, con estado de selección y una marca de verificación. | Elegir entre los elementos. |
 
 Una lista puede mezclar elementos estáticos, interactivos y de enlace. Una lista seleccionable solo contiene opciones. Una lista reordenable solo contiene elementos estáticos y nunca es un cuadro de lista: una acción, un enlace o una opción se usan con una pulsación que el arrastre se llevaría.
@@ -250,7 +250,7 @@ Una lista puede mezclar elementos estáticos, interactivos y de enlace. Una list
 | Única | Un cuadro de lista | Selecciona la opción y quita la que estaba seleccionada. No se quita eligiéndola otra vez. |
 | Múltiple | Un cuadro de lista de selección múltiple | Activa o desactiva la opción. |
 
-Las teclas de flecha solo mueven el foco; la selección cambia cuando la persona pulsa Espacio o Intro, o toca el elemento. Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final, y el espacio de la marca se reserva en todas las opciones, para que el contenido quede alineado.
+Las teclas de flecha solo mueven el foco; la selección cambia cuando la persona pulsa Espacio o Enter, o toca el elemento. Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final, y el espacio de la marca se reserva en todas las opciones, para que el contenido quede alineado.
 
 ### Filas con glifo y sin él
 
@@ -287,9 +287,9 @@ La lista decide por todas sus filas a la vez, en cualquier disposición y modo. 
 - Una lista sin selección se expone como lista, y cada elemento como elemento de lista con su posición y el tamaño de la lista. Un elemento interactivo es un botón dentro de su elemento de lista, y un elemento de enlace, un enlace. Una lista seleccionable es un cuadro de lista nombrado por `label`, con su orientación; cada elemento es una opción con su estado de selección.
 - Una lista con elementos interactivos, enlaces u opciones es una sola parada de tabulación. Las teclas de flecha de la disposición mueven entre elementos sin dar la vuelta (arriba y abajo en una columna, izquierda y derecha en una fila, invertidas en una disposición de derecha a izquierda; en una cuadrícula, también entre filas). Inicio, Fin y la búsqueda por escritura funcionan. Los elementos estáticos no reciben el foco; un control dentro de ellos conserva su propia parada.
 - En una lista reordenable, cada tirador es un botón de menú nombrado por tu `dragHandleLabel` con el nombre del elemento, descrito por tu `dragHandleHint`, y una parada de tabulación propia. Su menú mueve el elemento con pulsaciones simples, lo que cumple el requisito de WCAG de que lo que se hace arrastrando pueda hacerse sin arrastrar (2.5.7). Espacio levanta el elemento para el teclado (2.1.1).
-- Una única región en vivo, de forma cortés, dice cuándo el teclado levanta un elemento, dónde quedaría en cada paso, dónde queda una vez aplicado el movimiento, y que volvió tras Escape.
+- Una única región en vivo, de forma cortés, dice cuándo el teclado levanta un elemento, dónde quedaría en cada paso, dónde queda una vez aplicado el movimiento, y que volvió tras Esc.
 - Un elemento arrastrado sigue al puntero con el relleno y la sombra de arrastre; los demás se apartan con el movimiento de reordenación. Con movimiento reducido, todo salvo el elemento bajo el puntero se mueve al instante. En colores forzados, el elemento arrastrado se contornea con el color de resaltado.
-- Escape devuelve un elemento arrastrado y no cierra además el diálogo en que está la lista. Una pulsación larga sobre un elemento no abre ningún menú del navegador.
+- Esc devuelve un elemento arrastrado y no cierra además el diálogo en que está la lista. Una pulsación larga sobre un elemento no abre ningún menú del navegador.
 - Un elemento interactivo, un enlace o una opción alcanza al menos el objetivo mínimo, su anillo de foco se dibuja por dentro y crece con el texto más grande.
 - Las compilaciones de depuración informan de un elemento sin nombre, una lista seleccionable o reordenable sin etiqueta, una opción con un valor vacío o repetido, una selección que no nombra ninguna opción, un control dentro de un elemento interactivo o una opción, una palabra que nadie dio, `reorderable` en una lista seleccionable y un `iconSpace` que la lista no define.
 

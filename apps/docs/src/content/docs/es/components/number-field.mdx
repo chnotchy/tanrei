@@ -169,10 +169,10 @@ Un número y su unidad son una sola pieza de escritura. El prefijo se escribe an
 
 | Entrada | Qué ocurre |
 | --- | --- |
-| Flecha arriba, Flecha abajo | Da un paso de `step` |
+| Flecha arriba, flecha abajo | Da un paso de `step` |
 | Re Pág, Av Pág | Da un paso de diez veces `step` |
 | Una pulsación en un botón de paso | Da un paso. Si se mantiene pulsado, se repite: al cabo de medio segundo, después diez veces por segundo y después veinte |
-| Inicio, Fin, Flecha izquierda, Flecha derecha | Mueven el cursor de texto dentro del texto |
+| Inicio, Fin, flecha izquierda, flecha derecha | Mueven el cursor de texto dentro del texto |
 | La rueda del ratón, un arrastre | Nada. La página se desplaza |
 
 Un paso lleva al siguiente número de la cuadrícula del paso, contada desde `min` (desde cero si no lo hay): con un paso de 5, desde 12 un paso hacia arriba lleva a 15 y uno hacia abajo, a 10. Se calcula en decimal, así que 0.2 más un paso de 0.1 es 0.3. Desde un campo vacío, un paso lleva al número más cercano a cero que permiten los límites.

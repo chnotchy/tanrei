@@ -125,8 +125,8 @@ Nada se hace solo con un gesto. Cada operación tiene un control al que se llega
 | --- | --- | --- | --- |
 | Ampliar, y volver al tamaño ajustado | Dos toques o dos clics en un punto; un pellizco; un pellizco en el panel táctil; Ctrl o Comando con la rueda | Acercar, alejar | `+` o `=`, `−`, `0` |
 | Moverse por una imagen ampliada | Un arrastre; la rueda | — | Las teclas de flecha |
-| Ir a la imagen siguiente o a la anterior | Un arrastre hacia un lado | Siguiente, anterior | Flecha izquierda y Flecha derecha con el tamaño ajustado; Re Pág y Av Pág; Inicio y Fin para la primera y la última imagen |
-| Cerrar | Un arrastre hacia abajo con el dedo, con el tamaño ajustado | Cerrar | Escape |
+| Ir a la imagen siguiente o a la anterior | Un arrastre hacia un lado | Siguiente, anterior | Flecha izquierda y flecha derecha con el tamaño ajustado; Re Pág y Av Pág; Inicio y Fin para la primera y la última imagen |
+| Cerrar | Un arrastre hacia abajo con el dedo, con el tamaño ajustado | Cerrar | Esc |
 | Ocultar y mostrar los controles | Un toque o un clic en la imagen | — | Cualquier tecla los muestra |
 
 - **El zoom** es un número: 1 es la imagen entera en el área libre de la ventana, nunca por encima de su propio tamaño. Los pasos son 1, 2 y 4 para una imagen corriente. Una imagen muy ancha o muy alta, que queda pequeña al ajustarse, llena el área libre en su primer paso.
@@ -198,7 +198,7 @@ Las dos variantes de sus botones también son tokens: `comp.image-preview.bar.bu
 - El escenario se queda con los gestos de pellizco y de desplazamiento, de modo que el pellizco propio del navegador no amplía la página mientras la vista previa está abierta. El zoom de página del navegador con el teclado sigue funcionando. Una vista previa cerrada no se queda con la rueda ni con los toques de la página.
 - Un pellizco en el panel táctil llega como la rueda con Ctrl, o como el evento de gesto propio del navegador donde lo hay. No se ofrece pasar de imagen con un desplazamiento hacia un lado en el panel táctil.
 - La imagen aparece gradualmente y crece un poco cuando la vista previa se abre. Donde un navegador no puede retener un diálogo cerrado mientras se desvanece, la vista previa desaparece de inmediato al cerrarse; en ambos casos, el foco y la página se devuelven en el mismo momento.
-- La acción de atrás de Android la cierra con el motivo `back`. Un navegador que no distingue atrás de Escape notifica `escape`.
+- La acción de atrás de Android la cierra con el motivo `back`. Un navegador que no distingue atrás de Esc notifica `escape`.
 
 ## Pautas
 
@@ -233,7 +233,7 @@ Las dos variantes de sus botones también son tokens: `comp.image-preview.bar.bu
 - Cada gesto tiene un control y una tecla. Los controles se pueden ocultar con un toque y nunca con un temporizador; ocultos, siguen expuestos y pueden recibir el foco, y cualquier tecla, el foco en uno de ellos o un movimiento del ratón los muestra.
 - Mientras una imagen se carga, el esqueleto dice que está ocupado con el nombre `loadingLabel`. Cuando una falla, `errorText` se dibuja, se dice y se añade a la descripción del escenario.
 - Una leyenda larga ocupa como máximo un tercio de la ventana y se desplaza en una región propia, que entonces es una parada del foco que las teclas desplazan.
-- En un diseño de derecha a izquierda se reflejan la barra, los lados de anterior y siguiente, sus glifos, el lado en el que queda la imagen siguiente y las teclas Flecha izquierda y Flecha derecha. La imagen, y la manera en que se mueve una imagen ampliada, no.
+- En un diseño de derecha a izquierda se reflejan la barra, los lados de anterior y siguiente, sus glifos, el lado en el que queda la imagen siguiente y las teclas flecha izquierda y flecha derecha. La imagen, y la manera en que se mueve una imagen ampliada, no.
 - Con el texto al 200% en una ventana de 320 de ancho, el recuento ocupa una línea propia y la barra crece, la leyenda crece hasta su tercio y se desplaza, y la imagen se ajusta a lo que queda. En colores forzados, los rellenos y el texto toman los colores del sistema y las imágenes se dejan como están.
 - Donde el movimiento está reducido, la vista previa se abre y se cierra con un desvanecimiento, sin crecer, los pasos de zoom y los cambios de imagen son inmediatos, y una imagen sigue igualmente al dedo que la mueve.
 
