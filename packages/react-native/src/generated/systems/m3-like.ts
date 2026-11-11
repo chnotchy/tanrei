@@ -9698,6 +9698,8 @@ export const m3Like = {
       collapsedItemContainerShape: 9999,
       collapsedItemGap: 4,
       collapsedItemLabelTypescale: "labelSmall",
+      containerMaxWidth: 400,
+      containerMinWidth: 200,
       containerPaddingBlock: 12,
       containerPaddingInline: 12,
       containerWidth: 360,

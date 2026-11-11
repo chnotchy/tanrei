@@ -7371,6 +7371,8 @@ public data class TanreiNavigationDrawerTokens(
     public val collapsedItemContainerShape: Dp,
     public val collapsedItemGap: Dp,
     public val collapsedItemLabelTypescale: TanreiTextStyle,
+    public val containerMaxWidth: Dp,
+    public val containerMinWidth: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,

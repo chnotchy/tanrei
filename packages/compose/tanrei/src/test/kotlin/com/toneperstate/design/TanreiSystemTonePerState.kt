@@ -6007,6 +6007,8 @@ private object TonePerStateSystemSource {
             collapsedItemContainerShape = 6.dp,
             collapsedItemGap = 4.dp,
             collapsedItemLabelTypescale = typescale.labelSmall,
+            containerMaxWidth = 400.dp,
+            containerMinWidth = 200.dp,
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 12.dp,
             containerWidth = 240.dp,
