@@ -230,7 +230,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 </table></Table>
 
 <h3>{t.tokens}</h3>
-<Table label={t.tokens} density="compact" class="tokens" style={`--docs-token-rows: ${tokenRows}`}><table>
+<Table label={t.tokens} size="small" class="tokens" style={`--docs-token-rows: ${tokenRows}`}><table>
   <thead><tr><th scope="col">{t.token}</th><th scope="col">{t.aliases}</th><th scope="col">{t.resolvedLight}</th></tr></thead>
   <tbody>
     {[...compTokens, ...typographyTokens].map((tk) => {
@@ -307,7 +307,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   /* The tokens' table is the longest thing on a component's page — hundreds of rows, half of the page's elements, far
      below its head — and it is neither styled nor laid out until it comes near the view: the browser restyled every
      row of it each time a script read the layout as the page loaded. Until then it holds the room of its rows and its
-     header row, each one line of the Table's compact cell (every row of it is one line, but a long value the column
+     header row, each one line of the Table's small cell (every row of it is one line, but a long value the column
      wraps, a shadow); the room it remembers (`auto`) is the room it took once drawn. Its text is still found by the
      browser's find in page, which draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
      a focus stop and a region where it scrolls once it is near. The other tables, whose rows are paragraphs of no
@@ -317,7 +317,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
     contain-intrinsic-block-size: auto
       calc(
         (var(--docs-token-rows) + 1) *
-          (2 * var(--tanrei-comp-table-cell-padding-block-compact) + var(--tanrei-comp-table-cell-text-typescale-compact-line-height) * var(--tanrei-comp-table-cell-text-typescale-compact-font-size))
+          (2 * var(--tanrei-comp-table-cell-padding-block-small) + var(--tanrei-comp-table-cell-text-typescale-small-line-height) * var(--tanrei-comp-table-cell-text-typescale-small-font-size))
       );
   }
 </style>

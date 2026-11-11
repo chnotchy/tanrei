@@ -5324,30 +5324,30 @@ export interface TanreiTablePartTokens {
 export type TanreiTableParts = { readonly [Key in TanreiCoreTablePart]: TanreiTablePartTokens } & { readonly [Key in TanreiTablePart]?: TanreiTablePartTokens };
 
 /**
- * Every value of `comp.table`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.table`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiTableDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTableSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiTableDensity = keyof TanreiTableDensityRegistry;
-export type TanreiCoreTableDensity = "regular" | "compact";
+export type TanreiTableSize = keyof TanreiTableSizeRegistry;
+export type TanreiCoreTableSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.table`. */
-export interface TanreiTableDensityTokens {
+/** The tokens of one `size` of `comp.table`. */
+export interface TanreiTableSizeTokens {
   readonly cellPaddingBlock: number;
   readonly cellPaddingInline: number;
   readonly cellTextTypescale: TanreiTypescaleRole;
   readonly headerTextTypescale: TanreiTypescaleRole;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiTableDensitys = { readonly [Key in TanreiCoreTableDensity]: TanreiTableDensityTokens } & { readonly [Key in TanreiTableDensity]?: TanreiTableDensityTokens };
+export type TanreiTableSizes = { readonly [Key in TanreiCoreTableSize]: TanreiTableSizeTokens } & { readonly [Key in TanreiTableSize]?: TanreiTableSizeTokens };
 
 /**
  * `comp.table`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`parts`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`parts`, `sizes`), keyed by the axis value.
  */
 export interface TanreiTableTokens {
   readonly captionGap: number;
@@ -5391,7 +5391,7 @@ export interface TanreiTableTokens {
   readonly stickyContainerColor: TanreiPaint;
   readonly stripeContainerColor: TanreiPaint;
   readonly parts: TanreiTableParts;
-  readonly densitys: TanreiTableDensitys;
+  readonly sizes: TanreiTableSizes;
 }
 
 /**
@@ -6086,7 +6086,7 @@ declare module './vocabulary' {
   interface TanreiTableOfContentsPartRegistry {}
   interface TanreiTableOfContentsDensityRegistry {}
   interface TanreiTablePartRegistry {}
-  interface TanreiTableDensityRegistry {}
+  interface TanreiTableSizeRegistry {}
   interface TanreiTabsVariantRegistry {}
   interface TanreiTabsSizeRegistry {}
   interface TanreiTagGroupSpacingRegistry {}

@@ -9254,18 +9254,18 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTableDensitys(
-      regular: TanreiTableDensityTokens(
-        cellPaddingBlock: 12.0,
-        cellPaddingInline: 16.0,
-        cellTextTypescale: _typescaleBody,
-        headerTextTypescale: _typescaleLabel,
-      ),
-      compact: TanreiTableDensityTokens(
+    sizes: TanreiTableSizes(
+      small: TanreiTableSizeTokens(
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
+      ),
+      medium: TanreiTableSizeTokens(
+        cellPaddingBlock: 12.0,
+        cellPaddingInline: 16.0,
+        cellTextTypescale: _typescaleBody,
+        headerTextTypescale: _typescaleLabel,
       ),
     ),
     hovered: TanreiTableStateTokens(

@@ -9035,18 +9035,18 @@ private let tanreiTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: tanreiTypescale.body,
-      headerTextTypescale: tanreiTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: tanreiTypescale.bodySmall,
       headerTextTypescale: tanreiTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: tanreiTypescale.body,
+      headerTextTypescale: tanreiTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(

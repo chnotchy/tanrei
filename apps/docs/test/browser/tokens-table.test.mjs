@@ -2,7 +2,7 @@
 // with the most tokens, the button's, in each engine (`DOCS_ENGINES`), at a phone's width and a desktop's:
 //
 // - it is not laid out until it comes near the view (`content-visibility: auto`), and the room it holds until then is
-//   one line of the Table's compact cell for each of its rows and its header row: drawn, a row of one line is that
+//   one line of the Table's small cell for each of its rows and its header row: drawn, a row of one line is that
 //   tall, and only a value of several parts (a shadow) is broken onto more lines;
 // - its words are found by the browser's find in page while it is away from the view;
 // - once it is near, the Table has read its sizes: where it scrolls it is a focus stop and a region.
@@ -32,8 +32,8 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
   { width: 1440, height: 900 },
 ];
-/** The tokens table: the compact Table of the Specs tab that holds the room of its rows. */
-const TABLE = 'tanrei-table[density="compact"][style*="--docs-token-rows"]';
+/** The tokens table: the small Table of the Specs tab that holds the room of its rows. */
+const TABLE = 'tanrei-table[size="small"][style*="--docs-token-rows"]';
 
 let host;
 let origin;

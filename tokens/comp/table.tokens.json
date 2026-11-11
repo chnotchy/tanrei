@@ -32,11 +32,11 @@
               "default": "sort",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "cell.padding-block",
@@ -47,11 +47,11 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a table reads: per density, a cell's paddings and the text styles of a cell and of a column header; the colors of a cell's and a header's text; the header's own fill (none in the default system); the fill a header row, a first column or a status line takes while it is kept in view; the fill of every second row of a striped table; the fill and the text color of a row that is selected, and of a row that can be chosen, selected or not, under a pointer and a press; the one line between rows and how rows are told apart (a line or a gap, following the system's choice); the caption's text style, color and distance from the table; the status line's text style, color and spaces; the room an empty body takes; and, for the header of a column that can be sorted, the size and weight of its mark, the gap before it, the timing of a state change, and for each part (sort: a column that can be sorted and is not; sorted: the column the rows are ordered by) its fill, label, mark and state-layer colors at rest and in each state.",
+            "usage": "Everything a table reads: per size (small, medium), a cell's paddings and the text styles of a cell and of a column header; the colors of a cell's and a header's text; the header's own fill (none in the default system); the fill a header row, a first column or a status line takes while it is kept in view; the fill of every second row of a striped table; the fill and the text color of a row that is selected, and of a row that can be chosen, selected or not, under a pointer and a press; the one line between rows and how rows are told apart (a line or a gap, following the system's choice); the caption's text style, color and distance from the table; the status line's text style, color and spaces; the room an empty body takes; and, for the header of a column that can be sorted, the size and weight of its mark, the gap before it, the timing of a state change, and for each part (sort: a column that can be sorted and is not; sorted: the column the rows are ordered by) its fill, label, mark and state-layer colors at rest and in each state.",
             "rules": [
               "A table presents data that has rows and columns. Never use one to lay a screen out; use the layout.",
               "Give every table a name: a caption that people can see, or a label where the heading above it already says what it is.",
-              "Use density compact for a table a person scans (hundreds of rows, a list of identifiers) and regular for one a person reads.",
+              "Use size small for a table a person scans (hundreds of rows, a list of identifiers) and medium for one a person reads. A table that sets no size takes the one its container sets.",
               "Align a column of numbers to the end; leave text at the start. Do not centre text.",
               "The table never sorts, filters, fetches or pages. A sortable header asks: it tells the product which column and which direction, and draws the direction the product then sets. One column is sorted at a time.",
               "The sorted column is told by its mark and by its label in the color of the data, not by a fill and never by the primary or the accent color.",
@@ -193,8 +193,8 @@
         "cell": {
           "padding-block": {
             "$type": "dimension",
-            "$description": "Space above and below a cell's content, per density. A row is as tall as its tallest cell: this padding twice and the lines of that cell's text. The table has no row height of its own.",
-            "regular": {
+            "$description": "Space above and below a cell's content, per size. A row is as tall as its tallest cell: this padding twice and the lines of that cell's text, and a row that holds a control at least the target (TBL-40, TBL-47). The table has no row height of its own.",
+            "medium": {
               "$value": {
                 "value": 12,
                 "unit": "px"
@@ -209,7 +209,7 @@
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 6,
                 "unit": "px"
@@ -227,11 +227,11 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Space before and after a cell's content, per density, at the start and the end of every cell, the first and the last of a row included. Two neighbouring cells' contents are therefore twice this apart.",
-            "regular": {
+            "$description": "Space before and after a cell's content, per size, at the start and the end of every cell, the first and the last of a row included. Two neighbouring cells' contents are therefore twice this apart.",
+            "medium": {
               "$value": "{tanrei.sys.space.space200}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.space.space150}"
             }
           },
@@ -243,11 +243,11 @@
             },
             "typescale": {
               "$type": "typography",
-              "$description": "The text of a cell, per density. A row header and a footer cell take the same style at its emphasized weight.",
-              "regular": {
+              "$description": "The text of a cell, per size. A row header and a footer cell take the same style at its emphasized weight.",
+              "medium": {
                 "$value": "{tanrei.sys.typescale.body}"
               },
-              "compact": {
+              "small": {
                 "$value": "{tanrei.sys.typescale.body-small}"
               }
             }
@@ -287,11 +287,11 @@
             },
             "typescale": {
               "$type": "typography",
-              "$description": "The text of a column header, per density: a label, not running text.",
-              "regular": {
+              "$description": "The text of a column header, per size: a label, not running text.",
+              "medium": {
                 "$value": "{tanrei.sys.typescale.label}"
               },
-              "compact": {
+              "small": {
                 "$value": "{tanrei.sys.typescale.label-small}"
               }
             }
@@ -311,7 +311,7 @@
             "size": {
               "$type": "dimension",
               "$value": "{tanrei.sys.icon.extra-small}",
-              "$description": "The glyph box of the mark of a sortable column, at both densities: the smallest step of the icon scale, beside a label."
+              "$description": "The glyph box of the mark of a sortable column, at both sizes: the smallest step of the icon scale, beside a label."
             },
             "weight": {
               "$type": "number",
@@ -448,7 +448,7 @@
           "padding-block": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space400}",
-            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by density."
+            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by size."
           }
         },
         "caption": {
@@ -472,7 +472,7 @@
             "typescale": {
               "$type": "typography",
               "$value": "{tanrei.sys.typescale.body-small}",
-              "$description": "The caption's text style, at both densities: secondary text, one step under the regular cell's."
+              "$description": "The caption's text style, at both sizes: secondary text, one step under the medium cell's."
             }
           }
         },
@@ -486,7 +486,7 @@
           "padding-block": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space100}",
-            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by density, so that its text begins where the first column's does."
+            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by size, so that its text begins where the first column's does."
           },
           "gap": {
             "$type": "dimension",
@@ -502,7 +502,7 @@
             "typescale": {
               "$type": "typography",
               "$value": "{tanrei.sys.typescale.body-small}",
-              "$description": "The status text, at both densities: the caption's style."
+              "$description": "The status text, at both sizes: the caption's style."
             }
           }
         },

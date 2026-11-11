@@ -127,7 +127,7 @@ test.describe('the parts and their sizes', () => {
   test('TBL-2: a column is never narrower than what cannot break in it, the columns share the box in proportion to their content, and a width the product gives a column replaces the content’s', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...some('long-cells', 'basic'), fx('given', { label: 'Given' }, [col('Name'), col('Note'), row(['A', 'B'])])] });
     // The verify: the three columns that do not wrap are as wide as their widest cell, and Description takes the rest and wraps.
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     for (const column of [1, 2, 3]) {
       const cells = await table(page, 'long-cells').locator(`tr > :nth-child(${column})`).all();
       const widest = Math.max(...(await Promise.all(cells.map(async (c) => (await textBox(c)).width))));
@@ -152,7 +152,7 @@ test.describe('the parts and their sizes', () => {
   });
 
   test('TBL-3: text wraps inside its column and is never cut or ended with an ellipsis; a run with no break opportunity is not broken and widens its column; a column whose wrap is false stays on one line, its header too', async ({ page }) => {
-    const identifier = 'comp.table.cell.text.typescale.compact.fontWeightEmphasized';
+    const identifier = 'comp.table.cell.text.typescale.small.fontWeightEmphasized';
     await mountFixtures(page, spec, {
       fixtures: [...some('requirements'), fx('run', { label: 'Run' }, [col('Token of the table'), col('What it is for', { wrap: false }), row([identifier, 'The weight of a row header'])])],
     });
@@ -173,11 +173,11 @@ test.describe('the parts and their sizes', () => {
     for (const c of [cell(page, 'run', 'thead', 1, 2), cell(page, 'run', 'tbody', 1, 2)]) expect(await lines(c)).toBe(1);
   });
 
-  test('TBL-4: a cell’s paddings and text style by density, its color, figures of equal width, a row as tall as its tallest cell (46 and 32 for one line in the default system), cells aligned to the top', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: some('basic', 'compact', 'long-cells', 'totals') });
-    for (const [id, density, height] of [['basic', 'regular', 46], ['compact', 'compact', 32]] as const) {
-      const padBlock = await resolveToken(page, T(`cell-padding-block-${density}`));
-      const padInline = await resolveToken(page, T(`cell-padding-inline-${density}`));
+  test('TBL-4: a cell’s paddings and text style by size, its color, figures of equal width, a row as tall as its tallest cell (46 and 32 for one line in the default system), cells aligned to the top', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('basic', 'small', 'long-cells', 'totals') });
+    for (const [id, size, height] of [['basic', 'medium', 46], ['small', 'small', 32]] as const) {
+      const padBlock = await resolveToken(page, T(`cell-padding-block-${size}`));
+      const padInline = await resolveToken(page, T(`cell-padding-inline-${size}`));
       const line = await resolveToken(page, T('divider-thickness'));
       for (const column of [1, 3]) {
         const c = cell(page, id, 'tbody', 1, column);
@@ -186,8 +186,8 @@ test.describe('the parts and their sizes', () => {
         expect((await px(c, 'padding-bottom')) + (await px(c, 'border-bottom-width'))).toBe(padBlock);
         expect(await px(c, 'padding-left')).toBe(padInline);
         expect(await px(c, 'padding-right')).toBe(padInline);
-        expect(await px(c, 'font-size')).toBe(await resolveToken(page, T(`cell-text-typescale-${density}-font-size`)));
-        expect(await css(c, 'font-weight')).toBe(String(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T(`cell-text-typescale-${density}-font-weight`))) || '400');
+        expect(await px(c, 'font-size')).toBe(await resolveToken(page, T(`cell-text-typescale-${size}-font-size`)));
+        expect(await css(c, 'font-weight')).toBe(String(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T(`cell-text-typescale-${size}-font-weight`))) || '400');
         expect(await css(c, 'color')).toBe(await resolveColor(page, T('cell-text-color')));
         expect(await css(c, 'font-variant-numeric')).toContain('tabular-nums');
         expect(await css(c, 'vertical-align')).toBe('top');
@@ -200,7 +200,7 @@ test.describe('the parts and their sizes', () => {
     // As tall as its tallest cell and no taller; the first lines of a row share a baseline (one top, one style).
     const tall = table(page, 'long-cells').locator('> tbody > tr').first();
     const description = cell(page, 'long-cells', 'tbody', 1, 4);
-    const pad = await resolveToken(page, T('cell-padding-block-regular'));
+    const pad = await resolveToken(page, T('cell-padding-block-medium'));
     near((await box(tall)).height, (await lines(description)) * (await px(description, 'line-height')) + 2 * pad, 0.5);
     const tops = await Promise.all([1, 2, 3, 4].map(async (n) => (await textBox(cell(page, 'long-cells', 'tbody', 1, n))).top));
     for (const top of tops) near(top, tops[0], 0.1);
@@ -212,18 +212,18 @@ test.describe('the parts and their sizes', () => {
   test('TBL-5: a header cell is a label in the header’s color with a cell’s paddings, over the header’s fill, on the last line of its row; a table whose every header is empty draws no header row and no line for it', async ({ page }) => {
     await mountFixtures(page, spec, {
       fixtures: [
-        ...some('basic', 'compact', 'no-header'),
+        ...some('basic', 'small', 'no-header'),
         fx('two-lines', { label: 'Two lines' }, [col('A header of two lines that wraps'), col('Short'), row(['x', 'y'])]),
         raw('empty-head', { label: 'Empty head' }, '<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Role</td><td>button</td></tr></tbody></table>'),
       ],
     });
-    for (const [id, density] of [['basic', 'regular'], ['compact', 'compact']] as const) {
+    for (const [id, size] of [['basic', 'medium'], ['small', 'small']] as const) {
       const h = cell(page, id, 'thead', 1, 1);
-      expect(await px(h, 'font-size')).toBe(await resolveToken(page, T(`header-text-typescale-${density}-font-size`)));
+      expect(await px(h, 'font-size')).toBe(await resolveToken(page, T(`header-text-typescale-${size}-font-size`)));
       expect(await css(h, 'font-weight')).toBe('500');
       expect(await css(h, 'color')).toBe(await resolveColor(page, T('header-text-color')));
-      expect(await px(h, 'padding-top')).toBe(await resolveToken(page, T(`cell-padding-block-${density}`)));
-      expect(await px(h, 'padding-left')).toBe(await resolveToken(page, T(`cell-padding-inline-${density}`)));
+      expect(await px(h, 'padding-top')).toBe(await resolveToken(page, T(`cell-padding-block-${size}`)));
+      expect(await px(h, 'padding-left')).toBe(await resolveToken(page, T(`cell-padding-inline-${size}`)));
       expect(await css(h, 'vertical-align')).toBe('bottom');
     }
     // The header's fill is the token's (none in the default system).
@@ -249,7 +249,7 @@ test.describe('the parts and their sizes', () => {
     const markdown = '<table><thead><tr><th>Plan</th><th>Seats</th></tr></thead><tbody><tr><td>Free</td><td>3</td></tr><tr><td>Team</td><td>50</td></tr></tbody><tfoot><tr><td>All</td><td>53</td></tr></tfoot></table>';
     const marked = '<table><thead><tr><th scope="col">Plan</th><th scope="col">Seats</th></tr></thead><tbody><tr><th scope="row">Free</th><td>3</td></tr></tbody></table>';
     await mountFixtures(page, spec, { fixtures: [...some('totals', 'basic'), raw('markdown', { label: 'Plans', rowHeaders: true }, markdown), raw('marked', { label: 'Marked by the product' }, marked)] });
-    const emphasized = await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('cell-text-typescale-regular-font-weight-emphasized'));
+    const emphasized = await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('cell-text-typescale-medium-font-weight-emphasized'));
     const weight = await css(cell(page, 'totals', 'tbody', 1, 2), 'font-weight');
     for (const header of [cell(page, 'totals', 'tbody', 1, 1), cell(page, 'totals', 'tfoot', 1, 1)]) {
       expect(await header.evaluate((el) => `${el.localName} ${el.getAttribute('scope')}`)).toBe('th row');
@@ -257,7 +257,7 @@ test.describe('the parts and their sizes', () => {
       expect(await css(header, 'font-weight')).toBe(await page.evaluate((v) => { const probe = document.createElement('i'); probe.style.fontWeight = v; document.body.append(probe); const w = getComputedStyle(probe).fontWeight; probe.remove(); return w; }, emphasized));
       expect(await css(header, 'color')).toBe(await resolveColor(page, T('cell-text-color')));
       expect(await css(header, 'background-color')).toBe('rgba(0, 0, 0, 0)');
-      expect(await px(header, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-regular')));
+      expect(await px(header, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-medium')));
       expect(await px(header, 'font-size')).toBe(await px(cell(page, 'totals', 'tbody', 1, 2), 'font-size'));
     }
     await expect(stage(page, 'totals').getByRole('rowheader')).toHaveCount(5);
@@ -288,7 +288,7 @@ test.describe('the parts and their sizes', () => {
         raw('header-only', { label: 'Header only' }, '<table><thead><tr><th>Item</th><th data-align="end">Price</th><th align="center">Stock</th><th align="right">Sum</th></tr></thead><tbody><tr><td>Tea</td><td>4.25</td><td>Yes</td><td>8.50</td></tr><tr><td>Sugar</td><td data-align="start">3.00</td><td>No</td><td>3.00</td></tr></tbody></table>'),
       ],
     });
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     const placed = async (c: Locator) => {
       const [b, t] = [await edges(c), await textBox(c)];
       return { start: t.left - b.left, end: b.right - t.right };
@@ -355,7 +355,7 @@ test.describe('telling rows apart', () => {
   test('TBL-9: separation auto is what comp.table.separation names, which follows the system’s choice; divider and gap are themselves whatever the tokens say; a change is drawn at once and keeps the scroll; an unknown value is auto and reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { fixtures: some('basic', 'separation-divider', 'separation-gap', 'wide') });
-    const [thickness, gap, pad] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('row-gap')), await resolveToken(page, T('cell-padding-block-regular'))];
+    const [thickness, gap, pad] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('row-gap')), await resolveToken(page, T('cell-padding-block-medium'))];
     const form = async (id: string) => {
       const c = cell(page, id, 'tbody', 1, 1);
       const [line, under] = [await px(c, 'border-bottom-width'), await px(c, 'padding-bottom')];
@@ -398,7 +398,7 @@ test.describe('telling rows apart', () => {
 
   test('TBL-9: where the browser has no style queries the element names the tokens’ separation on the table, and the same rules draw it', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('basic') });
-    const [thickness, gap, pad] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('row-gap')), await resolveToken(page, T('cell-padding-block-regular'))];
+    const [thickness, gap, pad] = [await resolveToken(page, T('divider-thickness')), await resolveToken(page, T('row-gap')), await resolveToken(page, T('cell-padding-block-medium'))];
     const queries = await page.evaluate(() => CSS.supports('container-type: inline-size') && (() => { const s = new CSSStyleSheet(); s.replaceSync('@container style(--x: y) { a { color: red } }'); return s.cssRules.length === 1 && (s.cssRules[0] as CSSContainerRule).conditionText !== undefined; })());
     expect(typeof queries).toBe('boolean');
     await override(page, { [T('separation')]: 'gap' });
@@ -529,7 +529,7 @@ test.describe('caption, footer, cells', () => {
     expect(await empty.evaluate((el) => el.childNodes.length)).toBe(0);
     for (const pseudo of ['::before', '::after']) expect(await empty.evaluate((el, p) => getComputedStyle(el, p).content, pseudo)).toMatch(/^(none|normal)$/);
     expect(await css(empty, 'display')).toBe('table-cell');
-    expect(await px(empty, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-regular')));
+    expect(await px(empty, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-medium')));
     // The cells after it stay in their columns.
     near((await box(cell(page, 'empty-cells', 'tbody', 1, 5))).x, (await box(cell(page, 'empty-cells', 'thead', 1, 5))).x, 0.1);
     near((await box(empty)).height, (await box(cell(page, 'empty-cells', 'tbody', 1, 1))).height, 0.1);
@@ -558,13 +558,13 @@ test.describe('caption, footer, cells', () => {
     expect((await box(tag)).height).toBe(await resolveToken(page, '--tanrei-comp-tag-container-height-small'));
     const [tagBox, lineBox] = [await box(tag), await textBox(cell(page, 'tags', 'tbody', 1, 1))];
     near(tagBox.y + tagBox.height / 2, lineBox.top + lineBox.height / 2, 1.5);
-    near(tagBox.x - (await box(tagged)).x, await resolveToken(page, T('cell-padding-inline-regular')), 0.5);
+    near(tagBox.x - (await box(tagged)).x, await resolveToken(page, T('cell-padding-inline-medium')), 0.5);
     // Nothing of the table's is set on it: the tag is the tag it is anywhere.
     expect(await tag.evaluate((el) => el.getAttributeNames().filter((name) => name === 'style' || name === 'class' || name.startsWith('data-')))).toEqual([]);
     expect(await css(tag, 'vertical-align')).toBe('baseline');
     // By the column's alignment.
     const link = page.locator('#in-cell');
-    near((await box(cell(page, 'content', 'tbody', 1, 2))).x + (await box(cell(page, 'content', 'tbody', 1, 2))).width - ((await box(link)).x + (await box(link)).width), await resolveToken(page, T('cell-padding-inline-regular')), 0.5);
+    near((await box(cell(page, 'content', 'tbody', 1, 2))).x + (await box(cell(page, 'content', 'tbody', 1, 2))).width - ((await box(link)).x + (await box(link)).width), await resolveToken(page, T('cell-padding-inline-medium')), 0.5);
     // Input reaches it: a pointer…
     await page.evaluate(() => {
       (window as unknown as { pressed: number }).pressed = 0;
@@ -944,7 +944,7 @@ test.describe('accessibility', () => {
     await expect(stage(page, 'wide-label').getByRole('table', { name: 'Renamed' })).toHaveCount(1);
   });
 
-  test('TBL-24: every fixture is a table with its rows, column headers, row headers and cells — also while it scrolls in its own box and while a column or the header is kept in view; striping and density change nothing that is exposed', async ({ page, browserName }) => {
+  test('TBL-24: every fixture is a table with its rows, column headers, row headers and cells — also while it scrolls in its own box and while a column or the header is kept in view; striping and size change nothing that is exposed', async ({ page, browserName }) => {
     await mountFixtures(page, spec);
     for (const f of spec.fixtures) {
       const columns = f.items!.filter((item) => item.kind === 'column');
@@ -972,9 +972,9 @@ test.describe('accessibility', () => {
     await host(page, 'wide-sticky-column').evaluate((el) => (el.scrollLeft = 200));
     await expect(host(page, 'wide-sticky-column')).toHaveAttribute('data-more-start', '');
     expect(await stage(page, 'wide-sticky-column').getByRole('table').ariaSnapshot()).toBe(before);
-    // Striped or not, compact or not.
+    // Striped or not, small or not.
     const plain = (text: string) => text.replace(/"[^"]*"|: .*/g, '');
-    expect(plain(await stage(page, 'striped-compact-tokens').getByRole('table').ariaSnapshot())).toBe(plain(await stage(page, 'compact-tokens').getByRole('table').ariaSnapshot()));
+    expect(plain(await stage(page, 'striped-small-tokens').getByRole('table').ariaSnapshot())).toBe(plain(await stage(page, 'small-tokens').getByRole('table').ariaSnapshot()));
     // The browser's own tree (Chromium's, read over the DevTools protocol) says the same of a table that scrolls with a column kept.
     if (browserName === 'chromium') {
       const cdp = await page.context().newCDPSession(page);
@@ -1050,9 +1050,9 @@ test.describe('changes, direction, text size, forced colors', () => {
       for (const tr of el.rows) while (tr.cells.length > 3) tr.deleteCell(-1);
     });
     await expect(host(page, 'basic')).not.toHaveAttribute('role', 'region');
-    // A density changed while shown.
-    await host(page, 'basic').evaluate((el) => ((el as unknown as { density: string }).density = 'compact'));
-    await expect.poll(async () => px(cell(page, 'basic', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-compact')));
+    // A size changed while shown.
+    await host(page, 'basic').evaluate((el) => ((el as unknown as { size: string }).size = 'small'));
+    await expect.poll(async () => px(cell(page, 'basic', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-small')));
   });
 
   test('TBL-26: the direction is that of the nearest ancestor that sets one — the table has no setting of its own — and a change of it is drawn at once, with the column a person was looking at still in view', async ({ page }) => {
@@ -1115,7 +1115,7 @@ test.describe('changes, direction, text size, forced colors', () => {
     // Paddings and alignment by the layout: start is the right, and a number column's end the left.
     expect(await css(first, 'text-align')).toBe('right');
     expect(await css(cell(page, id, 'tbody', 1, 2), 'text-align')).toBe('left');
-    near(h.right - (await textBox(first)).right, await resolveToken(page, T('cell-padding-inline-regular')), 0.6);
+    near(h.right - (await textBox(first)).right, await resolveToken(page, T('cell-padding-inline-medium')), 0.6);
     // Top and bottom: the header row is the first row and the footer the last.
     const rows = await Promise.all((await table(page, 'rtl').locator('tr').all()).map(async (tr) => (await box(tr)).y));
     expect([...rows].sort((a, b) => a - b)).toEqual(rows);
@@ -1127,7 +1127,7 @@ test.describe('changes, direction, text size, forced colors', () => {
 
   test('TBL-28: the text of each cell, header cell and caption is text of its own direction, placed by the column’s alignment in the layout direction; a number is never reversed', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('rtl', 'ltr-cells-rtl') });
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     // The verify: the numbers end at the left edge of their cells and read 18.50.
     const price = cell(page, 'rtl', 'tbody', 1, 3);
     expect(await price.textContent()).toBe('18.50');
@@ -1186,7 +1186,7 @@ test.describe('changes, direction, text size, forced colors', () => {
         expect(await stage(page, f.id).evaluate((el) => el.scrollWidth <= el.clientWidth), `${label} ${f.id}`).toBe(true);
         near((await box(host(page, f.id))).width, 288, 0.1);
         // No fixed height, nothing cut: no cell clips, and every cell holds its text. (A selection cell holds no text:
-        // it cuts what its checkbox's container, a size of its own, would draw beyond a compact row — TBL-42.)
+        // it cuts what its checkbox's container, a size of its own, would draw beyond a small row — TBL-42.)
         const cut = await table(page, f.id).evaluate((el) =>
           [...el.querySelectorAll('caption, th, td:not([data-part="selection"])')].filter((part) => {
             const s = getComputedStyle(part);
@@ -1256,7 +1256,7 @@ test.describe('changes, direction, text size, forced colors', () => {
     // Told apart by their text styles, as without the mode.
     expect(Number(await css(cell(page, 'totals', 'tbody', 1, 1), 'font-weight'))).toBeGreaterThan(Number(await css(lined, 'font-weight')));
     expect(Number(await css(cell(page, 'totals', 'tfoot', 1, 2), 'font-weight'))).toBeGreaterThan(Number(await css(lined, 'font-weight')));
-    expect(await px(cell(page, 'totals', 'thead', 1, 1), 'font-size')).toBe(await resolveToken(page, T('header-text-typescale-regular-font-size')));
+    expect(await px(cell(page, 'totals', 'thead', 1, 1), 'font-size')).toBe(await resolveToken(page, T('header-text-typescale-medium-font-size')));
     // TBL-20's and TBL-21's lines.
     await host(page, 'wide-sticky-column').evaluate((el) => (el.scrollLeft = 100));
     await expect(host(page, 'wide-sticky-column')).toHaveAttribute('data-more-start', '');
@@ -1272,23 +1272,93 @@ test.describe('changes, direction, text size, forced colors', () => {
     await page.emulateMedia({ forcedColors: 'none' });
   });
 
-  test('TBL-31: a density the active design system does not have renders with the default’s tokens and is reported; one a design system adds is drawn from its tokens', async ({ page }) => {
+  test('TBL-31: a size the active design system does not have renders with the default’s tokens and is reported; one a design system adds is drawn from its tokens', async ({ page }) => {
     const seen = warnings(page);
-    await mountFixtures(page, spec, { fixtures: [...some('basic'), { ...fixture('basic'), id: 'unknown', props: { caption: 'Button sizes', density: 'roomy' } }, { ...fixture('basic'), id: 'not-a-name', props: { caption: 'Button sizes', density: 'Very Loose!' } }] });
+    await mountFixtures(page, spec, { fixtures: [...some('basic'), { ...fixture('basic'), id: 'unknown', props: { caption: 'Button sizes', size: 'roomy' } }, { ...fixture('basic'), id: 'not-a-name', props: { caption: 'Button sizes', size: 'Very Loose!' } }] });
     const geometry = async (id: string) => Promise.all((await table(page, id).locator('tr, th, td').all()).map(async (part) => { const b = await box(part); return [b.width, b.height]; }));
     expect(await geometry('unknown')).toEqual(await geometry('basic'));
     expect(await geometry('not-a-name')).toEqual(await geometry('basic'));
-    expect(await px(cell(page, 'unknown', 'tbody', 1, 1), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-regular-font-size')));
+    expect(await px(cell(page, 'unknown', 'tbody', 1, 1), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-medium-font-size')));
     await expect.poll(() => seen.filter((m) => m.includes('TBL-31') && m.includes('"roomy"')).length).toBe(1);
     expect(seen.filter((m) => m.includes('TBL-31') && m.includes('Very Loose!')).length).toBe(1);
     expect(seen.filter((m) => m.includes('TBL-31')).length).toBe(2);
     // A layer that adds the value: its paddings are read, and what it leaves out is the default's.
     await override(page, { [T('cell-padding-block-airy')]: '20px', [T('cell-padding-inline-airy')]: '28px' });
-    await host(page, 'basic').evaluate((el) => ((el as unknown as { density: string }).density = 'airy'));
+    await host(page, 'basic').evaluate((el) => ((el as unknown as { size: string }).size = 'airy'));
     await expect.poll(() => px(cell(page, 'basic', 'tbody', 1, 1), 'padding-top')).toBe(20);
     expect(await px(cell(page, 'basic', 'tbody', 1, 1), 'padding-left')).toBe(28);
-    expect(await px(cell(page, 'basic', 'tbody', 1, 1), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-regular-font-size')));
+    expect(await px(cell(page, 'basic', 'tbody', 1, 1), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-medium-font-size')));
     expect(seen.filter((m) => m.includes('"airy"')).length).toBe(0);
+  });
+
+  test('TBL-62: without a size of its own a table is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its cells hold; a change, a removal and a move are drawn before the next frame, keeping the chosen rows and focus; at density 0.75, 1 and 1.5 every cell is padded by its size’s tokens', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('basic') });
+    // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
+    // here (it reports content that is not a Button, and still lays it out).
+    await page.evaluate(() => {
+      const rows = (id: string) =>
+        `<tbody><tr data-value="a" data-selected><td data-part="selection"><tanrei-checkbox id="${id}-check" label-hidden label="Select A" checked></tanrei-checkbox></td><td id="${id}-cell">A</td><td><tanrei-button id="${id}-button" label="Edit"></tanrei-button></td></tr></tbody>`;
+      const table = (id: string, size = '') =>
+        `<tanrei-table id="${id}" label="${id}" selection="multiple" ${size ? `size="${size}"` : ''}><table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden label="All"></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Action</th></tr></thead>${rows(id)}</table></tanrei-table>`;
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">${table('taken')}${table('own-medium', 'medium')}</tanrei-button-group>
+        <tanrei-button-group id="unset">${table('free')}</tanrei-button-group>
+        <tanrei-button-group id="outer" size="small"><tanrei-button-group id="inner" size="medium">${table('nearest')}</tanrei-button-group></tanrei-button-group>
+        ${table('alone')}`;
+      document.body.append(stage);
+    });
+    const all = ['taken', 'own-medium', 'free', 'nearest', 'alone'];
+    /** The padding above each table's data cell, read in one frame. */
+    const measure = `return Object.fromEntries(ids.map((id) => [id, parseFloat(getComputedStyle(document.getElementById(id + '-cell')).paddingTop)]));`;
+    const pads = () => page.evaluate(([code, ids]) => new Function('ids', code)(ids) as Record<string, number>, [measure, all] as const);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, read, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return new Function('ids', read)(list) as Record<string, number>;
+        },
+        [change, measure, ids] as const,
+      );
+    const sizes = async () => ({ small: await resolveToken(page, T('cell-padding-block-small')), medium: await resolveToken(page, T('cell-padding-block-medium')) });
+    // A size it takes, or the default, is not its own: no size attribute is written on a table that sets none.
+    expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const size = await sizes();
+      await expect.poll(pads, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await sizes();
+    expect(size.medium).toBeGreaterThan(size.small);
+    // Every member of the size: the cell's text style, its inline padding and the header's text style are small's.
+    expect(await px(page.locator('#taken-cell'), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-small-font-size')));
+    expect(await px(page.locator('#taken-cell'), 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-small')));
+    expect(await px(page.locator('#taken th').first(), 'font-size')).toBe(await resolveToken(page, T('header-text-typescale-small-font-size')));
+    // It passes none to what its cells hold: a Button in a cell takes the size of the containers around the table.
+    expect(await page.evaluate(() => ['taken', 'free', 'alone'].map((id) => (document.getElementById(`${id}-button`) as HTMLElement & { drawnSize: string }).drawnSize))).toEqual(['small', 'medium', 'medium']);
+    // A size the table lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    // Focus on a checkbox and a row chosen: kept through every change.
+    await page.locator('#taken-check').focus();
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium')).toEqual({ taken: size.small, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken')).toEqual({ taken: size.medium });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'small')", 'taken')).toEqual({ taken: size.small });
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('taken-check');
+    expect(await page.locator('#taken tbody tr').getAttribute('data-selected')).toBe('');
+    // Set, given back and set to the default's name on the table.
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('free'))", 'free')).toEqual({ free: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 });
 
@@ -1319,7 +1389,7 @@ test.describe('the element and its stylesheet', () => {
     await withoutScript(page, fixtures);
     expect(await page.evaluate(() => customElements.get('tanrei-table'))).toBeUndefined();
     // Drawn without script: the tokens' paddings, the header's style, the stripes, the scroll box and the parts that stay.
-    expect(await px(cell(page, 'compact', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-compact')));
+    expect(await px(cell(page, 'small', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-small')));
     expect(await css(cell(page, 'totals', 'tbody', 1, 2), 'text-align')).toBe('right');
     expect(await css(cell(page, 'striped', 'tbody', 2, 1), 'background-image')).not.toBe('none');
     expect((await scroll(host(page, 'wide'))).width).toBeGreaterThan((await scroll(host(page, 'wide'))).clientWidth);
@@ -1340,24 +1410,24 @@ test.describe('the element and its stylesheet', () => {
       outer.id = 'outer';
       outer.style.inlineSize = '300px';
       const root = outer.attachShadow({ mode: 'open' });
-      root.innerHTML = `<tanrei-table density="compact"><table><caption>In a shadow root</caption><thead><tr>${['Region', 'January', 'February', 'March', 'April'].map((n, i) => `<th data-wrap="false"${i ? ' data-align="end"' : ''}>${n} of the year</th>`).join('')}</tr></thead><tbody><tr><td>North</td><td>1</td><td>2</td><td>3</td><td>4</td></tr></tbody></table></tanrei-table>`;
+      root.innerHTML = `<tanrei-table size="small"><table><caption>In a shadow root</caption><thead><tr>${['Region', 'January', 'February', 'March', 'April'].map((n, i) => `<th data-wrap="false"${i ? ' data-align="end"' : ''}>${n} of the year</th>`).join('')}</tr></thead><tbody><tr><td>North</td><td>1</td><td>2</td><td>3</td><td>4</td></tr></tbody></table></tanrei-table>`;
       document.body.append(outer);
     });
     const inner = page.locator('#outer tanrei-table');
     await expect(inner).toHaveAttribute('role', 'region');
     expect(await inner.evaluate((el) => getComputedStyle(el).overflowX)).toBe('auto');
-    expect(await px(inner.locator('td').first(), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-compact')));
+    expect(await px(inner.locator('td').first(), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-small')));
     expect(await css(inner.locator('td').nth(1), 'text-align')).toBe('right');
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(0);
   });
 
-  test('the rules the element writes are in no cascade layer: on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a density a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
+  test('the rules the element writes are in no cascade layer: on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a size a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
     // A column's alignment and wrapping named on its header cell alone, as the spec's columns are; a row with a cell too many.
     const markup =
       '<table><caption>Visits</caption><thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">Visits in January</th><th scope="col" data-align="center">State</th></tr></thead>' +
       '<tbody><tr><td>North</td><td>1 204 and some more</td><td>open</td></tr><tr><td>South</td><td>2 918 and some more</td><td>shut</td><td id="surplus">one too many</td></tr></tbody>' +
       '<tfoot><tr><td>All</td><td>4 122 and some more</td><td>—</td></tr></tfoot></table>';
-    await mountFixtures(page, spec, { fixtures: [raw('layered', { label: 'Visits' }, markup), raw('airy', { label: 'Visits', density: 'airy' }, markup.replace('id="surplus"', ''))] });
+    await mountFixtures(page, spec, { fixtures: [raw('layered', { label: 'Visits' }, markup), raw('airy', { label: 'Visits', size: 'airy' }, markup.replace('id="surplus"', ''))] });
     await size(page, 'layered', { width: 220 });
     // The page's own copy of table.css, in a layer of the page's that comes after Tanrei's — as a site does whose
     // framework's reset is layered. A later layer wins whatever the order and the specificity of the rules.
@@ -1384,10 +1454,10 @@ test.describe('the element and its stylesheet', () => {
     // TBL-14: the cell after the last column is not drawn.
     await expect(host(page, 'layered')).toHaveAttribute('data-columns', '3');
     expect(await css(page.locator('#surplus'), 'display')).toBe('none');
-    // TBL-31: a density a design system added, drawn from its tokens over the copy's regular.
+    // TBL-31: a size a design system added, drawn from its tokens over the copy's medium.
     await expect.poll(() => px(cell(page, 'airy', 'tbody', 1, 1), 'padding-top')).toBe(20);
     expect(await px(cell(page, 'airy', 'tbody', 1, 1), 'padding-left')).toBe(28);
-    expect(await px(cell(page, 'layered', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-regular')));
+    expect(await px(cell(page, 'layered', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-medium')));
     // One class of the product's, outside any layer, still wins over what the element writes: they have no specificity.
     await page.addStyleTag({ content: '.mine { text-align: left; }' });
     await cell(page, 'layered', 'tbody', 1, 2).evaluate((el) => el.classList.add('mine'));
@@ -1397,13 +1467,13 @@ test.describe('the element and its stylesheet', () => {
   test('a table inside a cell is the product’s: the table draws none of it (TBL-15)', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [raw('nested', { label: 'Nested', striped: true }, '<table><thead><tr><th>Outer</th></tr></thead><tbody><tr><td>one</td></tr><tr><td><table id="inner"><tbody><tr><td>a</td></tr><tr><td>b</td></tr></tbody></table></td></tr></tbody></table>')] });
     const inner = page.locator('#inner td').first();
-    expect(await px(inner, 'padding-top')).toBeLessThan(await resolveToken(page, T('cell-padding-block-regular')));
+    expect(await px(inner, 'padding-top')).toBeLessThan(await resolveToken(page, T('cell-padding-block-medium')));
     expect(await css(page.locator('#inner td').nth(1), 'background-image')).toBe('none');
     expect(await css(inner, 'font-variant-numeric')).toBe('tabular-nums');
   });
 
-  test('300 rows of the compact token table mount and scroll with nothing per row: one element, no listener and no observer on a row, the nodes of the table alone, and no frame asked for (TBL-18, TBL-25)', async ({ page, browserName }) => {
-    const tokens = fixture('compact-tokens');
+  test('300 rows of the small token table mount and scroll with nothing per row: one element, no listener and no observer on a row, the nodes of the table alone, and no frame asked for (TBL-18, TBL-25)', async ({ page, browserName }) => {
+    const tokens = fixture('small-tokens');
     const columns = tokens.items!.filter((item) => item.kind === 'column');
     const rows = tokens.items!.filter((item) => item.kind === 'row');
     const many: Fixture = { ...tokens, id: 'many', props: { ...tokens.props, stickyHeader: true, striped: true }, items: [...columns, ...Array.from({ length: 300 }, (_, i) => rows[i % rows.length])] };
@@ -1566,7 +1636,7 @@ test.describe('a column that can be sorted', () => {
       // The label keeps the header's text style, and the cell its paddings.
       expect(await css(button, 'font-size')).toBe(await css(cell(page, 'basic', 'thead', 1, 1), 'font-size'));
       expect(await css(button, 'font-weight')).toBe(await css(cell(page, 'basic', 'thead', 1, 1), 'font-weight'));
-      expect(await px(th, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-regular')));
+      expect(await px(th, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-medium')));
       // The mark: a glyph of the icon set in its box, at the mark weight, outlined, with the box's optical size.
       expect(Number.parseFloat(await pseudo(button, 'width', '::after'))).toBe(size);
       expect(Number.parseFloat(await pseudo(button, 'height', '::after'))).toBe(size);
@@ -1915,9 +1985,9 @@ test.describe('a column that can be sorted', () => {
     expect(await control(page, 'sortable', 2).evaluate((el) => el.hasAttribute('data-tanrei-shape'))).toBe(false);
   });
 
-  test('TBL-40: a sort button’s hit area is its whole header cell, with no gap to the one beside it; for a fine pointer the header row is at least sys.target.pointer high at the regular density and as high as its density gives at the compact one; for a coarse pointer it is sys.target.touch high at both', async ({ page, browserName }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('sortable', 'sortable-compact', 'compact') });
-    for (const id of ['sortable', 'sortable-compact']) {
+  test('TBL-40: a sort button’s hit area is its whole header cell, with no gap to the one beside it; for a fine pointer the header row is at least sys.target.pointer high and for a coarse pointer sys.target.touch high, drawn so, at every size', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('sortable', 'sortable-small', 'small') });
+    for (const id of ['sortable', 'sortable-small']) {
       // Every point of a header cell — its corners, and the edge it shares with the next — is its button's.
       for (const column of [1, 2, 3]) {
         const at = await box(cell(page, id, 'thead', 1, column));
@@ -1929,13 +1999,22 @@ test.describe('a column that can be sorted', () => {
     }
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    const regularHeader = (await box(table(page, 'sortable').locator('> thead > tr'))).height;
-    expect(regularHeader).toBeGreaterThanOrEqual(pointer);
-    // Compact: what its density gives — a compact header row that sorts nothing is as high.
-    const compact = (await box(table(page, 'compact').locator('> thead > tr'))).height;
-    console.log(`[table] a compact header row is ${compact} high`);
-    expect(compact).toBeLessThan(pointer);
-    near((await box(table(page, 'sortable-compact').locator('> thead > tr'))).height, compact, 0.1);
+    const mediumHeader = (await box(table(page, 'sortable').locator('> thead > tr'))).height;
+    expect(mediumHeader).toBeGreaterThanOrEqual(pointer);
+    // Small: a header row that sorts nothing is what its size gives (32 in the default system), lower than the pointer
+    // target; one that holds a sort button is drawn the pointer target high (36), the label on its last line.
+    const small = (await box(table(page, 'small').locator('> thead > tr'))).height;
+    expect(small).toBeLessThan(pointer);
+    near((await box(table(page, 'sortable-small').locator('> thead > tr'))).height, pointer, 0.1);
+    const held = await box(cell(page, 'sortable-small', 'thead', 1, 1));
+    near(held.y + held.height - (await labelBox(control(page, 'sortable-small', 1))).bottom, await resolveToken(page, T('cell-padding-block-small')), 1.1);
+    // Under a system whose pointer target (44) is taller, both header rows are drawn that high for a fine pointer.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
+    await frame(page);
+    near((await box(table(page, 'sortable-small').locator('> thead > tr'))).height, Math.max(44, small), 0.1);
+    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, Math.max(44, mediumHeader), 0.1);
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '' });
+    await frame(page);
     expect(fs.readFileSync(path.join(pkg, 'dist/table.css'), 'utf8')).toMatch(/@media \(pointer: coarse\) \{\s*:where\(tanrei-table\) \{\s*--_table-sort-target: var\(--tanrei-sys-target-touch\)/);
     if (browserName !== 'chromium') return;
     // Only Chromium can emulate a coarse pointer (touch emulation over CDP).
@@ -1944,17 +2023,17 @@ test.describe('a column that can be sorted', () => {
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
     await frame(page);
-    // In the default system the touch target (36) is lower than the regular header row (44), which keeps its height.
-    near((await box(table(page, 'sortable-compact').locator('> thead > tr'))).height, touch, 0.1);
-    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, Math.max(touch, regularHeader), 0.1);
+    // In the default system the touch target (36) is lower than the medium header row (44), which keeps its height.
+    near((await box(table(page, 'sortable-small').locator('> thead > tr'))).height, touch, 0.1);
+    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, Math.max(touch, mediumHeader), 0.1);
     // Under a system whose touch target (48) is taller than both, both header rows are drawn that high.
     await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     await frame(page);
-    near((await box(table(page, 'sortable-compact').locator('> thead > tr'))).height, 48, 0.1);
+    near((await box(table(page, 'sortable-small').locator('> thead > tr'))).height, 48, 0.1);
     near((await box(table(page, 'sortable').locator('> thead > tr'))).height, 48, 0.1);
     // Drawn so: the label is still on the cell's last line.
-    const th = await box(cell(page, 'sortable-compact', 'thead', 1, 1));
-    near(th.y + th.height - (await labelBox(control(page, 'sortable-compact', 1))).bottom, (await resolveToken(page, T('cell-padding-block-compact'))), 1.1);
+    const th = await box(cell(page, 'sortable-small', 'thead', 1, 1));
+    near(th.y + th.height - (await labelBox(control(page, 'sortable-small', 1))).bottom, (await resolveToken(page, T('cell-padding-block-small'))), 1.1);
   });
 
   test('TBL-41: a sortable column’s header cell is a column header that carries the order — ascending, descending or none — and holds a button named by the column’s header; the mark is hidden from assistive technology; a table that sorts nothing has no order; the table announces no order', async ({ page, browserName }) => {
@@ -2006,7 +2085,7 @@ test.describe('no rows, and the status line', () => {
     const room = await resolveToken(page, T('empty-padding-block'));
     expect(await px(only, 'padding-top')).toBe(room);
     expect(await px(only, 'padding-bottom')).toBe(room);
-    expect(await px(only, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-regular')));
+    expect(await px(only, 'padding-left')).toBe(await resolveToken(page, T('cell-padding-inline-medium')));
     expect(await px(only, 'border-bottom-width')).toBe(0);
     expect(await css(only, 'background-image')).toBe('none');
     expect(await css(only, 'background-color')).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
@@ -2024,7 +2103,7 @@ test.describe('no rows, and the status line', () => {
     expect(await wideCell.evaluate((el: HTMLTableCellElement) => el.colSpan)).toBe(9);
     expect(await css(wideCell, 'background-image')).toBe('none');
     const boxAt = await box(host(page, 'wide-empty'));
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     expect((await box(page.locator('#none'))).width).toBeLessThanOrEqual(boxAt.width - pad * 2 + 0.1);
     await host(page, 'wide-empty').evaluate((el) => (el.scrollLeft = 300));
     await frame(page);
@@ -2071,7 +2150,7 @@ test.describe('no rows, and the status line', () => {
     // Its text style and color, its paddings (the line above takes its width from the padding).
     const lineWidth = await resolveToken(page, T('divider-thickness'));
     const padBlock = await resolveToken(page, T('status-padding-block'));
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     expect(await css(text, 'font-size')).toBe(`${await resolveToken(page, T('status-text-typescale-font-size'))}px`);
     sameColor(await css(text, 'color'), await resolveColor(page, T('status-text-color')));
     expect(await px(line, 'border-top-width')).toBe(lineWidth);
@@ -2219,7 +2298,7 @@ test.describe('the data features in other conditions', () => {
     }
     // The status text at the right, the pagination at the left.
     const line = await box(statusLine(page, id));
-    const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+    const pad = await resolveToken(page, T('cell-padding-inline-medium'));
     const text = statusLine(page, id).locator('> [role="status"]');
     near((await box(text)).x + (await box(text)).width, line.x + line.width - pad, 0.1);
     near((await box(statusLine(page, id).locator('> span'))).x, line.x + pad, 0.1);
@@ -2326,7 +2405,7 @@ test.describe('the data features in other conditions', () => {
   test('TBL-57: with scripting off the fixtures sortable, empty and status-pagination are drawn as with it — the sort buttons and the marks of the order their header cells name, hover, focus and a press held for press-hold, the empty content, the status line at the bottom of a box that scrolls — a sort control that is an anchor works, and nothing is hidden that script would reveal', async ({ page: off }) => {
     test.setTimeout(90_000);
     // The document without the package's script: the element is never defined, and the stylesheet draws alone.
-    const ids = ['sortable', 'sorted-end', 'sortable-compact', 'sortable-long-headers', 'empty', 'status', 'status-pagination', 'status-long', 'rtl-empty'];
+    const ids = ['sortable', 'sorted-end', 'sortable-small', 'sortable-long-headers', 'empty', 'status', 'status-pagination', 'status-long', 'rtl-empty'];
     const linked = raw('linked', { label: 'Linked' }, '<table><thead><tr><th scope="col" aria-sort="none"><a href="#by-stock">Stock</a></th></tr></thead><tbody><tr><td>15</td></tr></tbody></table>');
     const kept: Fixture = { ...fixture('status-pagination'), id: 'short', props: { caption: 'Short', status: '1–4 of 132' } };
     const markup = await fixturesDocument(spec, { icons: true, fixtures: [...some(...ids), linked, kept] });
@@ -2430,7 +2509,7 @@ const layers = (locator: Locator) => locator.evaluate((el) => [...getComputedSty
 test.describe('rows that can be chosen', () => {
   test('TBL-42: while selection is multiple a selection column stands before the first column — the checkbox for every row in the header row, a row’s own in each body row that has a value, an empty cell in a row without one and in a footer row — as wide as the checkbox and a cell’s paddings, the checkbox on the cell’s first line and the row no taller for it; it is no column of data', async ({ page }) => {
     const plain = raw('plain-cells', { label: 'Plain cells', selection: 'multiple', rowHeaders: true, selectAllLabel: 'All' }, '<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Stock</th></tr></thead><tbody><tr data-value="a"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><td>Kettle</td><td>15</td></tr><tr><td data-part="selection"><tanrei-checkbox label-hidden label="Stray"></tanrei-checkbox></td><td>Scale</td><td>0</td></tr></tbody></table>');
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('selection', 'selection-compact', 'sortable-selection', 'totals', 'compact'), plain] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('selection', 'selection-small', 'sortable-selection', 'totals', 'small'), plain] });
     await settled(page, 'selection');
     const f = fixture('selection');
     const columns = f.items!.filter((item) => item.kind === 'column').length;
@@ -2444,8 +2523,8 @@ test.describe('rows that can be chosen', () => {
     // stands at the cell's padding, where the text of the other cells starts: the selection cell's paddings are a
     // cell's less half of what the container exceeds the box by, and the column is as wide as the container and them.
     const [ring, square] = [await resolveToken(page, '--tanrei-comp-checkbox-container-size'), await resolveToken(page, '--tanrei-comp-checkbox-box-size')];
-    for (const [id, density] of [['selection', 'regular'], ['selection-compact', 'compact']] as const) {
-      const pad = await resolveToken(page, T(`cell-padding-inline-${density}`));
+    for (const [id, size] of [['selection', 'medium'], ['selection-small', 'small']] as const) {
+      const pad = await resolveToken(page, T(`cell-padding-inline-${size}`));
       const inset = Math.max(0, pad - (ring - square) / 2);
       const one = await box(check(page, id, 'tbody', 1));
       near(one.width, ring, 0.1);
@@ -2457,16 +2536,18 @@ test.describe('rows that can be chosen', () => {
         const square0 = await check(page, id, section, 1).evaluate((el) => el.shadowRoot!.querySelector('.box')!.getBoundingClientRect().left);
         near(square0, at.x + pad, 0.6);
       }
-      // The verify: under the default system the column is 18 + 2 × 16 = 50 wide at the regular density.
-      if (density === 'regular') near((await box(cell(page, id, 'tbody', 1, 1))).width, 50, 0.1);
+      // The verify: under the default system the column is 18 + 2 × 16 = 50 wide at the medium size.
+      if (size === 'medium') near((await box(cell(page, id, 'tbody', 1, 1))).width, 50, 0.1);
       await expect(check(page, id, 'tbody', 1)).toHaveAttribute('label-hidden', '');
     }
-    // On the cell's first line: centred on the line the row's text stands on, and the row is as tall as one without it.
-    for (const [id, same] of [['selection', 'totals'], ['selection-compact', 'compact']] as const) {
+    // On the cell's first line: centred on the line the row's text stands on, and the row is as tall as one without it —
+    // or, where that is lower than the pointer target (a small row, TBL-47), the pointer target.
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    for (const [id, same] of [['selection', 'totals'], ['selection-small', 'small']] as const) {
       const drawn = await check(page, id, 'tbody', 1).evaluate((el) => { const r = el.shadowRoot!.querySelector('.box')!.getBoundingClientRect(); return (r.top + r.bottom) / 2; });
       const text = await textBox(cell(page, id, 'tbody', 1, 2));
       near(drawn, (text.top + text.bottom) / 2, 0.6);
-      near((await box(table(page, id).locator('> tbody > tr').first())).height, (await box(table(page, same).locator('> tbody > tr').first())).height, 0.1);
+      near((await box(table(page, id).locator('> tbody > tr').first())).height, Math.max(pointer, (await box(table(page, same).locator('> tbody > tr').first())).height), 0.1);
     }
     // TBL-6: the first column is the first column of data — the row header is the cell after the selection cell.
     expect(await cell(page, 'selection', 'tbody', 1, 2).evaluate((el) => [el.localName, el.getAttribute('scope')])).toEqual(['th', 'row']);
@@ -2667,12 +2748,12 @@ test.describe('rows that can be chosen', () => {
   });
 
   test('TBL-45: the checkbox for every row is checked while each row that has a value is chosen, mixed while some are, unchecked while none is and disabled while there is no such row; activating it while unchecked or mixed chooses every such row and while checked clears every one, with one selectionChange; rows the table was not given are not claimed', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('selection', 'selection-all', 'selection-compact', 'empty-selection', 'loading-placeholders'), native('native')] });
-    for (const id of ['selection', 'selection-all', 'selection-compact', 'empty-selection', 'loading-placeholders', 'native']) await settled(page, id);
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('selection', 'selection-all', 'selection-small', 'empty-selection', 'loading-placeholders'), native('native')] });
+    for (const id of ['selection', 'selection-all', 'selection-small', 'empty-selection', 'loading-placeholders', 'native']) await settled(page, id);
     // The verify.
     expect(await said(check(page, 'selection', 'thead', 1))).toBe('mixed enabled');
     expect(await said(check(page, 'selection-all', 'thead', 1))).toBe('checked enabled');
-    expect(await said(check(page, 'selection-compact', 'thead', 1))).toBe('unchecked enabled');
+    expect(await said(check(page, 'selection-small', 'thead', 1))).toBe('unchecked enabled');
     expect(await said(check(page, 'empty-selection', 'thead', 1))).toBe('unchecked disabled');
     // TBL-50: a placeholder row is no row for it.
     expect(await said(check(page, 'loading-placeholders', 'thead', 1))).toBe('unchecked disabled');
@@ -2782,9 +2863,9 @@ test.describe('rows that can be chosen', () => {
     }
   });
 
-  test('TBL-47: each sort button and each checkbox is its own stop in reading order — the header row’s controls, then each row’s checkbox — and no key moves focus from cell to cell; a checkbox’s hit area is its whole selection cell; a row that holds a checkbox is at least the pointer’s target high at the regular density and as high as its density gives at compact', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('sortable-selection', 'selection', 'selection-compact', 'compact'), native('native')] });
-    for (const id of ['sortable-selection', 'selection', 'selection-compact', 'native']) await settled(page, id);
+  test('TBL-47: each sort button and each checkbox is its own stop in reading order — the header row’s controls, then each row’s checkbox — and no key moves focus from cell to cell; a checkbox’s hit area is its whole selection cell; a row that holds a checkbox is at least the pointer’s target high, drawn so, at every size', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('sortable-selection', 'selection', 'selection-small', 'small'), native('native')] });
+    for (const id of ['sortable-selection', 'selection', 'selection-small', 'native']) await settled(page, id);
     // The hit area is the whole selection cell, in width and in height: a press in a corner of the cell is the checkbox's.
     // (Before the keys below: Home, End and the arrow keys are left to the page, which scrolls for them as it does under
     // a native checkbox, and the browser eases that scroll over some frames — a press aimed at where a cell was read
@@ -2824,20 +2905,24 @@ test.describe('rows that can be chosen', () => {
       expect(await focused(), key).toBe('checkbox Select Scale');
     }
     expect(await choices(page)).toEqual([]);
-    // For a fine pointer: at least the pointer's target at the regular density, and what the density gives at compact.
+    // For a fine pointer: at least the pointer's target at every size. A small row that holds a checkbox is drawn that
+    // high (36 in the default system), where a small row that holds none is what its size gives (32).
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
-    for (const tr of await table(page, 'selection').locator('> thead > tr, > tbody > tr').all()) expect((await box(tr)).height).toBeGreaterThanOrEqual(pointer);
-    near((await box(table(page, 'selection-compact').locator('> tbody > tr').first())).height, (await box(table(page, 'compact').locator('> tbody > tr').first())).height, 0.1);
-    expect((await box(table(page, 'selection-compact').locator('> tbody > tr').first())).height).toBeLessThan(pointer);
+    for (const which of ['selection', 'selection-small']) {
+      for (const tr of await table(page, which).locator('> thead > tr, > tbody > tr[data-value]').all()) expect((await box(tr)).height, which).toBeGreaterThanOrEqual(pointer - 0.1);
+    }
+    const small = (await box(table(page, 'small').locator('> tbody > tr').first())).height;
+    expect(small).toBeLessThan(pointer);
+    near((await box(table(page, 'selection-small').locator('> tbody > tr').first())).height, pointer, 0.1);
   });
 
-  test('TBL-47: with a coarse pointer a row that holds a checkbox is at least the touch target high, drawn so, at both densities, and its selection cell at least the touch target wide', async ({ browser }) => {
+  test('TBL-47: with a coarse pointer a row that holds a checkbox is at least the touch target high, drawn so, at both sizes, and its selection cell at least the touch target wide', async ({ browser }) => {
     const context = await browser.newContext({ hasTouch: true, isMobile: browser.browserType().name() !== 'firefox' });
     const page = await context.newPage();
-    await mountFixtures(page, spec, { fixtures: [...some('selection', 'selection-compact', 'selection-striped'), native('native', { density: 'compact' })] });
+    await mountFixtures(page, spec, { fixtures: [...some('selection', 'selection-small', 'selection-striped'), native('native', { size: 'small' })] });
     test.skip(!(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)), 'this browser does not emulate a coarse pointer');
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    for (const id of ['selection', 'selection-compact', 'native']) {
+    for (const id of ['selection', 'selection-small', 'native']) {
       for (const tr of await table(page, id).locator('> thead > tr, > tbody > tr:not(:last-child)').all()) expect((await box(tr)).height, id).toBeGreaterThanOrEqual(touch);
       expect((await box(cell(page, id, 'tbody', 1, 1))).width, id).toBeGreaterThanOrEqual(touch);
     }
@@ -3198,12 +3283,12 @@ test.describe('a loading body', () => {
     await expect(table(page, 'server')).toHaveAttribute('aria-busy', 'true');
   });
 
-  test('TBL-50: a placeholder row is drawn as a body row — counted for stripes, with a cell’s paddings and lines — at least as tall as a row of one line of text at the table’s density however little it holds, holds what the product puts in its cells, has no checkbox, is no row for the header checkbox or for the empty content, and is hidden from assistive technology; one in a table that is not loading is drawn all the same and reported', async ({ page, browserName }) => {
+  test('TBL-50: a placeholder row is drawn as a body row — counted for stripes, with a cell’s paddings and lines — at least as tall as a row of one line of text at the table’s size however little it holds, holds what the product puts in its cells, has no checkbox, is no row for the header checkbox or for the empty content, and is hidden from assistive technology; one in a table that is not loading is drawn all the same and reported', async ({ page, browserName }) => {
     const skeleton = '<span class="tanrei-skeleton-placeholder"></span>';
     const cells = (inner: string) => `<td data-part="selection"><tanrei-checkbox label-hidden label="Never"></tanrei-checkbox></td><td>${inner}</td><td>${inner}</td>`;
-    const held = raw('held', { label: 'Held', selection: 'multiple', loading: true, striped: true, density: 'compact', selectAllLabel: 'All' }, `<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Stock</th></tr></thead><tbody><tr data-placeholder>${cells(skeleton)}</tr><tr data-placeholder>${cells('')}</tr><tr data-part="empty"><td colspan="3"><div>No products</div></td></tr></tbody></table>`);
+    const held = raw('held', { label: 'Held', selection: 'multiple', loading: true, striped: true, size: 'small', selectAllLabel: 'All' }, `<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Stock</th></tr></thead><tbody><tr data-placeholder>${cells(skeleton)}</tr><tr data-placeholder>${cells('')}</tr><tr data-part="empty"><td colspan="3"><div>No products</div></td></tr></tbody></table>`);
     const seen = warnings(page);
-    await mountFixtures(page, spec, { fixtures: [...some('loading-placeholders', 'selection', 'selection-compact'), held] });
+    await mountFixtures(page, spec, { fixtures: [...some('loading-placeholders', 'selection', 'small'), held] });
     // The Skeleton's stylesheet, as a page that draws its placeholders loads it.
     await page.addStyleTag({ content: fs.readFileSync(path.join(pkg, 'dist/skeleton.css'), 'utf8') });
     for (const id of ['loading-placeholders', 'held']) await settled(page, id);
@@ -3217,7 +3302,7 @@ test.describe('a loading body', () => {
     expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].every((tr) => [...tr.cells].every((c) => c.childNodes.length === 0)))).toBe(true);
     expect(await said(check(page, id, 'thead', 1))).toBe('unchecked disabled');
     // A cell's paddings, and the line between rows.
-    expect(await px(cell(page, id, 'tbody', 1, 2), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-regular')));
+    expect(await px(cell(page, id, 'tbody', 1, 2), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-medium')));
     expect(await px(cell(page, id, 'tbody', 1, 2), 'border-bottom-width')).toBe(await resolveToken(page, T('divider-thickness')));
     // Hidden from assistive technology: no row of nothing is exposed.
     await expect(stage(page, id).getByRole('row')).toHaveCount(1);
@@ -3229,10 +3314,11 @@ test.describe('a loading body', () => {
     }
     expect(await said(check(page, 'held', 'thead', 1))).toBe('unchecked disabled');
     // What the product puts in a cell — the Skeleton's text placeholder — is one line of the cell's text style: the row
-    // is as tall as the row of empty cells beside it, and as a row of text at this density.
-    const compact = (await box(table(page, 'selection-compact').locator('> tbody > tr').first())).height;
-    near((await box(table(page, 'held').locator('> tbody > tr').nth(0))).height, compact, 0.1);
-    near((await box(table(page, 'held').locator('> tbody > tr').nth(1))).height, compact, 0.1);
+    // is as tall as the row of empty cells beside it, and as a row of text at this size. (It holds no checkbox, so the
+    // pointer target does not hold it, TBL-47.)
+    const small = (await box(table(page, 'small').locator('> tbody > tr').first())).height;
+    near((await box(table(page, 'held').locator('> tbody > tr').nth(0))).height, small, 0.1);
+    near((await box(table(page, 'held').locator('> tbody > tr').nth(1))).height, small, 0.1);
     expect((await box(cell(page, 'held', 'tbody', 1, 2).locator('> span'))).height).toBeGreaterThan(0);
     // Counted for stripes: the second placeholder row is striped.
     expect(await css(cell(page, 'held', 'tbody', 2, 2), 'background-image')).toContain(await resolveColor(page, T('stripe-container-color')));
@@ -3274,7 +3360,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
       near(select.x + select.width, outer.x + outer.width, 0.1);
       near(first.x + first.width, select.x, 0.1);
       // The checkbox at the start of its cell: the right — its box at the cell's padding, its round container reaching into it.
-      const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+      const pad = await resolveToken(page, T('cell-padding-inline-medium'));
       const reach = ((await resolveToken(page, '--tanrei-comp-checkbox-container-size')) - (await resolveToken(page, '--tanrei-comp-checkbox-box-size'))) / 2;
       const one = await box(check(page, id, section, 1));
       near(one.x + one.width, select.x + select.width - Math.max(0, pad - reach), 0.1);
@@ -3323,7 +3409,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
       const select = await box(cell(page, id, 'tbody', 1, 1));
       const one = await box(check(page, id, 'tbody', 1));
       const reach = ((await resolveToken(page, '--tanrei-comp-checkbox-container-size')) - (await resolveToken(page, '--tanrei-comp-checkbox-box-size'))) / 2;
-      near(select.width, one.width + 2 * Math.max(0, (await resolveToken(page, T(`cell-padding-inline-${id === 'data' ? 'compact' : 'regular'}`))) - reach), 0.1);
+      near(select.width, one.width + 2 * Math.max(0, (await resolveToken(page, T(`cell-padding-inline-${id === 'data' ? 'small' : 'medium'}`))) - reach), 0.1);
       // Every header label and every cell is whole.
       expect(await table(page, id).evaluate((el) => [...el.querySelectorAll('th, td:not([data-part])')].filter((c) => c.scrollWidth > c.clientWidth + 1 || c.scrollHeight > c.clientHeight + 1).length), id).toBe(0);
     }
@@ -3406,7 +3492,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     await expect(table(page, id).locator('tanrei-checkbox')).toHaveCount(0);
     // The ring, not the round container, stands at the cell's padding, and the column is as wide as the container and
     // the paddings: under the default system 20 + 2 × 16 = 52 (the verify).
-    const [ring, container, pad] = [await resolveToken(page, '--tanrei-comp-radio-button-ring-size'), await resolveToken(page, '--tanrei-comp-radio-button-container-size'), await resolveToken(page, T('cell-padding-inline-regular'))];
+    const [ring, container, pad] = [await resolveToken(page, '--tanrei-comp-radio-button-ring-size'), await resolveToken(page, '--tanrei-comp-radio-button-container-size'), await resolveToken(page, T('cell-padding-inline-medium'))];
     const inset = Math.max(0, pad - (container - ring) / 2);
     for (const section of ['thead', 'tbody'] as const) near((await box(cell(page, id, section, 1, 1))).width, container + 2 * inset, 0.1);
     near((await box(cell(page, id, 'tbody', 1, 1))).width, 52, 0.1);
@@ -3629,13 +3715,13 @@ test.describe('fixtures', () => {
     await mountFixtures(page, spec);
     expect(spec.fixtures).toHaveLength(49);
     // Every fixture is drawn: the thirteen that choose rows or load are among them.
-    expect(spec.fixtures.filter((f) => f.props.selection !== undefined || f.props.loading !== undefined).map((f) => f.id)).toEqual(['selection', 'selection-all', 'selection-compact', 'selection-striped', 'selection-sticky-column', 'selection-single', 'sortable-selection', 'empty-selection', 'loading', 'loading-placeholders', 'data', 'japanese-data', 'rtl-sortable-selection']);
+    expect(spec.fixtures.filter((f) => f.props.selection !== undefined || f.props.loading !== undefined).map((f) => f.id)).toEqual(['selection', 'selection-all', 'selection-small', 'selection-striped', 'selection-sticky-column', 'selection-single', 'sortable-selection', 'empty-selection', 'loading', 'loading-placeholders', 'data', 'japanese-data', 'rtl-sortable-selection']);
     for (const f of spec.fixtures.filter((each) => each.props.selection === 'multiple')) await expect(host(page, f.id)).toHaveAttribute('selection', 'multiple');
     for (const f of spec.fixtures) expect(await host(page, f.id).evaluate((el) => el.hasAttribute('loading')), f.id).toBe(f.props.loading === true);
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toHaveCount(1);
       await expect(table(page, f.id), f.id).toBeVisible();
-      for (const [prop, attribute] of [['density', 'density'], ['separation', 'separation']] as const) if (f.props[prop]) await expect(host(page, f.id)).toHaveAttribute(attribute, String(f.props[prop]));
+      for (const [prop, attribute] of [['size', 'size'], ['separation', 'separation']] as const) if (f.props[prop]) await expect(host(page, f.id)).toHaveAttribute(attribute, String(f.props[prop]));
       for (const [prop, attribute] of [['striped', 'striped'], ['rowHeaders', 'row-headers'], ['stickyHeader', 'sticky-header'], ['stickyFirstColumn', 'sticky-first-column']] as const) {
         expect(await host(page, f.id).evaluate((el, name) => el.hasAttribute(name), attribute), `${f.id} ${attribute}`).toBe(f.props[prop] === true);
       }
@@ -3646,7 +3732,7 @@ test.describe('fixtures', () => {
       const s = await scroll(host(page, f.id));
       if (/wide|selection-sticky-column/.test(f.id)) expect(s.width, f.id).toBeGreaterThan(s.clientWidth);
       else if (!/mapping|ltr-cells-rtl/.test(f.id)) expect(s.width, f.id).toBe(s.clientWidth);
-      // No fixture scrolls its rows: a checkbox's container, taller than a compact row, adds nothing under the last row.
+      // No fixture scrolls its rows: a checkbox's container, taller than a small row, adds nothing under the last row.
       expect(s.height, f.id).toBe(s.clientHeight);
     }
   });

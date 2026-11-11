@@ -8900,7 +8900,7 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/table.css" />
-<tanrei-table density="compact" striped row-headers sticky-first-column>
+<tanrei-table size="small" striped row-headers sticky-first-column>
   <table>
     <caption>Visits by region</caption>
     <thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">January</th></tr></thead>
@@ -8912,7 +8912,7 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 | Attribute | Values | Default | |
 |---|---|---|---|
-| `density` | `regular` \| `compact` (open) | `regular` | a row of one line is 46 or 32 in the default system; a row has no height of its own; reflected |
+| `size` | `small` \| `medium` (open) | the size its nearest container sets, else `medium` | a row of one line is 46 or 32 in the default system, and a row that holds a control at least the target (36); a row has no height of its own; reflected only where set; without script a table is drawn at the size it sets, or at medium |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | a hairline between rows, or `comp.table.row.gap` of space and no line; `auto` is `comp.table.separation`, which follows `sys.behavior.separation`; reflected |
 | `striped` | boolean | `false` | every second body row that is shown is filled with `comp.table.stripe.container.color` |
 | `row-headers` (`rowHeaders`) | boolean | `false` | the first column names its rows: write its cells as `<th scope="row">`. Where they are plain `<td>` (rendered Markdown) they are drawn as row headers and the element gives them `role="rowheader"` |
@@ -8991,8 +8991,8 @@ Keyboard focus stays on the button through the press, and comes back to the butt
 replaced the header row with the rows. One column at a time is sorted (a second is drawn as given and reported in a
 debug build); a header cell with `aria-sort` and no button is a plain header — do not write the attribute there; a
 button without text is not drawn (and is reported). A header row with a sort button is at least `sys.target.pointer`
-high at the regular density, as high as a compact header row at the compact one, and `sys.target.touch` high for a
-coarse pointer at both.
+high for a fine pointer and `sys.target.touch` high for a coarse one, at both sizes: a small header row that sorts is
+36 high in the default system where one that sorts nothing is 32.
 
 **A table ordered by the server** holds an anchor in place of the button — `<a href="?sort=price&order=asc">Price</a>`,
 to the same table in the other order — which works without script. `sort` is then emitted before the browser follows
@@ -9115,8 +9115,8 @@ reports once per table. The element also writes `label-hidden` on a `<tanrei-che
 **It is still a table.** No role is replaced, no row gets a selected state, and no key moves focus from cell to cell:
 each checkbox is a Tab stop of its own, after the header's controls, row by row, and says by its checked state that
 its row is chosen. That is also what is left in forced colors, where the fill is gone. A row that holds a checkbox is
-at least `sys.target.pointer` high at the regular density, as high as a compact row at the compact one, and
-`sys.target.touch` high — its selection cell that wide — for a coarse pointer at both. Keyboard focus stays on a
+at least `sys.target.pointer` high for a fine pointer, and `sys.target.touch` high — its selection cell that wide —
+for a coarse pointer, at both sizes: a small row that holds one is 36 high in the default system. Keyboard focus stays on a
 checkbox through a change of rows (the checkbox of the row with the same `data-value` takes it), and a checkbox that
 takes focus under a header row or a status line kept in view is brought out from under it.
 
@@ -9168,9 +9168,9 @@ Good to know about these:
 - **`selectionchange` is also the browser's name** for a change of the text selection, and that event bubbles from a
   text field: a text field in a cell sends one through the table. The table's is a `CustomEvent` with `detail.values`;
   the browser's is a plain `Event`. Tell them apart as above.
-- **The Checkbox's container is taller than a compact row** (40 in a row of 32 in the default system): what it draws
+- **The Checkbox's container is taller than a small row** (40 in a row of 36 in the default system): what it draws
   beyond its row — the round state layer under the pointer — is cut at the row's edges. Its focus indicator is around
-  the box and inside the row at both densities.
+  the box and inside the row at both sizes.
 - **A tonal tag and tonal inline code lose their own fill on a chosen row in the default system**: their containers
   are within 1.15:1 of `secondary-container` in all six schemes. Their text keeps its contrast; a tag in a table whose rows are chosen reads best
   outlined.
@@ -9209,10 +9209,13 @@ Good to know:
 - **A browser without style container queries** draws the separation the tokens name when the element reads the
   table (it writes `data-separation` on the `<table>`); a system switched later is seen at its next reading. The
   attribute `separation` is exact everywhere.
-- **A density a design system adds** gets its rules from the element, falling back to `regular`'s tokens;
-  without script it is drawn as `regular`.
+- **A size taken from a container** (TBL-62) is drawn once the element is defined: it carries the size it draws as
+  the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script a table is
+  drawn at the size it sets, or at `medium`. The table passes no size to what its cells hold.
+- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens;
+  without script it is drawn as `medium`.
 - **The rules the element writes are in no cascade layer** — a column's alignment and wrapping by position, the cells
-  after the last column, an added density — so that they win over a copy of the stylesheet you load into a layer of
+  after the last column, an added size — so that they win over a copy of the stylesheet you load into a layer of
   your own (a later layer wins whatever the rules are, and the copy says `text-align: start` of every cell). Unlayered
   CSS of yours still wins by one class.
 - **What the element writes, it writes once, and every table of a page together.** Its attributes (`data-columns`,

@@ -150,9 +150,9 @@ export interface TanreiEmptyStateSizeRegistry {
   large: true;
 }
 
-export interface TanreiTableDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTableSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiCodeBlockSizeRegistry {

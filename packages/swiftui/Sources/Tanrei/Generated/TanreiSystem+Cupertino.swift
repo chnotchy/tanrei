@@ -9013,18 +9013,18 @@ private let cupertinoTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: cupertinoTypescale.body,
-      headerTextTypescale: cupertinoTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: cupertinoTypescale.bodySmall,
       headerTextTypescale: cupertinoTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: cupertinoTypescale.body,
+      headerTextTypescale: cupertinoTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(

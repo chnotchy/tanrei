@@ -416,10 +416,10 @@ export { TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsChangeDetail, typ
 export { TanreiTabView, type TanreiTabViewChangeDetail } from './components/tab-view/tab-view.js';
 export {
   TanreiTable,
-  type TanreiTableDensity,
   type TanreiTableSelection,
   type TanreiTableSelectionChangeDetail,
   type TanreiTableSeparation,
+  type TanreiTableSize,
   type TanreiTableSortDetail,
   type TanreiTableSortDirection,
 } from './components/table/table.js';

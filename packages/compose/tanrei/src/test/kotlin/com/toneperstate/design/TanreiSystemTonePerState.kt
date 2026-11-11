@@ -8452,9 +8452,9 @@ private object TonePerStateSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTableDensitys(
-                regular = TanreiTableDensityTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
-                compact = TanreiTableDensityTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+            sizes = TanreiTableSizes(
+                small = TanreiTableSizeTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 
