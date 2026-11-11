@@ -10,7 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
-import { motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -1282,6 +1282,16 @@ test.describe('size and layout', () => {
 });
 
 test.describe('opening and focus', () => {
+  test('POP-22, POP-24: closed at the end of a task that outlasts its motions, it fades out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the control focus left and the opener focus went back to were drawn at their end at once.
+    await mount(page, `<div style="padding: 120px 200px"><tanrei-button id="a">Storage</tanrei-button></div>${popover('label="Storage"', '<tanrei-button autofocus>Empty trash</tanrei-button>')}`, { reducedMotion: false });
+    await tabTo(page, page.locator('#a'));
+    await open(page);
+    await motionEnded(page);
+    await expectFromNextFrame(host(page), '(el) => { el.open = false; }', ['tanrei-button button background-color'], 'closed');
+  });
+
   test('POP-18: it is shown exactly while open is true; with the default trigger, press, hovering, focusing or long-pressing the anchor emits nothing, a press on the opener asks through toggle to open with press and, while open, to close with press; the opener says it opens a dialog, whether it is open and which it is, and keeps its name and role; a named opener carries them instead of the anchor, and they are taken back when the popover leaves the page', async ({ page }) => {
     await mount(page, `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button> <tanrei-button id="t" variant="outlined">Filters</tanrei-button></div>${popover('label="Storage"')}<${TAG} id="q" anchor="t" label="Filters">Filters.</${TAG}>`);
     const states = (selector: string) => page.locator(selector).evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls')]);

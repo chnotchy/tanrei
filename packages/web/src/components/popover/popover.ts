@@ -57,6 +57,7 @@ import {
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
+import { statesFromNextFrame } from '../../primitives/motion.js';
 import { ARRANGEMENTS, ARROW_PROPERTY, CHOICE, PREFIX, styles } from './popover.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -978,6 +979,10 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     }
     this.lastReason = null;
     this.anchored.hide();
+    // POP-22, POP-24: what closing began — the colors of the element focus left and of the opener it went back to —
+    // begins in the first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the
+    // frame drawn before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this, this.openerNode]);
   }
 
   /** POP-22: focus goes back to the opener if it was inside; POP-50: given back, it opens nothing by focus. */
