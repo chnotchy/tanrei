@@ -10,7 +10,8 @@
 //            script's stack), at 100 against 10. Every component is held to 1: the hosts of one turn read the cascade
 //            and the layout together after their renders (src/primitives/read-phase.ts), so a hundred instances cost
 //            the passes ten do. A component that still reads in its own turn has a budget of its own (`forced`): the
-//            growth it was measured at, a finding to bring down to 1.
+//            growth it was measured at, a finding to bring down to 1. Paths the first fixtures do not take (another
+//            fixture, or what is done to the instances once built: `VARIANTS`) are held to 1 the same way.
 //   reads    what building N instances (or N items) reads of the page's layout and style — `getBoundingClientRect`,
 //            `getClientRects`, the offset, client and scroll sizes, `getComputedStyle` — at 100 against 10: the reads
 //            the 90 more cost. A read after a write makes the browser lay the page out again before it answers, so a
@@ -246,6 +247,29 @@ const SPECS = fs
 /** What every component without a budget of its own is held to: 100 instances force at most one pass more than 10. */
 const FORCED_GROWTH = 1;
 
+/** A spec fixture's markup, by id. */
+const fixtureMarkup = (name: string, id: string) => {
+  const spec = loadSpec(name);
+  return stageMarkup(spec, spec.fixtures.find((fixture) => fixture.id === id)!, 'data-copy');
+};
+
+/**
+ * Paths a first fixture does not take, held to the same growth: building other markup, or what is done to every
+ * instance once they are built (`act`, after `prepare`; only the act is traced). `motion`: the page does not ask for
+ * reduced motion, for a path that moves.
+ */
+const VARIANTS: Record<string, { markup: () => string; motion?: boolean; prepare?: string; act?: string }> = {
+  // CRL-32, CRL-36: the clock and the current dot's fill follow the autoplay interval, which the cascade gives.
+  'carousel, autoplay with its progress fill': { markup: () => fixtureMarkup('carousel', 'autoplay-progress'), motion: true },
+  // CRL-8: an arrangement (a new item width) stops the motion running, and the row comes to rest where it was put.
+  'carousel, arranged while it moves': {
+    markup: () => fixtureMarkup('carousel', 'centered'),
+    motion: true,
+    prepare: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.shadowRoot.querySelector('tanrei-button.next').click()`,
+    act: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.itemWidth = 150`,
+  },
+};
+
 test.describe('forced passes do not grow with the number of instances (a Chromium trace)', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the passes are counted from a Chromium trace');
 
@@ -286,6 +310,43 @@ test.describe('forced passes do not grow with the number of instances (a Chromiu
       console.log(`perf-budget ${line}`);
       test.info().annotations.push({ type: 'cost', description: line });
       expect(growth, [line, ...sites].join('\n')).toBeLessThanOrEqual(entry?.budget ?? FORCED_GROWTH);
+    });
+  }
+
+  for (const [name, variant] of Object.entries(VARIANTS)) {
+    test(`forced: ${name} — 100 instances force no more passes than 10 do, but one`, async ({ page }) => {
+      await budgetPage(page);
+      if (variant.motion) await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const stage = variant.markup();
+      const run = async (n: number) => {
+        await page.evaluate(() => {
+          document.querySelector('#pane')!.innerHTML = '';
+        });
+        await twoFrames(page);
+        const build = () =>
+          page.evaluate((html) => {
+            document.querySelector('#pane')!.innerHTML = html;
+          }, times(n, () => stage));
+        if (!variant.act) return forcedDuring(page, build);
+        await build();
+        await twoFrames(page);
+        await twoFrames(page);
+        if (variant.prepare) await page.evaluate(variant.prepare);
+        return forcedDuring(page, () => page.evaluate(variant.act!));
+      };
+      // The first run compiles what the others run, and loads what they draw with.
+      await run(10);
+      const small = await run(10);
+      const large = await run(100);
+      const growth = large.forced - small.forced;
+      const sites = Object.entries(large.at)
+        .sort((a, b) => b[1] - a[1])
+        .filter(([, count]) => count >= 50)
+        .map(([where, count]) => `${count} × ${where}`);
+      const line = `forced ${name}: ${growth} more at 100 than at 10 (${small.forced} → ${large.forced}; held to ${FORCED_GROWTH})`;
+      console.log(`perf-budget ${line}`);
+      test.info().annotations.push({ type: 'cost', description: line });
+      expect(growth, [line, ...sites].join('\n')).toBeLessThanOrEqual(FORCED_GROWTH);
     });
   }
 });
