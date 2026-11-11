@@ -1925,7 +1925,7 @@ test.describe('forms and focus', () => {
   });
 
   test('NVD-19, NVD-40, NVD-55: a modal drawer in the page’s markup with open — a responsive one in its modal presentation, and a collapsible one — is there in its first frame, neither it nor its scrim playing its entrance, and one mounted open after the first paint slides in over its fading scrim, or widens from its column (MOT-4)', async ({ page }) => {
-    for (const id of ['modal', 'responsive-narrow']) {
+    for (const id of ['modal', 'resized-modal', 'responsive-narrow']) {
       await page.setViewportSize(drawerWindow(id));
       const atLoad = await loadOpen(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
       expect(entrances(atLoad), `${id} in the page’s markup`).toEqual([]);
