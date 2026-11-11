@@ -80,7 +80,7 @@ describe('the gallery of fixtures', () => {
       'bottom-sheet inline', 'bottom-sheet window', 'button-with-menu opener', 'date-time-picker window', 'dialog window', 'image-preview window', 'modal-layer window', 'navigation-drawer inline', 'navigation-drawer window', 'popover window', 'side-sheet inline', 'side-sheet window', 'snackbar inline', 'table-of-contents inline', 'tooltip opener',
     ]);
     // A drawer, a sheet: modal in a window, standard in the page.
-    assert.deepEqual(kinds['navigation-drawer window'].sort(), ['modal', 'modal-collapsible-open']);
+    assert.deepEqual(kinds['navigation-drawer window'].sort(), ['modal', 'modal-collapsible-open', 'resized-modal']);
     assert.ok(kinds['side-sheet inline'].includes('standard') && kinds['side-sheet window'].includes('modal'));
     // An anchored surface its document draws in place is in the page: an open menu, a select's list, a popover beside its anchor.
     for (const [name, id] of [['menu', 'actions'], ['select', 'stacked-open'], ['popover', 'basic'], ['fab-menu', 'filled-open'], ['date-time-picker', 'docked-date']]) {
@@ -88,7 +88,7 @@ describe('the gallery of fixtures', () => {
     }
     assert.equal(stageOf(specs['app-shell'], specs['app-shell'].fixtures[0]).kind, 'window');
     // A responsive drawer's stage is as wide as the window (`inline-size: 100vw`): it is drawn in one.
-    assert.deepEqual(fixtureDocument('navigation-drawer').windowed.sort(), ['responsive-medium', 'responsive-narrow', 'responsive-wide']);
+    assert.deepEqual(fixtureDocument('navigation-drawer').windowed.sort(), ['responsive-medium', 'responsive-narrow', 'responsive-wide', 'responsive-wide-resized']);
     assert.equal(presented(specs.dialog, specs.dialog.fixtures[0]), true);
     assert.equal(presented(specs.button, specs.button.fixtures[0]), false);
   });
