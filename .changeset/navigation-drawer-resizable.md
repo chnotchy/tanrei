@@ -56,8 +56,7 @@ What it does (NVD-96 to NVD-104):
 **Handle: `reach`.** `<tanrei-handle reach="edge">` takes a press, shows its resize cursor and comes into sight along
 the whole length of the box its owner lays it out in (the edge of a pane), with its box and line drawn at the middle and
 its focus ring around the box. `reach="container"` (the default) is the handle as before. React `Handle` gets `reach`.
-The Handle's web status reads `lagging` until the baseline of its new `reach-edge` fixture is recorded; the element
-follows every sentence of its spec.
+New baselines: the Handle's `reach-edge` and the drawer's seven resized fixtures. No existing baseline changes.
 
 **Tokens.** Two new component tokens, `comp.navigation-drawer.container.min-width` (200, `dial.size.unit` × 50) and
 `comp.navigation-drawer.container.max-width` (400, × 100). A new invariant holds, in every density and every system:
