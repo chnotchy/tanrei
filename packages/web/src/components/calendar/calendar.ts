@@ -43,6 +43,7 @@ import {
   parseIsoDate,
   parseValues,
   pressGivesFocus,
+  readTogether,
   report,
   sameDate,
   supportedLocale,
@@ -364,6 +365,8 @@ export class TanreiCalendar extends TanreiElement {
   private cfg!: Config;
   private shown = false;
   private axis: Axis = 'vertical';
+  /** The axis read after a render was not the one it drew: the next update draws it (`getUpdateComplete` waits for it). */
+  private redrawingAxis = false;
   /**
    * CAL-29: the views the grid holds, earliest first — the displayed month alone at rest; while a change plays or a drag
    * lasts, also the months the days move between. The progress counts them: 0 at the first, 1 at the next.
@@ -1495,21 +1498,46 @@ export class TanreiCalendar extends TanreiElement {
 
   // ── Updates ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
+  /**
+   * The axis is read after the render, with every other host's of the turn (src/primitives/read-phase.ts): a hundred
+   * calendars built at once style the page once, not once each. Another axis than the one drawn — another system's, or
+   * the first render's where the system's is not the vertical one — is drawn in the next update, before any frame.
+   */
+  private readAxisTogether() {
+    readTogether(() => {
+      if (!this.isConnected) return;
+      const axis = compChoice(this, AXIS, AXES);
+      return () => this.takeAxis(axis);
+    });
+  }
+
+  /** Another system's axis draws the days anew (a column, or pages): nothing is left to move, and a focused day keeps the focus. */
+  private takeAxis(axis: Axis) {
+    if (axis === this.axis || !this.isConnected) return;
+    this.axis = axis;
+    const focused = (this.renderRoot as ShadowRoot).activeElement;
+    if (focused instanceof HTMLElement && focused.classList.contains('day')) {
+      this.focusAfter = 'day';
+      this.ringAfter = focused.hasAttribute('data-ring');
+    }
+    this.forgetScroll();
+    this.dropDrag();
+    this.views = [this.month];
+    this.step = { jump: 0, to: 0 };
+    this.redrawingAxis = true;
+    this.requestUpdate();
+  }
+
+  /** Settles once the axis read after the render is drawn too: a script that waits for the calendar finds its days in place. */
+  protected override async getUpdateComplete(): Promise<boolean> {
+    let complete = await super.getUpdateComplete();
+    while (this.redrawingAxis) complete = await super.getUpdateComplete();
+    return complete;
+  }
+
   protected override willUpdate(changed: PropertyValues<this>) {
     this.cfg = this.readConfig();
-    const axis = this.axis;
-    if (this.readAxis() !== axis && this.hasUpdated) {
-      // Another system's axis draws the days anew (a column, or pages): nothing is left to move, and a focused day keeps the focus.
-      const focused = (this.renderRoot as ShadowRoot).activeElement;
-      if (focused instanceof HTMLElement && focused.classList.contains('day')) {
-        this.focusAfter = 'day';
-        this.ringAfter = focused.hasAttribute('data-ring');
-      }
-      this.forgetScroll();
-      this.dropDrag();
-      this.views = [this.month];
-      this.step = { jump: 0, to: 0 };
-    }
+    this.readAxisTogether();
     const { min, max, choice, startView } = this.cfg;
     if (!this.hasUpdated) {
       // CAL-17: the month of the choice or of today, or the year view.
@@ -1574,6 +1602,7 @@ export class TanreiCalendar extends TanreiElement {
 
   protected override updated() {
     this.shown = true;
+    this.redrawingAxis = false;
     this.reportWords();
     this.applyStep();
     if (this.scrollYearsAfter) {

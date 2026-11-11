@@ -25,6 +25,7 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  compChoices,
   containedWheel,
   crossOffsetAttribute,
   deepActive,
@@ -808,7 +809,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     const nodes = [...this.childNodes];
     this.content = nodes.filter((node) => (node instanceof Element && !node.hasAttribute('slot')) || (node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
     this.placement$.read(nodes.filter((node) => node instanceof Element && node.getAttribute('slot') === 'actions') as Element[]);
-    this.placement$.give(this.choice('actions-variant', BUTTON_VARIANTS));
+    // POP-15: the actions are given the popover's variant as it arranges them — whenever it is presented — and an action
+    // asks for it itself as it connects (HOST_VARIANT): a closed popover reads nothing here.
     this.place();
     const [actions, content] = [this.placement$.actions.length > 0, this.content.length > 0];
     if (actions !== this.hasActions || content !== this.hasContent) {
@@ -836,9 +838,13 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private arrange() {
     const container = this.container;
     if (!container) return;
-    giveVariant(this.find('tanrei-button.close'), this.choice('close-button-variant', BUTTON_VARIANTS));
-    this.placement$.give(this.choice('actions-variant', BUTTON_VARIANTS));
-    const arrangement = this.choice('actions-arrangement', ARRANGEMENTS);
+    const { close, actions: variant, arrangement } = compChoices(this, {
+      close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+      actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
+      arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
+    });
+    giveVariant(this.find('tanrei-button.close'), close);
+    this.placement$.give(variant);
     if (container.dataset.arrangement !== arrangement) container.dataset.arrangement = arrangement;
     const actions = this.find('.actions');
     if (actions && this.hasActions && actions.getClientRects().length) {

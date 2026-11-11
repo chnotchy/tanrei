@@ -288,16 +288,23 @@ export class GroupItemController implements ReactiveController {
     this.observed = element;
     if (!element) return;
     this.observer ??= new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const block = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height;
-        const style = (entry.target as HTMLElement).style;
-        style.setProperty('--_half-block', `${block / 2}px`);
+      // Every entry is read before any is written: a write between two reads would have the page styled again for the
+      // second (one style for all the items the observer reports, not one each).
+      const read = entries.map((entry) => {
         // The cut of the shadows' box at a seam counts from its top left corner (groupItemStyles): the box's used size,
         // which the container's computed width and height are (it is a border box). Not the observer's own numbers:
         // on a zoomed page they are cut down to a layout unit of the unzoomed size, which is coarser than the layout.
         const used = getComputedStyle(entry.target);
-        for (const [name, value] of [['--_box-width', used.width], ['--_box-height', used.height]] as const) {
-          const size = Number.parseFloat(value);
+        return {
+          style: (entry.target as HTMLElement).style,
+          block: entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height,
+          width: Number.parseFloat(used.width),
+          height: Number.parseFloat(used.height),
+        };
+      });
+      for (const { style, block, width, height } of read) {
+        style.setProperty('--_half-block', `${block / 2}px`);
+        for (const [name, size] of [['--_box-width', width], ['--_box-height', height]] as const) {
           if (Number.isFinite(size)) style.setProperty(name, `${size + SLACK}px`);
           else style.removeProperty(name);
         }
