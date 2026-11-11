@@ -177,8 +177,27 @@ export class TanreiSplitView extends TanreiElement {
     }))(this),
   );
 
-  private readonly observer = typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.measure()) : null;
+  /**
+   * One resize watch for every split view: a frame reports all the regions that changed in one callback, all of them
+   * read, then all of them write. A watch of each split view's own would have each read after the update of the one
+   * before, and the browser lay the page out again for each.
+   */
+  private static observer: ResizeObserver | null = null;
+  /** The split view each watched region belongs to. */
+  private static readonly regions = new WeakMap<Element, TanreiSplitView>();
   private observed: Element | null = null;
+
+  private static watchRegions(): ResizeObserver | null {
+    if (typeof ResizeObserver !== 'function') return null;
+    return (TanreiSplitView.observer ??= new ResizeObserver((entries) => {
+      const writes: (() => void)[] = [];
+      for (const entry of entries) {
+        const write = TanreiSplitView.regions.get(entry.target)?.readRegion();
+        if (write) writes.push(write);
+      }
+      for (const write of writes) write();
+    }));
+  }
 
   private get primaryBox(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.pane.primary') ?? null;
@@ -236,6 +255,11 @@ export class TanreiSplitView extends TanreiElement {
   // ---- measuring: SPV-11, SPV-16 ----
 
   private measure() {
+    this.readRegion()?.();
+  }
+
+  /** What `measure` reads, returning what it then writes: the reads of many split views can be made before any write. */
+  private readRegion(): (() => void) | void {
     const root = this.renderRoot as ShadowRoot | undefined;
     const split = root?.querySelector<HTMLElement>('.split');
     const divider = root?.querySelector<HTMLElement>('.divider');
@@ -245,29 +269,34 @@ export class TanreiSplitView extends TanreiElement {
     const line = divider.getBoundingClientRect();
     const next = Math.max(0, vertical ? whole.height - line.height : whole.width - line.width);
     // SPV-11: the share is kept; a new region is drawn at once, and only the pixel bounds are counted again.
-    if (Math.abs(next - this.region) >= 0.5) this.region = next;
+    return () => {
+      if (Math.abs(next - this.region) >= 0.5) this.region = next;
+    };
   }
 
   private watch() {
-    const split = this.renderRoot?.querySelector('.split') ?? null;
+    const split = this.isConnected ? (this.renderRoot?.querySelector('.split') ?? null) : null;
     if (split === this.observed) return;
-    this.observer?.disconnect();
-    if (split) this.observer?.observe(split);
+    const observer = TanreiSplitView.watchRegions();
+    if (this.observed) {
+      observer?.unobserve(this.observed);
+      TanreiSplitView.regions.delete(this.observed);
+    }
+    if (split) {
+      TanreiSplitView.regions.set(split, this);
+      observer?.observe(split);
+    }
     this.observed = split;
   }
 
   override connectedCallback() {
     super.connectedCallback();
-    if (this.hasUpdated) {
-      this.observed = null;
-      this.watch();
-    }
+    if (this.hasUpdated) this.watch();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.observer?.disconnect();
-    this.observed = null;
+    this.watch();
     if (this.drag) this.endDrag();
   }
 
@@ -410,10 +439,10 @@ export class TanreiSplitView extends TanreiElement {
 
   override updated(changed: PropertyValues<this>) {
     this.watch();
-    if (this.pending) {
-      this.motion.fit(this.pending !== 'still');
-      this.pending = null;
-    }
+    // A change drawn at once while nothing moves has no motion to stop: the box is at its size already, and asking the
+    // box for its motions would style the page in this host's own update.
+    if (this.pending && (this.pending !== 'still' || this.motion.resizing)) this.motion.fit(this.pending !== 'still');
+    this.pending = null;
     if (changed.has('axis') && this.axis !== this.shownAxis) report(this, 'SPV-15', `axis "${this.axis}" is not a value of the split view; it is laid out as "horizontal"`);
     if (changed.has('primary') && this.primary !== this.shownPrimary) report(this, 'SPV-15', `primary "${this.primary}" is not a value of the split view; it is taken as "start"`);
     if (changed.has('min') || changed.has('max')) {
