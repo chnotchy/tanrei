@@ -31,7 +31,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 `keys` 中每个字符串是一个组合键，按顺序依次按下。组合键是用 `+` 连接起来的按键名称，名称不区分大小写。
 
-- **修饰键**：`mod`（在 Apple 平台上是 Command，在其他平台上是 Control）、`ctrl`、`alt`、`shift`。
+- **修饰键**：`mod`（在 Apple 平台上是 Command，在其他平台上是 Ctrl）、`ctrl`、`alt`、`shift`。
 - **有名称的按键**：`enter`、`escape`、`tab`、`backspace`、`delete`、`space`、`arrow-up`、`arrow-down`、`arrow-left`、`arrow-right`、`home`、`end`、`page-up`、`page-down`、`caps-lock`、`f1` 到 `f24`，以及表示 + 键的 `plus`。
 - **其他任何单个字符**就是该字符对应的按键：`k`、`/`、`,`。
 
@@ -129,7 +129,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### 按键的写法
 
-- **主修饰键写 `mod`**，不要写 `ctrl`：它在 Apple 键盘上是 Command，在其他键盘上是 Control。只有在每种键盘上都是 Control 的快捷键，才写 `ctrl`。
+- **主修饰键写 `mod`**，不要写 `ctrl`：它在 Apple 键盘上是 Command，在其他键盘上是 Ctrl。只有在每种键盘上都是 Ctrl 的快捷键，才写 `ctrl`。
 - **顺序任意。** 组件按键盘自身的顺序书写修饰键：Apple 是 ⌃ ⌥ ⇧ ⌘，标准名称是 Ctrl、Alt、Shift。
 - **字母画成大写**，并且不会添加 Shift：`mod+k` 和 `mod+K` 都画成 ⌘K。只有在你写明时才绘制 Shift。
 - **每个组合键只有一个按键**，修饰键除外。没有按键或有两个按键的组合键会尽量画出来，并会在调试构建中报告。
@@ -148,7 +148,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 - 显示真正有效的快捷键。在你的产品里绑定这些按键，并让两者保持一致。
 - 给每个会被朗读的快捷键一个 `label`：用你的产品的话说出的快捷键（“Shift Command K”）。没有它，屏幕阅读器读到的是 `Meta+Shift+K` 这种写法。
-- 在 `convention="auto"` 下，画出的按键跟随用户的键盘，而你写下的 `label` 做不到。请像本页的示例那样，写一个在两种键盘上都成立的标签（“Command 或 Control，Shift，K”），或者在知道是哪种键盘之后再设置标签。
+- 在 `convention="auto"` 下，画出的按键跟随用户的键盘，而你写下的 `label` 做不到。请像本页的示例那样，写一个在两种键盘上都成立的标签（“Command 或 Ctrl，Shift，K”），或者在知道是哪种键盘之后再设置标签。
 - 对当前不可用的命令，在该命令旁边给它的快捷键设置 `disabled`。按键仍然显示，只是变淡。
 - 让快捷键保持在一行之内。组合键从不断开；序列可以在组合键之间换行。
 
