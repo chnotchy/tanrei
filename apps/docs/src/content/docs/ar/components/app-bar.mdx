@@ -66,6 +66,7 @@ import Example from '../../../../components/visuals/Example.astro';
       import '@tanrei/web/components/app-bar';
       import '@tanrei/web/components/button';
       import '@tanrei/web/components/search';
+      import '@tanrei/web/app-bar.css'; // الارتفاع الذي يحتفظ به الشريط قبل أن يُعرَّف العنصر، فلا تتحرك الصفحة تحته
       // الأزرار أزرارك: الشريط لا يضيف أحداثًا من عنده.
       document.querySelector('[label="رجوع"]').addEventListener('click', () => history.back());
     </script>

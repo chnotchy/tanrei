@@ -66,6 +66,7 @@ Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标
       import '@tanrei/web/components/app-bar';
       import '@tanrei/web/components/button';
       import '@tanrei/web/components/search';
+      import '@tanrei/web/app-bar.css'; // 元素定义之前栏所占的高度，这样它下面的页面不会移动
       // 按钮是你自己的：应用栏不添加任何自己的事件。
       document.querySelector('[label="返回"]').addEventListener('click', () => history.back());
     </script>

@@ -66,6 +66,7 @@ Web と React のサンプルは現在の仕様を示しています。現在の
       import '@tanrei/web/components/app-bar';
       import '@tanrei/web/components/button';
       import '@tanrei/web/components/search';
+      import '@tanrei/web/app-bar.css'; // 要素の定義前にもバーが保つ高さ。下のページが動かないように
       // ボタンは利用者側のものです。バー自身はイベントを持ちません。
       document.querySelector('[label="戻る"]').addEventListener('click', () => history.back());
     </script>
