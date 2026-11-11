@@ -695,8 +695,8 @@
         "measured": 2520
       },
       "image-preview": {
-        "budget": 1512,
-        "measured": 1440
+        "budget": 1132,
+        "measured": 1079
       },
       "loading-indicator": {
         "budget": 94,
@@ -727,8 +727,8 @@
         "measured": 180
       },
       "popover": {
-        "budget": 1019,
-        "measured": 971
+        "budget": 187,
+        "measured": 179
       },
       "scroll-area": {
         "budget": 141,
@@ -742,10 +742,6 @@
         "budget": 283,
         "measured": 270
       },
-      "snackbar": {
-        "budget": 189,
-        "measured": 180
-      },
       "split-view": {
         "budget": 94,
         "measured": 90
@@ -757,10 +753,6 @@
       "toolbar": {
         "budget": 567,
         "measured": 540
-      },
-      "tooltip": {
-        "budget": 370,
-        "measured": 353
       }
     },
     "reads": {
