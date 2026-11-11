@@ -20,7 +20,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settle } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a control setting its
 // prop, in WebKit, took 23 s in CI.
@@ -50,18 +50,8 @@ const FRAME = '[data-example][data-playground]';
 const WIDE = { width: 1440, height: 900 };
 const VIEWPORTS = [{ width: 390, height: 844 }, WIDE];
 
-/** The playground near the view, its actions drawn, its elements and its controls defined, the fonts in, and two frames drawn since. */
-const settled = (page) =>
-  page.evaluate(async (selector) => {
-    const frame = document.querySelector(selector);
-    frame.scrollIntoView({ block: 'start' });
-    const deadline = Date.now() + 10_000;
-    while ((frame.querySelector('[data-example-actions] > template') || frame.querySelector('[data-example-controls][data-example-pending]')) && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-    const names = new Set([...frame.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')));
-    await Promise.all([...names].map((name) => customElements.whenDefined(name)));
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  }, FRAME);
+/** The playground near the view, its actions drawn, its elements and its controls defined, the fonts in, and two frames drawn since (each wait bounded: launch.mjs). */
+const settled = (page) => settle(page, FRAME, { scroll: 'start', pending: '[data-example-actions] > template, [data-example-controls][data-example-pending]' });
 
 /** The live element's props, the controls' values, the code's copy, and the address. */
 const read = (page, tag, props) =>
