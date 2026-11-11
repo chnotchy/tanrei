@@ -107,9 +107,9 @@ describe('every page’s head', () => {
     }
   });
 
-  test('names as its languages only pages the site has', () => {
+  test('names as its languages only pages the site has (a page offered to a crawler)', () => {
     const wrong = [];
-    for (const page of pages) {
+    for (const page of pages.filter((p) => !p.noindex)) {
       for (const { lang, href } of page.hreflangs) {
         const pathname = new URL(href).pathname;
         if (!fs.existsSync(path.join(dist, decodeURIComponent(pathname), pathname.endsWith('/') ? 'index.html' : ''))) wrong.push(`${page.file}: ${lang} ${pathname}`);

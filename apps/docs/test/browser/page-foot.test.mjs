@@ -45,6 +45,8 @@ const PAGES = [
   { url: '/ja/foundations/accessibility/', lang: 'ja', source: 'apps/docs/src/content/docs/ja/foundations/accessibility.mdx' },
   { url: '/components/button/', lang: 'en', source: 'apps/docs/src/content/docs/components/button.mdx', component: 'button' },
   { url: '/ja/components/button/', lang: 'ja', source: 'apps/docs/src/content/docs/ja/components/button.mdx', component: 'button' },
+  // A language's list of the blog's posts: the component that writes it (lib/lastmod.mjs).
+  { url: '/ja/blog/', lang: 'ja', source: 'apps/docs/src/components/blog/BlogList.astro' },
 ];
 
 for (const engine of ENGINES) {
