@@ -2,10 +2,11 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 
 // The size cascade (system → container → component). The system decides how much room every height takes, once: its
 // density moves the size steps' tokens, so nothing here reads it. What is set locally is a size, which a container
-// passes down to what it holds: a container that has a size SET provides it, and a component that sets none of its own
-// draws the one its nearest providing container sets (BGR-26, BTN-48). A container's default is never passed, so a
-// container that says nothing leaves what it holds at its own default, or at the size a container around it sets — as
-// SwiftUI's `.controlSize` and Carbon's `Layout` pass only what is set. A component's own size always wins.
+// passes down to what it holds: a container that has a size SET provides it (BGR-26, TBR-31), and a component that sets
+// none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21). A container's default
+// is never passed, so a container that says nothing leaves what it holds at its own default, or at the size a container
+// around it sets — as SwiftUI's `.controlSize` and Carbon's `Layout` pass only what is set. A component's own size
+// always wins.
 //
 // "Nearest" is taken up the composed tree — the parent element, or the host of the shadow root an element is in — so a
 // component the product places in a container's light DOM takes that container's size, and one a component draws in
@@ -51,9 +52,9 @@ export function nearestSize(size: string, own: readonly string[]): string {
 }
 
 /**
- * A container that passes its size down (BGR-26). `read` answers the size the product set on it, or null while it set
- * none. Whenever that answer changes — and when the container is connected, which is also when it is upgraded after the
- * components it holds — every component that takes a size from its containers is asked again.
+ * A container that passes its size down (BGR-26, TBR-31). `read` answers the size the product set on it, or null while
+ * it set none. Whenever that answer changes — and when the container is connected, which is also when it is upgraded
+ * after the components it holds — every component that takes a size from its containers is asked again.
  */
 export class SizeProviderController implements ReactiveController {
   private last: string | null = null;
@@ -90,8 +91,8 @@ const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 type ConsumerHost = ReactiveControllerHost & HTMLElement & { requestUpdate(name?: PropertyKey, oldValue?: unknown): void };
 
 /**
- * A component that takes the size its nearest providing container sets while it sets none of its own (BTN-48).
- * `value` is that size, or null where no container around it sets one; the host renders again when it changes.
+ * A component that takes the size its nearest providing container sets while it sets none of its own (BTN-48, SPB-37,
+ * CPY-21). `value` is that size, or null where no container around it sets one; the host renders again when it changes.
  * `own` is the size the product set on the host, or null while it set none: the host's `size` property is declared with
  * `noAccessor` and without `reflect` (`setOwn` reflects it), and its setter calls `setOwn`, so that a size set to the
  * default's name is set all the same.

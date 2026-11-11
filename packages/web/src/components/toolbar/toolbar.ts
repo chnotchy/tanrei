@@ -11,6 +11,7 @@ import {
   RovingKeys,
   SEPARATION_VALUES,
   type SeparationProp,
+  SizeProviderController,
   containedWheel,
   deepActive,
   flatParent,
@@ -23,6 +24,7 @@ import { WordsController } from '../../primitives/words.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import '../button/button.js';
+import type { TanreiButtonSize } from '../button/button.js';
 import '../menu/menu.js';
 import type { TanreiMenu } from '../menu/menu.js';
 import { TOOLBAR_CHILDREN, TOOLBAR_GROUP, type ToolbarGroupChannel } from './toolbar-group.js';
@@ -115,7 +117,8 @@ const isItem = (element: Element) => element.localName === BUTTON || element.loc
  * drawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the
  * separation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit
  * into an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow="scroll"`, TBR-8) — and makes them one Tab stop moved
- * through with the arrow keys (TBR-10, TBR-25).
+ * through with the arrow keys (TBR-10, TBR-25). A `size` set on it is the size of the Buttons and Buttons with menu in
+ * it that set none of their own (TBR-31).
  *
  * Each child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws
  * the space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a
@@ -154,6 +157,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     overflow: { type: String, reflect: true },
     overflowLabel: { type: String, attribute: 'overflow-label' },
     separation: { type: String, reflect: true },
+    size: { type: String, reflect: true },
     laid: { state: true },
     held: { state: true },
     overflowWanted: { state: true },
@@ -193,6 +197,19 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
    * system). Anything else is `auto` (reported in debug builds).
    */
   separation: TanreiToolbarSeparation = 'auto';
+
+  /**
+   * The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of
+   * every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set
+   * on the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,
+   * `medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of
+   * the toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the
+   * Button may be named.
+   */
+  size: TanreiButtonSize | null = null;
+
+  /** TBR-31: the size set on the toolbar is passed to its items and its overflow button (src/primitives/size-cascade.ts). */
+  private readonly sizes = new SizeProviderController(this, () => this.size);
 
   /** The children laid out in the line, in order (the anchored menus are not). */
   private laid: Element[] = [];
@@ -1103,7 +1120,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     // TBR-18: the overflow button, and the menu it opens (TBR-20), from the first time an item had to be hidden.
     const overflow = this.overflowWanted
       ? html`<span class="space before-overflow" aria-hidden="true" data-off></span
-          ><tanrei-button part="overflow-button" class="overflow" id="overflow" variant="text" size="medium" label=${name} data-off @click=${this.onOverflowClick}
+          ><tanrei-button part="overflow-button" class="overflow" id="overflow" variant="text" label=${name} data-off @click=${this.onOverflowClick}
             ><span slot="icon">${vertical ? 'more_vert' : 'more_horiz'}</span></tanrei-button
           >`
       : nothing;

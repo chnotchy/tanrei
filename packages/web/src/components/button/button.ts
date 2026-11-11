@@ -168,9 +168,9 @@ export class TanreiButton extends TanreiElement {
    * Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the
    * default system, the small one held at the minimum), which is also an icon-only button's width at its default width.
    * The hit area always meets the minimum target. While it is not set the button draws the size its nearest container
-   * sets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it
-   * (to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute
-   * gives that back.
+   * sets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives
+   * `medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;
+   * removing the attribute gives that back.
    */
   get size(): TanreiButtonSize {
     return (this.sizes.own ?? 'medium') as TanreiButtonSize;

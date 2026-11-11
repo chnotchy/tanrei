@@ -15,7 +15,7 @@ const CopyButtonElement = /* @__PURE__ */ createComponent({
     onCopyFailed: 'copyfailed' as EventName<TanreiEvent<TanreiCopyButtonElement, CustomEvent<TanreiCopyButtonCopyFailedDetail>>>,
   },
 });
-const CopyButtonAttributes = { text: ['text', ''], label: ['label', ''], copiedLabel: ['copied-label', ''], failedLabel: ['failed-label', ''], iconOnly: ['icon-only', true], labelWidth: ['label-width', 'widest'], variant: ['variant', 'text'], size: ['size', 'medium'], disabled: ['disabled', false] } as const;
+const CopyButtonAttributes = { text: ['text', ''], label: ['label', ''], copiedLabel: ['copied-label', ''], failedLabel: ['failed-label', ''], iconOnly: ['icon-only', true], labelWidth: ['label-width', 'widest'], variant: ['variant', 'text'], size: ['size'], disabled: ['disabled', false] } as const;
 /**
  * Copies a given text to the clipboard with one press and confirms it — its glyph becomes a check for a moment and assistive technology is told — or says that it could not. It is drawn by Button and never moves the layout.
  *

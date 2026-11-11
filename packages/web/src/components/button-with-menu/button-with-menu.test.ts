@@ -2155,6 +2155,62 @@ test.describe('accessibility', () => {
   });
 });
 
+test.describe('the size a container sets', () => {
+  test('SPB-37: without a size of its own a button with menu draws both halves at the size its nearest container sets — a toolbar’s, a set size and never a default — its own size, medium included, wins; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token; no size attribute is written on one that takes its size', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'filled-medium') });
+    await page.evaluate(() => {
+      const stage = document.createElement('div');
+      const item = (id: string, size = '') => `<tanrei-button-with-menu id="${id}" ${size ? `size="${size}"` : ''} label="${id}" menu-label="More"></tanrei-button-with-menu>`;
+      stage.innerHTML = `
+        <tanrei-toolbar id="small" size="small" label="Small">${item('taken')}${item('own', 'large')}${item('own-medium', 'medium')}</tanrei-toolbar>
+        <tanrei-toolbar id="unset" label="Unset">${item('free')}</tanrei-toolbar>
+        ${item('alone')}`;
+      document.body.append(stage);
+    });
+    const height = (name: string) => resolveToken(page, T(`container-height-${name}`));
+    /** The height of each button with menu's two halves, measured in one frame after `change` ran. */
+    const halves = (ids: string[], change = '') =>
+      page.evaluate(
+        async ([code, list]) => {
+          new Function(code as string)();
+          await new Promise(requestAnimationFrame);
+          return Object.fromEntries(
+            (list as string[]).map((id) => [id, [...document.getElementById(id)!.shadowRoot!.querySelectorAll('button.leading, button.trailing')].map((half) => half.getBoundingClientRect().height)]),
+          );
+        },
+        [change, ids] as const,
+      );
+    const all = ['taken', 'own', 'own-medium', 'free', 'alone'];
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
+      expect(await halves(all), `density ${density}`).toEqual({
+        taken: [small, small],
+        own: [large, large],
+        'own-medium': [medium, medium],
+        free: [medium, medium],
+        alone: [medium, medium],
+      });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
+    expect(await page.evaluate(() => ['taken', 'free', 'alone'].map((id) => document.getElementById(id)!.getAttribute('size')))).toEqual([null, null, null]);
+    // A size it lacks is its nearest; set, changed and removed on the container; set and given back on itself.
+    expect(await halves(['taken'], "document.getElementById('small').setAttribute('size', 'extra-large')")).toEqual({ taken: [large, large] });
+    expect(await halves(['taken', 'own'], "document.getElementById('small').size = 'small'")).toEqual({ taken: [small, small], own: [large, large] });
+    expect(await halves(['taken'], "document.getElementById('small').removeAttribute('size')")).toEqual({ taken: [medium, medium] });
+    expect(await halves(['free'], "document.getElementById('unset').size = 'large'")).toEqual({ free: [large, large] });
+    expect(await halves(['free'], "document.getElementById('free').size = 'medium'")).toEqual({ free: [medium, medium] });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await halves(['free'], "document.getElementById('free').size = null")).toEqual({ free: [large, large] });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await halves(['free'], "document.body.append(document.getElementById('free'))")).toEqual({ free: [medium, medium] });
+    expect(await halves(['alone'], "document.getElementById('unset').append(document.getElementById('alone'))")).toEqual({ alone: [large, large] });
+  });
+});
+
 test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {

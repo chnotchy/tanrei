@@ -1,10 +1,10 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, GlyphDrawnController, report, WordsController, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, SizeConsumerController, report, WordsController, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import '../tooltip/tooltip.js';
 import type { TanreiTooltip } from '../tooltip/tooltip.js';
-import { AXES as BUTTON_AXES } from '../button/button.styles.js';
+import { AXES as BUTTON_AXES, CORE_SIZES as BUTTON_SIZES } from '../button/button.styles.js';
 import { styles } from './copy-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -90,7 +90,9 @@ export class TanreiCopyButton extends TanreiElement {
     iconOnly: { attribute: 'icon-only', converter: { fromAttribute: (value: string | null) => value === null || value.trim().toLowerCase() !== 'false' } },
     labelWidth: { type: String, attribute: 'label-width', reflect: true },
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // CPY-21: the size the product set, or none: one that sets none draws the size its container sets. A custom accessor,
+    // so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     disabled: { type: Boolean, reflect: true },
     form: { state: true },
   };
@@ -123,8 +125,22 @@ export class TanreiCopyButton extends TanreiElement {
    */
   variant: TanreiCopyButtonVariant = DEFAULT_VARIANT;
 
-  /** The Button size it is drawn at: `small` (32), `medium` (40) or `large` (56). */
-  size: TanreiCopyButtonSize = DEFAULT_SIZE;
+  /**
+   * The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below
+   * `sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a
+   * Button is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,
+   * `medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiCopyButtonSize {
+    return (this.sizes.own ?? DEFAULT_SIZE) as TanreiCopyButtonSize;
+  }
+
+  set size(value: TanreiCopyButtonSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** CPY-21: the size the product set, and the one the nearest container around it sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, BUTTON_SIZES, DEFAULT_SIZE);
 
   /** Prevents the copy; the button is drawn and exposed as a disabled Button. */
   disabled = false;
@@ -273,9 +289,12 @@ export class TanreiCopyButton extends TanreiElement {
     );
   }
 
-  /** CPY-17: the Button value that is drawn — the prop's where the active design system's Button has it, else the copy button's own default. */
+  /**
+   * CPY-17: the Button value that is drawn — the prop's where the active design system's Button has it, else the copy
+   * button's own default. CPY-21: the size is the one it draws, its own or the one its nearest container sets.
+   */
   private drawnValue(axis: 'variant' | 'size'): string {
-    const value = this[axis] as string;
+    const value = axis === 'size' ? this.sizes.drawn : this.variant;
     const declared = BUTTON_AXES.find((each) => each.name === axis)!;
     if (declared.core.includes(value)) return value;
     const known = /^[a-z0-9][a-z0-9-]*$/.test(value) && this.isConnected && getComputedStyle(this).getPropertyValue(declared.probe(value)).trim() !== '';

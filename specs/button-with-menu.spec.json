@@ -79,7 +79,7 @@
       ],
       "axis": "tanrei.comp.button-with-menu.size",
       "default": "medium",
-      "description": "Visual height: comp.button-with-menu.container.height.<size>, matching Button's heights and never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum). The hit area always meets the minimum target. A design system may add values."
+      "description": "Visual height: comp.button-with-menu.container.height.<size>, matching Button's heights and never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum). The hit area always meets the minimum target. While it is not set the button with menu is drawn at the size its nearest container sets — a toolbar's size (SPB-37) — and at medium where none does. A design system may add values."
     },
     {
       "name": "separation",
@@ -341,6 +341,11 @@
     {
       "id": "SPB-36",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE button with menu SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role (the leading half carries them) — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the button with menu is invalid — except those the button with menu owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE button with menu SHALL take it off that element. WHEN the product sets an aria- attribute the button with menu owns THE button with menu SHALL report it in debug builds."
+    },
+    {
+      "id": "SPB-37",
+      "text": "WHILE size is not set and a container around the button with menu sets a size for what it holds — a toolbar's size (TBR-31), the nearest such container where several do — THE button with menu SHALL draw both halves at that size, their heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE button with menu SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the button with menu moved into or out of such a container — THE button with menu SHALL be drawn at the size it now takes at once.",
+      "verify": "In a toolbar whose size is small, a Button with menu without a size has both halves as high as comp.button-with-menu.container.height.small, and one with size large as high as comp.button-with-menu.container.height.large, at density 0.75, 1 and 1.5; removing the toolbar's size, or moving it out, draws it at medium; one whose size is set to medium keeps medium in a small toolbar."
     }
   ],
   "accessibility": {
