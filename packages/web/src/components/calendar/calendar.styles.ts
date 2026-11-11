@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { conditionBlock, conditionStates, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/calendar.tokens.json). A day's or a year's five conditions — unselected,
 // adjacent, today, selected and in-range — are the state variants: each colors the container, the label
@@ -200,7 +201,7 @@ export const styles = css`
       opacity ${unsafeCSS(PAGE)},
       visibility 0s linear ${t('motion-page-duration')};
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     /* CAL-14, CAL-32: a month changes at once — the element starts no travel (calendar.ts) — and a drag still places
        the days, since it writes the progress itself. */
     .day-view,
@@ -209,7 +210,7 @@ export const styles = css`
     .years[data-off] {
       transition: none;
     }
-  }
+  `)}
 
   /* CAL-2, CAL-3, CAL-6, CAL-7: every day, year and the view toggle is a cell holding a lane (the band's row) and a
      container. Each condition's parts in every state, as private properties; the view toggle is unselected. */
@@ -387,14 +388,14 @@ export const styles = css`
     white-space: nowrap;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .cell,
     .box,
     .band,
     .chevron {
       transition: none;
     }
-  }
+  `)}
 
   /* CAL-22: corner smoothing on the containers (data-tanrei-shape). */
   ${shape}

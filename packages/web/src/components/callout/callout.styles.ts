@@ -3,6 +3,7 @@ import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-10): what
 // changes what it draws is its variant, its status and its size, each read from that form's own tokens. The close
@@ -120,11 +121,11 @@ export const styles = css`
     transition-property: none;
   }
   /* MOT-6: under reduced motion it appears and goes at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container {
       transition-property: none;
     }
-  }
+  `)}
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}

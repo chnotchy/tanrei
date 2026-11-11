@@ -44,6 +44,7 @@ import {
   minuteText,
   cssZoom,
   layoutSize,
+  motionReduced,
   naturalHeight,
   numberText,
   openModal,
@@ -1209,7 +1210,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     const probe = element.querySelector<HTMLElement>('.row') ?? element;
     const row = probe.getBoundingClientRect().height || Number.parseFloat(getComputedStyle(probe).blockSize) || 1;
     const carrier = element.querySelector<HTMLElement>('.rows');
-    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = motionReduced();
     const seconds = carrier && !reduced ? Number.parseFloat(getComputedStyle(carrier).transitionDelay) : 0;
     return { row, duration: (seconds || 0) * 1000 };
   }

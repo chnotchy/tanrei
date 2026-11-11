@@ -3,6 +3,7 @@ import type { OpenAxis } from '../../primitives/index.js';
 import { appearStyles, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget, separationHost, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/menu.tokens.json). An item's five conditions — unselected, selected (a
 // checked checkbox or radio item), current (the link item of the page the person is on), destructive and expanded (a
@@ -584,14 +585,14 @@ export const itemStyles = css`
   .row.checked .fill {
     background-color: color-mix(in srgb, var(--_k) calc(${t('control-fill-opacity')} * 100%), transparent);
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .check,
     .box,
     .ring,
     .fill {
       transition: none;
     }
-  }
+  `)}
 
   /* MNU-11, MNU-17: the ring (or the glow) inside the row, which the surface would otherwise clip, never animated, for
      keyboard focus only — not for focus the pointer moved there (MNU-8). */

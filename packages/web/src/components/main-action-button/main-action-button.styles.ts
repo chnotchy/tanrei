@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/main-action-button.tokens.json). For each state the component reads that
 // state's tokens — it never computes how a state looks: hover, focus and press mix each variant's container with its
@@ -291,12 +292,12 @@ export const styles = css`
   /* MAB-8: the label carries press-hold for PressController (the label box's own transition is the resize). */
   ${pressHold('.label')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     button,
     .label-box {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     /* The shadow is dropped in forced colors: an edge keeps the container visible. */
     button {

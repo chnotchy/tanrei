@@ -3,6 +3,7 @@ import { type OpenAxis, focusGlow, focusGlowEnds, keptLength, minimumTarget, sta
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json; NMI-47), and for where the steppers
 // stand and how a hold repeats the number input's own (tokens/comp/number-input.tokens.json). The number input is two things, and draws no
@@ -380,7 +381,7 @@ export const styles = css`
 
   /* NMI-8, NMI-15: where motion is reduced, the label and the states change at once. (The waiting times of a hold are
      not motion: NMI-27 keeps them.) */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .field,
     .container,
     .input,
@@ -394,7 +395,7 @@ export const styles = css`
     .indicator {
       transition: none !important;
     }
-  }
+  `)}
   /* NMI-38: forced colors — an edge outline.width wide in the control text color around the container in every
      variant, in the highlight color at the focused width while focused; every text in the text color; a disabled
      number input in the disabled text color. The steppers are Buttons and draw themselves as Buttons do there. */

@@ -2351,6 +2351,11 @@ export interface DocumentOptions {
   theme?: 'light' | 'dark';
   /** The document's layout direction: `dir` on <html>. Left out, the document carries no `dir` (left-to-right). */
   dir?: 'ltr' | 'rtl';
+  /**
+   * The product's own reduced motion (MOT-6): `data-tanrei-motion="reduce"` on <html>, written as a product writes it.
+   * It is not the person's setting, which the mount option `reducedMotion` emulates.
+   */
+  motion?: 'reduce';
   system?: string;
   systemCss?: string;
   fixtures?: Fixture[];
@@ -2508,7 +2513,7 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   // A page's frame holds the page's own main region: its stages stand in a `div` (see `Staging.page`).
   const holder = staging.page ? 'div' : 'main';
   return `<!doctype html>
-<html lang="en" data-tanrei-theme="${options.theme ?? 'light'}"${options.system ? ` data-tanrei-system="${options.system}"` : ''}${options.dir ? ` dir="${options.dir}"` : ''}>
+<html lang="en" data-tanrei-theme="${options.theme ?? 'light'}"${options.system ? ` data-tanrei-system="${options.system}"` : ''}${options.dir ? ` dir="${options.dir}"` : ''}${options.motion ? ` data-tanrei-motion="${options.motion}"` : ''}>
   <head>
     <meta charset="utf-8" />
     <title>${spec.name} fixtures</title>

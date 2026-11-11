@@ -15,6 +15,7 @@ import {
   giveTone,
   giveVariant,
   modalLayer,
+  motionReduced,
   report,
   styleQueries,
   syncFocusStyle,
@@ -407,7 +408,7 @@ export class TanreiSnackbar extends TanreiElement {
     this.sizing?.cancel();
     this.sizing = null;
     const to = laidHeight(bar);
-    if (Math.abs(to - from) < 0.5 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (Math.abs(to - from) < 0.5 || motionReduced()) return;
     const style = getComputedStyle(probe);
     const duration = (Number.parseFloat(style.transitionDuration) || 0) * 1000;
     if (!duration) return;

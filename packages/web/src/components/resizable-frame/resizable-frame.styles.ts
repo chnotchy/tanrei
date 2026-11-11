@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { heldShape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/resizable-frame.tokens.json); the handles are `<tanrei-handle>`, drawn by
 // their own tokens. The element writes its sizes as custom properties on the box (`--_rsf-*`: the width and the height
@@ -199,12 +200,12 @@ export const styles = css`
   .indicator.live {
     transition: none;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .indicator,
     .indicator.shown {
       transition: none;
     }
-  }
+  `)}
 
   /* The least lengths the tokens give, measured where the element needs them as numbers (RSF-1, RSF-5, RSF-9). */
   .probe {

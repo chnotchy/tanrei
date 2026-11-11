@@ -11,6 +11,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/radio-button.tokens.json). The two conditions, unselected and selected,
 // and their error forms (RAD-26) are the radio button's state variants: each has its own container, ring,
@@ -174,13 +175,13 @@ export const styles = css`
   ${pressHold('.control')}
 
   /* RAD-15: where motion is reduced the new condition shows at once and in full. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .ring::before,
     .fill {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     /* The ring is drawn in system colors of its own: the stroke's weight carries the selection, as it does in every
        mode; the fill, which never carries it, is not drawn. RAD-27: the error forms are drawn exactly as the same

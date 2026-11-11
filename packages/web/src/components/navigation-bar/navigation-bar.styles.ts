@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { cornerRadius, destinationStyles, iconGlyph, shape } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/navigation-bar.tokens.json). The bar paints its container, its top edge,
 // the layout of its cells and the active indicator while it moves; each destination paints its item container (its
@@ -99,12 +100,12 @@ export const barStyles = css`
     background: ${t('filled-selected-disabled-item-container-color')};
   }
   ${shape}
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .pill {
       animation-duration: 0s;
       transition-duration: 0s;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .outline {
       background: CanvasText;
@@ -280,7 +281,7 @@ const boxStyles = css`
     transition-duration: 0s;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .icon-fill,
     .label-box,
     .c-label-box,
@@ -291,7 +292,7 @@ const boxStyles = css`
     .icon-fill {
       animation-duration: 0s;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .covered {
       display: none;

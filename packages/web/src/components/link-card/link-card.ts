@@ -1,6 +1,6 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { type TanreiLinkCardNode, displayHost, hostNodes, isExternal, pictureAddress, plainText, repeatsHost } from '../../links/index.js';
-import { AvailabilityController, LINK_KEYS, PressController, SETTLING, linkRel, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
+import { AvailabilityController, LINK_KEYS, PressController, SETTLING, linkRel, motionReduced, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
 import type { TanreiLinkCardVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
@@ -61,7 +61,6 @@ const FOLDING = 'data-tanrei-folding';
 /** LKC-13: the height of the text's box while the box above it moves (a length the element measured, not a design value). */
 const TEXT_BLOCK = '--_lc-text-block';
 
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** LKC-13: the picture's box as the last frame drew it — beside the text or above it, its size on that axis, the card's height. */
 interface DrawnBox {
@@ -745,7 +744,7 @@ export class TanreiLinkCard extends TanreiLightElement {
 
   /** LKC-13: whether a picture's arrival or its box's size moves now — not while the card settles (MOT-3), nor under reduced motion (MOT-6). */
   private moves(): boolean {
-    return this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+    return this.isConnected && !this.hasAttribute(SETTLING) && !motionReduced();
   }
 
   /**

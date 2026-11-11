@@ -1,4 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
+import { reducedMotion } from '../styles/motion.js';
 
 type Property = `--${string}`;
 
@@ -48,12 +49,12 @@ export function rippleStyles(tokens: RippleTokens): CSSResult {
       clip-path: circle(0 at var(--_x) var(--_y));
     }
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .ripple {
       animation: none;
       transition: none;
     }
-  }
+  `)}
 `);
 }
 

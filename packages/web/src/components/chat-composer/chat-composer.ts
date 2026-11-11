@@ -16,6 +16,7 @@ import {
   countWork,
   giveAttributes,
   giveVariant,
+  motionReduced,
   report,
   SETTLING,
   syncFocusStyle,
@@ -158,7 +159,6 @@ const MOVE = 'chat-composer-item-move';
 const GLYPH_FADE = 'chat-composer-glyph-fade';
 
 /** Whether motion is reduced for this person (MOT-6). */
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** CCM-35: how long one of the element's own motions takes, in milliseconds, and its curve, as the cascade computes them. */
 interface Timing {
@@ -1304,7 +1304,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   /** CCM-35: a change of the strip or of the glyph moves — not under reduced motion (MOT-6), and not while the chat composer settles (MOT-3). */
   private get moves(): boolean {
-    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !reducedMotion();
+    return this.hasUpdated && this.isConnected && !this.hasAttribute(SETTLING) && !motionReduced();
   }
 
   /** CCM-35: the times and the curves of its own motions, read through a real property: the items' (resize) and the glyph's. */

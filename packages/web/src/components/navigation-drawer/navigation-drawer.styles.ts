@@ -3,6 +3,7 @@ import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, moda
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/navigation-drawer.tokens.json). The drawer paints its panel per variant
 // (standard or modal: the color, elevation, end corners and end edge) and lays out its header, sections, groups and
@@ -580,7 +581,7 @@ export const drawerStyles = css`
 
   ${shape}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     :host(:not([data-as='modal'])),
     :host(:not([data-as='modal'])[data-sliding][data-open]),
     :host(:not([data-as='modal']):not([data-open])),
@@ -605,7 +606,7 @@ export const drawerStyles = css`
     .main {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .drawer {
       border-inline-end: ${t('outline-width')} solid CanvasText;
@@ -671,12 +672,12 @@ export const sectionStyles = css`
     flex-direction: column;
     gap: ${d('--_nvd-gap')};
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .heading-text,
     .collapsed .heading-text {
       transition: none;
     }
-  }
+  `)}
 `;
 
 /**
@@ -1241,7 +1242,7 @@ export const cellStyles = css`
   .hold {
     display: none;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .cell,
     .container,
     .cell.collapsed .container,
@@ -1266,7 +1267,7 @@ export const cellStyles = css`
     .icon-indicator {
       animation-duration: 0s;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .cell.selected .indicator {
       background: Highlight;
@@ -1365,13 +1366,13 @@ export const groupStyles = css`
     letter-spacing: ${t('item-supporting-text-typescale-letter-spacing')};
     color: ${t('unselected-item-supporting-text-color')};
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .items,
     .items.shown,
     .fold.guides-hover::before {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .fold::before {
       background: CanvasText;

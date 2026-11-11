@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, DelegatedAriaWriter, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, delegatedNames, delegatesAria, findInteractive, hostAria, report } from '../../primitives/index.js';
+import { AvailabilityController, DelegatedAriaWriter, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, delegatedNames, delegatesAria, findInteractive, hostAria, motionReduced, report } from '../../primitives/index.js';
 import { type LinkedTabView, type TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsSize, type TanreiTabsVariant } from '../tabs/tabs.js';
 import { tabViewStyles } from './tab-view.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -880,7 +880,7 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
     }
     // TBV-7: where motion is reduced the offset, which the finger moved, goes back at once.
     // TBV-22: and so it does while the form is none.
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || each.look.form === 'none';
+    const reduced = motionReduced() || each.look.form === 'none';
     if (commit) {
       const value = drag.target.value;
       const left = this.shown;

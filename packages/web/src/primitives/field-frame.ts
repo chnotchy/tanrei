@@ -7,6 +7,7 @@ import { productText } from '../styles/product-text.js';
 import { compChoice, whenChosen } from './actions.js';
 import { report } from './report.js';
 import type { WordsController } from './words.js';
+import { reducedMotion } from '../styles/motion.js';
 
 // The field frame: what a form gives every control — a label above it that can say the control is
 // required or optional, a line of help, the reason a value was refused — drawn once, here, for every component that
@@ -436,14 +437,14 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   }
 
   /* FLD-13: where motion is reduced, the colors change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .label,
     .label-icon,
     .asterisk,
     .supporting-text {
       transition: none !important;
     }
-  }
+  `)}
   /* FLD-17: forced colors — every text in the platform's text color; the tag draws itself as a tag is drawn there
      (an edge and a label in the text color, TAG-14). An error is then told from help by its words and by the invalid
      state alone. */

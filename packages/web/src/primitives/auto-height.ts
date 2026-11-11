@@ -22,6 +22,8 @@
 // (`transition: block-size <its duration> <its curve>`), and a stylesheet that says none — reduced motion — is a change
 // made at once. It asks for no frame and no layout at rest: it runs when it is called, and reads the layout only then.
 
+import { motionReduced } from './motion.js';
+
 /** What the routine reads and writes; each is asked for when it runs, so an element drawn again is found again. */
 export interface AutoHeightOptions {
   /** The box whose block size is the animated one. */
@@ -46,8 +48,6 @@ export interface AutoHeightOptions {
 
 /** The lines a measured height is: a whole number, a hair's breadth forgiven (a line of 24.5 px reported as 24). */
 const wholeLines = (lines: number) => Math.max(1, Math.ceil(lines - 0.05));
-
-const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * Whether a transition of a property `property` matches still runs on `element` (or is held, paused): the motion a
@@ -139,7 +139,7 @@ export class AutoHeight {
     input.style.setProperty('--_rows', String(rows));
     input.toggleAttribute('data-overflows', scrolling);
     this.settle(box);
-    if (!animate || this.options.still?.() || reduced()) return;
+    if (!animate || this.options.still?.() || motionReduced()) return;
     const end = box.getBoundingClientRect().height;
     if (Math.abs(end - shown) < 0.5) return;
     // From the height shown, drawn without a transition…

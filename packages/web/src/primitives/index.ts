@@ -258,8 +258,10 @@ export {
   afterFirstPaint,
   appearStyles,
   documentPainted,
+  motionReduced,
+  watchMotionReduced,
 } from './motion.js';
-export { APPEARING, SETTLING, settleRule, settleStyles } from '../styles/motion.js';
+export { APPEARING, REDUCED_MOTION_ATTRIBUTE, SETTLING, reducedMotion, settleRule, settleStyles } from '../styles/motion.js';
 export { TanreiElement, TanreiLightElement, focusKept } from './element.js';
 export { DismissController, type DismissOptions, type DismissReason, type OverlayEntry, logicalAncestors, overlayDepth, registerOverlay } from './dismiss.js';
 export { type OverlayTabOptions, focusOverlay, keepOverlayFocusAfterPress, quietFocus, returnOverlayFocus, tabThroughOverlay, watchInput } from './overlay-focus.js';

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { DISABLED, type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, recolorTiming, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/chip.tokens.json). For each state the chip reads that state's tokens of its
 // current look — it never computes how a state looks: hover, focus and press mix the look's container with its
@@ -470,7 +471,7 @@ export const styles = css`
   ${pressHold('.label')}
   ${pressHold('.remove .hold')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .remove,
     .lead,
@@ -478,7 +479,7 @@ export const styles = css`
     .glyphs > * {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .container {
       border: var(--tanrei-comp-chip-outline-width) solid ButtonText;

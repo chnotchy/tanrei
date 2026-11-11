@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/handle.tokens.json). The box (`.container`) carries the states, as
 // Button's does; the line is the capsule (`.capsule`, a box with round ends) or the arc (`.arc`, an SVG circle drawn a
@@ -240,14 +241,14 @@ export const styles = css`
   }
   ${shape}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .capsule,
     .arc,
     .arc circle {
       transition: none;
     }
-  }
+  `)}
 
   /* HDL-16: the person's colors — the line in ButtonText, Highlight under a fine pointer and a press, GrayText while
      disabled; no fill in the box; the focus indicator in Highlight. */

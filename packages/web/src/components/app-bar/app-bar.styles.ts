@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, dividerVisibilityHost, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/app-bar.tokens.json). The bar has no interaction states: its navigation and
 // action items are the product's icon buttons, which paint themselves from their own tokens (APB-11). What the bar paints
@@ -376,12 +377,12 @@ export const styles = css`
     letter-spacing: var(--_subtitle-ls);
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .container,
     .outline {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .outline {
       background: CanvasText;

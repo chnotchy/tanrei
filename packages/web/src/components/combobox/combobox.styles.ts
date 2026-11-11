@@ -4,6 +4,7 @@ import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token. The combobox is two things: the box reads the one set of tokens every input box is
 // drawn from (tokens/comp/input-box.tokens.json; CMB-63), the list the combobox's own (tokens/comp/combobox.tokens.json).
@@ -498,7 +499,7 @@ export const styles = css`
   ${productText('.said', { align: 'start' })}
 
   /* CMB-8, CMB-15: where motion is reduced, the label and the states change at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .field,
     .container,
     .input,
@@ -511,7 +512,7 @@ export const styles = css`
     .indicator {
       transition: none !important;
     }
-  }
+  `)}
   /* CMB-51: forced colors — an edge outline.width wide in the control text color around the container in every
      variant, in the highlight color at the focused width while focused; every text in the text color; the matched run
      in the colors for marked text, its weight raised; a disabled combobox in the disabled text color. */

@@ -5,6 +5,7 @@ import { FieldControlController, type FieldControlOptions } from './field.js';
 import { FormDisabledController } from './form-disabled.js';
 import type { Point } from './ripple.js';
 import { type StateSelector, stateRules } from './states.js';
+import { reducedMotion } from '../styles/motion.js';
 
 /**
  * Selection controls (checkbox, radio button, switch): a form-associated element whose semantics
@@ -155,12 +156,12 @@ export function selectionLabel(prefix: string, block: string): CSSResult {
     overflow-wrap: break-word;
     transition: color var(--_recolor-duration) var(--_recolor-easing);
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .root,
     .label {
       transition: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .label {
       color: CanvasText;

@@ -3,6 +3,7 @@ import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRule
 import { hiddenHost } from '../../primitives/hidden.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/file-item.tokens.json). Three things answer a pointer: the body of a
 // pressable file item (hovered, focused, pressed), and its two actions (the same three). Each paints from that state's
@@ -572,12 +573,12 @@ export const styles = css`
   /* FIT-15: the carrier of press-hold for PressController. */
   ${pressHold('.hold')}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .action,
     .layer {
       transition: none;
     }
-  }
+  `)}
 
   /* FIT-25: forced colors. The texts and the glyphs take the text color, a link's name the link color; the bar's
      indicator is the highlight color on a track edged in the text color; a tile's box and a row's picture box get an

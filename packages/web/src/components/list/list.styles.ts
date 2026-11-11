@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/list.tokens.json). An item's two conditions, unselected and selected, are
 // its state variants: each colors the box, the content's foreground and the check in every state, and the item only
@@ -291,12 +292,12 @@ export const itemStyles = css`
     display: inline-block;
     vertical-align: top;
   }
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .mark,
     .row {
       transition: none;
     }
-  }
+  `)}
 
   /* LST-3: the hairline between this item and the one before it, across the list and in the middle of the gap. It is
      the box's sibling, so it keeps its color and its full opacity in every state and condition. */

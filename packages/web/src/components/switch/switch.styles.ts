@@ -14,6 +14,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/switch.tokens.json). The two conditions, unselected and selected, are the
 // switch's state variants: each has its own container, track, outline, handle (color, size, elevation),
@@ -402,7 +403,7 @@ export const styles = css`
 
   /* SWT-13, SWT-18, SWT-21: where motion is reduced the new condition shows at once — no travel, no growth, no fade —
      the pressed handle returns at once, and a drag still places the handle, since it writes the progress itself. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .root,
     .thumb,
     .container,
@@ -421,7 +422,7 @@ export const styles = css`
     .sizer {
       transition-duration: 0s;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .track,
     .handle {

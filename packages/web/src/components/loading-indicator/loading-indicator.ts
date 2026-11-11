@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, OpenAxesController, VisibilityController, hostAria, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, VisibilityController, hostAria, motionReduced, report } from '../../primitives/index.js';
 import type { TanreiLoadingIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './loading-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -45,7 +45,7 @@ interface Run {
  *
  * Once shown, the host is a progressbar with no value (`role="progressbar"`, `aria-label` from `label`,
  * `aria-busy="true"`). It is never focusable and never announces itself: mark the region being loaded `aria-busy` and
- * announce its arrival in the product. Under `prefers-reduced-motion: reduce` the arc stops turning and the whole circle
+ * announce its arrival in the product. Where motion is reduced the arc stops turning and the whole circle
  * pulses, and grow enters as a fade; the delay is kept. Off screen, the turning is paused (the entrance is not).
  *
  * @tag tanrei-loading-indicator
@@ -177,7 +177,7 @@ export class TanreiLoadingIndicator extends TanreiElement {
     const run = this.run;
     if (!run || run.duration <= 0) return;
     // Reduced motion: nothing moves, so grow enters as fade.
-    const grow = run.entrance === 'grow' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const grow = run.entrance === 'grow' && !motionReduced();
     const keyframes: Keyframe[] = grow ? [{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'none' }] : [{ opacity: 0 }, { opacity: 1 }];
     this.entry = container.animate(keyframes, { duration: run.duration, easing: run.easing, fill: 'backwards' });
     this.entry.id = grow ? 'enter-grow' : 'enter-fade';

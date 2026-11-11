@@ -3,6 +3,7 @@ import type { OpenAxis } from '../../primitives/index.js';
 import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, modalExitStyles, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/search.tokens.json). The search has one condition, `standard`, whose state
 // tokens color the bar's parts and a suggestion row's parts; the outline width and the opacity are the component's per
@@ -827,7 +828,7 @@ export const styles = css`
   ${shape}
 
   /* SRC-18, SRC-23: where motion is reduced, the states change and the view appears and disappears at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .bar,
     .outline,
     .glyph,
@@ -846,7 +847,7 @@ export const styles = css`
     .view.leaving {
       animation: none;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .bar {
       border: 1px solid FieldText;
@@ -1006,14 +1007,14 @@ export const rowStyles = css`
   /* SRC-21: corner smoothing, the shared rule. */
   ${shape}
 
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .row,
     .icon,
     .headline,
     .excerpt {
       transition: none !important;
     }
-  }
+  `)}
   @media (forced-colors: active) {
     .row:is([data-focused], [data-current]) {
       outline: 2px solid Highlight;

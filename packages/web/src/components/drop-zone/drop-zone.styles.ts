@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { productText } from '../../styles/product-text.js';
 import { iconGlyph } from '../../styles/icons.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/drop-zone.tokens.json). At rest nothing here is drawn (DRZ-1): the slot
 // passes the product's content through, and the overlay is laid out but hidden, so that its glyph is measured before a
@@ -133,14 +134,14 @@ export const styles = css`
   }
 
   /* DRZ-16: where motion is reduced, the overlay is shown and hidden at once. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(css`
     .overlay,
     .overlay[data-drag],
     .edge,
     .icon {
       transition: none;
     }
-  }
+  `)}
   /* DRZ-17: forced colors remove the scrim and the panel's fill and lift. The edge is drawn twice as wide, solid, in
      the highlight color; the panel on the background color with an edge in the text color; the message in the text
      color. Refusing keeps its block glyph. */

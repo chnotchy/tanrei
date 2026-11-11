@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { directionProbeStyles, focusRing, whenChosen } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 /** The edges a scroll area can watch (SCA-2); start and end follow the layout direction (SCA-13). */
 export const EDGES = ['top', 'bottom', 'start', 'end'] as const;
@@ -225,11 +226,11 @@ export const styles = [
       --tanrei-corner-pill: 0;
     }
     /* SCA-8: the marks change at once where motion is reduced. */
-    @media (prefers-reduced-motion: reduce) {
+    ${reducedMotion(css`
       :host {
         --_dur: 0s;
       }
-    }
+    `)}
   `,
   focusRing((focus) => `.scroll${focus} ~ .ring`, { inside: true }),
 

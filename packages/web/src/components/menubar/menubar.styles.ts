@@ -2,6 +2,7 @@ import { type CSSResult, css, unsafeCSS } from 'lit';
 import { conditionBlock, conditionStates, focusRing, iconGlyph, pressHold, rippleStyles } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/menubar.tokens.json): the bar's fill, paddings and gap; a title's height,
 // padding, corners and text style; the size of the overflow item's glyph and of a link item's mark, and the gap between
@@ -171,14 +172,14 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   ${focusRing((focus) => `${focused(focus)} .title:where(:not(.pf)) > .container`)}
 
   /* MBR-29: at once where motion is reduced. */
-  @media (prefers-reduced-motion: reduce) {
+  ${reducedMotion(`
     .container,
     .label,
     .icon,
     .indicator {
       transition: none;
     }
-  }
+  `)}
 
   /* MBR-28: the person's own colors. The label and the glyph in the button text color, a disabled title in the disabled
      text color; the open title in the highlight colors; a hovered or pressed title by a line of sys.border.hairline
