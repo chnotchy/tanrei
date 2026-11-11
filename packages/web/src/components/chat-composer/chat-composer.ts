@@ -17,6 +17,7 @@ import {
   giveAttributes,
   giveVariant,
   motionReduced,
+  readTogether,
   report,
   SETTLING,
   syncFocusStyle,
@@ -1706,6 +1707,13 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     }
     // CCM-35: the File items of the files it keeps that this update adds or takes away, read as they are drawn.
     this.planOwn(reset);
+    // CCM-6, CCM-17: the Button it brings in the send button's place takes the variant the system names — read after the
+    // render with every other host's of the turn, and given before that Button is drawn (src/primitives/read-phase.ts).
+    readTogether(() => {
+      if (!this.isConnected) return;
+      const variant = compChoice(this, `${PREFIX}-send-button-variant`, BUTTON_VARIANTS);
+      return () => giveVariant(this.renderRoot.querySelector(`.send > ${BUTTON}`), variant);
+    });
   }
 
   protected override firstUpdated() {
@@ -1720,9 +1728,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.provider.sync();
     this.tellItems();
     this.lend();
-    // CCM-6, CCM-17: the Button it brings in the send button's place takes the variant the system names.
-    const variant = compChoice(this, `${PREFIX}-send-button-variant`, BUTTON_VARIANTS);
-    giveVariant(this.renderRoot.querySelector(`.send > ${BUTTON}`), variant);
     this.keepFocus();
     this.syncForm();
     this.tellSendable();

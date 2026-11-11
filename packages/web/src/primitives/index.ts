@@ -47,7 +47,8 @@
 //   shared-choice — sharedChoice(), remembered(), remember(), keepInPlace(): what rows that share a choice have in common —
 //                  one registry of groups for a document, one read of the storage for a key (TAB-36…41, TBV-21).
 //   read-phase  — readInPhase(owner, read): a read of the layout or the cascade made after the frame's layout and before
-//                 its paint, with every other element's, all reads before any write (cancelPhaseRead() withdraws it)
+//                 its paint, with every other element's, all reads before any write (cancelPhaseRead() withdraws it);
+//                 readTogether(read): the same in the task of the render, once every host of the turn has drawn
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
@@ -97,7 +98,8 @@
 //                 Button on a colored surface of its own gives it a tone (HOST_TONE, giveTone(), BTN-45)
 //   actions     — ActionPlacement and actionBoxStyles(): the actions at the foot of a dialog or a side sheet, placed by
 //                 their flags as a full-width Button group places its items (BGR-13…19) into three hand-assigned slots,
-//                 row or column by fit, each given the host's variant (DLG-10, DLG-20, SSH-11, SSH-17); compChoice()
+//                 row or column by fit, each given the host's variant (DLG-10, DLG-20, SSH-11, SSH-17); compChoice(), and
+//                 compChoices() for several with one computed style
 //   destination — the destinations of a navigation region (bar, drawer): DestinationsController (selection, change /
 //                 reselect, reports), NavigationDestination and destinationStyles() (a bar's item)
 //   native-text — NativeTextController: a component's value and its native text element kept in step around an input
@@ -407,7 +409,7 @@ export {
 export { layoutSize, naturalHeight } from './natural-height.js';
 export { parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
-export { type PhaseRead, cancelPhaseRead, readInPhase } from './read-phase.js';
+export { type PhaseRead, cancelPhaseRead, readInPhase, readTogether } from './read-phase.js';
 export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';
 export {
@@ -420,7 +422,9 @@ export {
   BUTTON_VARIANTS,
   actionBoxStyles,
   assignSlot,
+  type CompChoices,
   compChoice,
+  compChoices,
   giveVariant,
   whenChosen,
 } from './actions.js';

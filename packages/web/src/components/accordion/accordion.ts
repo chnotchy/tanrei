@@ -14,8 +14,7 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
-import { FacesWatch } from '../../primitives/faces.js';
-import { DRAWN_WIDTH } from '../../primitives/glyph.js';
+import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionDensityRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
@@ -153,28 +152,6 @@ function flush(details: Element) {
   if (CONTENT_BOX) void getComputedStyle(details, '::details-content').blockSize;
 }
 
-/**
- * ACC-33: whether the icon set can draw a glyph now. A glyph is a ligature — one glyph, about one em wide — and its
- * name spelled in a text face is several (src/primitives/glyph.ts): the name is measured in the icon family, in a box
- * that is not drawn. A family that draws is remembered until the fonts of the page change.
- */
-const drawable = new Set<string>();
-const EM = 24;
-function glyphProbe(): HTMLElement {
-  const probe = document.createElement('span');
-  probe.setAttribute('aria-hidden', 'true');
-  probe.setAttribute('data-tanrei-glyph-probe', '');
-  probe.style.cssText = `position: absolute; visibility: hidden; pointer-events: none; white-space: nowrap; font: normal ${EM}px/1 var(--tanrei-sys-icon-family-unselected); letter-spacing: normal; font-feature-settings: 'liga'; text-transform: none`;
-  probe.textContent = 'expand_more';
-  return probe;
-}
-/** The accordions on the page, told when a face's load is over (one watch of the page's fonts for them all). */
-const connected = new Set<TanreiAccordion>();
-const faces = new FacesWatch(() => {
-  drawable.clear();
-  for (const accordion of connected) accordion.readGlyphs();
-});
-
 let groups = 0;
 let descriptions = 0;
 
@@ -287,9 +264,13 @@ export class TanreiAccordion extends TanreiLightElement {
   /** ACC-36: the item a fine pointer is over where a press would toggle or close it — drawn hovered as one target. */
   private hit: HTMLDetailsElement | null = null;
   private readonly group = `tanrei-accordion-${++groups}`;
-  /** The box the glyph's name is measured in, kept only while the icon set cannot draw it (ACC-33). */
-  private glyphProbe: HTMLElement | null = null;
-  private glyphSizes: ResizeObserver | null | undefined;
+  /**
+   * ACC-33: while the icon set cannot draw a glyph, the stylesheet draws none and keeps every box. The glyph's name is
+   * measured in the icon family, with every other host's of the turn; only while it cannot be drawn does the box it was
+   * measured in stay, as a child that is not drawn, so that the font's arrival is heard as a change of that box's size
+   * in the frame it happens — whatever the engine says of its fonts.
+   */
+  private readonly glyphs = new PendingGlyphs(this, 'expand_more');
 
   /** No shadow root: the items are the document's. */
   protected override createRenderRoot() {
@@ -302,8 +283,7 @@ export class TanreiAccordion extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener, true);
     this.observed = new WeakSet();
     this.mutations?.observe(this, { childList: true });
-    connected.add(this);
-    faces.connect();
+    this.glyphs.connect();
     if (this.hasUpdated) this.read();
   }
 
@@ -311,11 +291,7 @@ export class TanreiAccordion extends TanreiLightElement {
     super.disconnectedCallback();
     for (const [type, listener] of this.listeners) this.removeEventListener(type, listener, true);
     this.mutations?.disconnect();
-    connected.delete(this);
-    if (!connected.size) faces.disconnect();
-    this.glyphSizes?.disconnect();
-    this.glyphProbe?.remove();
-    this.glyphProbe = null;
+    this.glyphs.disconnect();
     for (const press of this.pressControllers) press.hostDisconnected();
     this.held = null;
     this.heldSummary = null;
@@ -436,7 +412,7 @@ export class TanreiAccordion extends TanreiLightElement {
     this.readExclusive(items);
     // ACC-10: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
     mark(this, 'data-separation', styleQueries() ? null : compChoice(this, '--_acc-separation', SEPARATIONS));
-    this.readGlyphs();
+    this.glyphs.read();
     if (debugBuild()) {
       // An accordion that is still being parsed is read again when it is whole: an item may not have its content yet.
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
@@ -514,40 +490,6 @@ export class TanreiAccordion extends TanreiLightElement {
     }
   }
 
-  /**
-   * ACC-33: while the icon set cannot draw a glyph, the stylesheet draws none and keeps every box. The glyph's name is
-   * measured once; only while it cannot be drawn does the box it was measured in stay, as a child that is not drawn,
-   * so that the font's arrival is heard as a change of that box's size in the frame it happens — whatever the engine
-   * says of its fonts.
-   *
-   * @internal
-   */
-  readGlyphs() {
-    if (!this.isConnected) return;
-    const family = getComputedStyle(this).getPropertyValue('--tanrei-sys-icon-family-unselected').trim();
-    let drawn = !family || drawable.has(family);
-    if (!drawn) {
-      const probe = this.glyphProbe ?? this.appendChild(glyphProbe());
-      // (An accordion that is not drawn measures nothing: it is asked again when it is.)
-      const width = probe.getBoundingClientRect().width;
-      // After the layout the read forced: the icon face the probe first asked for in it is loading now.
-      faces.measured();
-      drawn = width <= EM * DRAWN_WIDTH;
-      if (drawn && width > 0) drawable.add(family);
-      else if (!this.glyphProbe) {
-        this.glyphProbe = probe;
-        this.glyphSizes ??= typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.readGlyphs());
-        this.glyphSizes?.observe(probe);
-      }
-    }
-    if (drawn && this.glyphProbe) {
-      this.glyphSizes?.disconnect();
-      this.glyphProbe = null;
-    }
-    if (drawn) this.querySelector(':scope > [data-tanrei-glyph-probe]')?.remove();
-    mark(this, 'data-glyphs', drawn ? null : 'pending');
-  }
-
   /** What a debug build says about an accordion it still draws (ACC-3, ACC-24, ACC-32, ACC-35). */
   private check(items: HTMLDetailsElement[]) {
     let depth = 1;
@@ -579,11 +521,10 @@ export class TanreiAccordion extends TanreiLightElement {
     const toggled = new Set<HTMLDetailsElement>();
     let structure = false;
     // The box the glyph's name is measured in is this element's own: its coming and going is not a change of the items.
-    const probe = (node: Node) => node instanceof Element && node.hasAttribute('data-tanrei-glyph-probe');
     for (const record of records) {
       if (record.type === 'attributes' && record.attributeName === 'open' && record.target instanceof HTMLDetailsElement) {
         if (record.target.parentElement === this) toggled.add(record.target);
-      } else if (record.type !== 'childList' || ![...record.addedNodes, ...record.removedNodes].every(probe)) structure = true;
+      } else if (record.type !== 'childList' || ![...record.addedNodes, ...record.removedNodes].every(isGlyphProbe)) structure = true;
     }
     if (structure) this.read();
     if (toggled.size) this.toggled([...toggled]);

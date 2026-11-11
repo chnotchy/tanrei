@@ -17,6 +17,7 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
+import { readTogether } from '../../primitives/read-phase.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
@@ -1831,7 +1832,6 @@ export class TanreiTreeView extends TanreiLightElement {
     // computes the style, before this has written everything.
     const focusedItem = this.active;
     // TRV-67: a row with keyboard focus keeps its place in the view when the filter ends.
-    const scroller = scrollBoxOf(this);
     const kept = !words.length && before.applied && this.active ? rowOf(this.active) : null;
     const keptTop = kept ? kept.getBoundingClientRect().top : null;
     const next = words.length ? this.reckonFilter(words) : NO_FILTER;
@@ -1863,13 +1863,17 @@ export class TanreiTreeView extends TanreiLightElement {
     const stillThere = !!focusedItem && !!now && focusedItem.contains(now);
     if (focusedItem && !this.shown(focusedItem) && this.filterField && (!now || now === document.body || stillThere)) this.focusField(false);
     // TRV-67: a changed text brings the field and the first row into view; the end of the filter keeps a focused row where it was.
-    if (scroller && next.applied && keyChanged) {
+    // The scrolling box is looked for only then: it reads the cascade, and a tree built with no filter has nothing to keep.
+    if (next.applied && keyChanged) {
+      const scroller = scrollBoxOf(this);
+      if (!scroller) return;
       const box = scroller.getBoundingClientRect();
       const top = this.getBoundingClientRect().top - box.top - scroller.clientTop - (Number.parseFloat(getComputedStyle(scroller).paddingTop) || 0);
       if (top < 0) scroller.scrollTop += top;
-    } else if (scroller && kept && keptTop !== null && kept.isConnected) {
-      const moved = kept.getBoundingClientRect().top - keptTop;
-      if (moved) scroller.scrollTop += moved;
+    } else if (kept && keptTop !== null && kept.isConnected) {
+      const scroller = scrollBoxOf(this);
+      const moved = scroller ? kept.getBoundingClientRect().top - keptTop : 0;
+      if (scroller && moved) scroller.scrollTop += moved;
     }
   }
 
@@ -2141,10 +2145,18 @@ export class TanreiTreeView extends TanreiLightElement {
   private watchScroll() {
     this.unwatchScroll();
     if (!this.isConnected || !this.stickyParents || !(this.stickyMax > 0)) return;
-    this.scroller = scrollBoxOf(this);
-    this.scrollRoot = this.getRootNode() as Document | ShadowRoot;
-    this.scrollRoot.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
-    this.schedulePin();
+    const root = (this.scrollRoot = this.getRootNode() as Document | ShadowRoot);
+    root.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
+    // The scrolling box reads the cascade: with every other tree's reads of the turn, not in this one's update.
+    readTogether(() => {
+      if (this.scrollRoot !== root || !this.isConnected) return;
+      const scroller = scrollBoxOf(this);
+      return () => {
+        if (this.scrollRoot !== root) return;
+        this.scroller = scroller;
+        this.schedulePin();
+      };
+    });
   }
 
   private unwatchScroll() {

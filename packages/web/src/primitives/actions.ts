@@ -30,7 +30,25 @@ export function assignSlot(slot: HTMLSlotElement | null, nodes: readonly Node[])
  * switch is seen; an unknown name is the first value.
  */
 export function compChoice<T extends string>(host: Element, property: string, values: readonly T[]): T {
-  const named = getComputedStyle(host).getPropertyValue(property).trim() as T;
+  return chosenIn(getComputedStyle(host), property, values);
+}
+
+/** Several choices of kind, each a comp token's property and its values: what `compChoice` names. */
+export type CompChoices = Record<string, readonly [property: string, values: readonly string[]]>;
+
+/**
+ * Several choices of kind that comp tokens name, read from the cascade on `host` now with one computed style — never
+ * cached; each unknown name is its first value. `compChoices(this, { arrangement: [property, ARRANGEMENTS], … })`.
+ */
+export function compChoices<C extends CompChoices>(host: Element, choices: C): { [K in keyof C]: C[K][1][number] } {
+  const style = getComputedStyle(host);
+  const chosen: Record<string, string> = {};
+  for (const [key, [property, values]] of Object.entries(choices)) chosen[key] = chosenIn(style, property, values);
+  return chosen as { [K in keyof C]: C[K][1][number] };
+}
+
+function chosenIn<T extends string>(style: CSSStyleDeclaration, property: string, values: readonly T[]): T {
+  const named = style.getPropertyValue(property).trim() as T;
   return values.includes(named) ? named : values[0];
 }
 
