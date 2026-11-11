@@ -223,6 +223,8 @@ test.describe('behavior', () => {
         [change, ids] as const,
       );
     const all = ['taken', 'own', 'own-medium', 'free', 'through', 'nearest', 'alone'];
+    // A size it takes, or the default, is not its own: no size attribute is written on a button that sets none.
+    expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'large', 'medium', null, null, null, null]);
 
     for (const minimum of ['24px', '36px', '48px']) {
       for (const density of ['0.75', '1', '1.5']) {

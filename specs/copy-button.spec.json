@@ -93,7 +93,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "The Button size it is drawn at (36 / 40 / 56 under the default system, never below sys.target.minimum). The values are Button's."
+      "description": "The Button size it is drawn at (36 / 40 / 56 under the default system, never below sys.target.minimum). The values are Button's. While it is not set the copy button is drawn at the size its nearest container sets, as a Button is (CPY-21), and at medium where none does."
     },
     {
       "name": "disabled",
@@ -206,6 +206,11 @@
     {
       "id": "CPY-20",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE copy button SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the copy button is invalid — except those the copy button owns (aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE copy button SHALL take it off that element. WHEN the product sets an aria- attribute the copy button owns THE copy button SHALL report it in debug builds."
+    },
+    {
+      "id": "CPY-21",
+      "text": "WHILE size is not set and a container around the copy button sets a size for what it holds — the containers that pass a size to a Button (BTN-48), the nearest such container where several do — THE copy button SHALL be drawn at that size, at the Button's nearest size where the Button has none of that name, as BTN-48 says, and SHALL give that size to the Button it is drawn by; a container whose size is not set SHALL pass none. WHILE size is set THE copy button SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the copy button moved into or out of such a container — THE copy button SHALL be drawn at the size it now takes at once. A size it takes that the Button does not have in the active design system SHALL be drawn as CPY-17 says.",
+      "verify": "In a container whose size is small, a copy button without a size is as high as comp.button.container.height.small, and one with size large as high as comp.button.container.height.large; removing the container's size, or moving the copy button out, draws it at medium; one whose size is set to medium keeps medium."
     }
   ],
   "accessibility": {
