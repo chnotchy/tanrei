@@ -4490,7 +4490,9 @@ test.describe('resizable', () => {
   test('NVD-96: where the items show a scrollbar that takes room, the target lies wholly beside the drawer and the scrollbar is still taken', async ({ page, browserName }) => {
     await wide(page);
     // A scrollbar that takes room: Chromium's and WebKit's drawn by ::-webkit-scrollbar through the part, Firefox's by
-    // scrollbar-width (which takes room where the platform's scrollbars are not overlaid).
+    // scrollbar-width (which takes room where the platform's scrollbars are not overlaid). As Playwright launches them,
+    // only WebKit draws it: Chromium runs with --hide-scrollbars, and headless Firefox's driver sets every element's
+    // scrollbar-width to none (src/primitives/page-scroll-hold.test.ts), so both skip.
     const style = browserName === 'firefox' ? `tanrei-navigation-drawer::part(content) { scrollbar-width: auto; }` : `tanrei-navigation-drawer::part(content)::-webkit-scrollbar { width: 14px; background: #ddd; } tanrei-navigation-drawer::part(content)::-webkit-scrollbar-thumb { background: #888; }`;
     const many = Array.from({ length: 30 }, (_, n) => d(`d${n}`, `Destination ${n}`, 'inbox'));
     await mount(page, [fixture('long', many, { value: 'd0' })], { lead: `<style>${style}</style>` });
@@ -4505,12 +4507,16 @@ test.describe('resizable', () => {
     expect(await hit(end - room / 2, edge.y + 200), 'the scrollbar').not.toBe('tanrei-handle');
     expect(await hit(end + 2, edge.y + 200)).toBe('tanrei-handle');
     expect(await hit(end + reach - 2, edge.y + 200)).toBe('tanrei-handle');
-    // Its thumb is still taken: a drag on it scrolls the items.
+    // Its thumb is still taken: a drag on it scrolls the items. WebKit on macOS scrolls an overflow off the main thread,
+    // so the page learns the new position a frame or more after the release: the items' scroll event says it arrived.
+    await scroller.evaluate((el: HTMLElement & { scrolled?: Promise<number> }) => {
+      el.scrolled = new Promise((resolve) => el.addEventListener('scroll', () => resolve(el.scrollTop), { once: true }));
+    });
     await page.mouse.move(end - room / 2, edge.y + 20);
     await page.mouse.down();
     await page.mouse.move(end - room / 2, edge.y + 200, { steps: 4 });
     await page.mouse.up();
-    expect(await scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+    expect(await scroller.evaluate((el: HTMLElement & { scrolled?: Promise<number> }) => el.scrolled)).toBeGreaterThan(0);
   });
 
   test('NVD-97: width null is container.width, 320 is 320, 120 the least (200), 900 the greatest (400), and max-width 600 lets 900 be 600; a narrower parent holds it, and it comes back with the room, emitting nothing; collapsed and over the content it keeps its own widths', async ({ page }) => {
