@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -362,7 +363,9 @@ Everything is drawn before the script loads except the selected fill, which appe
 
 ## Accessibility
 
-<ComponentAccessibility name="tree-view" />
+<FocusOrder name="tree-view" fixture="filter" />
+
+<ComponentAccessibility name="tree-view" keyboardMap />
 
 ### What the component handles
 

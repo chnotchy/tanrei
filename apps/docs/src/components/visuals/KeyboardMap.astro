@@ -1,0 +1,111 @@
+---
+// A component's keys: its spec's keyboard table (`accessibility.keyboard`), each row's keys drawn as caps by Tanrei's
+// Keyboard shortcut and what they do beside them, in Tanrei's Table. ComponentAccessibility.astro draws it in place of
+// the plain keyboard table on a page that asks (`keyboardMap`); a page may also draw some of the rows on their own
+// (`keys`).
+//
+// - **Each phrase is read into chords and words** (lib/visuals/keyboard.ts): «Enter, Space or Down Arrow on the anchor»
+//   is three caps with the page's word for "or" between them, then «on the anchor». What is not a key — «Printable
+//   characters», «(during a drag)» — and what a row does stay as the spec wrote them, in English (`lang="en"`).
+// - **A cap is drawn in the reader's own convention** (the Keyboard shortcut's `auto`: Apple's symbols on Apple's
+//   platforms, the names elsewhere), and **read in the page's language**: the Keyboard shortcut has no names for keys,
+//   so each chord's `label` is made from the dictionary's (`keys` in lib/i18n.ts).
+// - **It is text before script runs and holds its room**: until the element is defined, and where no script runs, a
+//   chord is its words in the page's language, in a cap's box of the Keyboard shortcut's own tokens.
+import Table from '../Table.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { getSpec } from '../../lib/repo';
+import { keySegments, shortcutKeys, spokenChord } from '../../lib/visuals/keyboard';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** Only the rows that press one of these keys (the Keyboard shortcut's names: `tab`, `arrow-down`, `escape`). */
+  keys?: string[];
+}
+const { name, keys } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const spec = getSpec(name);
+const rows = spec.accessibility.keyboard
+  .map((row) => ({ ...row, segments: keySegments(row.keys) }))
+  .filter((row) => !keys || row.segments.some((segment) => 'chord' in segment && segment.chord.some((key) => keys.includes(key) || (key === 'arrows' && keys.some((one) => one.startsWith('arrow'))))));
+if (keys && rows.length === 0) throw new Error(`KeyboardMap: no row of ${name}'s keyboard table presses ${keys.join(', ')}`);
+---
+
+<Table label={t.keyboard} class="docs-keyboard-map">
+  <table>
+    <thead><tr><th scope="col">{t.keysColumn}</th><th scope="col">{t.action}</th></tr></thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td>
+              <span class="docs-keys">
+                {row.segments.map((segment) => {
+                  if ('chord' in segment) {
+                    const label = spokenChord(segment.chord, t.keys);
+                    return (
+                      <>
+                        {' '}
+                        <tanrei-keyboard-shortcut class="docs-key" size="small" keys={shortcutKeys(segment.chord)} label={label}>
+                          {label}
+                        </tanrei-keyboard-shortcut>{' '}
+                      </>
+                    );
+                  }
+                  if ('or' in segment) return <span class="docs-keys-or">{t.visuals.keysOr}</span>;
+                  // The spec's English, isolated as English where the page reads right to left.
+                  return (
+                    <span class="docs-keys-words" lang="en" dir="ltr">
+                      {segment.text.trim()}
+                    </span>
+                  );
+                })}
+              </span>
+            </td>
+            <td lang="en">{row.action}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Table>
+
+<script>
+  import '../../lib/register-web';
+</script>
+
+<style is:global>
+  /* A row's keys: caps, the words between them and the spec's words, on lines that break between them. */
+  .docs-keys {
+    display: inline;
+    line-height: calc(var(--tanrei-comp-keyboard-shortcut-container-height-small) + var(--tanrei-sys-space-space100));
+  }
+  .docs-keys-or,
+  .docs-keys-words {
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .docs-keys-words {
+    unicode-bidi: isolate;
+  }
+  .docs-keys-or {
+    margin-inline: var(--tanrei-sys-space-space50);
+  }
+  /* A chord until its element is defined, and where no script runs: its words in the page's language, in a cap's box
+     of the Keyboard shortcut's own tokens, so that it is read and nothing moves much when the caps are drawn. */
+  .docs-key:not(:defined) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
+    padding-inline: var(--tanrei-comp-keyboard-shortcut-container-padding-inline-small);
+    border-radius: var(--tanrei-comp-keyboard-shortcut-container-shape-small);
+    background: var(--tanrei-comp-keyboard-shortcut-container-color);
+    color: var(--tanrei-comp-keyboard-shortcut-keycap-label-color);
+    font: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font);
+    letter-spacing: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-letter-spacing);
+    white-space: nowrap;
+    vertical-align: baseline;
+  }
+</style>

@@ -2,13 +2,14 @@
 title: العرض الشجري
 description: تسلسل هرمي من عناصر تُفتح وتُغلق. تبدأ الصفوف أبعد إلى الداخل مع كل مستوى، وفي بداية كل صف يحمل غيره سهم صغير. يُقرأ ويُفتح فقط، أو يُختار فيه عنصر واحد أو عدة عناصر، وهو موضع توقف واحد في ترتيب التركيز.
 translationOf: components/tree-view.mdx
-sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
+sourceHash: 09e04ed2fb833d9b3865135fa0bf97cead808e91
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -364,7 +365,9 @@ tree.addEventListener('create', (event) => {
 
 ## إمكانية الوصول
 
-<ComponentAccessibility name="tree-view" />
+<FocusOrder name="tree-view" fixture="filter" />
+
+<ComponentAccessibility name="tree-view" keyboardMap />
 
 ### ما يتكفل به المكوّن
 
