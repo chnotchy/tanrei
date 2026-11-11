@@ -236,6 +236,14 @@ test('explain, systems, init, help', () => {
   fs.rmSync(path.join(dir, 'tanrei.json'));
   const init = spawnSync(process.execPath, [bin, 'init', 'fresh', '--extends', 'm3-like'], { cwd: tempDir('init'), encoding: 'utf8', env: { ...process.env, TANREI_CLI_FROM_SOURCE: '1' } });
   assert.equal(init.status, 0, init.stderr);
+  // init names every dial the vocabulary has, and the three values that decide how big things are.
+  const dialFile = JSON.parse(fs.readFileSync(path.resolve(pkg, '../../tokens/dial/dial.tokens.json'), 'utf8')).tanrei.dial;
+  const dials = Object.entries(dialFile).filter(([key]) => !key.startsWith('$')).flatMap(([key, node]) => ('$value' in node ? [key] : Object.keys(node).filter((k) => !k.startsWith('$')).map((k) => `${key}.${k}`)));
+  assert.equal(dials.length, 8);
+  assert.match(init.stdout, new RegExp(`Start with the dials: ${dials.length} numbers every token is derived from \\(tanrei\\.dial\\.${dials.join(', ').replaceAll('.', '\\.')}\\)`));
+  for (const id of ['tanrei.dial.size.unit', 'tanrei.dial.density', 'tanrei.sys.target.minimum', 'tanrei.sys.target.pointer']) assert.match(init.stdout, new RegExp(id.replaceAll('.', '\\.')));
+  assert.match(init.stdout, /a density of 0 or\nless, or pointer or touch under the minimum, is refused/);
+  assert.doesNotMatch(init.stdout, /\b(44|48)px\b/, 'no platform figure is named as the default');
 });
 
 test('validate refuses what build refuses in every layer: a density of zero, a hit area under the minimum', () => {
