@@ -2,7 +2,7 @@
 title: 列表行
 description: 一行文本，前后各有一些内容。一个标题、其上方的一行短文本和下方的一两行文本；起始处是字形、图片或控件，末尾是一个简短的值、字形或控件。放在列表项中时适配列表的每种模式，也可以单独使用。
 translationOf: components/list-row.mdx
-sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
+sourceHash: 41f984c791cdc3339a1ddf402fb3e93b9b6d2464
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -98,11 +98,11 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ## 规格
 
-<Example label="一行、两行和三行；图片和值；compact">
+<Example label="一行、两行和三行；图片和值；small">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="已连接到 Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="共享" headline="港口照片" supporting-text="48 项，今天编辑" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
-  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" size="small" style="inline-size: 22rem"></tanrei-list-row>
 </Example>
 
 <ComponentSpecs name="list-row" />
@@ -127,9 +127,9 @@ import Example from '../../../../components/visuals/Example.astro';
 
 标题、上标文本和辅助文本放不下时会以省略号截断；被截断的标题和辅助文本在悬停和键盘聚焦时由工具提示显示全文。后置文本从不超过行宽的一半。
 
-### 密度
+### 尺寸
 
-在默认系统中，`regular` 行在一行、两行、三行时分别高 56、72、88，适用于既用触摸又用指针的产品。`compact` 行（40、56、72）适用于用指针操作的工具。操作、链接或选项无论密度如何，都不会低于列表自己的最小高度和触摸目标。
+在默认系统中，`medium` 行在一行、两行、三行时分别高 56、72、88，适用于既用触摸又用指针的产品。`small` 行（40、56、72）适用于用指针操作的工具。没有设置 `size` 的行采用其所在列表设置的尺寸，因此只需在列表上设置一次。操作、链接或选项无论尺寸如何，都不会低于列表自己的最小高度和目标。
 
 ### 推荐
 
@@ -154,7 +154,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - 被截断的文本对辅助技术始终是完整的。工具提示对辅助技术隐藏，在悬停和列表项获得键盘焦点时打开，指针停在其上时保持显示，按 Escape 关闭。
 - 在从右到左的布局中，行会镜像，每段文本保持自己的方向。
 - 在强制颜色模式下，文本和字形使用系统的文本颜色，禁用项中使用系统的禁用颜色。
-- 调试构建会报告没有标题的行、既不是 1 也不是 2 的 `supportingLines`、被前置插槽取代的前置字形，以及未知的密度。
+- 调试构建会报告没有标题的行、既不是 1 也不是 2 的 `supportingLines`、被前置插槽取代的前置字形，以及未知的尺寸。
 
 ### 需要你做的事
 

@@ -2,7 +2,7 @@
 title: リスト行
 description: 前と後ろに何かを添えた 1 行分のテキストです。見出しと、その上の短い行、その下の 1〜2 行。先頭にはグリフ、画像またはコントロール、末尾には短い値、グリフまたはコントロール。リスト項目の中に置くとリストのどのモードにも合わせて描かれ、単独でも使えます。
 translationOf: components/list-row.mdx
-sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
+sourceHash: 41f984c791cdc3339a1ddf402fb3e93b9b6d2464
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -98,11 +98,11 @@ Web では `<tanrei-list-row>` です。ほかのプラットフォームはま�
 
 ## 仕様
 
-<Example label="1 行、2 行、3 行。画像と値。compact">
+<Example label="1 行、2 行、3 行。画像と値。small">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Harbour に接続済み" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="共有" headline="港の写真" supporting-text="48 項目、今日編集" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
-  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" size="small" style="inline-size: 22rem"></tanrei-list-row>
 </Example>
 
 <ComponentSpecs name="list-row" />
@@ -127,9 +127,9 @@ Web では `<tanrei-list-row>` です。ほかのプラットフォームはま�
 
 見出し、オーバーライン、補足テキストは収まらないところで省略記号付きで切り詰められます。切り詰められた見出しと補足テキストは、ホバーとキーボードフォーカスでツールチップに全文が表示されます。末尾テキストが行の半分を超えることはありません。
 
-### 密度
+### サイズ
 
-`regular` の行は、デフォルトシステムで 1 行、2 行、3 行のときそれぞれ 56、72、88 の高さで、タッチとポインターの両方で使うプロダクト向けです。`compact` の行（40、56、72）は、ポインターで使うツール向けです。アクション、リンク、選択肢は、密度の指定にかかわらず、リスト自身の最小の高さとタッチターゲットより低くなりません。
+`medium` の行は、デフォルトシステムで 1 行、2 行、3 行のときそれぞれ 56、72、88 の高さで、タッチとポインターの両方で使うプロダクト向けです。`small` の行（40、56、72）は、ポインターで使うツール向けです。`size` を設定していない行は、リストに設定したサイズで描かれます。サイズはリストに一度だけ設定してください。アクション、リンク、選択肢は、サイズの指定にかかわらず、リスト自身の最小の高さとターゲットより低くなりません。
 
 ### 推奨
 
@@ -154,7 +154,7 @@ Web では `<tanrei-list-row>` です。ほかのプラットフォームはま�
 - 切り詰められたテキストも、支援技術には常に全文が伝わります。ツールチップは支援技術から隠され、ホバーと項目のキーボードフォーカスで開き、ポインターが上にある間は残り、Escape で閉じます。
 - 右から左のレイアウトでは行は左右反転し、各テキストはそれ自身の方向を保ちます。
 - 強制カラーでは、テキストとグリフはシステムのテキスト色になり、無効な項目ではシステムの無効テキスト色になります。
-- デバッグビルドでは、見出しのない行、1 でも 2 でもない `supportingLines`、先頭スロットに置き換えられた先頭グリフ、不明な密度を報告します。
+- デバッグビルドでは、見出しのない行、1 でも 2 でもない `supportingLines`、先頭スロットに置き換えられた先頭グリフ、不明なサイズを報告します。
 
 ### 利用者側で行うこと
 
