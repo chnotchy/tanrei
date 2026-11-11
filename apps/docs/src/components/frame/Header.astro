@@ -31,7 +31,9 @@
 //   the mode          an icon-only toggle Button, "Dark mode": on while the page is dark, and a press shows the other
 //                     scheme and keeps it as the reader's mode (the device's mode is chosen in the panel);
 //   the language      an icon-only Button that opens a Menu of links — a language is a place to go, the same page
-//                     at another address, and a list of places is a menu of links, never options.
+//                     at another address, and a list of places is a menu of links, never options. A post of the blog
+//                     is not in every language: where it is not, the link leads to that language's list of posts
+//                     (lib/blog.ts, `blogPageIn`).
 //
 // The bar hides what does not fit (`overflow="hide"`, APB-26, APB-30): the search, the mode and the language are never
 // taken out (`app-bar-overflow="never"`), so the repository's link is the one action that leaves where the row has no
@@ -50,6 +52,9 @@ import { marks } from '../../lib/brand-marks';
 import Appearance from './Appearance.astro';
 import { repositoryHref } from '../../lib/repository';
 import { strings } from '../../lib/i18n';
+import { blogPageIn, blogPageOf } from '../../lib/blog';
+import { blogPosts } from '../../lib/blog-posts';
+import { pageOf } from '../../lib/seo';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
@@ -62,7 +67,9 @@ const here = route.locale ? Astro.url.pathname.replace(new RegExp(`^/${route.loc
 const WORDMARK_HEIGHT = 40;
 const frame = frameOf(marks.wordmark);
 const wordmark = inlineMark(marks.wordmark, { width: Math.round((WORDMARK_HEIGHT * frame.width) / frame.height), height: WORDMARK_HEIGHT, slot: 'brand-wordmark', class: 'docs-brand', role: 'img', 'aria-label': route.siteTitle, focusable: 'false', translate: 'no' });
-const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
+const blogPage = blogPageOf(pageOf(route.id).page);
+const posts = blogPage ? await blogPosts() : [];
+const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: blogPage ? blogPageIn(posts, blogPage, dir) : dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
 ---
 
 <tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle} overflow="hide">

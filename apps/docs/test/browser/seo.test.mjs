@@ -1,6 +1,8 @@
 // What the built site's heads say to a search engine and to a shared link (src/routeData.ts), page by page: one image
-// of a shared link that the site serves — a PNG of 1200 × 630 —, the language as Open Graph writes it, structured
-// data that parses and has what its type asks for (the page itself, dated as the sitemap dates it), a title no other page of its language has, and no author but the
+// of a shared link that the site serves — a PNG of 1200 × 630 —, the language as Open Graph writes it and the
+// languages the page is in (`hreflang`, every one a page the site has: a post of the blog names only those it is
+// written in), structured data that parses and has what its type asks for (the page itself, dated as the sitemap
+// dates it; a post of the blog as a `BlogPosting`), a title no other page of its language has, and no author but the
 // account that owns the repository. Then, in a browser, that the image a few pages name is one it draws.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -44,6 +46,8 @@ const pages = htmlFiles(dist)
       lang: html.match(/<html[^>]* lang="([^"]+)"/)?.[1],
       title: decode(head.match(/<title>([^<]*)<\/title>/)?.[1] ?? ''),
       all: (key) => metas.filter(([name]) => name === key).map(([, value]) => value),
+      // The languages the page is in, as the framework writes them: `hreflang` and the address of each.
+      hreflangs: [...head.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"\/?>/g)].map(([, lang, href]) => ({ lang, href: decode(href) })),
       noindex: /<meta name="robots" content="noindex"/.test(head),
       // The date under its title (components/frame/PageTitle.astro): its meta line's `<time>`.
       shown: /<div data-part="meta"[^>]*>\s*<time\b[^>]*\bdatetime="([^"]+)"/.exec(html)?.[1],
@@ -56,8 +60,9 @@ const sitemapDates = new Map(
     [...fs.readFileSync(path.join(dist, new URL(loc).pathname), 'utf8').matchAll(/<url>(.*?)<\/url>/gs)].map(([, body]) => [new URL(/<loc>(.*?)<\/loc>/s.exec(body)[1]).pathname, /<lastmod>(.*?)<\/lastmod>/s.exec(body)?.[1]]),
   ),
 );
+/** A post of the blog, in any language: `blog/<name>/index.html`, `ja/blog/<name>/index.html`. */
+const isPost = (file) => /^(?:[a-z]{2}(?:-[a-z]{2})?\/)?blog\/[^/]+\/index\.html$/.test(file);
 const isHome = (file) => file === 'index.html' || translations.some(({ dir }) => file === `${dir}/index.html`);
-const ogLocales = [source, ...translations].map((language) => language.ogLocale);
 
 describe('every page’s head', () => {
   test('the site has its pages', () => {
@@ -87,14 +92,30 @@ describe('every page’s head', () => {
     assert.deepEqual(drawn.filter((file) => !sizes.has(file)), []);
   });
 
-  test('says its language as Open Graph writes it, and every other language of the site as an alternate', () => {
+  test('says its language as Open Graph writes it, and every other language it is in as an alternate', () => {
+    const ogLocaleOf = Object.fromEntries([source, ...translations].map((language) => [language.lang, language.ogLocale]));
     for (const page of pages) {
       const [locale, ...more] = page.all('og:locale');
       assert.equal(more.length, 0, page.file);
       assert.match(locale, /^[a-z]{2}_[A-Z]{2}$/, page.file);
       assert.equal(locale.slice(0, 2), page.lang.slice(0, 2).toLowerCase(), page.file);
-      assert.deepEqual([locale, ...page.all('og:locale:alternate')].sort(), [...ogLocales].sort(), page.file);
+      const languages = page.hreflangs.map(({ lang }) => lang).filter((lang) => lang !== 'x-default');
+      // Every language of the site, but on a post of the blog, which is in the languages it is written in.
+      if (!isPost(page.file)) assert.deepEqual([...languages].sort(), [source, ...translations].map(({ lang }) => lang).sort(), page.file);
+      assert.ok(languages.includes(page.lang), `${page.file}: its own language among its alternates`);
+      assert.deepEqual([locale, ...page.all('og:locale:alternate')].sort(), languages.map((lang) => ogLocaleOf[lang]).sort(), page.file);
     }
+  });
+
+  test('names as its languages only pages the site has (a page offered to a crawler)', () => {
+    const wrong = [];
+    for (const page of pages.filter((p) => !p.noindex)) {
+      for (const { lang, href } of page.hreflangs) {
+        const pathname = new URL(href).pathname;
+        if (!fs.existsSync(path.join(dist, decodeURIComponent(pathname), pathname.endsWith('/') ? 'index.html' : ''))) wrong.push(`${page.file}: ${lang} ${pathname}`);
+      }
+    }
+    assert.deepEqual(wrong.slice(0, 20), []);
   });
 
   test('has a title no other page of its language has; the first page’s is not «Tanrei | Tanrei»', () => {
@@ -160,6 +181,14 @@ describe('every page’s head', () => {
       } else if (/^(?:[a-z-]+\/)?getting-started\/(web|react|swiftui|compose|flutter|react-native)\/index\.html$/.test(page.file)) {
         const code = data.find((item) => item['@type'] === 'SoftwareSourceCode');
         assert.ok(code && typeof code.programmingLanguage === 'string', `${page.file}: SoftwareSourceCode with its programmingLanguage`);
+      } else if (isPost(page.file)) {
+        assert.deepEqual(types, ['WebPage', 'BreadcrumbList', 'BlogPosting'], page.file);
+        const post = data.find((item) => item['@type'] === 'BlogPosting');
+        assert.equal(new URL(post.url).pathname, pathname, page.file);
+        assert.ok(post.headline && post.inLanguage === page.lang && /^\d{4}-\d{2}-\d{2}$/.test(post.datePublished), `${page.file}: ${JSON.stringify(post)}`);
+        assert.equal(post.dateModified, sitemap, `${page.file}: the post's dateModified`);
+        // Its trail leads through its language's list.
+        assert.match(new URL(trail.at(-2).item).pathname, /^\/(?:[a-z-]+\/)?blog\/$/, page.file);
       } else {
         assert.deepEqual(types, ['WebPage', 'BreadcrumbList'], page.file);
       }

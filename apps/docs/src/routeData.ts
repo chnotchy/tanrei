@@ -10,7 +10,9 @@
 //   structured data              JSON-LD: the page itself and its trail on every page — the page with `dateModified`,
 //                                the date its head prints and the sitemap gives it (lib/lastmod.mjs) —, the site and
 //                                its source code on the first page, the platform's source code on a platform's page
-//                                of "Getting started".
+//                                of "Getting started", a post itself (`BlogPosting`) on a post of the blog;
+//   a post of the blog           only the languages it is written in, as `hreflang` alternates and as
+//                                `og:locale:alternate`; its trail through its language's list (lib/blog.ts).
 //
 // The page that was not found keeps its image (its language's first page's) and has no structured data: it is not
 // offered to a crawler.
@@ -19,12 +21,14 @@ import { homeHref, trail, type Entry } from './components/frame/frame';
 import { strings } from './lib/i18n';
 import { isNotFoundPage, specOfPage } from './lib/page-head';
 import { SOCIAL } from './lib/brand.mjs';
-import { breadcrumbList, componentTitles, gettingStartedPlatform, homeTitle, jsonLd, ogLocales, pageOf, socialImagePath, softwareSourceCode, webPage, webSite } from './lib/seo';
+import { blogImagePath, blogPageOf, blogPosting, blogWords, blogHref, languagesOf } from './lib/blog';
+import { blogPosts } from './lib/blog-posts';
+import { breadcrumbList, componentTitles, gettingStartedPlatform, homeTitle, jsonLd, languages, ogLocales, pageOf, socialImagePath, softwareSourceCode, webPage, webSite } from './lib/seo';
 import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 
 type HeadEntry = { tag: string; attrs?: Record<string, string | boolean | undefined>; content?: string };
 
-export const onRequest = defineRouteMiddleware((context) => {
+export const onRequest = defineRouteMiddleware(async (context) => {
   const site = context.site;
   if (!site) throw new Error('routeData: the site has no address (`site` in astro.config.mjs); every head names absolute addresses');
   const route = context.locals.starlightRoute;
@@ -34,6 +38,12 @@ export const onRequest = defineRouteMiddleware((context) => {
   const { dir, page } = pageOf(route.id);
   const home = page === 'index';
   const spec = specOfPage(route.id);
+  // A page of the blog: its list, or a post with the languages it is written in.
+  const blogPage = notFound ? undefined : blogPageOf(page);
+  const posts = blogPage ? await blogPosts() : [];
+  const post = blogPage?.kind === 'post' ? posts.find((each) => each.dir === dir && each.slug === blogPage.slug) : undefined;
+  if (blogPage?.kind === 'post' && !post) throw new Error(`routeData: ${route.id} is no post of the blog`);
+  const postLanguages = post ? languagesOf(posts, post.slug).map((each) => languages.find((language) => language.dir === each)!.lang) : undefined;
 
   const meta = (key: 'name' | 'property', name: string) => head.find((entry) => entry.tag === 'meta' && entry.attrs?.[key] === name);
   const setMeta = (key: 'name' | 'property', name: string, content: string) => {
@@ -59,13 +69,22 @@ export const onRequest = defineRouteMiddleware((context) => {
     setMeta('property', 'og:title', titles.og);
   }
 
-  // The language.
-  const locales = ogLocales(route.lang);
+  // The language. A post names only the languages it is written in, and the default language's address only where it
+  // is written in English (the framework names every language of the site).
+  if (postLanguages) {
+    for (let at = head.length - 1; at >= 0; at--) {
+      const { tag, attrs } = head[at];
+      if (tag !== 'link' || attrs?.rel !== 'alternate' || typeof attrs.hreflang !== 'string') continue;
+      const kept = attrs.hreflang === 'x-default' ? postLanguages.includes(languages[0].lang) : postLanguages.includes(attrs.hreflang);
+      if (!kept) head.splice(at, 1);
+    }
+  }
+  const locales = ogLocales(route.lang, postLanguages);
   setMeta('property', 'og:locale', locales.locale);
   for (const alternate of locales.alternates) head.push({ tag: 'meta', attrs: { property: 'og:locale:alternate', content: alternate } });
 
   // The image: the page's own; the page that was not found shows its language's first page's.
-  const image = new URL(socialImagePath(notFound ? dir : route.id, notFound ? false : route.isFallback), site).href;
+  const image = new URL(blogPage ? blogImagePath(posts, dir, blogPage) : socialImagePath(notFound ? dir : route.id, notFound ? false : route.isFallback), site).href;
   const alt = meta('property', 'og:title')?.attrs?.content as string | undefined;
   setMeta('property', 'og:image', image);
   setMeta('property', 'og:image:type', 'image/png');
@@ -80,10 +99,13 @@ export const onRequest = defineRouteMiddleware((context) => {
   // Structured data.
   const url = new URL(context.url.pathname, site).href;
   const levels = route.hasSidebar ? trail(route.sidebar as unknown as Entry[]) : [];
+  // A post stands under its language's list, which no group of the sidebar holds.
+  const above = blogPage?.kind === 'post' ? [{ name: blogWords(route.lang).title, href: blogHref(dir) }] : levels.map((level) => ({ name: level.label, href: level.href }));
   const crumbs = home
     ? [{ name: strings(route.lang).frame.home, href: homeHref(route) }]
-    : [{ name: strings(route.lang).frame.home, href: homeHref(route) }, ...levels.map((level) => ({ name: level.label, href: level.href })), { name: title, href: context.url.pathname }];
+    : [{ name: strings(route.lang).frame.home, href: homeHref(route) }, ...above, { name: title, href: context.url.pathname }];
   const data = [webPage(url, title, route.lang, description, lastUpdated(context.url.pathname)), breadcrumbList(crumbs, site)];
+  if (post) data.push(blogPosting(url, post, route.lang, lastUpdated(context.url.pathname)));
   if (home) data.push(webSite(url, route.lang, description), softwareSourceCode(url, description));
   const platform = gettingStartedPlatform(page);
   if (platform) data.push(softwareSourceCode(new URL(homeHref(route), site).href, description, [platform]));

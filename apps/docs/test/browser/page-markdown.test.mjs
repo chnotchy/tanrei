@@ -84,9 +84,12 @@ describe("every page's Markdown", () => {
       if (!fs.existsSync(path.join(dist, expected))) wrong.push(`${page.file}: no ${expected}`);
     }
     assert.deepEqual(wrong, []);
+    // Every language has every page — but a post of the blog, which is in the languages it is written in.
+    const post = (page) => /^\/(?:[a-z-]+\/)?blog\/[^/]+\/$/.test(page.pathname);
+    const every = searched.filter((page) => !post(page));
     for (const dir of ['', ...languages]) {
-      const own = searched.filter((page) => (dir ? page.pathname.startsWith(`/${dir}/`) : !languages.some((each) => page.pathname.startsWith(`/${each}/`))));
-      assert.equal(own.length, searched.length / (languages.length + 1), `the pages of ${dir || 'English'}`);
+      const own = every.filter((page) => (dir ? page.pathname.startsWith(`/${dir}/`) : !languages.some((each) => page.pathname.startsWith(`/${each}/`))));
+      assert.equal(own.length, every.length / (languages.length + 1), `the pages of ${dir || 'English'}`);
     }
   });
   test('no other page names one (the pages that were not found, the redirects)', () => {

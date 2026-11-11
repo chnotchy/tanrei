@@ -1,0 +1,11 @@
+---
+// The blog's list of posts in each language but the root's (components/blog/BlogList.astro says what it is): every
+// language has one, empty or not.
+import BlogList from '../../../components/blog/BlogList.astro';
+import { translations } from '../../../../i18n/locales.mjs';
+
+export const getStaticPaths = () => translations.map(({ dir, lang }) => ({ params: { locale: dir }, props: { dir, lang } }));
+const { dir, lang } = Astro.props;
+---
+
+<BlogList dir={dir} lang={lang} />

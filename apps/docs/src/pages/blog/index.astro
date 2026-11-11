@@ -1,0 +1,8 @@
+---
+// The blog's list of English posts, the language of the site's root (components/blog/BlogList.astro says what it is).
+// Each other language has its own list under its folder (pages/[locale]/blog/index.astro).
+import BlogList from '../../components/blog/BlogList.astro';
+import { source } from '../../../i18n/locales.mjs';
+---
+
+<BlogList dir={source.dir} lang={source.lang} />

@@ -1,0 +1,93 @@
+---
+// A language's list of the blog's posts: `/blog/` and `/<language>/blog/` (pages/blog/index.astro,
+// pages/[locale]/blog/index.astro), in the page frame, in every language of the site. What the blog is: lib/blog.ts.
+//
+//   the posts       the language's own, newest first: each one's title as a heading that links to it, the day it was
+//                   published and its author, and its description;
+//   no post         Tanrei's Empty state at the large size (specs/empty-state.spec.json): the main region before its
+//                   first item. Its title says, in the page's language, that no post has been published in it yet;
+//   the others      the languages that have posts this one does not, each by its own name and linked to its list;
+//   the feed        the language's RSS feed, also named in the head of every page of its blog.
+//
+// The list says when it last changed as every page does, from git: the newest commit of this file and of the
+// language's posts (lib/lastmod.mjs).
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { blogPosts } from '../../lib/blog-posts';
+import { blogWords, feedHref, feedLink, otherLanguages, postHref, postsIn, publishedParts } from '../../lib/blog';
+import { strings } from '../../lib/i18n';
+
+interface Props {
+  /** The language's folder: '' for English, at the root. */
+  dir: string;
+  lang: string;
+}
+const { dir, lang } = Astro.props;
+const t = strings(lang).blog;
+const words = blogWords(lang);
+const posts = await blogPosts();
+const own = postsIn(posts, dir);
+const others = otherLanguages(posts, dir);
+---
+
+<StarlightPage frontmatter={{ title: words.title, description: words.description, tableOfContents: false, prev: false, next: false, head: [feedLink(dir)] }}>
+  {
+    own.length > 0 ? (
+      <ol class="docs-blog-list">
+        {own.map((post) => {
+          const day = publishedParts(post.data.date, lang);
+          return (
+            <li>
+              <h2>
+                <a href={postHref(dir, post.slug)}>{post.data.title}</a>
+              </h2>
+              <p class="docs-blog-byline">
+                <time datetime={day.datetime}>{day.text}</time> · <span>{post.data.author}</span>
+              </p>
+              <p>{post.data.description}</p>
+            </li>
+          );
+        })}
+      </ol>
+    ) : (
+      <tanrei-empty-state class="docs-blog-empty not-content" size="large">
+        <span slot="media" data-pagefind-ignore>
+          article
+        </span>
+        <h2 slot="title">{t.empty}</h2>
+      </tanrei-empty-state>
+    )
+  }
+  {
+    others.length > 0 && (
+      <p class="docs-blog-languages">
+        {t.otherLanguages}:{' '}
+        {others.map((other, at) => (
+          <>
+            {at > 0 && ', '}
+            <a href={other.href} hreflang={other.lang} lang={other.lang}>
+              {other.label}
+            </a>
+          </>
+        ))}
+      </p>
+    )
+  }
+  <p class="docs-blog-feed">
+    <a href={feedHref(dir)} type="application/rss+xml">{t.feed}</a>
+  </p>
+</StarlightPage>
+
+<style>
+  .docs-blog-list {
+    padding: 0;
+    list-style: none;
+  }
+  .docs-blog-list > li + li {
+    margin-block-start: var(--tanrei-sys-space-space600);
+  }
+  .docs-blog-byline {
+    color: var(--tanrei-sys-color-on-surface-variant);
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+  }
+</style>
