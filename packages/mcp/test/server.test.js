@@ -600,6 +600,22 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
   assert.equal(inherited.warnings.first.length, 2);
 });
 
+test('validate_layer: what tanrei build refuses in every layer is a problem; a target under its criterion a warning', async () => {
+  const check = async (tokens) => (await server.call('validate_layer', { layer: { id: 'acme', extends: 'tanrei', tokens } })).data;
+  const zero = await check({ 'tanrei.dial.density': { $value: 0, reason: 'A density of zero, to be refused.' } });
+  assert.equal(zero.valid, false, 'a layer validate_layer answers valid for builds');
+  assert.deepEqual(zero.problems, ['target floor: dial.density: 0 — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)']);
+  const under = await check({ 'tanrei.sys.target.pointer': { $value: { value: 30, unit: 'px' }, reason: 'A pointer target under the minimum.' } });
+  assert.equal(under.valid, false);
+  assert.match(under.problems[0], /^target floor: sys\.target\.pointer: 30px is under sys\.target\.minimum \(36px\)/);
+  // Under WCAG 2.5.8's 24px, a product layer is warned, as of a contrast pair; the build goes on.
+  const small = await check({ 'tanrei.sys.target.minimum': { $value: { value: 20, unit: 'px' }, reason: 'A minimum under the criterion.' } });
+  assert.equal(small.valid, true);
+  assert.ok(small.warnings.first.includes('target size: sys.target.minimum: 20px < 24px (WCAG 2.5.8: the least target a person presses)'), small.warnings.first.join('\n'));
+  const dense = await check({ 'tanrei.dial.density': { $value: 0.75, reason: 'A tool looked through all day.' } });
+  assert.equal(dense.valid, true);
+});
+
 test('validate_layer: extensions are valid targets, and each way to get one wrong is named precisely', async () => {
   // The pipeline's fixture — every kind of extension, valued under `tokens` too — is valid, with no false positives.
   const ok = (await server.call('validate_layer', { layerFile: extendedFile })).data;

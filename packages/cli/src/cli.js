@@ -17,7 +17,7 @@ import { AUDITED_EXTENSIONS, auditContext, auditTexts } from '@tanrei/tokens-bui
 import { CATALOG_FILE, componentsManifest, readComponentCatalog } from '@tanrei/tokens-build/components-manifest';
 import { FONT_NOTE, fontLines, fontReport } from '@tanrei/tokens-build/fonts';
 import { glyphLines } from '@tanrei/tokens-build/glyphs';
-import { leadWithStructure } from '@tanrei/tokens-build/invariants';
+import { isRefusedEverywhere, leadWithStructure } from '@tanrei/tokens-build/invariants';
 import { buildIR } from '@tanrei/tokens-build/ir';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
 import { readSystemChain, resolveSystem, validateSystem } from '@tanrei/tokens-build/resolve';
@@ -152,8 +152,15 @@ async function validate(flags) {
   const resolved = await resolveSystem({ layerFile }, { validate: false });
   const fonts = fontReport(buildIR(await resolved.model()));
   for (const warning of fonts.warnings) console.warn(`⚠ ${warning}`);
-  // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already.
-  printWarnings(await resolved.warnings());
+  // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already, and what it
+  // refuses in a product layer too (a density of zero or less, a hit area under the drawn minimum) is a problem.
+  const warnings = await resolved.warnings();
+  const refused = warnings.filter(isRefusedEverywhere);
+  if (refused.length) {
+    console.error(`✖ ${refused.length} problem(s) \`tanrei build\` refuses in every layer:\n${refused.map((p) => `  - ${p}`).join('\n')}`);
+    return 1;
+  }
+  printWarnings(warnings);
   console.log(`✔ ${path.relative(process.cwd(), layerFile)} is a valid layer (${resolved.chain.map((l) => l.id).join(' → ')})`);
   return 0;
 }

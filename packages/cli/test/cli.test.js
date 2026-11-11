@@ -238,6 +238,20 @@ test('explain, systems, init, help', () => {
   assert.equal(init.status, 0, init.stderr);
 });
 
+test('validate refuses what build refuses in every layer: a density of zero, a hit area under the minimum', () => {
+  const zero = product({ ...acme, tokens: { 'tanrei.dial.density': { $value: 0, reason: 'A density of zero, to be refused.' } } }, { web: 'out/web' });
+  const refused = zero.run(['validate']);
+  assert.equal(refused.status, 1, refused.stdout);
+  assert.match(refused.stderr, /✖ 1 problem\(s\) `tanrei build` refuses in every layer:\n {2}- target floor: dial\.density: 0 — a density is above zero/);
+  assert.match(zero.run(['build']).stderr, /cannot be built:\n {2}- target floor: dial\.density: 0/, 'the build refuses the same layer');
+  const under = product({ ...acme, tokens: { 'tanrei.sys.target.touch': { $value: { value: 30, unit: 'px' }, reason: 'A touch target under the minimum.' } } }, { web: 'out/web' });
+  assert.match(under.run(['validate']).stderr, /target floor: sys\.target\.touch: 30px is under sys\.target\.minimum \(36px\)/);
+  // A density that is above zero is a value like any other.
+  const dense = product({ ...acme, tokens: { 'tanrei.dial.density': { $value: 0.75, reason: 'A tool looked through all day.' } } }, { web: 'out/web' });
+  const valid = dense.run(['validate']);
+  assert.equal(valid.status, 0, valid.stderr);
+});
+
 test('fonts: build and systems list the named families a system references; validate warns about a stack without a fallback', () => {
   const branded = { ...acme, tokens: { ...acme.tokens, 'tanrei.ref.typeface.brand': { $value: ['Acme Sans', 'system-ui', 'sans-serif'], reason: 'The brand typeface of this product.' }, 'tanrei.sys.icon.family.selected': { $value: ['Acme Icons Filled'], reason: 'A static icon set: the filled family when selected.' } } };
   const { run } = product(branded, { web: 'out/web' });
