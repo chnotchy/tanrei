@@ -23,6 +23,7 @@ import {
   shadowLayers,
   styleQueries,
   swallowRelease,
+  readTogether,
   usableLength as usable,
   ariaAttribute,
   asComponent,
@@ -253,6 +254,8 @@ export class TanreiTooltip extends TanreiElement {
   private touchTimer: ReturnType<typeof setTimeout> | undefined;
   private touchShown = false;
   private shown = false;
+  /** Counts the times it was told to show or hide: a presentation asked for by one is not made after the next. */
+  private presenting = 0;
   private lastLayout = '';
   /** TIP-9: the side it stands on, kept while that side has room; and the placement and direction it was taken for. */
   private side: TooltipSide | null = null;
@@ -718,14 +721,28 @@ export class TanreiTooltip extends TanreiElement {
     const surface = this.surface;
     const motion = this.motion;
     if (!surface || !motion || !this.isConnected) return;
-    const leaving = !this.shown && surface.matches(':popover-open');
-    const whole = !leaving && (this.tookOver || this.takesOver);
+    const whole = !(!this.shown && surface.matches(':popover-open')) && (this.tookOver || this.takesOver);
     this.tookOver = false;
     // TIP-8, TIP-28: at most one tooltip in a window, and the one before disappears at once.
     if (showing && showing !== this) showing.giveWay();
     if (fading && fading !== this) fading.hide(false);
     if (fading === this) fading = null;
     showing = this;
+    // Into the top layer and placed with every other host's reads of the turn, after the renders
+    // (src/primitives/read-phase.ts), and only if it is still the one showing then: of a hundred tooltips opened at
+    // once, the ninety-nine that gave way never enter the top layer, nor have the page laid out to be placed.
+    const presenting = ++this.presenting;
+    readTogether(() => () => {
+      if (presenting === this.presenting && showing === this && this.open && this.isConnected) this.present(whole);
+    });
+  }
+
+  /** What `show` does once it is still the tooltip showing after the renders of the turn. */
+  private present(whole: boolean) {
+    const surface = this.surface;
+    const motion = this.motion;
+    if (!surface || !motion) return;
+    const leaving = !this.shown && surface.matches(':popover-open');
     // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since — and, still
     // leaving, put back where its exit has got to (TIP-29).
     if (surface.matches(':popover-open'))
@@ -758,8 +775,10 @@ export class TanreiTooltip extends TanreiElement {
     const left = this.left;
     this.left = false;
     this.stopFollowing();
+    this.presenting++;
     if (showing === this) showing = null;
-    if (!surface || !motion) return;
+    // Never presented (it gave way in the turn it was opened in), or gone already: there is nothing drawn to take away.
+    if (!surface || !motion || (!this.shown && !surface.matches(':popover-open'))) return;
     const finish = () => {
       if (this.shown) return;
       if (fading === this) fading = null;

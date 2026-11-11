@@ -614,13 +614,29 @@ export class TanreiImagePreview extends TanreiElement {
 
   /** IMP-11, IMP-40: the stage and the fit area, measured; true when either changed. */
   private measure(): boolean {
+    const sizes = this.readSizes();
+    return sizes ? this.takeSizes(sizes) : false;
+  }
+
+  /** What `measure` reads: the stage, the fit area in it, and whether the caption scrolls. Reads only. */
+  private readSizes(): { stage: Size; fit: { x: number; y: number; w: number; h: number }; scrolls: boolean } | null {
     const dialog = this.dialog;
     const area = this.renderRoot?.querySelector<HTMLElement>('.fit');
-    if (!dialog || !area) return false;
+    if (!dialog || !area) return null;
     const outer = dialog.getBoundingClientRect();
     const inner = area.getBoundingClientRect();
-    const stage = { w: outer.width, h: outer.height };
-    const fit = { x: inner.left - outer.left, y: inner.top - outer.top, w: inner.width, h: inner.height };
+    const caption = this.renderRoot.querySelector<HTMLElement>('.caption');
+    return {
+      stage: { w: outer.width, h: outer.height },
+      fit: { x: inner.left - outer.left, y: inner.top - outer.top, w: inner.width, h: inner.height },
+      scrolls: !!caption && caption.scrollHeight > caption.clientHeight + 0.5,
+    };
+  }
+
+  /** What `measure` writes from what it read; true when the stage or the fit area changed. */
+  private takeSizes({ stage, fit, scrolls }: { stage: Size; fit: { x: number; y: number; w: number; h: number }; scrolls: boolean }): boolean {
+    const dialog = this.dialog;
+    if (!dialog) return false;
     const changed = stage.w !== this.stage.w || stage.h !== this.stage.h || fit.x !== this.fit.x || fit.y !== this.fit.y || fit.w !== this.fit.w || fit.h !== this.fit.h;
     // IMP-40: the point of the image at the middle of the fit area stays there: its distance from the image's centre
     // grows as the image does.
@@ -641,8 +657,6 @@ export class TanreiImagePreview extends TanreiElement {
       dialog.style.setProperty('--_fit-x', `${fit.x + fit.w / 2}px`);
       dialog.style.setProperty('--_fit-y', `${fit.y + fit.h / 2}px`);
     }
-    const caption = this.renderRoot.querySelector<HTMLElement>('.caption');
-    const scrolls = !!caption && caption.scrollHeight > caption.clientHeight + 0.5;
     if (scrolls !== this.captionScrolls) this.captionScrolls = scrolls;
     return changed;
   }
@@ -1476,16 +1490,27 @@ export class TanreiImagePreview extends TanreiElement {
     // IMP-43: the images are gone while it is presented: there is nothing to show.
     if (this.presented && !this.images.length) this.withdraw(true);
     if (!this.presented) return;
-    // IMP-8, IMP-10: a system switch is seen at the next update — read after it with every other host's of the turn
-    // (src/primitives/read-phase.ts); presenting gave them before the preview was shown.
-    readTogether(() => {
+    // IMP-8, IMP-10: a system switch is seen at the next update (the system watch asks for one) — read after it with
+    // every other host's of the turn (src/primitives/read-phase.ts); presenting gave them before the preview was shown.
+    // IMP-11, IMP-40: the stage and the fit area are measured with them, so a hundred previews lay the page out once,
+    // not once each, and what was drawn is placed from that, still before any frame. A picture that loaded or failed
+    // (`drawn`, in a task of its own for each image) changes neither the stage nor the cascade: it is placed from what
+    // was measured, reading nothing.
+    if (changed.size > 0 && [...changed.keys()].every((key) => key === 'drawn')) {
+      this.takeZoom();
+      this.place();
+    } else readTogether(() => {
       if (!this.presented) return;
       const chosen = this.readVariants();
-      return () => this.giveChosen(chosen);
+      const sizes = this.readSizes();
+      return () => {
+        if (!this.presented) return;
+        this.giveChosen(chosen);
+        if (sizes) this.takeSizes(sizes);
+        this.takeZoom();
+        this.place();
+      };
     });
-    this.measure();
-    this.takeZoom();
-    this.place();
     // IMP-7, IMP-8, IMP-9, IMP-10, IMP-27, IMP-31: what a debug build reports.
     this.reports();
     // IMP-28: the new image is said — the count's sentence, then its alt — and focus stays where it is, unless the
