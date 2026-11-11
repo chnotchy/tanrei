@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type CDPSession, type Page, expect, test } from '@playwright/test';
-import { rootTokens } from '../../test/harness.js';
+import { rootTokens, withoutIconFont } from '../../test/harness.js';
 import { LIGHT_DOM_SUBJECTS } from '../../test/light-dom.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -30,11 +30,18 @@ const N = 50;
 const pageHtml = (body: string, css: string[] = [], style = '') =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tokens.css')}</style>${css.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}${style ? `<style>${style}</style>` : ''}</head><body>${body}<script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`;
 
+/**
+ * Opens a page of `html`, at rest. The icon set names a family no machine has (`withoutIconFont`): its font is missing
+ * on every machine, as on a page that has not loaded it. The default's family may be installed locally — a Mac with
+ * Material Symbols drew the file pickers' glyphs, and marking them drawn cost the batch two style passes that the Linux
+ * runner, with no icon face, never counted — and a count must not depend on which machine made it.
+ */
 async function open(page: Page, html: string) {
   await page.unroute(PAGE);
   await page.route(PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: html }));
   await page.goto(PAGE);
   await page.evaluate(() => customElements.whenDefined('tanrei-button'));
+  await withoutIconFont(page);
   await rest(page);
 }
 
