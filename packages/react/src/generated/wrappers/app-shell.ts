@@ -24,6 +24,7 @@ const AppShellAttributes = { scrolls: ['scroll', 'page'], headerPosition: ['head
  * - `skip-link` — The skip link: a standalone Link (`class="tanrei-link" data-standalone`) whose `href` is the main region's id, with the product's words. Shown only while it has keyboard focus.
  * - `announcement` — The notice above the header: an element around a callout, across the frame's width.
  * - `header` — The header: a `<header>` around the product's app bar, with the menu button in the bar's navigation slot.
+ * - `menu-button` — The menu button of a frame without a header: an icon-only `<tanrei-button slot="menu-button">`, placed alone in the header's place at the top start corner and kept at the top of the window while the page scrolls (APS-34). Not shown while the header slot is filled.
  * - `navigation` — The navigation: a `<tanrei-navigation-drawer responsive>`. Anything else is placed beside the content in an expanded window and is not shown in a narrower one.
  * - `aside` — The aside: an `<aside>` with the product's supporting content, or a side sheet.
  * - `footer` — The footer: a `<footer>` with the product's own layout.

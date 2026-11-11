@@ -792,7 +792,8 @@ function afterScript(tag: string, fixtures: Fixture[], after: NonNullable<Stagin
  * An app shell fixture as the regions its element holds (the spec's web note): each region the fixture fills is the
  * product's own semantic element with the region's name in its `slot` attribute — the skip link a standalone Link to
  * the main region's id, the header a `<header>` with the menu button (the fixture's one item, an icon-only text
- * Button marked `data-app-shell-menu`) at its start, the navigation and the navigation bar each a `<nav>` named by its
+ * Button marked `data-app-shell-menu`) at its start — or, where the fixture fills no header, that Button alone in the
+ * `menu-button` slot, in the header's place (APS-34) — the navigation and the navigation bar each a `<nav>` named by its
  * text, the aside an `<aside>` on the side of the `<main>` that `asideOrder` names, the footer a `<footer>` — in the
  * order of APS-22. A fixture fills a region with text only, so each is a labelled box: `fixture-region`,
  * with the least size of what it stands for (an app bar's height, a drawer's width, a navigation bar's height). Markup
@@ -807,13 +808,14 @@ function appShellMarkup(spec: Spec, fixture: Fixture): string {
   };
   const region = (name: string, tag: string, attrs = '', before = '') => (slot(name) === undefined ? '' : `<${tag} slot="${name}" class="fixture-region"${attrs}>${before}${slot(name)}</${tag}>`);
   const main = `main-${fixture.id}`;
-  const menu = itemsMarkup(spec, (fixture.items ?? []).filter((item) => item.kind === 'menu-button'), { itemAttributes: () => 'data-app-shell-menu' });
+  const headed = slot('header') !== undefined;
+  const menu = itemsMarkup(spec, (fixture.items ?? []).filter((item) => item.kind === 'menu-button'), { itemAttributes: () => (headed ? 'data-app-shell-menu' : 'slot="menu-button"') });
   const aside = region('aside', 'aside');
   const before = fixture.props.asideOrder === 'before';
   return [
     slot('skip-link') === undefined ? '' : `<a class="tanrei-link" data-standalone slot="skip-link" href="#${main}">${slot('skip-link')}</a>`,
     region('announcement', 'div'),
-    region('header', 'header', '', menu),
+    headed ? region('header', 'header', '', menu) : menu,
     region('navigation', 'nav', ` aria-label="${slot('navigation')}"`),
     before ? aside : '',
     `<main id="${main}" tabindex="-1" class="fixture-region">${fixture.content ?? ''}</main>`,

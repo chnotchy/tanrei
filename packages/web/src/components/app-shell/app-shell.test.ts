@@ -1,4 +1,4 @@
-// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id (APS-1…32) is cited by
+// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id (APS-1…34) is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the numbers of a `verify` are the spec's own, for the default system). A fixture is drawn alone,
 // in the window APS-2's verify names for it (`appShellWindow`): the frame reads the window's width and nothing else.
@@ -26,7 +26,8 @@ const WINDOWS = { compact: { width: 400, height: 800 }, medium: { width: 800, he
 const shell = (page: P) => page.locator(TAG).first();
 const region = (page: P, name: string) => page.locator(`${TAG} > [slot="${name}"]`).first();
 const main = (page: P) => page.locator(`${TAG} > main`).first();
-const menu = (page: P) => page.locator(`${TAG} [data-app-shell-menu]`).first();
+// The header's marked menu button, or (APS-34) the menu-button slot's of a frame without a header.
+const menu = (page: P) => page.locator(`${TAG} [data-app-shell-menu], ${TAG} > [slot="menu-button"]`).first();
 const drawer = (page: P) => page.locator(`${TAG} > tanrei-navigation-drawer`).first();
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const px = async (locator: Locator, property: string) => Number.parseFloat(await css(locator, property));
@@ -69,7 +70,7 @@ const active = (page: P) =>
     let at: Element | null = document.activeElement;
     const path: string[] = [];
     while (at) {
-      path.push(at.id ? `#${at.id}` : at.getAttribute('data-app-shell-menu') !== null ? 'menu' : at.getAttribute('slot') ? `${at.localName}[${at.getAttribute('slot')}]` : at.localName);
+      path.push(at.id ? `#${at.id}` : at.getAttribute('data-app-shell-menu') !== null || at.getAttribute('slot') === 'menu-button' ? 'menu' : at.getAttribute('slot') ? `${at.localName}[${at.getAttribute('slot')}]` : at.localName);
       at = at.shadowRoot?.activeElement ?? null;
     }
     return path.join(' » ');
@@ -121,14 +122,16 @@ interface Real {
   props?: Fixture['props'];
   announcement?: string;
   direction?: 'rtl';
+  /** false: no header, and the menu button in the menu-button slot in its place (APS-34). */
+  header?: boolean;
 }
-const real = ({ navigation = DRAWER(), aside = '<aside slot="aside"><a id="aside-link" href="#s1">Aside link</a></aside>', footer = true, bar = false, sections = 0, props = {}, announcement = '', direction }: Real = {}): Fixture =>
+const real = ({ navigation = DRAWER(), aside = '<aside slot="aside"><a id="aside-link" href="#s1">Aside link</a></aside>', footer = true, bar = false, sections = 0, props = {}, announcement = '', direction, header = true }: Real = {}): Fixture =>
   own(
     'real',
     { asideLabel: 'On this page', ...props },
     `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">Skip to content</a>
     ${announcement}
-    <header slot="header"><tanrei-app-bar headline="Tanrei"><tanrei-button slot="navigation" data-app-shell-menu variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button></tanrei-app-bar></header>
+    ${header ? '<header slot="header"><tanrei-app-bar headline="Tanrei"><tanrei-button slot="navigation" data-app-shell-menu variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button></tanrei-app-bar></header>' : '<tanrei-button slot="menu-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>'}
     ${navigation}
     ${props.asideOrder === 'before' ? aside : ''}
     <main id="main" tabindex="-1"><p style="margin: 0"><a id="first" href="#s3">First link</a></p>${SECTIONS(sections)}</main>
@@ -653,6 +656,103 @@ test.describe('the menu button', () => {
     await expect.poll(drawerOpen).toBe(false);
     expect(await count()).toBe(3);
     expect(seen.filter((message) => message.includes('NVD-37'))).toEqual([]);
+  });
+
+  test('APS-34, APS-21, APS-22: without a header, at 400 wide the menu button stands alone in the header’s place — gutter.compact (16) from the top and the start of the window, no band, the main region below it — and stays there while the page scrolls under it, drawn over the content; its gutter and height are what the frame keeps over the top; it adds no landmark and is reached after the skip link; 800 wide it is drawn for a drawer that is not collapsible and not for the column, and 1280 wide not at all', async ({ page, browserName }) => {
+    await mount(page, real({ header: false, sections: 4 }), { width: 400 });
+    const gutter = await resolveToken(page, T('gutter-compact'));
+    expect(gutter).toBe(16);
+    const at = await edges(menu(page));
+    expect([at.left, at.top]).toEqual([gutter, gutter]);
+    expect((await edges(main(page))).top).toBe(at.bottom);
+    // What the frame keeps over the top of the page: the gutter and the button.
+    const offset = () => page.evaluate(() => [getComputedStyle(document.documentElement).getPropertyValue('--tanrei-app-shell-scroll-offset').trim(), getComputedStyle(document.documentElement).scrollPaddingTop]);
+    await expect.poll(offset).toEqual([`${gutter + at.height}px`, `${gutter + at.height}px`]);
+    // Scrolled: the button is where it was, over the content, and beside it the content shows — no band.
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await frame(page);
+    expect(await scrollY(page)).toBe(600);
+    const stuck = await edges(menu(page));
+    expect([stuck.left, stuck.top]).toEqual([gutter, gutter]);
+    const hit = (x: number, y: number) => page.evaluate(([x, y]) => {
+      const el = document.elementFromPoint(x, y);
+      return el?.closest('[slot="menu-button"]') ? 'menu' : el?.closest('main') ? 'main' : (el?.localName ?? null);
+    }, [x, y] as const);
+    expect(await hit(stuck.left + stuck.width / 2, stuck.top + stuck.height / 2)).toBe('menu');
+    expect(await hit(stuck.right + 40, stuck.top + stuck.height / 2)).toBe('main');
+    // No landmark of its own, and no banner.
+    if (browserName === 'chromium') expect((await landmarks(page)).filter((l) => l.startsWith('banner'))).toEqual([]);
+    expect(await menu(page).evaluate((el) => el.getAttribute('role'))).toBeNull();
+    // In the header's place in the order of focus: after the skip link.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.locator('[slot="skip-link"]').focus();
+    await tab(page);
+    await expect.poll(() => active(page)).toContain('menu');
+    // The column of a collapsible drawer, and the standard presentation: the drawer's own menu button stands for it.
+    await resize(page, 800);
+    expect(await shown(menu(page))).toBe(false);
+    await expect.poll(offset).toEqual(['', 'auto']);
+    expect((await edges(drawer(page))).top).toBe(0);
+    await resize(page, 1280);
+    expect(await shown(menu(page))).toBe(false);
+    expect((await edges(drawer(page))).top).toBe(0);
+    // A drawer that is not collapsible is modal at 800: the button is drawn, at the gutter of that class.
+    await mount(page, real({ header: false, navigation: DRAWER('responsive') }), { width: 800 });
+    const medium = await resolveToken(page, T('gutter-medium'));
+    const there = await edges(menu(page));
+    expect([there.left, there.top]).toEqual([medium, medium]);
+  });
+
+  test('APS-34, APS-7, NVD-19, NVD-22: without a header, at 400 wide the menu button opens the drawer as a modal over the whole window — from its top edge, the button under its scrim — with focus inside it, the button expanded and one navigationOpenChange with true; Escape closes it, focus is back on the menu button and one carried false; no axe violations in the drawer and the menu button while it is open, light and dark', async ({ page }) => {
+    await mount(page, real({ header: false, sections: 2 }), { width: 400 });
+    const log = await record(page);
+    const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
+    const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
+    await expect.poll(expanded).toBe('false');
+    const button = await edges(menu(page));
+    await menu(page).evaluate((el) => (el as HTMLElement).focus());
+    await page.keyboard.press('Enter');
+    await expect.poll(drawerOpen).toBe(true);
+    await motionEnded(page);
+    await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
+    await expect.poll(expanded).toBe('true');
+    expect(await log()).toEqual([['navigationopenchange', true]]);
+    expect((await edges(drawer(page).locator('.drawer'))).top).toBe(0);
+    // The scrim covers the menu button: what is at its centre is not the button.
+    expect(await page.evaluate(([x, y]) => !document.elementFromPoint(x, y)?.closest('[slot="menu-button"]'), [button.left + button.width / 2, button.top + button.height / 2] as const)).toBe(true);
+    for (const theme of ['light', 'dark'] as const) {
+      if (theme === 'dark') {
+        await mount(page, real({ header: false, sections: 2 }), { width: 400, theme });
+        await menu(page).click();
+        await expect.poll(drawerOpen).toBe(true);
+        await motionEnded(page);
+      }
+      // What the frame draws while the navigation is open: the drawer and the menu button. The regions lie under the
+      // modal's scrim, inert and covered; the test's plain links in them take the browser's own link color, which axe
+      // measures against the scrim (WebKit, dark).
+      const results = await new AxeBuilder({ page }).include(`${TAG} > tanrei-navigation-drawer`).include(`${TAG} > [slot="menu-button"]`).analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => `${n.target.join(' ')} ${n.failureSummary}`).join(', ')}`), theme).toEqual([]);
+      if (theme === 'light') {
+        await page.keyboard.press('Escape');
+        await expect.poll(drawerOpen).toBe(false);
+        await expect.poll(() => active(page)).toContain('menu');
+        await expect.poll(expanded).toBe('false');
+        expect(await log()).toEqual([
+          ['navigationopenchange', true],
+          ['navigationopenchange', false],
+        ]);
+      }
+    }
+  });
+
+  test('APS-34: with a header, what the menu-button slot holds is not shown — no box, no stop of the keyboard — and a debug build reports it', async ({ page }) => {
+    const seen = warnings(page);
+    const markup = real().content!.replace('<main id="main"', '<tanrei-button slot="menu-button" variant="text" label="Other"><span slot="icon">menu</span></tanrei-button><main id="main"');
+    await mount(page, own('both', { asideLabel: 'On this page' }, markup), { width: 400 });
+    const other = page.locator(`${TAG} > [slot="menu-button"]`);
+    expect(await shown(other)).toBe(false);
+    expect(await shown(page.locator(`${TAG} [data-app-shell-menu]`))).toBe(true);
+    await expect.poll(() => seen.filter((message) => message.includes('APS-34')).length).toBe(1);
   });
 
   test('APS-7, NVD-19: no axe violations with the navigation open below the header, light and dark', async ({ page }) => {
@@ -1884,8 +1984,8 @@ test.describe('the element and its stylesheet', () => {
 });
 
 test.describe('fixtures', () => {
-  test('the spec has its 20 fixtures', () => {
-    expect(spec.fixtures).toHaveLength(20);
+  test('the spec has its 22 fixtures', () => {
+    expect(spec.fixtures).toHaveLength(22);
   });
 
   // A test per fixture, so a page per mount: a page that mounts many documents grows the engine's memory with each.
