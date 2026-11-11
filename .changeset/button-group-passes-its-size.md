@@ -21,3 +21,9 @@ A page's own style that selects `tanrei-button[size='small']` does not match a B
 that Button has no `size` attribute.
 
 New fixture: `button-group/small`. Nothing that was drawn before moves.
+
+The cascade costs a Button about 0.4 kB gzip (33,624 to 34,059 bytes), and every bundle that pulls in a Button the same;
+a button group takes about 0.1 kB more (16,281 to 16,397). Two bundles go over their budgets with it, which rise by the
+same rule, the measured size and 5 % rounded up to the next 100 bytes: the popover's from 57,000 to 60,300 bytes
+(measured 57,343, from 56,930) and the snackbar's from 45,900 to 48,300 (measured 45,920, from 45,511). The Button
+already carries only the part of the cascade that takes a size; the part that passes one is the group's alone.
