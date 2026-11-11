@@ -184,6 +184,93 @@ test.describe('behavior', () => {
     expect(styles.color).toMatch(/0\.38\)$/);
     expect(styles.background).toMatch(/0\.12\)$/);
   });
+
+  test('BTN-48: without a size of its own a button is drawn at the size its nearest container sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 and minimum 24, 36 and 48 every height is its size’s token, the ladder step held at the minimum', async ({ page }) => {
+    // Containers that pass a size are button groups (BGR-26). A group holds Buttons alone, so a group in a group is
+    // reported (BGR-10) and still laid out — here it is how one container stands nearer a button than another.
+    await page.evaluate(() => {
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">
+          <tanrei-button id="taken">Taken</tanrei-button>
+          <tanrei-button id="own" size="large">Own</tanrei-button>
+          <tanrei-button id="own-medium" size="medium">Own medium</tanrei-button>
+        </tanrei-button-group>
+        <tanrei-button-group id="unset"><tanrei-button id="free">Free</tanrei-button><tanrei-button>Other</tanrei-button></tanrei-button-group>
+        <tanrei-button-group id="outer" size="large">
+          <tanrei-button-group id="inner-unset"><tanrei-button id="through">Through</tanrei-button></tanrei-button-group>
+          <tanrei-button-group id="inner" size="small"><tanrei-button id="nearest">Nearest</tanrei-button></tanrei-button-group>
+        </tanrei-button-group>
+        <tanrei-button id="alone">Alone</tanrei-button>`;
+      document.body.append(stage);
+    });
+    const tokens = async () => ({
+      small: await resolveToken(page, '--tanrei-comp-button-container-height-small'),
+      medium: await resolveToken(page, '--tanrei-comp-button-container-height-medium'),
+      large: await resolveToken(page, '--tanrei-comp-button-container-height-large'),
+    });
+    /** The height of each button's container, measured in one frame. */
+    const heights = (...ids: string[]) =>
+      page.evaluate((list) => Object.fromEntries(list.map((id) => [id, document.getElementById(id)!.shadowRoot!.querySelector('button')!.getBoundingClientRect().height])), ids);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return Object.fromEntries(list.map((id) => [id, document.getElementById(id)!.shadowRoot!.querySelector('button')!.getBoundingClientRect().height]));
+        },
+        [change, ids] as const,
+      );
+    const all = ['taken', 'own', 'own-medium', 'free', 'through', 'nearest', 'alone'];
+
+    for (const minimum of ['24px', '36px', '48px']) {
+      for (const density of ['0.75', '1', '1.5']) {
+        await rootTokens(page, { '--tanrei-dial-density': density, '--tanrei-sys-target-minimum': minimum });
+        const size = await tokens();
+        const at = `density ${density}, minimum ${minimum}`;
+        // Each size's height is its ladder step, held at the minimum (the token engine's rule, read back here).
+        const min = await resolveToken(page, '--tanrei-sys-target-minimum');
+        for (const name of ['small', 'medium', 'large'] as const) {
+          expect(size[name], `${at}: ${name}`).toBe(Math.max(min, await resolveToken(page, `--tanrei-sys-control-height-${name}`)));
+        }
+        expect(await heights(...all), at).toEqual({
+          taken: size.small,
+          own: size.large,
+          'own-medium': size.medium,
+          free: size.medium,
+          through: size.large,
+          nearest: size.small,
+          alone: size.medium,
+        });
+      }
+    }
+    // The sweep moved the heights: the large step at 1.5 is not the one at 1.
+    await rootTokens(page, { '--tanrei-dial-density': '1.5', '--tanrei-sys-target-minimum': '' });
+    const roomy = (await tokens()).large;
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await tokens();
+    expect(roomy).toBeGreaterThan(size.large);
+
+    // A size the button lacks is its nearest on the ladder, the larger of two as near; a name off the ladder is BTN-7's.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-large')", 'taken')).toEqual({ taken: size.large });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'colossal')", 'taken')).toEqual({ taken: size.medium });
+    // Set, changed and removed on the container; set, given back and set to the default's name on the button.
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own')).toEqual({ taken: size.small, own: size.large });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken', 'own-medium')).toEqual({ taken: size.medium, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').size = 'large'", 'free')).toEqual({ free: size.large });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.large });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await afterOneFrame("document.getElementById('free').setAttribute('size', 'small')", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').removeAttribute('size')", 'free')).toEqual({ free: size.large });
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('nearest'))", 'nearest')).toEqual({ nearest: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.large });
+  });
 });
 
 // ── Choices of kind and the press itself ─────────────────────────────────────────────
@@ -1411,6 +1498,22 @@ test.describe('values a design system adds', () => {
     // An attribute value is interpolated into CSS, so anything but a token name is ignored.
     expect((await box(page, 'size-hostile'))!.height).toBe((await box(page, 'plain'))!.height);
     expect(await page.evaluate(() => getComputedStyle(document.body).color)).not.toBe('rgb(255, 0, 0)');
+  });
+
+  test('BTN-48: a size a layer added, set on a container, is drawn from its tokens by the buttons in it that set none — and reported by none of them', async ({ page }) => {
+    const reports: string[] = [];
+    page.on('console', (message) => { if (message.type() === 'warning' && message.text().includes('BTN-7')) reports.push(message.text()); });
+    await mountFixtures(page, spec, { system: 'acme', systemCss: acmeCss, fixtures: [fixture('plain', {})] });
+    const height = await page.evaluate(async () => {
+      const group = document.createElement('tanrei-button-group');
+      group.setAttribute('size', '3x');
+      group.innerHTML = '<tanrei-button>Deploy</tanrei-button><tanrei-button>Undo</tanrei-button>';
+      document.body.append(group);
+      await new Promise(requestAnimationFrame);
+      return group.querySelector('tanrei-button')!.shadowRoot!.querySelector('button')!.getBoundingClientRect().height;
+    });
+    expect(height).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-3x'));
+    expect(reports).toEqual([]);
   });
 });
 

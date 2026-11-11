@@ -20,6 +20,8 @@
 //                 whose name the active icon set mirrors in right-to-left (BTN-19); the styles are
 //                 `iconGlyph()`'s. markGlyph() is the one rule, observeIcons() the page's bare `.tanrei-icon`
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
+//   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
+//                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest
 //   report      — `report()`: what a debug build tells the developer (BTN-7, BTN-16…)
 //   words       — the product's words: WordsController (`get(key, this.prop)`: the prop, else the set of the
 //                 element's language, else the document's; `missing()`: recorded, reported once per key and page),
@@ -196,6 +198,7 @@
 export { iconGlyph } from '../styles/icons.js';
 export { cornerRadius, shape } from '../styles/shape.js';
 export { type OpenAxis, OpenAxesController, type OpenAxesOptions } from './axes.js';
+export { SIZE_LADDER, SizeConsumerController, SizeProviderController, nearestSize } from './size-cascade.js';
 export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedback } from './behavior.js';
 export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';

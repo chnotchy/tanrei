@@ -2244,6 +2244,18 @@
             },
             {
               "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons it holds, as the Button's `size`: set on the group, it is the size of every Button in it\nthat sets none of its own (BGR-26, BTN-48). Only a size set on the group is passed: a group that sets none (`null`,\nthe default) leaves each Button at its own default, `medium`, or at the size a container around the group sets. A\nButton's own size always wins. A size a design system added to the Button may be named.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -2290,6 +2302,15 @@
               "default": "false",
               "description": "The group fills its container's width and its buttons share it equally (in a column, each is the container's\nwidth): the `full-width` attribute. For the actions at the foot of a dialog, a picker or a side sheet.",
               "fieldName": "fullWidth"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons it holds, as the Button's `size`: set on the group, it is the size of every Button in it\nthat sets none of its own (BGR-26, BTN-48). Only a size set on the group is passed: a group that sets none (`null`,\nthe default) leaves each Button at its own default, `medium`, or at the size a container around the group sets. A\nButton's own size always wins. A size a design system added to the Button may be named.",
+              "fieldName": "size"
             },
             {
               "name": "label",
@@ -2816,12 +2837,25 @@
           "description": "BTN-12: the widths of an icon-only Button. A closed set: `default` is the height, `wide` a width of its size, and\n`narrow` no width of its own: the glyph's box and an inset of its size on each side."
         },
         {
+          "kind": "function",
+          "name": "drawnAt",
+          "parameters": [
+            {
+              "name": "size",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "BTN-48: the selector of the size a button draws (`size-<name>`, a custom state the button sets)."
+        },
+        {
           "kind": "variable",
           "name": "AXES",
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // BTN-48: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (BTN-7): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2852,6 +2886,14 @@
           "name": "WIDTHS",
           "declaration": {
             "name": "WIDTHS",
+            "module": "src/components/button/button.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "drawnAt",
+          "declaration": {
+            "name": "drawnAt",
             "module": "src/components/button/button.styles.ts"
           }
         },
@@ -2956,8 +2998,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target.",
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
               "attribute": "size",
               "reflects": true
             },
@@ -3312,8 +3353,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target.",
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
               "fieldName": "size"
             },
             {
