@@ -9,7 +9,7 @@ import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
 import { DEFAULT_SYSTEM, bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
 import { CONFIG } from '@tanrei/tokens-build/config';
-import { resolvedValues, themeColors } from '@tanrei/tokens-build/emit/resolved';
+import { themeColors } from '@tanrei/tokens-build/emit/resolved';
 import { cssLiteralsPlugin, minifyCssLiterals, remapSourceMap } from './css-literals.js';
 
 fs.mkdirSync('dist', { recursive: true });
@@ -319,16 +319,16 @@ fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
 // what the system ships, with the module that registers each component, generated beside the system's tokens.
 const manifests = fs.readdirSync('../../tokens/generated', { withFileTypes: true }).filter((entry) => entry.isDirectory() && fs.existsSync(`../../tokens/generated/${entry.name}/components.json`));
 for (const { name } of manifests) fs.copyFileSync(`../../tokens/generated/${name}/components.json`, `dist/systems/${name}.components.json`);
-// Each shipped system's tokens as each scheme draws them, resolved, for a program that reads values and not custom
-// properties (`@tanrei/web/systems/<id>.<scheme>.json`), and its theme colors (`@tanrei/web/systems/<id>.theme-color.json`,
-// for `themeColorMeta()`): read from the resolved DTCG `pnpm generate` writes for design tools, design/tokens/[<id>/].
+// Each shipped system's theme colors, the surface of each scheme (`@tanrei/web/systems/<id>.theme-color.json`, for
+// `themeColorMeta()`): read from the resolved DTCG `pnpm generate` writes for design tools, design/tokens/[<id>/]. The
+// resolved values themselves are not shipped here — about 0.5 MB a scheme, which every web install would carry: a
+// program that reads values gets them from design/tokens or from `tanrei build`'s tokens output.
 for (const { name } of manifests) {
   const dir = name === DEFAULT_SYSTEM ? '../../design/tokens' : `../../design/tokens/${name}`;
   const prefix = `${CONFIG.namespace}.`;
   const documents = Object.fromEntries(fs.readdirSync(dir).filter((file) => file.startsWith(prefix) && file.endsWith('.tokens.json')).sort()
     .map((file) => [file.slice(prefix.length, -'.tokens.json'.length), JSON.parse(fs.readFileSync(`${dir}/${file}`, 'utf8'))]));
   if (!Object.keys(documents).length) throw new Error(`${dir}: no resolved ${prefix}<scheme>.tokens.json for system "${name}" — run pnpm generate`);
-  for (const [scheme, doc] of Object.entries(documents)) fs.writeFileSync(`dist/systems/${name}.${scheme}.json`, JSON.stringify(resolvedValues(doc, { system: name, scheme })));
   fs.writeFileSync(`dist/systems/${name}.theme-color.json`, `${JSON.stringify(themeColors(documents), null, 2)}\n`);
 }
 // The entries written from those manifests (scripts/entries.js): `@tanrei/web/<id>` registers what system
@@ -392,4 +392,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.<scheme>.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

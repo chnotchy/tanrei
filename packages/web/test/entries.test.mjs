@@ -125,23 +125,22 @@ test('`@tanrei/web/all` registers every element of the package, and a component�
   assert.ok(fab.has(tag('fab-menu')) && fab.has(tag('fab-menu-item')));
 });
 
-// A program that reads values and not custom properties (a canvas, a chart, a native app, a language model) imports
-// them resolved, per scheme; `themeColorMeta()` takes the theme colors. Both are the design tools' resolved DTCG
-// (design/tokens/), in the plain form.
-test('each system’s tokens resolved per scheme, and its theme colors, are in dist/systems/ and exported', () => {
+// `themeColorMeta()` takes a system's theme colors: the surface of each scheme, as the design tools' resolved DTCG
+// (design/tokens/) has it. The resolved values themselves are not in the package (every web install would carry them):
+// design/tokens and `tanrei build`'s tokens output hold them.
+test('each system’s theme colors are in dist/systems/ and exported, each scheme’s surface; the resolved values are not shipped', () => {
   for (const id of systems) {
-    const themeColor = JSON.parse(fs.readFileSync(path.join(root, exported(`./systems/${id}.theme-color.json`)), 'utf8'));
-    const schemes = Object.keys(themeColor);
-    assert.ok(schemes.includes('light') && schemes.includes('dark') && schemes.includes('dark-high'), `${id}: ${schemes}`);
+    const file = exported(`./systems/${id}.theme-color.json`);
+    assert.equal(file, `./dist/systems/${id}.theme-color.json`);
+    const themeColor = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+    const design = path.join(root, '../../design/tokens', id === DEFAULT_SYSTEM ? '' : id);
+    const schemes = fs.readdirSync(design).filter((name) => name.endsWith('.tokens.json')).map((name) => name.slice(config.namespace.length + 1, -'.tokens.json'.length)).sort();
+    assert.deepEqual(Object.keys(themeColor), schemes, `${id}: every scheme, by name`);
     for (const scheme of schemes) {
-      const file = exported(`./systems/${id}.${scheme}.json`);
-      assert.equal(file, `./dist/systems/${id}.${scheme}.json`, `${id}.${scheme}.json is exported`);
-      const values = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
-      assert.equal(values.system, id);
-      assert.equal(values.scheme, scheme);
-      assert.equal(values.tokens[`${config.namespace}.sys.color.surface`], themeColor[scheme], `${id} ${scheme}: the theme color is the surface`);
-      assert.match(values.tokens[`${config.namespace}.sys.color.on-surface`], /^#[0-9a-f]{6}$/);
-      assert.ok(Object.keys(values.tokens).length > 1000, `${id} ${scheme}: ${Object.keys(values.tokens).length} tokens`);
+      const doc = JSON.parse(fs.readFileSync(path.join(design, `${config.namespace}.${scheme}.tokens.json`), 'utf8'));
+      assert.equal(themeColor[scheme], doc[config.namespace].sys.color.surface.$value.hex, `${id} ${scheme}: the theme color is the surface`);
+      assert.ok(!fs.existsSync(path.join(root, 'dist/systems', `${id}.${scheme}.json`)), `${id}.${scheme}.json is not in the package`);
+      assert.equal(exported(`./systems/${id}.${scheme}.json`), undefined, `${id}.${scheme}.json is not exported`);
     }
     assert.notEqual(themeColor.light, themeColor.dark, id);
   }

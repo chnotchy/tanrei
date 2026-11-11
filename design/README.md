@@ -10,7 +10,7 @@ Design tools are **renderers** of Tanrei's tokens, not their master. The reposit
 | `figma/` | Notes and scripts for the Figma library | by hand |
 | `brand/` | The symbol and the wordmark, and what is derived from them (`brand/generated/`) | the marks are pulled from Figma (`pnpm brand:pull`), `brand/generated/` by `pnpm generate`; `brand/figma.json` and the README by hand |
 
-The resolved files exist because most tools cannot evaluate the DTCG *resolver* yet. Tools that can should read `tokens/tanrei.resolver.json` directly. The presets' are in `tokens/<id>/`. The web package ships the same values flat, by token id, as `@tanrei/web/systems/<id>.<scheme>.json`, written from these files when it is built.
+The resolved files exist because most tools cannot evaluate the DTCG *resolver* yet. Tools that can should read `tokens/tanrei.resolver.json` directly. The presets' are in `tokens/<id>/`. The web package writes each system's theme colors from these files when it is built (`@tanrei/web/systems/<id>.theme-color.json`); `tanrei build` writes a product's values flat, by token id, as `<id>.<scheme>.json`.
 
 ## Figma
 

@@ -156,7 +156,8 @@
     "./menu.css": "./dist/menu.css",
     "./menubar.css": "./dist/menubar.css",
     "./systems/*.css": "./dist/systems/*.css",
-    "./systems/*.json": "./dist/systems/*.json",
+    "./systems/*.components.json": "./dist/systems/*.components.json",
+    "./systems/*.theme-color.json": "./dist/systems/*.theme-color.json",
     "./components/*": {
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"

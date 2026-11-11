@@ -1,6 +1,6 @@
 // Resolved values (emit/resolved.js): every token as one scheme draws it, flat by id in the plain form a program reads
 // without a DTCG library, and the theme color of each scheme. The same values the design tools' DTCG holds, in another
-// form: `@tanrei/web/systems/<id>.<scheme>.json` is written from those documents, and `tanrei build` writes a product's.
+// form: `tanrei build` writes a product's, and `@tanrei/web/systems/<id>.theme-color.json` is read from those documents.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';

@@ -5,7 +5,7 @@
 //   to design tools (`design/tokens/…/<namespace>.<scheme>.tokens.json`).
 // - `resolvedValues(doc, …)`: the same values flat, by token id, in the plain form a program reads without a DTCG
 //   library — `#rrggbb` (or `#rrggbbaa`), `16px`, `200ms` — for a native app, a canvas, a chart, a script or a
-//   language model (`@tanrei/web/systems/<id>.<scheme>.json`, and `tanrei build`'s tokens output).
+//   language model (`tanrei build`'s tokens output, `<id>.<scheme>.json`).
 //
 // And the color a browser paints its own interface in (`<meta name="theme-color">`): the system's surface, per scheme.
 import { CONFIG } from '../config.js';
