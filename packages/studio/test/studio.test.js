@@ -140,9 +140,13 @@ test('the Size row: the minimum target is a value of its own, 24 to 48, and the 
   // A system whose touch and pointer targets stand apart from the minimum keeps it under them: the build refuses a
   // minimum above either.
   for (const base of ['m3-like', 'cupertino']) {
-    const now = studio.targetMinimum({ id: 'size-row', extends: base });
-    assert.equal(now.max, 44, base);
-    assert.equal(studio.setTargetMinimum({ id: 'size-row', extends: base }, 45).tokens, undefined, `${base}: 45 is above its pointer target`);
+    const layer = { id: 'size-row', extends: base };
+    const { touch, pointer } = targets(layer);
+    const under = Math.min(touch, pointer, 48);
+    const now = studio.targetMinimum(layer);
+    assert.ok(under < 48, `${base} sets a target apart from the minimum`);
+    assert.equal(now.max, under, base);
+    assert.equal(studio.setTargetMinimum(layer, under + 1).tokens, undefined, `${base}: ${under + 1} is above its touch or pointer target`);
   }
 
   // The heights the density gives, by the engine: the ladder's small, medium and large, read through the minimum.
