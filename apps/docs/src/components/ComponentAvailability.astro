@@ -4,8 +4,10 @@
 //
 // What the shipped design systems do with it is read from their components manifests (lib/systems.ts), never written
 // on the page: for a component that some systems do not have, a note — Tanrei's Callout — says which systems have it
-// and which entries register it, which do not and why, what they use instead (each a link), and how a product on such
-// a system takes it all the same (the line of its layer and the module it imports). The layer that left it out is
+// and which entries register it, which do not and why, what they use instead (each a link), that the docs' lists still
+// show it to a reader whose look (the design system chosen in the Appearance panel) is one of those, marked as not in
+// it (lib/list-filter.ts), and how a product on such a system takes it all the same (the line of its layer and the
+// module it imports). The layer that left it out is
 // named where it is not the system's own. The reason is the layer's own
 // sentence, shown as written in English (`lang="en"`), as everything the site shows from the repository. The values of
 // its `variant` a system leaves out are Tanrei's description list, a system to a line.
@@ -101,6 +103,7 @@ const importLine = where?.module && `import '${where.module}';`;
           )}
         </p>
       ))}
+      <p>{t.system.listed}</p>
       <p>
         <Sentence text={t.system.take}>
           <a slot="guide" class="tanrei-link" href={`${base}/getting-started/your-design-system/`}>{t.system.guide}</a>

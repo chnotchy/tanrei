@@ -18,9 +18,13 @@
 // of its row — and drawn only to a reader who asked for everything with the switch at the top of the drawer's list
 // (ListingSwitch.astro), or whose page it is. The switch stands first in the drawer's list, the top of what scrolls,
 // in a row of its own (a list holds list items only); a collapsed drawer, whose column holds the groups' glyphs, does
-// not draw it. The lists follow the reader's look (lib/appearance.ts, chosen in the header): a component that system does not
-// have is marked with the systems that do not have it, and so is a group none of whose components it has, and neither
-// is drawn under them — unless it is the page being read. Without script every row is drawn.
+// not draw it. The lists follow the reader's look (lib/appearance.ts, chosen in the header's Appearance panel): a
+// component that system does not have is marked with the systems that do not have it, and so is a group none of whose
+// components it has. Under them such a row is still drawn, faint: under its label, the words that say it is not in
+// that look, which the drawer also reads after its name (lib/list-filter.ts writes them as its supporting text — at
+// the row's end they would leave a nested label no room in the sidebar's width; where they are longer than the row,
+// the drawer cuts them and shows them whole in its tooltip, NVD-75; until the drawer is defined, its anchor holds
+// them, said under that look only). Without script every row is drawn.
 //
 // The drawer filters itself (`filterable`, NVD-79 to NVD-95): a field above its list narrows it to the rows whose label
 // holds what is typed, opening for the time being the groups that hold them; it marks nothing in a label, and keeps
@@ -41,7 +45,7 @@
 // shadow root is the link.
 import { currentHref, frameWords, groupIcon, type Entry } from './frame';
 import { localeBase, strings } from '../../lib/i18n';
-import { ABSENT_ATTR, ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
+import { ABSENT_ATTR, NOT_IN_ATTR, ON_REQUEST_ATTR, SYSTEM_ONLY_ATTR, sidebarTree } from '../../lib/listing.mjs';
 import { listings, manifests, statusComponents } from '../../lib/repo';
 import ListingSwitch from '../ListingSwitch.astro';
 import Appearance from './Appearance.astro';
@@ -54,8 +58,20 @@ const base = localeBase(Astro);
 // What is drawn: the framework's sidebar with the components grouped by category and marked by their listing. The
 // drawer's `value` and the page's trail still read the framework's own (`sidebar`).
 const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category, manifests) as Entry[];
-/** The mark of an entry that some systems do not have. */
-const absent = (entry: Entry) => (entry.absentFrom?.length ? ` ${ABSENT_ATTR}="${escape(entry.absentFrom.join(' '))}"` : '');
+/**
+ * The marks of an entry that some systems do not have: those systems, and on a link the words that say it is not in
+ * the look, which the lists' script writes as its supporting text under them. (A group's rows say it each.)
+ */
+const absent = (entry: Entry) =>
+  entry.absentFrom?.length ? ` ${ABSENT_ATTR}="${escape(entry.absentFrom.join(' '))}"${entry.type === 'link' ? ` ${NOT_IN_ATTR}="${escape(t.listing.notIn)}"` : ''}` : '';
+/**
+ * What a link's anchor says until the drawer is defined: its label and, where some systems do not have it, under the
+ * label the words that it is not in the look, said under that look only, as the drawer draws its supporting text.
+ */
+const text = (entry: Entry) =>
+  entry.absentFrom?.length
+    ? `<span class="docs-sidebar-text"><span class="docs-sidebar-label">${escape(entry.label)}</span>${entry.absentFrom.map((id) => `<span class="docs-sidebar-supporting" ${SYSTEM_ONLY_ATTR}="${escape(id)}">${escape(t.listing.notIn.replace('{system}', id))}</span>`).join('')}</span>`
+    : escape(entry.label);
 
 /** Whether the page being read is among a group's entries, at any depth: that group is written open. */
 const holdsCurrent = (entry: Entry): boolean => (entry.type === 'link' ? !!entry.isCurrent : entry.entries.some(holdsCurrent));
@@ -64,7 +80,7 @@ const cells = (entries: Entry[], top: boolean): string =>
   entries
     .map((entry) =>
       entry.type === 'link'
-        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${absent(entry)}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
+        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${absent(entry)}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${text(entry)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
         : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${absent(entry)}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
     )
     .join('');

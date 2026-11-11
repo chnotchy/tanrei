@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const appearance = await import('../src/lib/appearance.ts');
-const { ABSENT_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } = await import('../src/lib/listing.mjs');
+const { SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } = await import('../src/lib/listing.mjs');
 const { manifests } = await import('../src/lib/repo.ts');
 const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_BASE_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, SHEET_HELD_KEY, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
 /** The key of a build, as lib/sheet-key.mjs gives one. */
@@ -128,7 +128,7 @@ describe('the appearance', () => {
     const { attributes, rule } = boot({ stored: JSON.stringify({ mode: 'dark', contrast: 'high', look: SHOWCASE }) });
     assert.deepEqual(attributes, { [THEME_ATTR]: 'dark', [TANREI_THEME_ATTR]: 'dark', [MODE_ATTR]: 'dark', [CONTRAST_ATTR]: 'high', [LOOK_ATTR]: SHOWCASE });
     assert.equal(rule.id, SYSTEM_RULE_ID);
-    assert.equal(rule.textContent, `[${ABSENT_ATTR}~="${SHOWCASE}"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`);
+    assert.equal(rule.textContent, `[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`);
   });
 
   test('the head’s script shows what the address shares over what is stored, and marks it shared', () => {
@@ -159,7 +159,7 @@ describe('the appearance', () => {
     assert.equal(waiting.attributes[CUSTOM_ATTR], '');
     assert.equal(waiting.attributes[CUSTOM_BASE_ATTR], SHOWCASE);
     assert.equal(waiting.attributes[PENDING_ATTR], '');
-    assert.equal(waiting.rule.textContent, `[${ABSENT_ATTR}~="${SHOWCASE}"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`, 'the lists of the system it extends');
+    assert.equal(waiting.rule.textContent, `[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="${SHOWCASE}"]){display:none}`, 'the lists of the system it extends');
     await new Promise((resolve) => setTimeout(resolve, 0));
     assert.equal(waiting.attributes[PENDING_ATTR], '', 'still hidden: the modules compute the sheet');
     assert.equal(waiting.attributes[MISSING_ATTR], sheetKey(BUILD, 'k3x9'), 'and told that IndexedDB holds none, under the key it is computed under');
