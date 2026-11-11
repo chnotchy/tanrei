@@ -2,7 +2,7 @@
 title: 无障碍
 description: Tanrei 内建于令牌和组件规格中的无障碍要求，以及保证这些要求得到遵守的检查。
 translationOf: foundations/accessibility.mdx
-sourceHash: 9ce59f04b5c628d94d33919520348b8d37908225
+sourceHash: f6ed7ebe4b2929ce5381c0b6d5ec884e87079170
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,7 +42,7 @@ import { contrast } from '../../../../lib/contrast';
 
 <DimensionScale group="target" source="tokens/sys/measure.tokens.json" />
 
-**外观尺寸不等于点击区域。** Tanrei 的小号按钮高 32 个单位，适合紧凑的工具栏，但它的响应范围在触摸时仍不小于 48 个单位，在使用指针时不小于 44 个单位。组件会以不可见的方式扩大点击区域，并让相邻目标之间至少保持 8 个单位的距离。每份规格都声明这项保证，每个平台都对它进行测试。
+**任何供人按下的东西都不会画得比最小目标更小。** 在默认系统中，`sys.target.minimum` 为 36：按钮、输入框、标签页和行无论密度和尺寸如何，至少画这么高，只有图标的按钮至少画这么宽；所以尺寸阶梯中画成 32 的小号按钮，会画成 36 高。画得比目标小的标记，例如复选框的方框或小号纸片（Chip），保持自身尺寸，把点击区域扩大到目标大小：触摸时为 `sys.target.touch`，使用精确指针时为 `sys.target.pointer`。在默认系统中两者都等于最小目标；把它们设得更大的系统，会从这个更大的区域接收按下。每份规格都声明这项保证。[尺寸与密度](/zh-cn/foundations/size-and-density/)列出了各个高度，并说明产品如何设置最小目标。
 
 ## 焦点
 
