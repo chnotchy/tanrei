@@ -449,6 +449,10 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
         if (active && this.renderRoot.contains(active)) active.blur();
       }
     }
+    // DLG-4, DLG-13: what closing began — the colors of the element focus left and of the opener it went back to —
+    // begins in the first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the
+    // frame drawn before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this, restoreFocus ? opener : null]);
     this.dispatchEvent(new Event('close'));
   }
 
