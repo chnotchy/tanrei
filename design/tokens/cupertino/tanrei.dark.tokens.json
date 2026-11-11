@@ -20189,7 +20189,7 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 48,
+              "value": 44,
               "unit": "px"
             },
             "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system."
@@ -66480,7 +66480,7 @@
           "min-height": {
             "$type": "dimension",
             "$value": {
-              "value": 48,
+              "value": 44,
               "unit": "px"
             },
             "$description": "The least height one option takes in layout, the container centered in it. At the target size, options stacked with no space between them keep whole targets that do not overlap; a layer may lower it, accepting shared target area, or raise it."
@@ -101372,7 +101372,7 @@
         "pointer": {
           "$type": "dimension",
           "$value": {
-            "value": 44,
+            "value": 28,
             "unit": "px"
           },
           "$description": "The least area a press is taken from under a fine pointer. The minimum by default; a system may set it above."
@@ -101387,7 +101387,7 @@
         "touch": {
           "$type": "dimension",
           "$value": {
-            "value": 48,
+            "value": 44,
             "unit": "px"
           },
           "$description": "The least area a press is taken from under a finger, or where the platform cannot tell the input type. The minimum by default; a system that follows a platform guideline sets it above."
