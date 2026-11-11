@@ -17,6 +17,8 @@ const picture = (body, type = 'image/png', more = {}) => ({ headers: { 'content-
 const stored = (options) => (fs.existsSync(options.pictureDirectory) ? fs.readdirSync(options.pictureDirectory) : []);
 
 test('LKD-18: a picture is fetched under every rule an address of a page is held to', async (t) => {
+  let slowAsked;
+  const slowIsAsked = new Promise((resolve) => (slowAsked = resolve));
   const server = await serve({
     'site.test/private': withPicture('https://pictures.test/p.png'),
     'site.test/away': withPicture('/redirects-away.png'),
@@ -25,24 +27,36 @@ test('LKD-18: a picture is fetched under every rule an address of a page is held
     'site.test/numeric': withPicture('https://10.0.0.1/p.png'),
     'site.test/denied': withPicture('https://other.test/p.png'),
     'site.test/slow': withPicture('/slow.png'),
-    'site.test/slow.png': () => {},
+    'site.test/slow.png': () => slowAsked(),
     '/p.png': picture(png(8, 8)),
   });
   t.after(() => server.close());
   const resolve = (host) => [{ address: host === 'pictures.test' ? '10.0.0.9' : PUBLIC, family: 4 }];
   const step = imageStep();
+  const card = ({ result, said }, file, line) => {
+    assert.equal(result.ok, true, `${file}: the page is still a card, without its picture`);
+    assert.equal(result.data.image, undefined, file);
+    assert.ok(said.includes(line), `${file}: ${said.join(' | ')}`);
+  };
   const cases = [
     ['private', 'https://site.test/private: picture: address-private', {}],
     ['away', 'https://site.test/away: picture: redirect-refused', {}],
     ['denied', 'https://site.test/denied: picture: address-refused', { deny: ['other.test'] }],
-    ['slow', 'https://site.test/slow: picture: timeout', { limits: { request: 150 } }],
   ];
-  for (const [file, line, more] of cases) {
-    const { result, said } = await ask(t, server, `https://site.test/${file}`, { transform: step, ...more }, { resolve });
-    assert.equal(result.ok, true, 'the page is still a card, without its picture');
-    assert.equal(result.data.image, undefined, file);
-    assert.ok(said.includes(line), `${file}: ${said.join(' | ')}`);
-  }
+  for (const [file, line, more] of cases) card(await ask(t, server, `https://site.test/${file}`, { transform: step, ...more }, { resolve }), file, line);
+  // The request's limit runs on the test's clock, not the machine's. The limit is short to keep the test quick, and it
+  // holds the page as well as its picture: on a real clock the page's own request had to beat it, and on a loaded
+  // machine its handshake did not, so the page itself timed out. Here no time passes until the server has been asked
+  // for the silent picture, and then exactly the limit passes, so the page is read whenever it comes and the picture
+  // always times out.
+  const limit = 150;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const slow = ask(t, server, 'https://site.test/slow', { transform: step, limits: { request: limit } }, { resolve });
+  await slowIsAsked;
+  t.mock.timers.tick(limit);
+  const slowAnswer = await slow;
+  t.mock.timers.reset();
+  card(slowAnswer, 'slow', 'https://site.test/slow: picture: timeout');
   for (const file of ['plain', 'numeric']) {
     const { result } = await ask(t, server, `https://site.test/${file}`, { transform: step }, { resolve });
     assert.equal(result.data.image, undefined, `${file}: such an address is absent (LKD-17) and nothing is asked`);
