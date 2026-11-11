@@ -116,25 +116,25 @@
         },
         "touch": {
           "$value": {
-            "value": 48,
+            "value": 44,
             "unit": "px"
           },
           "$description": "The least area a press is taken from under a finger, or where the platform cannot tell the input type. The minimum by default; a system that follows a platform guideline sets it above.",
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "This preset keeps the value it drew when the root held 48 (the default system's is now its minimum, 36). Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
+              "fixed": "Apple's hit region for a finger: a default control size of 44x44pt on iOS and iPadOS (Human Interface Guidelines, Accessibility, Buttons and controls)."
             }
           }
         },
         "pointer": {
           "$value": {
-            "value": 44,
+            "value": 28,
             "unit": "px"
           },
           "$description": "The least area a press is taken from under a fine pointer. The minimum by default; a system may set it above.",
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "This preset keeps the value it drew when the root held 44 (the default system's is now its minimum, 36). Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
+              "fixed": "Apple's default control size under a pointer, on macOS: 28x28pt (Human Interface Guidelines, Accessibility, Buttons and controls); the minimum, 28, is not under it."
             }
           }
         },
@@ -145,7 +145,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
+              "fixed": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28, Apple's minimum control size on iOS and iPadOS (28x28pt, Human Interface Guidelines, Accessibility, Buttons and controls). Its 34 and 44 controls stay as they are pinned."
             }
           },
           "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."

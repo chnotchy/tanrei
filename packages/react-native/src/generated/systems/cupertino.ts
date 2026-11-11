@@ -595,7 +595,7 @@ export const cupertino = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 1, outerWidth: 3 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { minimum: 28, pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 28, pointer: 28, spacing: 8, touch: 44 },
   },
   typefaces: {
     brand: {
@@ -2976,7 +2976,7 @@ export const cupertino = {
       containerSmallMaxWidth: 56,
       containerSmallMinWidth: 40,
       controlsButtonSize: 40,
-      controlsHeight: 48,
+      controlsHeight: 44,
       controlsIconSize: 24,
       controlsIndicatorPaddingInline: 12,
       controlsShape: 9999,
@@ -8668,7 +8668,7 @@ export const cupertino = {
       motionSelectionEasing: [0.2, 0, 0, 1],
       motionStateDuration: 200,
       motionStateEasing: [0.2, 0, 0, 1],
-      optionMinHeight: 48,
+      optionMinHeight: 44,
       pressedContainerShape: 9999,
       pressedOpacity: 0.7,
       ringSelectedWidthShare: 0.625,

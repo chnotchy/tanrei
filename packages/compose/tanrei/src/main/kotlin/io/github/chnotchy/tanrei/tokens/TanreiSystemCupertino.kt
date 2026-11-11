@@ -579,9 +579,9 @@ private object CupertinoSystemSource {
         iconMedium = 24.dp,
         iconSmall = 20.dp,
         targetMinimum = 28.dp,
-        targetPointer = 44.dp,
+        targetPointer = 28.dp,
         targetSpacing = 8.dp,
-        targetTouch = 48.dp,
+        targetTouch = 44.dp,
     )
 
     fun motion(): TanreiMotion = TanreiMotion(
@@ -2318,7 +2318,7 @@ private object CupertinoSystemSource {
             containerSmallMaxWidth = 56.dp,
             containerSmallMinWidth = 40.dp,
             controlsButtonSize = 40.dp,
-            controlsHeight = 48.dp,
+            controlsHeight = 44.dp,
             controlsIconSize = 24.dp,
             controlsIndicatorPaddingInline = 12.dp,
             controlsShape = 9999.dp,
@@ -6615,7 +6615,7 @@ private object CupertinoSystemSource {
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 200,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionMinHeight = 48.dp,
+            optionMinHeight = 44.dp,
             ringSelectedWidthShare = 0.625f,
             ringSize = 16.dp,
             ringWidth = 1.dp,
