@@ -1,0 +1,76 @@
+---
+title: 尺寸与密度
+description: 用一个数决定控件和行占多少空间，一组五级高度供控件的各个尺寸使用，任何可按下的东西都不会画得比最小尺寸更小，按钮组还会把尺寸传给其中的按钮。
+translationOf: foundations/size-and-density.mdx
+sourceHash: cda6be7d3de1653bdd528713c09823d8c8acf2bf
+---
+
+import DensityHeights from '../../../../components/tokens/DensityHeights.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+控件或行有多高，由三个值决定。**密度**和**最小目标**属于整个设计系统：产品在自己的层里各设一次。**尺寸**属于一个组件或一组组件：按钮在它所在的位置是 small、medium 或 large。
+
+## 密度是一个数
+
+`tanrei.dial.density` 是一个普通的数，默认为 1。小于 1 时，控件和行画得更紧凑；大于 1 时，它们得到更多空间。它只影响块方向：
+
+- **它影响**控件和行的高度，有高度的盒子在块方向上的内边距（每个内边距的变化是盒子高度变化的一半），以及集合中行与行之间的间距，例如描述列表的各项之间、时间线的各条目之间。
+- **它不影响**文本样式、图标尺寸、圆角，也不影响横贯一行的空间：行内方向的内边距、沿一行的间距和缩进都跟随间距调节量 `dial.space.unit`。
+
+跟随密度的高度都会取整到尺寸单位的网格上（`dial.size.unit`，默认 4px），正好居中时向上取整。
+
+没有按组件或按页面局部设置的密度。有几个承载行的组件（菜单、列表、树视图等）有一个自己的选项，名为 `density`，取值 `regular` 或 `compact`，用来在两组行令牌之间选择；两组的高度都跟随这个数。
+
+## 尺寸阶梯
+
+阶梯是 `tanrei.sys.control.height.*` 这五个高度，控件的尺寸从这里读取：每一级是尺寸单位乘以该级的系数，再乘以密度，落在网格上。下表是几个密度下的高度，由令牌自身的规则计算得出：
+
+<DensityHeights group="sys.control.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/sys/measure.tokens.json" />
+
+许多组件的高度都读取这些级别，读取同一级的组件在任何密度下都一样高：Button 的 `small`、`medium` 和 `large` 分别读取 small、medium 和 large 这三级。阶梯本身没有下限，因为 `extra-small` 用于没有人会按的东西，例如标签或键盘快捷键。
+
+## 最小目标
+
+`tanrei.sys.target.minimum` 是任何供人按下的东西的最小绘制高度，对只有图标的控件来说也是最小宽度。每个可按下的盒子或行的高度都以它为下限推导，所以无论密度和尺寸如何，都不会画得更低。它是开发者自己定的值：没有调节量会缩放它，因为一个随着被限制的东西一起缩小的下限，就不再是下限。
+
+在默认系统中，最小目标为 36，鼠标和手指都一样。Button 的高度能说明它的作用：括号里的值是尺寸和密度给出的高度，前面的值是最小目标让按钮保持的高度。
+
+<DensityHeights group="comp.button.container.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/comp/button.tokens.json" />
+
+另外两个值决定从多大的区域接收按下：手指用 `sys.target.touch`，精确指针用 `sys.target.pointer`。两者默认都等于最小目标，所以一个值就能同时设定三个。遵循某个平台指南的系统会把它们设得更大；这时，单独放置的控件会在绘制范围之外，从这个更大的区域接收按下，而与相邻元素相接的行会画到这个高度。画得比目标小的标记，例如复选框的方框或小号纸片（Chip），保持自身尺寸，把点击区域扩大到目标大小。各个内置系统的设定如下：
+
+<SystemValues tokens={['sys.target.minimum', 'sys.target.touch', 'sys.target.pointer']} />
+
+构建会检查每个系统：三个值都不低于 24px（WCAG 2.5.8），`touch` 和 `pointer` 不低于最小目标，密度大于零，以及带下限的高度不低于最小目标。产品自己的层若把目标设得低于 24px，会以警告的形式告知；接收按下的区域小于最小目标，或密度为零或更小，在任何系统中都会被拒绝。
+
+## 在层中设定
+
+两者都是层里附上理由来设定的令牌：
+
+```json
+"tokens": {
+  "tanrei.dial.density": { "$value": 0.9, "reason": "An editor people look at all day: rows a little closer." },
+  "tanrei.sys.target.minimum": { "$value": { "value": 32, "unit": "px" }, "reason": "Used with a mouse; 32 is the least we draw." }
+}
+```
+
+在 Web 上，高度是由调节量构成的 CSS 表达式，所以在根元素上设置 `--tanrei-dial-density`，无需重新构建，所有高度就会一起变化。在 [Theme Studio](/zh-cn/foundations/theme-studio/) 中，“尺寸”一行包含密度、尺寸单位和最小目标。
+
+## 在容器上设置的尺寸
+
+尺寸在组件所在的位置设置。在 Web 上，按钮组的 `size` 一旦设置，就成为其中每个没有自己尺寸的 Button 的尺寸：
+
+```html
+<tanrei-button-group size="small">
+  <tanrei-button variant="outlined">Cancel</tanrei-button>
+  <tanrei-button variant="filled">Publish</tanrei-button>
+  <tanrei-button variant="text" size="medium">Details</tanrei-button>
+</tanrei-button-group>
+```
+
+- **组件自己的尺寸优先。** 上面的第三个 Button 是 medium。
+- **只有设置了的尺寸才会向下传递。** 没有 `size` 的按钮组不传递任何尺寸，所以其中每个 Button 按自己的默认尺寸 medium 绘制，或按包围该组的容器所设的尺寸绘制；容器嵌套时，由最近的、设置了尺寸的容器决定。
+- **组件没有的尺寸会变成离它最近的尺寸**，按 extra-small、small、medium、large、extra-large 的阶梯顺序计算，两个同样近时取较大的一个。
+- **按钮组不会因为尺寸而改变自己绘制的任何东西。** 它的间距、圆角和分隔线保持其变体的样子，围绕着按实际高度绘制的 Button。
+
+按按钮组给的尺寸绘制的 Button，和按自己的尺寸绘制时一样，跟随密度和最小目标。改变按钮组的尺寸，或把 Button 移入、移出按钮组，都会立即按新的尺寸绘制。

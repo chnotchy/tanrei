@@ -1,0 +1,74 @@
+---
+title: Size and density
+description: One number for how much room controls and rows take, a ladder of five heights for the sizes of controls, the least size anything pressable is drawn at, and a size a button group passes to its buttons.
+---
+
+import DensityHeights from '../../../components/tokens/DensityHeights.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+How tall a control or a row is comes from three values. The **density** and the **minimum target** belong to the whole design system: a product sets each once, in its layer. The **size** belongs to one component, or to a group of them: a button is small, medium or large where it stands.
+
+## Density is one number
+
+`tanrei.dial.density` is a plain number, 1 by default. Below 1, controls and rows are drawn closer; above 1, they get more room. It moves the block axis only:
+
+- **It moves** the heights of controls and rows, the block paddings of a box that has a height (each moves by half of what its box's height moves), and the gaps between the rows of a collection, such as the facts of a description list or the entries of a timeline.
+- **It does not move** text styles, icon sizes, corners, or the room across a row: inline paddings, gaps along a row and indents follow the spacing dial, `dial.space.unit`.
+
+Every height that follows the density is rounded to the size unit's grid (`dial.size.unit`, 4px by default), a tie rounding up.
+
+There is no density per component or per part of a page. A few components that hold rows (a menu, a list, a tree view and others) have a choice of their own named `density`, `regular` or `compact`, which picks between two sets of their row tokens; the heights of both follow the number.
+
+## The size ladder
+
+The ladder is five heights, `tanrei.sys.control.height.*`, that the sizes of controls read: each is the size unit times a step, times the density, on the grid. These are the heights at a few densities, evaluated from the tokens' own rules:
+
+<DensityHeights group="sys.control.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/sys/measure.tokens.json" />
+
+Many components read their heights from these steps, and the ones that read one step stay as tall as each other at every density: the Button's `small`, `medium` and `large` read the small, medium and large steps. The ladder itself has no floor, because `extra-small` is for things nobody presses, such as a tag or a keyboard shortcut.
+
+## The minimum target
+
+`tanrei.sys.target.minimum` is the least height at which anything a person presses is drawn, and the least width of an icon-only control. Every height of a pressable box or row is derived with it as a floor, so no density and no size draws one lower. It is the developer's value: no dial scales it, since a floor that shrank with what it floors would be no floor.
+
+In the default system the minimum is 36, for a pointer and for a finger alike. The Button's heights show it at work: a value in parentheses is what the size and the density give, and the height before it is what the minimum holds the button at.
+
+<DensityHeights group="comp.button.container.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/comp/button.tokens.json" />
+
+Two more values say how large an area a press is taken from: `sys.target.touch` under a finger and `sys.target.pointer` under a fine pointer. Both are the minimum by default, so one value sets all three. A system that follows a platform's guideline sets them higher; then a control that stands alone takes a press from that larger area, past what it draws, and a row that touches its neighbours is drawn that high. A mark drawn smaller than the target, such as a checkbox's box or a small chip, keeps its size and extends its hit area to the target. What each shipped system sets:
+
+<SystemValues tokens={['sys.target.minimum', 'sys.target.touch', 'sys.target.pointer']} />
+
+The build checks every system: none of the three under 24px (WCAG 2.5.8), `touch` and `pointer` never under the minimum, a density above zero, and no floored height under the minimum. A product's own layer that sets a target under 24px is told so as a warning; a target area under the minimum, or a density of zero or less, is refused in every system.
+
+## Setting them in a layer
+
+Both are tokens a layer sets with a reason:
+
+```json
+"tokens": {
+  "tanrei.dial.density": { "$value": 0.9, "reason": "An editor people look at all day: rows a little closer." },
+  "tanrei.sys.target.minimum": { "$value": { "value": 32, "unit": "px" }, "reason": "Used with a mouse; 32 is the least we draw." }
+}
+```
+
+On the web the heights are CSS expressions of the dials, so setting `--tanrei-dial-density` on the root element moves every height at once, without a new build. In [Theme Studio](/foundations/theme-studio/), the Size row holds the density, the size unit and the minimum target.
+
+## A size set on a container
+
+A size is set where the components stand. On the web, a button group's `size`, once set, is the size of every Button in it that sets none of its own:
+
+```html
+<tanrei-button-group size="small">
+  <tanrei-button variant="outlined">Cancel</tanrei-button>
+  <tanrei-button variant="filled">Publish</tanrei-button>
+  <tanrei-button variant="text" size="medium">Details</tanrei-button>
+</tanrei-button-group>
+```
+
+- **A component's own size wins.** The third Button above is medium.
+- **Only a size that is set is passed down.** A group without a `size` passes none, so each Button in it is drawn at its own default, medium, or at the size a container around the group sets; where containers are nested, the nearest one that sets a size decides.
+- **A size the component does not have becomes its nearest one** along the ladder, extra-small, small, medium, large, extra-large, the larger of two as near.
+- **The group draws nothing of its own by its size.** Its gaps, corners and dividers stay those of its variant, around Buttons of the height they are drawn at.
+
+A Button drawn at a size its group gives follows the density and the minimum as it does at a size of its own. Changing the group's size, or moving a Button into or out of the group, draws it at its new size at once.

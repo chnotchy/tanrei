@@ -44,6 +44,7 @@ export const SIDEBAR_GROUPS = [
       'foundations/states',
       'foundations/behaviour',
       'foundations/layout',
+      'foundations/size-and-density',
       'foundations/accessibility',
       'foundations/words',
     ],
