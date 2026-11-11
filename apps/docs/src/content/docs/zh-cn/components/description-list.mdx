@@ -2,7 +2,7 @@
 title: "描述列表"
 description: "把关于一件事物的已知信息呈现为一项项有名称的信息：一个低调的项名，加上回答它的值。项名可以在值的旁边、值的上方，或者在一个大数字的下方。它按自身的宽度布局，从不是控件。"
 translationOf: components/description-list.mdx
-sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
+sourceHash: f50d04d5ce041d7fe0606862aa11f2eb7359f970
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -119,8 +119,8 @@ import Example from '../../../../components/visuals/Example.astro';
   </tanrei-description-list>
 </Example>
 
-<Example label="Compact，用留白分隔：供人扫读的信息" column>
-  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+<Example label="Small，用留白分隔：供人扫读的信息" column>
+  <tanrei-description-list size="small" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>值</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
       <div><dt>种类</dt><dd>别名 · color</dd></div>
@@ -148,14 +148,14 @@ import Example from '../../../../components/visuals/Example.astro';
 - **Inline 列表只有一列。** `columns` 对它不起作用。
 - **什么都不截断。** 值会换行。无法断开的标识符或地址会在列的边缘断开。列表绝不横向滚动。
 
-### 密度
+### 尺寸
 
-| `density` | 项名和值 | 信息项之间 | 用于 |
+| `size` | 项名和值 | 信息项之间 | 用于 |
 | --- | --- | --- | --- |
-| `regular`（默认） | 14，行高 20；以及 14，行高 22 | 12；有线时，线的两侧各 12 | 供人阅读的信息：页面、卡片、对话框。 |
-| `compact` | 12，行高 16；以及 13，行高 20 | 6；有线时，线的两侧各 6 | 供人扫读的信息：侧边面板、检查器。 |
+| `medium`（默认） | 14，行高 20；以及 14，行高 22 | 12；有线时，线的两侧各 12 | 供人阅读的信息：页面、卡片、对话框。 |
+| `small` | 12，行高 16；以及 13，行高 20 | 6；有线时，线的两侧各 6 | 供人扫读的信息：侧边面板、检查器。 |
 
-stat 的数字在 `regular` 时是 32，行高 40；在 `compact` 时是 20，行高 28。
+stat 的数字在 `medium` 时是 32，行高 40；在 `small` 时是 20，行高 28。信息项之间的间距在两种尺寸下都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的列表，按外围容器为其内容设定的尺寸绘制；没有容器设定时，按 medium 绘制。它不会把尺寸传给值里的内容：值里的标签或按钮有各自的尺寸。
 
 ### 区分各项信息
 
@@ -187,13 +187,13 @@ stat 的数字在 `regular` 时是 32，行高 40；在 `compact` 时是 20，�
 
 ### 组件负责的部分
 
-- 原生列表始终是描述列表：项名和它们的定义都是浏览器自己的，无论采用哪种布局、哪种密度、有没有线。
+- 原生列表始终是描述列表：项名和它们的定义都是浏览器自己的，无论采用哪种布局、哪种尺寸、有没有线。
 - 朗读的顺序从不改变。stat 布局把数字画在它的标签上方，但向辅助技术提供时仍然是项名在前。
 - 列表里没有任何东西会获得焦点或接受输入。值里的链接或按钮保留自己的目标尺寸和在焦点顺序中的位置。
 - 文本放大到 200% 时，以及在宽 320 的窗口里，同样的宽度规则会让列表改为上下排列并减少列数。最小宽度随文本一起变大。
 - 在从右到左的布局中，项名那一列位于右侧，各列从右侧排起。每个项名和值保持自己的方向，所以版本号、地址和金额绝不会被颠倒。
 - 在强制颜色模式下，线和文本都是文本颜色。列表没有会被去掉的填充。
-- 没有项名的值、写在 inline 列表上的 `columns`、不是整数的列数、在没有分组的列表上使用 stat 布局或多列，以及未知的布局、密度或分隔方式，会在调试构建中报告。
+- 没有项名的值、写在 inline 列表上的 `columns`、不是整数的列数、在没有分组的列表上使用 stat 布局或多列，以及未知的布局、尺寸或分隔方式，会在调试构建中报告。
 
 ### 需要你做的事
 

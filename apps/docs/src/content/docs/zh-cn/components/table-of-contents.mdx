@@ -2,7 +2,7 @@
 title: "目录"
 description: "把正在阅读的页面的各个标题列成指向它们的链接，并标出读者正在阅读的那一节。正文旁边没有空间时，改由一行显示当前章节的名称，按下它可以打开同一份列表。"
 translationOf: components/table-of-contents.mdx
-sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
+sourceHash: da2c0269333c7c8d80d5b1abac732d7474add022
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -72,7 +72,7 @@ import Example from '../../../../components/visuals/Example.astro';
     import { TableOfContents } from '@tanrei/react';
     import '@tanrei/web/table-of-contents.css';
 
-    <TableOfContents label="本页内容" density="compact">
+    <TableOfContents label="本页内容" size="small">
       <ul>
         {headings.map((heading) => (
           <li key={heading.id}>
@@ -108,8 +108,8 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ## 规格
 
-<Example label="紧凑密度，三级，第三项是当前项">
-  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="本页内容" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+<Example label="小尺寸，三级，第三项是当前项">
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="本页内容" size="small" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
         <a href="#tokens-demo">令牌</a>
@@ -155,14 +155,14 @@ import Example from '../../../../components/visuals/Example.astro';
 - 窗口采用哪一种呈现形式：正文旁边没有空间时，设置 `presentation="compact"`；
 - 在很长的列表外面放一个可滚动的栏。这时组件会让当前的那一行在这个栏里保持可见。
 
-### 密度
+### 尺寸
 
-| `density` | 单行文字的行 | 用于 |
+| `size` | 单行文字的行 | 用于 |
 | --- | --- | --- |
-| `regular`（默认） | 44，即指针目标 | 大多数页面。 |
-| `compact` | 32 | 用指针操作的产品里，正文旁边的一长列标题。 |
+| `medium`（默认） | 44，高于指针目标 | 大多数页面。 |
+| `small` | 36，即最小目标 | 用指针操作的产品里，正文旁边的一长列标题。 |
 
-compact 的行比指针目标矮。这是可以接受的，因为它要由你指名选用，而且从不是默认值。在触摸设备上，两种密度下的行都与触摸目标一样高。两种密度的文本样式和缩进相同。
+`size` 指的是一行的高度，不是紧凑形式。无论哪种尺寸，对指针而言，行都不会矮于指针目标；对触摸而言，也不会矮于触摸目标：系统把其中一个目标设得更高时，small 的行也按那个高度绘制。两种高度都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。两种尺寸的文本样式和缩进相同。没有设置 `size` 的目录，按外围容器为其内容设定的尺寸绘制；没有容器设定时，按 medium 绘制。
 
 ### 哪一项是当前项
 
