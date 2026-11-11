@@ -125,6 +125,28 @@ test('`@tanrei/web/all` registers every element of the package, and a component�
   assert.ok(fab.has(tag('fab-menu')) && fab.has(tag('fab-menu-item')));
 });
 
+// A program that reads values and not custom properties (a canvas, a chart, a native app, a language model) imports
+// them resolved, per scheme; `themeColorMeta()` takes the theme colors. Both are the design tools' resolved DTCG
+// (design/tokens/), in the plain form.
+test('each system’s tokens resolved per scheme, and its theme colors, are in dist/systems/ and exported', () => {
+  for (const id of systems) {
+    const themeColor = JSON.parse(fs.readFileSync(path.join(root, exported(`./systems/${id}.theme-color.json`)), 'utf8'));
+    const schemes = Object.keys(themeColor);
+    assert.ok(schemes.includes('light') && schemes.includes('dark') && schemes.includes('dark-high'), `${id}: ${schemes}`);
+    for (const scheme of schemes) {
+      const file = exported(`./systems/${id}.${scheme}.json`);
+      assert.equal(file, `./dist/systems/${id}.${scheme}.json`, `${id}.${scheme}.json is exported`);
+      const values = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+      assert.equal(values.system, id);
+      assert.equal(values.scheme, scheme);
+      assert.equal(values.tokens[`${config.namespace}.sys.color.surface`], themeColor[scheme], `${id} ${scheme}: the theme color is the surface`);
+      assert.match(values.tokens[`${config.namespace}.sys.color.on-surface`], /^#[0-9a-f]{6}$/);
+      assert.ok(Object.keys(values.tokens).length > 1000, `${id} ${scheme}: ${Object.keys(values.tokens).length} tokens`);
+    }
+    assert.notEqual(themeColor.light, themeColor.dark, id);
+  }
+});
+
 // What the manifest names is what a product can import: the module it names for an element is the one
 // custom-elements.json says declares it (and defines it when it is evaluated), and the entry it names reaches that module.
 test('each system’s components manifest is in dist/systems/, and the entries and modules it names register what it lists', async () => {
