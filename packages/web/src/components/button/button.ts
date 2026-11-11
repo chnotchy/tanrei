@@ -24,7 +24,6 @@ import {
   endsWaiting,
   linkAttributes,
   markPassingSubmitter,
-  nearestSize,
   report,
   syncFocusStyle,
   takeFormDisabled,
@@ -121,8 +120,8 @@ export class TanreiButton extends TanreiElement {
     variant: { type: String, reflect: true, useDefault: true },
     destructive: { type: Boolean, reflect: true },
     // BTN-48: the size the product set, or none: a button that sets none draws the size its container sets. A custom
-    // accessor, so that a size set to the default's name is set all the same.
-    size: { type: String, reflect: true, noAccessor: true },
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     width: { type: String, reflect: true },
     fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
     iconPosition: { type: String, reflect: true, attribute: 'icon-position' },
@@ -174,40 +173,23 @@ export class TanreiButton extends TanreiElement {
    * gives that back.
    */
   get size(): TanreiButtonSize {
-    return (this.ownSize ?? 'medium') as TanreiButtonSize;
+    return (this.sizes.own ?? 'medium') as TanreiButtonSize;
   }
 
   set size(value: TanreiButtonSize | null | undefined) {
-    const own = value === null || value === undefined ? null : String(value);
-    const old = this.ownSize;
-    if (own === old) return;
-    this.ownSize = own;
-    if (own !== null) {
-      this.requestUpdate('size', old);
-      return;
-    }
-    // Given back: nothing is reflected (the attribute goes, which sets nothing again).
-    this.requestUpdate();
-    if (this.hasAttribute('size')) this.removeAttribute('size');
+    this.sizes.setOwn(value);
   }
 
-  /** BTN-48: the size the product set, or null while it set none. */
-  private ownSize: string | null = null;
-
-  /** BTN-48: the size the nearest container around the button sets, while one does. */
-  private readonly sizeFrom = new SizeConsumerController(this);
+  /** BTN-48: the size the product set, and the one the nearest container around the button sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
 
   /**
    * @internal BTN-48: the size the button draws — its own, else the one its nearest container sets (as its nearest size
    * where it has none of that name), else `medium`.
    */
   get drawnSize(): string {
-    if (this.ownSize !== null) return this.ownSize;
-    return this.sizeFrom.value ? nearestSize(this.sizeFrom.value, CORE_SIZES) : 'medium';
+    return this.sizes.drawn;
   }
-
-  /** BTN-48: the custom state that carries the drawn size to the styles (`size-<name>`). */
-  private sizeState = '';
 
   /**
    * How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and
@@ -645,12 +627,7 @@ export class TanreiButton extends TanreiElement {
     else this.internals.states.delete('placed');
     // BTN-48: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
     // default by the host's own rules, BTN-7).
-    const drawn = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? `size-${this.drawnSize}` : '';
-    if (drawn !== this.sizeState) {
-      if (this.sizeState) this.internals.states.delete(this.sizeState);
-      if (drawn) this.internals.states.add(drawn);
-      this.sizeState = drawn;
-    }
+    this.sizes.syncState(this.internals);
     if (this.hasUpdated) return;
     const nodes = [...this.childNodes];
     this.hasIcon = nodes.some((node) => node instanceof Element && node.slot === 'icon');

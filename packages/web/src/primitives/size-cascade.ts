@@ -83,15 +83,70 @@ function announce() {
   for (const consumer of consumers) consumer.resolve();
 }
 
+/** A name a custom state may carry: a token name. */
+const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
+
+/** The host of a component that takes a size: its `size` is a custom accessor that hands every write to `setOwn`. */
+type ConsumerHost = ReactiveControllerHost & HTMLElement & { requestUpdate(name?: PropertyKey, oldValue?: unknown): void };
+
 /**
  * A component that takes the size its nearest providing container sets while it sets none of its own (BTN-48).
  * `value` is that size, or null where no container around it sets one; the host renders again when it changes.
+ * `own` is the size the product set on the host, or null while it set none: the host's `size` property is declared with
+ * `noAccessor` and without `reflect` (`setOwn` reflects it), and its setter calls `setOwn`, so that a size set to the
+ * default's name is set all the same.
  */
 export class SizeConsumerController implements ReactiveController {
   value: string | null = null;
+  own: string | null = null;
+  /** The custom state that carries the drawn size to the host's styles (`size-<name>`), while one does. */
+  private state = '';
 
-  constructor(private readonly host: ReactiveControllerHost & HTMLElement) {
+  constructor(
+    private readonly host: ConsumerHost,
+    /** The sizes the component has (its core), which a passed size is taken as the nearest of. */
+    private readonly sizes: readonly string[],
+    /** What it is drawn at where neither it nor a container sets a size. */
+    private readonly fallback = 'medium',
+  ) {
     host.addController(this);
+  }
+
+  /** The host's `size` setter: any value makes it the host's own; null or undefined gives it back (and the attribute goes). */
+  setOwn(value: unknown) {
+    const own = value === null || value === undefined ? null : String(value);
+    const old = this.own;
+    if (own === old) return;
+    this.own = own;
+    if (own !== null) {
+      this.host.requestUpdate('size', old);
+      // Reflected here and not by Lit: Lit reflects a property with an accessor of the class's own on its first update
+      // whatever its value, which would write the default's name on a host that sets none — and make it its own.
+      if (this.host.getAttribute('size') !== own) this.host.setAttribute('size', own);
+      return;
+    }
+    // Given back: nothing is reflected (removing the attribute sets nothing again).
+    this.host.requestUpdate();
+    if (this.host.hasAttribute('size')) this.host.removeAttribute('size');
+  }
+
+  /** The size the host draws: its own, else the one its nearest container sets (as its nearest size), else the fallback. */
+  get drawn(): string {
+    if (this.own !== null) return this.own;
+    return this.value ? nearestSize(this.value, this.sizes) : this.fallback;
+  }
+
+  /**
+   * Carries the drawn size as the custom state `size-<name>` on `internals`, which the host's size blocks match (a name
+   * that is no token name carries none, and is drawn as the default by the host's own rules). Called as the host updates.
+   */
+  syncState(internals: ElementInternals) {
+    const drawn = this.drawn;
+    const state = STATE_NAME.test(drawn) ? `size-${drawn}` : '';
+    if (state === this.state) return;
+    if (this.state) internals.states.delete(this.state);
+    if (state) internals.states.add(state);
+    this.state = state;
   }
 
   hostConnected() {
