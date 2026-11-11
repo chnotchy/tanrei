@@ -406,9 +406,19 @@ export class TanreiCarousel extends TanreiElement {
   /**
    * Watches the row — the box the arrangement measures (CRL-8) — not the host: the host is also as tall as its controls
    * row, which an arrangement may add or take away (CRL-29), and an observer told of a change its own callback made
-   * does not come to rest within the frame.
+   * does not come to rest within the frame. One observer watches the rows of every carousel, so that a frame reports all
+   * the rows that changed in one callback and they are arranged together (`arrange()`): an observer of each carousel's
+   * own would have each read after the writes of the one before, and the browser lay the page out again for each.
    */
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.arrange());
+  private static resizeWatch: ResizeObserver | null = null;
+  /** The carousel each watched row belongs to. */
+  private static readonly rows = new WeakMap<Element, TanreiCarousel>();
+  /** The row this carousel's resize watch observes now. */
+  private watchedRow: Element | null = null;
+  /** The arrangement has been asked for and not read yet: a second request of the turn is the same one. */
+  private arrangeAsked = false;
+  /** The direction the row was last arranged for: what places the items and scrolls the row reads (CRL-23). */
+  private arrangedRtl = false;
   private stopWatchingMotion: (() => void) | null = null;
   /**
    * CRL-23: the row follows the direction it inherits, and a change of it while the page runs: the scroll offset and
@@ -501,7 +511,7 @@ export class TanreiCarousel extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.resize$?.disconnect();
+    this.unwatchRow();
     this.stopWatchingMotion?.();
     this.stopWatchingMotion = null;
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
@@ -611,15 +621,38 @@ export class TanreiCarousel extends TanreiElement {
   /**
    * CRL-8 – CRL-13, CRL-21, CRL-27: arranges the slots for the carousel's width, its axes and its items, and keeps the
    * resting item where it was, as far as the new range allows, without motion.
+   *
+   * Read with every other carousel's of the turn (src/primitives/read-phase.ts), in two steps: the tokens, the row's
+   * width, its direction and its scroll offset are read first, and the track's length written from them; then, the
+   * page laid out once for every carousel's new track, each row is scrolled to its resting position and its offset
+   * read back, and the items placed there. A carousel that read and wrote in its own update had the browser lay the
+   * page out for it, once per instance and more.
    */
   private arrange() {
+    if (this.arrangeAsked) return;
+    this.arrangeAsked = true;
+    readTogether(() => {
+      this.arrangeAsked = false;
+      return this.readArrangement();
+    });
+  }
+
+  /** What `arrange()` reads, returning what it then writes. */
+  private readArrangement(): (() => void) | void {
     const scroller = this.scroller;
     const track = this.renderRoot?.querySelector<HTMLElement>('.track');
     const stage = this.renderRoot?.querySelector<HTMLElement>('.stage');
     if (!scroller || !track || !stage || !this.isConnected) return;
+    const metrics = this.metrics();
+    const rtl = this.rtl;
+    const offsetNow = this.readOffset();
+    return () => this.writeArrangement(track, stage, metrics, rtl, offsetNow);
+  }
+
+  private writeArrangement(track: HTMLElement, stage: HTMLElement, { zoom, ...metrics }: ReturnType<TanreiCarousel['metrics']>, rtl: boolean, offsetNow: number) {
     const items = this.items;
-    const { zoom, ...metrics } = this.metrics();
     this.zoom = zoom;
+    this.arrangedRtl = rtl;
     const before = this.geometry;
     const next = new CarouselGeometry({
       ...metrics,
@@ -651,7 +684,7 @@ export class TanreiCarousel extends TanreiElement {
       }
       if (next.loop) position = next.middle + position;
     } else {
-      position = next.loop ? next.middle : next.position(this.readOffset());
+      position = next.loop ? next.middle : next.position(offsetNow);
     }
 
     this.geometry = next;
@@ -661,8 +694,21 @@ export class TanreiCarousel extends TanreiElement {
     const view = metrics.width;
     track.style.setProperty('--_track', `${view + next.range}px`);
     stage.style.setProperty('--_view', `${view}px`);
-    this.setOffset(next.offset(next.recentre(position)));
+    const target = next.offset(next.recentre(position));
+    // The second step: the row scrolled once every carousel's track has its length (see `arrange()`).
+    readTogether(() => {
+      if (this.geometry !== next) return;
+      const scrolled = this.scrollRow(target);
+      return () => {
+        if (this.geometry !== next) return;
+        if (scrolled) this.placeScrolled(scrolled);
+        this.arranged(next, metrics, wasAnimating);
+      };
+    });
+  }
 
+  /** What follows an arrangement once its row is scrolled into place. */
+  private arranged(next: CarouselGeometry, metrics: Omit<ReturnType<TanreiCarousel['metrics']>, 'zoom'>, wasAnimating: boolean) {
     // CRL-29: the dots fit while their container leaves the playback control's target and a gap on each side.
     const d = next.restingCount;
     const container = d * metrics.dotSize + Math.max(0, d - 1) * metrics.dotGap + (metrics.dotActive - metrics.dotSize) + 2 * metrics.indicatorPadding;
@@ -679,11 +725,25 @@ export class TanreiCarousel extends TanreiElement {
 
   /** Scrolls to `offset` at once and places the items there. */
   private setOffset(offset: number) {
+    const scrolled = this.scrollRow(offset);
+    if (scrolled) this.placeScrolled(scrolled);
+  }
+
+  /**
+   * Scrolls the row to `offset` at once, in the direction it was arranged for: the offset before and the offset after
+   * (where the browser stopped it). A scroll moves no box, so it lays nothing out again: an arrangement makes it while
+   * it reads (see `arrange()`).
+   */
+  private scrollRow(offset: number): { before: number; now: number } | null {
     const scroller = this.scroller;
-    if (!scroller) return;
+    if (!scroller) return null;
     const before = this.readOffset();
-    scroller.scrollLeft = this.rtl ? -offset : offset;
-    const now = this.readOffset();
+    scroller.scrollLeft = this.arrangedRtl ? -offset : offset;
+    return { before, now: this.readOffset() };
+  }
+
+  /** Places the items where `scrollRow()` left the row. */
+  private placeScrolled({ before, now }: { before: number; now: number }) {
     // A write that moves the row is reported by one scroll event, which is then the carousel's own; one that moves
     // nothing is reported by none, and must not make a later scroll to this same offset look like the carousel's.
     this.written = now !== before ? now : Number.NaN;
@@ -705,7 +765,8 @@ export class TanreiCarousel extends TanreiElement {
     this.offset = offset;
     const p = geometry.position(offset);
     const { padding, hero, gap } = geometry;
-    const rtl = this.rtl;
+    // The direction of the arrangement: a change of direction arranges the row again (CRL-23).
+    const rtl = this.arrangedRtl;
     const towardHero = geometry.fluid && this.drawnContent === 'toward-hero';
     // A device pixel of the row: the window's ratio and the zoom of an ancestor, which the ratio does not hold.
     const ratio = ((typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1) || 1) * this.zoom;
@@ -1344,7 +1405,8 @@ export class TanreiCarousel extends TanreiElement {
     const dot = this.renderRoot?.querySelectorAll<HTMLElement>('.dot')[this.progressDot];
     this.renderRoot?.querySelectorAll<HTMLElement>('.dot.timed').forEach((each) => each !== dot && each.classList.remove('timed'));
     const fill = dot?.querySelector<HTMLElement>('.fill');
-    const interval = this.interval();
+    // The interval is read from the cascade only where a fill is drawn: a carousel with no progress styles nothing for it.
+    const interval = this.progressDrawn && dot && fill && typeof fill.animate === 'function' ? this.interval() : 0;
     if (!this.progressDrawn || !dot || !fill || !(interval > 0) || typeof fill.animate !== 'function') {
       this.endProgress();
       return;
@@ -1447,9 +1509,30 @@ export class TanreiCarousel extends TanreiElement {
     this.arrange();
   }
 
+  private static watchResize(): ResizeObserver | null {
+    if (typeof ResizeObserver === 'undefined') return null;
+    return (TanreiCarousel.resizeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiCarousel.rows.get(entry.target)?.arrange();
+    }));
+  }
+
   private observeRow() {
     const row = this.scroller;
-    if (row) this.resize$?.observe(row);
+    if (!row || row === this.watchedRow) return;
+    this.unwatchRow();
+    const watch = TanreiCarousel.watchResize();
+    if (!watch) return;
+    TanreiCarousel.rows.set(row, this);
+    watch.observe(row);
+    this.watchedRow = row;
+  }
+
+  private unwatchRow() {
+    const row = this.watchedRow;
+    if (!row) return;
+    TanreiCarousel.resizeWatch?.unobserve(row);
+    TanreiCarousel.rows.delete(row);
+    this.watchedRow = null;
   }
 
   /** CRL-20, CRL-24: what a debug build reports, each once per value. */

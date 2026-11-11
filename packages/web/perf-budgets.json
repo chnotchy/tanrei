@@ -678,10 +678,6 @@
         "budget": 189,
         "measured": 180
       },
-      "carousel": {
-        "budget": 661,
-        "measured": 630
-      },
       "chat-composer": {
         "budget": 1134,
         "measured": 1080
@@ -706,21 +702,9 @@
         "budget": 756,
         "measured": 720
       },
-      "number-ticker": {
-        "budget": 94,
-        "measured": 90
-      },
-      "pagination": {
-        "budget": 189,
-        "measured": 180
-      },
       "popover": {
         "budget": 1019,
         "measured": 971
-      },
-      "segmented-button": {
-        "budget": 189,
-        "measured": 180
       },
       "side-sheet": {
         "budget": 283,
@@ -729,10 +713,6 @@
       "snackbar": {
         "budget": 189,
         "measured": 180
-      },
-      "stepper": {
-        "budget": 283,
-        "measured": 270
       },
       "toolbar": {
         "budget": 567,
