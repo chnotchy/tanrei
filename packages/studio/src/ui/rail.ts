@@ -51,7 +51,8 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'size': {
       const [density, size] = [dial(ctx, layer, 'density'), dial(ctx, layer, 'size.unit')];
-      return { value: t.rail.size(trim(density.value), `${trim(size.value)}${size.unit}`), changed: density.changed || size.changed };
+      const minimum = studio.targetMinimum(layer) as Json | null;
+      return { value: t.rail.size(trim(density.value), `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: density.changed || size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
