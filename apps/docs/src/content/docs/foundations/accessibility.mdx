@@ -40,7 +40,7 @@ Project rules forbid loosening a threshold to make a check pass.
 
 <DimensionScale group="target" source="tokens/sys/measure.tokens.json" />
 
-**Visual size is not hit area.** A small Tanrei button is 32 units tall, which suits a dense toolbar, but it still responds across at least 48 units for touch and 44 for a pointer. Components extend their hit area invisibly and keep at least 8 units between neighbouring targets. Every spec declares this guarantee, and every platform tests it.
+**Nothing a person presses is drawn smaller than the minimum.** `sys.target.minimum` is 36 in the default system: a button, an input box, a tab or a row is drawn at least that high whatever the density and the size, and an icon-only button at least that wide, so a small button, which the size ladder draws at 32, is drawn 36 high. A mark drawn smaller than the target, such as a checkbox's box or a small chip, keeps its size and extends its hit area to `sys.target.touch` for touch and `sys.target.pointer` for a fine pointer. Both equal the minimum in the default system; a system that sets them higher takes a press from that larger area. Every spec declares this guarantee. [Size and density](/foundations/size-and-density/) shows the heights, and how a product sets the minimum.
 
 ## Focus
 

@@ -2,7 +2,7 @@
 title: Accesibilidad
 description: Los requisitos de accesibilidad que Tanrei incorpora en los tokens y en las especificaciones de los componentes, y las comprobaciones que los imponen.
 translationOf: foundations/accessibility.mdx
-sourceHash: 9ce59f04b5c628d94d33919520348b8d37908225
+sourceHash: f6ed7ebe4b2929ce5381c0b6d5ec884e87079170
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,7 +42,7 @@ Las reglas del proyecto prohíben rebajar un umbral para que una comprobación p
 
 <DimensionScale group="target" source="tokens/sys/measure.tokens.json" />
 
-**El tamaño visual no es el área de pulsación.** Un botón pequeño de Tanrei mide 32 unidades de alto, lo adecuado para una barra de herramientas densa, pero sigue respondiendo en al menos 48 unidades para el toque y 44 para un puntero. Los componentes amplían su área de pulsación de forma invisible y mantienen al menos 8 unidades entre objetivos vecinos. Todas las especificaciones declaran esta garantía, y todas las plataformas la prueban.
+**Nada de lo que una persona pulsa se dibuja más pequeño que el mínimo.** `sys.target.minimum` es 36 en el sistema predeterminado: un botón, una caja de entrada, una pestaña o una fila se dibujan al menos con esa altura sean cuales sean la densidad y el tamaño, y un botón que solo tiene icono, al menos con ese ancho; así, un botón pequeño, que la escala de tamaños dibuja a 32, se dibuja con 36 de alto. Una marca que se dibuja más pequeña que el objetivo, como la caja de una casilla de verificación o un chip pequeño, conserva su tamaño y extiende su área de pulsación hasta `sys.target.touch` para el toque y hasta `sys.target.pointer` para un puntero preciso. Ambos son el mínimo en el sistema predeterminado; un sistema que los sube recibe la pulsación desde esa área mayor. Todas las especificaciones declaran esta garantía. [Tamaño y densidad](/es/foundations/size-and-density/) muestra las alturas y cómo fija un producto el mínimo.
 
 ## Foco
 
