@@ -633,6 +633,19 @@ test.describe('forms, focus and dismissal', () => {
     await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-side-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened');
   });
 
+  test('SSH-2, SSH-3: closed at the end of a task that outlasts its motions, a modal sheet slides out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the control focus left and the opener focus went back to were drawn at their end at once.
+    await mount(page, [fx('s', { open: false, variant: 'modal' }, '<tanrei-button id="marked" autofocus>Apply</tanrei-button>')]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="opener">Open</tanrei-button>'));
+    await tabTo(page, page.locator('#opener'));
+    await host(page).evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    await expectFromNextFrame(host(page), '(el) => { el.open = false; }', ['tanrei-side-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'closed');
+  });
+
   test('SSH-1: a standard sheet takes its width at the end of the row while open and none while closed, sliding while the content beside it resizes (enter and exit motion, at once where reduced); no scrim, no trap, Tab leaves it open, Escape and drags are ignored', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'standard', open: false }, '<button id="inside">Inside</button>')]);
     const [width, enter, exit] = [await px(page, T('container-width')), await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
