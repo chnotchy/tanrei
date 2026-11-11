@@ -268,6 +268,12 @@ const VARIANTS: Record<string, { markup: () => string; motion?: boolean; prepare
     prepare: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.shadowRoot.querySelector('tanrei-button.next').click()`,
     act: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.itemWidth = 150`,
   },
+  // SCA-8, SCA-10: content 1.4px past the box. The scroll extents round it to 1px, within the sentinel's thickness, so
+  // the sizes find that it fits; the bottom sentinel, out of the box, says that it does not — the fit the intersection
+  // observer tells, which asks whether anything inside takes focus.
+  'scroll-area, its fit told by the sentinels': {
+    markup: () => `<tanrei-scroll-area label="Messages" style="inline-size: 280px; block-size: 100px"><div style="block-size: 101.4px"></div></tanrei-scroll-area>`,
+  },
 };
 
 test.describe('forced passes do not grow with the number of instances (a Chromium trace)', () => {
