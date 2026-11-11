@@ -1,7 +1,9 @@
 // Exactness, measured. A preset that reproduces a published design system carries a fidelity map
 // (tokens/fidelity/<system>.fidelity.json) from the REFERENCE's tokens to what Tanrei resolves. Every
 // reference token of a covered component must be mapped-and-equal, covered by another mapping, or listed as
-// unmapped with the mimicry gap that explains it. The result is a number, published next to the preset.
+// unmapped with the mimicry gap that explains it. A token the map places `outside` the preset's scope (with the
+// reason) is listed and not counted. The result is a number, published next to the preset; a mapped token that
+// differs counts against it, whether or not the map lists it as an open finding (the test reads `findings`).
 import fs from 'node:fs';
 import path from 'node:path';
 import { REPO_ROOT, rgba } from './model.js';
@@ -37,7 +39,7 @@ const over = (source, backdrop, opacity) => {
 const px = (text) => (/rem$/.test(text) ? parseFloat(text) * REM : parseFloat(text));
 
 /**
- * @returns {{ system, reference, total, equal, covered, different: object[], unmapped: object[], unaccounted: string[], fidelity: number }}
+ * @returns {{ system, reference, total, equal, covered, different: object[], unmapped: object[], unaccounted: string[], outside: object[], fidelity: number }}
  */
 export function measureFidelity(model, { map, reference }) {
   const schemes = ['light', 'dark'];
@@ -45,13 +47,24 @@ export function measureFidelity(model, { map, reference }) {
   const tokenIn = (id, scheme) => (id.startsWith('tanrei.sys.color.') ? model.colors[scheme][id.slice('tanrei.sys.color.'.length)] : (model.componentColors[scheme][id] ?? model.tokens[id]));
   const stateEntries = Object.entries(map.states ?? {});
   const unmapped = new Map((map.unmapped ?? []).map((u) => [u.ref, u]));
-  const result = { system: map.system, reference: reference.reference, scope: map.scope, total: 0, equal: 0, covered: 0, different: [], unmapped: [], unaccounted: [] };
+  const result = { system: map.system, reference: reference.reference, scope: map.scope, total: 0, equal: 0, covered: 0, different: [], unmapped: [], unaccounted: [], outside: [] };
+  // A section's `outside` names reference tokens (by their key in the section; `*` matches any run of characters)
+  // that lie outside what the preset reproduces, each with its reason: not counted, listed so the scope is seen.
+  const outsideOf = (section) => (map[section]?.outside ?? []).map((o) => ({ ...o, test: new RegExp(`^${o.ref.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replaceAll('*', '.*')}$`) }));
+  const isOutside = (rules, key, id) => {
+    const rule = rules.find((o) => o.test.test(key));
+    if (rule) result.outside.push({ ref: id, reason: rule.reason });
+    return Boolean(rule);
+  };
 
   // Every color role the reference publishes, by name (extensions included: `primary-fixed`, `background`…).
   if (map.colors) {
+    const prefix = map.colors.prefix ?? 'md.sys.color.';
     const skipped = new Map((map.colors.unmapped ?? []).map((u) => [u.ref, u]));
-    for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith('md.sys.color.'))) {
-      const role = id.slice('md.sys.color.'.length);
+    const outside = outsideOf('colors');
+    for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith(prefix))) {
+      const role = id.slice(prefix.length);
+      if (isOutside(outside, role, id)) continue;
       result.total += 1;
       if (skipped.has(role)) { result.unmapped.push({ ref: id, ...skipped.get(role) }); continue; }
       const tanrei = `tanrei.sys.color.${map.colors.rename?.[role] ?? role}`;
@@ -72,11 +85,14 @@ export function measureFidelity(model, { map, reference }) {
   // compare weight only, against the base role's weight plus the family's `emphasis.*` step.
   if (map.typescale) {
     const FIELDS = { font: 'fontFamily', size: 'fontSize', 'line-height': 'lineHeight', tracking: 'letterSpacing', weight: 'fontWeight' };
+    const prefix = map.typescale.prefix ?? 'md.sys.typescale.';
     const skipped = new Map((map.typescale.unmapped ?? []).map((u) => [u.ref, u]));
-    for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith('md.sys.typescale.'))) {
-      const rest = id.slice('md.sys.typescale.'.length);
+    const outside = outsideOf('typescale');
+    for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith(prefix))) {
+      const rest = id.slice(prefix.length);
       const m = /^(.*)-(font|size|line-height|tracking|weight)$/.exec(rest);
       if (!m) continue;
+      if (isOutside(outside, rest, id)) continue;
       const [, refRole, refField] = m;
       result.total += 1;
       if (skipped.has(refRole) || skipped.has(rest)) { result.unmapped.push({ ref: id, ...(skipped.get(refRole) ?? skipped.get(rest)) }); continue; }
@@ -98,6 +114,28 @@ export function measureFidelity(model, { map, reference }) {
       } else if (field === 'lineHeight') { expected = px(expectedRaw); actual = Math.round(token.value.fontSize.value * token.value.lineHeight * 100) / 100; }
       else { expected = Math.round(px(expectedRaw) * 1000) / 1000; actual = Math.round(token.value[field].value * 1000) / 1000; }
       if (String(expected) !== String(actual)) result.different.push({ ref: id, tanrei: `tanrei.sys.typescale.${tanreiRole}`, problems: [{ scheme: 'light', expected, actual }] });
+      else result.equal += 1;
+    }
+  }
+
+  // Single figures the reference publishes under `map.values.prefix`, each mapped by its key to one Tanrei token
+  // (a dimension in px — a reference's pt and dp are the same unit — or a number).
+  if (map.values) {
+    const { prefix } = map.values;
+    const skipped = new Map((map.values.unmapped ?? []).map((u) => [u.ref, u]));
+    const outside = outsideOf('values');
+    for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith(prefix))) {
+      const key = id.slice(prefix.length);
+      if (isOutside(outside, key, id)) continue;
+      result.total += 1;
+      if (skipped.has(key)) { result.unmapped.push({ ref: id, ...skipped.get(key) }); continue; }
+      const rule = map.values.map.find((r) => r.ref === key);
+      if (!rule) { result.unaccounted.push(id); continue; }
+      const token = model.tokens[rule.tanrei];
+      const raw = refValue(id, 'light');
+      const expected = token?.type === 'dimension' ? parseFloat(raw) : Number(raw);
+      const actual = !token ? `no token ${rule.tanrei}` : token.type === 'dimension' ? token.value.value : token.value;
+      if (expected !== actual) result.different.push({ ref: id, tanrei: rule.tanrei, problems: [{ scheme: 'all', expected, actual }] });
       else result.equal += 1;
     }
   }
