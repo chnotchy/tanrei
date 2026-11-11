@@ -726,10 +726,6 @@
         "budget": 141,
         "measured": 135
       },
-      "segmented-button": {
-        "budget": 189,
-        "measured": 180
-      },
       "side-sheet": {
         "budget": 283,
         "measured": 270
