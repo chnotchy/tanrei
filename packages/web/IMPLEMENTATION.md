@@ -7484,7 +7484,7 @@ the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
 | `variant` | `standard` \| `modal` (or a value the system adds) | `standard` | standard: beside the content, in the layout; modal: over it, with a scrim. Unknown: drawn from standard's tokens and presented as standard, reported (NVD-26); reflected |
 | `open` | boolean | `false` | standard: whether it takes its place; modal: whether it is presented (a collapsible modal drawer: whether it is widened over the content). A modal drawer sets it to false itself when it closes; reflected |
 | `collapsible` | boolean | `false` | gives it the collapsed form; reflected |
-| `expanded` | boolean | `true` | the form of a collapsible standard drawer (`expanded="false"` collapses it; absence is true); ignored while not collapsible and by a modal drawer, whose form follows `open`; reflected. The menu button sets it |
+| `expanded` | boolean | `true` | the form of a collapsible standard drawer (`expanded="false"` collapses it; absence is true); for a responsive drawer that is not collapsible, whether its standard presentation is shown or hidden (NVD-53); otherwise ignored while not collapsible, and by a modal drawer, whose form follows `open`; reflected. The menu button (its own, or an app shell's) sets it |
 | `collapsedLabels` / `collapsed-labels` | `never` \| `selected` \| `always` | `never` | which cells draw their short label under the icon while collapsed (anything else is `never`). The default draws none: a collapsed cell shows its name in a tooltip instead (NVD-56). `always` is for a product or a system whose column is labelled — a product on m3-like sets it; reflected |
 | `responsive` | boolean | `false` | lets the window's width choose the presentation (NVD-53): `variant` is then ignored; reflected |
 | `presentation` | `standard` \| `column` \| `modal` \| `null`, read-only | | what a responsive drawer is at the window's width (`null` while not responsive), reflected as the `presentation` attribute for styling. Derived from the width alone; never written to `variant`, `open` or `expanded` |
@@ -7520,10 +7520,22 @@ the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
 | Event | When |
 |---|---|
 | `change` / `reselect` (drawer) | a button destination: as the bar's (`value` is already set). A link: `CustomEvent<{ value, href }>`, **cancelable**, fired from the anchor's click before the browser follows it, and only for a plain activation — the primary button, no modifier key, a click not already cancelled, `target` `same`, no `download`; `value` is not written; `preventDefault()` stops the navigation (a router then goes to `detail.href`). A modal drawer closes after either (NVD-21); a link opened somewhere else fires nothing and leaves it open (NVD-60) |
-| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button, or a destination. `open` is already false. A standard drawer never fires it |
+| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, a destination, or a responsive drawer's coming to stand beside the content. `open` is already false. A standard drawer never fires it |
 | `expandedchange` (drawer) | `CustomEvent<{ expanded }>`, bubbling: the user asked a collapsible drawer for its other form — its menu button, or a group's cell while collapsed (`true`). The drawer has already set `expanded` (a modal one: `open`) |
 | `presentationchange` (drawer) | `CustomEvent<{ presentation }>`, bubbling: a responsive drawer decided its presentation for the first time, or the window's width changed it. A product shows its own menu button while it is `modal` |
 | `toggle` (group) | `CustomEvent<{ open }>`, bubbling: the user opened or closed the group — its row, the arrow keys, or its cell while collapsed — or the drawer opened it to show the selection (`reveal-selected`). `open` is already set |
+
+**Held by an app shell (NVD-19, NVD-23, NVD-54).** A drawer whose parent is a `<tanrei-app-shell>` with a filled
+header region, in that frame's navigation region, is drawn in the frame and never in the top layer: it renders one
+`<nav>` in every presentation (the host carries `data-held`), and open over the content that panel stands below the
+header with a scrim of its own (a sibling element under it, from the header's bottom edge to the window's), stays the
+navigation landmark named by `label`, keeps no focus inside it and makes nothing inert — the frame does. A change of
+presentation moves the same panel over `motion.expand` (`data-moving`); while it is open over the content, closing, or
+moving, the host carries `data-over`, which the frame's stylesheet reads to draw it over the main region and under the
+header. Nothing is replaced or removed when a closing ends: the scrim has faded and the panel has left the window or is
+its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move). **The platform's back
+action does not close a drawer the frame holds** (NVD-20, MDL-6 ask that it do): it reached a modal drawer as its
+`<dialog>`'s native `cancel`, and the held panel is no dialog.
 
 **A site's sidebar (NVD-57…64).** Give every destination an `href` and the drawer the page's own address as `value`:
 
@@ -9538,22 +9550,23 @@ A region you leave out takes no space and adds no landmark.
 | `main-width` | `contained` \| `full` | `contained` | the main region's content no wider than `comp.app-shell.main.max-width` and centred, or all the room inside the gutters. Reflected |
 | `aside-order` | `after` \| `before` | `after` | the side of the main content a stacked aside is drawn on: write the `<aside>` on that side of the `<main>` too. Reflected |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | the hairline above the footer, at the aside's start edge and between the main content and a stacked aside; `auto` is `comp.app-shell.separation`. Reflected |
-| `navigation-open` | boolean | off | the navigation is presented over the content, while it has no place in the layout (or only its column). Reflected |
+| `navigation-open` | boolean | off | the navigation is presented over the content — below the header — while it has no place in the layout (or only its column). A change between compact and medium keeps it; the window becoming expanded makes it false. Reflected |
+| `menu-button-placement` | `header` \| `drawer` | `header` | where the one control that shows and hides the navigation lives: the header's menu button in every class, or (`drawer`) the drawer's own first header button where the navigation has a place, the header's only where it has none. Anything else is `header`. Reflected |
 | `aside-label` | text | | the aside's accessible name, where its element has none |
 
 | Event | `detail` | |
 |---|---|---|
 | `windowclasschange` | `{ windowClass }` | the class was decided for the first time, or the window's width changed it: `compact`, `medium`, `expanded`. The read-only `windowClass` property and `data-window-class` hold it |
-| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed, or the class changed (false) |
+| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination — or the window became expanded while it was open (false) |
 
 **The window's class** is three media conditions, in rem, so a reader's zoom (and, in Chromium, a larger default text
 size) moves the frame to a narrower class before its columns are too narrow to read:
 
 | Class | Width (default system) | Navigation | Aside | Menu button | Navigation bar | Gutter |
 |---|---|---|---|---|---|---|
-| `compact` | under 600 | over the content, when opened | above or below `<main>` | shown | shown | 16 |
-| `medium` | 600 to 1023 | its column where the drawer is `collapsible`; else as compact | above or below | shown unless the column is | not shown | 24 |
-| `expanded` | 1024 and wider | beside the content | beside it, at the end edge | not shown | not shown | 32 |
+| `compact` | under 600 | over the content below the header, when opened | above or below `<main>` | shown | shown | 16 |
+| `medium` | 600 to 1023 | its column where the drawer is `collapsible`; else as compact | above or below | shown for a drawer (`menu-button-placement="drawer"`: unless the column is) | not shown | 24 |
+| `expanded` | 1024 and wider | beside the content, in the form the drawer's `expanded` gives it | beside it, at the end edge | shown for a drawer, unless `menu-button-placement="drawer"` | not shown | 32 |
 
 What the frame holds follows the class without script: it inherits `--tanrei-app-shell-window-class`
 (`@container style(--tanrei-app-shell-window-class: compact) { … }`).
@@ -9571,9 +9584,19 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
 
 - the class as a property, a state attribute and an event (above); no resize listener and no frame loop;
 - **the menu button** — the one icon-only `<tanrei-button data-app-shell-menu>` in the header. The stylesheet shows it
-  only while the navigation has no place in the layout; the element answers its press (`navigationOpen` and the drawer's
-  `open` become true, the drawer takes focus), follows the drawer's `close` (false again, focus back on the button),
-  and writes `aria-expanded` — and the drawer as what it controls — on the button it draws;
+  in every class for a navigation drawer (`menu-button-placement="drawer"`: only while the navigation has no place in
+  the layout). The element asks the drawer for what the drawer's own menu button asks: where the navigation has no
+  place (or only its column) its press opens it (`navigationOpen` and the drawer's `open` become true, the drawer takes
+  focus) and a second press, or Escape on the button, closes it; where the navigation stands beside the content it
+  collapses and expands a collapsible drawer and hides and shows one that is not (its `expanded`, with
+  `expandedchange`). It follows the drawer's `close` (false again, focus back on the button) and writes `aria-expanded`
+  — open over the content, or expanded beside it — and the drawer as what it controls on the button it draws. Its
+  glyph is the product's and does not change;
+- **the navigation open over the content is drawn below the header**: the drawer and its scrim cover the frame from
+  the header's bottom edge to the window's, the header and the announcement stay usable and are never inert, and the
+  element makes the skip link, the `<main>`, the aside, the footer and the navigation bar `inert` and holds the page's
+  scroll, until closing begins. Focus is not kept in the drawer: Tab moves through the announcement, the header and the
+  drawer. A frame without a header leaves the drawer the top-layer modal dialog it is elsewhere;
 - **the scroll offset**: the header's height as `--tanrei-app-shell-scroll-offset` on `<html>`, measured again when it
   changes; the stylesheet sets the root's `scroll-padding-block-start` from it, so a link to a heading and a focused
   element rest below the header. The navigation bar's height is `--tanrei-app-shell-scroll-offset-end`. Your own sticky
@@ -9594,6 +9617,14 @@ Good to know:
   (`:focus-visible`); otherwise the link is clipped to nothing, never `display: none`. The Link keeps its color, its
   underline and its focus ring; its state container color is under the box and is not seen. These rules have an
   attribute's specificity (not none), because link.css says `position: relative` of the same anchor.
+- **The header, the navigation and the aside are `position: sticky`, and do not yet hold still when the page is
+  pulled past an end** (APS-5, APS-9 and APS-16 ask that they do): a browser that moves the document on an overscroll
+  moves a sticky box that is not stuck with it, and only a `position: fixed` one stays — which would need the header
+  to rest below an announcement and the navigation and the aside to end at the footer by positioning that follows the
+  scroll, which the frame does not have yet.
+- **The frame's levels** (APS-32), within its own stacking order: the footer and the navigation bar 1 (the bar after
+  the footer, so over it), a navigation drawer standing over the content — open below the header, closing, or moving to
+  a new presentation (its `data-over`) — 2, the header 3, the focused skip link 4.
 - **A sticky part stays inside the frame, not inside its row** (every engine): the navigation and the aside would run
   over the footer at the end of the page. The element measures the footer and the stylesheet takes that much off what
   they may reach; without script the footer is drawn over their end, on the frame's own fill.

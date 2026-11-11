@@ -73,7 +73,8 @@ const ENTERS: Record<string, Pick> = {
   'date-time-picker': (f) => opened(f) && f.props.presentation !== 'docked',
   'image-preview': opened,
   'modal-layer': opened,
-  'navigation-drawer': (f) => f.id === 'modal' || f.id === 'responsive-narrow',
+  // NVD-19, NVD-40: a modal drawer slides in; a collapsible one widens from its column.
+  'navigation-drawer': (f) => f.id === 'modal' || f.id === 'responsive-narrow' || f.id === 'modal-collapsible-open',
   'side-sheet': (f) => opened(f) && f.props.variant === 'modal',
   // POP-26, POP-41: the compact- fixtures are the real overlay (the others are drawn in place, whole at once).
   popover: (f) => opened(f) && f.id.startsWith('compact'),

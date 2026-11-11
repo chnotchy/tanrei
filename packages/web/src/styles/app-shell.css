@@ -29,7 +29,7 @@
  *
  * Attributes of the element: `scroll` (page | main), `header-position` (sticky | static), `main-width`
  * (contained | full), `aside-order` (after | before), `footer-hidden`, `separation` (auto | divider | gap),
- * `navigation-open`, `aside-label`.
+ * `navigation-open`, `menu-button-placement` (header | drawer), `aside-label`.
  *
  * This stylesheet lays the whole frame out before and without script (APS-24): the window's class is three media
  * conditions, a region that the class does not show has no box, the skip link is an anchor to the main region's id.
@@ -97,7 +97,8 @@
     --_aps-separation: var(--tanrei-comp-app-shell-separation);
     --_aps-line: var(--tanrei-comp-app-shell-outline-width);
     --_aps-line-color: var(--tanrei-comp-app-shell-outline-color);
-    /* APS-6: whether the menu button is shown: only while the navigation has no place in the layout. */
+    /* APS-6: whether the menu button is shown: in every class while the navigation region holds a navigation drawer
+       and menu-button-placement is not drawer, otherwise only while the navigation has no place in the layout. */
     --_aps-menu: hidden;
     /* APS-5, APS-9: what is kept over the top of the window, and the height the navigation and the aside stay in. */
     --_aps-top: var(--tanrei-app-shell-scroll-offset, 0px);
@@ -141,7 +142,7 @@
   :where(tanrei-app-shell[separation='gap']) {
     --_aps-separation: gap;
   }
-  /* APS-6: a compact window with a navigation region shows the menu button. */
+  /* APS-6: a navigation region shows the menu button (a compact window's, and every window's for a drawer). */
   :where(tanrei-app-shell):where(:has(> [slot='navigation'])) {
     --_aps-menu: shown;
   }
@@ -153,10 +154,12 @@
   /* ── The regions (APS-1): each in its place; one that is absent has no box, so it takes no room ─────────────── */
   /* APS-32: each region is a stacking context of its own, so whatever a region holds stacks inside it: a z-index that
      a component or the product gives to something in the main region orders it within the main region and never lifts
-     it over the header. The frame orders the regions itself, by three levels: the regions that scroll with the page
-     (none), the footer (1, over the end of the navigation and the aside), and the parts that stay in view over the
-     page — the header and the navigation bar (2). The skip link stands over all of them (3). What must stand above the
-     whole frame — a menu, a dialog, a tooltip, a snackbar — is drawn in the top layer, which no stacking context holds. */
+     it over the header. The frame orders the regions itself: the regions that scroll with the page (none), the footer
+     (1, over the end of the navigation and the aside) and the navigation bar (1, after the footer, so over it), the
+     navigation while a drawer stands over the content — open over it below the header, closing, or moving to a new
+     presentation (2, over all of those) — and the header over everything (3), so that it is never covered or dimmed.
+     The skip link stands over all of them (4). What must stand above the whole frame — a menu, a dialog, a tooltip, a
+     snackbar, a modal drawer the frame does not hold — is drawn in the top layer, which no stacking context holds. */
   :where(tanrei-app-shell) > :where([slot='announcement'], [slot='header'], [slot='navigation'], main, [role='main'], [slot='aside'], [slot='footer'], [slot='navigation-bar']) {
     isolation: isolate;
   }
@@ -171,8 +174,8 @@
     /* APS-16: kept at the top of the window while the page scrolls under it; no fill, elevation or edge of the frame's. */
     position: sticky;
     inset-block-start: 0;
-    /* APS-32: over every region, the footer too. */
-    z-index: 2;
+    /* APS-32: over every region, the footer and the navigation open over the content too. */
+    z-index: 3;
   }
   :where(tanrei-app-shell[header-position='static'], tanrei-app-shell[scroll='main']) > :where([slot='header']) {
     position: static;
@@ -193,6 +196,12 @@
     min-block-size: min(100%, var(--_aps-view));
     /* APS-11: …and it stops staying in view where the footer begins (the footer's height, as the element measures it). */
     margin-block-end: var(--_aps-footer, 0px);
+  }
+  /* APS-4, APS-32: a drawer that stands over the content — open over it below the header, closing, or moving to a new
+     presentation (its `data-over`) — is drawn over the main region, the aside, the footer and the navigation bar, and
+     under the header. */
+  :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][data-over]) {
+    z-index: 2;
   }
   /* APS-5: what is not a navigation drawer scrolls inside that height by itself (a drawer does: NVD-61). */
   :where(tanrei-app-shell) > :where([slot='navigation']:not(tanrei-navigation-drawer)) {
@@ -278,11 +287,12 @@
     min-inline-size: 0;
     position: sticky;
     inset-block-end: 0;
-    /* APS-32: over every region, the footer too. */
-    z-index: 2;
+    /* APS-32: over every region that scrolls, the footer too (it comes after the footer). */
+    z-index: 1;
   }
 
-  /* ── The menu button (APS-6): shown only while the navigation has no place in the layout; never restyled ────── */
+  /* ── The menu button (APS-6): shown in every class for a drawer (menu-button-placement header), else only while the
+     navigation has no place in the layout; never restyled ─────────────────────────────────────────────────────── */
   @container style(--_aps-menu: hidden) {
     :where(tanrei-app-shell) :where([data-app-shell-menu]) {
       display: none;
@@ -310,7 +320,7 @@
   :where(tanrei-app-shell) > [slot='skip-link']:focus-visible {
     position: fixed;
     /* APS-19, APS-32: over every region and every part that stays in view. */
-    z-index: 3;
+    z-index: 4;
     overflow: visible;
     inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-block));
     /* The start corner is the shell's, not the link's: a standalone link takes its label's own direction (LNK-26), so
@@ -351,9 +361,11 @@
       /* APS-13: the navigation bar is not shown, so the frame ends above the bottom inset itself. */
       --_aps-inset-bottom: env(safe-area-inset-bottom, 0px);
     }
-    /* APS-4, APS-6: a navigation with a collapsed form stands as its column, and the menu button is the drawer's
-       own (NVD-37); any other is still presented over the content from the menu button. */
-    :where(tanrei-app-shell):where(:has(> [slot='navigation'][collapsible])) {
+    /* APS-4, APS-6: a navigation with a collapsed form stands as its column. The menu button stays for a drawer — it
+       widens the column over the content and narrows it back — unless menu-button-placement is drawer, where the
+       drawer's own menu button stands for it (NVD-37); anything else with a collapsed form has no use for it. */
+    :where(tanrei-app-shell[menu-button-placement='drawer']):where(:has(> [slot='navigation'][collapsible])),
+    :where(tanrei-app-shell):where(:has(> [slot='navigation'][collapsible]:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
     /* APS-24: the column of a drawer that is not defined yet keeps its place. */
@@ -375,8 +387,10 @@
       --tanrei-app-shell-window-class: expanded;
       --_aps-gutter: var(--tanrei-comp-app-shell-gutter-expanded);
     }
-    /* APS-4, APS-6: the navigation stands beside the main region, whatever it is, and no menu button is shown. */
-    :where(tanrei-app-shell):where(:has(> [slot='navigation'])) {
+    /* APS-4, APS-6: the navigation stands beside the main region, whatever it is. The menu button stays for a drawer —
+       it shows, hides or collapses it — unless menu-button-placement is drawer; anything else is not changed by it. */
+    :where(tanrei-app-shell[menu-button-placement='drawer']):where(:has(> [slot='navigation'])),
+    :where(tanrei-app-shell):where(:has(> [slot='navigation']:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
     /* APS-24: a drawer that is not defined yet keeps its place. */

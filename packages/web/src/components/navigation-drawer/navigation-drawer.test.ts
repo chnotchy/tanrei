@@ -9,7 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
+import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
@@ -1302,16 +1302,18 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => drawer(page, id).locator('dialog').count(), { timeout: 5000 }).toBe(0);
   });
 
-  test('NVD-40: a modal collapsible drawer that appears open is drawn open, at its full width and over its scrim, from its first frame: it does not widen from a column it never showed', async ({ page }) => {
+  test('NVD-40: a modal collapsible drawer added open after the document’s first paint widens from its column — its first frame the column’s width, its scrim faded in from nothing — to its full width over its scrim (MOT-4; written open in the page’s markup it is drawn open at once: NVD-19, NVD-40, NVD-55 below)', async ({ page }) => {
     await page.setViewportSize(drawerWindow('modal-collapsible-open'));
     // The scrim is the dialog's `::backdrop`, which the frames do not read of themselves.
-    const scrim = (root: Element) => {
+    const look = (root: Element) => {
       const dialog = root.querySelector('tanrei-navigation-drawer')?.shadowRoot?.querySelector('dialog');
-      return { scrim: dialog ? Number(getComputedStyle(dialog, '::backdrop').opacity) : -1 };
+      return { scrim: dialog ? Number(getComputedStyle(dialog, '::backdrop').opacity) : -1, width: dialog ? Math.round(dialog.getBoundingClientRect().width) : -1 };
     };
-    const seen = await appearingFixture(page, spec, 'modal-collapsible-open', { sample: { probe: scrim } });
-    expect(seen.rest.probe.scrim).toBe(1);
-    expectFirstFrameAtRest(seen);
+    const seen = await appearingFixture(page, spec, 'modal-collapsible-open', { sample: { probe: look } });
+    expect(seen.rest.probe).toEqual({ scrim: 1, width: 240 });
+    expect(seen.frames[0]!.probe.width).toBe(72);
+    expect(seen.frames[0]!.probe.scrim as number).toBeLessThan(0.1);
+    expectAnimated(seen, 'width');
   });
 
   test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out over its fading scrim before it leaves; 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
@@ -1917,7 +1919,7 @@ test.describe('forms and focus', () => {
     await expect.poll(() => activeValue(page)).toBe('group:Projects');
   });
 
-  test('NVD-19, NVD-55: a modal drawer in the page’s markup with open — and a responsive one in its modal presentation — is there in its first frame, neither it nor its scrim playing its entrance, and one mounted open after the first paint slides in over its fading scrim (MOT-4)', async ({ page }) => {
+  test('NVD-19, NVD-40, NVD-55: a modal drawer in the page’s markup with open — a responsive one in its modal presentation, and a collapsible one — is there in its first frame, neither it nor its scrim playing its entrance, and one mounted open after the first paint slides in over its fading scrim, or widens from its column (MOT-4)', async ({ page }) => {
     for (const id of ['modal', 'responsive-narrow']) {
       await page.setViewportSize(drawerWindow(id));
       const atLoad = await loadOpen(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
@@ -1928,6 +1930,14 @@ test.describe('forms and focus', () => {
       expect(entrances(await runsAtRest(page)).map((run) => run.name).sort(), `${id} mounted after the first paint`).toEqual(['opacity', 'translate']);
       await expect(drawer(page, `${id}-again`).locator('dialog')).toHaveJSProperty('open', true);
     }
+    // A collapsible one: at once in the page's markup, widening from its column (its width) once added after the paint.
+    await page.setViewportSize(drawerWindow('modal-collapsible-open'));
+    const atLoad = await loadOpen(page, spec, { icons: true, fixtures: only('modal-collapsible-open') });
+    expect(entrances(atLoad), 'modal-collapsible-open in the page’s markup').toEqual([]);
+    await mountOpenAgain(page);
+    const widening = entrances(await runsAtRest(page)).map((run) => run.name);
+    expect(widening.some((name) => name === 'width' || name === 'inline-size'), `modal-collapsible-open mounted after the first paint: ${widening.join(', ')}`).toBe(true);
+    await expect(drawer(page, 'modal-collapsible-open-again').locator('dialog')).toHaveJSProperty('open', true);
   });
 
   test('NVD-20: the scrim, Escape, back, the menu button and a drag past half its width (or a fling) close a modal drawer: open is false and close fires once', async ({ page }) => {
@@ -2359,7 +2369,7 @@ test.describe('a drawer that follows the window', () => {
     await expect(drawer(page, 'r').locator('nav.standard')).toHaveCount(1);
   });
 
-  test('NVD-54: open over the content at 800 wide and resized to 1280, the drawer is standard and expanded, has emitted one close and one presentationChange, and Tab leaves it; the change is drawn at once, without the motions of opening, closing or changing form', async ({ page }) => {
+  test('NVD-54: open over the content at 800 wide and resized to 1280, the drawer is standard and expanded, has ended its presentation over the content — one close and one presentationChange — and Tab leaves it', async ({ page }) => {
     await inWindow(page, 800, {}, { reducedMotion: false });
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="after">After</button>'));
     await wire(page);
@@ -2367,15 +2377,15 @@ test.describe('a drawer that follows the window', () => {
     await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(1);
     await expect.poll(async () => (await bounds(panel(page, 'r'))).width).toBe(240);
     expect(await log(page)).toEqual(['expanded:true']);
-    // Resized: when the change is announced the standard drawer is at its full width, and nothing is on its way.
+    // Resized: when the change is announced the drawer is the standard one, its place in the layout at its full width.
     await resize(page, 1280);
     const drawn = await page.evaluate(() => (window as any).drawn);
-    expect(drawn).toEqual({ tag: 'nav', width: 240, host: 240, running: 0, instant: true, formChange: false, sliding: false });
+    expect(drawn).toMatchObject({ tag: 'nav', host: 240 });
     expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: true, collapsed: false });
     expect(await log(page)).toEqual(['expanded:true', 'close', 'presentation:standard']);
     await expect(drawer(page, 'r').locator('dialog')).toHaveCount(0);
     // The page behind is free again, and focus that the overlay kept inside is free to leave: Tab goes on to the content.
-    await expect.poll(() => drawer(page, 'r').evaluate((el) => el.hasAttribute('data-instant'))).toBe(false);
+    await motionEnded(drawer(page, 'r'));
     await page.locator('#after').focus();
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('after');
     await tabTo(page, cell(page, 'r', 0));
@@ -2422,6 +2432,42 @@ test.describe('a drawer that follows the window', () => {
     expect((await log(page)).at(-1)).toBe('presentation:modal');
   });
 
+  test('NVD-54: open over the content at 400 wide and resized to 800 and back, the drawer stays open — no close, the modal dialog still, focus where it was — and closed then gives focus back to where it was before it opened', async ({ page }) => {
+    await inWindow(page, 400, {}, { reducedMotion: true });
+    await page.evaluate(() => document.body.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>'));
+    await wire(page);
+    await page.locator('#before').focus();
+    await setProps(page, 'r', { open: true });
+    await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(1);
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    await resize(page, 800);
+    expect(await state(page)).toMatchObject({ presentation: 'column', open: true });
+    await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(1);
+    expect(await drawer(page, 'r').locator('dialog').evaluate((el) => el.matches(':modal'))).toBe(true);
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    await resize(page, 400);
+    expect(await state(page)).toMatchObject({ presentation: 'modal', open: true });
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    expect(await log(page)).toEqual(['presentation:column', 'presentation:modal']);
+    await page.keyboard.press('Escape');
+    await expect.poll(async () => (await state(page)).open).toBe(false);
+    await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('before');
+    expect(await log(page)).toEqual(['presentation:column', 'presentation:modal', 'close']);
+  });
+
+  test('NVD-53: beside the content a responsive drawer with no collapsed form is shown while expanded is true and hidden while it is false — no width in the layout, nothing to focus, no landmark — and comes back when it is true again', async ({ page }) => {
+    await inWindow(page, 1280, { collapsible: false }, { reducedMotion: true });
+    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
+    await setProps(page, 'r', { expanded: false });
+    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(0);
+    expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert'))).toBe(true);
+    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(0);
+    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: false, collapsed: false });
+    await setProps(page, 'r', { expanded: true });
+    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(240);
+    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(1);
+  });
+
   test('NVD-54: presentationChange fires once when the presentation is first decided, without a close; focus on something the new presentation does not show moves to the menu button, and where it shows nothing is left to the platform', async ({ page }) => {
     // The first decision: heard by a listener that is there before the drawer is.
     await page.setViewportSize({ width: 1280, height: 640 });
@@ -2453,7 +2499,7 @@ test.describe('a drawer that follows the window', () => {
     expect((await log(page)).filter((entry) => entry.startsWith('close'))).toEqual([]);
   });
 
-  test('NVD-55: the presentation is derived from the width alone and written into no prop; open is false again after every change of presentation and every close; expanded is the user’s and is stored nowhere; a drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing', async ({ page }) => {
+  test('NVD-55: the presentation is derived from the width alone and written into no prop; open is false again after every close and whenever the presentation becomes standard, and kept by a change between the column and the modal presentations; expanded is the user’s, written by no change of presentation and stored nowhere, and neither follows the other; a drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing', async ({ page }) => {
     // The first frame: decided before the element first renders, so nothing moves into place.
     await page.setViewportSize({ width: 400, height: 640 });
     const html = await fixturesDocument(spec, { fixtures: [{ ...RESPONSIVE, id: 'r' }], icons: true });
@@ -2490,19 +2536,33 @@ test.describe('a drawer that follows the window', () => {
       }
       return [el.presentation, el.variant, el.getAttribute('variant'), el.open, el.expanded, el.hasAttribute('collapsible')];
     })).toEqual(['modal', 'standard', 'standard', false, true, true]);
-    // open is transient: false again after a close, and after a change of presentation.
+    // open is transient: false again after a close, and once the presentation is standard; a change between the column
+    // and the modal presentations keeps it (NVD-54).
     await setProps(page, 'r', { open: true });
     await page.keyboard.press('Escape');
     await expect.poll(async () => (await state(page)).open).toBe(false);
     await setProps(page, 'r', { open: true });
     await resize(page, 800);
-    expect(await state(page)).toMatchObject({ open: false, presentation: 'column' });
+    expect(await state(page)).toMatchObject({ open: true, presentation: 'column' });
+    await resize(page, 1280);
+    expect(await state(page)).toMatchObject({ open: false, presentation: 'standard' });
+    await resize(page, 400);
+    expect(await state(page)).toMatchObject({ open: false, presentation: 'modal' });
     await resize(page, 1280);
     // expanded is the user's choice, kept for the element's lifetime and written to no storage.
     await menu(page, 'r').click();
     await resize(page, 400);
     await resize(page, 1280);
     expect(await state(page)).toMatchObject({ expanded: false, variant: 'standard' });
+    // Neither follows the other: collapsed beside the content it does not open in a narrower window, and opened there it
+    // leaves expanded as it was.
+    await resize(page, 400);
+    expect(await state(page)).toMatchObject({ open: false, expanded: false });
+    await setProps(page, 'r', { open: true });
+    expect(await state(page)).toMatchObject({ open: true, expanded: false });
+    await page.keyboard.press('Escape');
+    await expect.poll(async () => (await state(page)).open).toBe(false);
+    await resize(page, 1280);
     // (A test document has no storage to look into; the element's own code names none.)
     expect(await drawer(page, 'r').evaluate((el) => /localStorage|sessionStorage|indexedDB|document\.cookie/.test(String(el.constructor)))).toBe(false);
     // A new drawer starts from its props again: nothing was remembered for it.

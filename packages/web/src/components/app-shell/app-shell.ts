@@ -31,6 +31,8 @@ export type TanreiAppShellMainWidth = 'contained' | 'full';
 export type TanreiAppShellAsideOrder = 'after' | 'before';
 /** How regions that touch are told apart (APS-18): `auto` takes `comp.app-shell.separation`. */
 export type TanreiAppShellSeparation = SeparationProp;
+/** Where the one control that shows and hides the navigation lives (APS-6): the header's menu button, or the navigation drawer's own. */
+export type TanreiAppShellMenuButtonPlacement = 'header' | 'drawer';
 /** The class the window's width gives it (APS-2). */
 export type TanreiWindowClass = 'compact' | 'medium' | 'expanded';
 /** What `windowclasschange` carries: the class the window has now (which `windowClass` already holds). */
@@ -70,10 +72,17 @@ type Root = Document | ShadowRoot;
 /** A navigation drawer in the navigation region, as much of it as the frame uses. */
 type Drawer = HTMLElement & {
   open: boolean;
+  expanded?: boolean;
   responsive?: boolean;
   collapsible?: boolean;
   presentation?: string | null;
   updateComplete?: Promise<unknown>;
+  /** NVD-19: told that the frame's regions changed (whether its header holds it). */
+  shellChanged?: () => void;
+  /** APS-7, NVD-37: the frame's menu button was activated (by `button`, from a pointer where `pointer`). */
+  menuFromShell?: (button: HTMLElement | null, pointer: boolean) => void;
+  /** APS-7, MDL-2: holds the page's scroll for the frame, `holder`, as a modal layer does (the drawer's module carries the code). */
+  holdShellScroll?: (holder: Element, hold: boolean) => void;
   /** APS-33: a drawer that filters its items, its chord, and the request to focus its field (NVD-87, NVD-88). */
   filterable?: boolean;
   filterShortcut?: string[];
@@ -161,10 +170,15 @@ let ids = 0;
  * - **the class**, as the read-only `windowClass`, the `data-window-class` attribute and `windowclasschange` — from
  *   two `matchMedia` listeners of the widths the stylesheet was written with; no resize listener and no frame loop.
  *   What the frame holds also inherits it as `--tanrei-app-shell-window-class`, from the stylesheet alone;
- * - **the menu button** — the one icon-only `<tanrei-button data-app-shell-menu>` in the header — which it answers
- *   while the navigation has no place in the layout: `navigationOpen` and the `open` of a
- *   `<tanrei-navigation-drawer>` in the navigation region become true, the drawer's `close` makes them false again,
- *   and the button says `aria-expanded` and what it controls;
+ * - **the menu button** — the one icon-only `<tanrei-button data-app-shell-menu>` in the header — shown in every
+ *   window class for a `<tanrei-navigation-drawer>` (`menu-button-placement="drawer"`: only where the navigation has
+ *   no place in the layout). It asks the drawer for what the drawer's own menu button asks: where the navigation has no
+ *   place (or only its column) `navigationOpen` and the drawer's `open` become true, and a second press, Escape or the
+ *   drawer's `close` makes them false again; where it stands beside the content it collapses and expands it, or hides
+ *   and shows one with no collapsed form. The button says `aria-expanded` and what it controls;
+ * - **the navigation open over the content**, drawn below the header with its scrim (the drawer is then no dialog
+ *   and keeps no focus): the skip link, the main region, the aside, the footer and the navigation bar are inert and
+ *   the page does not scroll, until closing begins. The header and the announcement stay usable;
  * - **the scroll offset**: the header's measured height as `--tanrei-app-shell-scroll-offset` on the document's root
  *   (the stylesheet sets the root's scroll padding from it), and the navigation bar's as
  *   `--tanrei-app-shell-scroll-offset-end`, so a link's target and a focused element rest clear of both. The product's
@@ -186,7 +200,7 @@ let ids = 0;
  * @slot footer - The footer: a `<footer>` with the product's own layout.
  * @slot navigation-bar - A navigation bar for the bottom edge of a compact window.
  * @fires {CustomEvent<TanreiAppShellWindowClassChangeDetail>} windowclasschange - The frame decided the window's class for the first time, or the window's width changed it: `detail.windowClass` (and `windowClass`) is `compact`, `medium` or `expanded`.
- * @fires {CustomEvent<TanreiAppShellNavigationOpenChangeDetail>} navigationopenchange - The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true), or the open navigation closed or the window's class changed (false). `navigationOpen` already holds it.
+ * @fires {CustomEvent<TanreiAppShellNavigationOpenChangeDetail>} navigationopenchange - The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination — or the window became wide enough for it to stand beside the content (false). `navigationOpen` already holds it.
  * @cssprop --tanrei-app-shell-scroll-offset - On the document's root: the height the frame keeps over the top of the page (a sticky header's), for the product's own sticky parts.
  * @cssprop --tanrei-app-shell-scroll-offset-end - On the document's root: the height the frame keeps over the bottom of the page (the navigation bar's).
  * @cssprop --tanrei-app-shell-window-class - Inherited by everything the frame holds: `compact`, `medium` or `expanded`, for a style container query.
@@ -204,6 +218,7 @@ export class TanreiAppShell extends TanreiLightElement {
     footerHidden: { type: Boolean, attribute: 'footer-hidden', reflect: true },
     separation: { type: String, reflect: true, useDefault: true },
     navigationOpen: { type: Boolean, attribute: 'navigation-open', reflect: true },
+    menuButtonPlacement: { type: String, attribute: 'menu-button-placement', reflect: true, useDefault: true },
     asideLabel: { type: String, attribute: 'aside-label' },
   };
 
@@ -233,8 +248,22 @@ export class TanreiAppShell extends TanreiLightElement {
   /** How regions that touch are told apart: `divider` draws the one hairline, `gap` draws nothing; `auto` takes `comp.app-shell.separation`, the design system's answer. */
   separation: TanreiAppShellSeparation = 'auto';
 
-  /** Whether the navigation is presented over the content, while it has no place of its own in the layout (or only its column). The menu button makes it true; closing the navigation, and any change of the window's class, makes it false. */
+  /**
+   * Whether the navigation is presented over the content — below the header — while it has no place of its own in the
+   * layout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes
+   * it false, and so does the window becoming wide enough for the navigation to stand beside the content. A change
+   * between the two narrower classes keeps it.
+   */
   navigationOpen = false;
+
+  /**
+   * Where the one control that shows and hides the navigation lives. `header` (the default): the menu button in the
+   * header, in every window class — it opens and closes the navigation over the content where the navigation has no
+   * place (or only its column), and where it stands beside the content shows, hides or collapses it. `drawer`: the
+   * navigation drawer's own menu button (its first header button) collapses and expands it where it has a place, and the
+   * header's menu button is shown only where the navigation has none. Any other value is `header`.
+   */
+  menuButtonPlacement: TanreiAppShellMenuButtonPlacement = 'header';
 
   /** Names the aside for assistive technology where its element has no name of its own. */
   asideLabel = '';
@@ -246,7 +275,18 @@ export class TanreiAppShell extends TanreiLightElement {
   private announce = false;
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
   /** The navigation's `collapsible` decides its presentation in a medium window (APS-4). */
-  private readonly navigationMutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
+  private readonly navigationMutations =
+    typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(() => {
+          // APS-7: a drawer opened or closed by the product is followed before the frame's own value is given to it.
+          this.pullOpen();
+          this.read();
+        });
+  /** APS-7: the regions the frame made inert while the navigation is open over the content below the header. */
+  private readonly inerted = new Set<HTMLElement>();
+  /** APS-7: the drawer through which the frame holds the page's scroll, and lets it go even once that drawer has left. */
+  private scrollHeld: Drawer | null = null;
   private readonly sizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver((entries) => this.resized(entries));
   /** The regions read last. */
   private header: Element | null = null;
@@ -292,6 +332,7 @@ export class TanreiAppShell extends TanreiLightElement {
     adoptUnlessDrawn(this, sheet(), '--_aps-breakpoint-medium');
     this.mutations?.observe(this, { childList: true });
     this.addEventListener('click', this.onClick);
+    this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('focusin', this.onFocusIn);
     this.addEventListener('focusout', this.onFocusOut);
     if (this.hasUpdated) this.read();
@@ -303,9 +344,11 @@ export class TanreiAppShell extends TanreiLightElement {
     this.navigationMutations?.disconnect();
     this.sizes?.disconnect();
     this.removeEventListener('click', this.onClick);
+    this.removeEventListener('keydown', this.onKeyDown);
     this.removeEventListener('focusin', this.onFocusIn);
     this.removeEventListener('focusout', this.onFocusOut);
     this.holdWheel([]);
+    this.syncInert(false);
     this.focused = null;
     this.style.removeProperty(FOOTER);
     this.unwatch();
@@ -400,8 +443,10 @@ export class TanreiAppShell extends TanreiLightElement {
     mark(this, 'data-window-class', next);
     this.announce = true;
     if (before !== null) {
-      // APS-7: a responsive drawer takes its own overlay down at the same width (NVD-54); the frame's side is told once.
-      this.setOpen(false, true);
+      // APS-7: only the navigation's coming to stand beside the content ends its presentation over the content; a
+      // change between the two narrower classes keeps it open (NVD-54). The drawer ends its own overlay at the same width;
+      // the frame's side is told once.
+      if (next === 'expanded') this.setOpen(false, true);
       // APS-23: focus on something the new arrangement does not show — the menu button, a destination of the
       // navigation bar — goes to the main region. (Where focus was in the navigation, the drawer has kept it: NVD-54.)
       // A browser takes focus from an element as soon as it is no longer drawn, before or after it tells of the new
@@ -543,7 +588,7 @@ export class TanreiAppShell extends TanreiLightElement {
     if (navigation !== this.navigation) {
       this.navigationMutations?.disconnect();
       this.navigation = navigation;
-      if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible', 'filterable', 'filter-shortcut'] });
+      if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible', 'filterable', 'filter-shortcut', 'open', 'expanded'] });
       this.listen(navigation?.localName === 'tanrei-navigation-drawer' ? (navigation as Drawer) : null);
     }
     const presentation = this.presentation;
@@ -553,7 +598,10 @@ export class TanreiAppShell extends TanreiLightElement {
     if (this.drawer && this.drawer.responsive === false && this.decided) {
       report(this, 'APS-4', 'the navigation drawer in the navigation region is not responsive: set its responsive attribute, so that the window’s class chooses its presentation as it chooses the frame’s');
     }
+    // NVD-19: the drawer learns whether the header holds it below.
+    this.drawer?.shellChanged?.();
     this.syncNavigation();
+    this.syncInert();
     this.syncChord();
     this.holdWheel([navigation?.localName === 'tanrei-navigation-drawer' ? null : navigation, aside].filter((region): region is Element => !!region));
 
@@ -595,9 +643,63 @@ export class TanreiAppShell extends TanreiLightElement {
 
   // ---- APS-6, APS-7: the menu button and the navigation ----
 
-  /** APS-6: whether the menu button is shown: only while the navigation has no place in the layout. */
+  /**
+   * APS-6: whether the menu button is shown: in every class while the navigation region holds a navigation drawer and
+   * `menuButtonPlacement` is not `drawer`; otherwise only while the navigation has no place in the layout.
+   */
   private get menuShown(): boolean {
+    if (this.drawer && this.menuButtonPlacement !== 'drawer') return true;
     return this.presentation === 'modal';
+  }
+
+  /** APS-4, APS-7: whether the navigation is open over the content: a drawer open in the column or the modal presentation. */
+  private get over(): boolean {
+    const presentation = this.presentation;
+    return !!this.drawer?.open && (presentation === 'column' || presentation === 'modal');
+  }
+
+  /** APS-33, NVD-53: the drawer stands beside the content with no collapsed form and is hidden (its expanded false). */
+  private get hiddenBeside(): boolean {
+    const drawer = this.drawer;
+    return this.presentation === 'standard' && !!drawer && !drawer.collapsible && drawer.expanded === false;
+  }
+
+  /**
+   * APS-7, APS-22, APS-32: while the navigation is open over the content below the header, every region but the
+   * announcement and the header is inert — the skip link, the main region, the aside, the footer, the navigation bar —
+   * and the page does not scroll under the scrim (MDL-2); both stop as closing begins. A frame without a header leaves
+   * this to the drawer, which is then a modal dialog over the whole window (NVD-19).
+   */
+  private syncInert(over = this.isConnected && !!this.header && this.over) {
+    const regions = over ? ([...this.querySelectorAll<HTMLElement>(':scope > [slot="skip-link"], :scope > main, :scope > [role="main"], :scope > [slot="aside"], :scope > [slot="footer"], :scope > [slot="navigation-bar"]')] as HTMLElement[]) : [];
+    for (const region of [...this.inerted]) {
+      if (regions.includes(region)) continue;
+      region.inert = false;
+      this.inerted.delete(region);
+    }
+    for (const region of regions) {
+      if (region.inert) continue;
+      region.inert = true;
+      this.inerted.add(region);
+    }
+    // The page's scroll is the frame's to hold; the code that holds it, as a modal layer does, is the drawer's module's:
+    // only a drawer is ever open over the content, and a frame imported alone does not carry it twice.
+    if (over && !this.scrollHeld) {
+      this.scrollHeld = this.drawer;
+      this.scrollHeld?.holdShellScroll?.(this, true);
+    } else if (!over && this.scrollHeld) {
+      this.scrollHeld.holdShellScroll?.(this, false);
+      this.scrollHeld = null;
+    }
+  }
+
+  /** APS-7: a drawer that opened or closed over the content by itself (its column's menu button, the product) is followed, and told once. */
+  private pullOpen() {
+    const drawer = this.drawer;
+    const presentation = this.presentation;
+    if (!drawer || (presentation !== 'column' && presentation !== 'modal')) return;
+    if (drawer.open !== this.navigationOpen) this.setOpen(drawer.open, true);
+    this.syncInert();
   }
 
   private get menu(): HTMLElement | null {
@@ -614,7 +716,34 @@ export class TanreiAppShell extends TanreiLightElement {
     drawer?.addEventListener('expandedchange', this.onDrawerForm);
   }
 
-  /** APS-7: the menu button opens the navigation over the content. */
+  /**
+   * APS-7: the menu button asks the drawer for what its own menu button asks (NVD-37) — its other form where it stands
+   * beside the content, opening where it is a column or not shown, closing where it is open — and the frame follows.
+   * What the navigation region holds when it is not a drawer is opened over the content where it has no place.
+   */
+  private activateMenu(button: HTMLElement | null, pointer: boolean) {
+    const drawer = this.drawer;
+    if (drawer && this.presentation && drawer.menuFromShell) {
+      drawer.menuFromShell(button, pointer);
+      this.pullOpen();
+      this.stateMenu();
+      this.syncChord();
+      return;
+    }
+    this.setOpen(true, true);
+    this.syncNavigation();
+  }
+
+  /** NVD-20: Escape on the menu button closes the navigation open over the content (Escape in the drawer is the drawer's). */
+  private readonly onKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape' || event.defaultPrevented || !this.over) return;
+    const menu = this.menu;
+    if (!menu || !event.composedPath().includes(menu)) return;
+    event.preventDefault();
+    this.activateMenu(menu, false);
+  };
+
+  /** APS-7: the menu button, activated. */
   private readonly onClick = (event: MouseEvent) => {
     const path = event.composedPath();
     // APS-20: the skip link moves focus to the main region itself.
@@ -626,15 +755,20 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     const menu = this.menu;
     if (!menu || !path.includes(menu) || !this.menuShown) return;
-    this.setOpen(true, true);
-    this.syncNavigation();
+    this.activateMenu(menu, event.detail > 0);
   };
 
   /** APS-7: the open navigation closed — by its scrim, Escape, a destination, a drag or the platform's back (NVD-20, NVD-21). */
   private readonly onDrawerClose = () => {
     const menu = this.menu;
     const told = this.setOpen(false, true);
-    if (!told || !menu) return;
+    // APS-7: what the frame made inert stops being inert as closing begins — before the drawer gives focus back
+    // (NVD-22), which it does after this event.
+    this.syncInert();
+    this.stateMenu();
+    this.syncChord();
+    // Ended by the navigation's coming to stand beside the content, focus stays where it is (NVD-54).
+    if (!told || !menu || this.presentation === 'standard') return;
     // The drawer gives focus back to where it was (NVD-22); a press that gave the button no focus (Safari does not
     // focus a button that is clicked) left it nowhere, and the menu button is where it belongs.
     void (this.drawer?.updateComplete ?? Promise.resolve()).then(() => {
@@ -643,11 +777,11 @@ export class TanreiAppShell extends TanreiLightElement {
     });
   };
 
-  /** APS-4: the column's own menu button widened it over the content, or narrowed it again (NVD-37). */
+  /** APS-4, APS-7: the drawer's own menu button (or the frame's) changed its form, or widened its column over the content (NVD-37). */
   private readonly onDrawerForm = () => {
-    const drawer = this.drawer;
-    if (!drawer || this.presentation !== 'column') return;
-    this.setOpen(!!drawer.open, true);
+    this.pullOpen();
+    this.stateMenu();
+    this.syncChord();
   };
 
   /** Makes `navigationOpen` `open`, and tells it once where the value changed. */
@@ -666,7 +800,10 @@ export class TanreiAppShell extends TanreiLightElement {
     if (drawer.open !== this.navigationOpen) drawer.open = this.navigationOpen;
   }
 
-  /** APS-7: the menu button says whether the navigation it controls is open, on the button it draws. */
+  /**
+   * APS-7: the menu button says whether the navigation it controls is shown — open over the content, or expanded where it
+   * stands beside the content — on the button it draws.
+   */
   private stateMenu() {
     const menu = this.menuShown ? this.menu : null;
     // A Tanrei Button draws its button in its shadow root, which is what is focused and read; a native one is itself.
@@ -688,7 +825,9 @@ export class TanreiAppShell extends TanreiLightElement {
         .then(() => this.isConnected && this.read());
     }
     if (!target) return;
-    mark(target, 'aria-expanded', String(this.navigationOpen));
+    const drawer = this.drawer;
+    const expanded = this.presentation === 'standard' && drawer ? drawer.expanded !== false : this.navigationOpen;
+    mark(target, 'aria-expanded', String(expanded));
     const controlled = this.navigation;
     if (!controlled) return;
     if (target.getRootNode() === controlled.getRootNode()) {
@@ -702,18 +841,22 @@ export class TanreiAppShell extends TanreiLightElement {
 
   // ---- APS-33: a filterable drawer's chord, while the navigation is closed over the content ----
 
-  /** APS-33: the chord the frame listens for now — the drawer's, while it is modal and closed — or null. */
+  /** APS-33: the chord the frame listens for now — the drawer's, while it is not shown (modal and closed, or hidden beside the content) — or null. */
   private chord: Binding | null = null;
 
   /**
-   * APS-33: the frame answers a filterable drawer's chord only while its presentation is modal and the navigation is
-   * closed: the drawer is not shown then, and listens for nothing (NVD-87). Where the drawer is shown it answers it
-   * itself. No other key is bound.
+   * APS-33: the frame answers a filterable drawer's chord only while the drawer is not shown — its presentation modal and
+   * the navigation closed, or standard with the drawer hidden (no collapsed form, expanded false) — and listens for
+   * nothing then (NVD-87). Where the drawer is shown it answers it itself. No other key is bound.
    */
+  private get chordIsFrames(): boolean {
+    return (this.presentation === 'modal' && !this.navigationOpen) || this.hiddenBeside;
+  }
+
   private syncChord() {
     const drawer = this.drawer;
     const chords = this.isConnected && drawer?.filterable ? chordsOf(drawer.filterShortcut) : [];
-    const next = this.menuShown && !this.navigationOpen && chords.length === 1 ? readBinding(chords[0]) : null;
+    const next = this.chordIsFrames && chords.length === 1 ? readBinding(chords[0]) : null;
     if ((next?.id ?? null) === (this.chord?.id ?? null)) return;
     if (this.chord) window.removeEventListener('keydown', this.onWindowKeyDown);
     this.chord = next;
@@ -721,8 +864,9 @@ export class TanreiAppShell extends TanreiLightElement {
   }
 
   /**
-   * APS-33: the chord opens the navigation as the menu button does (APS-7: navigationopenchange with true) and asks the
-   * drawer to focus its filter (NVD-88), so that focus lands in its field once it is open. Left alone, as the drawer
+   * APS-33: the chord opens the navigation as the menu button does (APS-7: navigationopenchange with true; a drawer
+   * hidden beside the content is shown, its expanded true) and asks the drawer to focus its filter (NVD-88), so that
+   * focus lands in its field once it is open. Left alone, as the drawer
    * leaves it (SRC-38): a press something else has taken, a key repeating while held, an input-method composition,
    * and a chord without mod, ctrl or alt while focus is in an element that takes text.
    */
@@ -732,11 +876,13 @@ export class TanreiAppShell extends TanreiLightElement {
     if (!chord || !drawer?.filterable || event.defaultPrevented || event.repeat || event.isComposing || event.keyCode === 229) return;
     if (!chordPressed(event, chord, ambientConvention(this) ?? platformConvention())) return;
     if (!chord.mod && !chord.ctrl && !chord.alt && takesText(deepActive())) return;
-    if (!this.menuShown || this.navigationOpen) return;
+    if (!this.chordIsFrames) return;
     event.preventDefault();
-    this.setOpen(true, true);
-    this.syncNavigation();
-    drawer.focusFilter?.();
+    const beside = this.hiddenBeside;
+    this.activateMenu(null, false);
+    // A drawer shown beside the content is drawn before its field can take focus; a closed one is owed it (NVD-88).
+    if (beside) void (drawer.updateComplete ?? Promise.resolve()).then(() => drawer.focusFilter?.());
+    else drawer.focusFilter?.();
   };
 
   // ---- APS-20: the skip link ----
