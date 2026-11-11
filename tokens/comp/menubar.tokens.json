@@ -83,7 +83,7 @@
           "padding-block": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
-            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, which is sys.target.touch, so that a title's touch target lies inside the bar."
+            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
           },
           "gap": {
             "$type": "dimension",

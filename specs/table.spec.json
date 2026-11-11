@@ -560,7 +560,7 @@
     {
       "id": "TBL-40",
       "text": "THE table SHALL make a sort button's hit area its whole header cell, with no gap to the hit area of the header cell beside it. WHERE input is touch, or the platform cannot tell the input type, a header row that holds a sort button SHALL be at least sys.target.touch high, drawn so, at both densities, because a header cell cannot extend a hit area over the row under it; for a fine pointer it SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives. A header cell narrower than the target SHALL extend its hit area along the row no further than halfway into the paddings between it and the cell beside it.",
-      "verify": "On the web with a coarse pointer emulated, the fixture sortable-compact: the header row is 48 high. With a fine pointer it is 32."
+      "verify": "On the web with a coarse pointer emulated, the fixture sortable-compact: the header row is 36 high, the default system's touch target, and 48 under a layer that sets sys.target.touch to 48. With a fine pointer it is 32."
     },
     {
       "id": "TBL-41",

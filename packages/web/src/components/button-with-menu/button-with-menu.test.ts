@@ -238,7 +238,11 @@ test.describe('behavior', () => {
   });
 
   test('SPB-6: each half’s hit area meets the target above and below and outward, and toward the other half stops at the middle of the gap, or at the seam where they touch; a narrow trailing half reaches its target outward and is not drawn wider', async ({ page }) => {
+    // The default system draws every half at least its target (36), so nothing reaches; a system whose pointer target
+    // is larger (a platform guideline's 44) is where the halves reach it.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
+    expect(target).toBe(44);
     const gap = await resolveToken(page, T('container-inner-gap'));
     expect(gap).toBeGreaterThan(0);
     for (const id of ['filled-small', 'filled-medium', 'filled-large', 'filled-gap', 'filled-narrow-small', 'filled-narrow', 'filled-narrow-large', 'outlined-narrow', 'filled-gap-narrow', 'outlined-gap-narrow', 'filled-narrow-open']) {

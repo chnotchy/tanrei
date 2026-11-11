@@ -224,7 +224,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The height of the drag handle's box. With the margins above and below it, the handle's row is the touch target's height.",
+            "$description": "The height of the drag handle's box. With the margins above and below it, the handle's row is at least the touch target's height (48 in the default system).",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",

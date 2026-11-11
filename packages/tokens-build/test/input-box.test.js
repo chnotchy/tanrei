@@ -9,8 +9,9 @@
 //   the states        the box has no pressed state (no box is drawn pressed), and a reader with a list has it, for
 //                     its rows;
 //   the sizes         the box alone has a size axis: no reader declares one, so a size is a measure of the box;
-//   the heights       a stacked box is as tall as a Button of the same size in the default system (an invariant), and
-//                     a preset keeps its own.
+//   the heights       a stacked box is as tall as a Button of the same size in the default system (the invariant that
+//                     every control of one step of the height ladder is as tall as the step), and a preset keeps its
+//                     own.
 //
 // That no reader's group repeats a name of the box is a rule of `validate` (packages/tools/src/checks.js,
 // `validateSharedSets`), tested with the tools.
@@ -75,7 +76,8 @@ test('a size is a measure of the box: the box alone declares the size axis, with
 test('a stacked box is as tall as a Button of the same size; a box that floats its label keeps the taller height', async () => {
   const model = await buildModel();
   const px = (id) => model.tokens[`${CONFIG.namespace}.comp.${id}`].value.value;
-  for (const [size, height] of [['small', 32], ['medium', 40], ['large', 56]]) {
+  // The small one is held at the default system's minimum target (36), as the small Button is.
+  for (const [size, height] of [['small', 36], ['medium', 40], ['large', 56]]) {
     assert.equal(px(`${BOX}.stacked.container.height.${size}`), height, size);
     assert.equal(px(`button.container.height.${size}`), height, size);
   }
@@ -88,14 +90,18 @@ test('a stacked box is as tall as a Button of the same size; a box that floats i
   }
 });
 
-test('the invariant refuses a stacked height that is not the Button\'s, in the default system only', async () => {
+test('the invariant refuses a stacked height that is not its ladder step\'s, and so not the Button\'s, in the default system only', async () => {
   const model = await buildModel();
   const id = `${CONFIG.namespace}.comp.${BOX}.stacked.container.height.medium`;
   const moved = { ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], value: { value: 48, unit: 'px' } } } };
-  const about = (failures) => failures.filter((f) => f.includes('as tall as a Button of the same size'));
+  const about = (failures) => failures.filter((f) => f.includes('size is as tall as sys.control.height.'));
   assert.deepEqual(about(checkInvariants(model)), []);
   const failures = about(checkInvariants(moved));
   assert.equal(failures.length, 1, failures.join('\n'));
-  assert.match(failures[0], /^comp\.input-box\.stacked\.container\.height\.medium: 48px, but .* comp\.button\.container\.height\.medium is 40px/);
+  assert.match(failures[0], /^comp\.input-box\.stacked\.container\.height\.medium: 48px, but a control of the medium size is as tall as sys\.control\.height\.medium \(40px\) — read the step/);
+  // A floored one names the minimum it is held at.
+  const small = `${CONFIG.namespace}.comp.button.container.height.small`;
+  const pinned = about(checkInvariants({ ...model, tokens: { ...model.tokens, [small]: { ...model.tokens[small], value: { value: 32, unit: 'px' } } } }));
+  assert.deepEqual(pinned, [`comp.button.container.height.small: 32px, but a control of the small size is as tall as sys.control.height.small (32px), held at sys.target.minimum (36px) — read the step, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.small}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }`]);
   assert.deepEqual(about(checkInvariants({ ...moved, system: 'm3-like' })), []);
 });

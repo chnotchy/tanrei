@@ -43,7 +43,7 @@
         },
         "row-gap": {
           "$type": "dimension",
-          "$description": "Distance between two lines of a group that wraps, per spacing. For tags it is the gap along the line, so that a wrapped set reads as one block. For chips it is what keeps each chip's target whole between two lines: at sys.target.touch minus a chip's height or more, no hit areas overlap. The default system's 16 is 48 minus a medium chip's 32.",
+          "$description": "Distance between two lines of a group that wraps, per spacing. For tags it is the gap along the line, so that a wrapped set reads as one block. For chips it is what keeps each chip's target whole between two lines: at sys.target.touch minus a chip's height or more, no hit areas overlap. The default system's 16 is more than that needs: a medium chip is drawn as tall as the target (36).",
           "tags": {
             "$value": "{tanrei.sys.space.space100}"
           },

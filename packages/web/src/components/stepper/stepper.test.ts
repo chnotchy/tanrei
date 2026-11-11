@@ -590,7 +590,11 @@ test.describe('pressing a step', () => {
 
   test('SPR-18: every step’s container is at least the minimum target — pointer, and touch for a coarse pointer — the room added after its content', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fx('vertical-error'), fx('horizontal')] });
+    // A step of the default system is already taller than its target (36); the room is added under larger targets (a
+    // platform guideline's 44 and 48).
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    expect(pointer).toBe(44);
     for (const n of [0, 1, 2, 3]) expect((await bounds(box(page, 'vertical-error', n))).height).toBeGreaterThanOrEqual(pointer - 0.5);
     // The marker stays at the container's top: the room is below.
     expect((await bounds(marker(page, 'vertical-error', 0))).y - (await bounds(box(page, 'vertical-error', 0))).y).toBeCloseTo(await resolveToken(page, T('container-padding')), 0);

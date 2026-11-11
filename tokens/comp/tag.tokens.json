@@ -72,7 +72,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A tag's minimum height, per size. Small follows a field's label, a table cell's text or a line of body text without making the line taller; medium stands beside a heading or by itself. Both are under the chip's heights at the same size name (24 and 32), so a tag never has the height of a control it could be taken for.",
+            "$description": "A tag's minimum height, per size. Small follows a field's label, a table cell's text or a line of body text without making the line taller; medium stands beside a heading or by itself. Both are under the chip's heights at the same size name (24 and 36 in the default system), so a tag never has the height of a control it could be taken for.",
             "small": {
               "$value": {
                 "value": 20,

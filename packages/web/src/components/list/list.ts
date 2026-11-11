@@ -1993,12 +1993,18 @@ export class TanreiList extends TanreiElement {
   // ── Scrolling near an edge (LST-38) ──────────────────────────────────────────────────────────────────────────────
 
   private startScroll() {
+    // The edge band is sys.target.touch deep, measured once: the token is a length in any unit (rem, an alias, a calc),
+    // so it is laid out rather than parsed.
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position: absolute; visibility: hidden; inline-size: var(--tanrei-sys-target-touch); block-size: 0;';
+    this.renderRoot.appendChild(probe);
+    const edge = probe.getBoundingClientRect().width || 48;
+    probe.remove();
     const step = () => {
       this.scrollFrame = 0;
       const carry = this.carry;
       if (!carry || carry.by !== 'pointer') return;
       const scroller = scrollingAncestor(this);
-      const edge = Number.parseFloat(getComputedStyle(this).getPropertyValue('--tanrei-sys-target-touch')) || 48;
       const area =
         scroller === document.scrollingElement || !scroller
           ? { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth }

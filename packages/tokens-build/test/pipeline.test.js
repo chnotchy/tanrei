@@ -45,6 +45,30 @@ test('scheme generation is deterministic and matches the committed files', () =>
   }
 });
 
+// What moved when the default minimum target became 36 and pointer and touch began to alias it (45 tokens). A token
+// that joins or leaves this list is a change to notice, not a list to extend.
+const MINIMUM_TARGET_36 = new Set([
+  'sys.target.minimum', 'sys.target.pointer', 'sys.target.touch',
+  'comp.button.container.height.small', 'comp.button.container.padding-block.small',
+  'comp.button-with-menu.container.height.small', 'comp.button-with-menu.container.padding-block.small', 'comp.button-with-menu.trailing.padding-inline.small',
+  'comp.input-box.stacked.container.height.small', 'comp.input-box.stacked.container.padding-block.small',
+  'comp.chip.container.height.medium', 'comp.chip.container.padding-block.medium', 'comp.chip.container.padding-inline-with-remove.medium',
+  'comp.pagination.container.height.small', 'comp.segmented-button.container.height.small', 'comp.segmented-button.container.padding-block.small',
+  'comp.tabs.container.height.small', 'comp.snackbar.controls.height',
+  'comp.tree-view.container.height.compact', 'comp.tree-view.container.padding-block.compact',
+  'comp.navigation-drawer.item.container.height.compact', 'comp.navigation-drawer.item.padding-block.compact', 'comp.navigation-drawer.collapsed.item.container.width.compact',
+  'comp.table-of-contents.row.height.compact', 'comp.table-of-contents.row.padding-block.compact',
+  'comp.menu.container.height.compact', 'comp.menu.container.padding-block.compact',
+  'comp.select.option.height.compact', 'comp.select.option.padding-block.compact',
+  'comp.combobox.option.height.compact', 'comp.combobox.option.padding-block.compact',
+  'comp.list.container.height.compact', 'comp.list.container.padding-block.compact',
+  'comp.search.suggestion.container.height.compact', 'comp.search.suggestion.container.padding-block.compact',
+  'comp.button-group.standard.gap', 'comp.toolbar.container.gap.docked', 'comp.search.container.gap',
+  'comp.radio-button.option.min-height', 'comp.carousel.controls.height',
+  'comp.chip.container.padding-inline-with-avatar.medium', 'comp.navigation-drawer.collapsed.item.container.padding-block.compact',
+  'comp.combobox.container.action-gap', 'comp.select.container.action-gap', 'comp.text-input.container.action-gap',
+]);
+
 test('resolved values still equal the oracle, except where they differ on purpose', () => {
   for (const scheme of SCHEMES) {
     const oracle = JSON.parse(fs.readFileSync(new URL(`./oracle/tanrei.${scheme}.tokens.json`, import.meta.url), 'utf8'));
@@ -88,6 +112,10 @@ test('resolved values still equal the oracle, except where they differ on purpos
       // A component's motion takes the duration and the curve of its role (sys.motion.role.*, easing.*): the default
       // system's roles are longer than the steps the components named, and its state durations follow the size.
       /\.comp\.[a-z-]+(\.(modal|docked))?\.motion\.([a-z-]+-)?(duration|easing)$/.test(id) ||
+      // The default minimum target is 36 for pointer and touch alike: what is pressed is drawn at least that high (a
+      // small control, a small row), a padding follows its box's height, and a space or row derived from the target
+      // follows it.
+      MINIMUM_TARGET_36.has(id.replace(/^tanrei\./, '')) ||
       false;
     // The text styles are named by level. The VALUE of each must not have moved: the new role resolves to
     // what the old one did (family aside — eyebrow moved from mono to plain on purpose).
@@ -111,9 +139,10 @@ test('resolved values still equal the oracle, except where they differ on purpos
       compared++;
     }
     // A floor so this test cannot pass vacuously. It drops only when tokens are removed or changed
-    // on purpose; every remaining value still equals the oracle's. (243 in the raised-contrast schemes, whose hairline
-    // was raised on purpose.)
-    assert.ok(compared >= 243, `compared ${compared}`);
+    // on purpose; every remaining value still equals the oracle's. (240 in the raised-contrast schemes, whose hairline
+    // was raised on purpose; three fewer since the oracle's sys.target.pointer, sys.target.touch and small Button height
+    // moved with the minimum target.)
+    assert.ok(compared >= 240, `compared ${compared}`);
   }
 });
 

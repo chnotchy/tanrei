@@ -124,7 +124,7 @@
           "$description": "Distance between two members that follow each other down the group, and between two lines of a row that wrapped; per spacing.",
           "controls": {
             "$value": "{tanrei.sys.space.space100}",
-            "$description": "Between two selection controls: with their 40 containers it puts their marks 48 apart, so that each keeps a whole touch target of its own."
+            "$description": "Between two selection controls: with their 40 containers it puts their marks 48 apart, so that each keeps a whole touch target of its own, up to 48."
           },
           "fields": {
             "$value": "{tanrei.sys.space.space300}",

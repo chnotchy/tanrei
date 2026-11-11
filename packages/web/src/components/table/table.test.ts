@@ -1929,7 +1929,8 @@ test.describe('a column that can be sorted', () => {
     }
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    expect((await box(table(page, 'sortable').locator('> thead > tr'))).height).toBeGreaterThanOrEqual(pointer);
+    const regularHeader = (await box(table(page, 'sortable').locator('> thead > tr'))).height;
+    expect(regularHeader).toBeGreaterThanOrEqual(pointer);
     // Compact: what its density gives — a compact header row that sorts nothing is as high.
     const compact = (await box(table(page, 'compact').locator('> thead > tr'))).height;
     console.log(`[table] a compact header row is ${compact} high`);
@@ -1943,8 +1944,14 @@ test.describe('a column that can be sorted', () => {
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
     await frame(page);
+    // In the default system the touch target (36) is lower than the regular header row (44), which keeps its height.
     near((await box(table(page, 'sortable-compact').locator('> thead > tr'))).height, touch, 0.1);
-    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, touch, 0.1);
+    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, Math.max(touch, regularHeader), 0.1);
+    // Under a system whose touch target (48) is taller than both, both header rows are drawn that high.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
+    await frame(page);
+    near((await box(table(page, 'sortable-compact').locator('> thead > tr'))).height, 48, 0.1);
+    near((await box(table(page, 'sortable').locator('> thead > tr'))).height, 48, 0.1);
     // Drawn so: the label is still on the cell's last line.
     const th = await box(cell(page, 'sortable-compact', 'thead', 1, 1));
     near(th.y + th.height - (await labelBox(control(page, 'sortable-compact', 1))).bottom, (await resolveToken(page, T('cell-padding-block-compact'))), 1.1);

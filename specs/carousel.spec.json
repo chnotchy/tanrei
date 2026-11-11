@@ -392,7 +392,7 @@
     },
     {
       "id": "CRL-37",
-      "text": "THE carousel SHALL give the playback control a hit area centred on it of at least sys.target.touch for touch and sys.target.pointer for a fine pointer, and the indicator a hit area as tall as the controls row and as wide as its container, at least sys.target.touch wide; with the default tokens both fit inside the controls row, and CRL-29 keeps them apart."
+      "text": "THE carousel SHALL give the playback control a hit area centred on it of at least sys.target.touch for touch and sys.target.pointer for a fine pointer, and the indicator a hit area as tall as the controls row and as wide as its container, at least sys.target.touch wide; with the default tokens both fit inside the controls row, which is never lower than the controls it holds (comp.carousel.controls.height, 40 in the default system), and CRL-29 keeps them apart."
     },
     {
       "id": "CRL-38",

@@ -61,7 +61,7 @@
               "value": 48,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell (48): the text field’s medium height and the touch target, so that a code input and a text field in one form are equally tall.",
+            "$description": "Minimum height of a cell (48): the text field’s medium height, so that a code input and a text field in one form are equally tall.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",

@@ -547,9 +547,15 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    // In the default system the outlined box (48) is taller than the touch target (36): the hit area is the box.
+    const box = await bounds(part(page, 'outlined-empty', '.field > .container'));
+    const height = () => part(page, 'outlined-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+    expect(await height()).toBe(Math.max(box.height, await resolveToken(page, '--tanrei-sys-target-touch')));
+    // Under a touch target taller than the box, the hit area reaches it.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '56px' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    const hit = await part(page, 'outlined-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
-    expect(hit).toBe(touch);
+    expect(touch).toBeGreaterThan(box.height);
+    expect(await height()).toBe(touch);
   });
 
   test('TXI-10: a read-only field is focusable and selectable, cannot be changed, emits nothing, is exposed read-only, submits, and draws hover and focus', async ({ page }) => {
@@ -883,12 +889,12 @@ test.describe('behavior', () => {
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       expect((await bounds(part(page, id, '.field > .container'))).height, id).toBe(await resolveToken(page, T(`stacked-container-height-${size}`)));
     }
-    // Small: the box's small step — as tall as a small Button (32 high, 12 of padding, the body text style) — for a bar or a toolbar;
-    // its hit area still meets the minimum target.
+    // Small: the box's small step — as tall as a small Button (36 high in the default system, held at the minimum
+    // target; 12 of padding, the body text style) — for a bar or a toolbar; its hit area still meets the minimum target.
     {
       const small = await bounds(part(page, 'stacked-small', '.field > .container'));
       expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
-      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([32, 12]);
+      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([36, 12]);
       expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
       const target = await part(page, 'stacked-small', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));

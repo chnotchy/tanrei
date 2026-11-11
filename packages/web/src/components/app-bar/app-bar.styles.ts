@@ -163,16 +163,18 @@ export const styles = css`
   }
   /* APB-19, APB-22: the brand — one link (or one image) in a cell as large as an icon button's, padded so that a symbol
      of brand.symbol.size stands where the icon of an icon button stands; its focus indicator around the cell, in the
-     brand's shape. */
+     brand's shape. The cell is the larger of the target and a medium icon-only Button, the navigation item's cell
+     (APB-11), so the symbol meets the icon where a Button is drawn larger than the target. */
   .brand {
+    --_cell: max(var(--tanrei-sys-target-pointer), var(--tanrei-comp-button-container-height-medium));
     box-sizing: border-box;
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    min-inline-size: var(--tanrei-sys-target-pointer);
-    min-block-size: var(--tanrei-sys-target-pointer);
-    padding-inline: calc((var(--tanrei-sys-target-pointer) - ${t('brand-symbol-size')}) / 2);
+    min-inline-size: var(--_cell);
+    min-block-size: var(--_cell);
+    padding-inline: calc((var(--_cell) - ${t('brand-symbol-size')}) / 2);
     border-radius: ${t('brand-shape')};
     color: ${t('brand-color')};
     text-decoration: none;
@@ -180,9 +182,7 @@ export const styles = css`
   }
   @media (pointer: coarse) {
     .brand {
-      min-inline-size: var(--tanrei-sys-target-touch);
-      min-block-size: var(--tanrei-sys-target-touch);
-      padding-inline: calc((var(--tanrei-sys-target-touch) - ${t('brand-symbol-size')}) / 2);
+      --_cell: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-button-container-height-medium));
     }
   }
   .brand[hidden] {

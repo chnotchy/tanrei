@@ -109,7 +109,9 @@ test.describe('layout', () => {
     });
     const standardGap = await resolveToken(page, T('standard-gap'));
     const connectedGap = await resolveToken(page, T('connected-gap'));
-    expect(standardGap).toBeGreaterThan(connectedGap);
+    // The default system draws every Button at least as large as its target, so a standard group needs no room
+    // between its items for their targets: they touch (BGR-4).
+    expect(standardGap).toBe(0);
     expect(connectedGap).toBeGreaterThan(0);
     // The default system's separation is divider: a connected fixture that leaves it auto touches (BGR-21).
     const rows = [['standard', standardGap], ['standard-icon-only', standardGap], ['mixed-standard', standardGap], ['connected-gap', connectedGap], ['connected-gap-toggles', connectedGap], ['connected', 0], ['connected-divider', 0], ['connected-large', 0], ['mixed-connected', 0]] as const;
@@ -234,6 +236,9 @@ test.describe('layout', () => {
       icons: true,
       fixtures: [...spec.fixtures, fixture('small-column', [b('Day', { size: 'small' }), b('Week', { size: 'small' })], { orientation: 'vertical', separation: 'gap' })],
     });
+    // The default system draws every Button at least its target; a system that takes a press from a larger area (a
+    // platform guideline's 44 and 48) is where joined items widen to it.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const size = await resolveToken(page, B('container-height-medium'));
     const small = await resolveToken(page, B('container-height-small'));
@@ -279,19 +284,20 @@ test.describe('layout', () => {
     test(`BGR-4: standard, ${orientation} — a press on an item’s visible bounds goes to that item, a press in the gap to the nearer one; the outer ends reach the whole target`, async ({ page }) => {
       const column = orientation === 'vertical';
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture('small', [i('edit', { size: 'small' }), i('share', { size: 'small' }), i('delete', { size: 'small' })], { variant: 'standard', orientation })] });
-      const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
       const touch = await resolveToken(page, '--tanrei-sys-target-touch');
       const along = (box: { x: number; y: number; width: number; height: number }) => (column ? { start: box.y, size: box.height } : { start: box.x, size: box.width });
       // The default's gap leaves even the small icon-only Button its whole touch target between neighbours.
       expect(await resolveToken(page, T('standard-gap'))).toBeGreaterThanOrEqual(touch - along(await bounds(item(page, 'small', 0))).size);
-      // A layer with a narrower gap (8), in which the hit areas would overlap: what BGR-4 decides.
+      // A layer whose targets are 48 (a platform guideline) and whose gap is narrower than they need (8), in which the
+      // hit areas would overlap: what BGR-4 decides.
+      await rootTokens(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
       const gap = 8;
       await page.evaluate(([name, value]) => (document.querySelector('[data-fixture="small"]') as HTMLElement).style.setProperty(name, value), [T('standard-gap'), `${gap}px`]);
       await expect.poll(async () => along(await bounds(item(page, 'small', 1))).start - along(await bounds(item(page, 'small', 0))).start).toBeCloseTo(along(await bounds(item(page, 'small', 0))).size + gap, 1);
       const a = await bounds(item(page, 'small', 0));
       const c = await bounds(item(page, 'small', 1));
       const [A, C] = [along(a), along(c)];
-      const reach = (pointer - A.size) / 2;
+      const reach = ((await resolveToken(page, '--tanrei-sys-target-pointer')) - A.size) / 2;
       // The hit areas would overlap in the gap if each reached the whole target.
       expect(reach).toBeGreaterThan(gap / 2);
       await wire(page);
@@ -338,7 +344,7 @@ test.describe('layout', () => {
     expect(narrowed[2].width).toBeCloseTo(size, 1);
     expect(narrowed[2].height).toBeCloseTo(size, 1);
     for (const box of narrowed) expect(box.y).toBeLessThan(narrowed[1].y + narrowed[1].height);
-    for (const n of [1, 2]) expect(narrowed[n].x).toBeGreaterThan(narrowed[n - 1].x + narrowed[n - 1].width);
+    for (const n of [1, 2]) expect(narrowed[n].x).toBeGreaterThanOrEqual(narrowed[n - 1].x + narrowed[n - 1].width - 0.01);
     // The rows that fit (the natural one and the narrowed one) are not reported; only the 60 px one is, below.
     expect(seen.filter((w) => w.includes('BGR-7') && !w.includes('has 60 px'))).toEqual([]);
     // Too narrow even at their longest words: still one row, never narrower than the longest word, and reported.
@@ -360,7 +366,7 @@ test.describe('layout', () => {
     expect(await stage(page, 'order-rtl').getAttribute('dir')).toBe('rtl');
     expect(await placed(page, 'order-rtl')).toEqual(['Cancel', 'OK']);
     const [cancel, ok] = await boxes(page, 'order-rtl', 2);
-    expect(cancel.x).toBeGreaterThan(ok.x + ok.width);
+    expect(cancel.x).toBeGreaterThanOrEqual(ok.x + ok.width - 0.01);
     const whole = await bounds(group(page, 'order-rtl'));
     expect(cancel.x + cancel.width).toBeCloseTo(whole.x + whole.width, 1);
     // A connected row: mirrored corners, under gap and under divider.
@@ -395,7 +401,7 @@ test.describe('layout', () => {
     // An unknown orientation: one row.
     const sideways = await boxes(page, 'odd-orientation', 3);
     for (const n of [1, 2]) {
-      expect(sideways[n].x).toBeGreaterThan(sideways[n - 1].x + sideways[n - 1].width);
+      expect(sideways[n].x).toBeGreaterThanOrEqual(sideways[n - 1].x + sideways[n - 1].width - 0.01);
       expect(sideways[n].y).toBeCloseTo(sideways[0].y, 1);
     }
     // An unknown separation: auto — what the same group draws with none set.

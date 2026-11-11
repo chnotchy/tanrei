@@ -234,10 +234,10 @@ test.describe('drawing', () => {
     expect(await css(sheet(page), 'border-top-right-radius')).toBe('0px');
     expect(await css(sheet(page), 'border-bottom-right-radius')).toBe('0px');
     await expect(host(page).locator('.edge')).toHaveCSS('border-left-color', await resolveColor(page, T('outline-color-modal')));
-    // A narrow window: never wider than the window less sys.target.touch.
+    // A narrow window: never wider than the window less sys.target.touch (340 less 36 is narrower than container.width, 320).
     const touch = await px(page, '--tanrei-sys-target-touch');
-    await page.setViewportSize({ width: 360, height: 480 });
-    await expect.poll(async () => (await bounds(sheet(page))).width).toBe(360 - touch);
+    await page.setViewportSize({ width: 340, height: 480 });
+    await expect.poll(async () => (await bounds(sheet(page))).width).toBe(340 - touch);
     expect((await bounds(sheet(page))).x).toBe(touch);
     // Right-to-left: at the left edge, its end corners square, the edge at its (right) start.
     await page.setViewportSize(WINDOW);
@@ -533,7 +533,7 @@ test.describe('drawing', () => {
 });
 
 test.describe('the close button', () => {
-  test('SSH-5: while closable, an icon-only small Button (32 × 32) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('SSH-5: while closable, an icon-only small Button (36 × 36 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const variant of ['standard', 'modal']) {
       await mount(page, [fx('s', { variant }, TEXT, ACTIONS)]);
@@ -547,7 +547,7 @@ test.describe('the close button', () => {
       await expect(close(page)).toHaveAttribute('size', 'small');
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
       const size = await px(page, '--tanrei-comp-button-container-height-small');
-      expect(size).toBe(32);
+      expect(size).toBe(36); // the small Button, held at the minimum target
       const box = await bounds(close(page).locator('button'));
       expect([box.width, box.height]).toEqual([size, size]);
       await expect(host(page).getByRole('button', { name: 'Close filters' })).toHaveCount(1);

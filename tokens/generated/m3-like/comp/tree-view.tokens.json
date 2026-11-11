@@ -74,7 +74,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A row's least height, per density: the box that carries hover, focus, press and the selected fill. Regular is a navigation drawer's row and the touch target. Compact is a table's compact row, for a tool used with a pointer and for a small tree inside text; for touch a row is never lower than the touch target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
+            "$description": "A row's least height, per density: the box that carries hover, focus, press and the selected fill. Regular is a navigation drawer's row, 48 in the default system. Compact is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; for touch a row is never lower than the touch target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
             "regular": {
               "$value": {
                 "value": 48,

@@ -99,17 +99,18 @@
       },
       "target": {
         "$type": "dimension",
-        "$description": "The least sizes of what a person presses. minimum is the least height (and, for an icon-only control, width) anything pressable is drawn at; touch and pointer are the least hit areas, which a control reaches past what it draws where it stands alone.",
+        "$description": "The least sizes of what a person presses. minimum is the least height (and, for an icon-only control, width) anything pressable is drawn at; touch and pointer are the least areas a press is taken from, under a finger and under a fine pointer, never less than minimum. Where they are above it, a control that stands alone reaches them past what it draws, and a row that touches its neighbours is drawn that high.",
         "$extensions": {
           "dev.tanrei.vocabulary": {
             "rationale": "One product decides the least size it draws anything a person presses at, is used by touch and by pointer, which may take a press from larger areas than that, and needs spacing between targets.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The least drawn size of anything pressable (minimum), the least hit areas (touch, pointer) and the spacing between targets. Every height of a pressable box or row is derived with min: sys.target.minimum, so no density or size step draws it lower; a hit area grows to touch or pointer without changing how large a control looks.",
+            "usage": "The least drawn size of anything pressable (minimum), the least areas a press is taken from (touch, pointer) and the spacing between targets. Every height of a pressable box or row is derived with min: sys.target.minimum, so no density or size step draws it lower. touch and pointer alias minimum, so one value sets all three; a system that takes a press from a larger area than it draws (a product that follows a platform guideline) sets touch or pointer above it.",
             "rules": [
               "Never shrink a hit area below these to fit a layout.",
-              "minimum is the developer's value: set it in a layer; no dial scales it."
+              "minimum is the developer's value: set it in a layer; no dial scales it.",
+              "touch and pointer are never under minimum; the build refuses a system where they are."
             ]
           }
         },
@@ -118,9 +119,10 @@
             "value": 48,
             "unit": "px"
           },
+          "$description": "The least area a press is taken from under a finger, or where the platform cannot tell the input type. The minimum by default; a system that follows a platform guideline sets it above.",
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "This preset keeps the value it drew when the root held this. Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
+              "fixed": "This preset keeps the value it drew when the root held 48 (the default system's is now its minimum, 36). Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
             }
           }
         },
@@ -129,9 +131,10 @@
             "value": 44,
             "unit": "px"
           },
+          "$description": "The least area a press is taken from under a fine pointer. The minimum by default; a system may set it above.",
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "This preset keeps the value it drew when the root held this. Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
+              "fixed": "This preset keeps the value it drew when the root held 44 (the default system's is now its minimum, 36). Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
             }
           }
         },

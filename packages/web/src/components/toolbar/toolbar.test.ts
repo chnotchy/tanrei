@@ -473,6 +473,9 @@ test.describe('items', () => {
       icons: true,
       // The stages a pointer is moved over come first, inside the window.
       fixtures: [fixture('close', small, { variant: 'floating' }), fixture('close-vertical', small, { variant: 'floating', orientation: 'vertical' }), fixture('small', small, { variant: 'floating' }), ...spec.fixtures],
+      // The default system draws every item at least its 36 target, so nothing reaches and nothing caps; under a
+      // platform guideline's targets (44 for a pointer, 48 for touch) the small items (36) reach and are capped.
+      lead: '<style>:root { --tanrei-sys-target-pointer: 44px; --tanrei-sys-target-touch: 48px; }</style>',
     });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
@@ -563,7 +566,24 @@ test.describe('items', () => {
     for (const id of ['docked', 'docked-button']) for (const n of [0, 1, 2, 3]) { const h = await hit(id, n); expect(h.right - h.left, `${id} ${n}`).toBeGreaterThanOrEqual(touch - 0.5); }
   });
 
-  test('TBR-16: a floating toolbar lays its items container.gap.floating apart and moves two neighbours further only as far as each needs to keep sys.target.touch of length along the axis — medium items 8 apart and the toolbar 208 long in the default system, large ones touching, small ones 16 apart, every size touching where the target is 0 — along the column when vertical, the same for every pointer, with nothing of an item changed; a docked toolbar is unchanged', async ({ page }) => {
+  test('TBR-16: in the default system, whose touch target (36) no Button is shorter than, a floating toolbar’s items touch — four medium icon-only Buttons 184 long, small and large ones touching too, in a row and in a column', async ({ page }) => {
+    const row = (size: string, count = 3) => GLYPHS.slice(0, count).map((g) => a(g, { size }));
+    await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('large', row('large'), { variant: 'floating' }), fixture('small', row('small'), { variant: 'floating' }), fixture('small-vertical', row('small'), { variant: 'floating', orientation: 'vertical' })] as Fixture[] });
+    const [gap, touch, pad] = [await resolveToken(page, T('container-gap-floating')), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('container-padding-inline-floating'))];
+    expect([gap, touch, pad]).toEqual([0, 36, 12]);
+    const apart = (id: string, count: number, column = false) =>
+      expect.poll(async () => {
+        const boxes = await Promise.all(Array.from({ length: count }, (_, n) => bounds(inner(page, id, n))));
+        return boxes.slice(1).map((box, n) => Math.round((column ? box.y - (boxes[n].y + boxes[n].height) : box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
+      }, id);
+    await apart('floating', 4).toEqual([0, 0, 0]);
+    expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 40 + 2 * pad);
+    await apart('floating-vertical', 3, true).toEqual([0, 0]);
+    for (const id of ['large', 'small']) await apart(id, 3).toEqual([0, 0]);
+    await apart('small-vertical', 3, true).toEqual([0, 0]);
+  });
+
+  test('TBR-16: a floating toolbar lays its items container.gap.floating apart and moves two neighbours further only as far as each needs to keep sys.target.touch of length along the axis — under a 48 touch target medium items 8 apart and the toolbar 208 long, large ones touching, small ones 12 apart, every size touching where the target is 0 — along the column when vertical, the same for every pointer, with nothing of an item changed; a docked toolbar is unchanged', async ({ page }) => {
     const row = (size: string, count = 3) => GLYPHS.slice(0, count).map((g) => a(g, { size }));
     const fixtures = [
       ...spec.fixtures,
@@ -576,11 +596,13 @@ test.describe('items', () => {
       fixture('wide-gap', row('medium'), { variant: 'floating' }),
       fixture('docked-small', row('small', 4), { variant: 'docked' }),
     ] as Fixture[];
-    await mountFixtures(page, spec, { icons: true, fixtures });
+    // A system whose touch target is larger than its Buttons (a platform guideline's 48), set before the toolbars are
+    // laid out: the default system's (36) is no Button's shortfall (the test above).
+    await mountFixtures(page, spec, { icons: true, fixtures, lead: '<style>:root { --tanrei-sys-target-touch: 48px; }</style>' });
     const gap = await resolveToken(page, T('container-gap-floating'));
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const pad = await resolveToken(page, T('container-padding-inline-floating'));
-    // The default system: the gap is 0 and the target 48.
+    // The gap is 0 and the target 48.
     expect([gap, touch, pad]).toEqual([0, 48, 12]);
     const along = async (id: string, count: number, column = false) => {
       const boxes = await Promise.all(Array.from({ length: count }, (_, n) => bounds(inner(page, id, n))));
@@ -596,14 +618,14 @@ test.describe('items', () => {
     // The same along the column.
     await settled('floating-vertical', 3, [8, 8], true);
     expect((await bounds(bar(page, 'floating-vertical'))).height).toBe(3 * 40 + 2 * 8 + 2 * pad);
-    // Large (56) Buttons touch; small (32) ones stand 16 apart, in a row and in a column.
+    // Large (56) Buttons touch; small (36) ones stand 12 apart, in a row and in a column.
     await settled('large', 3, [0, 0, ]);
     expect((await along('large', 3)).lengths).toEqual([56, 56, 56]);
-    await settled('small', 3, [16, 16]);
-    await settled('small-vertical', 3, [16, 16], true);
-    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 8 + 4, medium · large 4 + 0,
-    // large · small 0 + 8.
-    await settled('mixed', 4, [12, 4, 8]);
+    await settled('small', 3, [12, 12]);
+    await settled('small-vertical', 3, [12, 12], true);
+    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 6 + 4, medium · large 4 + 0,
+    // large · small 0 + 6.
+    await settled('mixed', 4, [10, 4, 6]);
     // A labelled Button is measured as it is: one longer than the target lacks nothing, so the medium icon-only Button
     // between two of them stands its own 4 from each.
     const text = await along('text', 3);
@@ -641,8 +663,8 @@ test.describe('items', () => {
     await expect.poll(async () => {
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, 'mixed', n))));
       return boxes.slice(1).map((box, n) => Math.round((boxes[n].x - (box.x + box.width)) * 100) / 100);
-    }).toEqual([12, 4, 8]);
-    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 12 from the last.
+    }).toEqual([10, 4, 6]);
+    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 10 from the last.
     await bar(page, 'floating').evaluate((el) => {
       const next = document.createElement('tanrei-button');
       next.setAttribute('variant', 'text');
@@ -651,16 +673,17 @@ test.describe('items', () => {
       next.innerHTML = '<span slot="icon" class="tanrei-icon">more_vert</span>';
       el.append(next);
     });
-    await settled('floating', 5, [8, 8, 8, 12]);
+    await settled('floating', 5, [8, 8, 8, 10]);
     await bar(page, 'floating').evaluate((el) => el.firstElementChild!.remove());
-    await settled('floating', 4, [8, 8, 12]);
+    await settled('floating', 4, [8, 8, 10]);
     // The spaces are the container's own elements, one between two items; nothing is written on the items.
     expect(await container(page, 'floating').evaluate((el) => el.querySelectorAll(':scope > .space:not([data-off])').length), 'one space between two items').toBe(3);
     expect(await bar(page, 'floating').evaluate((el) => [...el.children].map((child) => (child as HTMLElement).style.cssText)), 'nothing on the items').toEqual(['', '', '', '']);
     // Docked: unchanged — the items spread across the width with container.gap.docked as the least space, and no item
     // is given a margin.
     const dockedGap = await resolveToken(page, T('container-gap-docked'));
-    expect(dockedGap).toBe(16);
+    // sys.target.touch less a small Button: 48 − 36 under this test's target (0 in the default system).
+    expect(dockedGap).toBe(12);
     for (const id of ['docked', 'docked-small']) {
       const own = await bounds(container(page, id));
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, id, n))));
@@ -821,8 +844,10 @@ test.describe('keyboard and semantics', () => {
     await expect(bar(page, 'unnamed')).not.toHaveAttribute('aria-label');
     await expect(bar(page, 'empty')).toBeVisible();
     const [pen, other, eraser] = [await bounds(inner(page, 'foreign', 0)), await bounds(page.locator('[data-fixture="foreign"] .other')), await bounds(inner(page, 'foreign', 2))];
-    expect(other.x).toBeGreaterThan(pen.x + pen.width);
-    expect(eraser.x).toBeGreaterThan(other.x + other.width);
+    // Laid out in order, after each other (touching in the default system: its floating gap is 0, and the medium
+    // Buttons are longer than its 36 target).
+    expect(other.x).toBeGreaterThanOrEqual(pen.x + pen.width - 0.01);
+    expect(eraser.x).toBeGreaterThanOrEqual(other.x + other.width - 0.01);
     // The field keeps its own arrow keys: the toolbar does not take them from it.
     await page.locator('[data-fixture="foreign"] .other').focus();
     await page.keyboard.press('ArrowRight');
@@ -905,12 +930,13 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     expect(own.height).toBeCloseTo(size, 1);
     expect(own.x).toBe(stage.x);
     expect(own.width, 'as long as its items, not the stage').toBeLessThan(stage.width);
-    // The first group: three medium icon-only Buttons, each pair as far apart as their targets need (8), more than the gap.
+    // The first group: three medium icon-only Buttons, each pair as far apart as their targets need, or the gap where
+    // that is more — in the default system the gap (4): a medium Button (40) is longer than the target (36).
     const group = bar(page, id).locator('tanrei-toolbar-group').first().locator('tanrei-button');
     const boxes = await Promise.all([0, 1, 2].map((n) => bounds(group.nth(n).locator('button'))));
     expect(boxes[0].x - own.x).toBeCloseTo(pad, 1);
     for (const n of [1, 2]) expect(boxes[n].x - (boxes[n - 1].x + boxes[n - 1].width)).toBeCloseTo(kept(gap, touch, boxes[n - 1].width, boxes[n].width), 1);
-    expect(boxes[1].x - (boxes[0].x + boxes[0].width)).toBeCloseTo(8, 1);
+    expect(boxes[1].x - (boxes[0].x + boxes[0].width)).toBeCloseTo(4, 1);
     for (const box of boxes) expect(box.y + box.height / 2).toBeCloseTo(own.y + own.height / 2, 1);
     // No surface of its own in the default system.
     const surface = container(page, id);
@@ -1378,10 +1404,10 @@ test.describe('inline, groups, separators and the overflow menu', () => {
       toolbar.querySelectorAll('tanrei-button')[1].addEventListener('click', () => (menu.open = !menu.open));
       menu.addEventListener('close', () => (menu.open = false));
     });
-    // Not laid out: the three items stand as three items do.
+    // Not laid out: the three items stand as three items do — the inline gap (4) apart in the default system.
     const boxes = await Promise.all([0, 1, 2].map((n) => bounds(bar(page, id).locator('tanrei-button').nth(n).locator('button'))));
-    expect(boxes[1].x - (boxes[0].x + boxes[0].width)).toBeCloseTo(8, 1);
-    expect(boxes[2].x - (boxes[1].x + boxes[1].width)).toBeCloseTo(8, 1);
+    expect(boxes[1].x - (boxes[0].x + boxes[0].width)).toBeCloseTo(4, 1);
+    expect(boxes[2].x - (boxes[1].x + boxes[1].width)).toBeCloseTo(4, 1);
     await tabTo(page, bar(page, id).locator('tanrei-button').first());
     await page.keyboard.press('ArrowRight');
     await expect(sort).toBeFocused();

@@ -1007,9 +1007,11 @@ test.describe('glyphs and names', () => {
     near((await box(stage(page, 'standalone'))).height, (await box(stage(page, 'in-text'))).height, 'the stage', 0.01);
     expect(await css(link(page, 'in-text'), 'content', '::before')).toBe('none');
     expect(await css(link(page, 'disabled'), 'content', '::before')).toBe('none');
-    // A coarse pointer: sys.target.touch (48 under the default system) for a link 22 high in its line of body text.
+    // A coarse pointer: sys.target.touch for a link 22 high in its line of body text. The default system's touch target
+    // is its pointer target, so a layer that takes a touch from a larger area (48) shows that the coarse pointer reads it.
     expect(await px(link(page, 'standalone'), 'line-height')).toBeCloseTo(22, 1);
     if (browserName !== 'chromium') return;
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });

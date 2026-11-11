@@ -93,7 +93,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "The Button size it is drawn at (32 / 40 / 56 under the default system, never below sys.target.minimum). The values are Button's."
+      "description": "The Button size it is drawn at (36 / 40 / 56 under the default system, never below sys.target.minimum). The values are Button's."
     },
     {
       "name": "disabled",

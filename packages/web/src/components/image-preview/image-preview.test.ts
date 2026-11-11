@@ -561,9 +561,9 @@ test.describe('the bar, the count and the controls', () => {
       { size: 'small', own: null, given: 'tonal', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
       { size: 'small', own: null, given: 'tonal', name: 'Close', glyph: 'close', text: 'close' },
     ]);
-    // The three are alike: the small Button's 32 × 32 in the default system, each drawing the tonal container.
+    // The three are alike: the small Button's 36 × 36 in the default system (held at the minimum target), each drawing the tonal container.
     const small = await px(page, '--tanrei-comp-button-container-height-small');
-    expect(small).toBe(32);
+    expect(small).toBe(36);
     for (const box of [out, into, close]) expect([box.width, box.height]).toEqual([small, small]);
     // Zoom out is disabled at fit (IMP-13): the tonal variant's disabled container.
     const tonal = await resolveColor(page, '--tanrei-comp-button-tonal-container-color');

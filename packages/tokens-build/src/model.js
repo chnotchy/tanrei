@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
-import { COMPONENTS_HELD_IN_EVERY_SCHEME, targetFloors } from './invariants.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME, ladderReaders, targetFloors } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -217,7 +217,21 @@ export async function buildModelFromBundle(files, systemId = NS, resolver, { col
  */
 let floors;
 export function coreTargetFloors() {
-  if (floors) return floors;
+  return (floors ??= targetFloors(coreComponentDocuments()));
+}
+
+/**
+ * The heights the core vocabulary draws at a step of the control height ladder (`ladderReaders`), by token id, read
+ * once from the same documents as `coreTargetFloors`: in the default system each is as tall as its step.
+ */
+let ladder;
+export function coreLadderReaders() {
+  return (ladder ??= ladderReaders(coreComponentDocuments()));
+}
+
+let componentDocuments;
+function coreComponentDocuments() {
+  if (componentDocuments) return componentDocuments;
   const documents = [];
   const read = (dir) => {
     if (!fs.existsSync(dir)) return;
@@ -226,7 +240,7 @@ export function coreTargetFloors() {
   read(path.join(TOKENS_DIR, 'comp'));
   const systems = path.join(TOKENS_DIR, 'systems');
   if (fs.existsSync(systems)) for (const entry of fs.readdirSync(systems, { withFileTypes: true })) if (entry.isDirectory()) read(path.join(systems, entry.name, 'comp'));
-  return (floors = targetFloors(documents));
+  return (componentDocuments = documents);
 }
 
 function modelFrom(resolver, systemId, components, colorsFrom) {
@@ -249,7 +263,7 @@ function modelFrom(resolver, systemId, components, colorsFrom) {
     }
   }
   assertEveryRole(colors);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors(), ladder: coreLadderReaders() };
 }
 
 const SYS_COLOR = `${NS}.sys.color.`;
@@ -281,7 +295,7 @@ function assertEveryRole(colors) {
 function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
   const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors(), ladder: coreLadderReaders() };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────

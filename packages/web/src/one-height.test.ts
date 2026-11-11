@@ -41,7 +41,8 @@ for (const name of BOXES) {
       // that draws its label may grow to hold it).
       for (const variant of ['filled', 'outlined']) expect(await container(page, `${variant}-${size}`, tag), `${name} ${variant} ${size}`).toBeGreaterThanOrEqual(own - 0.01);
     }
-    expect(await Promise.all(SIZES.map((size) => button(page, size))), 'the premise: the default system\'s Buttons').toEqual([32, 40, 56]);
+    // The small one is held at the default system's minimum target (36).
+    expect(await Promise.all(SIZES.map((size) => button(page, size))), 'the premise: the default system\'s Buttons').toEqual([36, 40, 56]);
   });
 }
 

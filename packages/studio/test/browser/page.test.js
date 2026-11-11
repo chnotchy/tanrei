@@ -204,7 +204,7 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
     }
     const bar = await page.evaluate(() => ['.app-brand', '#lang', '#theme'].map((selector) => { const box = document.querySelector(selector).getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
     assert.ok(Math.max(...bar) - Math.min(...bar) <= 2, `the brand, the language and the theme share a line: ${bar}`);
-    assert.ok((await page.locator('#theme').evaluate((button) => button.getBoundingClientRect().height)) <= 34, 'the theme button says its word on one line');
+    assert.ok((await page.locator('#theme').evaluate((button) => button.getBoundingClientRect().height)) <= 38, 'the theme button says its word on one line (a small Button is 36 high)');
   });
 }
 
