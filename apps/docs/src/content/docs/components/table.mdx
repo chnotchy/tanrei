@@ -73,7 +73,7 @@ On the web it is `<tanrei-table>` around your own native `<table>`. The element 
     import { Table } from '@tanrei/react';
     import '@tanrei/web/table.css';
 
-    <Table density="compact" striped label="Tokens of the table">
+    <Table size="small" striped label="Tokens of the table">
       <table>
         <thead>
           <tr><th scope="col">Token</th><th scope="col">Type</th></tr>
@@ -417,8 +417,8 @@ A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` 
 
 ## Specs
 
-<Example label="Compact and striped, for a table a person scans">
-  <tanrei-table class="tanrei-not-prose" density="compact" striped label="Tokens of the table">
+<Example label="Small and striped, for a table a person scans">
+  <tanrei-table class="tanrei-not-prose" size="small" striped label="Tokens of the table">
     <table>
       <thead>
         <tr><th scope="col" data-wrap="false">Token</th><th scope="col" data-wrap="false">Aliases</th><th scope="col" data-wrap="false">Type</th></tr>
@@ -482,14 +482,14 @@ Use a table for data that has rows and columns. Do not use one to place things s
 
 A list of keys and values with no second dimension is closer to a description list than to a table.
 
-### Density
+### Size
 
-| `density` | A row with one line of text | Use for |
+| `size` | A row with one line of text | Use for |
 | --- | --- | --- |
-| `regular` (default) | 46 | A table a person reads: a few rows, cells that wrap. |
-| `compact` | 32 | A table a person scans: hundreds of rows, identifiers and values. |
+| `medium` (default) | 46 | A table a person reads: a few rows, cells that wrap. |
+| `small` | 32 | A table a person scans: hundreds of rows, identifiers and values. |
 
-A row has no height of its own. It is as tall as its tallest cell.
+A row has no height of its own. It is as tall as its tallest cell, and a row that holds a checkbox, a radio button or a sort button is never lower than the target at either size. The paddings follow the system's [density](/foundations/size-and-density/). A table that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does; it passes no size to what its cells hold.
 
 ### Telling rows apart
 
@@ -521,7 +521,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 - The mark is drawn on every sortable column, also at rest, so that a touch screen shows which headers can be pressed.
 - One column is sorted at a time. A second sort key is a control of your own.
 - Say the new order in the status line where you want it spoken ("Sorted by price, highest first"). The table announces nothing itself.
-- The header row of a table with a sortable column is at least 44 high at the regular density, and 48 for touch at both densities.
+- The header row of a table with a sortable column is at least the target high at either size: 36 in the default system, for a pointer and for touch.
 
 ### Guidance for choosing rows
 
@@ -532,7 +532,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 - Put the buttons that act on the chosen rows above the table. They are yours; the table tells you what is chosen.
 - Offer "all 132" with a control of your own. The header's checkbox chooses the rows the table was given, never the rows of other pages.
 - Each checkbox is a stop in the focus order. Keep a page of rows to a number a person can tab through, and page the rest. The radio buttons of a table are one stop together.
-- A row that holds a checkbox or a radio button is at least 44 high at the regular density, and 48 for touch at both densities. A compact row stays compact for a pointer.
+- A row that holds a checkbox or a radio button is at least the target high at either size: 36 in the default system, for a pointer and for touch. A small row that holds none stays as low as its text.
 - A [tag](/components/tag/) and [inline code](/components/inline-code/) are tonal unless you choose another variant, and the tonal fill is nearly the fill of a chosen row in the default system, so on a chosen row their shape is lost. Their text stays readable. Use the outlined tag in a table whose rows are chosen.
 
 ### Guidance for loading
@@ -567,7 +567,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 
 ### What the component handles
 
-- The native table stays a table: rows, column headers, row headers and cells are the browser's own, with or without stripes, at either density, while it scrolls and while a column or the header is kept in view.
+- The native table stays a table: rows, column headers, row headers and cells are the browser's own, with or without stripes, at either size, while it scrolls and while a column or the header is kept in view.
 - The caption names the table. Without one, `label` becomes the table's `aria-label` and is not drawn. With both, the caption is the name.
 - While the table scrolls in its own box, that box is one stop in the focus order, before anything in its cells, and a region with the table's name. The arrow keys, Page Up, Page Down, Home and End scroll it. A table that does not scroll adds no stop.
 - The focus ring is drawn inside the box's edge, so nothing clips it.
@@ -592,7 +592,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 - In forced colors the fill of a chosen row is gone, and the checkbox or radio button still says that the row is chosen.
 - While `loading` is set, the table is exposed as busy (`aria-busy`). Placeholder rows are hidden from assistive technology, so a person hears that the table is busy and not rows of nothing. The table announces nothing itself when loading begins or ends.
 - Without script the selection column, a chosen row (`data-selected`, or a native checkbox that is checked) and placeholder rows are drawn all the same, and native checkboxes work in your form. The header's checkbox kept in step and the `selectionchange` event need script. Without script a row shows no hover and no pointer cursor, and a press beside its checkbox changes nothing.
-- A table with no name, an unknown density, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name, several rows marked chosen at once or a control of the wrong kind under `single`, and a placeholder row in a table that is not loading are reported in debug builds.
+- A table with no name, an unknown size, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name, several rows marked chosen at once or a control of the wrong kind under `single`, and a placeholder row in a table that is not loading are reported in debug builds.
 
 ### What you need to do
 
