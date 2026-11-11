@@ -16,7 +16,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, settle } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a preset’s stylesheet,
 // took 13 s in CI.
@@ -83,15 +83,8 @@ const boxes = (page) =>
     };
   }, FIGURE);
 
-/** Settled: the figure's elements defined, the fonts in, and two frames drawn after. */
-const settled = (page) =>
-  page.evaluate(async (selector) => {
-    const frame = document.querySelector(selector);
-    const names = new Set([...frame.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')));
-    await Promise.all([...names].map((name) => customElements.whenDefined(name)));
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  }, FIGURE);
+/** Settled: the figure's elements defined, the fonts in, and two frames drawn after (each wait bounded: launch.mjs). */
+const settled = (page) => settle(page, FIGURE);
 
 describe('the figure frame on the button’s page', () => {
   for (const viewport of VIEWPORTS) {

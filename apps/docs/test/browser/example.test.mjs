@@ -19,7 +19,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settle } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the frames under the
 // reader’s system, in WebKit, took 34 s in CI.
@@ -53,18 +53,8 @@ const t = strings('en');
 /** The page's first example that shows its code: one of the page's own, not a stage of the gallery. */
 const FIRST = '[data-example]:not([data-stage]):has([data-example-actions])';
 
-/** The frame's actions drawn, its elements defined, the fonts in, and two frames drawn since. */
-const drawn = (page, selector) =>
-  page.evaluate(async (selector) => {
-    const frame = document.querySelector(selector);
-    frame.scrollIntoView({ block: 'center' });
-    const deadline = Date.now() + 10_000;
-    while (frame.querySelector('[data-example-actions] > template:not([data-example-panel])') && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-    const names = new Set([...frame.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')));
-    await Promise.all([...names].map((name) => customElements.whenDefined(name)));
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  }, selector);
+/** The frame's actions drawn, its elements defined, the fonts in, and two frames drawn since (each wait bounded: launch.mjs). */
+const drawn = (page, selector) => settle(page, selector, { scroll: 'center', pending: '[data-example-actions] > template:not([data-example-panel])' });
 
 /** What the frame's open code block shows, and what its copy button copies. */
 const code = (page, selector) =>

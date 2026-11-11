@@ -18,7 +18,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { launch } from './launch.mjs';
+import { launch, settle } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, every cell’s tokens, took
 // 14 s in CI.
@@ -83,22 +83,8 @@ async function chooseLook(page, id) {
 const PAGE = '/components/button/';
 const TABLE = '[data-docs-state-matrix]';
 
-/** Settled: the matrix's figure in view, its elements defined, every cell that holds a state held, and a frame drawn after. */
-const settled = (page) =>
-  page.evaluate(async (selector) => {
-    const table = document.querySelector(selector);
-    const frame = table.closest('[data-example]');
-    frame.scrollIntoView({ block: 'center' });
-    const names = new Set([...frame.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')));
-    await Promise.all([...names].map((name) => customElements.whenDefined(name)));
-    await document.fonts.ready;
-    await new Promise((resolve) => {
-      const held = () => [...table.querySelectorAll('[data-docs-hold] > *')].every((element) => element.hasAttribute('data-docs-state'));
-      const wait = () => (held() ? resolve() : requestAnimationFrame(wait));
-      wait();
-    });
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  }, TABLE);
+/** Settled: the matrix's figure in view, every cell that holds a state held, its elements defined, the fonts in, and two frames drawn after (each wait bounded: launch.mjs). */
+const settled = (page) => settle(page, `[data-example]:has(${TABLE})`, { scroll: 'center', pending: `${TABLE} [data-docs-hold] > :not([data-docs-state])` });
 
 /** Each cell: its row's value and props, its column's state, and the colors its element's container and label compute to. */
 const cells = (page) =>
