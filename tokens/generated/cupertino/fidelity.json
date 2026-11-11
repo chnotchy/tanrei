@@ -26,7 +26,7 @@
   },
   "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
   "total": 52,
-  "equal": 36,
+  "equal": 38,
   "covered": 0,
   "different": [
     {
@@ -207,28 +207,6 @@
           "actual": 600
         }
       ]
-    },
-    {
-      "ref": "apple.target.ios.default",
-      "tanrei": "tanrei.sys.target.touch",
-      "problems": [
-        {
-          "scheme": "all",
-          "expected": 44,
-          "actual": 48
-        }
-      ]
-    },
-    {
-      "ref": "apple.target.macos.default",
-      "tanrei": "tanrei.sys.target.pointer",
-      "problems": [
-        {
-          "scheme": "all",
-          "expected": 28,
-          "actual": 44
-        }
-      ]
     }
   ],
   "unmapped": [],
@@ -335,5 +313,5 @@
       "reason": "Tanrei has one least drawn size for every input (sys.target.minimum); cupertino takes the iOS figure, the larger of the two."
     }
   ],
-  "fidelity": 0.692
+  "fidelity": 0.731
 }

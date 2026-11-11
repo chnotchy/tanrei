@@ -154,14 +154,6 @@
     {
       "ref": "apple.typescale.headline-emphasized-weight",
       "note": "heading-4 600 plus the heading emphasis step 200 is 800; Apple's emphasized Headline stays Semibold (600)."
-    },
-    {
-      "ref": "apple.target.ios.default",
-      "note": "touch is 48, the value the preset kept from the root; Apple's default control size on iOS and iPadOS is 44 × 44 pt."
-    },
-    {
-      "ref": "apple.target.macos.default",
-      "note": "pointer is 44, the value the preset kept from the root; Apple's default control size on macOS is 28 × 28 pt."
     }
   ],
   "unpublished": [
