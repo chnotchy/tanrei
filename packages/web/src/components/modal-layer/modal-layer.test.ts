@@ -171,6 +171,24 @@ test.describe('focus', () => {
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('go');
   });
 
+  test('MDL-5, MDL-7: closed at the end of a task that outlasts its motions, the layer fades out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the control focus left and the opener focus went back to would be drawn at their end at once.
+    await mount(page, [f('marked', { open: false }, { content: '<button id="first-marked">First</button> <tanrei-button id="go" label="Go" autofocus><span slot="icon">add</span></tanrei-button>' })]);
+    await page.locator('#open-marked').evaluate((el) => {
+      el.insertAdjacentHTML('afterend', '<tanrei-button id="opener-marked">Open</tanrei-button>');
+      el.nextElementSibling!.addEventListener('click', () => ((el.parentElement!.querySelector('tanrei-modal-layer') as HTMLElement & { open: boolean }).open = true));
+    });
+    await tabTo(page, page.locator('#opener-marked'));
+    await host(page, 'marked').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('go');
+    await expectFromNextFrame(host(page, 'marked'), '(el) => { el.open = false; }', ['tanrei-modal-layer dialog opacity', 'tanrei-button button background-color', 'tanrei-button button.has-icon background-color'], 'closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('opener-marked');
+  });
+
   test('MDL-3: focus goes to the element marked autofocus, or to the container; the next Tab reaches the first focusable element', async ({ page }) => {
     await mount(page, [f('plain'), f('marked', {}, { content: '<button id="a">A</button><input id="field" aria-label="Name" autofocus>' })]);
     await open(page, 'plain');
