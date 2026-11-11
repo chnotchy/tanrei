@@ -4,6 +4,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
 import { flatParent } from '../../primitives/flat-tree.js';
 import { playFromThisFrame } from '../../primitives/motion.js';
+import { readTogether } from '../../primitives/read-phase.js';
 import '../button/button.js';
 import { FADE, GAP, LOOPS, SPEED, TRIGGERS, styles } from './marquee-text.styles.js';
 
@@ -178,7 +179,10 @@ export class TanreiMarqueeText extends TanreiElement {
   /** The element whose hover and focus are the trigger (MRQ-3): the nearest control around the line, or the host. */
   private area: Element | null = null;
 
-  private sizes: ResizeObserver | null = null;
+  /** The viewport the shared resize watch observes for this line, while it is connected. */
+  private watched: HTMLElement | null = null;
+  /** A measure is asked for and not made yet: the turn's later requests are the same read. */
+  private measuring = false;
   private mutations: MutationObserver | null = null;
   private sight: IntersectionObserver | null = null;
   private stopWatchingMotion: (() => void) | null = null;
@@ -287,9 +291,13 @@ export class TanreiMarqueeText extends TanreiElement {
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.mutations?.disconnect();
     this.faces.disconnect();
-    this.sizes?.disconnect();
+    if (this.watched) {
+      TanreiMarqueeText.sizes?.unobserve(this.watched);
+      TanreiMarqueeText.lines.delete(this.watched);
+      this.watched = null;
+    }
     this.sight?.disconnect();
-    this.mutations = this.sizes = this.sight = null;
+    this.mutations = this.sight = null;
     this.unwatchArea();
   }
 
@@ -345,12 +353,24 @@ export class TanreiMarqueeText extends TanreiElement {
     if (!this.words.get('marqueePauseLabel', this.pauseLabel)) this.words.missing('marqueePauseLabel', { prop: 'pauseLabel', id: 'MRQ-12', effect: 'the playback control is drawn and has no accessible name while the text moves' });
   }
 
+  /**
+   * One resize watch for every line: a frame reports all the lines that changed in one callback, and each measures
+   * with every other's of the turn (`readTogether`), all reads before any write. A watch of each line's own would have
+   * each read after the writes of the one before, and the browser lay the page out again for each.
+   */
+  private static sizes: ResizeObserver | null = null;
+  /** The line each watched viewport belongs to. */
+  private static readonly lines = new WeakMap<Element, TanreiMarqueeText>();
+
   private observe() {
-    if (this.sizes) return;
+    if (this.watched) return;
     const viewport = this.viewport;
     if (!viewport) return;
-    this.sizes = new ResizeObserver(() => this.measure());
-    this.sizes.observe(viewport);
+    this.watched = viewport;
+    TanreiMarqueeText.lines.set(viewport, this);
+    (TanreiMarqueeText.sizes ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiMarqueeText.lines.get(entry.target)?.measure();
+    })).observe(viewport);
     this.sight = new IntersectionObserver((entries) => {
       const seen = entries[entries.length - 1]?.isIntersecting ?? true;
       if (seen !== this.inView) {
@@ -369,17 +389,37 @@ export class TanreiMarqueeText extends TanreiElement {
     if (this.playing && this.loopName === 'repeat') this.fillCopy();
   };
 
-  /** Reads whether the text fits, and its direction; a run that is playing starts again from the start (MRQ-14). */
+  /**
+   * Reads whether the text fits, and its direction; a run that is playing starts again from the start (MRQ-14). Read
+   * with every other host's of the turn, after the renders (src/primitives/read-phase.ts): a hundred lines built at
+   * once lay the page out once, not once each.
+   */
   private measure() {
+    if (this.measuring) return;
+    this.measuring = true;
+    readTogether(() => {
+      this.measuring = false;
+      return this.readWidths();
+    });
+  }
+
+  /** What `measure` reads, returning what it then writes. */
+  private readWidths(): (() => void) | void {
     const viewport = this.viewport;
     const text = this.renderRoot?.querySelector<HTMLElement>('.text');
-    if (!viewport || !text) return;
+    if (!viewport || !text || !this.isConnected) return;
     const own = textDirection(this.textContent ?? '');
     const dir = own ?? (this.direction.rtl ? 'rtl' : 'ltr');
     const textWidth = text.getBoundingClientRect().width;
     const viewWidth = viewport.getBoundingClientRect().width;
     // After the layout the reads forced: a face the text first asked for in it is loading now.
     this.faces.measured();
+    return () => this.takeWidths(textWidth, viewWidth, dir);
+  }
+
+  /** The widths and the direction read: drawn, and a run that played them starts again (MRQ-14). */
+  private takeWidths(textWidth: number, viewWidth: number, dir: 'ltr' | 'rtl') {
+    if (!this.isConnected) return;
     const fits = viewWidth === 0 || textWidth <= viewWidth + SAME;
     const changed = Math.abs(textWidth - this.textWidth) > SAME || Math.abs(viewWidth - this.viewWidth) > SAME || dir !== this.textDir || fits !== this.fits;
     this.textWidth = textWidth;
