@@ -44,3 +44,16 @@ declare module 'virtual:tanrei-react-names' {
   const names: import('./lib/example-code').ReactNames;
   export default names;
 }
+
+// The token engine's numeric rules, which the docs evaluate at other densities (src/lib/tokens.ts, `atDensity`): the
+// package is JavaScript without declarations, so the two names the docs read are typed here.
+declare module '@tanrei/token-engine' {
+  /** The extension a derived token's rule is written under (`dev.tanrei.derive`). */
+  export const DERIVE: string;
+  /** One numeric rule, evaluated with `lookup` giving the value of every token it names. */
+  export function evaluateNumeric(
+    rule: Record<string, unknown>,
+    lookup: (id: string) => { value: number; unit?: string },
+    ctx: { type: string },
+  ): { value: number; unit?: string };
+}

@@ -211,6 +211,9 @@ importers:
       '@tanrei/studio':
         specifier: workspace:*
         version: link:../../packages/studio
+      '@tanrei/token-engine':
+        specifier: workspace:*
+        version: link:../../packages/token-engine
       '@tanrei/web':
         specifier: workspace:*
         version: link:../../packages/web

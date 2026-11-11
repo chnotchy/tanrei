@@ -1,0 +1,76 @@
+---
+title: Tamaño y densidad
+description: Un número para el espacio que ocupan los controles y las filas, una escala de cinco alturas para los tamaños de los controles, el tamaño mínimo al que se dibuja todo lo que se pulsa y un tamaño que un grupo de botones pasa a sus botones.
+translationOf: foundations/size-and-density.mdx
+sourceHash: cda6be7d3de1653bdd528713c09823d8c8acf2bf
+---
+
+import DensityHeights from '../../../../components/tokens/DensityHeights.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+La altura de un control o de una fila sale de tres valores. La **densidad** y el **objetivo mínimo** son de todo el sistema de diseño: un producto fija cada uno una sola vez, en su capa. El **tamaño** es de un componente o de un grupo de ellos: un botón es small, medium o large allí donde está.
+
+## La densidad es un número
+
+`tanrei.dial.density` es un número sin más, 1 de forma predeterminada. Por debajo de 1, los controles y las filas se dibujan más juntos; por encima de 1, tienen más espacio. Solo actúa sobre el eje de bloque:
+
+- **Mueve** las alturas de los controles y de las filas, los márgenes interiores de bloque de una caja que tiene altura (cada uno se mueve la mitad de lo que se mueve la altura de su caja) y los espacios entre las filas de una colección, como los datos de una lista de descripciones o las entradas de una línea de tiempo.
+- **No mueve** los estilos de texto, los tamaños de los iconos, las esquinas ni el espacio a lo largo de una fila: los márgenes interiores en línea, los espacios a lo largo de una fila y las sangrías siguen el dial de espaciado, `dial.space.unit`.
+
+Toda altura que sigue la densidad se redondea a la cuadrícula de la unidad de tamaño (`dial.size.unit`, 4px de forma predeterminada), y un empate se redondea hacia arriba.
+
+No hay una densidad por componente ni por parte de una página. Algunos componentes que contienen filas (un menú, una lista, una vista de árbol y otros) tienen una opción propia llamada `density`, `regular` o `compact`, que elige entre dos conjuntos de tokens de sus filas; las alturas de ambos siguen el número.
+
+## La escala de tamaños
+
+La escala son cinco alturas, `tanrei.sys.control.height.*`, que leen los tamaños de los controles: cada una es la unidad de tamaño por un factor, por la densidad, sobre la cuadrícula. Estas son las alturas a algunas densidades, calculadas a partir de las reglas de los propios tokens:
+
+<DensityHeights group="sys.control.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/sys/measure.tokens.json" />
+
+Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo escalón miden lo mismo a cualquier densidad: los tamaños `small`, `medium` y `large` del Button leen los escalones small, medium y large. La escala en sí no tiene suelo, porque `extra-small` es para lo que nadie pulsa, como un tag o un atajo de teclado.
+
+## El objetivo mínimo
+
+`tanrei.sys.target.minimum` es la altura mínima a la que se dibuja todo lo que una persona pulsa, y el ancho mínimo de un control que solo tiene icono. Toda altura de una caja o de una fila que se pulsa se deriva con él como suelo, así que ninguna densidad y ningún tamaño la dibujan más baja. Es el valor del desarrollador: ningún dial lo escala, porque un suelo que encogiera con lo que limita no sería un suelo.
+
+En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la densidad, y la altura que lo precede es la que el mínimo mantiene en el botón.
+
+<DensityHeights group="comp.button.container.height" densities={[0.75, 0.9, 1, 1.25, 1.5]} source="tokens/comp/button.tokens.json" />
+
+Otros dos valores dicen desde qué área se recibe una pulsación: `sys.target.touch` bajo un dedo y `sys.target.pointer` bajo un puntero preciso. Ambos son el mínimo de forma predeterminada, así que un solo valor fija los tres. Un sistema que sigue las pautas de una plataforma los sube; entonces, un control que está solo recibe la pulsación desde esa área mayor, más allá de lo que dibuja, y una fila que toca a sus vecinas se dibuja con esa altura. Una marca que se dibuja más pequeña que el objetivo, como la caja de una casilla de verificación o un chip pequeño, conserva su tamaño y extiende su área de pulsación hasta el objetivo. Lo que fija cada sistema incluido:
+
+<SystemValues tokens={['sys.target.minimum', 'sys.target.touch', 'sys.target.pointer']} />
+
+La compilación comprueba cada sistema: ninguno de los tres por debajo de 24px (WCAG 2.5.8), `touch` y `pointer` nunca por debajo del mínimo, una densidad mayor que cero y ninguna altura con suelo por debajo del mínimo. Si la capa de un producto fija un objetivo por debajo de 24px, se le avisa con una advertencia; un área de pulsación por debajo del mínimo, o una densidad de cero o menos, se rechaza en cualquier sistema.
+
+## Cómo fijarlos en una capa
+
+Ambos son tokens que una capa fija con un motivo:
+
+```json
+"tokens": {
+  "tanrei.dial.density": { "$value": 0.9, "reason": "An editor people look at all day: rows a little closer." },
+  "tanrei.sys.target.minimum": { "$value": { "value": 32, "unit": "px" }, "reason": "Used with a mouse; 32 is the least we draw." }
+}
+```
+
+En la web, las alturas son expresiones CSS de los diales, así que fijar `--tanrei-dial-density` en el elemento raíz mueve todas las alturas a la vez, sin compilar de nuevo. En [Theme Studio](/es/foundations/theme-studio/), la fila Tamaño reúne la densidad, la unidad de tamaño y el objetivo mínimo.
+
+## Un tamaño fijado en un contenedor
+
+El tamaño se fija donde están los componentes. En la web, el `size` de un grupo de botones, una vez fijado, es el tamaño de cada Button del grupo que no fija uno propio:
+
+```html
+<tanrei-button-group size="small">
+  <tanrei-button variant="outlined">Cancel</tanrei-button>
+  <tanrei-button variant="filled">Publish</tanrei-button>
+  <tanrei-button variant="text" size="medium">Details</tanrei-button>
+</tanrei-button-group>
+```
+
+- **El tamaño propio de un componente gana.** El tercer Button de arriba es medium.
+- **Solo se pasa un tamaño que se ha fijado.** Un grupo sin `size` no pasa ninguno, así que cada Button del grupo se dibuja con su propio tamaño predeterminado, medium, o con el que fije un contenedor que rodee al grupo; cuando hay contenedores anidados, decide el más cercano que fija un tamaño.
+- **Un tamaño que el componente no tiene se convierte en el más cercano** a lo largo de la escala, extra-small, small, medium, large, extra-large, y entre dos igual de cercanos, el mayor.
+- **El grupo no dibuja nada propio según su tamaño.** Sus espacios, esquinas y divisores siguen siendo los de su variante, alrededor de Buttons de la altura a la que se dibujan.
+
+Un Button que se dibuja con el tamaño que le da su grupo sigue la densidad y el mínimo igual que con un tamaño propio. Al cambiar el tamaño del grupo, o al meter un Button en el grupo o sacarlo de él, se dibuja enseguida con su nuevo tamaño.

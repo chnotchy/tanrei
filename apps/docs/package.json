@@ -28,6 +28,7 @@
     "@fontsource-variable/roboto": "^5.3.0",
     "@fontsource-variable/roboto-mono": "^5.3.0",
     "@tanrei/studio": "workspace:*",
+    "@tanrei/token-engine": "workspace:*",
     "@tanrei/web": "workspace:*",
     "astro": "^7.3.8",
     "harfbuzzjs": "1.6.2",
