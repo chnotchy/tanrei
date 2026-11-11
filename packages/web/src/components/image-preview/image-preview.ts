@@ -16,7 +16,7 @@ import {
   WordsController,
   closeModal,
   closeRequestReason,
-  compChoice,
+  compChoices,
   deepActive,
   focusOverlay,
   giveVariant,
@@ -25,6 +25,7 @@ import {
   modalSheetKeys,
   motionReduced,
   openModal,
+  readTogether,
   report,
   returnFocus,
   stoppedBefore,
@@ -1286,8 +1287,15 @@ export class TanreiImagePreview extends TanreiElement {
 
   /** IMP-8, IMP-10: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10). */
   private giveVariants() {
-    const bar = compChoice(this, `${PREFIX}-bar-button-variant`, BUTTON_VARIANTS);
-    const navigation = compChoice(this, `${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS);
+    this.giveChosen(this.readVariants());
+  }
+
+  /** IMP-8, IMP-10: the variants the tokens name, with one computed style. */
+  private readVariants() {
+    return compChoices(this, { bar: [`${PREFIX}-bar-button-variant`, BUTTON_VARIANTS], navigation: [`${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS] });
+  }
+
+  private giveChosen({ bar, navigation }: ReturnType<TanreiImagePreview['readVariants']>) {
     for (const control of CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), control === 'previous' || control === 'next' ? navigation : bar);
   }
 
@@ -1468,7 +1476,13 @@ export class TanreiImagePreview extends TanreiElement {
     // IMP-43: the images are gone while it is presented: there is nothing to show.
     if (this.presented && !this.images.length) this.withdraw(true);
     if (!this.presented) return;
-    this.giveVariants();
+    // IMP-8, IMP-10: a system switch is seen at the next update — read after it with every other host's of the turn
+    // (src/primitives/read-phase.ts); presenting gave them before the preview was shown.
+    readTogether(() => {
+      if (!this.presented) return;
+      const chosen = this.readVariants();
+      return () => this.giveChosen(chosen);
+    });
     this.measure();
     this.takeZoom();
     this.place();

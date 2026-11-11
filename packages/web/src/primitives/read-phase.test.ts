@@ -16,6 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
+import { EVERY_ANIMATION } from '../../test/motions.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
@@ -297,4 +298,111 @@ test.describe('elements that read the layout or the cascade in the frame\'s read
       expect(ten.shown).toEqual(Array.from({ length: 10 }, () => subject.expected));
     });
   }
+});
+
+// ── Reading together, in the task of the render ──────────────────────────────────────────────────────────────────────
+
+test.describe('reading together in the task of the render', () => {
+  test('every read of the turn runs before any write, in a microtask after those queued before it and before any frame; a read a write asks for joins them; one failure stops no other', async ({ page }) => {
+    await open(page, `<!doctype html><html><body><script>${await phaseScript()}</script></body></html>`);
+    const log = await page.evaluate(
+      () =>
+        new Promise<string[]>((done) => {
+          const { readTogether } = (window as unknown as { phase: typeof import('./read-phase.js') }).phase;
+          const log: string[] = [];
+          window.addEventListener('error', (event) => {
+            event.preventDefault();
+            log.push(`thrown: ${(event.error as Error | undefined)?.message}`);
+          });
+          let framed = false;
+          requestAnimationFrame(() => (framed = true));
+          queueMicrotask(() => log.push('queued before'));
+          readTogether(() => {
+            log.push(`a reads${framed ? ' after a frame' : ''}`);
+            return () => {
+              log.push('a writes');
+              readTogether(() => {
+                log.push('c reads');
+                return () => log.push('c writes');
+              });
+            };
+          });
+          readTogether(() => {
+            log.push('b reads');
+            throw new Error('b failed');
+          });
+          readTogether(() => {
+            log.push('d reads');
+            return () => log.push('d writes');
+          });
+          log.push('task');
+          setTimeout(() => done(log), 50);
+        }),
+    );
+    expect(log).toEqual(['task', 'queued before', 'a reads', 'b reads', 'd reads', 'a writes', 'd writes', 'c reads', 'c writes', 'thrown: b failed']);
+  });
+});
+
+test.describe('elements that read together after their render', () => {
+  const subjects: Subject[] = [
+    {
+      // CAL-29: the axis the months move along, read after the render: vertical in the default system.
+      name: 'calendar',
+      html: (n) => `<tanrei-calendar label="Calendar ${n}" value="2026-03-14"></tanrei-calendar>`,
+      painted: `(host) => host.shadowRoot.querySelector('.calendar').dataset.axis`,
+      expected: 'vertical',
+    },
+    {
+      // OTC-23: the mark of a group that begins a row is not drawn — the groups' places read after the render.
+      name: 'one-time code input',
+      html: (n) => `<tanrei-one-time-code-input label="Code ${n}" length="6" group-size="3"></tanrei-one-time-code-input>`,
+      painted: `(host) => [...host.shadowRoot.querySelectorAll('.group')].map((group) => group.hasAttribute('data-row-start'))`,
+      expected: [true, false],
+    },
+  ];
+  for (const subject of subjects) {
+    test(`${subject.name}: ten mounted in one task force no more styles or layouts in it than one does, and the first frame painted shows what they read`, async ({ page }) => {
+      await watchPasses(page);
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, pageHtml());
+      await page.evaluate(() => customElements.whenDefined('tanrei-calendar'));
+      await mount(page, subject, 1);
+      const one = await mount(page, subject, 1);
+      const ten = await mount(page, subject, 10);
+      test.info().annotations.push({ type: 'passes', description: `1 → ${JSON.stringify(one.passes)}; 10 → ${JSON.stringify(ten.passes)}` });
+      expect(ten.passes, 'passes forced by mounting ten').toEqual(one.passes);
+      expect(ten.shown).toEqual(Array.from({ length: 10 }, () => subject.expected));
+    });
+  }
+
+  test('CAL-29: under a system whose axis is horizontal, a calendar that is waited for (updateComplete) has drawn its days along that axis', async ({ page }) => {
+    await open(page, pageHtml());
+    const drawn = await page.evaluate(async () => {
+      await customElements.whenDefined('tanrei-calendar');
+      const pane = document.getElementById('pane')!;
+      pane.style.setProperty('--tanrei-comp-calendar-navigation-axis', 'horizontal');
+      pane.innerHTML = '<tanrei-calendar label="Calendar" value="2026-03-14"></tanrei-calendar>';
+      const calendar = pane.firstElementChild as HTMLElement & { updateComplete: Promise<boolean> };
+      await calendar.updateComplete;
+      return calendar.shadowRoot!.querySelector<HTMLElement>('.calendar')!.dataset.axis;
+    });
+    expect(drawn).toBe('horizontal');
+  });
+
+  test('CCM-6: the send button a chat composer draws in its first render is drawn with the variant the system names from its first update — no transition from another variant starts', async ({ page }) => {
+    await open(page, pageHtml());
+    const drawn = await page.evaluate(async (every) => {
+      await customElements.whenDefined('tanrei-chat-composer');
+      const pane = document.getElementById('pane')!;
+      // A system whose send button is not the Button's own default (filled).
+      pane.style.setProperty('--tanrei-comp-chat-composer-send-button-variant', 'text');
+      pane.innerHTML = '<tanrei-chat-composer label="Message"></tanrei-chat-composer>';
+      const composer = pane.firstElementChild as HTMLElement;
+      await new Promise((frame) => requestAnimationFrame(frame));
+      await new Promise((frame) => requestAnimationFrame(frame));
+      const button = composer.shadowRoot!.querySelector('.send > tanrei-button')!.shadowRoot!.querySelector<HTMLElement>('button')!;
+      return { variant: button.dataset.hostVariant, transitions: ((0, eval)(every) as (root: Element) => Animation[])(button).length };
+    }, EVERY_ANIMATION);
+    expect(drawn).toEqual({ variant: 'text', transitions: 0 });
+  });
 });

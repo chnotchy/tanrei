@@ -1,5 +1,6 @@
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph.js';
+import { readTogether } from './read-phase.js';
 
 /**
  * Whether the icon set can draw a glyph yet, for a light-DOM component whose glyphs are drawn by a stylesheet (a
@@ -31,6 +32,8 @@ export const isGlyphProbe = (node: Node) => node instanceof Element && node.hasA
 export class PendingGlyphs {
   private probe: HTMLElement | null = null;
   private sizes: ResizeObserver | null | undefined;
+  /** Whether a read is asked for and not made yet: the host's reads of one turn are one. */
+  private asked = false;
 
   /** `glyph`: a name the icon set has (the component's own mark: `chevron_right`). */
   constructor(
@@ -53,32 +56,55 @@ export class PendingGlyphs {
     this.probe = null;
   }
 
-  /** Reads whether the family draws the glyph now, and writes the mark. A host that is not drawn is asked again when it is. */
+  /**
+   * Reads whether the family draws the glyph now, and writes the mark. A host that is not drawn is asked again when it
+   * is. The reads are made with every other host's of the turn (`readTogether`): the family of each host in one style of
+   * the page, then — where the family is not known to draw — the box the name is measured in, written first and
+   * measured with every other host's box in one layout. A hundred trees read the cascade and the layout as often as one.
+   */
   read() {
+    if (this.asked) return;
+    this.asked = true;
+    readTogether(() => {
+      this.asked = false;
+      const host = this.host;
+      if (!host.isConnected) return;
+      const family = getComputedStyle(host).getPropertyValue(FAMILY).trim();
+      if (!family || drawable.has(family)) return () => this.mark(true);
+      return () => {
+        if (!this.probe) {
+          this.probe = host.appendChild(this.box());
+          // The font's arrival changes the box's size: the observer hears it, and the family is read again.
+          this.sizes ??= typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.read());
+          this.sizes?.observe(this.probe);
+        }
+        const probe = this.probe;
+        readTogether(() => {
+          if (probe !== this.probe) return;
+          const width = probe.getBoundingClientRect().width;
+          // After the layout the read forced: the icon face the probe first asked for in it is loading now.
+          faces.measured();
+          // (A host that is not drawn measures nothing, and is asked again when it is: its box's size changes then.)
+          const drawn = width <= EM * DRAWN_WIDTH;
+          if (drawn && width > 0) drawable.add(family);
+          return () => this.mark(drawn);
+        });
+      };
+    });
+  }
+
+  /** Writes what was read: the mark, and the measured box kept only while pending. */
+  private mark(drawn: boolean) {
     const host = this.host;
-    if (!host.isConnected) return;
-    const family = getComputedStyle(host).getPropertyValue(FAMILY).trim();
-    let drawn = !family || drawable.has(family);
-    if (!drawn) {
-      const probe = this.probe ?? host.appendChild(this.box());
-      const width = probe.getBoundingClientRect().width;
-      // After the layout the read forced: the icon face the probe first asked for in it is loading now.
-      faces.measured();
-      drawn = width <= EM * DRAWN_WIDTH;
-      if (drawn && width > 0) drawable.add(family);
-      else if (!this.probe) {
-        this.probe = probe;
-        this.sizes ??= typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.read());
-        this.sizes?.observe(probe);
-      }
-    }
-    if (drawn && this.probe) {
+    if (drawn) {
       this.sizes?.disconnect();
+      this.probe?.remove();
       this.probe = null;
+      host.querySelector(`:scope > [${PROBE}]`)?.remove();
+      host.removeAttribute('data-glyphs');
+      return;
     }
-    if (drawn) host.querySelector(`:scope > [${PROBE}]`)?.remove();
-    if (drawn) host.removeAttribute('data-glyphs');
-    else if (host.getAttribute('data-glyphs') !== 'pending') host.setAttribute('data-glyphs', 'pending');
+    if (host.getAttribute('data-glyphs') !== 'pending') host.setAttribute('data-glyphs', 'pending');
   }
 
   private box(): HTMLElement {

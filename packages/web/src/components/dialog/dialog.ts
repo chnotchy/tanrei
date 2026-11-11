@@ -16,6 +16,7 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  compChoices,
   deepActive,
   holdPageScroll,
   isDisabledControl,
@@ -348,8 +349,9 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   /** DLG-9, DLG-10, DLG-17: the choices the script reads, on the dialog — the placement, and the fallback where style queries are missing. */
   private applyChoices(dialog: HTMLDialogElement) {
     dialog.classList.toggle('compact', this.readCompact());
-    dialog.dataset.iconPlacement = this.choice('icon-placement', ICON_PLACEMENTS);
-    dialog.dataset.arrangement = this.choice('actions-arrangement', ARRANGEMENTS);
+    const { iconPlacement, arrangement } = compChoices(this, { iconPlacement: [`${PREFIX}-icon-placement`, ICON_PLACEMENTS], arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS] });
+    dialog.dataset.iconPlacement = iconPlacement;
+    dialog.dataset.arrangement = arrangement;
     // DLG-24: the divider visibility, where style queries are missing.
     syncDividerVisibility(this, dialog);
   }

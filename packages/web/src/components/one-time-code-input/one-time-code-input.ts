@@ -1,5 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FieldControlController, delegatedAria, namedByProduct, delegatesAria, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, delegatedAria, namedByProduct, delegatesAria, readTogether, report, syncFocusStyle } from '../../primitives/index.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
@@ -326,16 +326,22 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
       if (row) this.rows?.observe(row);
       this.observed = row;
     }
-    if (changed.has('length') || changed.has('groupSize') || changed.has('type')) this.markRows();
+    // Read after the render with every other host's of the turn (src/primitives/read-phase.ts): a hundred inputs built
+    // at once are laid out once.
+    if (changed.has('length') || changed.has('groupSize') || changed.has('type')) readTogether(this.readRows);
   }
 
   /**
    * OTC-23: the mark of a group that begins a row is not drawn. The one thing read from the layout: whether a group
    * stands on the row of the group before it. The mark is positioned, so hiding it moves nothing.
    */
-  private readonly markRows = () => {
+  private readonly markRows = () => this.readRows()();
+
+  /** Every group's place, read before any mark is written (a write between two reads lays the page out again), and the marks. */
+  private readonly readRows = () => {
     const groups = [...this.renderRoot.querySelectorAll<HTMLElement>('.group')];
-    groups.forEach((group, index) => group.toggleAttribute('data-row-start', index === 0 || group.offsetTop !== groups[index - 1].offsetTop));
+    const tops = groups.map((group) => group.offsetTop);
+    return () => groups.forEach((group, index) => group.toggleAttribute('data-row-start', index === 0 || tops[index] !== tops[index - 1]));
   };
 
   /**
