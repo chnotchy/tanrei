@@ -650,6 +650,11 @@ test.describe('drawing', () => {
     const chevron = await px(page, T('item-trailing-icon-size-regular'));
     const gap = await px(page, T('item-gap'));
     expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi + chevron + gap, 1);
+    // NVD-68: a destination with nothing at its end keeps no room for a chevron it does not have: its text's box ends
+    // item.padding-inline from its item container's end.
+    const [plain, plainText] = [await bounds(box(page, n, 1)), await bounds(item(page, n, 1).locator('.text'))];
+    expect(await item(page, n, 1).locator('.chevron.room').count()).toBe(0);
+    expect(plain.x + plain.width - (plainText.x + plainText.width)).toBeCloseTo(ipi, 1);
     // Mirrored in right-to-left.
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     const [rp, rc] = [await bounds(panel(page, full)), await bounds(box(page, full, 0))];
