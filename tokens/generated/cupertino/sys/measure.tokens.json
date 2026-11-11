@@ -120,9 +120,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fn": "mul",
-              "of": "{tanrei.dial.size.unit}",
-              "by": 12
+              "fixed": "This preset keeps the value it drew when the root held this. Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
             }
           }
         },
@@ -133,9 +131,7 @@
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fn": "mul",
-              "of": "{tanrei.dial.size.unit}",
-              "by": 11
+              "fixed": "This preset keeps the value it drew when the root held this. Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
             }
           }
         },

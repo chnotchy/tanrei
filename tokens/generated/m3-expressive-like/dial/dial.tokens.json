@@ -4089,6 +4089,27 @@
               },
               "reason": "Material 3's corner scale steps in 4dp."
             },
+            "tanrei.sys.target.minimum": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "reason": "The least height Material 3 draws a pressable at, its extra-small button and its chips (32dp): m3-like keeps the value it drew when the root held this. Not yet checked against the fidelity map."
+            },
+            "tanrei.sys.target.touch": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "reason": "Material 3's touch target, 48dp, the least area a press is taken from under a finger: m3-like keeps the value it drew when the root held this."
+            },
+            "tanrei.sys.target.pointer": {
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "reason": "m3-like keeps the value it drew when the root held this. Material 3 names no pointer target apart from its 48dp touch target; whether this should be 48 is not yet checked against the fidelity map."
+            },
             "tanrei.sys.shape.corner.extra-small": {
               "derive": {
                 "fn": "mul",

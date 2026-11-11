@@ -74,7 +74,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "The row's height (32 / 48) and what shrinks with it: a tab's padding, the active indicator's margins and the icon. Medium is the row of a screen's views, as tall as the touch target. Small stands in a header or a toolbar, as tall as a small Button; its hit area still meets the minimum target (TAB-5), and its icon stands before the label in every variant. The label's text style, the colors and the motion are the same at both.",
+      "description": "The row's height (32 / 48 under the default system, never drawn below sys.target.minimum) and what shrinks with it: a tab's padding, the active indicator's margins and the icon. Medium is the row of a screen's views, as tall as the touch target. Small stands in a header or a toolbar, as tall as a small Button; its hit area still meets the minimum target (TAB-5), and its icon stands before the label in every variant. The label's text style, the colors and the motion are the same at both.",
       "axis": "tanrei.comp.tabs.size"
     },
     {

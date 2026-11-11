@@ -128,7 +128,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Minimum height of the container: stacked 32 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them. The text input's three sizes: medium and large for forms, small for a select in an app bar, a toolbar or a dense row of controls, where nothing frames it. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Minimum height of the container: stacked 32 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. The text input's three sizes: medium and large for forms, small for a select in an app bar, a toolbar or a dense row of controls, where nothing frames it. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.input-box.size"
     },
     {
