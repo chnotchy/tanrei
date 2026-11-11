@@ -5480,6 +5480,8 @@
     --tanrei-comp-navigation-drawer-container-elevation-standard-inset-ring: var(--tanrei-sys-elevation-level0-inset-ring);
     --tanrei-comp-navigation-drawer-container-gap-compact: round(nearest, calc(var(--tanrei-sys-space-space25) * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-sys-space-space25));
     --tanrei-comp-navigation-drawer-container-gap-regular: var(--tanrei-sys-space-space0);
+    --tanrei-comp-navigation-drawer-container-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 100), 0.25px);
+    --tanrei-comp-navigation-drawer-container-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 50), 0.25px);
     --tanrei-comp-navigation-drawer-container-padding-block: var(--tanrei-sys-space-space150);
     --tanrei-comp-navigation-drawer-container-padding-inline: var(--tanrei-sys-space-space150);
     --tanrei-comp-navigation-drawer-container-shape-modal: var(--tanrei-sys-shape-corner-large);

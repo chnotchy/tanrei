@@ -54,6 +54,15 @@ test('a prop at its default writes no attribute: a false is never written as pre
   assert.deepEqual(written, []);
 });
 
+test('<NavigationDrawer width={320}> renders width="320" and the width as --tanrei-navigation-drawer-width, beside the product’s own style, for the first frame (NVD-103)', () => {
+  const html = renderToString(React.createElement(wrappers.NavigationDrawer, { label: 'Mail', width: 320, style: { blockSize: '100%' } }));
+  const attributes = attributesOf(html, 'tanrei-navigation-drawer');
+  assert.equal(attributes.get('width'), '320');
+  assert.equal(attributes.get('style'), 'block-size:100%;--tanrei-navigation-drawer-width:320px');
+  // Without a width there is nothing to write.
+  assert.equal(attributesOf(render('NavigationDrawer', { label: 'Mail' }), 'tanrei-navigation-drawer').has('style'), false);
+});
+
 test('what is not an attribute stays out of the HTML: handlers, objects, refs; React props pass as React writes them', () => {
   const html = renderToString(
     React.createElement(TextField, { label: 'Name', onChange: () => {}, disabledDates: ['2026-01-01'], ref: React.createRef(), 'aria-describedby': 'hint', style: { inlineSize: '20ch' } }, React.createElement('span', { slot: 'leading-icon' }, 'search')),

@@ -37,7 +37,7 @@ Listing: 90 default · 8 advanced. A component of the first value is shown where
 | Main action button | base | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Navigation bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Navigation drawer | composed: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Navigation drawer | composed: Modal layer, Handle | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider field | composed: Field, Slider | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Search | feature: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |

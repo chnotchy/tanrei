@@ -753,6 +753,56 @@ test.describe('what is missing', () => {
   });
 });
 
+test.describe('the size a container sets', () => {
+  test('CPY-21: without a size of its own a copy button is drawn at the size its nearest container sets, and gives it to the Button it is drawn by — its own size, medium included, wins; a change, a removal and a move are drawn at once; one that takes its size has no size attribute', async ({ page }) => {
+    // Containers that pass a size are a button group and a toolbar. A copy button is neither's item kind, so it is
+    // reported (BGR-10, TBR-12) and still laid out — here it is how a container stands around one.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('icon') });
+    await page.evaluate(() => {
+      const stage = document.createElement('div');
+      const copy = (id: string, size = '') => `<tanrei-copy-button id="${id}" ${size ? `size="${size}"` : ''} text="npm install" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>`;
+      stage.innerHTML = `
+        <tanrei-toolbar id="small" size="small" label="Small">${copy('taken')}${copy('own', 'large')}${copy('own-medium', 'medium')}</tanrei-toolbar>
+        <tanrei-button-group id="unset">${copy('free')}</tanrei-button-group>
+        ${copy('alone')}`;
+      document.body.append(stage);
+    });
+    const [small, medium, large] = [await resolveToken(page, B('container-height-small')), await resolveToken(page, B('container-height-medium')), await resolveToken(page, B('container-height-large'))];
+    /** Each copy button's drawn height, and the size it gives its Button, measured in one frame after `change` ran. */
+    const drawn = (ids: string[], change = '') =>
+      page.evaluate(
+        async ([code, list]) => {
+          new Function(code as string)();
+          await new Promise(requestAnimationFrame);
+          return Object.fromEntries(
+            (list as string[]).map((id) => {
+              const button = document.getElementById(id)!.shadowRoot!.querySelector('tanrei-button')!;
+              return [id, [button.getAttribute('size'), button.shadowRoot!.querySelector('button')!.getBoundingClientRect().height]];
+            }),
+          );
+        },
+        [change, ids] as const,
+      );
+    expect(await drawn(['taken', 'own', 'own-medium', 'free', 'alone'])).toEqual({
+      taken: ['small', small],
+      own: ['large', large],
+      'own-medium': ['medium', medium],
+      free: ['medium', medium],
+      alone: ['medium', medium],
+    });
+    expect(await page.evaluate(() => ['taken', 'free', 'alone'].map((id) => document.getElementById(id)!.getAttribute('size')))).toEqual([null, null, null]);
+    expect(await drawn(['taken'], "document.getElementById('small').setAttribute('size', 'extra-small')")).toEqual({ taken: ['small', small] });
+    expect(await drawn(['taken'], "document.getElementById('small').removeAttribute('size')")).toEqual({ taken: ['medium', medium] });
+    expect(await drawn(['free'], "document.getElementById('unset').size = 'large'")).toEqual({ free: ['large', large] });
+    expect(await drawn(['free'], "document.getElementById('free').size = 'small'")).toEqual({ free: ['small', small] });
+    expect(await page.locator('#free').getAttribute('size')).toBe('small');
+    expect(await drawn(['free'], "document.getElementById('free').removeAttribute('size')")).toEqual({ free: ['large', large] });
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    expect(await drawn(['free'], "document.body.append(document.getElementById('free'))")).toEqual({ free: ['medium', medium] });
+    expect(await drawn(['alone'], "document.getElementById('unset').append(document.getElementById('alone'))")).toEqual({ alone: ['large', large] });
+  });
+});
+
 test.describe('accessibility', () => {
   for (const theme of ['light', 'dark'] as const) {
     test(`axe: ${theme} — every fixture, at rest, copied and failed`, async ({ page }) => {

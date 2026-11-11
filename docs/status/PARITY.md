@@ -31,6 +31,7 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `button-expanded` | <img src="../../packages/web/snapshots/handle/button-expanded.png" alt="web button-expanded" width="160"> |
 | `disabled` | <img src="../../packages/web/snapshots/handle/disabled.png" alt="web disabled" width="160"> |
 | `rtl-both` | <img src="../../packages/web/snapshots/handle/rtl-both.png" alt="web rtl-both" width="160"> |
+| `reach-edge` | <img src="../../packages/web/snapshots/handle/reach-edge.png" alt="web reach-edge" width="160"> |
 
 ## List row
 

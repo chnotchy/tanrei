@@ -4307,6 +4307,8 @@
     "tanrei.comp.navigation-drawer.container.elevation.standard": "shadow",
     "tanrei.comp.navigation-drawer.container.gap.compact": "dimension",
     "tanrei.comp.navigation-drawer.container.gap.regular": "dimension",
+    "tanrei.comp.navigation-drawer.container.max-width": "dimension",
+    "tanrei.comp.navigation-drawer.container.min-width": "dimension",
     "tanrei.comp.navigation-drawer.container.padding-block": "dimension",
     "tanrei.comp.navigation-drawer.container.padding-inline": "dimension",
     "tanrei.comp.navigation-drawer.container.shape.modal": "dimension",

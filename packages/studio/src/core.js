@@ -51,6 +51,13 @@ const DIAL_RANGES = {
   'stroke.unit': { min: 0.5, max: 3, step: 0.25 },
   'motion.unit': { min: 0, max: 120, step: 5 },
 };
+/**
+ * The control of `sys.target.minimum`, in px: from WCAG 2.5.8's 24 (Target Size, Minimum — the least the build holds)
+ * to 48, the largest platform figure (Material's 48 dp). A whole pixel at a time.
+ */
+export const TARGET_MINIMUM = { min: 24, max: 48, step: 1 };
+/** The steps of the control height ladder the Size row shows next to the density. */
+export const LADDER_SHOWN = ['small', 'medium', 'large'];
 const LAYER_KEYS = ['$schema', 'id', 'name', 'extends', 'description', 'specVersion', 'attribution', 'palettes', 'vocabulary', 'tokens', 'rules'];
 
 /** Top-level keys in the repository's order; blank strings dropped. A section an edit emptied is dropped by that edit. */
@@ -584,6 +591,78 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     let next = setDial(layer, `${DIAL}${key}`, value);
     if (key === 'space.unit' && linked) next = setDial(next, `${DIAL}size.unit`, proportionalSize(layer, value));
     return next;
+  }
+
+  // ── the size row: the minimum target, and the heights the density gives ──────────────────────
+  const TARGET = `${NS}.sys.target.`;
+  const MINIMUM = `${TARGET}minimum`;
+  const LADDER = `${NS}.sys.control.height.`;
+  /**
+   * `sys.target.minimum` under this layer: `{ id, value, base, unit, min, max, step, changed, reason }`; null where the
+   * chain has no such token. Its value is the developer's own (no dial scales it), so the size unit and the density
+   * never move it. `max` is the control's 48, or less where the touch or pointer target is set apart from the
+   * minimum below 48: the build refuses a minimum above them.
+   */
+  function targetMinimum(layer) {
+    const inherited = baseOf(layer).model.tokens[MINIMUM];
+    if (!inherited) return null;
+    const view = preview(layer);
+    const tokens = (view.model ?? baseOf(layer).model).tokens;
+    const op = layer.tokens?.[MINIMUM];
+    const value = dialValue(op);
+    let max = TARGET_MINIMUM.max;
+    for (const kind of ['touch', 'pointer']) {
+      const area = tokens[TARGET + kind];
+      if (area && area.alias !== MINIMUM && typeof area.value?.value === 'number') max = Math.min(max, area.value.value);
+    }
+    return {
+      id: MINIMUM, base: inherited.value.value, unit: inherited.value.unit, value: typeof value === 'number' ? value : (tokens[MINIMUM] ?? inherited).value.value,
+      min: TARGET_MINIMUM.min, max: Math.max(TARGET_MINIMUM.min, max), step: TARGET_MINIMUM.step,
+      changed: Boolean(op), reason: op?.reason && op.reason !== DEFAULT_DIAL_REASON ? op.reason : '',
+    };
+  }
+  /**
+   * Set the minimum target, as a dial is set: the base's own value removes the entry. A value the control does not
+   * offer — not a whole pixel from 24 to its `max` — writes nothing, so the layer never holds a minimum the build refuses.
+   */
+  function setTargetMinimum(layer, value, reason) {
+    const now = targetMinimum(layer);
+    if (!now || typeof value !== 'number' || !Number.isInteger(value) || value < now.min || value > now.max) return layer;
+    const op = layer.tokens?.[MINIMUM];
+    if (value === now.base && !baseOf(layer).model.tokens[MINIMUM].alias) return withEntry(layer, 'tokens', MINIMUM, undefined);
+    const why = (reason ?? op?.reason ?? '').trim();
+    return withEntry(layer, 'tokens', MINIMUM, { $value: { value, unit: now.unit }, reason: why.length >= MIN_REASON ? why : DEFAULT_DIAL_REASON });
+  }
+  /**
+   * The heights the ladder's small, medium and large give in a computed view, by the engine's own arithmetic
+   * (`evaluateNumeric`): each step's rule, with `dial.density` and `sys.target.minimum` taken from `at` where it gives
+   * them (a value being dragged) and from the view otherwise. `step` is the ladder's height; `drawn` is what a
+   * pressable control of that size is drawn at, the step read through the minimum (`mul` by 1 with `min`, as every
+   * pressable height reads it). A step the layer wrote as a value is that value at any density.
+   */
+  function heights(view, at = {}) {
+    const tokens = view.model?.tokens;
+    if (!tokens?.[MINIMUM]) return [];
+    const given = new Map([[`${DIAL}density`, at.density], [MINIMUM, at.minimum]].filter(([, value]) => typeof value === 'number'));
+    const norm = (v) => (typeof v === 'number' ? { value: v } : v);
+    const lookup = (id) => {
+      if (given.has(id)) return id === MINIMUM ? { value: given.get(id), unit: tokens[MINIMUM].value.unit } : { value: given.get(id) };
+      if (!tokens[id]) throw new Error(`${id}: not in the view`);
+      return norm(tokens[id].value);
+    };
+    const out = [];
+    for (const size of LADDER_SHOWN) {
+      const token = tokens[LADDER + size];
+      if (!token) continue;
+      try {
+        const step = token.derive?.fn === 'mul' ? evaluateNumeric(token.derive, lookup, { type: token.type }) : token.value;
+        const drawn = evaluateNumeric({ fn: 'mul', of: `{${LADDER + size}}`, by: 1, min: `{${MINIMUM}}` }, (id) => (id === LADDER + size ? step : lookup(id)), { type: token.type });
+        out.push({ size, id: token.id, step: step.value, drawn: drawn.value, unit: drawn.unit, held: drawn.value > step.value });
+      } catch {
+        out.push({ size, id: token.id, step: token.value.value, drawn: token.value.value, unit: token.value.unit, held: false });
+      }
+    }
+    return out;
   }
 
   // ── palettes ─────────────────────────────────────────────────────────────────────────────────
@@ -1281,6 +1360,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     catalog,
     cssVar, roleVar, blank, fromLayer, validate, valueKey, preview, liveProperties, base, baseOf,
     setMeta, setBase, baseChoices, startPoints, holdsChanges, dials, setDial, essentials, setEssential,
+    targetMinimum, setTargetMinimum, heights,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
     applyOperation, addExtension, removeExtension, setDeclaration, setRules,

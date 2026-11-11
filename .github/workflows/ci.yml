@@ -425,9 +425,21 @@ jobs:
   # each suite on its own runner takes as long as the slowest one. Together the entries run every package the single
   # step ran, with the same scripts. The entries (suite, packages, browser) are listed in the changes job, which keeps
   # those whose paths changed.
+  # A suite with a browser (`browser: true`, Theme Studio's page tests) runs in the web jobs' Playwright image (see `web`
+  # below for the image, `--ipc=host` and `--user 1001`): its Chromium, system libraries and fonts are already there, so
+  # nothing is installed per run. `playwright install --with-deps` on the bare runner apt-installed them from the Ubuntu
+  # mirrors, and a run failed before any test whenever a mirror could not be resolved. The other suites need no browser
+  # and run on the runner itself: an empty image is no container (the runner drops a container whose image is empty).
   core-tests:
     name: Core tests · ${{ matrix.suite }}
     runs-on: ubuntu-24.04
+    container:
+      image: ${{ matrix.browser && 'mcr.microsoft.com/playwright:v1.63.0-noble' || '' }}
+      options: --user 1001 --ipc=host
+    # A container's default shell is sh; the steps are written for bash (arrays, here-strings). On the runner it is bash.
+    defaults:
+      run:
+        shell: bash
     needs: [validate, changes]
     if: needs.changes.outputs.core == 'true'
     timeout-minutes: 30 # the slowest suite takes about 11 minutes
@@ -444,13 +456,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: The Playwright image is the lockfile's Playwright
+        if: matrix.browser
+        run: bash scripts/ci/check-playwright-image.sh
       - name: Build Web Components and React bindings (Theme Studio's app and the CLI bundle them)
         run: pnpm --filter @tanrei/web --filter @tanrei/react build
       - name: Theme Studio's standalone app builds (~7 s; a bundle that imports Node-only modules fails here)
         run: pnpm --filter @tanrei/studio build:app
-      - name: A browser for Theme Studio's page tests
-        if: matrix.browser
-        run: pnpm --filter @tanrei/studio exec playwright install --with-deps chromium
       - name: Tests of the ${{ matrix.suite }}
         env:
           PACKAGES: ${{ matrix.packages }} # through the environment: a matrix value is never spliced into the script

@@ -1,0 +1,46 @@
+---
+// A group of height tokens at several densities: what each resolves to when a product sets `dial.density` to the
+// column's number, evaluated from the tokens' own rules (lib/tokens.ts, `atDensity`). Where the minimum target holds a
+// height higher than its rule gives, the cell says both: the drawn height, then the height before the floor in
+// parentheses.
+import { tokensIn, atDensity, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+interface Props {
+  /** A group of dimension tokens under the namespace, e.g. `sys.control.height` or `comp.button.container.height`. */
+  group: string;
+  /** The densities to show, one column each. */
+  densities: number[];
+  /** The hand-written file the group's rules are in. */
+  source: string;
+}
+const { group, densities, source } = Astro.props;
+const t = strings(contentLang(Astro));
+const tokens = tokensIn(`${ns}.${group}`).filter((tk) => tk.type === 'dimension');
+if (!tokens.length) throw new Error(`DensityHeights: ${ns}.${group} has no dimension tokens.`);
+// Lowest first, as the default system resolves them: the order of the size names.
+const rows = [...tokens].sort((a, b) => a.value.value - b.value.value).map((tk) => ({ token: tk, cells: densities.map((density) => atDensity(tk.name, density)) }));
+const px = (value: number, unit?: string) => `${value}${unit ?? ''}`;
+---
+
+<Table label={`${ns}.${group}`}><table>
+  <thead>
+    <tr>
+      <th scope="col" data-wrap="false">{t.token}</th>
+      {densities.map((density) => <th scope="col" data-align="end" data-wrap="false">{t.densityAt.replace('{density}', String(density))}</th>)}
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map(({ token, cells }) => (
+      <tr>
+        <td data-wrap="false"><code>{token.cssVar}</code></td>
+        {cells.map((cell) => (
+          <td class="docs-mono" data-align="end" data-wrap="false">{px(cell.value, cell.unit)}{cell.unfloored !== undefined && <span class="docs-muted"> ({px(cell.unfloored, cell.unit)})</span>}</td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, source]} />

@@ -14,6 +14,7 @@ import {
 } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
+import { readTogether } from '../../primitives/read-phase.js';
 import { CHOICE, EDGES, type Edge, FORMS, LAYERS, SCROLL_EDGES, styles } from './scroll-area.styles.js';
 
 /** How an edge shows that content lies beyond it; `auto` takes the design system's answer (`comp.scroll-area.scroll-edge`). */
@@ -99,7 +100,33 @@ export class TanreiScrollArea extends TanreiElement {
   private bars = '';
 
   private intersections: IntersectionObserver | null = null;
-  private sizes: ResizeObserver | null = null;
+  /** What the shared resize watch observes for this area: its box and its content. */
+  private watched: Element[] = [];
+
+  /**
+   * One resize watch for every area: a frame reports all the areas that changed in one callback, all of them read,
+   * then all of them write. A watch of each area's own would have each read after the writes of the one before, and
+   * the browser lay the page out again for each.
+   */
+  private static sizes: ResizeObserver | null = null;
+  /** The area each watched element (a box, or its content) belongs to. */
+  private static readonly areas = new WeakMap<Element, TanreiScrollArea>();
+
+  private static watchSizes(): ResizeObserver {
+    return (TanreiScrollArea.sizes ??= new ResizeObserver((entries) => {
+      const areas = new Set<TanreiScrollArea>();
+      for (const entry of entries) {
+        const area = TanreiScrollArea.areas.get(entry.target);
+        if (area) areas.add(area);
+      }
+      const writes: (() => void)[] = [];
+      for (const area of areas) {
+        const write = area.readSizes();
+        if (write) writes.push(write);
+      }
+      for (const write of writes) write();
+    }));
+  }
 
   /** SCA-7, SCA-15: without style queries the form is read from the cascade when the area renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);
@@ -159,9 +186,12 @@ export class TanreiScrollArea extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.intersections?.disconnect();
-    this.sizes?.disconnect();
     this.intersections = null;
-    this.sizes = null;
+    for (const target of this.watched) {
+      TanreiScrollArea.sizes?.unobserve(target);
+      TanreiScrollArea.areas.delete(target);
+    }
+    this.watched = [];
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -175,9 +205,17 @@ export class TanreiScrollArea extends TanreiElement {
         if (!(EDGES as readonly string[]).includes(name)) report(this, 'SCA-15', `edges names "${name}", which is not an edge of the scroll area (top, bottom, start, end); it is ignored`);
       }
     }
-    // SCA-6: the blur is drawn in as many layers as the token says, read when the area renders.
-    const count = Number.parseInt(getComputedStyle(this).getPropertyValue(LAYERS), 10);
-    this.layers = Number.isFinite(count) ? Math.min(MOST_LAYERS, Math.max(1, count)) : 1;
+    // SCA-6: the blur is drawn in as many layers as the token says, read when the area renders — with every other
+    // host's of the turn, after the renders (src/primitives/read-phase.ts): a hundred areas built at once style the
+    // page once, not once each. Another count than the one drawn is drawn in the next update, before any frame.
+    readTogether(() => {
+      if (!this.isConnected) return;
+      const count = Number.parseInt(getComputedStyle(this).getPropertyValue(LAYERS), 10);
+      const layers = Number.isFinite(count) ? Math.min(MOST_LAYERS, Math.max(1, count)) : 1;
+      return () => {
+        if (layers !== this.layers) this.layers = layers;
+      };
+    });
   }
 
   protected override firstUpdated() {
@@ -212,10 +250,13 @@ export class TanreiScrollArea extends TanreiElement {
     if (!box || this.intersections) return;
     this.intersections = new IntersectionObserver(this.intersected, { root: box, threshold: 0 });
     for (const sentinel of this.renderRoot.querySelectorAll('.sentinel')) this.intersections.observe(sentinel);
-    this.sizes = new ResizeObserver(this.resized);
-    this.sizes.observe(box);
+    const sizes = TanreiScrollArea.watchSizes();
     const content = this.renderRoot.querySelector('.content');
-    if (content) this.sizes.observe(content);
+    this.watched = content ? [box, content] : [box];
+    for (const target of this.watched) {
+      TanreiScrollArea.areas.set(target, this);
+      sizes.observe(target);
+    }
   }
 
   /**
@@ -235,40 +276,51 @@ export class TanreiScrollArea extends TanreiElement {
   /**
    * A size changed — of the box or of the content, never in a frame of a scroll. Read from the scroll's own extents
    * before the frame is painted, so that the first frame, and a frame after content was added, draws its edges; and
-   * the scroll bars' sizes, which the marks stay inside.
+   * the scroll bars' sizes, which the marks stay inside. Returns what it then writes: the reads of every area the
+   * frame reports are made before any of them writes.
    */
-  private readonly resized = () => {
+  private readSizes(): (() => void) | void {
     countWork('scroll-area.resized');
     const box = this.box;
-    if (!box || (!box.clientWidth && !box.clientHeight)) return;
+    if (!box || !this.isConnected || (!box.clientWidth && !box.clientHeight)) return;
     const { scrollTop, scrollHeight, clientHeight, scrollWidth, clientWidth, clientLeft, clientTop, offsetWidth, offsetHeight } = box;
     const along = Math.abs(box.scrollLeft);
-    this.beyond.top = scrollTop > SENTINEL;
-    this.beyond.bottom = scrollHeight - clientHeight - scrollTop > SENTINEL;
-    this.beyond.start = along > SENTINEL;
-    this.beyond.end = scrollWidth - clientWidth - along > SENTINEL;
-    this.keep(along);
+    const beyond: Record<Edge, boolean> = {
+      top: scrollTop > SENTINEL,
+      bottom: scrollHeight - clientHeight - scrollTop > SENTINEL,
+      start: along > SENTINEL,
+      end: scrollWidth - clientWidth - along > SENTINEL,
+    };
     const bars = [clientLeft, offsetWidth - clientWidth - clientLeft, offsetHeight - clientHeight - clientTop].map((size) => `${Math.max(0, size)}px`);
-    if (bars.join(' ') !== this.bars) {
-      this.bars = bars.join(' ');
-      const frame = this.frame;
-      frame?.style.setProperty('--_bar-left', bars[0]);
-      frame?.style.setProperty('--_bar-right', bars[1]);
-      frame?.style.setProperty('--_bar-bottom', bars[2]);
-    }
-    this.edgesChanged();
-    if (!this.sized) {
-      this.sized = true;
-      this.checkProductName();
-    }
-  };
+    // What is inside is read with the sizes, before any area writes: a fit that changes asks whether anything takes focus.
+    const scrolls = EDGES.some((edge) => beyond[edge]);
+    const stop = scrolls !== this.scrolls ? this.stopFor(scrolls) : null;
+    return () => {
+      Object.assign(this.beyond, beyond);
+      this.keep(along);
+      if (bars.join(' ') !== this.bars) {
+        this.bars = bars.join(' ');
+        const frame = this.frame;
+        frame?.style.setProperty('--_bar-left', bars[0]);
+        frame?.style.setProperty('--_bar-right', bars[1]);
+        frame?.style.setProperty('--_bar-bottom', bars[2]);
+      }
+      this.edgesChanged(stop);
+      if (!this.sized) {
+        this.sized = true;
+        this.checkProductName();
+      }
+    };
+  }
 
-  private edgesChanged() {
+  /** `stop`: whether the box is a focus stop, read already for the fit now; null reads it if the fit changed. */
+  private edgesChanged(stop: boolean | null = null) {
     this.writeEdges();
     const scrolls = EDGES.some((edge) => this.beyond[edge]);
     if (scrolls !== this.scrolls) {
       this.scrolls = scrolls;
-      this.readStop();
+      if (stop === null) this.readStop();
+      else if (stop !== this.focusStop) this.focusStop = stop;
     }
   }
 
@@ -288,9 +340,14 @@ export class TanreiScrollArea extends TanreiElement {
    * changes, when the slotted content changes, and when focus arrives inside — never in a frame of a scroll.
    */
   private readStop() {
-    const slot = this.renderRoot.querySelector('slot');
-    const stop = this.scrolls && !(slot && tabbables(slot).length > 0);
+    const stop = this.stopFor(this.scrolls);
     if (stop !== this.focusStop) this.focusStop = stop;
+  }
+
+  /** SCA-10: whether the box is a focus stop while the content does, or does not, scroll. */
+  private stopFor(scrolls: boolean): boolean {
+    const slot = this.renderRoot.querySelector('slot');
+    return scrolls && !(slot && tabbables(slot).length > 0);
   }
 
   private readonly onSlotChange = () => this.readStop();

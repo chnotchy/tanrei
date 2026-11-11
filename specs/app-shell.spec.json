@@ -254,7 +254,7 @@
     },
     {
       "id": "APS-5",
-      "text": "WHILE the navigation has a place in the layout THE app shell SHALL put it at the start edge of the row, as wide as what it holds draws itself (a navigation drawer's width in its present form) and never wider than the window less sys.target.touch, SHALL give the main region all the room that is left, and SHALL add no padding, fill or edge to it. WHILE scroll is page THE app shell SHALL keep the navigation in view while the page scrolls — from below the header WHILE the header is sticky, else from the top of the window, to the window's bottom edge — and what it holds SHALL scroll inside that height by itself (NVD-61), never the page with it. WHEN the window's scrolling view is pulled past its start or its end (the platform's overscroll) the navigation SHALL stay where it is: only the page's content moves with the pull."
+      "text": "WHILE the navigation has a place in the layout THE app shell SHALL put it at the start edge of the row, as wide as what it holds draws itself (a navigation drawer's width in its present form) and never wider than the window less sys.target.touch, SHALL give the main region all the room that is left, and SHALL add no padding, fill or edge to it. WHILE scroll is page THE app shell SHALL keep the navigation in view while the page scrolls — from below the header WHILE the header is sticky, else from the top of the window, to the window's bottom edge — and what it holds SHALL scroll inside that height by itself (NVD-61), never the page with it. WHEN the window's scrolling view is pulled past its start or its end (the platform's overscroll) the navigation SHALL stay where it is: only the page's content moves with the pull. WHILE a person changes the width of a navigation drawer the navigation holds (NVD-98 to NVD-101) THE app shell SHALL give the main region the room that is left in every frame the width changes, the main region moving with no motion of its own, and SHALL keep the reader at the same place in the main content as far as the new width allows, as APS-23 does when the class changes."
     },
     {
       "id": "APS-6",
@@ -373,7 +373,7 @@
     },
     {
       "id": "APS-30",
-      "text": "THE app shell SHALL NOT restyle, resize or re-order what the product puts in a region beyond the place and the insets this spec gives, SHALL NOT decide which page is shown, follow a link, load anything, remember anything beyond its own lifetime (which page, how far a region was scrolled, whether the navigation was collapsed) or set the document's title or language; and SHALL NOT scroll anything with motion: every movement it causes (APS-17, APS-20, APS-23) is at once, whether or not motion is reduced."
+      "text": "THE app shell SHALL NOT restyle, resize or re-order what the product puts in a region beyond the place and the insets this spec gives, SHALL NOT decide which page is shown, follow a link, load anything, remember anything beyond its own lifetime (which page, how far a region was scrolled, whether the navigation was collapsed, how wide a person made it) or set the document's title or language; and SHALL NOT scroll anything with motion: every movement it causes (APS-17, APS-20, APS-23) is at once, whether or not motion is reduced."
     },
     {
       "id": "APS-33",

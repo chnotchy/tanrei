@@ -2389,7 +2389,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // SPB-37: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (SPB-8): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2542,10 +2542,8 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target.",
-              "attribute": "size",
-              "reflects": true
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -2690,8 +2688,7 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "default": "'medium'",
-              "description": "Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target.",
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -3002,9 +2999,8 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
-              "attribute": "size",
-              "reflects": true
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -3357,7 +3353,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it\n(to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute\ngives that back.",
+              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -14104,10 +14100,8 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "default": "'medium'",
-              "description": "The Button size it is drawn at: `small` (32), `medium` (40) or `large` (56).",
-              "attribute": "size",
-              "reflects": true
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -14212,8 +14206,7 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "default": "DEFAULT_SIZE",
-              "description": "The Button size it is drawn at: `small` (32), `medium` (40) or `large` (56).",
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -20890,6 +20883,15 @@
         },
         {
           "kind": "variable",
+          "name": "REACHES",
+          "type": {
+            "text": "['container', 'edge']"
+          },
+          "default": "['container', 'edge']",
+          "description": "How far along its line it takes a press (HDL-27)."
+        },
+        {
+          "kind": "variable",
           "name": "AXES",
           "type": {
             "text": "readonly OpenAxis[]"
@@ -20929,6 +20931,14 @@
         },
         {
           "kind": "js",
+          "name": "REACHES",
+          "declaration": {
+            "name": "REACHES",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "AXES",
           "declaration": {
             "name": "AXES",
@@ -20951,7 +20961,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text\nfield's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that\nbows toward its corner.\n\nContract: specs/handle.spec.json. It never sizes anything itself: it tells its owner how far it was dragged\n(`resizestart`, `resize`, `resizeend`), which step a key asked for (`step`) and that it was pressed without a drag\n(`activate`); the owner keeps the size and gives it back as `value`, which assistive technology reads. With a `value`\nit is a focusable separator (the window splitter pattern); without one, a button, with `expanded` where the owner has\ntwo sizes. Every visual value comes from `--tanrei-comp-handle-*` tokens.\n\nOut of sight until it is used (HDL-23): drawn while a mouse is over it, while it has keyboard focus and while a press\nor a drag holds it, and always on a touch screen (HDL-25) or with `revealed`. It is one Tab stop all the same.\n\nA press takes no focus and selects nothing, so a field keeps its caret while its handle is dragged. The drag follows\nthe pointer anywhere (pointer capture); an owner that holds an iframe sets `pointer-events: none` on it between\n`resizestart` and `resizeend`, or the iframe takes the pointer as it passes over it. The events bubble within the\ntree the handle stands in and do not leave a shadow root: an element that puts a handle in its own shadow root hears\nthem on the handle and says what it means in its own events.\n\nAssistive technology's increment and decrement (HDL-10) reach a web page as the arrow keys, which HDL-9 answers.",
+          "description": "The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text\nfield's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that\nbows toward its corner.\n\nContract: specs/handle.spec.json. It never sizes anything itself: it tells its owner how far it was dragged\n(`resizestart`, `resize`, `resizeend`), which step a key asked for (`step`) and that it was pressed without a drag\n(`activate`); the owner keeps the size and gives it back as `value`, which assistive technology reads. With a `value`\nit is a focusable separator (the window splitter pattern); without one, a button, with `expanded` where the owner has\ntwo sizes. Every visual value comes from `--tanrei-comp-handle-*` tokens.\n\nOut of sight until it is used (HDL-23): drawn while a mouse is over it, while it has keyboard focus and while a press\nor a drag holds it, and always on a touch screen (HDL-25) or with `revealed`. It is one Tab stop all the same.\n\nA press takes no focus and selects nothing, so a field keeps its caret while its handle is dragged. The drag follows\nthe pointer anywhere (pointer capture); an owner that holds an iframe sets `pointer-events: none` on it between\n`resizestart` and `resizeend`, or the iframe takes the pointer as it passes over it. The events bubble within the\ntree the handle stands in and do not leave a shadow root: an element that puts a handle in its own shadow root hears\nthem on the handle and says what it means in its own events.\n\nAssistive technology's increment and decrement (HDL-10) reach a web page as the arrow keys, which HDL-9 answers.\n\nWith `reach=\"edge\"` (HDL-27) the host is a block as long as the box its owner gives it along its line — as tall as\nthat box for a width (`horizontal`), as wide for a height (`vertical`) — and a press is taken anywhere along it; the\nbox and the line are drawn at its middle and the focus ring stays around the box. The owner places and sizes the\nhost (`position: absolute; inset-block: 0` on a pane's edge, say).",
           "name": "TanreiHandle",
           "cssParts": [
             {
@@ -21098,6 +21108,18 @@
               "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
               "attribute": "revealed",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "reach",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleReach"
+              },
+              "default": "'container'",
+              "description": "How far along its line it takes a press (HDL-27): `container`, around its own box (a sheet's grip, a field's\ncorner); `edge`, along the whole length of the box its owner lays it out in — the edge of a pane, which a person\ntakes anywhere along it. The line is drawn at the middle either way. Ignored while `axis` is both. Reflected.",
+              "attribute": "reach",
+              "reflects": true
             }
           ],
           "events": [
@@ -21236,6 +21258,15 @@
               "default": "false",
               "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
               "fieldName": "revealed"
+            },
+            {
+              "name": "reach",
+              "type": {
+                "text": "TanreiHandleReach"
+              },
+              "default": "'container'",
+              "description": "How far along its line it takes a press (HDL-27): `container`, around its own box (a sheet's grip, a field's\ncorner); `edge`, along the whole length of the box its owner lays it out in — the edge of a pane, which a person\ntakes anywhere along it. The line is drawn at the middle either way. Ignored while `axis` is both. Reflected.",
+              "fieldName": "reach"
             }
           ],
           "superclass": {
@@ -29625,7 +29656,7 @@
         },
         {
           "kind": "class",
-          "description": "A panel of destinations at the start edge, in two variants — `standard`, a layout region beside the content,\nand `modal`, a modal overlay over a scrim that closes itself after a destination is chosen — and, while `collapsible`,\nin two forms: expanded, and collapsed to a column of icons, which is the expanded drawer with its labels gone: every\nrow is the same row cut after its icon, at the same height and with the same corners, and every icon exactly in place\nwhile the drawer moves between the two. A collapsed cell shows its name in a plain tooltip on hover and keyboard focus;\n`collapsed-labels` draws short labels under the icons instead, for a product or a system whose column is labelled.\n\nContract: specs/navigation-drawer.spec.json. `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and\n`<tanrei-navigation-drawer-section>` children, in order; header buttons (icon-only `<tanrei-button>`s) with\n`slot=\"header-button\"`, the main action (`<tanrei-main-action-button>`) with `slot=\"main-action\"`, and the `header`\nslot. The drawer's `value` is the selected destination's value; the drawer sets it when a button destination is\nactivated and fires `change`, or `reselect` for the selected one.\n\nA site's sidebar (NVD-57…64): a destination with `href` is a link, and the selected destination is the current page\n(`aria-current=\"page\"`) — one state, which in a site of separate pages the page says, through `value` (a link without\na `value` takes its `href`). The drawer never writes `value` for a link: a plain activation fires `change` or\n`reselect` with `detail.href`, cancelable, before the browser follows the link (a router cancels it and goes to\n`detail.href` itself), and then closes a modal drawer; a modified or a middle click, a link whose `target` is `new`\nand a download fire nothing and close nothing. The row that shows the selection is brought into view when the drawer\nfirst appears and whenever `value` changes — centred if it was not wholly in view, untouched if it was, without motion\nand without moving focus — and `reveal-selected` opens the groups that hold it (each fires `toggle`). `scrollOffset`\nreads and writes how far the items are scrolled; the scroll does not chain to the page. Nothing is stored: a site keeps\neach group's `open` (from `toggle`) and `scrollOffset` (read on `pagehide`) itself and gives them back as attributes.\n\nForms (NVD-30): not collapsible, always expanded. Collapsible and standard: `expanded` chooses. Collapsible and modal:\ncollapsed — its column in the layout, drawn as a standard drawer's — while closed, and expanded over the content while\nopen. The first header button is then the menu button: the drawer sets `aria-expanded` and `aria-controls` on its\nnative button (`ariaExpanded`, `ariaControlsElements`), and its activation asks for the other form: the drawer sets\n`expanded` (or `open`) and fires `expandedchange`. The main action's `collapsed` follows the form. The read-only\n`collapsed` attribute reflects the form.\n\nStandard: a `<nav>` named by `label`, taking its form's width in the layout while `open` and none while closed (sliding\nwhile the content beside it resizes). Opening it moves focus in; closing it with focus inside returns focus to where it\nwas; Tab leaves it without closing it.\n\nModal: a native `<dialog>` in the shadow root, opened with `showModal()` while `open` — in the top layer over its\n`::backdrop` (the scrim), everything else inert, the page held from scrolling, focus kept inside. Escape, the platform's\nback, a press on the scrim, a drag toward the start edge past half its width (or a fling), the menu button and a\ndestination's activation close it: the drawer sets `open` to false itself and fires `close`. Focus returns to where it\nwas.\n\nResponsive (NVD-53…55): with `responsive`, the window's width chooses what the drawer is, and `variant` is ignored —\na standard drawer, shown whatever `open` says in the form `expanded` gives it (one that is not collapsible is hidden\nwhile `expanded` is false), from `comp.navigation-drawer.breakpoint.expanded` (1024 px at the default text size); its\ncolumn, widening over the content while `open`, from `breakpoint.collapsed` (600 px) while `collapsible`; a modal\ndrawer below that. The read-only `presentation` says which (and the `presentation` attribute, for styling);\n`presentationchange` fires when it is first decided and whenever the width changes it. A change between the column\nand the modal presentations keeps `open`; the standard presentation ends the one over the content (`open` is false\nand `close` fires once). Every change keeps `expanded`, `value` and every group's `open`. The presentation is derived\nfrom the width alone: it is never written to `variant`, `open` or `expanded`, and the element stores nothing — a\nproduct that wants the user's choice of form remembered keeps what `expandedchange` carries and sets `expanded` from\nit. Outside an app shell a change of presentation is drawn at once.\n\nHeld by an app shell whose header slot is filled (NVD-19, NVD-23, NVD-54): the drawer is one `<nav>` in every\npresentation, never a `<dialog>`. Open over the content it is drawn below the header with a scrim of its own that\ncovers only what lies below the header, keeps no focus inside it and makes nothing inert itself — the shell makes the\nregions under the scrim inert and holds the page's scroll — and stays the navigation landmark. A change of\npresentation moves that one panel to its new place and form over `motion.expand`.\n\nEvery visual value comes from `--tanrei-comp-navigation-drawer-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the start, top and bottom.",
+          "description": "A panel of destinations at the start edge, in two variants — `standard`, a layout region beside the content,\nand `modal`, a modal overlay over a scrim that closes itself after a destination is chosen — and, while `collapsible`,\nin two forms: expanded, and collapsed to a column of icons, which is the expanded drawer with its labels gone: every\nrow is the same row cut after its icon, at the same height and with the same corners, and every icon exactly in place\nwhile the drawer moves between the two. A collapsed cell shows its name in a plain tooltip on hover and keyboard focus;\n`collapsed-labels` draws short labels under the icons instead, for a product or a system whose column is labelled.\n\nContract: specs/navigation-drawer.spec.json. `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and\n`<tanrei-navigation-drawer-section>` children, in order; header buttons (icon-only `<tanrei-button>`s) with\n`slot=\"header-button\"`, the main action (`<tanrei-main-action-button>`) with `slot=\"main-action\"`, and the `header`\nslot. The drawer's `value` is the selected destination's value; the drawer sets it when a button destination is\nactivated and fires `change`, or `reselect` for the selected one.\n\nA site's sidebar (NVD-57…64): a destination with `href` is a link, and the selected destination is the current page\n(`aria-current=\"page\"`) — one state, which in a site of separate pages the page says, through `value` (a link without\na `value` takes its `href`). The drawer never writes `value` for a link: a plain activation fires `change` or\n`reselect` with `detail.href`, cancelable, before the browser follows the link (a router cancels it and goes to\n`detail.href` itself), and then closes a modal drawer; a modified or a middle click, a link whose `target` is `new`\nand a download fire nothing and close nothing. The row that shows the selection is brought into view when the drawer\nfirst appears and whenever `value` changes — centred if it was not wholly in view, untouched if it was, without motion\nand without moving focus — and `reveal-selected` opens the groups that hold it (each fires `toggle`). `scrollOffset`\nreads and writes how far the items are scrolled; the scroll does not chain to the page. Nothing is stored: a site keeps\neach group's `open` (from `toggle`) and `scrollOffset` (read on `pagehide`) itself and gives them back as attributes.\n\nForms (NVD-30): not collapsible, always expanded. Collapsible and standard: `expanded` chooses. Collapsible and modal:\ncollapsed — its column in the layout, drawn as a standard drawer's — while closed, and expanded over the content while\nopen. The first header button is then the menu button: the drawer sets `aria-expanded` and `aria-controls` on its\nnative button (`ariaExpanded`, `ariaControlsElements`), and its activation asks for the other form: the drawer sets\n`expanded` (or `open`) and fires `expandedchange`. The main action's `collapsed` follows the form. The read-only\n`collapsed` attribute reflects the form.\n\nStandard: a `<nav>` named by `label`, taking its form's width in the layout while `open` and none while closed (sliding\nwhile the content beside it resizes). Opening it moves focus in; closing it with focus inside returns focus to where it\nwas; Tab leaves it without closing it.\n\nModal: a native `<dialog>` in the shadow root, opened with `showModal()` while `open` — in the top layer over its\n`::backdrop` (the scrim), everything else inert, the page held from scrolling, focus kept inside. Escape, the platform's\nback, a press on the scrim, a drag toward the start edge past half its width (or a fling), the menu button and a\ndestination's activation close it: the drawer sets `open` to false itself and fires `close`. Focus returns to where it\nwas.\n\nResponsive (NVD-53…55): with `responsive`, the window's width chooses what the drawer is, and `variant` is ignored —\na standard drawer, shown whatever `open` says in the form `expanded` gives it (one that is not collapsible is hidden\nwhile `expanded` is false), from `comp.navigation-drawer.breakpoint.expanded` (1024 px at the default text size); its\ncolumn, widening over the content while `open`, from `breakpoint.collapsed` (600 px) while `collapsible`; a modal\ndrawer below that. The read-only `presentation` says which (and the `presentation` attribute, for styling);\n`presentationchange` fires when it is first decided and whenever the width changes it. A change between the column\nand the modal presentations keeps `open`; the standard presentation ends the one over the content (`open` is false\nand `close` fires once). Every change keeps `expanded`, `value` and every group's `open`. The presentation is derived\nfrom the width alone: it is never written to `variant`, `open` or `expanded`, and the element stores nothing — a\nproduct that wants the user's choice of form remembered keeps what `expandedchange` carries and sets `expanded` from\nit. Outside an app shell a change of presentation is drawn at once.\n\nHeld by an app shell whose header slot is filled (NVD-19, NVD-23, NVD-54): the drawer is one `<nav>` in every\npresentation, never a `<dialog>`. Open over the content it is drawn below the header with a scrim of its own that\ncovers only what lies below the header, keeps no focus inside it and makes nothing inert itself — the shell makes the\nregions under the scrim inert and holds the page's scroll — and stays the navigation landmark. A change of\npresentation moves that one panel to its new place and form over `motion.expand`.\n\nResizable (NVD-96…104), on by default: where the drawer stands beside the content it has a resize handle on its end\nedge — a `<tanrei-handle reach=\"edge\">`, out of sight until a fine pointer comes over the edge or it has focus, and one\nTab stop after the drawer's content: a window splitter (`role=\"separator\"`) named by `resize-label` or else `label`,\nwhose value is the width drawn and which controls the navigation. A drag changes the width, following the press; a\ncollapsible drawer folds to its column past halfway between its column and its least width, and unfolds again past\nit. The arrow keys change it by 10 (with Shift, or Page Up and Page Down, by 100), Home and End give the least and the\ngreatest width, and Enter, Space or a press without a drag fold and unfold a collapsible drawer, or give another its\ndefault width and back. The drawer then writes `width` (and `expanded`) and fires `widthchange` (and\n`expandedchange`); it stores nothing: a product keeps what `widthchange` carries and gives it back as `width` — and, in\na page rendered before the element is defined, as `--tanrei-navigation-drawer-width` on the element, which the drawer\nwrites itself from `width` once defined and which an app shell reads. A drawer over the content keeps\ncontainer.width. `resizable=\"false\"` leaves the handle out.\n\nEvery visual value comes from `--tanrei-comp-navigation-drawer-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the start, top and bottom.",
           "name": "TanreiNavigationDrawer",
           "cssParts": [
             {
@@ -29647,6 +29678,10 @@
             {
               "description": "The filter field (NVD-79): a `<tanrei-text-input type=\"search\">` between the header and the items, while `filterable` and expanded.",
               "name": "filter"
+            },
+            {
+              "description": "The resize handle on the end edge (NVD-96): a `<tanrei-handle>`, while the drawer is resizable and stands beside the content.",
+              "name": "resize-handle"
             },
             {
               "description": "The line at the top of the results while a filter is applied (NVD-90): how many rows match, or the words for none. Hidden from assistive technology (the drawer's status says the same).",
@@ -29988,6 +30023,63 @@
             },
             {
               "kind": "field",
+              "name": "resizable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Lets a person change the drawer's width where it stands beside the content (NVD-96…104) — by dragging its end edge,\nfrom the keyboard on the resize handle, or by pressing the edge — and fold a collapsible drawer to its column the\nsame way. On by default; `resizable=\"false\"` turns it off. Ignored where the drawer is over the content. Reflected.",
+              "attribute": "resizable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "width",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The width of the expanded drawer beside the content, in CSS pixels (NVD-97). Null (no attribute, the default) takes\n`comp.navigation-drawer.container.width`. A drag, a key or a press on the edge sets it and then fires `widthchange`;\nset it yourself to give a person's width back (no event) — before the drawer is defined, write it as\n`--tanrei-navigation-drawer-width` on the element as well, so that the first frame has it. Nothing is stored.\nHeld between `minWidth` and `maxWidth`, and the room the parent gives. Reflected.",
+              "attribute": "width",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "minWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`.",
+              "attribute": "min-width"
+            },
+            {
+              "kind": "field",
+              "name": "maxWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.max-width`. The room its parent gives holds it narrower still.",
+              "attribute": "max-width"
+            },
+            {
+              "kind": "field",
+              "name": "resizeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the resize handle for assistive technology (\"Resize navigation\"), your words; empty names it by `label` (NVD-102).",
+              "attribute": "resize-label"
+            },
+            {
+              "kind": "field",
               "name": "value",
               "privacy": "public",
               "type": {
@@ -30088,7 +30180,7 @@
               "type": {
                 "text": "CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>"
               },
-              "description": "The user asked for the drawer's other form — a collapsible drawer's (its menu button or an app shell's, or a group's cell while collapsed), or the standard presentation of a responsive drawer with no collapsed form shown or hidden (an app shell's menu button): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it."
+              "description": "The user asked for the drawer's other form — a collapsible drawer's (its menu button or an app shell's, its resize handle, or a group's cell while collapsed), or the standard presentation of a responsive drawer with no collapsed form shown or hidden (an app shell's menu button): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it."
             },
             {
               "name": "filterchange",
@@ -30103,6 +30195,13 @@
                 "text": "Event"
               },
               "description": "A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false."
+            },
+            {
+              "name": "widthchange",
+              "type": {
+                "text": "CustomEvent<TanreiNavigationDrawerWidthChangeDetail>"
+              },
+              "description": "A person changed the width of the drawer beside the content — a drag that ended at a new width, a key, a press on the edge: `detail.width` (and `width`) in CSS pixels. Not fired when the product sets `width`, nor for a drag that only folds or unfolds the drawer."
             },
             {
               "name": "presentationchange",
@@ -30369,6 +30468,51 @@
               "default": "false",
               "description": "Lets the window's width choose the drawer's presentation (NVD-53): standard where it is wide, its column where it is narrower (while `collapsible`), modal where it is narrow. Reflected.",
               "fieldName": "responsive"
+            },
+            {
+              "name": "resizable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Lets a person change the drawer's width where it stands beside the content (NVD-96…104) — by dragging its end edge,\nfrom the keyboard on the resize handle, or by pressing the edge — and fold a collapsible drawer to its column the\nsame way. On by default; `resizable=\"false\"` turns it off. Ignored where the drawer is over the content. Reflected.",
+              "fieldName": "resizable"
+            },
+            {
+              "name": "width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The width of the expanded drawer beside the content, in CSS pixels (NVD-97). Null (no attribute, the default) takes\n`comp.navigation-drawer.container.width`. A drag, a key or a press on the edge sets it and then fires `widthchange`;\nset it yourself to give a person's width back (no event) — before the drawer is defined, write it as\n`--tanrei-navigation-drawer-width` on the element as well, so that the first frame has it. Nothing is stored.\nHeld between `minWidth` and `maxWidth`, and the room the parent gives. Reflected.",
+              "fieldName": "width"
+            },
+            {
+              "name": "min-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`.",
+              "fieldName": "minWidth"
+            },
+            {
+              "name": "max-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.max-width`. The room its parent gives holds it narrower still.",
+              "fieldName": "maxWidth"
+            },
+            {
+              "name": "resize-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the resize handle for assistive technology (\"Resize navigation\"), your words; empty names it by `label` (NVD-102).",
+              "fieldName": "resizeLabel"
             },
             {
               "name": "value",
@@ -52393,7 +52537,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked\nacross the bottom edge, or floating over the content.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token: per variant the container's\ncolor, elevation, corners, cross-axis size, end padding and minimum gap and the edge's color, the edge's width, and the\nspace, the line and the choice between them that set groups apart. It draws no text, glyph or state of its own. Its\nitems are the product's `<tanrei-button>` and `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s,\ndrawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the\nseparation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit\ninto an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow=\"scroll\"`, TBR-8) — and makes them one Tab stop moved\nthrough with the arrow keys (TBR-10, TBR-25).\n\nEach child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws\nthe space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a\nhidden item out of the line while it stays in the page with its listeners and its state. What is hidden is decided\nbefore a frame is drawn — when the toolbar is first laid out, and in the frame its length or its items change\n(TBR-19) — from the lengths measured then, with no motion.\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one); a\nButton with menu is told which half is the stop (SPB-33). Between two items each item's hit area stops at the middle of\nthe gap, which the toolbar measures and gives its items through an internal channel (src/primitives/group-item.ts) — not\na styling API.",
+          "description": "Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked\nacross the bottom edge, or floating over the content.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token: per variant the container's\ncolor, elevation, corners, cross-axis size, end padding and minimum gap and the edge's color, the edge's width, and the\nspace, the line and the choice between them that set groups apart. It draws no text, glyph or state of its own. Its\nitems are the product's `<tanrei-button>` and `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s,\ndrawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the\nseparation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit\ninto an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow=\"scroll\"`, TBR-8) — and makes them one Tab stop moved\nthrough with the arrow keys (TBR-10, TBR-25). A `size` set on it is the size of the Buttons and Buttons with menu in\nit that set none of their own (TBR-31).\n\nEach child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws\nthe space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a\nhidden item out of the line while it stays in the page with its listeners and its state. What is hidden is decided\nbefore a frame is drawn — when the toolbar is first laid out, and in the frame its length or its items change\n(TBR-19) — from the lengths measured then, with no motion.\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one); a\nButton with menu is told which half is the stop (SPB-33). Between two items each item's hit area stops at the middle of\nthe gap, which the toolbar measures and gives its items through an internal channel (src/primitives/group-item.ts) — not\na styling API.",
           "name": "TanreiToolbar",
           "cssParts": [
             {
@@ -52498,6 +52642,18 @@
               "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
               "attribute": "separation",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of\nevery one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set\non the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,\n`medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of\nthe toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the\nButton may be named.",
+              "attribute": "size",
+              "reflects": true
             }
           ],
           "attributes": [
@@ -52554,6 +52710,15 @@
               "default": "'auto'",
               "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
               "fieldName": "separation"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiButtonSize | null"
+              },
+              "default": "null",
+              "description": "The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of\nevery one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set\non the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,\n`medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of\nthe toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the\nButton may be named.",
+              "fieldName": "size"
             }
           ],
           "superclass": {

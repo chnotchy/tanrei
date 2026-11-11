@@ -402,15 +402,20 @@ export class TanreiNumberTicker extends TanreiElement {
     this.shown = value;
     this.written = written;
     digitsBox.style.direction = written.direction;
-    const mode = this.mode();
+    // Only a change from a drawn number moves or fades: a drawing at once reads no animation from the cascade.
+    const mode = animate && before !== null ? this.mode() : 'none';
     const reduced = motionReduced();
     const moving = animate && before !== null && was !== null && written.finite && before.finite && mode !== 'none' && !reduced && before.digits.join('') === written.digits.join('');
     if (!moving) {
       const fade = animate && reduced && before !== null && mode !== 'none';
       const ghost = fade ? (digitsBox.cloneNode(true) as HTMLElement) : null;
       const from = fade ? digitsBox.getBoundingClientRect() : null;
-      this.size.fit(false);
-      for (const animation of box.getAnimations({ subtree: true })) animation.cancel();
+      // A motion runs only from a number drawn before: the first drawing has none to stop, and asks the page for none
+      // (a list of animations is the page styled first).
+      if (before !== null) {
+        this.size.fit(false);
+        for (const animation of box.getAnimations({ subtree: true })) animation.cancel();
+      }
       digitsBox.replaceChildren(...this.build(written));
       // NTK-7: the old number cross-fades to the new one under reduced motion.
       if (ghost && from && typeof ghost.animate === 'function') {

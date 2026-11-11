@@ -19,7 +19,7 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
   assert.deepEqual(await panels(page), ['brand', 'export']);
   // Every row says what it holds, and draws a sample.
-  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'hue 0 · chroma 0', 'Inter', 'density 1 · 4px', '2px', '0', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
+  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'hue 0 · chroma 0', 'Inter', 'density 1 · 4px · target 36px', '2px', '0', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   for (const name of [...ROWS, ...MORE]) {
     await section(name);

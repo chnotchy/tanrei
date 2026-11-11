@@ -6463,6 +6463,8 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   collapsedItemContainerShape: 6,
   collapsedItemGap: 4,
   collapsedItemLabelTypescale: acmeTypescale.labelSmall,
+  containerMaxWidth: 400,
+  containerMinWidth: 200,
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 240,

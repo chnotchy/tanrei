@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { AXES, STATES, collectVocabulary as engineCollectVocabulary, dependencyIndex, expandStateVocabulary, isHeldDocument, listExtensions, materializeVocabulary, walkTokens } from '@tanrei/token-engine';
 import { DEFAULT_SYSTEM, ROOT_SYSTEM, listSystems, shippedSystems as systemsOffered, validateLayerFile } from '@tanrei/tokens-build/bundle';
+import { isRefusedEverywhere } from '@tanrei/tokens-build/invariants';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
 // resolve.js is the pipeline without the platform emitters: layers → bundle → DTCG resolver → model, all in memory.
 import { chainDigest, readSystemChain, resolveChainByScheme, systemIdOf, validateSystem } from '@tanrei/tokens-build/resolve';
@@ -468,7 +469,12 @@ export async function validateLayer(input) {
   if (problems.length) return { id: read.id, chain, valid: false, problems };
   try {
     const ctx = await loadContext(input);
-    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, warnings: await ctx.warnings() };
+    const warnings = await ctx.warnings();
+    // What `tanrei build` refuses in a product layer too (a density of zero or less, a hit area under the drawn minimum)
+    // is a problem here, not a warning: a layer this answers valid for builds.
+    const refused = warnings.filter(isRefusedEverywhere);
+    if (refused.length) return { id: read.id, chain, valid: false, problems: refused };
+    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, warnings };
   } catch (error) {
     // What only the engine can see: a cycle, an alias to a token that does not exist, a rule the closed language lacks.
     return { id: read.id, chain, valid: false, problems: [error.message, ...(error.details?.problems ?? [])] };

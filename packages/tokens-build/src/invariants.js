@@ -783,6 +783,21 @@ export function auditInvariants(model) {
       if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} against ${short(besideId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why}, while ${short(choice.id)} is "${named}": a link not underlined at rest is told from text by color alone — WCAG 1.4.1; underline it always, or move the link color)`);
     }
   }
+
+  // The navigation drawer's widths. A person narrows the drawer to its least width and no further; a collapsible one
+  // folds to its column halfway between the column and the least width. So the column is narrower than the least width
+  // in every density (else the fold point falls inside the column and no drag folds the drawer), and the width it opens
+  // at lies between its least and its greatest width.
+  const drawer = (rest) => model.tokens[`${CONFIG.namespace}.comp.navigation-drawer.${rest}`];
+  const [least, opens, greatest] = ['min-width', 'width', 'max-width'].map((name) => drawer(`container.${name}`)?.value?.value);
+  if (typeof least === 'number' && typeof opens === 'number' && typeof greatest === 'number') {
+    if (!(least <= opens && opens <= greatest)) failures.push(`navigation drawer widths: comp.navigation-drawer.container.min-width ${least}px ≤ container.width ${opens}px ≤ container.max-width ${greatest}px does not hold — the drawer opens at its width, between the least and the greatest a person can give it`);
+    for (const token of Object.values(model.tokens)) {
+      if (!token.id.startsWith(`${CONFIG.namespace}.comp.navigation-drawer.collapsed.container.width.`)) continue;
+      const column = token.value?.value;
+      if (typeof column === 'number' && !(column < least)) failures.push(`navigation drawer widths: ${short(token.id)} ${column}px is not below container.min-width ${least}px — a drag folds a collapsible drawer halfway between its column and its least width, so the column is the narrower of the two in every density`);
+    }
+  }
   return { failures, checked };
 }
 

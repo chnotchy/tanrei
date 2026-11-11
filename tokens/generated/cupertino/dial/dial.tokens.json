@@ -3810,21 +3810,21 @@
                 "value": 28,
                 "unit": "px"
               },
-              "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
+              "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28, Apple's minimum control size on iOS and iPadOS (28x28pt, Human Interface Guidelines, Accessibility, Buttons and controls). Its 34 and 44 controls stay as they are pinned."
             },
             "tanrei.sys.target.touch": {
-              "$value": {
-                "value": 48,
-                "unit": "px"
-              },
-              "reason": "This preset keeps the value it drew when the root held 48 (the default system's is now its minimum, 36). Apple's own figure for a finger is 44pt; moving it to 44 is not yet checked against the reference."
-            },
-            "tanrei.sys.target.pointer": {
               "$value": {
                 "value": 44,
                 "unit": "px"
               },
-              "reason": "This preset keeps the value it drew when the root held 44 (the default system's is now its minimum, 36). Apple's figure for a pointer on the Mac is 28pt; moving it is not yet checked against the reference."
+              "reason": "Apple's hit region for a finger: a default control size of 44x44pt on iOS and iPadOS (Human Interface Guidelines, Accessibility, Buttons and controls)."
+            },
+            "tanrei.sys.target.pointer": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "reason": "Apple's default control size under a pointer, on macOS: 28x28pt (Human Interface Guidelines, Accessibility, Buttons and controls); the minimum, 28, is not under it."
             },
             "tanrei.comp.button.container.height.small": {
               "derive": {

@@ -5200,6 +5200,8 @@
     --tanrei-comp-navigation-drawer-container-elevation-standard-inset-ring: var(--tanrei-sys-elevation-level0-inset-ring);
     --tanrei-comp-navigation-drawer-container-gap-compact: round(nearest, calc(var(--tanrei-sys-space-space25) * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-sys-space-space25));
     --tanrei-comp-navigation-drawer-container-gap-regular: round(nearest, calc(var(--tanrei-sys-space-space50) * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-sys-space-space25));
+    --tanrei-comp-navigation-drawer-container-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 100), 0.25px);
+    --tanrei-comp-navigation-drawer-container-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 50), 0.25px);
     --tanrei-comp-navigation-drawer-container-padding-block: var(--tanrei-sys-space-space150);
     --tanrei-comp-navigation-drawer-container-padding-inline: var(--tanrei-sys-space-space150);
     --tanrei-comp-navigation-drawer-container-shape-modal: var(--tanrei-sys-shape-corner-large);
@@ -9018,9 +9020,9 @@
     --tanrei-sys-state-pressed-state-layer-opacity: 0.1;
     --tanrei-sys-state-selected-state-layer-opacity: 0.16;
     --tanrei-sys-target-minimum: 1.75rem;
-    --tanrei-sys-target-pointer: 2.75rem;
+    --tanrei-sys-target-pointer: 1.75rem;
     --tanrei-sys-target-spacing: round(nearest, calc(var(--tanrei-dial-size-unit) * 2), 0.25px);
-    --tanrei-sys-target-touch: 3rem;
+    --tanrei-sys-target-touch: 2.75rem;
     --tanrei-sys-typescale-body-font-family: var(--tanrei-ref-typeface-plain);
     --tanrei-sys-typescale-body-font-size: round(nearest, calc(var(--tanrei-dial-type-base) * pow(0.9375, var(--tanrei-dial-type-contrast))), 0.25px);
     --tanrei-sys-typescale-body-font-weight: 400;

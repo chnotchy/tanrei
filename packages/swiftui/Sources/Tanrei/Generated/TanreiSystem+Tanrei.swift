@@ -6313,6 +6313,8 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   collapsedItemContainerShape: 6,
   collapsedItemGap: 4,
   collapsedItemLabelTypescale: tanreiTypescale.labelSmall,
+  containerMaxWidth: 400,
+  containerMinWidth: 200,
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 240,
