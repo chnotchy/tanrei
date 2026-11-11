@@ -14,6 +14,7 @@ import {
   OpenAxesController,
   PressController,
   SUBMIT_BUTTON,
+  SizeConsumerController,
   type SubmitButtonState,
   type TanreiLinkTarget,
   afterClick,
@@ -23,6 +24,7 @@ import {
   endsWaiting,
   linkAttributes,
   markPassingSubmitter,
+  nearestSize,
   report,
   syncFocusStyle,
   takeFormDisabled,
@@ -30,7 +32,7 @@ import {
   watchNativeInputs,
 } from '../../primitives/index.js';
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
-import { AXES, WIDTHS, styles } from './button.styles.js';
+import { AXES, CORE_SIZES, WIDTHS, styles } from './button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -118,7 +120,9 @@ export class TanreiButton extends TanreiElement {
     // none (DLG-20, SSH-17).
     variant: { type: String, reflect: true, useDefault: true },
     destructive: { type: Boolean, reflect: true },
-    size: { type: String, reflect: true },
+    // BTN-48: the size the product set, or none: a button that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same.
+    size: { type: String, reflect: true, noAccessor: true },
     width: { type: String, reflect: true },
     fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
     iconPosition: { type: String, reflect: true, attribute: 'icon-position' },
@@ -161,8 +165,49 @@ export class TanreiButton extends TanreiElement {
    */
   destructive = false;
 
-  /** Visual height (small 32 / medium 40 / large 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. */
-  size: TanreiButtonSize = 'medium';
+  /**
+   * Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the
+   * default system, the small one held at the minimum), which is also an icon-only button's width at its default width.
+   * The hit area always meets the minimum target. While it is not set the button draws the size its nearest container
+   * sets — a button group's `size` (BTN-48) — and `medium` where none does; reading it then gives `medium`. Setting it
+   * (to any value, `medium` included) makes it the button's own, whatever a container sets; removing the attribute
+   * gives that back.
+   */
+  get size(): TanreiButtonSize {
+    return (this.ownSize ?? 'medium') as TanreiButtonSize;
+  }
+
+  set size(value: TanreiButtonSize | null | undefined) {
+    const own = value === null || value === undefined ? null : String(value);
+    const old = this.ownSize;
+    if (own === old) return;
+    this.ownSize = own;
+    if (own !== null) {
+      this.requestUpdate('size', old);
+      return;
+    }
+    // Given back: nothing is reflected (the attribute goes, which sets nothing again).
+    this.requestUpdate();
+    if (this.hasAttribute('size')) this.removeAttribute('size');
+  }
+
+  /** BTN-48: the size the product set, or null while it set none. */
+  private ownSize: string | null = null;
+
+  /** BTN-48: the size the nearest container around the button sets, while one does. */
+  private readonly sizeFrom = new SizeConsumerController(this);
+
+  /**
+   * @internal BTN-48: the size the button draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    if (this.ownSize !== null) return this.ownSize;
+    return this.sizeFrom.value ? nearestSize(this.sizeFrom.value, CORE_SIZES) : 'medium';
+  }
+
+  /** BTN-48: the custom state that carries the drawn size to the styles (`size-<name>`). */
+  private sizeState = '';
 
   /**
    * How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and
@@ -598,6 +643,14 @@ export class TanreiButton extends TanreiElement {
     // does nothing under it, so the host's width holds.
     if (this[GROUP_ITEM].place) this.internals.states.add('placed');
     else this.internals.states.delete('placed');
+    // BTN-48: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, BTN-7).
+    const drawn = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? `size-${this.drawnSize}` : '';
+    if (drawn !== this.sizeState) {
+      if (this.sizeState) this.internals.states.delete(this.sizeState);
+      if (drawn) this.internals.states.add(drawn);
+      this.sizeState = drawn;
+    }
     if (this.hasUpdated) return;
     const nodes = [...this.childNodes];
     this.hasIcon = nodes.some((node) => node instanceof Element && node.slot === 'icon');

@@ -681,6 +681,49 @@ test.describe('layout', () => {
     await stage(page, 'connected-toggles').evaluate((el) => el.removeAttribute('dir'));
     expect((await boxes(page, 'connected-toggles', 3)).map((box) => box.x)).toEqual(before.map((box) => box.x));
   });
+
+  test('BGR-26: a size set on the group is the size of its Buttons that set none (the fixture small) — one that sets its own keeps it; changed or removed, they are drawn at the new size or their own default at once; the group draws nothing of its own by it: gaps and joined corners are its variant’s, around Buttons of that height', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...only('small', 'standard', 'connected-gap'),
+        fixture('small-connected-gap', [b('Bold'), b('Italic'), b('Underline')], { separation: 'gap', size: 'small' }),
+        fixture('small-mixed', [b('Taken'), b('Own', { size: 'large' })], { variant: 'standard', size: 'small' }),
+      ],
+    });
+    const height = (size: string) => resolveToken(page, B(`container-height-${size}`));
+    const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
+    expect(small).toBeLessThan(medium);
+    const heights = async (id: string, count: number) => (await Promise.all(Array.from({ length: count }, (_, n) => bounds(inner(page, id, n))))).map((box) => box.height);
+    // The fixture: two of the standard fixture's actions, the size set once on the group, none on its Buttons.
+    expect(await heights('small', 2)).toEqual([small, small]);
+    expect(await heights('standard', 3)).toEqual([medium, medium, medium]);
+    expect(await heights('small-mixed', 2)).toEqual([small, large]);
+    // The gap is the variant's, at either size.
+    const gapOf = async (id: string) => {
+      const [first, second] = await boxes(page, id, 2);
+      return second.x - (first.x + first.width);
+    };
+    expect(await gapOf('small')).toBeCloseTo(await gapOf('standard'), 1);
+    expect(await gapOf('small-connected-gap')).toBeCloseTo(await gapOf('connected-gap'), 1);
+    // Joined corners: connected.horizontal.outer-shape held to half the small height; connected.inner-shape facing.
+    const innerShape = await resolveToken(page, T('connected-inner-shape'));
+    const outer = Math.min(await resolveToken(page, T('connected-horizontal-outer-shape')), small / 2);
+    expect(await heights('small-connected-gap', 3)).toEqual([small, small, small]);
+    expect(await corners(inner(page, 'small-connected-gap', 0))).toEqual(sides(outer, innerShape));
+    expect(await corners(inner(page, 'small-connected-gap', 2))).toEqual(sides(innerShape, outer));
+    // Changed and removed: drawn in the next frame.
+    const next = (id: string, change: (el: HTMLElement) => void) =>
+      group(page, id).evaluate(async (el, code) => {
+        new Function('el', code)(el);
+        await new Promise(requestAnimationFrame);
+        return [...el.querySelectorAll('tanrei-button')].map((button) => button.shadowRoot!.querySelector('button')!.getBoundingClientRect().height);
+      }, `(${change.toString()})(el)`);
+    expect(await next('small-mixed', (el) => el.setAttribute('size', 'large'))).toEqual([large, large]);
+    expect(await next('small-mixed', (el) => el.removeAttribute('size'))).toEqual([medium, large]);
+    expect(await next('small-mixed', (el) => ((el as HTMLElement & { size: string }).size = 'small'))).toEqual([small, large]);
+    await expect(group(page, 'small-mixed')).toHaveAttribute('size', 'small');
+  });
 });
 
 test.describe('separation', () => {
