@@ -2,7 +2,7 @@
 title: 无障碍
 description: Tanrei 内建于令牌和组件规格中的无障碍要求，以及保证这些要求得到遵守的检查。
 translationOf: foundations/accessibility.mdx
-sourceHash: 5fef4e4236fc321309c4c0f09d0fdd9cef986c8e
+sourceHash: 9ce59f04b5c628d94d33919520348b8d37908225
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -58,7 +58,7 @@ import { contrast } from '../../../../lib/contrast';
 
 ## 减弱动态效果
 
-当系统要求减弱动态效果时，空间上的动画会被移除，或替换为短暂的淡入淡出，并且没有任何循环播放的动画。参见[动效](/zh-cn/foundations/motion/)。
+当系统设置要求减弱动态效果，或产品为自己的设置在根元素上加上 `data-tanrei-motion="reduce"` 时，动态效果会被减弱。此时，空间上的动画会被移除，或替换为短暂的淡入淡出；表示操作正在进行的元素（加载指示器、不确定的进度指示器、忙碌的按钮）不再旋转或滑动，而是每个周期让不透明度降下去再恢复一次。参见[动效](/zh-cn/foundations/motion/)。
 
 ## 语义
 
