@@ -2,13 +2,14 @@
 title: スライダー
 description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
 translationOf: components/slider.mdx
-sourceHash: 46db85aff63c44f150cdb3d4eec5f1ecd0187a45
+sourceHash: c524289202a2b3bc5bd7b1b75e3cbbc67bc17604
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
@@ -286,7 +287,9 @@ document.querySelector('[name="price"]').formatValue = (value) => yen.format(val
 
 ## アクセシビリティ
 
-<ComponentAccessibility name="slider" />
+<FocusOrder name="slider" fixture="range" />
+
+<ComponentAccessibility name="slider" keyboardMap />
 
 ### コンポーネントが担うこと
 
