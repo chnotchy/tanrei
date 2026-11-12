@@ -197,6 +197,17 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
 | `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
 
+## Size transition
+
+| Fixture | Web Components |
+| --- | --- |
+| `block` | <img src="../../packages/web/snapshots/size-transition/block.png" alt="web block" width="160"> |
+| `inline` | <img src="../../packages/web/snapshots/size-transition/inline.png" alt="web inline" width="160"> |
+| `anchor-end` | <img src="../../packages/web/snapshots/size-transition/anchor-end.png" alt="web anchor-end" width="160"> |
+| `anchor-center` | <img src="../../packages/web/snapshots/size-transition/anchor-center.png" alt="web anchor-center" width="160"> |
+| `both` | <img src="../../packages/web/snapshots/size-transition/both.png" alt="web both" width="160"> |
+| `rtl-inline` | <img src="../../packages/web/snapshots/size-transition/rtl-inline.png" alt="web rtl-inline" width="160"> |
+
 ## Split view
 
 | Fixture | Web Components |

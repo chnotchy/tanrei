@@ -9361,6 +9361,19 @@ public data class TanreiSideSheetTokens(
     }
 }
 
+/** `comp.size-transition`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiSizeTransitionTokens(
+    public val motionDistanceStep: Dp,
+    public val motionDuration: Int,
+    public val motionDurationMax: Int,
+    public val motionDurationStep: Int,
+    public val motionEasing: TanreiCubicBezier,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+    }
+}
+
 /** `comp.skeleton`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiSkeletonTokens(
@@ -11887,6 +11900,7 @@ public data class TanreiSystem(
     public val segmentedButton: TanreiSegmentedButtonTokens,
     public val select: TanreiSelectTokens,
     public val sideSheet: TanreiSideSheetTokens,
+    public val sizeTransition: TanreiSizeTransitionTokens,
     public val skeleton: TanreiSkeletonTokens,
     public val slider: TanreiSliderTokens,
     public val snackbar: TanreiSnackbarTokens,
@@ -11980,6 +11994,7 @@ public data class TanreiSystem(
         addAll(segmentedButton.referencedRoles())
         addAll(select.referencedRoles())
         addAll(sideSheet.referencedRoles())
+        addAll(sizeTransition.referencedRoles())
         addAll(skeleton.referencedRoles())
         addAll(slider.referencedRoles())
         addAll(snackbar.referencedRoles())

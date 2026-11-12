@@ -235,6 +235,7 @@ As common nouns: page titles, headings, running text.
 | Segmented button | セグメントボタン | 分段按钮 |
 | Select | セレクト | 下拉选择框 |
 | Side sheet | サイドシート | 侧边面板 |
+| Size transition | サイズトランジション | 尺寸过渡 |
 | Skeleton | スケルトン | 骨架屏 |
 | Slider | スライダー | 滑块 |
 | Snackbar | スナックバー | 消息条（Snackbar） |
@@ -473,6 +474,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Segmented button | Botón segmentado | सेगमेंटेड बटन | الزر المقسَّم |
 | Select | Select — in running text «el select», masculine, lower case | सिलेक्ट | عنصر الاختيار — the bare control; «حقل الاختيار» is the Select field |
 | Side sheet | Hoja lateral | साइड शीट | اللوحة الجانبية |
+| Size transition | Transición de tamaño — feminine, «la transición de tamaño» | साइज़ ट्रांज़िशन (masculine) | انتقال الحجم (size transition) — the gloss on a page's first mention |
 | Skeleton | Esqueleto | स्केलेटन | هيكل التحميل |
 | Slider | Control deslizante | स्लाइडर | شريط التمرير |
 | Snackbar | Snackbar — in running text «el snackbar», masculine, lower case | स्नैकबार | شريط الإشعار (Snackbar) |

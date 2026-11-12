@@ -4664,6 +4664,18 @@ export interface TanreiSideSheetTokens {
 }
 
 /**
+ * `comp.size-transition`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiSizeTransitionTokens {
+  readonly motionDistanceStep: number;
+  readonly motionDuration: number;
+  readonly motionDurationMax: number;
+  readonly motionDurationStep: number;
+  readonly motionEasing: TanreiCubicBezier;
+}
+
+/**
  * `comp.skeleton`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -5941,6 +5953,7 @@ export interface TanreiComponents {
   readonly segmentedButton: TanreiSegmentedButtonTokens;
   readonly select: TanreiSelectTokens;
   readonly sideSheet: TanreiSideSheetTokens;
+  readonly sizeTransition: TanreiSizeTransitionTokens;
   readonly skeleton: TanreiSkeletonTokens;
   readonly slider: TanreiSliderTokens;
   readonly snackbar: TanreiSnackbarTokens;

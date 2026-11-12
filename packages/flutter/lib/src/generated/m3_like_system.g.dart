@@ -8076,6 +8076,13 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
       ),
     ),
   ),
+  sizeTransition: TanreiSizeTransitionTokens(
+    motionDistanceStep: 64.0,
+    motionDuration: 200,
+    motionDurationMax: 500,
+    motionDurationStep: 50,
+    motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
+  ),
   skeleton: TanreiSkeletonTokens(
     containerGap: 8.0,
     motionAnimation: 0.0,

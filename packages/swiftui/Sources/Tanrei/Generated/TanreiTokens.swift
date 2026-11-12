@@ -15078,6 +15078,29 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of size-transition (comp.size-transition).
+public struct TanreiSizeTransitionTokens: Sendable, Equatable {
+  public var motionDistanceStep: CGFloat
+  public var motionDuration: Double
+  public var motionDurationMax: Double
+  public var motionDurationStep: Double
+  public var motionEasing: TanreiCubicBezier
+
+  public init(
+    motionDistanceStep: CGFloat,
+    motionDuration: Double,
+    motionDurationMax: Double,
+    motionDurationStep: Double,
+    motionEasing: TanreiCubicBezier
+  ) {
+    self.motionDistanceStep = motionDistanceStep
+    self.motionDuration = motionDuration
+    self.motionDurationMax = motionDurationMax
+    self.motionDurationStep = motionDurationStep
+    self.motionEasing = motionEasing
+  }
+}
+
 /// Component tokens of skeleton (comp.skeleton).
 public struct TanreiSkeletonTokens: Sendable, Equatable {
   public var containerGap: CGFloat
@@ -19324,6 +19347,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _sideSheet.value }
     set { _sideSheet.value = newValue }
   }
+  public var sizeTransition: TanreiSizeTransitionTokens {
+    get { _sizeTransition.value }
+    set { _sizeTransition.value = newValue }
+  }
   public var skeleton: TanreiSkeletonTokens {
     get { _skeleton.value }
     set { _skeleton.value = newValue }
@@ -19470,6 +19497,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _segmentedButton: TanreiBox<TanreiSegmentedButtonTokens>
   private var _select: TanreiBox<TanreiSelectTokens>
   private var _sideSheet: TanreiBox<TanreiSideSheetTokens>
+  private var _sizeTransition: TanreiBox<TanreiSizeTransitionTokens>
   private var _skeleton: TanreiBox<TanreiSkeletonTokens>
   private var _slider: TanreiBox<TanreiSliderTokens>
   private var _snackbar: TanreiBox<TanreiSnackbarTokens>
@@ -19574,6 +19602,7 @@ public struct TanreiSystem: Sendable, Equatable {
     segmentedButton: TanreiSegmentedButtonTokens,
     select: TanreiSelectTokens,
     sideSheet: TanreiSideSheetTokens,
+    sizeTransition: TanreiSizeTransitionTokens,
     skeleton: TanreiSkeletonTokens,
     slider: TanreiSliderTokens,
     snackbar: TanreiSnackbarTokens,
@@ -19677,6 +19706,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._segmentedButton = TanreiBox(segmentedButton)
     self._select = TanreiBox(select)
     self._sideSheet = TanreiBox(sideSheet)
+    self._sizeTransition = TanreiBox(sizeTransition)
     self._skeleton = TanreiBox(skeleton)
     self._slider = TanreiBox(slider)
     self._snackbar = TanreiBox(snackbar)

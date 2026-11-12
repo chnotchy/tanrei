@@ -1374,6 +1374,22 @@
       ]
     },
     {
+      "name": "size-transition",
+      "title": "Size transition",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-size-transition",
+        "import": "@tanrei/web/m3-like",
+        "module": "@tanrei/web/components/size-transition"
+      },
+      "react": {
+        "name": "SizeTransition",
+        "import": "@tanrei/react/m3-like"
+      }
+    },
+    {
       "name": "skeleton",
       "title": "Skeleton",
       "level": "base",

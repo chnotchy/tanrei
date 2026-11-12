@@ -8106,6 +8106,14 @@ private let m3ExpressiveLikeSideSheetTokens = TanreiSideSheetTokens(
   )
 )
 
+private let m3ExpressiveLikeSizeTransitionTokens = TanreiSizeTransitionTokens(
+  motionDistanceStep: 64,
+  motionDuration: 200,
+  motionDurationMax: 500,
+  motionDurationStep: 50,
+  motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
+)
+
 private let m3ExpressiveLikeSkeletonTokens = TanreiSkeletonTokens(
   containerGap: 8,
   motionAnimation: 0,
@@ -10252,6 +10260,7 @@ extension TanreiSystem {
     segmentedButton: m3ExpressiveLikeSegmentedButtonTokens,
     select: m3ExpressiveLikeSelectTokens,
     sideSheet: m3ExpressiveLikeSideSheetTokens,
+    sizeTransition: m3ExpressiveLikeSizeTransitionTokens,
     skeleton: m3ExpressiveLikeSkeletonTokens,
     slider: m3ExpressiveLikeSliderTokens,
     snackbar: m3ExpressiveLikeSnackbarTokens,

@@ -42879,6 +42879,197 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/size-transition/size-transition.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "['block', 'inline', 'both']"
+          },
+          "default": "['block', 'inline', 'both']",
+          "description": "Which of its sizes follows the content (SZT-12): the first is what an unknown name follows (SZT-13)."
+        },
+        {
+          "kind": "variable",
+          "name": "ANCHORS",
+          "type": {
+            "text": "['start', 'end', 'center']"
+          },
+          "default": "['start', 'end', 'center']",
+          "description": "The edge that stays still (SZT-4): the first is what an unknown name keeps (SZT-13)."
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/size-transition/size-transition.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ANCHORS",
+          "declaration": {
+            "name": "ANCHORS",
+            "module": "src/components/size-transition/size-transition.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/size-transition/size-transition.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/size-transition/size-transition.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Wraps content whose size changes — a message that grows, a section that gains a line, a panel that loses a row — and\nmoves its own size to the content's new size as one motion, so that what stands after it moves smoothly instead of\njumping, while the edge it is anchored to stays still.\n\nContract: specs/size-transition.spec.json. The public form of the package's size motion (`AnimatedSize`,\nsrc/primitives/motion.ts): the box moves from the size shown to the content's, in its layout (what follows it moves\nwith it), clipped with `overflow: clip`, the content justified to the anchor's edge. A change is seen two ways: a\nchange of the product's markup in it (a mutation observer) starts the motion in the task that made it; any other — a\ncomponent inside that changes its own size, an image or a face that loads — is seen by a resize observer of the\ncontent after layout, before the frame is painted. The time grows with the distance (SZT-3,\n`comp.size-transition.motion.*`) unless `duration` gives one.\n\nAt once: the first frame (SZT-1), a change of the room the layout gives it — the window, its own width on the block\naxis, its text size or direction (SZT-6) —, a change while a size transition in its content moves (it follows that\none), `disabled`, reduced motion (SZT-7), and while it is not drawn (SZT-9). It exposes nothing to assistive\ntechnology and is never a focus stop (SZT-10).",
+          "name": "TanreiSizeTransition",
+          "slots": [
+            {
+              "description": "The content whose size the box follows.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "axis",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSizeTransitionAxis"
+              },
+              "default": "'block'",
+              "description": "Which of its sizes follows the content: `block` (the default, its height), `inline` (its width) or `both`.",
+              "attribute": "axis",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "anchor",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSizeTransitionAnchor"
+              },
+              "default": "'start'",
+              "description": "The edge that stays still: `start` (the default: the first line never moves), `end` or `center` (both edges move by half).",
+              "attribute": "anchor",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "duration",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long one change takes, in milliseconds, for every distance; 0 is at once. Null, the default, takes the system's\nanswer, which grows with the distance (SZT-3). The `duration` attribute: an empty one is not a number.",
+              "attribute": "duration"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Follows the content's size at once, without a motion (SZT-8).",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "settle",
+              "type": {
+                "text": "CustomEvent<TanreiSizeTransitionSettleDetail>"
+              },
+              "description": "The box's size has come to rest after a change, by a motion or at once: once per change, after its last frame; `detail` is the new `width` and `height` in CSS pixels. It does not bubble."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "axis",
+              "type": {
+                "text": "TanreiSizeTransitionAxis"
+              },
+              "default": "'block'",
+              "description": "Which of its sizes follows the content: `block` (the default, its height), `inline` (its width) or `both`.",
+              "fieldName": "axis"
+            },
+            {
+              "name": "anchor",
+              "type": {
+                "text": "TanreiSizeTransitionAnchor"
+              },
+              "default": "'start'",
+              "description": "The edge that stays still: `start` (the default: the first line never moves), `end` or `center` (both edges move by half).",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "duration",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long one change takes, in milliseconds, for every distance; 0 is at once. Null, the default, takes the system's\nanswer, which grows with the distance (SZT-3). The `duration` attribute: an empty one is not a number.",
+              "fieldName": "duration"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Follows the content's size at once, without a motion (SZT-8).",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-size-transition",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiSizeTransition",
+          "declaration": {
+            "name": "TanreiSizeTransition",
+            "module": "src/components/size-transition/size-transition.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-size-transition",
+          "declaration": {
+            "name": "TanreiSizeTransition",
+            "module": "src/components/size-transition/size-transition.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/skeleton/skeleton.ts",
       "declarations": [
         {
