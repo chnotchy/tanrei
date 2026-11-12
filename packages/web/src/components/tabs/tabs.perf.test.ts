@@ -9,22 +9,8 @@
 //
 // The build is counted in Chromium only (the call counters are the DevTools protocol's); the reads of a key press are
 // counted in the page itself, in every engine.
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { buildCost, costOf, countingPage, perItemRatio, twoFrames } from '../../../test/work-count.js';
-
-const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-
-/** The counting page without its counters, in any engine: every stylesheet of the package, the bundle, an empty `#pane`. */
-async function bundlePage(page: Page, tags: string[]) {
-  const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
-  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
-  const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>body { margin: 0; }</style>`;
-  await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`);
-  await page.waitForFunction((all) => all.every((tag) => !!customElements.get(tag)), tags);
-}
+import { buildCost, bundlePage, costOf, countingPage, perItemRatio, twoFrames } from '../../../test/work-count.js';
 
 /** A row of `n` tabs, each with its panel, the last one selected. */
 function row(n: number): string {

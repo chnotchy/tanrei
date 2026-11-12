@@ -24,16 +24,24 @@ const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
 export const twoFrames = (page: Page) => page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
 /**
- * A page with every stylesheet of the package and every element defined (the development bundle, whose debug counters
- * count), an empty `#pane` to build in, and the call counters started. Motion is reduced: no frame of a motion is work
- * the build made.
+ * The counting page without its counters, in any engine: every stylesheet of the package, every element defined (the
+ * development bundle, whose debug counters count) and an empty `#pane` to build in. The stylesheets are the one file a
+ * product links for them (`@tanrei/web/tanrei.css`: the base, the tokens and every other stylesheet), once: each
+ * stylesheet beside it as well would declare every token and every rule twice, which no product's page does.
+ */
+export async function bundlePage(page: Page, tags: string[]) {
+  const head = `<meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>body { margin: 0; }</style>`;
+  await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`);
+  await page.waitForFunction((all) => all.every((tag) => !!customElements.get(tag)), tags);
+}
+
+/**
+ * The page of `bundlePage` with the call counters started. Motion is reduced: no frame of a motion is work the build
+ * made.
  */
 export async function countingPage(page: Page, tags: string[]): Promise<CDPSession> {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
-  const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>body { margin: 0; }</style>`;
-  await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`);
-  await page.waitForFunction((all) => all.every((tag) => !!customElements.get(tag)), tags);
+  await bundlePage(page, tags);
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Profiler.enable');
   await cdp.send('Profiler.startPreciseCoverage', { callCount: true, detailed: false });
