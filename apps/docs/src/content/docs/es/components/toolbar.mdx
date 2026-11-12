@@ -2,7 +2,7 @@
 title: Barra de herramientas
 description: Reúne un conjunto de controles relacionados en una sola parada de tabulación, en línea donde su contenido la necesita, acoplada a lo largo del borde inferior o flotando sobre el contenido. Las teclas de flecha mueven el foco entre sus controles, y lo que no cabe pasa a un menú de desbordamiento.
 translationOf: components/toolbar.mdx
-sourceHash: 143ac10ad1060e6880626356b277939a462728f1
+sourceHash: ec8cd4b95c4131b8a0151e03166e9a0e2100175c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -298,21 +298,23 @@ Una barra de herramientas acoplada siempre es horizontal. Una en línea o una fl
 
 Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). En una barra de herramientas flotante los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. En una en línea, los medianos y los pequeños quedan a la misma distancia, y los grandes a la separación de 4. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
 
+Para dibujar los elementos con un mismo tamaño, fija `size` en la barra de herramientas, no en cada elemento. Ese es entonces el tamaño de cada Button y botón con menú que contiene, estén o no en un grupo, y el de su botón de desbordamiento. Un elemento que fija su propio tamaño lo conserva, y una barra de herramientas que no fija ninguno deja cada elemento con su tamaño predeterminado, medium, o con el que fije un contenedor que rodee la barra. La barra en sí no dibuja nada distinto: sus separaciones, rellenos y divisores siguen siendo los de su variante. Un select, una entrada numérica, una entrada de texto o un control deslizante conserva el tamaño que le des, y el menú que abre un Button conserva el suyo. [Tamaño y densidad](/es/foundations/size-and-density/) explica cómo pasa un tamaño de un contenedor a lo que contiene.
+
 <Example label="Flotante: elementos small, medium y large, y elementos narrow y wide" column>
-  <tanrei-toolbar variant="floating" label="Formato, small">
-    <tanrei-button variant="text" size="small" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="small" label="Formato, small">
+    <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="Formato, medium">
     <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="text" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="Formato, large">
-    <tanrei-button variant="text" size="large" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="large" label="Formato, large">
+    <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="Herramientas de dibujo">
     <tanrei-button variant="text" width="narrow" label="Deshacer"><span slot="icon">undo</span></tanrei-button>

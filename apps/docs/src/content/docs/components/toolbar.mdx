@@ -296,21 +296,23 @@ A docked toolbar is always horizontal. An inline or a floating one may be vertic
 
 A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). In a floating toolbar large buttons touch, medium ones end up 8 apart and small ones 16. In an inline one, medium and small buttons stand as far apart, and large ones the gap of 4. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
 
+To draw the items at one size, set `size` on the toolbar, not on each item. It is then the size of every Button and button with menu in it, in a group or not, and of its overflow button. An item that sets its own size keeps it, and a toolbar that sets none leaves each item at its own default, medium, or at the size a container around the toolbar sets. The toolbar itself draws nothing differently: its gaps, paddings and dividers stay those of its variant. A Select, a Number input, a Text input or a Slider keeps the size you give it, and a menu that a Button opens keeps its own. [Size and density](/foundations/size-and-density/) says how a size passes from a container to what it holds.
+
 <Example label="Floating: small, medium and large items, and narrow and wide ones" column>
-  <tanrei-toolbar variant="floating" label="Formatting, small">
-    <tanrei-button variant="text" size="small" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="small" label="Formatting, small">
+    <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="Formatting, medium">
     <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="text" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="Formatting, large">
-    <tanrei-button variant="text" size="large" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="large" label="Formatting, large">
+    <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="Drawing tools">
     <tanrei-button variant="text" width="narrow" label="Undo"><span slot="icon">undo</span></tanrei-button>

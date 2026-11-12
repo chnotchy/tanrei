@@ -2,7 +2,7 @@
 title: "工具栏"
 description: "把一组相关的控件作为一个 Tab 停靠点容纳在一起：内嵌在内容需要它的地方、停靠在底边，或悬浮在内容之上。方向键在它的各个控件之间移动，放不下的项会进入溢出菜单。"
 translationOf: components/toolbar.mdx
-sourceHash: 143ac10ad1060e6880626356b277939a462728f1
+sourceHash: ec8cd4b95c4131b8a0151e03166e9a0e2100175c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -298,21 +298,23 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 停靠的工具栏把它的项沿宽度铺开，项与项之间的距离绝不小于它的间隙（默认系统中为 16）。内嵌或悬浮的工具栏让它的项彼此靠拢：相邻两项之间隔开的距离，只够让每个项沿这一排保有自己的触摸目标，且绝不小于间隙（默认系统中内嵌为 4，悬浮为 0）。在悬浮的工具栏中，大号按钮彼此相接，中号按钮相隔 8，小号按钮相隔 16；在内嵌的工具栏中，中号和小号按钮相隔同样的距离，大号按钮相隔间隙的 4。工具栏绝不会为此把某个项加宽或改变它的样式，而且无论用鼠标还是触摸，间距都相同。
 
+要让各项使用同一个尺寸，在工具栏上设置 `size`，而不是在每一项上设置。这样它就是工具栏中每个 Button 和带菜单的按钮（不论是否在分组里）以及溢出按钮的尺寸。设置了自己尺寸的项保持自己的尺寸；没有设置 `size` 的工具栏让每一项按自己的默认尺寸 medium 绘制，或按包围工具栏的容器所设的尺寸绘制。工具栏本身的绘制不变：它的间隙、内边距和分隔线保持其变体的样子。下拉选择框、数字输入框、文本输入框和滑块保持你给它们的尺寸，Button 打开的菜单也保持自己的尺寸。尺寸如何从容器传给其中的内容，见[尺寸与密度](/zh-cn/foundations/size-and-density/)。
+
 <Example label="悬浮：small、medium 和 large 的项，以及 narrow 和 wide 的项" column>
-  <tanrei-toolbar variant="floating" label="格式（small）">
-    <tanrei-button variant="text" size="small" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="small" label="格式（small）">
+    <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="格式（medium）">
     <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="text" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="格式（large）">
-    <tanrei-button variant="text" size="large" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="large" label="格式（large）">
+    <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="绘图工具">
     <tanrei-button variant="text" width="narrow" label="撤销"><span slot="icon">undo</span></tanrei-button>
