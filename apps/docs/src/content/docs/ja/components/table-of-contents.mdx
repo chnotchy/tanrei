@@ -2,7 +2,7 @@
 title: 目次
 description: 読んでいるページの見出しを、その見出しへのリンクとして並べ、いま読んでいるセクションの項目に印を付けます。テキストの横に置く場所がないときは、現在のセクションの名前を示す 1 行になり、押すと同じリストが開きます。
 translationOf: components/table-of-contents.mdx
-sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
+sourceHash: da2c0269333c7c8d80d5b1abac732d7474add022
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -72,7 +72,7 @@ Web では、プロダクト側で書いた、アンカーの入れ子のリス�
     import { TableOfContents } from '@tanrei/react';
     import '@tanrei/web/table-of-contents.css';
 
-    <TableOfContents label="このページの内容" density="compact">
+    <TableOfContents label="このページの内容" size="small">
       <ul>
         {headings.map((heading) => (
           <li key={heading.id}>
@@ -108,8 +108,8 @@ Web では、プロダクト側で書いた、アンカーの入れ子のリス�
 
 ## 仕様
 
-<Example label="密度が compact で 3 階層、3 階層目の項目が現在の項目">
-  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="このページの内容" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+<Example label="サイズが small で 3 階層、3 階層目の項目が現在の項目">
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="このページの内容" size="small" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
         <a href="#tokens-demo">トークン</a>
@@ -155,14 +155,14 @@ Web では、プロダクト側で書いた、アンカーの入れ子のリス�
 - どのウィンドウでどの形を見せるか。テキストの横に置く場所がないところでは、`presentation="compact"` を設定します。
 - 長いリストを囲む、スクロールする列。その場合、コンポーネントは現在の行がその列の中で見えているようにします。
 
-### 密度
+### サイズ
 
-| `density` | 1 行に収まる行の高さ | 用途 |
+| `size` | 1 行に収まる行の高さ | 用途 |
 | --- | --- | --- |
-| `regular`（既定） | 44。ポインター用のターゲットの高さです | ほとんどのページ。 |
-| `compact` | 32 | ポインターで操作するプロダクトで、テキストの横に置く長い見出しのリスト。 |
+| `medium`（既定） | 44。ポインター用のターゲットより高い値です | ほとんどのページ。 |
+| `small` | 36。最小ターゲットの高さです | ポインターで操作するプロダクトで、テキストの横に置く長い見出しのリスト。 |
 
-compact の行は、ポインター用のターゲットより低くなります。名前を指定して選ぶもので、既定になることはないので、これを認めています。タッチでは、どちらの密度でも行の高さはタッチターゲットの高さです。テキストスタイルと字下げは、どちらの密度でも同じです。
+`size` は行の高さのことで、コンパクトな形のことではありません。どちらのサイズでも、行がポインター用のターゲットより低くなることはなく、タッチではタッチターゲットより低くなることもありません。どちらかのターゲットをより高く設定したシステムでは、small の行もその高さで描かれます。どちらの高さも、システムの[密度](/ja/foundations/size-and-density/)に従います。テキストスタイルと字下げは、どちらのサイズでも同じです。`size` を設定しない目次は、周りのコンテナーがその中身に設定したサイズで描かれ、どのコンテナーも設定していなければ medium で描かれます。
 
 ### 現在の項目の決まり方
 

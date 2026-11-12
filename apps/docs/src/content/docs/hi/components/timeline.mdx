@@ -2,7 +2,7 @@
 title: टाइमलाइन
 description: समय के क्रम में रखी गई घटनाएँ। हर घटना में एक मार्कर, उसका समय, एक शीर्षक और आपके कॉन्टेंट की बॉडी होती है, और एक बारीक रेखा उसे अगली घटना से जोड़ती है। जहाँ घटनाओं की कोई स्थिति होती है, वहाँ मार्कर का आकार और आपके शब्द बताते हैं कि कौन-सी पूरी हो चुकी है, कौन-सी जारी है और कौन-सी आगे आनी है। यह पढ़ने के लिए लिस्ट है, कंट्रोल कभी नहीं।
 translationOf: components/timeline.mdx
-sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
+sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -103,7 +103,6 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 | --- | --- |
 | `label` | `aria-label` (या लिस्ट से पहले की हेडिंग का नाम लेने वाला `aria-labelledby`) |
 | `size: large` | `data-size="large"` |
-| `density: compact` | `data-density="compact"` |
 | घटना | `<li>` |
 | `datetime` वाला `time` | `<time class="tanrei-timeline-time" datetime="…">`, जिसमें आपके लिखे शब्द रहते हैं |
 | वह `time` जो समय का कोई पल नहीं है | `<p class="tanrei-timeline-time">` |
@@ -128,13 +127,13 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
   </ol>
 </Example>
 
-<Example label="आपके अपने ग्लिफ़, और एक compact लॉग" column>
+<Example label="आपके अपने ग्लिफ़, और एक-एक पंक्ति की घटनाओं का लॉग" column>
   <ol class="tanrei-timeline" role="list" aria-label="ऑर्डर 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="पूरा हुआ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">सोमवार, 09:41</p><p class="tanrei-timeline-title">ऑर्डर दिया गया</p></li>
     <li data-status="current" data-status-label="जारी है"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">मंगलवार, 14:05</p><p class="tanrei-timeline-title">रास्ते में है</p></li>
     <li data-status="upcoming" data-status-label="शुरू नहीं हुआ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">गुरुवार तक पहुँचने की उम्मीद</p><p class="tanrei-timeline-title">डिलीवर हुआ</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="गतिविधि" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="गतिविधि" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">लेयर सेव हुई</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">छह स्कीम में कंट्रास्ट जाँचा गया</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">प्राइमरी रंग बदला गया</p></li>
@@ -145,7 +144,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - **स्थिति** मार्कर का आकार बदलती है और कुछ नहीं: पूरी हो चुकी घटना के लिए चेक वाली रिंग, जारी घटना के लिए बिंदु वाला भरा हुआ गोला, और आगे आने वाली घटना के लिए ख़ाली रिंग। समय के रंग के अलावा टाइमलाइन बस यही एक रंग लाती है: भरा हुआ गोला।
 - **कनेक्टर** हर मार्कर के बॉक्स से अगले बॉक्स तक चलता है और दोनों से थोड़ा पहले रुक जाता है। आख़िरी घटना में कनेक्टर नहीं होता, और किसी भी स्थिति की घटनाओं के बीच रेखा वही रहती है।
 - **समय** घटना में सबसे पहले आता है, हल्के रंग में। उसके बाद **शीर्षक** आता है, बॉडी के साइज़ में और हेडिंग के वेट में। **बॉडी** आपका कॉन्टेंट है: दो ब्लॉक के बीच 8 की दूरी होती है।
-- **डेंसिटी**: regular दो घटनाओं के बीच 16 रखती है और compact 8, एक-एक पंक्ति की घटनाओं के लंबे लॉग के लिए। वह सिर्फ़ यही दूरी बदलती है।
+- **दो घटनाओं के बीच की जगह** डिफ़ॉल्ट सिस्टम में दोनों साइज़ पर 16 है। यह सिस्टम की [डेंसिटी](/hi/foundations/size-and-density/) के साथ चलती है: जिस सिस्टम की डेंसिटी 1 से कम है, वह अपनी घटनाएँ पास-पास बनाता है। टाइमलाइन की अपनी कोई डेंसिटी नहीं है।
 - **साइज़** वही दो हैं जो प्रोज़ के हैं: कंट्रोल के बीच medium, और उस पेज पर large जिसका मक़सद ही टेक्स्ट है। मार्कर और कनेक्टर चरणों के मार्कर और कनेक्टर से मेल खाते हैं, इसलिए एक पेज पर दोनों एक ही परिवार के लगते हैं।
 
 <ComponentSpecs name="timeline" />
@@ -159,7 +158,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - घटना का टेक्स्ट एलिमेंट (`<p>`) में लिखें: आइटम में सीधे लिखे गए टेक्स्ट को समय या शीर्षक के नीचे का गैप नहीं दिया जा सकता।
 - पूरी हो चुकी घटना का चेक आइकन सेट का `check` है, इसलिए उसे `icons.css` और आइकन फ़ॉन्ट चाहिए। उनके बिना रिंग ख़ाली रहती है।
 - प्रोज़ के बाहर लंबी बॉडी (लिस्ट, उद्धरण) वैसे ही रखी जाती है जैसे आपके पेज पर कहीं भी, प्रोज़ की तरह नहीं।
-- जो साइज़ या डेंसिटी कोई डिज़ाइन सिस्टम जोड़ता है, वह तब तक डिफ़ॉल्ट की तरह बनती है जब तक वह सिस्टम उसके लिए नियम न दे।
+- जो साइज़ कोई डिज़ाइन सिस्टम जोड़ता है, वह तब तक डिफ़ॉल्ट की तरह बनती है जब तक वह सिस्टम उसके लिए नियम न दे।
 - पैकेज की स्क्रिप्ट के बिना कोई आइटम लिस्ट के मौजूदा आइटम के रूप में चिह्नित नहीं होता। स्थिति तब भी शब्दों में पढ़ी जाती है।
 
 ## दिशानिर्देश
@@ -170,7 +169,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - स्थिति वाली हर घटना को `data-status-label` में उसके शब्द दें, अपने पाठक की भाषा में।
 - जहाँ स्थिति हर पाठक के लिए मायने रखती है, वहाँ उसे शब्दों में भी दिखाएँ: शीर्षक या बॉडी में एक टैग।
 - सापेक्ष समय ("2 घंटे पहले") को `datetime` में उसका सटीक पल दें।
-- एक-एक पंक्ति की घटनाओं के लंबे लॉग के लिए compact इस्तेमाल करें, और पुरानी घटनाएँ दिखाने के लिए लिस्ट के बाद एक बटन रखें।
+- एक-एक पंक्ति की घटनाओं के लंबे लॉग में सबसे हाल की कुछ घटनाएँ दिखाएँ, और पुरानी घटनाएँ दिखाने के लिए लिस्ट के बाद एक बटन रखें।
 
 ### न करें
 

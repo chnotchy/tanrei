@@ -2,7 +2,7 @@
 title: タイムライン
 description: イベントを時間の順に並べます。各イベントはマーカー、時刻、タイトル、内容の本文から成り、次のイベントと細い線でつながります。イベントに状態がある場合は、どれが完了し、どれが進行中で、どれがこれからなのかを、マーカーの形と言葉で伝えます。読むためのリストであり、コントロールではありません。
 translationOf: components/timeline.mdx
-sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
+sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -103,7 +103,6 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 | --- | --- |
 | `label` | `aria-label`（またはリストの前の見出しを指す `aria-labelledby`） |
 | `size: large` | `data-size="large"` |
-| `density: compact` | `data-density="compact"` |
 | イベント | `<li>` |
 | `datetime` のある `time` | `<time class="tanrei-timeline-time" datetime="…">`。中身は、利用者側で書く言葉 |
 | 時点ではない `time` | `<p class="tanrei-timeline-time">` |
@@ -128,13 +127,13 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
   </ol>
 </Example>
 
-<Example label="プロダクト側のグリフと、compact のログ" column>
+<Example label="プロダクト側のグリフと、1 行のイベントのログ" column>
   <ol class="tanrei-timeline" role="list" aria-label="注文 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="完了"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">月曜日 09:41</p><p class="tanrei-timeline-title">注文を受け付けました</p></li>
     <li data-status="current" data-status-label="進行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">火曜日 14:05</p><p class="tanrei-timeline-title">配送中</p></li>
     <li data-status="upcoming" data-status-label="未着手"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">木曜日に到着予定</p><p class="tanrei-timeline-title">お届け</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="アクティビティ" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="アクティビティ" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">レイヤを保存しました</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">6 つのスキームでコントラストを確認しました</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">プライマリの色を変更しました</p></li>
@@ -145,7 +144,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - **状態**が変えるのは、マーカーの形だけです。完了はチェックの入った輪、進行中は点の入った塗りつぶしの円、これからのイベントは空の輪です。時刻の色を除けば、タイムラインが持ち込む色は、この塗りつぶしの円だけです。
 - **コネクター**は、マーカーのボックスから次のボックスへ伸びる線で、どちらにも届く手前で止まります。最後のイベントにはありません。どの状態のイベントの間でも、同じ線です。
 - **時刻**はイベントの先頭に、控えめな色で置かれます。**タイトル**はその次に、本文と同じ大きさ、見出しの太さで置かれます。**本文**は、利用者側で用意するコンテンツです。ブロックどうしは 8 離れます。
-- **密度**：regular ではイベントどうしが 16、compact では 8 離れます。compact は、1 行のイベントが長く続くログのためのものです。変わるのはこの間隔だけです。
+- **2 つのイベントの間隔**は、既定のシステムではどちらのサイズでも 16 です。間隔はシステムの[密度](/ja/foundations/size-and-density/)に従い、密度が 1 未満のシステムでは、イベントがより近く描かれます。タイムラインに固有の密度はありません。
 - **サイズ**は、プローズと同じ 2 つです。コントロールの間に置くときは medium、文章を読むためのページでは large です。マーカーとコネクターはステップのものとそろえてあるので、同じページに並べても 1 つの仲間に見えます。
 
 <ComponentSpecs name="timeline" />
@@ -159,7 +158,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - イベントのテキストは、要素（`<p>`）の中に書いてください。項目に直接書いたテキストには、時刻やタイトルとの間の余白を付けられません。
 - 完了のイベントのチェックは、アイコンセットの `check` です。そのため `icons.css` とアイコンフォントが必要で、なければ輪は空になります。
 - プローズの外では、長文の本文（リスト、引用）はプローズとしては組まれず、ページのほかの場所と同じように配置されます。
-- デザインシステムが追加したサイズや密度は、そのシステムが規則を用意するまで、既定のものとして描かれます。
+- デザインシステムが追加したサイズは、そのシステムが規則を用意するまで、既定のものとして描かれます。
 - パッケージのスクリプトがなければ、どの項目もリストの現在の項目として示されません。状態は、その場合も言葉で読み上げられます。
 
 ## ガイドライン
@@ -170,7 +169,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - 状態のあるイベントには、読み手の言語で書いた言葉を `data-status-label` で必ず添えます。
 - 状態がすべての読み手にとって重要なら、タイトルか本文のタグとして、見える言葉でも示します。
 - 相対的な時刻（「2 時間前」）には、正確な時点を `datetime` で添えます。
-- 1 行のイベントが長く続くログには compact を使い、古いイベントを表示するボタンをリストの後に置きます。
+- 1 行のイベントが長く続くログでは、新しい数件だけを表示し、古いイベントを表示するボタンをリストの後に置きます。
 
 ### 非推奨
 

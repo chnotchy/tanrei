@@ -9309,7 +9309,7 @@ script. The element adds the same sheet to the root it is connected to.
 |---|---|---|---|
 | `layout` | `inline` \| `stacked` \| `stat` | `inline` | the term beside its value in a column all terms share; the term above its value; the first value first, as a figure, with the term under it. Any other value is `inline` and is reported; reflected |
 | `columns` | a whole number | `1` | the most columns of facts in `stacked` and `stat`: each is at least `comp.description-list.column.min-width` wide, so the list draws fewer when narrow, and never more than it has facts. `inline` is one column. Reflected |
-| `density` | `regular` \| `compact` (open) | `regular` | the text styles and the space between facts; reflected |
+| `size` | `small` \| `medium` (open) | the size its nearest container sets, else `medium` | the text styles and the space between facts; reflected only when set on the list; without script a list is drawn at the size it sets, or at medium |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | one hairline between a fact and the fact below it, or `fact.gap` of space and no line; `auto` is `comp.description-list.separation`, which follows `sys.behavior.separation`; reflected |
 
 A **fact** is a `<div>` around one `<dt>` and its `<dd>`s. A term and a value hold text or any element of yours; a
@@ -9330,7 +9330,7 @@ there is written in the next frame. One observer of sizes and one of changes per
 Good to know:
 
 - **Without script** an inline list that is too narrow wraps its terms beside its values, which keep the least width;
-  nothing is cut. Everything else — the term column, columns of facts, the stat layout, lines, densities — is the
+  nothing is cut. Everything else — the term column, columns of facts, the stat layout, lines, the size set on it — is the
   stylesheet's, and defining the element moves nothing.
 - **The list is a size container** (`container-type: inline-size`), so it takes its width from its layout, never from
   its facts: in a parent that shrinks to its content, give the element a width.
@@ -9346,7 +9346,8 @@ Good to know:
   (`data-separation` on the `<dl>`); a system switched later is seen at its next reading. The attribute `separation`
   is exact everywhere.
 - **`columns` above 6** gets its rule from the element; without script such a list draws one column.
-- **A density a design system adds** gets its rules from the element, falling back to `regular`'s tokens.
+- **A size taken from a container** (DSL-25) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. A list passes no size to what its values hold.
+- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens.
 - **In prose** the element is an island (PRS-16): prose spaces it as a block and styles nothing inside it, while a
   bare `<dl>` beside it stays prose's reading form (PRS-13). Nothing turns the one into the other.
 - An empty `<dl>` is not drawn and not exposed (`display: none`). A fact with no `<dd>` keeps one line of the value's
@@ -9505,12 +9506,12 @@ How it is built, and what follows from it:
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)
 
-The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`, TOC-1 to TOC-40). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
+The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`, TOC-1 to TOC-42). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
 
-<tanrei-table-of-contents label="On this page" density="compact">
+<tanrei-table-of-contents label="On this page" size="small">
   <ul>
     <li><a href="#top">Overview</a></li>
     <li><a href="#install">Install</a>
@@ -9525,7 +9526,7 @@ The headings of the page being read as links to them, the one being read marked,
 
 | Spec | Web |
 | --- | --- |
-| `label`, `labelHidden`, `presentation`, `density`, `open`, `current`, `tracking` | attributes `label`, `label-hidden`, `presentation` (`list`, `compact`), `density` (`regular`, `compact`), `open`, `current`, `tracking` (`auto`, `manual`), and properties |
+| `label`, `labelHidden`, `presentation`, `size`, `open`, `current`, `tracking` | attributes `label`, `label-hidden`, `presentation` (`list`, `compact`), `size` (`small`, `medium`; without it, the size its nearest container sets), `open`, `current`, `tracking` (`auto`, `manual`), and properties |
 | an item | an `<li>` whose first child is its `<a href>`; the label is the anchor's text |
 | an item's own items | a `<ul>` after the anchor, inside the same `<li>` |
 | the `title` slot | a child with `slot="title"`: a heading of the level your outline needs |
@@ -9534,7 +9535,7 @@ The headings of the page being read as links to them, the one being read marked,
 | `select` | `select`, `detail.href`; cancelable, and cancelling it cancels the anchor's click |
 | `toggle` | `toggle`, `detail.open` |
 
-**What the stylesheet draws alone**, before the element is defined and without script: the title (from the `label` attribute), the rows of both densities, the indent of every level, the rail, an item you marked `aria-current` yourself with its marker and heavier label, hover, the focus ring, a press (the overlay, held for press-hold), forced colors and right to left. The list presentation does not move when the element is defined. The compact presentation shows its whole list until then (there is no row yet): a layout that must not show that for a moment hides `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
+**What the stylesheet draws alone**, before the element is defined and without script: the title (from the `label` attribute), the rows of both sizes set on it, the indent of every level, the rail, an item you marked `aria-current` yourself with its marker and heavier label, hover, the focus ring, a press (the overlay, held for press-hold), forced colors and right to left. The list presentation does not move when the element is defined. The compact presentation shows its whole list until then (there is no row yet): a layout that must not show that for a moment hides `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
 
 **What the script adds**: which item is current; the landmark, and the list role on your lists; the compact form; the system's answer to a press (`data-pressed`: overlay, ripple, dim, none); the row kept as high for its label at the current item's weight as at its own (`data-tanrei-label` on each `<li>`); each label's own direction (`dir="auto"` on an anchor whose label has a letter); the debug reports.
 
@@ -9560,7 +9561,8 @@ How it is built, and what follows from it:
 - **`display`** of the element is the stylesheet's (`block`, and a flex column in the compact presentation once defined): what the document says of an element wins over what its shadow root says.
 - **The compact form's height** is its layout's: give the element a `max-block-size` (or hold it in a flex or grid track) and the list scrolls inside while the row stays.
 - **`select` and focus in the compact form.** The list closes after the browser has taken the navigation, and nothing is focused: the next Tab continues from the chosen heading, as after any link to a place on the page.
-- **A density a design system adds** gets its rules from the element, read from that density's tokens with the default's as fallbacks.
+- **A size taken from a container** (TOC-42) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which table-of-contents.css matches beside the `size` attribute.
+- **A size a design system adds** gets its rules from the element, read from that size's tokens with the default's as fallbacks.
 - **Inside a shadow root** the element adds the stylesheet to that root. Targets are looked up in the document.
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
@@ -10555,7 +10557,7 @@ and without the stylesheet it is the browser's numbered list of dated paragraphs
     <p>The token pipeline, the spec schema and the first spec exist.</p>
   </li>
 </ol>
-<ol class="tanrei-timeline" role="list" data-size="large" data-density="compact" aria-label="Roadmap">
+<ol class="tanrei-timeline" role="list" data-size="large" aria-label="Roadmap">
   <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 1</p><h3>Controls</h3></li>
   <li data-status="current" data-status-label="In progress">…</li>
   <li data-status="upcoming" data-status-label="Not started">…</li>
@@ -10567,7 +10569,6 @@ and without the stylesheet it is the browser's numbered list of dated paragraphs
 |---|---|
 | `label` | `aria-label`, or `aria-labelledby` naming the heading before it. |
 | `size: large` | `data-size="large"`. An unknown value is the default. |
-| `density: compact` | `data-density="compact"`. An unknown value is the default. |
 | an event | `<li>`. |
 | `time`, `datetime` | `<time class="tanrei-timeline-time" datetime="…">` with the words you write as its text; a `<p class="tanrei-timeline-time">` where the time is not a moment ("Wave 1"). Nothing formats, translates or updates it. |
 | `title` | an element with `class="tanrei-timeline-title"` (a `<p>`). |
@@ -10605,7 +10606,7 @@ item is the event's body; write its text in elements (`<p>`).
 What the stylesheet alone cannot do:
 
 - **The current item** is the script's: without it no item carries `aria-current`, and the words still say it.
-- **A size or a density a design system adds** is known to the script by its tokens and is not reported,
+- **A size a design system adds** is known to the script by its tokens and is not reported,
   but a stylesheet cannot read a token whose name comes from an attribute: it is drawn as the default until the layer
   ships its own rule (`.tanrei-timeline[data-size='small'] { --_timeline-marker: … }` is private today).
 - **The check of a done event** needs `icons.css` and the icon face. Without the stylesheet the ring is empty, as an

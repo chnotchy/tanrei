@@ -3722,20 +3722,20 @@ private let acmeDescriptionListTokens = TanreiDescriptionListTokens(
   stackGap: 4,
   termColor: .role(.onSurfaceVariant),
   valueColor: .role(.onSurface),
-  densitys: TanreiDescriptionListDensitys(
-    regular: TanreiDescriptionListDensityTokens(
-      factGap: 12,
-      termGap: 16,
-      termTypescale: acmeTypescale.label,
-      valueTypescale: acmeTypescale.body,
-      statValueTypescale: acmeTypescale.heading1
-    ),
-    compact: TanreiDescriptionListDensityTokens(
+  sizes: TanreiDescriptionListSizes(
+    small: TanreiDescriptionListSizeTokens(
       factGap: 6,
       termGap: 8,
       termTypescale: acmeTypescale.labelSmall,
       valueTypescale: acmeTypescale.bodySmall,
       statValueTypescale: acmeTypescale.heading3
+    ),
+    medium: TanreiDescriptionListSizeTokens(
+      factGap: 12,
+      termGap: 16,
+      termTypescale: acmeTypescale.label,
+      valueTypescale: acmeTypescale.body,
+      statValueTypescale: acmeTypescale.heading1
     )
   )
 )
@@ -9080,14 +9080,14 @@ private let acmeTableOfContentsTokens = TanreiTableOfContentsTokens(
       )
     )
   ),
-  densitys: TanreiTableOfContentsDensitys(
-    regular: TanreiTableOfContentsDensityTokens(
-      rowHeight: 44,
-      rowPaddingBlock: 12
-    ),
-    compact: TanreiTableOfContentsDensityTokens(
+  sizes: TanreiTableOfContentsSizes(
+    small: TanreiTableOfContentsSizeTokens(
       rowHeight: 36,
       rowPaddingBlock: 8
+    ),
+    medium: TanreiTableOfContentsSizeTokens(
+      rowHeight: 44,
+      rowPaddingBlock: 12
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9790,6 +9790,7 @@ private let acmeTimelineTokens = TanreiTimelineTokens(
   connectorColor: .role(.outlineVariant),
   connectorGap: 4,
   connectorThickness: 1,
+  itemGap: 16,
   markerCurrentContainerColor: .role(.primary),
   markerCurrentIconColor: .role(.onPrimary),
   markerDotColor: .role(.onSurfaceVariant),
@@ -9815,14 +9816,6 @@ private let acmeTimelineTokens = TanreiTimelineTokens(
       timeTypescale: acmeTypescale.body,
       titleTypescale: acmeTypescale.heading5,
       bodyTypescale: acmeTypescale.bodyLarge
-    )
-  ),
-  densitys: TanreiTimelineDensitys(
-    regular: TanreiTimelineDensityTokens(
-      itemGap: 16
-    ),
-    compact: TanreiTimelineDensityTokens(
-      itemGap: 8
     )
   )
 )

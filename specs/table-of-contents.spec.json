@@ -76,15 +76,15 @@
       "description": "How the table of contents stands. list: the title and the whole list, for a column beside the text. compact: one row that shows the title and the name of the current section, and opens the same list below it; for a window with no room beside the text. Which one a window width gets is decided by the layout that places it (an app shell, the product), which also decides where it stands and whether it stays in view."
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How tall a row of the list is, in a table's, an accordion's and a tree view's words; it is not the compact presentation, and applies to the list of either presentation. regular (a 44 row in the default system) holds the pointer target, as every control of the default look does. compact (a 36 row, the minimum target) is for a long list of headings beside the text of a product read with a pointer: in the default system it is the pointer target, which aliases the minimum; where a system sets a taller pointer target it is lower than that, which is acceptable because it is asked for by name and is never what a product gets by default. For touch a row is never lower than the touch target in either. The label's text style, the indent and the inline padding are the same in both. A design system may add values.",
-      "axis": "tanrei.comp.table-of-contents.density"
+      "default": "medium",
+      "description": "How tall a row of the list is, in a list's, an accordion's and a tree view's words; it is not the compact presentation, and applies to the list of either presentation. medium (a 44 row in the default system) holds the pointer target, as every control of the default look does. small (a 36 row, the minimum target) is for a long list of headings beside the text of a product read with a pointer. Its heights follow the system's density at either size, and a row is never lower than the target at either (TOC-24). The label's text style, the indent and the inline padding are the same at both. While it is not set the table of contents is drawn at the size its nearest container sets (TOC-42), and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.table-of-contents.size"
     },
     {
       "name": "open",
@@ -168,8 +168,8 @@
     },
     {
       "id": "TOC-3",
-      "text": "THE table of contents SHALL draw each item as a row whose container runs from the rail to the list's end edge at every level of nesting, at least as high as its density gives (comp.table-of-contents.row.height.regular for regular and comp.table-of-contents.row.height.compact for compact) and as high as its label needs, with corners comp.table-of-contents.row.shape, holding its label in comp.table-of-contents.label.typescale with the padding of its density above and below it (comp.table-of-contents.row.padding-block.regular for regular and comp.table-of-contents.row.padding-block.compact for compact), comp.table-of-contents.row.padding-inline after it, and before it comp.table-of-contents.row.padding-inline plus comp.table-of-contents.row.indent for each level of nesting; only the label is set in, so that every row's state layer, focus ring and marker start at the same edge and the marker of a nested item sits on the one rail. Rows follow one another with no space between them, so that no place between two rows takes no press. Density changes a row's height and nothing else: the label's text style, where it starts and the rail are the same in both.",
-      "verify": "In the fixture three-levels the labels of the three levels start 12, 24 and 36 from the rail under the default system, every row of one line is 44 high, and every hovered row's state layer starts at the rail. In density-compact-three-levels the labels start at the same three places and every row of one line is 36 high."
+      "text": "THE table of contents SHALL draw each item as a row whose container runs from the rail to the list's end edge at every level of nesting, at least as high as its size gives (comp.table-of-contents.row.height.medium for medium and comp.table-of-contents.row.height.small for small) and as high as its label needs, with corners comp.table-of-contents.row.shape, holding its label in comp.table-of-contents.label.typescale with the padding of its size above and below it (comp.table-of-contents.row.padding-block.medium for medium and comp.table-of-contents.row.padding-block.small for small), comp.table-of-contents.row.padding-inline after it, and before it comp.table-of-contents.row.padding-inline plus comp.table-of-contents.row.indent for each level of nesting; only the label is set in, so that every row's state layer, focus ring and marker start at the same edge and the marker of a nested item sits on the one rail. Rows follow one another with no space between them, so that no place between two rows takes no press. Size changes a row's height and nothing else: the label's text style, where it starts and the rail are the same at both.",
+      "verify": "In the fixture three-levels the labels of the three levels start 12, 24 and 36 from the rail under the default system, every row of one line is 44 high, and every hovered row's state layer starts at the rail. In size-small-three-levels the labels start at the same three places and every row of one line is 36 high."
     },
     {
       "id": "TOC-4",
@@ -265,8 +265,8 @@
     },
     {
       "id": "TOC-24",
-      "text": "THE table of contents SHALL make each row its hit area across the list's whole width, whatever the level of its label, with no gap between the hit areas of two rows; WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, drawn so, in both densities, because rows that touch cannot extend a hit area over each other; for a fine pointer a row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives (comp.table-of-contents.row.height.compact), the one place where a row of the list is lower than the pointer target: the density is asked for by name and is never the default; the disclosure row SHALL be at least comp.table-of-contents.compact.row.height high and never lower than sys.target.touch for touch or sys.target.pointer for a fine pointer.",
-      "verify": "Under the default system the fixture nested draws rows 44 high with a mouse and with a touch input, above both targets (36); density-compact-nested draws them 36 high, the minimum target, for both. Under a layer that sets sys.target.touch to 48 both draw their rows 48 high with a touch input. In every shipped system the regular row is at least as high as sys.target.pointer. A press on the indent before a nested label follows that item."
+      "text": "THE table of contents SHALL make each row its hit area across the list's whole width, whatever the level of its label, with no gap between the hit areas of two rows; WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, and for a fine pointer at least sys.target.pointer high, drawn so, at every size, because rows that touch cannot extend a hit area over each other; the disclosure row SHALL be at least comp.table-of-contents.compact.row.height high and never lower than sys.target.touch for touch or sys.target.pointer for a fine pointer.",
+      "verify": "Under the default system the fixture nested draws rows 44 high with a mouse and with a touch input, above both targets (36); size-small-nested draws them 36 high, the minimum target, for both. Under a layer that sets sys.target.touch to 48 both draw their rows 48 high with a touch input, and under a layer that sets sys.target.pointer to 48 both draw them 48 high with a mouse. In every shipped system the medium row is at least as high as sys.target.pointer. A press on the indent before a nested label follows that item."
     },
     {
       "id": "TOC-25",
@@ -333,7 +333,7 @@
     },
     {
       "id": "TOC-39",
-      "text": "WHEN presentation or tracking names a value the table of contents does not have THE table of contents SHALL behave as the default value (list, auto), and WHEN density names a value that the active design system does not have it SHALL render with the default density's tokens; in debug builds it SHALL report the unknown value. WHEN density changes while the table of contents is shown THE table of contents SHALL draw the new heights at once, keeping its current item, its open state and its focus. IF current names no item's href WHILE tracking is manual THE table of contents SHALL draw no item as current and in debug builds report it. IF two items have the same href THE table of contents SHALL render both, take the first as the one that can be current, and in debug builds report it. IF items nest more than three levels deep THE table of contents SHALL still render them, setting each level's label in by comp.table-of-contents.row.indent, and in debug builds report the depth."
+      "text": "WHEN presentation or tracking names a value the table of contents does not have THE table of contents SHALL behave as the default value (list, auto), and WHEN the size it draws (TOC-42) names a value that the active design system does not have it SHALL render with the default size's tokens; in debug builds it SHALL report the unknown value; a size a design system added SHALL be drawn from its tokens, as the core values are. IF current names no item's href WHILE tracking is manual THE table of contents SHALL draw no item as current and in debug builds report it. IF two items have the same href THE table of contents SHALL render both, take the first as the one that can be current, and in debug builds report it. IF items nest more than three levels deep THE table of contents SHALL still render them, setting each level's label in by comp.table-of-contents.row.indent, and in debug builds report the depth."
     },
     {
       "id": "TOC-40",
@@ -342,6 +342,11 @@
     {
       "id": "TOC-41",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE table of contents SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its navigation landmark — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label is not empty it is the landmark's name, over a name given so; WHILE label is empty, a name given so names the landmark, and the compact disclosure row by that name followed by the current item's label it shows, so that the row's name holds what it draws; neither is then reported as having no name (TOC-40). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE table of contents SHALL take it off that element."
+    },
+    {
+      "id": "TOC-42",
+      "text": "WHILE size is set THE table of contents SHALL draw every row of its list at its own size, whatever a container sets; without its script it SHALL draw that size all the same. WHILE size is not set and a container around the table of contents sets a size for what it holds — the nearest such container where several do — THE table of contents SHALL draw every row at that size, its heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; WHILE no container around it sets one it SHALL draw medium. A container whose size is not set SHALL pass none. The rows are its own and SHALL all be of one size, in either presentation: an item has no size of its own, and the compact presentation's disclosure row keeps comp.table-of-contents.compact.row.height at every size. WHEN the size it draws changes — its own size set, changed or removed, a container's size set, changed or removed, or the table of contents moved into or out of such a container — THE table of contents SHALL draw the new heights at once, without a motion, keeping its current item, its open state and its focus.",
+      "verify": "A table of contents without a size in a container whose size is small is drawn as the fixture size-small-three-levels is, every row of one line comp.table-of-contents.row.height.small high, at density 0.75, 1 and 1.5; one whose size is medium in that container keeps medium; removing the container's size, or moving the table of contents out of it, draws its rows at medium before the next frame, with the same item current and the same row focused."
     }
   ],
   "accessibility": {
@@ -371,7 +376,7 @@
       "A change of the current item is not announced (TOC-8). It follows from the person's own scrolling or from the link they chose, and a live region would narrate every heading a reader scrolls past. The state is there when they move to the list.",
       "The items are plain links in the focus order, one stop each, with no arrow-key movement of their own: a table of contents is a list of links in a landmark, which assistive technology already lets people list, skip and move through, and a composite widget would take those keys away. A product places a skip link before a long one, or places the table of contents after the content in the reading order.",
       "Current is never told by color alone (TOC-7): the marker is a stroke heavier than the rail in primary, which the token invariants hold to 4.5:1 on every surface role of the default system (13.3:1 at the least today; 3.1:1 at the least in the shipped presets), and the label is heavier by the system's emphasis. The rail is decorative and is not held to 3:1, as a divider's line is not. Item labels are secondary text on a surface and the current label primary text, both held to 4.5:1 by the token invariants.",
-      "The target (TOC-24), WCAG 2.5.8. A row's hit area is the list's whole width and the row's height, with no space between rows. For touch a row is drawn at least the touch target high in both densities. For a fine pointer a regular row, the default, is at least the pointer target high (44 in the default system, whose pointer target is 36). The compact density is the minimum target high (36 in the default system), and where a system sets a taller pointer target it is lower than that, by design: it is the density a product asks for by name where a long list of headings must fit beside the text, it stays above the 24 by 24 the criterion asks, and its rows reach across the list's whole width. A product that cannot accept that uses regular.",
+      "The target (TOC-24), WCAG 2.5.8. A row's hit area is the list's whole width and the row's height, with no space between rows. Every row is drawn at least the touch target high for touch and the pointer target high for a fine pointer, at every size, because rows that touch cannot reach past each other. In the default system a medium row, the default, is 44, above both targets (36); a small row is held at the minimum target (36), and a system that sets either target higher draws its small rows that high.",
       "The items are not underlined (TOC-6). An underline is what tells a link from the text beside it in a sentence (WCAG 1.4.1); a row of a list inside a navigation landmark has no text beside it to be told from, as a navigation drawer's destination has not.",
       "Keyboard focus after choosing an item goes with the page (TOC-28): the next Tab starts from the chosen section. The table of contents never pulls focus back to itself and never moves it into the content.",
       "Text must remain readable at 200% text size: labels wrap and rows grow (TOC-33); only the current section's name in the compact row is ever cut, and it is whole in the list below it.",
@@ -854,10 +859,10 @@
       ]
     },
     {
-      "id": "density-compact-nested",
+      "id": "size-small-nested",
       "props": {
         "label": "On this page",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -923,10 +928,10 @@
       ]
     },
     {
-      "id": "density-compact-three-levels",
+      "id": "size-small-three-levels",
       "props": {
         "label": "On this page",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -978,10 +983,10 @@
       ]
     },
     {
-      "id": "density-compact-current",
+      "id": "size-small-current",
       "props": {
         "label": "On this page",
-        "density": "compact",
+        "size": "small",
         "tracking": "manual",
         "current": "#label"
       },
@@ -1026,10 +1031,10 @@
       ]
     },
     {
-      "id": "density-compact-long-labels",
+      "id": "size-small-long-labels",
       "props": {
         "label": "On this page",
-        "density": "compact",
+        "size": "small",
         "tracking": "manual",
         "current": "#derived"
       },
@@ -1074,11 +1079,11 @@
       ]
     },
     {
-      "id": "density-compact-open",
+      "id": "size-small-open",
       "props": {
         "label": "On this page",
         "presentation": "compact",
-        "density": "compact",
+        "size": "small",
         "open": true,
         "tracking": "manual",
         "current": "#label"
@@ -1124,10 +1129,10 @@
       ]
     },
     {
-      "id": "density-compact-rtl",
+      "id": "size-small-rtl",
       "props": {
         "label": "في هذه الصفحة",
-        "density": "compact",
+        "size": "small",
         "tracking": "manual",
         "current": "#label"
       },
@@ -1585,7 +1590,7 @@
         "label": "label",
         "labelHidden": "label-hidden",
         "presentation": "presentation",
-        "density": "density",
+        "size": "size",
         "open": "open",
         "current": "current",
         "tracking": "tracking"
@@ -1614,7 +1619,7 @@
         "label": "label",
         "labelHidden": "labelHidden",
         "presentation": "presentation",
-        "density": "density",
+        "size": "size",
         "open": "isOpen",
         "current": "current",
         "tracking": "tracking"
@@ -1643,7 +1648,7 @@
         "label": "label",
         "labelHidden": "labelHidden",
         "presentation": "presentation",
-        "density": "density",
+        "size": "size",
         "open": "open",
         "current": "current",
         "tracking": "tracking"
@@ -1672,7 +1677,7 @@
         "label": "label",
         "labelHidden": "labelHidden",
         "presentation": "presentation",
-        "density": "density",
+        "size": "size",
         "open": "open",
         "current": "current",
         "tracking": "tracking"
@@ -1701,7 +1706,7 @@
         "label": "label",
         "labelHidden": "labelHidden",
         "presentation": "presentation",
-        "density": "density",
+        "size": "size",
         "open": "open",
         "current": "current",
         "tracking": "tracking"

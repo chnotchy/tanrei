@@ -385,7 +385,7 @@ function componentBody(ctx: Ctx, component: string, NS: string) {
   const sizeRow = h('div', { 'data-axis-row': 'sizes' }, h('dt', { text: t.components.sizes }), h('dd', {}, sizeTags));
   const variantRow = h('div', { 'data-axis-row': 'variants' }, h('dt', { text: t.components.variants }), h('dd', {}, variantTags));
   const rows = h('dl', {});
-  const summary = h('tanrei-description-list', { class: 'ts-axis-summary', layout: 'inline', density: 'compact', separation: 'gap' }, rows);
+  const summary = h('tanrei-description-list', { class: 'ts-axis-summary', layout: 'inline', size: 'small', separation: 'gap' }, rows);
   let shown = '';
   const refresh = () => {
     const model = ctx.view().model;
