@@ -16,7 +16,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the table at 390, in
 // WebKit, took 15 s in CI.
@@ -88,14 +88,11 @@ for (const engine of ENGINES) {
         const held = Number(/([\d.]+)px$/.exec(away.held)?.[1]);
         assert.ok(held > 0, `it holds a room before it is drawn (${away.held})`);
 
-        // Drawn: near the view, its elements defined, two frames since.
-        const drawn = await page.evaluate(async (selector) => {
+        // Drawn: near the view, its elements defined, the fonts in, four frames since (each wait bounded: launch.mjs).
+        await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), TABLE);
+        await settlePage(page, { tags: ['tanrei-table', 'tanrei-swatch'], frames: 4 });
+        const drawn = await page.evaluate((selector) => {
           const table = document.querySelector(selector);
-          table.scrollIntoView({ block: 'start' });
-          await customElements.whenDefined('tanrei-table');
-          await customElements.whenDefined('tanrei-swatch');
-          await document.fonts.ready;
-          for (let i = 0; i < 4; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
           const rows = [...table.querySelectorAll(':scope > table > tbody > tr')].map((row) => ({ height: row.getBoundingClientRect().height, value: row.cells[2]?.textContent.trim() ?? '' }));
           return { rows, scrolls: table.scrollWidth - table.clientWidth > 1, tabindex: table.getAttribute('tabindex'), role: table.getAttribute('role') };
         }, TABLE);
