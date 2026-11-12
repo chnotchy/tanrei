@@ -1,6 +1,6 @@
 ---
 title: Capa modal
-description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Escape, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
+description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Esc, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
 translationOf: components/modal-layer.mdx
 sourceHash: 6dff609b840b61a4b73e9fe67a639e16f0edfb1c
 ---
@@ -25,7 +25,7 @@ import Example from '../../../../components/visuals/Example.astro';
   </tanrei-modal-layer>
 </Example>
 
-Toda superficie modal tiene debajo la misma capa. Atenúa la ventana detrás de la superficie, de modo que la página se lee como apartada. Vuelve inerte todo lo que hay ahí: nada de lo que queda detrás puede pulsarse, recibir el foco ni ser leído por un lector de pantalla, y la página no se desplaza. Lleva el foco al interior de la superficie, lo mantiene ahí mientras está abierta y lo devuelve cuando se cierra. Y pide cerrarse cuando la persona pulsa Escape, usa la acción de retroceso de la plataforma o pulsa el velo.
+Toda superficie modal tiene debajo la misma capa. Atenúa la ventana detrás de la superficie, de modo que la página se lee como apartada. Vuelve inerte todo lo que hay ahí: nada de lo que queda detrás puede pulsarse, recibir el foco ni ser leído por un lector de pantalla, y la página no se desplaza. Lleva el foco al interior de la superficie, lo mantiene ahí mientras está abierta y lo devuelve cuando se cierra. Y pide cerrarse cuando la persona pulsa Esc, usa la acción de retroceso de la plataforma o pulsa el velo.
 
 La capa modal es esa capa, convertida en un componente propio. El [diálogo](/es/components/dialog/), la [hoja lateral](/es/components/side-sheet/) y la [hoja inferior](/es/components/bottom-sheet/) cuando son modales, el [panel de navegación](/es/components/navigation-drawer/) modal, la [vista previa de imágenes](/es/components/image-preview/), el [selector de fecha y hora](/es/components/date-time-picker/) modal y las vistas modales de la [búsqueda](/es/components/search/) se construyen todos con ella. Cada uno sigue sus reglas en lugar de tener unas propias.
 
@@ -126,7 +126,7 @@ La opacidad del velo es el alfa de su color: cambia el color, o el rol `scrim` d
 | Atenúa la ventana que hay detrás (o no dibuja nada, con `scrim` desactivado), hasta todos los bordes. | Su propio color, forma, sombra y margen interior. La capa no añade ninguno. |
 | Vuelve inerte todo lo que hay detrás e impide que la página se desplace. | Su propio desplazamiento, cuando es más alto que la ventana. |
 | Lleva el foco al interior, lo mantiene ahí y lo devuelve al cerrarse. | Marca el elemento que debe recibir el foco primero, si lo hay. |
-| Pide cerrarse con Escape, con la acción de retroceso de la plataforma y con una pulsación en el velo. | Una salida propia: un botón Cerrar, Cancelar o Listo. |
+| Pide cerrarse con Esc, con la acción de retroceso de la plataforma y con una pulsación en el velo. | Una salida propia: un botón Cerrar, Cancelar o Listo. |
 | Centra el contenedor en la ventana con el tamaño de su contenido. | Dónde va en su lugar, si no es en el centro. |
 
 ### Sin el velo
@@ -156,7 +156,7 @@ En la web, la capa indica entonces cuánto creció la ventana por cada lado, con
 ### Recomendado
 
 - Da nombre a la capa con `label`. Un lector de pantalla lo anuncia cuando el foco entra.
-- Pon una salida visible en el contenido. No todo el mundo conoce Escape, y la acción de retroceso no existe en todos los dispositivos.
+- Pon una salida visible en el contenido. No todo el mundo conoce Esc, y la acción de retroceso no existe en todos los dispositivos.
 - Cambia las superficies modales de un producto mediante `comp.modal-layer.*`, para que sigan siendo parecidas.
 
 ### Evita
@@ -175,8 +175,8 @@ En la web, la capa indica entonces cuánto creció la ventana por cada lado, con
 - El foco entra en la capa cuando se abre, incluso cuando se escribe ya abierta. Va al elemento que marcaste o, si no, al contenedor, de modo que el nombre se lee primero.
 - Tab y Mayús+Tab dan la vuelta dentro de la capa. El foco nunca llega a la página que queda detrás.
 - Al cerrarse, el foco vuelve adonde estaba. Si ese elemento ya no existe, el foco va adonde lo pone la plataforma.
-- Escape solo pide cerrar cuando todo lo que hay dentro ya lo ha recibido. Un campo que borra su texto con Escape, o un menú que se cierra, mantiene abierta la capa.
-- Una capa abierta desde dentro de otra se apila encima de ella. Solo la que está más arriba responde a Escape, a la acción de retroceso y a su velo.
+- Esc solo pide cerrar cuando todo lo que hay dentro ya lo ha recibido. Un campo que borra su texto con Esc, o un menú que se cierra, mantiene abierta la capa.
+- Una capa abierta desde dentro de otra se apila encima de ella. Solo la que está más arriba responde a Esc, a la acción de retroceso y a su velo.
 
 ### Qué debes hacer tú
 

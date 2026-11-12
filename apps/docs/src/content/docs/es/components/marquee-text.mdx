@@ -137,7 +137,7 @@ La línea retiene su movimiento donde está mientras el puntero está encima o e
 - Solo se mueve cuando el texto no cabe. Una línea cuyo texto cabe dibuja texto sin más y no inicia nada.
 - Donde el movimiento está reducido (WCAG 2.3.3), nunca se mueve. Al pasar el cursor o recibir el foco, muestra la parte oculta un tramo del ancho de la línea cada vez, sin movimiento, deteniéndose en cada vista, de modo que cada parte del texto se puede ver; una línea con `trigger="always"` descansa cortada y no dibuja el control de reproducción.
 - La tecnología de apoyo lee el texto una vez, entero, como texto, donde está la línea. La copia, los puntos suspensivos y el desvanecido están ocultos para ella, y el movimiento no cambia nada de lo que lee ni anuncia nada.
-- La línea no es una parada de foco. El tabulador llega al control en el que está, y al control de reproducción mientras se dibuja.
+- La línea no es una parada de foco. Tab llega al control en el que está, y al control de reproducción mientras se dibuja.
 - El control de reproducción es un botón de la variante text y el tamaño small, con el glifo de pausa del conjunto de iconos mientras el texto se mueve y el de reproducir mientras está en pausa. Enter o Espacio lo alternan, el foco se queda en él y emite `pausedChange`. Su objetivo cumple el mínimo.
 - En un diseño de derecha a izquierda, el control de reproducción está en el extremo izquierdo de la línea; el texto se mueve según su propia dirección.
 - Con colores forzados, el texto toma el color que la plataforma da al elemento que lo rodea, y sus bordes se recortan en lugar de desvanecerse.

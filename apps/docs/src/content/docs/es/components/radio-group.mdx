@@ -206,7 +206,7 @@ Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable
 
 ### Solo lectura
 
-Un grupo de solo lectura muestra su respuesta en su sitio, para que la persona la lea y no la cambie: un paso de revisión, o una elección que solo algunas personas pueden cambiar. Tab sigue entrando por el botón de opción seleccionado, las flechas se mueven entre las opciones sin seleccionar ninguna, y el valor se envía con el formulario. El formulario no rechaza un grupo obligatorio y de solo lectura que queda sin responder, porque la persona no puede responderlo. Se dibuja como un grupo habilitado, sin la respuesta al pasar el puntero ni al pulsar.
+Un grupo de solo lectura muestra su respuesta en su sitio, para que la persona la lea y no la cambie: un paso de revisión, o una elección que solo algunas personas pueden cambiar. Tab sigue entrando por el botón de opción seleccionado, las teclas de flecha se mueven entre las opciones sin seleccionar ninguna, y el valor se envía con el formulario. El formulario no rechaza un grupo obligatorio y de solo lectura que queda sin responder, porque la persona no puede responderlo. Se dibuja como un grupo habilitado, sin la respuesta al pasar el puntero ni al pulsar.
 
 ### Recomendado
 
@@ -229,10 +229,10 @@ Un grupo de solo lectura muestra su respuesta en su sitio, para que la persona l
 
 - Un solo grupo de botones de opción que contiene sus botones de opción y recibe su nombre de `label`, tanto si se dibuja como si se oculta con `labelHidden`.
 - El estado obligatorio mientras `required` está activado, el estado no válido mientras `error` es true, el estado deshabilitado mientras `disabled` es true, y su orientación.
-- El estado de solo lectura mientras `readOnly` es verdadero. Entonces cada botón de opción es de solo lectura: Tab y las flechas siguen moviendo el foco, y nada de lo que haga la persona cambia `value`.
+- El estado de solo lectura mientras `readOnly` es verdadero. Entonces cada botón de opción es de solo lectura: Tab y las teclas de flecha siguen moviendo el foco, y nada de lo que haga la persona cambia `value`.
 - La descripción del grupo es `supportingText`, después `errorText` mientras `error` es true y después `optionalText` mientras es opcional. `requiredText` no forma parte de ella: lo dice el estado obligatorio.
 - Cada botón de opción dice su posición en el conjunto y el tamaño del conjunto, contando las opciones deshabilitadas.
-- Una sola parada en el orden del foco: el botón de opción seleccionado o, si no hay ninguno, el primero habilitado. Tab entra en el grupo por ahí y sale de él; las teclas de flecha se mueven dentro del grupo, se saltan una opción deshabilitada y dan la vuelta en los dos extremos. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.
+- Una sola parada en el orden del foco: el botón de opción seleccionado o, si no hay ninguno, el primero habilitado. Tab entra en el grupo por ahí y sale de él; las teclas de flecha se mueven dentro del grupo, se saltan una opción deshabilitada y dan la vuelta en los dos extremos. En un diseño de derecha a izquierda, flecha izquierda y flecha derecha se intercambian.
 - `disabled` deshabilita todos los botones de opción. Un grupo habilitado nunca habilita un botón de opción que hayas deshabilitado tú: las teclas de flecha y Tab lo pasan por alto, conserva su lugar en el recuento y sigue seleccionado mientras `value` es su valor.
 - Un error que aparece, o cuyas palabras cambian, mientras el foco está en uno de los botones de opción se anuncia una vez, de forma cortés. El foco nunca se mueve por un error.
 - El tag de obligatoriedad y el asterisco quedan ocultos para la tecnología de apoyo.
