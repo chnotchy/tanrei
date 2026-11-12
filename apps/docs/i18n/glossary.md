@@ -710,7 +710,7 @@ In Arabic, الشكل is *shape* only; a *variant* is الطراز, and the fixe
 
 ## Key names
 
-What a key is called in each language: in prose, and where the site names a key for assistive technology (the keyboard map's caps, `keys` in `src/lib/i18n.ts`, which holds these words). A key is named as the keyboards of the language print it (`Esc`, `Supr`); only the arrows, which a keyboard prints as a glyph, have words of the language. English names a key in full, as its specs do (`Escape`). A chord joins its keys with `+` in prose (`Shift+Tab`); `Command or Control` is the key a product writes as `mod`. In prose the Japanese, Chinese and Hindi pages may add «キー» / «键» / «कुंजी» after a name where the sentence needs it (`Tab キー`).
+What a key is called in each language: in prose, and where the site names a key for assistive technology (the keyboard map's caps, `keys` in `src/lib/i18n.ts`, which holds these words). A key is named as the keyboards of the language print it (`Esc`, `Supr`); only the arrows, which a keyboard prints as a glyph, have words of the language. English names a key in full, as its specs do (`Escape`, `Control`), as Google's and Apple's style guides spell the modifiers out (`Control+C`, or `Command+C` on Apple's keyboards) and as the platform's keyboard shortcut property writes them; `Ctrl` stays only where an English page quotes a legend the Keyboard shortcut draws (`Ctrl+Shift+K`, beside `⇧⌘K`). A chord joins its keys with `+` in prose (`Shift+Tab`); `Command or Control` is the key a product writes as `mod`. In prose the Japanese, Chinese and Hindi pages may add «キー» / «键» / «कुंजी» after a name where the sentence needs it (`Tab キー`).
 
 | English | Japanese | Simplified Chinese | Spanish | Hindi | Arabic |
 |---|---|---|---|---|---|

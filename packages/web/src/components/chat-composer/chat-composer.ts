@@ -230,7 +230,7 @@ const DEFAULT_TRUE = { fromAttribute: (value: string | null) => value !== 'false
  * `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says; a stacked composer with
  * nothing for the row beneath is drawn as an inline one. Tab moves through it in the order it is drawn.
  *
- * Enter sends and Shift+Enter begins a new line; with `send-key="modifier"` Enter begins a new line. Ctrl+Enter and
+ * Enter sends and Shift+Enter begins a new line; with `send-key="modifier"` Enter begins a new line. Control+Enter and
  * Command+Enter send under both. An input method's Enter never sends, and neither does the return key of an on-screen
  * keyboard: both are the embedded text input's to tell. A request by the keyboard while the message cannot be sent
  * emits `sendblocked` with the reasons, unless there is simply nothing to send.
@@ -400,7 +400,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /** Draws the number of characters, and `maxLength` where one is set, before the trailing actions. */
   counter = false;
 
-  /** What Enter does on a hardware keyboard (`send-key`). `enter` (the default, and every value it does not know): Enter sends and Shift+Enter begins a new line. `modifier`: Enter begins a new line and Ctrl+Enter or Command+Enter sends. Ctrl+Enter and Command+Enter send under both. */
+  /** What Enter does on a hardware keyboard (`send-key`). `enter` (the default, and every value it does not know): Enter sends and Shift+Enter begins a new line. `modifier`: Enter begins a new line and Control+Enter or Command+Enter sends. Control+Enter and Command+Enter send under both. */
   sendKey: 'enter' | 'modifier' = 'enter';
 
   /** Whether files can be attached, and who holds them. `none` (the default, and every value it does not know): text alone. `own`: the chat composer keeps the files a person attached and draws a File item for each, and `send` carries them. `given`: the product gives the File items as children and the chat composer lays them out and keeps no file. */
