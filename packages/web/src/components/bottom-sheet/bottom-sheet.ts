@@ -18,10 +18,12 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
+  modalLayer,
   modalSheetKeys,
   motionReduced,
   onBackdrop,
   openModal,
+  readTogether,
   report,
   returnFocus,
   syncDividerVisibility,
@@ -64,6 +66,15 @@ export interface TanreiBottomSheetHeights {
   partial: number;
   full: number;
   two: boolean;
+}
+
+/** BSH-6, BSH-10: what measuring reads (`readHeights()`): the heights, and whether and where the content scrolls. */
+interface Measured {
+  content: HTMLElement;
+  partial: number;
+  full: number;
+  scrolls: boolean;
+  top: number;
 }
 
 /**
@@ -236,6 +247,9 @@ export class TanreiBottomSheet extends TanreiElement {
   /** Whether focus was inside a standard sheet that is closing (read before the render makes it inert). */
   private closingWithFocus = false;
   private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
+  /** The reads after an update are asked for (`syncTogether()`), and the heights with them. */
+  private syncAsked = false;
+  private measureAsked = false;
 
   private get modal(): boolean {
     return this.variant !== 'standard';
@@ -571,24 +585,36 @@ export class TanreiBottomSheet extends TanreiElement {
 
   /** BSH-6: the heights, from the area's caps and the content's own height; BSH-10: whether the content scrolls. */
   private measure() {
+    this.takeHeights(this.readHeights());
+  }
+
+  /** `measure()`'s read: the heights and whether the content scrolls, or null where the sheet is drawn nowhere. */
+  private readHeights(): Measured | null {
     const sheet = this.sheet;
     const content = this.content;
     const partialCap = this.renderRoot?.querySelector('.cap.partial');
     const fullCap = this.renderRoot?.querySelector('.cap.full');
-    if (!sheet || !content || !partialCap || !fullCap) return;
-    if (sheet.getClientRects().length === 0) return;
+    if (!sheet || !content || !partialCap || !fullCap) return null;
+    if (sheet.getClientRects().length === 0) return null;
     const row = this.renderRoot.querySelector('.row')?.getBoundingClientRect().height ?? 0;
     const header = this.renderRoot.querySelector('.header')?.getBoundingClientRect().height ?? 0;
     const end = Number.parseFloat(getComputedStyle(sheet).paddingBlockEnd) || 0;
     const natural = row + header + content.scrollHeight + end;
     const partial = Math.min(natural, partialCap.getBoundingClientRect().height);
     const full = Math.min(natural, fullCap.getBoundingClientRect().height);
+    return { content, partial, full, scrolls: content.scrollHeight > content.clientHeight + 0.5, top: content.scrollTop };
+  }
+
+  /** `measure()`'s write: what `readHeights()` read. */
+  private takeHeights(measured: Measured | null) {
+    if (!measured) return;
+    const { content, partial, full, scrolls, top } = measured;
     this.heights = { partial, full, two: full - partial > 0.5 };
     if (this.two !== this.heights.two) this.two = this.heights.two;
     // BSH-10: a content that scrolls is a Tab stop, so the keyboard can scroll it.
-    if (content.scrollHeight > content.clientHeight + 0.5) content.setAttribute('tabindex', '0');
+    if (scrolls) content.setAttribute('tabindex', '0');
     else content.removeAttribute('tabindex');
-    this.syncTouch();
+    this.writeTouch(top);
   }
 
   /**
@@ -597,10 +623,15 @@ export class TanreiBottomSheet extends TanreiElement {
    * content is at its top.
    */
   private syncTouch() {
+    this.writeTouch(this.content?.scrollTop ?? 0);
+  }
+
+  /** `syncTouch()`'s write, from where the content is scrolled to, as read. */
+  private writeTouch(top: number) {
     const content = this.content;
     if (!content) return;
     const highest = !this.heights?.two || this.resting === 'full';
-    content.dataset.touch = !highest ? 'sheet' : content.scrollTop <= 0 ? 'pan-down' : 'scroll';
+    content.dataset.touch = !highest ? 'sheet' : top <= 0 ? 'pan-down' : 'scroll';
   }
 
   private readonly onScroll = () => {
@@ -613,26 +644,72 @@ export class TanreiBottomSheet extends TanreiElement {
    * from its top under scroll (`scrolled`); at once, without motion.
    */
   private syncHeaderDivider() {
+    this.writeHeaderDivider(this.content?.scrollTop ?? 0);
+  }
+
+  /** `syncHeaderDivider()`'s write, from where the content is scrolled to, as read. */
+  private writeHeaderDivider(top: number) {
     const header = this.renderRoot?.querySelector<HTMLElement>('.header');
-    const content = this.content;
-    if (header && content) header.classList.toggle('scrolled', content.scrollTop > 0.5);
+    if (header && this.content) header.classList.toggle('scrolled', top > 0.5);
     syncDividerVisibility(this, header);
   }
 
+  /**
+   * After an update: the header's divider and the touch the content takes (BSH-28, BSH-10), and the heights where the
+   * update asks for them (`measure`), read with every other host's reads of the turn (src/primitives/read-phase.ts):
+   * read in each sheet's own update, after the one before had written, they had the browser lay the page out once per
+   * sheet. Asked again before it is read, it is read once.
+   */
+  private syncTogether(measure: boolean) {
+    if (measure) this.measureAsked = true;
+    if (this.syncAsked) return;
+    this.syncAsked = true;
+    readTogether(() => {
+      this.syncAsked = false;
+      const measured = this.measureAsked ? this.readHeights() : undefined;
+      this.measureAsked = false;
+      const top = this.content?.scrollTop ?? 0;
+      return () => {
+        if (measured !== undefined) this.takeHeights(measured);
+        this.writeHeaderDivider(top);
+        this.writeTouch(top);
+      };
+    });
+  }
+
   /** BSH-6, BSH-7: the area ends at the on-screen keyboard, and nothing is under the bottom inset while it is shown. */
-  private readonly onViewport = () => {
-    const cover = this.modal ? keyboardCover() : keyboardCover(this.getBoundingClientRect().bottom);
-    for (const element of this.renderRoot?.querySelectorAll<HTMLElement>('.sheet, .area') ?? []) element.style.setProperty('--_keyboard', `${cover}px`);
-    this.sheet?.classList.toggle('keyboard', cover > 0);
-  };
+  private readonly onViewport = () => this.cover(this.readCover());
+
+  /** `onViewport`'s read: how much of the sheet's area the on-screen keyboard covers. */
+  private readCover(): number {
+    return this.modal ? keyboardCover() : keyboardCover(this.getBoundingClientRect().bottom);
+  }
+
+  /** `onViewport`'s write. */
+  private cover(covered: number) {
+    for (const element of this.renderRoot?.querySelectorAll<HTMLElement>('.sheet, .area') ?? []) element.style.setProperty('--_keyboard', `${covered}px`);
+    this.sheet?.classList.toggle('keyboard', covered > 0);
+  }
+
+  /** BSH-6, BSH-7: `onViewport` with every other host's reads of the turn. */
+  private viewportTogether() {
+    readTogether(() => {
+      const covered = this.readCover();
+      return () => this.cover(covered);
+    });
+  }
 
   // ---- BSH-2, BSH-3: presenting and focus ----
 
   /** BSH-3: focus to the slotted element marked `autofocus`, else the sheet itself, so its label is read first. */
   private focusInside() {
+    // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
+    const dialog = this.dialog;
+    if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
     const marked = this.querySelector<HTMLElement>('[autofocus]');
-    if (marked && !marked.closest('[inert]')) marked.focus();
-    else this.sheet?.focus();
+    const target = marked && !marked.closest('[inert]') ? marked : this.sheet;
+    // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
+    if (target && deepActive() !== target) target.focus();
   }
 
   /** BSH-3: focus back where it was when the sheet opened — or dropped, where that element is gone. */
@@ -668,12 +745,29 @@ export class TanreiBottomSheet extends TanreiElement {
     this.appear.enter(instant);
     this.shown = true;
     holdPageScroll(this, true);
-    this.onViewport();
-    this.measure();
-    this.focusInside();
-    // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
-    // after this task, as its entrance does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // The keyboard's cover, then the heights, then focus in — what focus scrolls into view is placed first — each read
+    // with every other host's reads of the turn (src/primitives/read-phase.ts): read after the sheet's own
+    // `showModal()`, they had the browser style and lay out the page once per sheet. Still in the task.
+    readTogether(() => {
+      if (!this.shown) return;
+      const covered = this.readCover();
+      return () => {
+        if (!this.shown) return;
+        this.cover(covered);
+        readTogether(() => {
+          if (!this.shown) return;
+          const measured = this.readHeights();
+          return () => {
+            if (!this.shown) return;
+            this.takeHeights(measured);
+            this.focusInside();
+            // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first
+            // frame drawn after this task, as its entrance does (statesFromNextFrame).
+            statesFromNextFrame([this]);
+          };
+        });
+      };
+    });
   }
 
   /** BSH-1, BSH-3: out of the top layer (sliding from where it is drawn), the page given back, focus back where it was. */
@@ -711,6 +805,13 @@ export class TanreiBottomSheet extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // BSH-29: the variant its token names, read at each update (a system switch is seen at the next one) with every
+    // other host's reads of the turn (src/primitives/read-phase.ts), and given to the close button the render makes
+    // before that button draws: asked before the render, the read comes before the button's first update.
+    readTogether(() => {
+      const variant = compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS);
+      return () => giveVariant(this.renderRoot?.querySelector('tanrei-button.close'), variant);
+    });
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = this.hasFocus();
     // BSH-21: a product's change of detent moves the sheet from where it is drawn.
     if (changed.has('detent') && changed.get('detent') !== undefined && !this.choosing && this.open && this.hasUpdated) this.movingFrom = this.drawn();
@@ -736,9 +837,6 @@ export class TanreiBottomSheet extends TanreiElement {
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'BSH-28', `divider-visibility "${this.dividerVisibility}" is not a value of the bottom sheet; it is drawn as "auto"`);
     }
-    // BSH-29: the variant its token names, read at each update (a system switch is seen at the next one).
-    giveVariant(this.renderRoot.querySelector('tanrei-button.close'), compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
-    this.syncHeaderDivider();
     if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('noHandle')) && this.interactive && this.words.lacks('handleLabel', this.handleLabel)) {
       report(this, 'BSH-11', 'handle-label is empty, so the drag handle has no accessible name; give it a handle-label');
     }
@@ -767,17 +865,21 @@ export class TanreiBottomSheet extends TanreiElement {
           this.restoreFocus();
         }
       }
-      if (this.open) this.onViewport();
+      if (this.open) this.viewportTogether();
     }
-    if (changed.has('noHandle') || changed.has('flush') || changed.has('headline') || changed.has('closable')) this.measure();
+    let measure = changed.has('noHandle') || changed.has('flush') || changed.has('headline') || changed.has('closable');
     if (this.choosing) this.choosing = false;
     else if (changed.has('detent')) {
       const from = this.movingFrom;
       this.movingFrom = null;
-      this.measure();
-      if (from && this.heights) this.settle(from, this.heights.two && this.resting === 'full' ? this.heights.full : this.heights.partial);
+      // BSH-21: a product's move starts now, from the heights measured now; any other change of detent (the first
+      // update's included) is measured with the reads of the turn.
+      if (from) {
+        this.measure();
+        if (this.heights) this.settle(from, this.heights.two && this.resting === 'full' ? this.heights.full : this.heights.partial);
+      } else measure = true;
     }
-    this.syncTouch();
+    this.syncTogether(measure);
   }
 
   /** What changes the heights: the area, the content box and the content itself. */
