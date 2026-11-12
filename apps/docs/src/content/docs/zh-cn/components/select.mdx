@@ -2,13 +2,14 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: a09887b40f04e27a663a8334d9a5e7f6b8f7af0d
+sourceHash: ef7d7bf2e491e0e8690b9f0302d702ff2703e869
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -294,6 +295,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 不要禁用一个选项，却不让用户知道原因。请把原因写在它的辅助文本里。
 
 ## 无障碍
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

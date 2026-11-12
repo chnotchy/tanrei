@@ -2,13 +2,14 @@
 title: Entrada de código de un solo uso
 description: Recibe un código corto enviado a la persona (un código de inicio de sesión o de verificación) como un único valor de texto dibujado en celdas separadas, de modo que se ven su longitud y lo que aún falta, y la plataforma puede rellenarlo en un solo paso.
 translationOf: components/one-time-code-input.mdx
-sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
+sourceHash: 790c00ccbc5b99fdcb1ad91d703ec883964327fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -181,6 +182,8 @@ Un campo de texto con `autocomplete="one-time-code"` también recibe un código 
 - No uses `label` dentro de un campo. El campo da nombre al control.
 
 ## Accesibilidad
+
+<FocusOrder name="one-time-code-input" fixture="partial" />
 
 <ComponentAccessibility name="one-time-code-input" />
 

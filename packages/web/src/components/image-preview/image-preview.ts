@@ -82,7 +82,7 @@ const BUTTON_PARTS = Object.fromEntries(
 const DOUBLE_TAP = 300;
 /** IMP-14: how far apart the two presses of a double tap may land, in px: a second finger does not land within the slop of a drag. */
 const DOUBLE_TAP_REACH = 24;
-/** IMP-15: how much one pixel of a wheel turned with Ctrl or Command — or of a trackpad pinch, which arrives as one — changes the zoom. */
+/** IMP-15: how much one pixel of a wheel turned with Control or Command — or of a trackpad pinch, which arrives as one — changes the zoom. */
 const WHEEL_ZOOM = 0.01;
 /** IMP-15, IMP-21: a wheel names no end of its gesture; one that has been still this long, in ms, has ended. */
 const WHEEL_END = 160;
@@ -1240,7 +1240,7 @@ export class TanreiImagePreview extends TanreiElement {
     this.hideControls(false);
   }
 
-  /** IMP-15, IMP-16: a wheel with Ctrl or Command — and a trackpad pinch, which arrives as one — zooms about the pointer; without, it moves an enlarged image; at fit it does nothing. */
+  /** IMP-15, IMP-16: a wheel with Control or Command — and a trackpad pinch, which arrives as one — zooms about the pointer; without, it moves an enlarged image; at fit it does nothing. */
   private readonly onWheel = (event: WheelEvent) => {
     if (!this.presented) return;
     const unit = event.deltaMode === 1 ? WHEEL_LINE : event.deltaMode === 2 ? this.fit.h : 1;
@@ -1475,7 +1475,7 @@ export class TanreiImagePreview extends TanreiElement {
 
   protected override firstUpdated() {
     const stage = this.stageElement;
-    // Not passive: a wheel with Ctrl or Command, and one over an enlarged image, is the preview's (IMP-15, IMP-16).
+    // Not passive: a wheel with Control or Command, and one over an enlarged image, is the preview's (IMP-15, IMP-16).
     // The stage has a box only while the preview is presented, so a closed preview takes no wheel of the page's.
     stage?.addEventListener('wheel', this.onWheel, { passive: false });
     for (const type of ['gesturestart', 'gesturechange', 'gestureend']) stage?.addEventListener(type, this.onGesture);

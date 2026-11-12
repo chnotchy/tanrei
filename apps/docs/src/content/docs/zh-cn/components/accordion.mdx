@@ -2,13 +2,14 @@
 title: "折叠面板"
 description: "由一行来就地显示和隐藏的内容。单独一项就是一个可以展开和折叠的区块；多项组成一组，各项可以各自展开，也可以一次只展开一项。"
 translationOf: components/accordion.mdx
-sourceHash: 4df43bed1d6395d0f95fef683745e6a1b6a6eb48
+sourceHash: aecaadd19c8c644d3738c1d1aceb8d2eb1572126
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -200,6 +201,8 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 - 不要因为某一项里有无效的内容，就不作说明地把它展开：表单被拒绝时，展开包含第一个错误的那一项，再把焦点移到那个字段上。
 
 ## 无障碍
+
+<FocusOrder name="accordion" fixture="plain" />
 
 <ComponentAccessibility name="accordion" />
 

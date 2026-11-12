@@ -2,13 +2,14 @@
 title: Paginación
 description: Recorre las páginas numeradas de una lista. Números de página con la página actual marcada, anterior y siguiente, primera y última donde las pidas, y una forma corta que dice qué página de cuántas.
 translationOf: components/pagination.mdx
-sourceHash: 458a4038d3550060a61fbd6920da965d35815a5d
+sourceHash: c81aaf3b88321f2e789dc7009742f08169abf441
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -96,6 +97,8 @@ Los textos son tuyos: Tanrei no incluye textos propios. Dalos en cada elemento, 
 - No ocultes anterior y siguiente en la primera y en la última página. Están desactivados y conservan su sitio.
 
 ## Accesibilidad
+
+<FocusOrder name="pagination" fixture="default" />
 
 <ComponentAccessibility name="pagination" />
 

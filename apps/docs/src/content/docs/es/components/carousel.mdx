@@ -9,6 +9,7 @@ import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -401,6 +402,8 @@ Cuando cambian el ancho del carrusel o sus elementos, este vuelve a organizar su
 - No ocultes el control de reproducción salvo que tu producto ofrezca otra forma de detener el movimiento.
 
 ## Accesibilidad
+
+<FocusOrder name="carousel" fixture="navigation" />
 
 <ComponentAccessibility name="carousel" />
 

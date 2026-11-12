@@ -2,13 +2,14 @@
 title: コンボボックス
 description: 入力して 1 つ、または複数の値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/combobox.mdx
-sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
+sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -280,6 +281,8 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 - コンボボックスに `supporting-text`、`error-text`、`required`、`optional` を書かない。これらはフィールドのもので、コンボボックスはどれも描きません。
 
 ## アクセシビリティ
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

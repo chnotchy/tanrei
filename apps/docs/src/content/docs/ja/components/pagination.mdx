@@ -2,13 +2,14 @@
 title: ページネーション
 description: 1 つのリストの番号付きのページを移動します。現在のページに印を付けたページ番号、前と次、必要に応じて最初と最後、そして何ページ中の何ページかを示す短い形があります。
 translationOf: components/pagination.mdx
-sourceHash: 458a4038d3550060a61fbd6920da965d35815a5d
+sourceHash: c81aaf3b88321f2e789dc7009742f08169abf441
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -96,6 +97,8 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - 最初のページと最後のページで、前と次を隠さない。無効になり、場所はそのまま残ります。
 
 ## アクセシビリティ
+
+<FocusOrder name="pagination" fixture="default" />
 
 <ComponentAccessibility name="pagination" />
 

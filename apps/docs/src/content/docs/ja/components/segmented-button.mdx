@@ -2,13 +2,14 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: f5dba2ffe4e9e720932015a4fb412a533c20b3b9
+sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 状態によってセグメントのラベルを変えない。選択状態は別に読み上げられます。
 
 ## アクセシビリティ
+
+<FocusOrder name="segmented-button" fixture="single" />
 
 <ComponentAccessibility name="segmented-button" />
 

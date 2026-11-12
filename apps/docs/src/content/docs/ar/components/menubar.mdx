@@ -2,13 +2,14 @@
 title: شريط القوائم
 description: يُبقي أوامر التطبيق في المتناول في صف واحد دائم من القوائم المسمّاة (ملف، تحرير، عرض…)، تُفتح كل قائمة منها تحت عنوانها، وتتنقل مفاتيح الأسهم على امتداد الصف وإلى داخل كل قائمة.
 translationOf: components/menubar.mdx
-sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
+sourceHash: cdc7e2d44e1ccb83b5e663479be4f3df464f63fd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -311,6 +312,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تغيّر مظهر قوائم الشريط عن مظهر قوائم المنتج الأخرى. هي قوائم خيارات، وتأخذ رموز قائمة الخيارات.
 
 ## إمكانية الوصول
+
+<FocusOrder name="menubar" fixture="default" />
 
 <ComponentAccessibility name="menubar" />
 

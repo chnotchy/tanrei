@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 import ProductWords from '../../../components/ProductWords.astro';
 
@@ -270,6 +271,8 @@ That call is the one this page runs: the samples above carry a `label` and none 
 - Don't use the web's `inline` attribute in a product. It draws the surface without the overlay's behaviour.
 
 ## Accessibility
+
+<FocusOrder name="date-time-picker" fixture="docked-date" />
 
 <ComponentAccessibility name="date-time-picker" />
 

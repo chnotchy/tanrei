@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -179,6 +180,8 @@ A text field with `autocomplete="one-time-code"` enters a code correctly too, an
 - Don't use `label` inside a field. The field names the control.
 
 ## Accessibility
+
+<FocusOrder name="one-time-code-input" fixture="partial" />
 
 <ComponentAccessibility name="one-time-code-input" />
 
