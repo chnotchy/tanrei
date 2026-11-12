@@ -1415,6 +1415,176 @@
       ]
     },
     {
+      "term": "comp.table.density",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size, which it takes from its container where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.table.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "comp.table.cell.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "comp.table.cell.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "comp.table.cell.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "comp.table.cell.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.text.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "comp.table.cell.text.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.cell.text.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "comp.table.cell.text.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.header.text.typescale.regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "comp.table.header.text.typescale.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.table.header.text.typescale.compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "comp.table.header.text.typescale.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-cell-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-cell-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-cell-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-cell-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-text-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-cell-text-typescale-medium-*",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-cell-text-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-cell-text-typescale-small-*",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-header-text-typescale-regular",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-table-header-text-typescale-medium-*",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-table-header-text-typescale-compact",
+      "since": "2026-11-12",
+      "reason": "the table's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-table-header-text-typescale-small-*",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
       "term": "comp.button.inline",
       "since": "2026-10-14",
       "reason": "the Button's inline variant was withdrawn: an action drawn as a link that is not a link only confuses; an action inside text is a text Button, and a destination is a Link",

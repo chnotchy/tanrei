@@ -87066,39 +87066,39 @@
                 },
                 "lineHeight": 1.5385
               },
-              "$description": "The caption's text style, at both densities: secondary text, one step under the regular cell's."
+              "$description": "The caption's text style, at both sizes: secondary text, one step under the medium cell's."
             }
           }
         },
         "cell": {
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -87119,29 +87119,7 @@
               "$description": "The text of a cell, of a row header and of a footer cell."
             },
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "Inter",
-                    "Noto Sans JP",
-                    "Noto Sans",
-                    "system-ui",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 13,
-                    "unit": "px"
-                  },
-                  "fontWeight": 400,
-                  "letterSpacing": {
-                    "value": 0.065,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.5385
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -87161,6 +87139,28 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.5714
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Inter",
+                    "Noto Sans JP",
+                    "Noto Sans",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 13,
+                    "unit": "px"
+                  },
+                  "fontWeight": 400,
+                  "letterSpacing": {
+                    "value": 0.065,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.5385
                 }
               }
             }
@@ -87197,7 +87197,7 @@
               "value": 32,
               "unit": "px"
             },
-            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by density."
+            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by size."
           }
         },
         "focused": {
@@ -87238,7 +87238,7 @@
                 "value": 16,
                 "unit": "px"
               },
-              "$description": "The glyph box of the mark of a sortable column, at both densities: the smallest step of the icon scale, beside a label."
+              "$description": "The glyph box of the mark of a sortable column, at both sizes: the smallest step of the icon scale, beside a label."
             },
             "weight": {
               "$type": "number",
@@ -87262,29 +87262,7 @@
               "$description": "The text of a column header: secondary content, quieter than the data it names."
             },
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "Inter",
-                    "Noto Sans JP",
-                    "Noto Sans",
-                    "system-ui",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 12,
-                    "unit": "px"
-                  },
-                  "fontWeight": 500,
-                  "letterSpacing": {
-                    "value": 0.12,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.3333
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -87304,6 +87282,28 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.4286
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Inter",
+                    "Noto Sans JP",
+                    "Noto Sans",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 12,
+                    "unit": "px"
+                  },
+                  "fontWeight": 500,
+                  "letterSpacing": {
+                    "value": 0.12,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.3333
                 }
               }
             }
@@ -88110,7 +88110,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by density, so that its text begins where the first column's does."
+            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by size, so that its text begins where the first column's does."
           },
           "text": {
             "color": {
@@ -88148,7 +88148,7 @@
                 },
                 "lineHeight": 1.5385
               },
-              "$description": "The status text, at both densities: the caption's style."
+              "$description": "The status text, at both sizes: the caption's style."
             }
           }
         },

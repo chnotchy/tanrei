@@ -16170,9 +16170,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
-        compact: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+      sizes: {
+        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {

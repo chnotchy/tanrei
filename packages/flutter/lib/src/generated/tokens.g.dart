@@ -24932,45 +24932,45 @@ class TanreiTableParts {
   }
 }
 
-/// The key of a density of table (`comp.table`, axis `density`).
+/// The key of a size of table (`comp.table`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiTableDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiTableDensity(String name) {
-  static const regular = TanreiTableDensity('regular');
-  static const compact = TanreiTableDensity('compact');
+/// `const TanreiTableSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiTableSize(String name) {
+  static const small = TanreiTableSize('small');
+  static const medium = TanreiTableSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiTableDensity> core = <TanreiTableDensity>[regular, compact];
+  static const List<TanreiTableSize> core = <TanreiTableSize>[small, medium];
 }
 
-/// The tokens of one table density.
+/// The tokens of one table size.
 @immutable
-class TanreiTableDensityTokens {
-  const TanreiTableDensityTokens({
+class TanreiTableSizeTokens {
+  const TanreiTableSizeTokens({
     required this.cellPaddingBlock,
     required this.cellPaddingInline,
     required this.cellTextTypescale,
     required this.headerTextTypescale,
   });
 
-  /// `comp.table.cell-padding-block.<density>`
+  /// `comp.table.cell-padding-block.<size>`
   final double cellPaddingBlock;
-  /// `comp.table.cell-padding-inline.<density>`
+  /// `comp.table.cell-padding-inline.<size>`
   final double cellPaddingInline;
-  /// `comp.table.cell-text-typescale.<density>`
+  /// `comp.table.cell-text-typescale.<size>`
   final TanreiTextStyle cellTextTypescale;
-  /// `comp.table.header-text-typescale.<density>`
+  /// `comp.table.header-text-typescale.<size>`
   final TanreiTextStyle headerTextTypescale;
 
   /// A copy with the given tokens replaced.
-  TanreiTableDensityTokens copyWith({
+  TanreiTableSizeTokens copyWith({
     double? cellPaddingBlock,
     double? cellPaddingInline,
     TanreiTextStyle? cellTextTypescale,
     TanreiTextStyle? headerTextTypescale,
-  }) => TanreiTableDensityTokens(
+  }) => TanreiTableSizeTokens(
         cellPaddingBlock: cellPaddingBlock ?? this.cellPaddingBlock,
         cellPaddingInline: cellPaddingInline ?? this.cellPaddingInline,
         cellTextTypescale: cellTextTypescale ?? this.cellTextTypescale,
@@ -24978,58 +24978,58 @@ class TanreiTableDensityTokens {
       );
 }
 
-/// Every density of table: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of table: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiTableDensitys {
-  const TanreiTableDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiTableDensity, TanreiTableDensityTokens>{},
+class TanreiTableSizes {
+  const TanreiTableSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiTableSize, TanreiTableSizeTokens>{},
   });
 
-  /// `comp.table` density `regular`
-  final TanreiTableDensityTokens regular;
-  /// `comp.table` density `compact`
-  final TanreiTableDensityTokens compact;
+  /// `comp.table` size `small`
+  final TanreiTableSizeTokens small;
+  /// `comp.table` size `medium`
+  final TanreiTableSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiTableDensity, TanreiTableDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiTableSize, TanreiTableSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiTableDensitys copyWith({
-    TanreiTableDensityTokens? regular,
-    TanreiTableDensityTokens? compact,
-    Map<TanreiTableDensity, TanreiTableDensityTokens>? extra,
-  }) => TanreiTableDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiTableDensity, TanreiTableDensityTokens>{...this.extra, ...extra},
+  TanreiTableSizes copyWith({
+    TanreiTableSizeTokens? small,
+    TanreiTableSizeTokens? medium,
+    Map<TanreiTableSize, TanreiTableSizeTokens>? extra,
+  }) => TanreiTableSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiTableSize, TanreiTableSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiTableDensityTokens operator [](TanreiTableDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiTableSizeTokens operator [](TanreiTableSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiTableDensity density) => TanreiTableDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiTableSize size) => TanreiTableSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiTableDensity> get keys => <TanreiTableDensity>[...TanreiTableDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiTableSize> get keys => <TanreiTableSize>[...TanreiTableSize.core, ...extra.keys];
 
-  TanreiTableDensityTokens _fallback(TanreiTableDensity density) {
+  TanreiTableSizeTokens _fallback(TanreiTableSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('table density', density.name, 'regular');
+      debugTanreiReportUnknownValue('table size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -25093,7 +25093,7 @@ class TanreiTableTokens {
     required this.stickyContainerColor,
     required this.stripeContainerColor,
     required this.parts,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -25175,8 +25175,8 @@ class TanreiTableTokens {
   final TanreiPaint stripeContainerColor;
   /// The `part` axis: `parts[part]`.
   final TanreiTableParts parts;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiTableDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiTableSizes sizes;
   /// `comp.table.hovered.*`
   final TanreiTableStateTokens hovered;
   /// `comp.table.focused.*`
@@ -25224,7 +25224,7 @@ class TanreiTableTokens {
     TanreiPaint? stickyContainerColor,
     TanreiPaint? stripeContainerColor,
     TanreiTableParts? parts,
-    TanreiTableDensitys? densitys,
+    TanreiTableSizes? sizes,
     TanreiTableStateTokens? hovered,
     TanreiTableStateTokens? focused,
     TanreiTableStateTokens? pressed,
@@ -25267,7 +25267,7 @@ class TanreiTableTokens {
         stickyContainerColor: stickyContainerColor ?? this.stickyContainerColor,
         stripeContainerColor: stripeContainerColor ?? this.stripeContainerColor,
         parts: parts ?? this.parts,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
