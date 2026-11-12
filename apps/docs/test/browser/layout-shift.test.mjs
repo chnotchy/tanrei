@@ -180,6 +180,30 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
   }
 });
 
+// The sidebar as the reader left it on an earlier visit (components/frame/Sidebar.astro): a width they gave it, or
+// folded to its column, given back before the first frame. Neither may move the page by more than the same budget.
+const SIDEBAR_KEPT = [
+  { name: 'a width the reader gave the sidebar', kept: { width: 320 } },
+  { name: 'the sidebar folded to its column', kept: { expanded: false } },
+];
+describe(`with the sidebar as the reader left it, the layout shifts by no more than ${BUDGET} while a page loads`, { concurrency: 2 }, () => {
+  for (const { name, kept } of SIDEBAR_KEPT) {
+    test(`/components/button/ at 1440, ${name}`, LIMIT, async (t) => {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      try {
+        await context.addInitScript((value) => localStorage.setItem('tanrei-docs-sidebar-layout', value), JSON.stringify(kept));
+        const shifts = await loadShifts(context, '/components/button/');
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        assert.ok(total <= BUDGET, `${name}: shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});
+
 // The reader's own theme (src/lib/custom-theme.ts): a page is hidden until the theme's stylesheet is in, and drawn in
 // it from then on — the first time, when the sheet is computed in a worker, and every time after, when it is read
 // from IndexedDB before the first paint. Neither load may move the page by more than the same budget. The theme is a
