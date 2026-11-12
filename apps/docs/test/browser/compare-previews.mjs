@@ -27,12 +27,24 @@
 // out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
 // each against its tokens); parts placed against something outside the preview (an open surface's list) and visually
 // hidden parts are not compared.
-export async function comparePreviews({ componentCss, still }) {
-  const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+//
+// Every wait for the page has a bound, `bounds` (SETTLE in waits.mjs: the fonts, an element's update as long as its
+// definition, a frame): one that runs out throws at once, naming what it waited for, instead of holding the test until
+// its limit.
+export async function comparePreviews({ componentCss, still, bounds }) {
+  const within = async (ms, promise, what) => {
+    let timer;
+    try {
+      return await Promise.race([promise, new Promise((_, reject) => (timer = setTimeout(() => reject(new Error(`${what()} after ${ms / 1000} s`)), ms)))]);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  const frame = () => within(bounds.frames, new Promise((resolve) => requestAnimationFrame(() => resolve(undefined))), () => `no frame drawn (the document ${document.visibilityState})`);
   const quiet = document.createElement('style');
   quiet.textContent = still;
   document.head.append(quiet);
-  await document.fonts.ready;
+  await within(bounds.fonts, document.fonts.ready, () => `document.fonts.ready not resolved (fonts ${document.fonts.status}; loading: ${[...document.fonts].filter((face) => face.status === 'loading').map((face) => `${face.family} ${face.weight} ${face.style}`).join(', ') || 'none'})`);
 
   const SELECTOR = [
     '[data-example]:not([data-stage]) > figure > [data-part=frame] > [data-part=stage] > :not([data-example-canvas], [data-resize-handle])',
@@ -102,7 +114,8 @@ export async function comparePreviews({ componentCss, still }) {
       Promise.all([...new Set(elements.map((e) => e.localName).filter((n) => n.includes('-')))].map((n) => customElements.whenDefined(n))),
       new Promise((resolve) => setTimeout(resolve, 3000)),
     ]);
-    await Promise.all(elements.map((e) => e.updateComplete).filter(Boolean));
+    const updating = elements.filter((e) => e.updateComplete);
+    await within(bounds.defined, Promise.all(updating.map((e) => e.updateComplete)), () => `the update of ${updating.filter((e) => e.isUpdatePending).map((e) => e.localName).join(', ') || 'an element'} not complete`);
     // A picture loads lazily: brought into view, and waited for until it has loaded or failed.
     for (const picture of elements.filter((e) => e.localName === 'img' && !e.complete)) {
       picture.scrollIntoView({ block: 'center' });

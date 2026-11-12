@@ -18,7 +18,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the repository’s link, in
 // Firefox, took 81 s in CI.
@@ -67,17 +67,13 @@ const items = (page) =>
   });
 
 /**
- * Settled: the elements defined, the fonts in, and a frame drawn after both. The search is defined on its first use
- * (components/frame/Search.astro): a pointer over its trigger defines it, as a reader's would.
+ * Settled: the elements defined, the search's update complete, the fonts in, and two frames drawn after (each wait
+ * bounded: launch.mjs). The search is defined on its first use (components/frame/Search.astro): a pointer over its
+ * trigger defines it, as a reader's would.
  */
 const settled = async (page) => {
   await page.hover('tanrei-search.docs-search');
-  await page.evaluate(async () => {
-    await Promise.all(['tanrei-app-shell', 'tanrei-app-bar', 'tanrei-menu', 'tanrei-button', 'tanrei-search', 'tanrei-navigation-drawer'].map((tag) => customElements.whenDefined(tag)));
-    await document.querySelector('tanrei-search.docs-search').updateComplete;
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+  await settlePage(page, { tags: ['tanrei-app-shell', 'tanrei-app-bar', 'tanrei-menu', 'tanrei-button', 'tanrei-search', 'tanrei-navigation-drawer'], update: 'tanrei-search.docs-search' });
 };
 
 /** The class the shell has decided, once it is the one asked for. */
@@ -288,7 +284,7 @@ for (const engine of ENGINES) {
           assert.equal(seen.scrollWidth, width, `${at}: nothing scrolls sideways`);
           // Nothing else stands anywhere else, or is cut, for it: without the link every other item is where it was, as wide.
           await page.evaluate(() => document.getElementById('docs-repository').remove());
-          await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          await settlePage(page, { fonts: false });
           assert.deepEqual((await read()).places, seen.places, `${at}: the other items stand where they stood`);
           await context.close();
         }

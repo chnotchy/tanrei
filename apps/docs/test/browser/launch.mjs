@@ -19,7 +19,7 @@
 // tests have reported, instead of being held open by its connection to that browser.
 import { afterEach, beforeEach } from 'node:test';
 import * as playwright from '@playwright/test';
-import { SETTLE, describeRequests, settleFrame } from './waits.mjs';
+import { SETTLE, describeRequests, settleDocument, settleFrame } from './waits.mjs';
 
 /** How long a browser has to answer what has no limit of Playwright's: a new context or page, closing one, a script. */
 export const ANSWER = 60_000;
@@ -147,6 +147,19 @@ export function outstanding(page, now = Date.now()) {
  */
 export async function settle(page, selector, { scroll, pending } = {}) {
   const lost = await page.evaluate(settleFrame, { selector, scroll, pending, bounds: SETTLE });
+  if (lost) throw new Error(`${page.url()} did not settle: ${lost}. Outstanding: ${outstanding(page)}.`);
+}
+
+/**
+ * `page` settled as a whole (`settleDocument` in waits.mjs: the tags of `tags` and of the elements `among` matches
+ * defined, the update of the element `update` names complete, the fonts in unless `fonts` is false, `frames` frames
+ * drawn), each wait within its bound; one that runs out fails at once, as `settle` does. `settlePage(page, { fonts:
+ * false })` is two frames drawn, and no more.
+ * @param {import('@playwright/test').Page} page
+ * @param {{ tags?: string[], among?: string, update?: string, fonts?: boolean, frames?: number }} [options]
+ */
+export async function settlePage(page, options = {}) {
+  const lost = await page.evaluate(settleDocument, { ...options, bounds: SETTLE });
   if (lost) throw new Error(`${page.url()} did not settle: ${lost}. Outstanding: ${outstanding(page)}.`);
 }
 

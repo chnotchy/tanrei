@@ -22,7 +22,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, outstanding, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the mirrored figures, in
 // WebKit, took 41 s in CI.
@@ -62,19 +62,23 @@ const ANATOMY = '[data-blueprint-figure="anatomy"]';
 const MEASURE = '[data-blueprint-figure="measure"]';
 const NEAR = 0.5;
 
-/** The figure in view and drawn, with no drawing on its way. */
-const drawn = (page, selector) =>
-  page.evaluate(async (selector) => {
-    const frame = document.querySelector(selector);
-    frame.scrollIntoView({ block: 'center' });
-    const deadline = Date.now() + 15_000;
-    const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
-    await document.fonts.ready;
-    while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-    if (!done()) throw new Error(`${selector} was not drawn`);
-  }, selector);
+/**
+ * The figure in view and drawn, with no drawing on its way: the fonts in, its overlay drawn, two frames since, and
+ * still drawn then. Each wait is bounded (launch.mjs; the overlay, 15 s in all).
+ */
+async function drawn(page, selector) {
+  await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'center' }), selector);
+  const deadline = Date.now() + 15_000;
+  const overlay = `${selector} [data-example-overlay][data-drawn]:not([data-drawing])`;
+  const done = () =>
+    page.waitForFunction((overlay) => document.querySelector(overlay) !== null, overlay, { timeout: Math.max(1, deadline - Date.now()), polling: 50 }).catch((cause) => {
+      throw new Error(`${selector} was not drawn in 15 s. Outstanding: ${outstanding(page)}.`, { cause });
+    });
+  await settlePage(page, { frames: 0 });
+  await done();
+  await settlePage(page, { fonts: false });
+  await done();
+}
 
 /** What the anatomy figure drew: each number, where it stands, its leader, and the ring. */
 const anatomy = (page) =>

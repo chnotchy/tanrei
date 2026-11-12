@@ -18,7 +18,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, their room in the six
 // languages, in WebKit, took 135 s in CI.
@@ -96,15 +96,9 @@ for (const engine of ENGINES) {
       if (!scripts) await page.route(/\.m?js(\?|$)/, (route) => route.abort());
       await page.goto(`${origin}${url}`);
       // (A page whose scripts are off is asked through locators only: an engine may not evaluate in it.)
-      if (javaScriptEnabled) await page.evaluate(() => document.fonts.ready);
-      if (scripts && javaScriptEnabled) {
-        await page.evaluate(async () => {
-          await Promise.all(['tanrei-button-with-menu', 'tanrei-page-header', 'tanrei-menu-item'].map((tag) => customElements.whenDefined(tag)));
-          await document.querySelector('.docs-page-actions').updateComplete;
-          await document.fonts.ready;
-          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        });
-      }
+      // Each wait bounded (launch.mjs): the fonts in, and with the scripts, the actions defined and drawn.
+      if (javaScriptEnabled) await settlePage(page, { frames: 0 });
+      if (scripts && javaScriptEnabled) await settlePage(page, { tags: ['tanrei-button-with-menu', 'tanrei-page-header', 'tanrei-menu-item'], update: '.docs-page-actions' });
       return { context, page };
     };
 
