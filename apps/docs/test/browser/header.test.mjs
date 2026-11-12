@@ -339,6 +339,10 @@ for (const engine of ENGINES) {
         const standIn = await measure();
         assert.equal(standIn.defined, false, 'the bar is not defined while the scripts are held');
         release();
+        // The search is defined by a pointer over its trigger, heard by its module script (components/frame/Search.astro):
+        // a hover before that script has run is heard by nothing, and no other comes. The document is complete once
+        // every module script has run, so the hover waits for it.
+        await page.waitForFunction(() => document.readyState === 'complete');
         await settled(page);
         return { standIn, drawn: await measure() };
       } finally {
