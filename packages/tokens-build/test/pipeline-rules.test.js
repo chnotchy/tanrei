@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { SystemError } from '@tanrei/token-engine';
 import { emitFigmaPlan } from '../src/emit/figma.js';
 import { FONT_NOTE, fontLines, fontReport } from '../src/fonts.js';
-import { checkInvariants, contrast, leadWithStructure } from '../src/invariants.js';
+import { checkInvariants, contrast, isCriterionFinding, leadWithStructure } from '../src/invariants.js';
 import { buildIR, fontStack } from '../src/ir.js';
 import { buildProductSystem } from '../src/product.js';
 import { resolveSystem } from '../src/resolve.js';
@@ -294,8 +294,13 @@ test('a component focus-ring color is held at 3:1 against the container of the s
   } })] })).model()));
   assert.equal(fixed.length, 6, 'a full model carries six schemes of component colors');
 
-  // The presets: m3-like draws the inverse bar and stays clean; nothing here adds a warning to a shipped system.
-  for (const id of ['m3-like', 'm3-expressive-like', 'cupertino']) assert.deepEqual(about(await (await resolveSystem({ system: id })).warnings()), [], id);
+  // The presets: m3-like draws the inverse bar and stays clean. cupertino draws its inverse status bars in Apple's
+  // system colors, which a white indicator stands under 3:1 from: an imitation preset is held to fidelity, so these
+  // are measurements of the criterion (its a11y-report.json), not structural failures.
+  for (const id of ['m3-like', 'm3-expressive-like']) assert.deepEqual(about(await (await resolveSystem({ system: id })).warnings()), [], id);
+  const cupertino = about(await (await resolveSystem({ system: 'cupertino' })).warnings());
+  assert.deepEqual(cupertino.filter((f) => !isCriterionFinding(f)), [], 'cupertino');
+  assert.deepEqual([...new Set(cupertino.map((f) => /comp\.snackbar\.([a-z-]+)\.focus-ring/.exec(f)?.[1]))].sort(), ['inverse-info', 'inverse-success', 'inverse-warning'], cupertino.join('\n'));
 });
 
 // `comp.snackbar.action.tonal-layer.opacity` stands under a control's name and is one number for

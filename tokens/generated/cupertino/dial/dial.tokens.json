@@ -1940,22 +1940,46 @@
             },
             "error": {
               "source": {
-                "seed": "#f0382c"
+                "seed": "#ff383c",
+                "tones": {
+                  "50": "#e9152d",
+                  "57": "#ff383c",
+                  "58": "#ff4245",
+                  "62": "#ff6165"
+                }
               }
             },
             "success": {
               "source": {
-                "seed": "#2fb84f"
+                "seed": "#34c759",
+                "tones": {
+                  "50": "#008932",
+                  "71": "#34c759",
+                  "74": "#30d158",
+                  "77": "#4ad968"
+                }
               }
             },
             "warning": {
               "source": {
-                "seed": "#f59a0b"
+                "seed": "#ff8d28",
+                "tones": {
+                  "50": "#c55300",
+                  "70": "#ff8d28",
+                  "71": "#ff9230",
+                  "74": "#ffa056"
+                }
               }
             },
             "info": {
               "source": {
-                "seed": "#32a9e0"
+                "seed": "#00c0e8",
+                "tones": {
+                  "49": "#007eae",
+                  "72": "#00c0e8",
+                  "79": "#3cd3fe",
+                  "82": "#6dd9ff"
+                }
               }
             },
             "error-quiet": {
@@ -2030,7 +2054,13 @@
             },
             "primary": {
               "source": {
-                "seed": "#0a7aff"
+                "seed": "#0088ff",
+                "tones": {
+                  "49": "#1e6ef4",
+                  "57": "#0088ff",
+                  "59": "#0091ff",
+                  "72": "#5cb8ff"
+                }
               }
             }
           },
@@ -2530,9 +2560,9 @@
             "tanrei.sys.typescale.display": {
               "$value": {
                 "lineHeight": 1.2059,
-                "fontWeight": 700
+                "fontWeight": 400
               },
-              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.",
+              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Large Title is Regular (Typography, read 2026-11-12); its emphasized weight is the display step.",
               "derive": {
                 "fontSize": {
                   "fn": "mul",
@@ -2549,9 +2579,9 @@
             "tanrei.sys.typescale.heading-1": {
               "$value": {
                 "lineHeight": 1.2143,
-                "fontWeight": 700
+                "fontWeight": 400
               },
-              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.",
+              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 1 is Regular (Typography, read 2026-11-12).",
               "derive": {
                 "fontSize": {
                   "fn": "mul",
@@ -2568,9 +2598,9 @@
             "tanrei.sys.typescale.heading-2": {
               "$value": {
                 "lineHeight": 1.2727,
-                "fontWeight": 700
+                "fontWeight": 400
               },
-              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.",
+              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 2 is Regular (Typography, read 2026-11-12).",
               "derive": {
                 "fontSize": {
                   "fn": "mul",
@@ -2587,9 +2617,9 @@
             "tanrei.sys.typescale.heading-3": {
               "$value": {
                 "lineHeight": 1.25,
-                "fontWeight": 600
+                "fontWeight": 400
               },
-              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.",
+              "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 3 is Regular (Typography, read 2026-11-12).",
               "derive": {
                 "fontSize": {
                   "fn": "mul",
@@ -2775,12 +2805,12 @@
               }
             },
             "tanrei.sys.typescale.emphasis.display": {
-              "$value": 100,
-              "reason": "Apple's emphasized weight for this family."
+              "$value": 300,
+              "reason": "Apple's emphasized Large Title is Bold: Regular 400 plus 300 (Typography, read 2026-11-12)."
             },
             "tanrei.sys.typescale.emphasis.heading": {
-              "$value": 200,
-              "reason": "Apple's emphasized weight for this family."
+              "$value": 300,
+              "reason": "Apple's emphasized Title 1 and Title 2 are Bold: Regular 400 plus 300 (Typography, read 2026-11-12). One step serves the whole family, so Title 3 (emphasized Semibold, +200) and Headline (emphasized Semibold, +0) are drawn heavier than Apple's: the fidelity map lists both."
             },
             "tanrei.sys.typescale.emphasis.body": {
               "$value": 200,
@@ -2840,17 +2870,18 @@
                 "palette": "primary",
                 "tone": {
                   "light": [
-                    53,
-                    40,
-                    30
+                    57,
+                    49,
+                    49
                   ],
                   "dark": [
-                    60,
+                    59,
                     72,
-                    87
+                    72
                   ]
                 }
-              }
+              },
+              "reason": "Apple's system Blue (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."
             },
             "tanrei.sys.color.on-primary": {
               "derive": {
@@ -2908,17 +2939,18 @@
                 "palette": "error",
                 "tone": {
                   "light": [
-                    53,
-                    40,
-                    30
+                    57,
+                    50,
+                    50
                   ],
                   "dark": [
-                    60,
-                    72,
-                    87
+                    58,
+                    62,
+                    62
                   ]
                 }
-              }
+              },
+              "reason": "Apple's system Red (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."
             },
             "tanrei.sys.color.on-error": {
               "derive": {
@@ -2976,17 +3008,18 @@
                 "palette": "success",
                 "tone": {
                   "light": [
-                    53,
-                    40,
-                    30
+                    71,
+                    50,
+                    50
                   ],
                   "dark": [
-                    60,
-                    72,
-                    87
+                    74,
+                    77,
+                    77
                   ]
                 }
-              }
+              },
+              "reason": "Apple's system Green (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."
             },
             "tanrei.sys.color.on-success": {
               "derive": {
@@ -3044,17 +3077,18 @@
                 "palette": "warning",
                 "tone": {
                   "light": [
-                    53,
-                    40,
-                    30
+                    70,
+                    50,
+                    50
                   ],
                   "dark": [
-                    60,
-                    72,
-                    87
+                    71,
+                    74,
+                    74
                   ]
                 }
-              }
+              },
+              "reason": "Apple's system Orange (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."
             },
             "tanrei.sys.color.on-warning": {
               "derive": {
@@ -3112,17 +3146,18 @@
                 "palette": "info",
                 "tone": {
                   "light": [
-                    53,
-                    40,
-                    30
+                    72,
+                    49,
+                    49
                   ],
                   "dark": [
-                    60,
-                    72,
-                    87
+                    79,
+                    82,
+                    82
                   ]
                 }
-              }
+              },
+              "reason": "Apple's system Cyan (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."
             },
             "tanrei.sys.color.on-info": {
               "derive": {
@@ -4503,7 +4538,7 @@
             },
             "tanrei.comp.app-bar.title.typescale.large": {
               "$value": "{tanrei.sys.typescale.display}",
-              "reason": "Apple's large navigation title is Large Title (34pt bold), display here."
+              "reason": "Apple's large navigation title is Large Title, display here. Apple draws it at the emphasized weight (Bold); display is the style's own Regular, and a component's text style cannot take its role's emphasized weight (mimicry gap emphasis-per-style)."
             },
             "tanrei.comp.app-bar.flat.container.color": {
               "$value": {

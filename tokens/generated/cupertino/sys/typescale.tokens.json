@@ -26,7 +26,7 @@
               "value": 34,
               "unit": "px"
             },
-            "fontWeight": 700,
+            "fontWeight": 400,
             "letterSpacing": {
               "value": 0,
               "unit": "px"
@@ -50,7 +50,7 @@
                   "lineHeight",
                   "fontWeight"
                 ],
-                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Large Title is Regular (Typography, read 2026-11-12); its emphasized weight is the display step."
               }
             }
           },
@@ -63,7 +63,7 @@
               "value": 28,
               "unit": "px"
             },
-            "fontWeight": 700,
+            "fontWeight": 400,
             "letterSpacing": {
               "value": 0,
               "unit": "px"
@@ -87,7 +87,7 @@
                   "lineHeight",
                   "fontWeight"
                 ],
-                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 1 is Regular (Typography, read 2026-11-12)."
               }
             }
           },
@@ -100,7 +100,7 @@
               "value": 22,
               "unit": "px"
             },
-            "fontWeight": 700,
+            "fontWeight": 400,
             "letterSpacing": {
               "value": 0,
               "unit": "px"
@@ -124,7 +124,7 @@
                   "lineHeight",
                   "fontWeight"
                 ],
-                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 2 is Regular (Typography, read 2026-11-12)."
               }
             }
           },
@@ -137,7 +137,7 @@
               "value": 20,
               "unit": "px"
             },
-            "fontWeight": 600,
+            "fontWeight": 400,
             "letterSpacing": {
               "value": 0,
               "unit": "px"
@@ -161,7 +161,7 @@
                   "lineHeight",
                   "fontWeight"
                 ],
-                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 3 is Regular (Typography, read 2026-11-12)."
               }
             }
           },
@@ -600,20 +600,20 @@
             }
           },
           "display": {
-            "$value": 100,
+            "$value": 300,
             "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
-                "fixed": "Apple's emphasized weight for this family."
+                "fixed": "Apple's emphasized Large Title is Bold: Regular 400 plus 300 (Typography, read 2026-11-12)."
               }
             }
           },
           "heading": {
-            "$value": 200,
+            "$value": 300,
             "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
-                "fixed": "Apple's emphasized weight for this family."
+                "fixed": "Apple's emphasized Title 1 and Title 2 are Bold: Regular 400 plus 300 (Typography, read 2026-11-12). One step serves the whole family, so Title 3 (emphasized Semibold, +200) and Headline (emphasized Semibold, +0) are drawn heavier than Apple's: the fidelity map lists both."
               }
             }
           },

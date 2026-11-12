@@ -4,7 +4,15 @@
   "reference": "reference/apple-hig.json",
   "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
   "colors": {
-    "$comment": "apple.color.<name> is compared with tanrei.sys.color.<rename[name]> in light and dark. Apple's increased-contrast swatches are not in the reference: the harness compares the standard schemes only.",
+    "$comment": "apple.color.<name> is compared with tanrei.sys.color.<rename[name]> in every scheme `schemes` names, against the appearance of Apple's that scheme stands for. The swatches are Apple's current ones (Color › Specifications › System colors: Default and Increased contrast, in light and dark; the values were updated on June 9, 2025, the page last changed on December 16, 2025, read 2026-11-12). Apple publishes one increased contrast, so Tanrei's medium and high contrast are both compared with it.",
+    "schemes": {
+      "light": "light",
+      "light-medium": "light-increased-contrast",
+      "light-high": "light-increased-contrast",
+      "dark": "dark",
+      "dark-medium": "dark-increased-contrast",
+      "dark-high": "dark-increased-contrast"
+    },
     "prefix": "apple.color.",
     "rename": {
       "blue": "primary",
@@ -49,7 +57,7 @@
     ]
   },
   "typescale": {
-    "$comment": "apple.typescale.<style>-<field> is compared with the Tanrei level `roles` names. An `-emphasized` weight is the level's weight plus its family's `emphasis.*` step.",
+    "$comment": "apple.typescale.<style>-<field> is compared with the Tanrei level `roles` names. An `-emphasized` weight is the level's weight plus its family's `emphasis.*` step. The figures are Typography › iOS, iPadOS Dynamic Type sizes › Large (default) (the page last changed on December 16, 2025, read 2026-11-12).",
     "prefix": "apple.typescale.",
     "roles": {
       "large-title": "display",
@@ -100,60 +108,12 @@
   },
   "findings": [
     {
-      "ref": "apple.color.blue",
-      "note": "primary is a tone of a palette seeded with #0a7aff (light tone 53, dark 60), not Apple's Blue in either appearance."
-    },
-    {
-      "ref": "apple.color.red",
-      "note": "error is a tone of a palette seeded with #f0382c, not Apple's Red."
-    },
-    {
-      "ref": "apple.color.green",
-      "note": "success is a tone of a palette seeded with #2fb84f, darker than Apple's Green in both appearances."
-    },
-    {
-      "ref": "apple.color.orange",
-      "note": "warning is a tone of a palette seeded with #f59a0b, much darker than Apple's Orange in both appearances."
-    },
-    {
-      "ref": "apple.color.cyan",
-      "note": "info is a tone of a palette seeded with #32a9e0, darker than Apple's Cyan in both appearances."
-    },
-    {
-      "ref": "apple.typescale.large-title-weight",
-      "note": "display is drawn at 700, Apple's emphasized Large Title weight; the style itself is Regular."
-    },
-    {
-      "ref": "apple.typescale.title-1-weight",
-      "note": "heading-1 is drawn at 700, Apple's emphasized weight; Title 1 is Regular."
-    },
-    {
-      "ref": "apple.typescale.title-2-weight",
-      "note": "heading-2 is drawn at 700, Apple's emphasized weight; Title 2 is Regular."
-    },
-    {
-      "ref": "apple.typescale.title-3-weight",
-      "note": "heading-3 is drawn at 600, Apple's emphasized weight; Title 3 is Regular."
-    },
-    {
-      "ref": "apple.typescale.large-title-emphasized-weight",
-      "note": "display 700 plus the display emphasis step 100 is 800; Apple's is Bold (700)."
-    },
-    {
-      "ref": "apple.typescale.title-1-emphasized-weight",
-      "note": "heading-1 700 plus the heading emphasis step 200 is 900; Apple's is Bold (700)."
-    },
-    {
-      "ref": "apple.typescale.title-2-emphasized-weight",
-      "note": "heading-2 700 plus the heading emphasis step 200 is 900; Apple's is Bold (700)."
-    },
-    {
       "ref": "apple.typescale.title-3-emphasized-weight",
-      "note": "heading-3 600 plus the heading emphasis step 200 is 800; Apple's is Semibold (600)."
+      "note": "heading-3 400 plus the heading emphasis step 300 is 700; Apple's emphasized Title 3 is Semibold (600). One step serves the heading family, and it is Title 1 and Title 2's (+300): mimicry gap emphasis-per-style."
     },
     {
       "ref": "apple.typescale.headline-emphasized-weight",
-      "note": "heading-4 600 plus the heading emphasis step 200 is 800; Apple's emphasized Headline stays Semibold (600)."
+      "note": "heading-4 600 plus the heading emphasis step 300 is 900; Apple's emphasized Headline stays Semibold (600). One step serves the heading family: mimicry gap emphasis-per-style."
     }
   ],
   "unpublished": [
