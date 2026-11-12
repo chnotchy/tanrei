@@ -497,19 +497,13 @@ export class TanreiDialog extends TanreiElement {
     return this.querySelector<HTMLElement>('[autofocus]') ?? this.dialog;
   }
 
-  /** Whether `element` is inside the dialog: slotted into it, or in its shadow root, at any depth. */
-  private holds(element: Element): boolean {
-    for (let at: Node | null = element; at; at = at instanceof ShadowRoot ? at.host : at.parentNode) if (at === this) return true;
-    return false;
-  }
-
   /** `present()`'s write: the dialog opens with what was read. */
   private show(dialog: HTMLDialogElement, choices: Choices, covered: number | null) {
-    // DLG-4, DLG-15: where focus is — or, opened above a dialog of the same turn that has not given focus in yet, where
-    // that dialog gives it (DLG-2), which focus returns to when this one closes.
+    // DLG-4, DLG-15: where focus is — or, opened above a dialog of the same turn that has not given focus in yet (focus
+    // is in it, where its `showModal()` gave it), where that dialog gives it (DLG-2): focus returns there when this one
+    // closes.
     const below = stack[stack.length - 1];
-    const active = deepActive();
-    this.opener = below?.owesFocus && active && below.holds(active) ? below.focusTarget() : active;
+    this.opener = below?.owesFocus ? below.focusTarget() : deepActive();
     // DLG-5: an Escape the dialog did not see itself still reads as escape, not back.
     watchEscape();
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
@@ -608,7 +602,7 @@ export class TanreiDialog extends TanreiElement {
     readTogether(() => {
       this.laying = false;
       const dialog = this.dialog;
-      if (!dialog || !this.shown) return this.laidOut();
+      if (!dialog || !this.shown) return () => this.laidOut();
       const choices = this.readChoices();
       return () => {
         this.applyChoices(dialog, choices);
@@ -659,35 +653,28 @@ export class TanreiDialog extends TanreiElement {
       const line = Number.parseFloat(getComputedStyle(scroll.firstElementChild ?? scroll).lineHeight) || 0;
       cramped = scroll.scrollHeight > scroll.clientHeight + 0.5 && scroll.clientHeight < line;
     }
-    // Not cramped, the part is drawn as it was read: its dividers follow from the same reads.
-    const dividers = cramped ? null : this.readDividers(false);
     return () => {
       dialog.classList.toggle('whole', cramped);
-      if (dividers) {
-        this.writeDividers(dividers);
-        this.laidOut()?.();
-      } else readTogether(() => {
+      readTogether(() => {
         const read = this.readDividers();
         return () => {
           if (read) this.writeDividers(read);
-          this.laidOut()?.();
+          this.laidOut();
         };
       });
     };
   }
 
-  /** What runs once the layout has been drawn (`layout()`'s `then`), as one write. */
-  private laidOut(): (() => void) | void {
-    if (!this.afterLayout.length) return;
+  /** What runs once the layout has been drawn (`layout()`'s `then`). */
+  private laidOut() {
     const after = this.afterLayout;
     this.afterLayout = [];
-    return () => {
-      for (const then of after) then();
-    };
+    for (const then of after) then();
   }
 
-  /** DLG-11, DLG-24: whether the scrolled part scrolls, and where it is. A read; `whole` as given, or as drawn. */
-  private readDividers(whole = this.dialog?.classList.contains('whole') ?? false): Dividers | null {
+  /** DLG-11, DLG-24: whether the scrolled part scrolls, and where it is. A read. */
+  private readDividers(): Dividers | null {
+    const whole = !!this.dialog?.classList.contains('whole');
     const middle = this.renderRoot?.querySelector<HTMLElement>('.middle');
     const scroll = this.renderRoot?.querySelector<HTMLElement>('.scroll');
     if (!middle || !scroll) return null;

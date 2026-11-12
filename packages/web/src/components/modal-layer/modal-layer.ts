@@ -190,8 +190,8 @@ export class TanreiModalLayer extends TanreiElement {
     this.presenting = true;
     readTogether(() => {
       this.presenting = false;
-      if (!this.open || this.shown || !this.isConnected || this.dialog !== dialog) return;
       const covered = keyboardCover();
+      // Closed or taken out of the document since it was asked for, it does not open.
       return () => {
         if (this.open && !this.shown && this.isConnected) this.show(dialog, covered);
       };
