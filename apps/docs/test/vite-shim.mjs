@@ -1,5 +1,7 @@
 // What Vite gives a module of `src/lib/` when Astro builds the site, given to Node for a test (registered by
-// `module.register` from the test that needs it; nothing here runs in the site):
+// `module.register` from the test that needs it, at its top, before anything imports a `.ts` module — Node keeps a
+// module that failed to load under its address, and a shim registered after that failure is never asked for it;
+// nothing here runs in the site):
 //
 // - TypeScript: a `.ts` module is compiled one file at a time by the app's own TypeScript (types go, nothing is
 //   checked — `astro check` does that), and a relative import without an extension finds its `.ts` file;
