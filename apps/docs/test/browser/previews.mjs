@@ -20,7 +20,8 @@ import { fileURLToPath } from 'node:url';
 import { comparePreviews } from './compare-previews.mjs';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, outstanding } from './launch.mjs';
+import { SETTLE } from './waits.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Field page’s previews,
 // in the dark scheme, took 359 s in CI.
@@ -86,7 +87,9 @@ export function previewTests(colorScheme) {
           const network = await watchNetwork(page);
           await page.goto(origin + url, { waitUntil: 'load' });
           await network.quiet();
-          const result = await page.evaluate(comparePreviews, { componentCss, still });
+          const result = await page.evaluate(comparePreviews, { componentCss, still, bounds: SETTLE }).catch((error) => {
+            throw new Error(`${error.message}. Outstanding: ${outstanding(page)}.`, { cause: error });
+          });
           if (result.error) found.push(result.error);
           for (const { index, preview, notes } of result.differ ?? []) found.push(`preview ${index} (${preview}):\n      ${notes.join('\n      ')}`);
         } finally {

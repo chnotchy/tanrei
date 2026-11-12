@@ -20,7 +20,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the reader’s day in Arabic
 // and Japanese, took 31 s in CI.
@@ -99,10 +99,8 @@ for (const engine of ENGINES) {
       const page = await browser.newPage({ viewport, timezoneId: 'UTC' });
       // The head is drawn from the document and its stylesheets: the pictures and windows below it are not waited for.
       await page.goto(`${origin}${address}`, { waitUntil: 'domcontentloaded' });
-      const seen = await page.evaluate(async () => {
-        await customElements.whenDefined('tanrei-page-header');
-        await document.fonts.ready;
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      await settlePage(page, { tags: ['tanrei-page-header'] });
+      const seen = await page.evaluate(() => {
         const header = document.querySelector('tanrei-page-header.docs-page-header');
         const box = (element) => {
           const { left, right, top, bottom } = element.getBoundingClientRect();
@@ -208,13 +206,8 @@ for (const engine of ENGINES) {
         const time = page.locator('tanrei-page-header.docs-page-header > [data-part="meta"] > time');
         const seen = { datetime: await time.getAttribute('datetime'), day: await time.getAttribute('data-day'), text: await time.textContent() };
         if (javaScriptEnabled) {
-          Object.assign(
-            seen,
-            await page.evaluate(async () => {
-              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-              return { firstFrame: window.__docsFirstFrame, shifts: window.__docsShifts, observed: PerformanceObserver.supportedEntryTypes.includes('layout-shift') };
-            }),
-          );
+          await settlePage(page, { fonts: false });
+          Object.assign(seen, await page.evaluate(() => ({ firstFrame: window.__docsFirstFrame, shifts: window.__docsShifts, observed: PerformanceObserver.supportedEntryTypes.includes('layout-shift') })));
         }
         return seen;
       } finally {

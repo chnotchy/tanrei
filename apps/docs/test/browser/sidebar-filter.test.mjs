@@ -16,7 +16,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, Control+k from the filter,
 // in WebKit, took 10 s in CI.
@@ -96,11 +96,8 @@ for (const engine of ENGINES) {
       const errors = [];
       page.on('pageerror', (error) => errors.push(error.message));
       await page.goto(`${origin}${url}`);
-      await page.evaluate(async () => {
-        await Promise.all(['tanrei-app-shell', 'tanrei-navigation-drawer', 'tanrei-text-input'].map((tag) => customElements.whenDefined(tag)));
-        await document.querySelector('tanrei-navigation-drawer.docs-sidebar').updateComplete;
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      });
+      // The sidebar defined and drawn, two frames since (each wait bounded: launch.mjs).
+      await settlePage(page, { tags: ['tanrei-app-shell', 'tanrei-navigation-drawer', 'tanrei-text-input'], update: 'tanrei-navigation-drawer.docs-sidebar', fonts: false });
       return { context, page, errors };
     };
 

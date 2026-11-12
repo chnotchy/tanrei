@@ -1,7 +1,8 @@
 // What the browser tests wait for in a page before they measure it, each wait with a bound of its own, and the words a
-// failure says what was outstanding in. Nothing here needs a browser: `settleFrame` runs in the page (`page.evaluate`,
-// through `settle` in launch.mjs) and reads only the page's globals, so `test/waits.test.mjs` runs it in Node against
-// stand-ins of them.
+// failure says what was outstanding in. Nothing here needs a browser: `settleFrame` and `settleDocument` run in the
+// page (`page.evaluate`, through `settle` and `settlePage` in launch.mjs) and read only the page's globals, so
+// `test/waits.test.mjs` runs them in Node against stand-ins of them. A new wait in a test goes through one of them
+// rather than awaiting `customElements.whenDefined`, `document.fonts.ready`, an update or a frame inline.
 //
 // A wait for a page has no end of its own: `customElements.whenDefined` waits for a chunk the page fetches after its
 // load, `document.fonts.ready` for every face it asked for, a frame for the page to be drawn. A fetch that is never
@@ -59,6 +60,54 @@ export async function settleFrame({ selector, scroll, pending, bounds }) {
   }
   if ((await within(bounds.frames, new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))) === late) {
     return `two frames not drawn in ${seconds(bounds.frames)} (the document ${document.visibilityState})`;
+  }
+  return null;
+}
+
+/**
+ * In the page, for a test that waits on the document rather than on one frame of it: every tag of `tags` defined, and
+ * every custom element's tag among the elements `among` matches (a selector, as `*` for the whole document); the
+ * update of the element `update` names complete (a Lit element's `updateComplete`); the fonts in, unless `fonts` is
+ * false; and `frames` frames drawn since (two unless said otherwise; none with 0). Each wait is given its bound in
+ * `bounds`, the tags and the update the bound of `defined`. Resolves to nothing when all of that came, or to what did
+ * not come in its time. It reads nothing outside itself: Playwright sends its source to the page.
+ * @param {{ tags?: string[], among?: string, update?: string, fonts?: boolean, frames?: number, bounds: typeof SETTLE }} what
+ * @returns {Promise<string | null>}
+ */
+export async function settleDocument({ tags = [], among, update, fonts = true, frames = 2, bounds }) {
+  const late = {};
+  const within = async (ms, promise) => {
+    let timer;
+    try {
+      return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(late), ms)))]);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  const seconds = (ms) => `${ms / 1000} s`;
+  const found = among ? [...document.querySelectorAll(among)].map((element) => element.localName).filter((name) => name.includes('-')) : [];
+  const names = [...new Set([...tags, ...found])];
+  if (names.length && (await within(bounds.defined, Promise.all(names.map((name) => customElements.whenDefined(name))))) === late) {
+    return `not defined after ${seconds(bounds.defined)}: ${names.filter((name) => !customElements.get(name)).join(', ')} (of the ${names.length} tags waited for)`;
+  }
+  if (update) {
+    const element = document.querySelector(update);
+    if (!element) return `no element matches ${update}`;
+    if ((await within(bounds.defined, Promise.resolve(element.updateComplete))) === late) {
+      return `the update of ${update} not complete after ${seconds(bounds.defined)}${element.isUpdatePending ? ' (an update pending)' : ''}`;
+    }
+  }
+  if (fonts && (await within(bounds.fonts, document.fonts.ready)) === late) {
+    const loading = [...document.fonts].filter((face) => face.status === 'loading').map((face) => `${face.family} ${face.weight} ${face.style}`);
+    return `document.fonts.ready not resolved after ${seconds(bounds.fonts)} (fonts ${document.fonts.status}; ${loading.length ? `loading: ${loading.join(', ')}` : 'no face loading'})`;
+  }
+  if (frames > 0) {
+    const drawn = new Promise((resolve) => {
+      let left = frames;
+      const next = () => (--left <= 0 ? resolve(undefined) : requestAnimationFrame(next));
+      requestAnimationFrame(next);
+    });
+    if ((await within(bounds.frames, drawn)) === late) return `${frames} frame${frames === 1 ? '' : 's'} not drawn in ${seconds(bounds.frames)} (the document ${document.visibilityState})`;
   }
   return null;
 }
