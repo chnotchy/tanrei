@@ -50,6 +50,8 @@
 //                 its paint, with every other element's, all reads before any write (cancelPhaseRead() withdraws it);
 //   read-together — readTogether(read): the same in the task of the render, once every host of the turn has drawn
 //                 (apart from read-phase, so that what reads together only does not bring the phase's observer)
+//   resize-watch — ResizeWatch: one resize observer for every dialog and side sheet, each laying out when a part of its
+//                 own changes size, all of them from one report of the frame
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is

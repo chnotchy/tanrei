@@ -30,6 +30,7 @@ import {
 } from '../../primitives/index.js';
 import { styles } from './dialog.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
@@ -73,20 +74,6 @@ interface Dividers {
   above: boolean;
   below: boolean;
 }
-
-/** How the dialog each observed element is watched for lays out (`layout()`). */
-const owners = new WeakMap<Element, () => void>();
-/**
- * One observer of every dialog's parts: a frame reports all that changed size in one callback, and the dialogs they
- * belong to lay out together (`layout()`). An observer of each dialog's own reported in callbacks of their own, each
- * laying its dialog out after the one before had written.
- */
-const resizes =
-  typeof ResizeObserver === 'undefined'
-    ? null
-    : new ResizeObserver((entries) => {
-        for (const entry of entries) owners.get(entry.target)?.();
-      });
 
 const PREFIX = '--tanrei-comp-dialog';
 /** The choices of kind the dialog reads (tokens/comp/dialog.tokens.json, `dev.tanrei.enum`): the first is the fallback. */
@@ -239,9 +226,8 @@ export class TanreiDialog extends TanreiElement {
   /** DLG-2: it has opened and not yet given focus in (that follows its layout). */
   private owesFocus = false;
   private pressedScrim = false;
-  /** What the dialog's observer (`resizes`) watches for it: its parts, its probes and its actions. */
-  private readonly watched = new Set<Element>();
-  private readonly onResize = () => this.layout();
+  /** What is watched for it with every other dialog's and sheet's parts (src/primitives/resize-watch.ts): its parts, its probes and its actions. */
+  private readonly resizes = new ResizeWatch(() => this.layout());
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
 
   private get dialog(): HTMLDialogElement | null {
@@ -254,10 +240,7 @@ export class TanreiDialog extends TanreiElement {
 
   /** What changes the layout: a part of the dialog, a probe of its padding, an action (`resizes`). Observed once. */
   private observe(element: Element, options?: ResizeObserverOptions) {
-    if (!resizes || (this.watched.has(element) && owners.get(element) === this.onResize)) return;
-    owners.set(element, this.onResize);
-    this.watched.add(element);
-    resizes.observe(element, options);
+    this.resizes.watch(element, options);
   }
 
   override connectedCallback() {
@@ -279,13 +262,7 @@ export class TanreiDialog extends TanreiElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.mutation$.disconnect();
-    for (const element of this.watched) {
-      // An action moved into another dialog is that dialog's to watch now.
-      if (owners.get(element) !== this.onResize) continue;
-      resizes?.unobserve(element);
-      owners.delete(element);
-    }
-    this.watched.clear();
+    this.resizes.stop();
     this.compact.stop();
     if (this.shown) this.withdraw(false);
   }

@@ -36,6 +36,7 @@ import {
 import '../button/button.js';
 import { AXES, styles } from './side-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
@@ -70,20 +71,6 @@ interface Parts {
   scrolls: boolean;
   top: number;
 }
-
-/** How the sheet each observed element is watched for lays out (`layout()`). */
-const owners = new WeakMap<Element, () => void>();
-/**
- * One observer of every sheet's parts and actions: a frame reports all that changed size in one callback, and the sheets
- * they belong to lay out together (`layout()`). An observer of each sheet's own reported in callbacks of their own, each
- * laying its sheet out after the one before had written.
- */
-const resizes =
-  typeof ResizeObserver === 'undefined'
-    ? null
-    : new ResizeObserver((entries) => {
-        for (const entry of entries) owners.get(entry.target)?.();
-      });
 
 /**
  * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and
@@ -194,7 +181,7 @@ export class TanreiSideSheet extends TanreiElement {
   /** SSH-10: the content children, assigned to the default slot. */
   private content: Node[] = [];
   /** SSH-11, SSH-17: the actions, by run, placed and given the sheet's variant. */
-  private readonly placement = new ActionPlacement(this, (action) => this.watch(action));
+  private readonly placement = new ActionPlacement(this, (action) => this.resizes.watch(action));
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
   /** SSH-20: how much of the sheet the on-screen keyboard covers, as last applied. */
   private keyboard = 0;
@@ -219,9 +206,8 @@ export class TanreiSideSheet extends TanreiElement {
   private laying = false;
   /** What is to run once the layout asked for has been drawn: focus going in as a modal sheet opens (SSH-3). */
   private afterLayout: (() => void)[] = [];
-  /** What the sheets' observer (`resizes`) watches for this one: its parts and its actions. */
-  private readonly watched = new Set<Element>();
-  private readonly onResize = () => this.layout();
+  /** What is watched for it with every other sheet's and dialog's parts (src/primitives/resize-watch.ts): its parts and its actions. */
+  private readonly resizes = new ResizeWatch(() => this.layout());
 
   private get modal(): boolean {
     return this.variant === 'modal';
@@ -252,13 +238,6 @@ export class TanreiSideSheet extends TanreiElement {
     });
   }
 
-  /** What changes whether the actions fit and whether the content scrolls (`resizes`). Observed once. */
-  private watch(element: Element) {
-    if (!resizes || (this.watched.has(element) && owners.get(element) === this.onResize)) return;
-    owners.set(element, this.onResize);
-    this.watched.add(element);
-    resizes.observe(element);
-  }
 
   override connectedCallback() {
     super.connectedCallback();
@@ -284,13 +263,7 @@ export class TanreiSideSheet extends TanreiElement {
     this.mutation$.disconnect();
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     window.visualViewport?.removeEventListener('scroll', this.onViewport);
-    for (const element of this.watched) {
-      // An action moved into another sheet is that sheet's to watch now.
-      if (owners.get(element) !== this.onResize) continue;
-      resizes?.unobserve(element);
-      owners.delete(element);
-    }
-    this.watched.clear();
+    this.resizes.stop();
     this.drag = null;
     this.listenToDrag(false);
     if (this.shown) this.withdraw(false);
@@ -710,7 +683,7 @@ export class TanreiSideSheet extends TanreiElement {
   private observe() {
     for (const selector of ['.sheet', '.content', '.inner', '.actions']) {
       const element = this.renderRoot.querySelector(selector);
-      if (element) this.watch(element);
+      if (element) this.resizes.watch(element);
     }
   }
 
