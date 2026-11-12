@@ -6,9 +6,10 @@
 // render begins).
 //
 // What the first frame is told apart from is the state the change comes to rest in (`expectFirstFrameAtRest`,
-// test/frames.ts), read at the same moments on any machine. The page is mounted once for each spec in a worker
-// (`mountForAppearing`, test/first-frame.ts) and each fixture is made to appear on it again (`appearAgain`): a mount is
-// most of what a fixture costs, and a whole engine's run is minutes.
+// test/frames.ts), read at the same moments on any machine. The page is mounted once for each group of a spec's
+// fixtures in a worker (`mountForAppearing`, test/first-frame.ts; `mountGroups`) and each fixture of the group is made
+// to appear on it again (`appearAgain`): a mount is most of what a fixture costs, and a whole engine's run is minutes.
+// A group is bounded (MOUNT_GROUP), so no one test pays for mounting a whole large spec.
 //
 // Four kinds of fixture are held to something else, each by a list here:
 // - `ENTERS`: an overlay written open plays its entrance when it is inserted after the page's first paint (MOT-4).
@@ -52,7 +53,6 @@ import { type BrowserContext, type BrowserContextOptions, type Page, type Route,
 import { type Appeared, appearAgain, asStaged, expectDrawnAsMounted, mountForAppearing } from '../test/first-frame.js';
 import { type Probe, expectFirstFrameAtRest } from '../test/frames.js';
 import { type Fixture, type Spec, drawnAfterMount, fixtureWindow, itemsStagedInScript, loadSpec } from '../test/harness.js';
-import { MOUNTS_PER_PAGE } from '../test/mounts-per-page.js';
 import { MISSING } from '../test/pictures.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -136,6 +136,7 @@ const ALONE: { spec: string; pick: Pick; rule: string }[] = [
   { spec: 'date-time-picker', pick: (f) => opened(f) && f.props.presentation !== 'docked', rule: 'DTM-1: a modal picker is a modal overlay, one above the other' },
   { spec: 'popover', pick: (f) => opened(f) && f.id.startsWith('compact'), rule: "POP-39, POP-5: a compact popover is placed against the window, and its anchor lies where its stage does" },
   { spec: 'navigation-drawer', pick: (f) => f.props.filterable === true, rule: 'NVD-87: of the drawers shown that bind one chord, the first keeps it' },
+  { spec: 'navigation-drawer', pick: ENTERS['navigation-drawer']!, rule: 'NVD-19: a modal drawer opened takes focus to its selected destination, and one window has one focus' },
   { spec: 'app-shell', pick: (f) => f.id.startsWith('compact'), rule: 'APS-13: a compact window keeps the navigation bar at its bottom edge' },
   // A stage mounted below the window's edge holds a handle out of sight, which draws no value indicator.
   ...['slider', 'slider-field', 'field'].map((spec) => ({ spec, pick: indicatorShown, rule: 'SLD-28: a value indicator is not drawn while its handle is out of sight' })),
@@ -144,8 +145,66 @@ const ALONE: { spec: string; pick: Pick; rule: string }[] = [
 /** Whether the fixture `fixture` of `spec` is read as mounted from a page that mounts it alone (`ALONE`). */
 const alone = (spec: Spec, fixture: Fixture) => ALONE.some((a) => a.spec === spec.name && a.pick(fixture));
 
+/**
+ * The most fixtures mounted together for each of them to appear on. The test that mounts pays for every fixture in
+ * the mount: a mount (`mountForAppearing`, read as mounted) cost about a second, plus 10 to 120 ms a fixture, in
+ * Chromium and WebKit on a Mac — the field's 368 fixtures 9.5 s and 8.7 s, against 1.3 s and 1.4 s for one — and a
+ * runner is several times slower. Measured over every spec in both engines (fixtures 1, 16, 32 and all): 32 is the
+ * largest bound under which no group mounts heavier than a spec no bound splits (the scroll area's seven fixtures,
+ * 3.3 s and 5.1 s). Each worker mounts every group it runs a fixture of, so the whole sweep does more: in Chromium, three
+ * workers, its tests' time went from 1229 s to 1340 s, and its slowest test from 5.7 s (the field's first) to 3.1 s.
+ */
+const MOUNT_GROUP = 32;
+
+/** The window a fixture appears in, as a key: its own (`fixtureWindow`), or the project's. */
+const windowKey = (spec: Spec, fixture: Fixture) => {
+  const window = fixtureWindow(spec, fixture);
+  return window ? `${window.width}x${window.height}` : 'project';
+};
+
+/**
+ * What each fixture of `spec` is mounted with, by its id: `<spec>/<fixture>` for one mounted alone (`ALONE`), and
+ * `<spec>#<n>` for a group of the others — those that appear in one window, split into the fewest groups of at most
+ * MOUNT_GROUP, as even as they can be — in the order the fixtures run (`ordered`). A fixture mounted alone is in no
+ * group: what it is as mounted is read from its own mount, and among the others it is only weight (the date-time
+ * picker's modal fixtures, each an open dialog, were 27 of the 31 its docked fixtures were mounted with).
+ */
+function mountGroups(spec: Spec): { ordered: Fixture[]; mountOf: Map<string, string> } {
+  const byWindow = new Map<string, Fixture[]>();
+  const single: Fixture[] = [];
+  for (const fixture of spec.fixtures) {
+    if (alone(spec, fixture)) single.push(fixture);
+    else byWindow.set(windowKey(spec, fixture), [...(byWindow.get(windowKey(spec, fixture)) ?? []), fixture]);
+  }
+  const ordered: Fixture[] = [];
+  const mountOf = new Map<string, string>();
+  let group = 0;
+  for (const fixtures of byWindow.values()) {
+    const groups = Math.ceil(fixtures.length / MOUNT_GROUP);
+    for (let g = 0; g < groups; g += 1, group += 1) {
+      for (const fixture of fixtures.slice(Math.round((g * fixtures.length) / groups), Math.round(((g + 1) * fixtures.length) / groups))) {
+        ordered.push(fixture);
+        mountOf.set(fixture.id, `${spec.name}#${group}`);
+      }
+    }
+  }
+  for (const fixture of single) {
+    ordered.push(fixture);
+    mountOf.set(fixture.id, `${spec.name}/${fixture.id}`);
+  }
+  return { ordered, mountOf };
+}
+const groupsOf = new Map(specs.map((spec) => [spec.name, mountGroups(spec)]));
+
 /** Fixtures whose first frame is not their rest, by `<spec>/<fixture>`, with what they show: a defect, not fixed yet. Only shrinks. */
-const KNOWN: Record<string, string> = {};
+const KNOWN: Record<string, string> = Object.fromEntries(
+  // Shown once each modal drawer was read as mounted on a page of its own: mounted with the whole spec, another modal
+  // drawer took the window's one focus from it, or a page's earlier document left its focus drawn without a ring.
+  ['modal', 'modal-collapsible-open', 'responsive-narrow', 'resized-modal'].map((id) => [
+    `navigation-drawer/${id}`,
+    'NVD-19: a modal drawer written open and inserted into a page already drawn leaves focus on its dialog, where mounted with the page it moves it to the selected destination (as mounted, that row draws its focus ring and its focused state layer; once it has appeared, neither)',
+  ]),
+);
 
 /**
  * The probe: the keys (as test/frames.ts names them) of the surfaces that appear (`data-tanrei-appear`, in every shadow
@@ -227,21 +286,21 @@ const releasePictures = async (stage: Stage) => {
 };
 
 /**
- * A context for each worker, and in it one page for a spec at a time: a spec's fixtures are made to appear on the page
- * that mounted them, and the next spec gets a new page — as does a spec's mount past the MOUNTS_PER_PAGE a page may
- * take (test/mounts-per-page.ts). (One page given every spec's documents in turn grew until it crashed in the Linux
- * container: five crashes in a run of five thousand.)
+ * A context for each worker, and in it one page for each mount (`mountGroups`): the fixtures of a group, or one mounted
+ * alone, are made to appear on the page that mounted them, and the next mount gets a new page. Its document is then the
+ * first the page is given, whatever the worker ran before: a document written into a page that has drawn one counts
+ * itself painted at once, and what it draws then depends on the page's past — an open list rests otherwise in WebKit,
+ * and an element focused from script draws its focus ring or not by where the focus was before. (One page given every
+ * spec's documents in turn grew until it crashed in the Linux container: five crashes in a run of five thousand.)
  */
 interface Stage {
   context: BrowserContext;
   page: Page | null;
   /** The pictures asked for while the fixture appearing is sampled: answered once it has been. */
   held: { open: boolean; routes: Route[] };
-  /** What the page is mounted with: the spec's name, or `<spec>/<fixture>` for a fixture mounted alone (`ALONE`). */
+  /** What the page is mounted with (`mountGroups`): `<spec>#<n>` for a group, `<spec>/<fixture>` for a fixture mounted alone. */
   spec: string | null;
   viewport: { width: number; height: number };
-  /** The documents mounted into the page so far: at MOUNTS_PER_PAGE, the next mount takes a new page. */
-  mounts: number;
 }
 
 const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: boolean) => Promise<Appeared> }, { stage: Stage }>({
@@ -250,7 +309,7 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
       const u = workerInfo.project.use as BrowserContextOptions;
       const viewport = u.viewport ?? { width: 1280, height: 720 };
       const context = await browser.newContext({ viewport, deviceScaleFactor: u.deviceScaleFactor, userAgent: u.userAgent, isMobile: u.isMobile, hasTouch: u.hasTouch, colorScheme: u.colorScheme });
-      await use({ context, page: null, held: { open: false, routes: [] }, spec: null, viewport, mounts: 0 });
+      await use({ context, page: null, held: { open: false, routes: [] }, spec: null, viewport });
       await context.close();
     },
     { scope: 'worker' },
@@ -258,41 +317,30 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
   appear: async ({ stage }, use, testInfo) => {
     await use(async (spec, fixture, measured) => {
       const window = fixtureWindow(spec, fixture) ?? stage.viewport;
-      // A fixture drawn otherwise among the others is mounted alone; the next one mounts the spec's fixtures again.
-      const mount = alone(spec, fixture) ? `${spec.name}/${fixture.id}` : spec.name;
-      const size = stage.page?.viewportSize();
-      // The fixtures as mounted are read in the window the page is mounted in: one that appears in another is mounted
-      // again in its own.
-      const mounting = stage.spec !== mount || size?.width !== window.width || size?.height !== window.height;
-      // A new spec gets a new page, and so does a mount past the MOUNTS_PER_PAGE a page may take (a spec whose fixtures
-      // appear in several windows, or alone, mounts again for each).
-      if (stage.spec?.split('/')[0] !== spec.name || !stage.page || (mounting && stage.mounts >= MOUNTS_PER_PAGE)) {
+      // A fixture drawn otherwise among the others is mounted alone; the others are mounted with their group, each
+      // group in the window its fixtures appear in (`mountGroups`).
+      const group = groupsOf.get(spec.name)!.mountOf.get(fixture.id)!;
+      const mount = group.includes('/') ? { key: group, fixtures: [fixture] } : { key: group, fixtures: spec.fixtures.filter((f) => groupsOf.get(spec.name)!.mountOf.get(f.id) === group) };
+      // The fixtures as mounted are read in the window they appear in: a group's fixtures share one (`mountGroups`).
+      if (!stage.page || stage.spec !== mount.key) {
         stage.spec = null;
         await stage.page?.close();
         stage.page = await stage.context.newPage();
-        stage.mounts = 0;
         // A held picture is asked for while the fixture is sampled and answered after; one asked for later, at once.
         await stage.page.route(`${HELD}**`, (route) => {
           if (stage.held.open) stage.held.routes.push(route);
           else void route.abort().catch(() => undefined);
         });
-      }
-      const { page } = stage;
-      const current = page.viewportSize();
-      if (current?.width !== window.width || current?.height !== window.height) {
-        await page.setViewportSize(window);
-        stage.spec = null;
-      }
-      if (stage.spec !== mount) {
+        await stage.page.setViewportSize(window);
         stage.held = { open: true, routes: [] };
-        stage.mounts += 1;
         try {
-          await mountForAppearing(page, spec, mount === spec.name ? {} : { fixtures: [fixture] }, { asMounted: true, beforeReading: () => holdMountedPictures(page) });
+          await mountForAppearing(stage.page, spec, { fixtures: mount.fixtures }, { asMounted: true, beforeReading: () => holdMountedPictures(stage.page!) });
         } finally {
           await releasePictures(stage);
         }
-        stage.spec = mount;
+        stage.spec = mount.key;
       }
+      const { page } = stage;
       stage.held = { open: true, routes: [] };
       await holdPictures(page, fixture.id);
       try {
@@ -307,9 +355,9 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
 });
 
 for (const spec of specs) {
-  // A spec's fixtures mounted alone come after the others: the one after a fixture mounted alone mounts the whole spec
-  // again, which on a spec of hundreds of fixtures is most of a test's time.
-  for (const fixture of [...spec.fixtures].sort((a, b) => Number(alone(spec, a)) - Number(alone(spec, b)))) {
+  // A group's fixtures run one after another, and the fixtures mounted alone after the groups: each test that is not
+  // of the group the page holds mounts again.
+  for (const fixture of groupsOf.get(spec.name)!.ordered) {
     for (const measured of [false, true]) {
       const how = measured ? ', inserted by a task that reads its layout,' : '';
       const designed = BY_DESIGN.find((d) => d.spec === spec.name && d.pick(fixture));
