@@ -708,6 +708,21 @@ After the first full translation each language rendered some recurring terms in 
 
 In Arabic, الشكل is *shape* only; a *variant* is الطراز, and the fixed heading is «اختيار الطراز».
 
+## Key names
+
+What a key is called in each language: in prose, and where the site names a key for assistive technology (the keyboard map's caps, `keys` in `src/lib/i18n.ts`, which holds these words). A key is named as the keyboards of the language print it (`Esc`, `Supr`); only the arrows, which a keyboard prints as a glyph, have words of the language. English names a key in full, as its specs do (`Escape`). A chord joins its keys with `+` in prose (`Shift+Tab`); `Command or Control` is the key a product writes as `mod`. In prose the Japanese, Chinese and Hindi pages may add «キー» / «键» / «कुंजी» after a name where the sentence needs it (`Tab キー`).
+
+| English | Japanese | Simplified Chinese | Spanish | Hindi | Arabic |
+|---|---|---|---|---|---|
+| Tab / Shift / Alt | Tab / Shift / Alt | Tab / Shift / Alt | Tab / Mayús / Alt | Tab / Shift / Alt | Tab / Shift / Alt |
+| Control / Command or Control | Ctrl / Command または Ctrl | Ctrl / Command 或 Ctrl | Ctrl / Comando o Ctrl | Ctrl / Command या Ctrl | Ctrl / Command أو Ctrl |
+| Enter / Escape / Space | Enter / Esc / Space | Enter / Esc / Space | Enter / Esc / Espacio | Enter / Esc / Space | Enter / Esc / Space |
+| Backspace / Delete | Backspace / Delete | Backspace / Delete | Retroceso / Supr | Backspace / Delete | Backspace / Delete |
+| Home / End / Page Up / Page Down | Home / End / Page Up / Page Down | Home / End / Page Up / Page Down | Inicio / Fin / Re Pág / Av Pág | Home / End / Page Up / Page Down | Home / End / Page Up / Page Down |
+| Up Arrow / Down Arrow / Left Arrow / Right Arrow | 上矢印 / 下矢印 / 左矢印 / 右矢印 | 上方向键 / 下方向键 / 左方向键 / 右方向键 | flecha arriba / flecha abajo / flecha izquierda / flecha derecha | अप ऐरो / डाउन ऐरो / लेफ़्ट ऐरो / राइट ऐरो | السهم للأعلى / السهم للأسفل / السهم الأيسر / السهم الأيمن |
+| the arrow keys | 矢印キー | 方向键 | teclas de flecha | ऐरो कुंजियाँ | مفاتيح الأسهم |
+| or (between two keys) | または | 或 | o | या | أو |
+
 ## Hindi: conventions fixed by the quality pass
 
 Hindi interfaces and Hindi developer documentation do not agree with each other on everything (the full stop or the danda, `करें`/`जाएं` or `जाएँ`, `सहेजें` or `सेव करें`). Where they differ, the docs take one form and hold it on every page. These rows say which.

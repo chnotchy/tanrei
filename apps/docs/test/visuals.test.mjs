@@ -1,8 +1,9 @@
 // The docs' figures drawn from the repository: what `src/lib/visuals/` makes of the specs and the tokens — the parts an
 // anatomy figure numbers and its text alternative, the lengths a measure figure draws, the motions a demo plays, the
-// color roles a role map draws, the grid of a state matrix and the controls of a playground — each compared with the
-// repository read from disk; the figures' words in the six languages; and the frame and its system switch, read from
-// their sources.
+// color roles a role map draws, the grid of a state matrix, the controls of a playground and the keys of a keyboard
+// map — each compared with the repository read from disk; the figures' words and the keys' names in the six languages;
+// where the focus order figure and the keyboard map are placed; and the frame and its system switch, read from their
+// sources.
 //
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
@@ -21,6 +22,7 @@ const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/vis
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
 const { CODE_FLAVORS, controlsAndGaps, controlsOf, NATIVE_CODE, playgroundOf, SIDE_BY_SIDE } = await import('../src/lib/visuals/playground.ts');
 const { attributeOf, fromAttribute, hashEntries, hashKey, hashOf, isDefault, propertyOf, stateFromHash, writeHash } = await import('../src/lib/visuals/playground-state.ts');
+const { ARROWS, NAMED_KEYS, keySegments, shortcutKeys, spokenChord } = await import('../src/lib/visuals/keyboard.ts');
 const { strings } = await import('../src/lib/i18n.ts');
 const { specs } = await import('../src/lib/repo.ts');
 const { shippedSystems } = await import('../src/lib/tokens.ts');
@@ -534,6 +536,85 @@ describe('the playground', () => {
     for (const { lang, dir } of translations) {
       const translated = placedIn(`${dir}/`);
       for (const [file, names] of Object.entries(english)) if (names.length && file in translated) assert.deepEqual(translated[file], names, `${lang}: ${file}`);
+    }
+  });
+});
+
+describe('the keyboard map and the focus order figure', () => {
+  const chords = (phrase) => keySegments(phrase).filter((segment) => 'chord' in segment).map((segment) => segment.chord.join('+'));
+  /** Every row of every spec's keyboard table. */
+  const rows = names.flatMap((name) => (specs[name].accessibility?.keyboard ?? []).map((row) => ({ name, ...row })));
+  /** The Keyboard shortcut's names: its modifiers, its named keys, a function key, one character. */
+  const KNOWN = new Set(['mod', 'ctrl', 'alt', 'shift', 'enter', 'escape', 'tab', 'backspace', 'delete', 'space', ...ARROWS, 'home', 'end', 'page-up', 'page-down', 'plus']);
+  const known = (key) => KNOWN.has(key) || /^f([1-9]|1\d|2[0-4])$/.test(key) || [...key].length === 1;
+
+  test('a phrase is read into chords, the "or" between them and the spec’s other words, in order', () => {
+    assert.deepEqual(keySegments('Tab / Shift+Tab'), [{ chord: ['tab'] }, { or: ' / ' }, { chord: ['shift', 'tab'] }]);
+    assert.deepEqual(keySegments('Enter, Space or Down Arrow on the anchor'), [{ chord: ['enter'] }, { or: ', ' }, { chord: ['space'] }, { or: ' or ' }, { chord: ['arrow-down'] }, { text: ' on the anchor' }]);
+    assert.deepEqual(keySegments('Escape (during a drag)'), [{ chord: ['escape'] }, { text: ' (during a drag)' }]);
+    assert.deepEqual(keySegments('Printable characters'), [{ text: 'Printable characters' }]);
+    // A slash first is the slash key; «Left / Right Arrow» is two arrows; a character after a modifier is that key.
+    assert.deepEqual(chords('/ (the filterShortcut chord, on a row)'), ['/']);
+    assert.deepEqual(chords('Left / Right Arrow on the entry-mode tabs'), ['arrow-left', 'arrow-right']);
+    assert.deepEqual(chords('Shift+F10 or the ContextMenu key on the area'), ['shift+f10']);
+    // Control is `mod` where the phrase says Apple's keyboards take Command, and a chord written with each is one.
+    assert.deepEqual(chords('Ctrl+A (multiple; Command on Apple platforms)'), ['mod+a']);
+    assert.deepEqual(chords('Ctrl+Enter / Command+Enter'), ['mod+enter']);
+    // A key inside the spec's words is drawn too; an "or" before words is part of them.
+    assert.deepEqual(keySegments('Left Arrow (Right Arrow in right-to-left layouts)'), [{ chord: ['arrow-left'] }, { text: ' (' }, { chord: ['arrow-right'] }, { text: ' in right-to-left layouts)' }]);
+    assert.deepEqual(keySegments('Enter, an option active'), [{ chord: ['enter'] }, { text: ', an option active' }]);
+    assert.equal(shortcutKeys(['arrows']), 'arrow-up arrow-down arrow-left arrow-right');
+    assert.equal(shortcutKeys(['shift', 'tab']), 'shift+tab');
+  });
+  test('every phrase of every spec: each chord is keys the Keyboard shortcut draws, and every key the phrase names is drawn', () => {
+    assert.ok(rows.length > 300, String(rows.length));
+    for (const { name, keys } of rows) {
+      const segments = keySegments(keys);
+      assert.ok(segments.length > 0, `${name}: «${keys}»`);
+      for (const segment of segments) {
+        if (!('chord' in segment)) continue;
+        for (const key of shortcutKeys(segment.chord).split(/[ +]/)) assert.ok(known(key),`${name}: «${keys}» reads the key "${key}", which the Keyboard shortcut does not name`);
+      }
+      // What is left as words names no key a spec writes with a capital (a key inside words is drawn).
+      const words = segments.filter((segment) => 'text' in segment).map((segment) => segment.text).join(' ');
+      assert.doesNotMatch(words, /\b(Tab|Enter|Escape|Space|Backspace|Delete|Home|End|Page Up|Page Down|(Up|Down|Left|Right) [Aa]rrow)\b(?![-\w])/, `${name}: «${keys}» leaves a key in words: «${words}»`);
+    }
+  });
+  test('every key has a name in every language, and a chord is read in the page’s words', () => {
+    for (const lang of languages) {
+      const keys = strings(lang).keys;
+      assert.deepEqual(Object.keys(keys).sort(), [...NAMED_KEYS].sort(), `${lang}: the names of the keys`);
+      for (const [key, word] of Object.entries(keys)) assert.ok(word.trim(), `${lang}: keys.${key}`);
+      assert.ok(String(strings(lang).keysColumn ?? '').trim(), `${lang}: keysColumn`);
+    }
+    assert.equal(spokenChord(['shift', 'tab'], strings('en').keys), 'Shift Tab');
+    assert.equal(spokenChord(['mod', 'a'], strings('ja').keys), 'Command または Ctrl A');
+    assert.equal(spokenChord(['arrow-down'], strings('es').keys), 'flecha abajo');
+    assert.equal(spokenChord(['f2'], strings('ar').keys), 'F2');
+  });
+  test('the focus order figure stands on a fixture the page can draw, and every language’s page places the same figures and maps', () => {
+    const placedIn = (base) => {
+      const dir = here(`../src/content/docs/${base}components`);
+      return Object.fromEntries(
+        fs
+          .readdirSync(dir)
+          .filter((file) => file.endsWith('.mdx'))
+          .map((file) => {
+            const text = fs.readFileSync(`${dir}/${file}`, 'utf8');
+            return [file, [...[...text.matchAll(/<FocusOrder name="([\w-]+)"(?: fixture="([\w-]+)")? \/>/g)].map(([, name, fixture]) => `focus ${name} ${fixture ?? ''}`), ...[...text.matchAll(/<ComponentAccessibility name="([\w-]+)" keyboardMap \/>/g)].map(([, name]) => `keys ${name}`)]];
+          }),
+      );
+    };
+    const english = placedIn('');
+    const placed = Object.values(english).flat();
+    assert.ok(placed.some((entry) => entry.startsWith('focus ')) && placed.some((entry) => entry.startsWith('keys ')), 'the figures are placed');
+    for (const entry of placed.filter((one) => one.startsWith('focus '))) {
+      const [, name, fixture] = entry.split(' ');
+      assert.ok(blueprintStageOf(name, fixture || undefined), `${entry}: the fixture stands in the page`);
+    }
+    for (const { lang, dir } of translations) {
+      const translated = placedIn(`${dir}/`);
+      for (const [file, entries] of Object.entries(english)) if (entries.length && file in translated) assert.deepEqual(translated[file], entries, `${lang}: ${file}`);
     }
   });
 });

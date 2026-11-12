@@ -2,13 +2,14 @@
 title: Vista de árbol
 description: Una jerarquía de elementos que se abren y se cierran. Las filas empiezan más adentro en cada nivel, con un chevron al inicio de cada fila que contiene otras. Solo se lee y se abre, o bien en ella se eligen uno o varios elementos, y es una sola parada en el orden del foco.
 translationOf: components/tree-view.mdx
-sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
+sourceHash: 09e04ed2fb833d9b3865135fa0bf97cead808e91
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -364,7 +365,9 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 
 ## Accesibilidad
 
-<ComponentAccessibility name="tree-view" />
+<FocusOrder name="tree-view" fixture="filter" />
+
+<ComponentAccessibility name="tree-view" keyboardMap />
 
 ### De qué se encarga el componente
 

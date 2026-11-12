@@ -27,6 +27,34 @@ export async function defined(root: Element): Promise<void> {
   await Promise.all([...waiting].map((name) => customElements.whenDefined(name)));
 }
 
+/** Every shadow root under `root`, nearest first. */
+export function shadowRootsIn(root: ParentNode): ShadowRoot[] {
+  const found: ShadowRoot[] = [];
+  const walk = (node: ParentNode) => {
+    for (const element of node.querySelectorAll('*')) {
+      if (!element.shadowRoot) continue;
+      found.push(element.shadowRoot);
+      walk(element.shadowRoot);
+    }
+  };
+  walk(root);
+  return found;
+}
+
+/**
+ * Every Tanrei element under `root`, its shadow trees included, has drawn, and what it was moving has come to rest: a
+ * figure measures the component as it stands, not part of the way through an entrance (a part still faded out is not
+ * drawn for the figure). A motion that never ends (a spinner's turn) or that stands still is not waited for.
+ */
+export async function settled(root: Element): Promise<void> {
+  const all = () => [root, ...root.querySelectorAll('*'), ...shadowRootsIn(root).flatMap((shadow) => [...shadow.querySelectorAll('*')])];
+  await Promise.all(all().map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete).filter(Boolean));
+  await document.fonts.ready;
+  const moving = new Set(all().flatMap((element) => element.getAnimations({ subtree: true })));
+  const ending = [...moving].filter((animation) => animation.playState === 'running' && Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+  await Promise.all(ending.map((animation) => animation.finished.catch(() => undefined)));
+}
+
 /**
  * Calls `draw` once, with the figure's canvas (what it shows) and its overlay (what it lays over it), when the figure's
  * time has come and every element in the canvas is defined.

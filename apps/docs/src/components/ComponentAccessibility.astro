@@ -2,16 +2,20 @@
 // Accessibility tab: role, keyboard table, labeling, notes — from the spec's `accessibility` block. The facts are a
 // description list; the keyboard table is a Tanrei Table (Table.astro), named by the heading above it. Its cells
 // wrap: what a spec writes as keys is sometimes a phrase ("Typing, Backspace, Delete, arrows, …"), and a column held
-// on one line would leave the action a word wide.
+// on one line would leave the action a word wide. A page that asks (`keyboardMap`) has the keyboard map in the table's
+// place: the same rows, their keys drawn as caps by the Keyboard shortcut (visuals/KeyboardMap.astro).
 import { getSpec } from '../lib/repo';
 import { tokensIn, dimension, ns } from '../lib/tokens';
 import { contentLang, strings } from '../lib/i18n';
 import SourceNote from './SourceNote.astro';
 import Table from './Table.astro';
+import KeyboardMap from './visuals/KeyboardMap.astro';
 import { markdownMark } from '../lib/page-markdown.mjs';
 
 interface Props {
   name: string;
+  /** Draw the keyboard table as the keyboard map: each row's keys as caps, read in the page's language. */
+  keyboardMap?: boolean;
 }
 const spec = getSpec(Astro.props.name);
 const a11y = spec.accessibility;
@@ -38,8 +42,9 @@ const targets = tokensIn(`${ns}.sys.target`);
 </tanrei-description-list>
 
 <h3>{t.keyboard}</h3>
+{Astro.props.keyboardMap ? <KeyboardMap name={spec.name} /> : (
 <Table label={t.keyboard}><table>
-  <thead><tr><th scope="col">{t.keys}</th><th scope="col">{t.action}</th></tr></thead>
+  <thead><tr><th scope="col">{t.keysColumn}</th><th scope="col">{t.action}</th></tr></thead>
   <tbody>
     {a11y.keyboard.map((k) => (
       <tr>
@@ -49,6 +54,7 @@ const targets = tokensIn(`${ns}.sys.target`);
     ))}
   </tbody>
 </table></Table>
+)}
 
 {a11y.notes && a11y.notes.length > 0 && (
   <>

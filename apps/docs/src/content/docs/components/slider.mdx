@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 import DoDont from '../../../components/visuals/DoDont.astro';
 import Playground from '../../../components/visuals/Playground.astro';
@@ -284,7 +285,9 @@ A vertical slider runs from the bottom (`min`) to the top (`max`) in every layou
 
 ## Accessibility
 
-<ComponentAccessibility name="slider" />
+<FocusOrder name="slider" fixture="range" />
+
+<ComponentAccessibility name="slider" keyboardMap />
 
 ### What the component handles
 
