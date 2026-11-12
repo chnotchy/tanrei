@@ -3699,20 +3699,20 @@ private let m3ExpressiveLikeDescriptionListTokens = TanreiDescriptionListTokens(
   stackGap: 4,
   termColor: .role(.onSurfaceVariant),
   valueColor: .role(.onSurface),
-  densitys: TanreiDescriptionListDensitys(
-    regular: TanreiDescriptionListDensityTokens(
-      factGap: 12,
-      termGap: 16,
-      termTypescale: m3ExpressiveLikeTypescale.label,
-      valueTypescale: m3ExpressiveLikeTypescale.body,
-      statValueTypescale: m3ExpressiveLikeTypescale.heading1
-    ),
-    compact: TanreiDescriptionListDensityTokens(
+  sizes: TanreiDescriptionListSizes(
+    small: TanreiDescriptionListSizeTokens(
       factGap: 6,
       termGap: 8,
       termTypescale: m3ExpressiveLikeTypescale.labelSmall,
       valueTypescale: m3ExpressiveLikeTypescale.bodySmall,
       statValueTypescale: m3ExpressiveLikeTypescale.heading3
+    ),
+    medium: TanreiDescriptionListSizeTokens(
+      factGap: 12,
+      termGap: 16,
+      termTypescale: m3ExpressiveLikeTypescale.label,
+      valueTypescale: m3ExpressiveLikeTypescale.body,
+      statValueTypescale: m3ExpressiveLikeTypescale.heading1
     )
   )
 )
@@ -9057,14 +9057,14 @@ private let m3ExpressiveLikeTableOfContentsTokens = TanreiTableOfContentsTokens(
       )
     )
   ),
-  densitys: TanreiTableOfContentsDensitys(
-    regular: TanreiTableOfContentsDensityTokens(
-      rowHeight: 44,
-      rowPaddingBlock: 12
-    ),
-    compact: TanreiTableOfContentsDensityTokens(
+  sizes: TanreiTableOfContentsSizes(
+    small: TanreiTableOfContentsSizeTokens(
       rowHeight: 32,
       rowPaddingBlock: 6
+    ),
+    medium: TanreiTableOfContentsSizeTokens(
+      rowHeight: 44,
+      rowPaddingBlock: 12
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9767,6 +9767,7 @@ private let m3ExpressiveLikeTimelineTokens = TanreiTimelineTokens(
   connectorColor: .role(.outlineVariant),
   connectorGap: 4,
   connectorThickness: 1,
+  itemGap: 16,
   markerCurrentContainerColor: .role(.primary),
   markerCurrentIconColor: .role(.onPrimary),
   markerDotColor: .role(.onSurfaceVariant),
@@ -9792,14 +9793,6 @@ private let m3ExpressiveLikeTimelineTokens = TanreiTimelineTokens(
       timeTypescale: m3ExpressiveLikeTypescale.body,
       titleTypescale: m3ExpressiveLikeTypescale.heading5,
       bodyTypescale: m3ExpressiveLikeTypescale.bodyLarge
-    )
-  ),
-  densitys: TanreiTimelineDensitys(
-    regular: TanreiTimelineDensityTokens(
-      itemGap: 16
-    ),
-    compact: TanreiTimelineDensityTokens(
-      itemGap: 8
     )
   )
 )

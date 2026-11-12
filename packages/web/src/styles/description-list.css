@@ -1,5 +1,5 @@
 /*
- * Description list (specs/description-list.spec.json, DSL-1 to DSL-24): what is known about one
+ * Description list (specs/description-list.spec.json, DSL-1 to DSL-25): what is known about one
  * thing as named facts — a quiet term and the value that answers it — with the terms in one column beside their
  * values, above them, or under a large figure. It is laid out by its own width and takes no input.
  *
@@ -7,15 +7,15 @@
  * the document: `dl`, `dt` and `dd` are never given a role, so the description list a screen reader, a crawler and a
  * page without script meet is the browser's own (DSL-17).
  *
- *   <tanrei-description-list layout="stacked" columns="3" density="compact" separation="gap">
+ *   <tanrei-description-list layout="stacked" columns="3" size="small" separation="gap">
  *     <dl>
  *       <div><dt>Category</dt><dd>Actions</dd></div>
  *       <div><dt>Owners</dt><dd>Aiko Tanaka</dd><dd>Samir Haddad</dd></div>
  *     </dl>
  *   </tanrei-description-list>
  *
- * Attributes of the wrapper: `layout` (inline | stacked | stat), `columns` (a whole number), `density`
- * (regular | compact), `separation` (auto | divider | gap). A fact is a `<div>` around one `<dt>` and its `<dd>`s. A
+ * Attributes of the wrapper: `layout` (inline | stacked | stat), `columns` (a whole number), `size`
+ * (small | medium), `separation` (auto | divider | gap). A fact is a `<div>` around one `<dt>` and its `<dd>`s. A
  * `dl` without groups — `dt` and `dd` as its children — is drawn in one column, inline or stacked; `columns` and
  * `stat` need the groups.
  *
@@ -51,15 +51,16 @@
 @layer tanrei.components {
   /* ── The box (DSL-1): as wide as its layout, as tall as its facts, no look and no outer space of its own ─────── */
   :where(tanrei-description-list) {
-    /* DSL-2, DSL-3, DSL-12: the density's gaps and text styles (DSL-23: any other density is the default's). */
-    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-regular);
-    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-regular);
-    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-regular-font);
-    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-regular-letter-spacing);
-    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-regular-font);
-    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-regular-letter-spacing);
-    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-regular-font);
-    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-regular-letter-spacing);
+    /* DSL-2, DSL-3, DSL-12, DSL-25: the size's gaps and text styles — medium here, small below, set on the list or
+       taken from its container by the element (the custom state size-small); DSL-23: any other size is the default's. */
+    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-medium);
+    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-medium);
+    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-medium-font);
+    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-medium-letter-spacing);
+    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-medium-font);
+    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-medium-letter-spacing);
+    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-medium-font);
+    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-medium-letter-spacing);
     /* DSL-13: the separation this list draws — its attribute's, else comp.description-list.separation's. */
     --_dl-separation: var(--tanrei-comp-description-list-separation);
     --_dl-line: var(--tanrei-comp-description-list-divider-thickness);
@@ -87,15 +88,15 @@
   :where(tanrei-description-list):dir(rtl) {
     --_dl-start: right;
   }
-  :where(tanrei-description-list[density='compact']) {
-    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-compact);
-    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-compact);
-    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-compact-font);
-    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-compact-letter-spacing);
-    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-compact-font);
-    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-compact-letter-spacing);
-    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-compact-font);
-    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-compact-letter-spacing);
+  :where(tanrei-description-list[size='small'], tanrei-description-list:state(size-small)) {
+    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-small);
+    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-small);
+    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-small-font);
+    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-small-letter-spacing);
+    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-small-font);
+    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-small-letter-spacing);
+    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-small-font);
+    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-small-letter-spacing);
   }
   :where(tanrei-description-list[separation='divider']) {
     --_dl-separation: divider;

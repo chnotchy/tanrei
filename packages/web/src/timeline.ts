@@ -10,8 +10,8 @@
 //     an event's status read in words — the words of `data-status-label` are written as a `.tanrei-timeline-status`
 //     element at the start of the event instead, which the stylesheet draws nowhere;
 //   - TML-15: a timeline inside an event is reported (it is still drawn as a timeline of its own);
-//   - TML-21: a size or a density neither the spec nor the active design system has, and a status the spec does not
-//     have, are reported (they are drawn as the default, and as an event with no status);
+//   - TML-21: a size neither the spec nor the active design system has, and a status the spec does not have, are
+//     reported (they are drawn as the default, and as an event with no status);
 //   - TML-22: a timeline with no event, an event with neither a time, a title nor a body, a status without its words
 //     and words without a status are reported.
 //
@@ -23,12 +23,11 @@ const MARKER = 'tanrei-timeline-marker';
 const STATUS = 'tanrei-timeline-status';
 /** The mark of a `.tanrei-timeline-status` this script wrote (one the product wrote is the product's). */
 const WRITTEN = 'data-tanrei-timeline-written';
-/** The values the spec defines; a design system may add a size or a density, which is known by its tokens. */
+/** The values the spec defines; a design system may add a size, which is known by its tokens. */
 const SIZES = ['medium', 'large'];
-const DENSITIES = ['regular', 'compact'];
 const STATUSES = ['done', 'current', 'upcoming'];
 /** What the observer re-reads a timeline for. */
-const ATTRIBUTES = ['class', 'data-size', 'data-density', 'data-status', 'data-status-label'];
+const ATTRIBUTES = ['class', 'data-size', 'data-status', 'data-status-label'];
 
 /** The items this script marked as current: the only ones it unmarks. */
 const marked = new WeakSet<Element>();
@@ -78,10 +77,6 @@ function read(list: Element) {
   const size = list.getAttribute('data-size');
   if (size !== null && !SIZES.includes(size) && !style.getPropertyValue(`--tanrei-comp-timeline-marker-height-${size}`).trim()) {
     report(list, 'TML-21', `data-size "${size}" is not a size it or the active design system defines; it is drawn as "medium"`);
-  }
-  const density = list.getAttribute('data-density');
-  if (density !== null && !DENSITIES.includes(density) && !style.getPropertyValue(`--tanrei-comp-timeline-item-gap-${density}`).trim()) {
-    report(list, 'TML-21', `data-density "${density}" is not a density it or the active design system defines; it is drawn as "regular"`);
   }
   // TML-15: timelines are not meant to be nested (events inside an event are a list of prose in the body).
   if (list.parentElement?.closest(`.${TIMELINE} > li`)) report(list, 'TML-15', 'it is a timeline inside an event: it is drawn as a timeline of its own; events inside an event are a list in the body');

@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab } from '../../test/harness.js';
+import { fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { decodePng } from '../../test/png.js';
 import { expectBaseline } from '../../test/baseline.js';
@@ -235,21 +235,18 @@ test.describe('layout', () => {
     near((await content(items(timeline(page, 'large')).first())).left - (await box(timeline(page, 'large'))).x, 40, 'large: 28 and 12', 0.05);
   });
 
-  test('TML-2 the item gap of the density is between the end of one event and the beginning of the next, and density changes nothing else; the order is the product’s: nothing is sorted, numbered, hidden or read from a time', async ({ page }) => {
-    await mountSpec(page, ['titles-only', 'compact', 'large-plan-compact']);
-    const [regular, compact] = [await resolveToken(page, T('item-gap-regular')), await resolveToken(page, T('item-gap-compact'))];
-    expect([regular, compact]).toEqual([16, 8]);
-    for (const [id, between] of [['titles-only', regular], ['compact', compact], ['large-plan-compact', compact]] as const) {
-      const boxes = await Promise.all((await items(timeline(page, id)).all()).map(box));
-      for (let i = 1; i < boxes.length; i++) near(boxes[i].y - boxes[i - 1].bottom, between, `${id}: before event ${i + 1}`, 0.05);
+  test('TML-2 the item gap is between the end of one event and the beginning of the next at every size, and follows the system’s density (16 at 1, 12 at 0.75, 24 at 1.5); the order is the product’s: nothing is sorted, numbered, hidden or read from a time', async ({ page }) => {
+    await mountSpec(page, ['titles-only', 'large-plan']);
+    for (const [density, expected] of [['1', 16], ['0.75', 12], ['1.5', 24]] as const) {
+      await rootTokens(page, { '--tanrei-dial-density': density === '1' ? '' : density });
+      const between = await resolveToken(page, T('item-gap'));
+      expect(between, `density ${density}`).toBe(expected);
+      for (const id of ['titles-only', 'large-plan']) {
+        const boxes = await Promise.all((await items(timeline(page, id)).all()).map(box));
+        for (let i = 1; i < boxes.length; i++) near(boxes[i].y - boxes[i - 1].bottom, between, `${id} at density ${density}: before event ${i + 1}`, 0.05);
+      }
     }
-    // Nothing else: the same events, regular and compact, differ in the space between them alone.
-    const list = timeline(page, 'titles-only');
-    const look = () => list.evaluate((ol) => [...ol.querySelectorAll(':scope > li')].map((li) => { const r = li.getBoundingClientRect(); const b = getComputedStyle(li, '::before'); return [r.width, r.height, getComputedStyle(li).padding, b.width, b.height, b.top, getComputedStyle(li, '::after').top, ...[...li.children].map((c) => `${getComputedStyle(c).font} ${c.getBoundingClientRect().height}`)].join(' '); }));
-    const before = await look();
-    await list.evaluate((ol) => ol.setAttribute('data-density', 'compact'));
-    expect(await look()).toEqual(before);
-    near((await box(items(list).nth(1))).y - (await box(items(list).first())).bottom, compact, 'compact at once', 0.05);
+    await rootTokens(page, { '--tanrei-dial-density': '' });
     // The verify: 2026 then 2025, drawn and exposed in that order — and an older date first stays first.
     await mount(page, OL(`<li><time class="tanrei-timeline-time" datetime="2026-01-01">2026</time><p class="tanrei-timeline-title">Later</p></li><li><time class="tanrei-timeline-time" datetime="2025-01-01">2025</time><p class="tanrei-timeline-title">Earlier</p></li><li><time class="tanrei-timeline-time" datetime="2027-01-01">2027</time><p class="tanrei-timeline-title">Latest</p></li>`, 'aria-label="Years"'));
     const years = page.getByRole('list', { name: 'Years' }).getByRole('listitem');
@@ -567,9 +564,9 @@ test.describe('layout', () => {
   });
 
   test('TML-9 a connector joins an event’s marker to the next: a hairline on the marker column’s centre line, the connector gap from both boxes, through the space between the events however tall the upper one; none after the last event, none in a timeline of one; it takes no room, is the same between events of any status, and is not exposed', async ({ page }) => {
-    await mountSpec(page, ['no-time', 'long-bodies', 'single', 'plan', 'large', 'compact']);
+    await mountSpec(page, ['no-time', 'long-bodies', 'single', 'plan', 'large', 'large-plan']);
     const [thickness, gap] = [await resolveToken(page, T('connector-thickness')), await resolveToken(page, T('connector-gap'))];
-    for (const [id, size] of [['no-time', 'medium'], ['long-bodies', 'medium'], ['plan', 'medium'], ['large', 'large'], ['compact', 'medium']] as const) {
+    for (const [id, size] of [['no-time', 'medium'], ['long-bodies', 'medium'], ['plan', 'medium'], ['large', 'large'], ['large-plan', 'large']] as const) {
       const all = await items(timeline(page, id)).all();
       for (const [i, item] of all.entries()) {
         if (i === all.length - 1) {
@@ -682,7 +679,7 @@ test.describe('no input, and what is read', () => {
   });
 
   test('TML-12 the timeline is an ordered list of as many items as events, named by label; each item holds its status in words, its time, its title and its body, in that order — the words before the time, a phrase of their own, drawn nowhere and ignored while the status is none; exactly one current event is the list’s current item; nothing else says a status and no role is added', async ({ page, browserName }) => {
-    await mountSpec(page, ['plan', 'plan-icons', 'dated', 'large-plan-compact']);
+    await mountSpec(page, ['plan', 'plan-icons', 'dated', 'large-plan']);
     const list = page.getByRole('list', { name: 'Roadmap' }).first();
     expect(await list.evaluate((el) => [el.localName, el.getAttribute('role')])).toEqual(['ol', 'list']);
     await expect(list.getByRole('listitem')).toHaveCount(4);
@@ -702,7 +699,7 @@ test.describe('no input, and what is read', () => {
     // Exactly one current event: the list's current item, in the platform's own way.
     await expect(all[2]).toHaveAttribute('aria-current', 'true');
     expect(await timeline(page, 'plan').evaluate((ol) => [...ol.children].map((li) => li.getAttribute('aria-current')))).toEqual([null, null, 'true', null]);
-    await expect(timeline(page, 'large-plan-compact').locator('> li[aria-current="true"]')).toHaveCount(1);
+    await expect(timeline(page, 'large-plan').locator('> li[aria-current="true"]')).toHaveCount(1);
     // Nothing else says a status, and no role is added to a time, a title or a body.
     expect(await timeline(page, 'plan').evaluate((ol) => [...ol.querySelectorAll('*')].flatMap((el) => [...el.attributes].filter((a) => a.name === 'role' || (a.name.startsWith('aria-') && a.name !== 'aria-current')).map((a) => a.name)))).toEqual([]);
     expect(await timeline(page, 'dated').evaluate((ol) => [...ol.querySelectorAll('*')].flatMap((el) => [...el.attributes].filter((a) => a.name === 'role' || a.name.startsWith('aria-')).map((a) => a.name)))).toEqual([]);
@@ -863,7 +860,7 @@ test.describe('scaling, forced colors, direction', () => {
     await page.addStyleTag({ content: 'html { font-size: 200%; } .stage { box-sizing: border-box; inline-size: 320px; padding: 16px 8px; } .stage > .tanrei-timeline { inline-size: auto; }' });
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-    const gaps = { marker: await resolveToken(page, T('marker-gap')), item: await resolveToken(page, T('item-gap-regular')), time: await resolveToken(page, T('time-gap')), title: await resolveToken(page, T('title-gap')), connector: await resolveToken(page, T('connector-gap')) };
+    const gaps = { marker: await resolveToken(page, T('marker-gap')), item: await resolveToken(page, T('item-gap')), time: await resolveToken(page, T('time-gap')), title: await resolveToken(page, T('title-gap')), connector: await resolveToken(page, T('connector-gap')) };
     const side = await resolveToken(page, T('marker-height-medium'));
     for (const id of ['dated', 'plan', 'long-bodies', 'icons']) {
       const list = timeline(page, id);
@@ -1115,24 +1112,23 @@ test.describe('scaling, forced colors, direction', () => {
 });
 
 test.describe('what is not valid', () => {
-  test('TML-21 a size or a density the system does not have is drawn with the default’s tokens, a status the spec does not have as no status, and each is reported; a value the active design system defines is not', async ({ page }) => {
+  test('TML-21 a size the system does not have is drawn with the default’s tokens, a status the spec does not have as no status, and each is reported; a value the active design system defines is not', async ({ page }) => {
     const seen = reports(page);
-    await mount(page, `${OL(EVENT('A', '', '<p>Body.</p>') + EVENT('B', 'data-status="failed" data-status-label="Failed"'), 'id="odd" data-size="huge" data-density="tight"')}${OL(EVENT('A', '', '<p>Body.</p>') + EVENT('B'), 'id="plain"')}`);
+    await mount(page, `${OL(EVENT('A', '', '<p>Body.</p>') + EVENT('B', 'data-status="failed" data-status-label="Failed"'), 'id="odd" data-size="huge"')}${OL(EVENT('A', '', '<p>Body.</p>') + EVENT('B'), 'id="plain"')}`);
     const [odd, plain] = [page.locator('#odd'), page.locator('#plain')];
     const look = (list: Locator) => list.evaluate((ol) => [...ol.querySelectorAll(':scope > li')].map((li) => { const r = li.getBoundingClientRect(); const b = getComputedStyle(li, '::before'); return [r.width, r.height, r.top - ol.getBoundingClientRect().top, getComputedStyle(li).padding, b.width, b.height, b.content, b.borderTopWidth, b.backgroundColor, ...[...li.children].map((c) => getComputedStyle(c).font)].join(' | '); }));
     expect(await look(odd)).toEqual(await look(plain));
     near(await px(items(odd).first(), 'padding-left'), (await resolveToken(page, T('marker-height-medium'))) + (await resolveToken(page, T('marker-gap'))), 'medium', 0.05);
-    near((await box(items(odd).nth(1))).y - (await box(items(odd).first())).bottom, await resolveToken(page, T('item-gap-regular')), 'regular', 0.05);
+    near((await box(items(odd).nth(1))).y - (await box(items(odd).first())).bottom, await resolveToken(page, T('item-gap')), 'the gap', 0.05);
     // The unknown status: a dot, no words.
     expect([await css(items(odd).nth(1), 'content', '::before'), await px(items(odd).nth(1), 'width', '::before')]).toEqual(['""', await resolveToken(page, T('marker-dot-size'))]);
     await expect(items(odd).nth(1)).not.toHaveAttribute('aria-current');
-    await expect.poll(() => seen.filter((line) => line.includes('TML-21')).length).toBe(3);
+    await expect.poll(() => seen.filter((line) => line.includes('TML-21')).length).toBe(2);
     expect(seen.some((line) => line.includes('data-size "huge"') && line.includes('drawn as "medium"'))).toBe(true);
-    expect(seen.some((line) => line.includes('data-density "tight"') && line.includes('drawn as "regular"'))).toBe(true);
     expect(seen.some((line) => line.includes('data-status "failed"'))).toBe(true);
     // The spec's own values, `none` among them, and a value a design system defines by its tokens are not reported.
     const again = reports(page);
-    await mount(page, `<style>:root { ${T('marker-height-small')}: 20px; ${T('item-gap-loose')}: 24px; }</style>${OL(EVENT('A', 'data-status="none"') + EVENT('B', 'data-status="done" data-status-label="Done"'), 'data-size="small" data-density="loose"')}${OL(EVENT('A'), 'data-size="large" data-density="compact"')}${OL(EVENT('A'), 'data-size="medium" data-density="regular"')}`);
+    await mount(page, `<style>:root { ${T('marker-height-small')}: 20px; }</style>${OL(EVENT('A', 'data-status="none"') + EVENT('B', 'data-status="done" data-status-label="Done"'), 'data-size="small"')}${OL(EVENT('A'), 'data-size="large"')}${OL(EVENT('A'), 'data-size="medium"')}`);
     await page.waitForTimeout(100);
     expect(again.filter((line) => line.includes('TML-21'))).toEqual([]);
   });
@@ -1183,7 +1179,7 @@ test.describe('without the script', () => {
       return rows;
     };
     const [on, bare] = [await own(page), await own(off)];
-    expect(bare.length).toBeGreaterThan(140);
+    expect(bare.length).toBeGreaterThan(130);
     expect(bare).toEqual(on);
     // Nothing is written into the product's list by the script where the stylesheet's way is read: the markup is the same but for the current item.
     const markup = (p: P) => p.locator('.stage').evaluateAll((all) => all.map((holder) => holder.innerHTML.replaceAll(' aria-current="true"', '').replaceAll(' data-tanrei-mirrored=""', '')));
@@ -1198,10 +1194,10 @@ test.describe('without the script', () => {
 });
 
 test.describe('fixtures', () => {
-  test('all 14 fixtures are mounted and visible, each an ordered list with the class alone on its stage, 400 wide, and the review gallery draws the same document', async ({ page }) => {
-    expect(spec.fixtures).toHaveLength(14);
+  test('all 13 fixtures are mounted and visible, each an ordered list with the class alone on its stage, 400 wide, and the review gallery draws the same document', async ({ page }) => {
+    expect(spec.fixtures).toHaveLength(13);
     await mountSpec(page);
-    await expect(page.locator('.stage > ol.tanrei-timeline[role="list"]')).toHaveCount(14);
+    await expect(page.locator('.stage > ol.tanrei-timeline[role="list"]')).toHaveCount(13);
     for (const f of spec.fixtures) {
       const list = timeline(page, f.id);
       await expect(list, f.id).toHaveCount(1);
@@ -1210,7 +1206,6 @@ test.describe('fixtures', () => {
       expect((await box(list)).height, f.id).toBeGreaterThan(20);
       await expect(list, f.id).toHaveAttribute('aria-label', String(f.props.label));
       if (f.props.size === 'large') await expect(list).toHaveAttribute('data-size', 'large');
-      if (f.props.density === 'compact') await expect(list).toHaveAttribute('data-density', 'compact');
       await expect(items(list), f.id).toHaveCount(f.items!.length);
       for (const [i, item] of f.items!.entries()) {
         const event = items(list).nth(i);
@@ -1226,7 +1221,7 @@ test.describe('fixtures', () => {
     }
     const gallery = await fixturesDocument(spec, { icons: true, assets: { font: '/f.css', tokens: '/t.css', system: (id) => `/${id}.css`, icons: () => '/i.css', bundle: '/b.js' } });
     for (const f of spec.fixtures) expect(gallery, f.id).toContain(`data-fixture="${f.id}"`);
-    expect(gallery.slice(gallery.indexOf('<body>')).match(/<ol class="tanrei-timeline" role="list"/g)).toHaveLength(14);
+    expect(gallery.slice(gallery.indexOf('<body>')).match(/<ol class="tanrei-timeline" role="list"/g)).toHaveLength(13);
   });
 
   for (const theme of ['light', 'dark'] as const) {

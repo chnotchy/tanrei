@@ -1,10 +1,10 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, GlyphDrawnController, PressController, containedWheel, motionReduced, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, PressController, SizeConsumerController, containedWheel, motionReduced, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
 import { debugBuild } from '../../primitives/report.js';
-import type { TanreiTableOfContentsDensityRegistry } from '../../registry.js';
+import type { TanreiTableOfContentsSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
@@ -13,8 +13,8 @@ import { flatParent } from '../../primitives/flat-tree.js';
 
 /** How the table of contents stands (TOC-1, TOC-25): the title and the whole list, or one row that opens the list. */
 export type TanreiTableOfContentsPresentation = 'list' | 'compact';
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiTableOfContentsDensity = keyof TanreiTableOfContentsDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiTableOfContentsSize = keyof TanreiTableOfContentsSizeRegistry;
 /** Who decides which item is current (TOC-9, TOC-15): the element, from where the targets are, or the product. */
 export type TanreiTableOfContentsTracking = 'auto' | 'manual';
 /** `currentchange` (TOC-9 to TOC-16): the new current item's `href`, or an empty string when no item is current. */
@@ -46,10 +46,10 @@ const TAG = 'tanrei-table-of-contents';
 const PREFIX = '--tanrei-comp-table-of-contents';
 const PRESENTATIONS: readonly string[] = ['list', 'compact'];
 const TRACKINGS: readonly string[] = ['auto', 'manual'];
-const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`) as table-of-contents.css names them. */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const CORE_SIZES: readonly string[] = ['small', 'medium'];
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`) as table-of-contents.css names them. */
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_toc-row-height', 'row-height-*'],
   ['--_toc-row-pad', 'row-padding-block-*'],
 ];
@@ -107,10 +107,13 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
   return made;
 }
 
-/** TOC-39: a density a design system added — the default's rules, read from that density's tokens. */
-const densityRules = (density: string) =>
-  `@layer tanrei.components { :where(${TAG}[density='${density}']) { ${DENSITY_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', DEFAULT_DENSITY)}));`,
+/**
+ * TOC-39: a size a design system added — the default's rules, read from that size's tokens — for a table of contents
+ * that sets it and for one that takes it from its container (TOC-42: the custom state that carries the size it draws).
+ */
+const sizeRules = (size: string) =>
+  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
+    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
   ).join(' ')} } }`;
 
 /** Writes an attribute only when it differs: what is written here may be observed, and must settle. */
@@ -216,7 +219,9 @@ export class TanreiTableOfContents extends TanreiElement {
     labelHidden: { type: Boolean, attribute: 'label-hidden', reflect: true },
     // The defaults are not reflected: a table of contents that is defined is the one that was written.
     presentation: { type: String, reflect: true, useDefault: true },
-    density: { type: String, reflect: true, useDefault: true },
+    // TOC-42: the size the product set, or none: a table of contents that sets none draws the size its container
+    // sets. A custom accessor, so that a size set to the default's name is set all the same; it reflects the own size.
+    size: { type: String, noAccessor: true },
     open: { type: Boolean, reflect: true },
     current: { type: String },
     tracking: { type: String, reflect: true, useDefault: true },
@@ -231,8 +236,34 @@ export class TanreiTableOfContents extends TanreiElement {
   /** How it stands: `list` is the title and the whole list; `compact` is one row that names the current section and opens the list below it. Which one a window gets is the layout's that places it. */
   presentation: TanreiTableOfContentsPresentation = 'list';
 
-  /** How tall a row of the list is: `regular` holds the pointer target; `compact` is lower, for a long list beside the text of a product read with a pointer. For touch a row is the touch target in both. A design system may add values. */
-  density: TanreiTableOfContentsDensity = 'regular';
+  /**
+   * How tall a row of the list is: `medium` is taller than the pointer target; `small` is the minimum target, for a long
+   * list beside the text of a product read with a pointer. A row is never lower than the target at either. While it is
+   * not set the table of contents draws the size its nearest container sets (TOC-42), and `medium` where none does;
+   * reading it then gives `medium`. Setting it (to any value, `medium` included) makes it its own; removing the
+   * attribute gives that back. A design system may add values.
+   */
+  get size(): TanreiTableOfContentsSize {
+    return (this.sizes.own ?? DEFAULT_SIZE) as TanreiTableOfContentsSize;
+  }
+
+  set size(value: TanreiTableOfContentsSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** TOC-42: the size the product set, and the one the nearest container around it sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal TOC-42: the size it draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** TOC-42: carries the size it draws to table-of-contents.css, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** TOC-39: the size last read for a value the core does not have. */
+  private sizeRead = DEFAULT_SIZE;
 
   /** In the compact presentation, whether the list is shown below the row. The element sets it when the user opens, closes or chooses. Ignored in the list presentation. */
   open = false;
@@ -853,6 +884,9 @@ export class TanreiTableOfContents extends TanreiElement {
   // ── Drawing ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
   protected override willUpdate(changed: PropertyValues) {
+    // TOC-42: the size it draws, as a custom state table-of-contents.css matches (a name that is no token name is drawn
+    // as the default by its own rules, TOC-39).
+    this.sizes.syncState(this.internals);
     const first = !this.hasUpdated;
     const itemsChanged = this.itemsStale;
     if (itemsChanged) this.readItems();
@@ -895,7 +929,8 @@ export class TanreiTableOfContents extends TanreiElement {
     // TOC-32: no items — nothing is drawn and nothing is exposed.
     mark(this, 'data-empty', this.items.length ? null : '');
 
-    if (changed.has('density')) this.readDensity();
+    // TOC-39, TOC-42: the size it draws — its own or its container's — when that changed.
+    if (this.sizes.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizes.drawn));
     if (changed.has('presentation') && !PRESENTATIONS.includes(this.presentation)) {
       report(this, 'TOC-39', `presentation "${this.presentation}" is not a value it defines ("list" or "compact"); it is drawn as "list"`);
     }
@@ -928,14 +963,13 @@ export class TanreiTableOfContents extends TanreiElement {
     this.watch();
   }
 
-  /** TOC-39: a density the core does not have was added by a design system — its rules are added to the root — or is unknown to the active one, which a debug build says. */
-  private readDensity() {
-    const density = String(this.density ?? '');
-    if (CORE_DENSITIES.includes(density)) return;
-    const known = KEY.test(density);
-    if (known) adopt(this.getRootNode() as Root, sheet(`table-of-contents:density:${density}`, () => densityRules(density)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-row-height-${density}`).trim() === '') {
-      report(this, 'TOC-39', `density "${density}" is not a value of the active design system; it is drawn as "${DEFAULT_DENSITY}"`);
+  /** TOC-39: a size the core does not have was added by a design system — its rules are added to the root — or is unknown to the active one, which a debug build says. */
+  private readSize(size: string) {
+    if (CORE_SIZES.includes(size)) return;
+    const known = KEY.test(size);
+    if (known) adopt(this.getRootNode() as Root, sheet(`table-of-contents:size:${size}`, () => sizeRules(size)));
+    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-row-height-${size}`).trim() === '') {
+      report(this, 'TOC-39', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
 

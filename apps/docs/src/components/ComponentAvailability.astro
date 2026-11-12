@@ -65,7 +65,7 @@ const importLine = where?.module && `import '${where.module}';`;
     </tanrei-description-list>
   </div>
   {variantsOut.length > 0 && (
-    <tanrei-description-list class="left-out" layout="inline" density="compact" separation="gap">
+    <tanrei-description-list class="left-out" layout="inline" size="small" separation="gap">
       <dl>
         <div><dt>{t.variantsNotShippedIn}</dt><dd>{variantsOut.map(({ system, values }) => `${system}: ${values.join(', ')}`).join(' · ')}</dd></div>
       </dl>

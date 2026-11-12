@@ -33322,17 +33322,17 @@
         },
         "fact": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -33356,29 +33356,7 @@
         "stat": {
           "value": {
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "-apple-system",
-                    "BlinkMacSystemFont",
-                    "system-ui",
-                    "Inter",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 20,
-                    "unit": "px"
-                  },
-                  "fontWeight": 600,
-                  "letterSpacing": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.25
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -33398,6 +33376,28 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.2143
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "-apple-system",
+                    "BlinkMacSystemFont",
+                    "system-ui",
+                    "Inter",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 20,
+                    "unit": "px"
+                  },
+                  "fontWeight": 600,
+                  "letterSpacing": {
+                    "value": 0,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.25
                 }
               }
             }
@@ -33419,45 +33419,23 @@
             "$description": "The text of a term, and of a figure's label in the stat layout: secondary content, quieter than the value it names."
           },
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 13,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3846
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -33478,26 +33456,8 @@
                 },
                 "lineHeight": 1.2941
               }
-            }
-          }
-        },
-        "value": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0,
-                0,
-                0
-              ],
-              "hex": "#000000",
-              "alpha": 1
             },
-            "$description": "The text of a value, and of a figure in the stat layout."
-          },
-          "typescale": {
-            "compact": {
+            "small": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -33518,8 +33478,26 @@
                 },
                 "lineHeight": 1.3846
               }
+            }
+          }
+        },
+        "value": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "hex": "#000000",
+              "alpha": 1
             },
-            "regular": {
+            "$description": "The text of a value, and of a figure in the stat layout."
+          },
+          "typescale": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -33539,6 +33517,28 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.3333
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
               }
             }
           }
@@ -84852,17 +84852,17 @@
         },
         "row": {
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 44,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -84876,17 +84876,17 @@
             "$description": "How much further from the rail a label starts for each level of nesting. Only the label moves: the row, its state layer and its marker keep the list's full width."
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -84897,7 +84897,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same in both densities: density changes how tall a row is, not where its label starts."
+            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same at both sizes: size changes how tall a row is, not where its label starts."
           },
           "shape": {
             "$type": "dimension",
@@ -92521,7 +92521,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "The space between two blocks of one event's body: half the regular space between two events, so what belongs to one event is closer together than two events are."
+            "$description": "The space between two blocks of one event's body: half the space between two events at density 1, so what belongs to one event is closer together than two events are."
           },
           "typescale": {
             "large": {
@@ -92604,20 +92604,12 @@
         },
         "item": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
             },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            }
+            "$description": "The space between the end of one event and the beginning of the next: the space prose puts between two blocks in the default system, times the system's density, so a denser system draws its events closer together."
           }
         },
         "marker": {
