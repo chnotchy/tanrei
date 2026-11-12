@@ -193,6 +193,10 @@ export class TanreiModalLayer extends TanreiElement {
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);
+    // MDL-5, MDL-7: what closing began — the colors of the element focus left and of the opener it went back to — begins
+    // in the first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the frame
+    // drawn before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this, restore ? opener : null]);
   }
 
   protected override updated(changed: PropertyValues<this>) {
