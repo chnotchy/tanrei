@@ -1,0 +1,55 @@
+---
+// A post of the blog in one language: `/blog/<name>/` and `/<language>/blog/<name>/` (pages/blog/[slug].astro,
+// pages/[locale]/blog/[slug].astro), only in the languages its author wrote it in. What the blog is: lib/blog.ts.
+//
+// The page frame's head draws its title and description, and says when it last changed as every page does; the
+// trail leads to the language's list (components/frame/PageTitle.astro). Then, at the top of the post: the day it was
+// published and its author, and the post in the other languages it is written in, each by that language's own name.
+// Its head names only those languages (`hreflang`, `og:locale:alternate`), its structured data is a `BlogPosting`
+// (src/routeData.ts), and its feed is named in the head.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { render } from 'astro:content';
+import { blogPosts, type BlogPost } from '../../lib/blog-posts';
+import { feedLink, publishedParts, translationsOf } from '../../lib/blog';
+import { strings } from '../../lib/i18n';
+
+interface Props {
+  post: BlogPost;
+  lang: string;
+}
+const { post, lang } = Astro.props;
+const t = strings(lang).blog;
+const day = publishedParts(post.data.date, lang);
+const others = translationsOf(await blogPosts(), post);
+const { Content, headings } = await render(post.entry);
+---
+
+<StarlightPage frontmatter={{ title: post.data.title, description: post.data.description, prev: false, next: false, head: [feedLink(post.dir)] }} headings={headings}>
+  <p class="docs-blog-byline">
+    <time datetime={day.datetime}>{day.text}</time> · <span>{post.data.author}</span>
+  </p>
+  {
+    others.length > 0 && (
+      <p class="docs-blog-languages">
+        {t.alsoIn}:{' '}
+        {others.map((other, at) => (
+          <>
+            {at > 0 && ', '}
+            <a href={other.href} hreflang={other.lang} lang={other.lang}>
+              {other.label}
+            </a>
+          </>
+        ))}
+      </p>
+    )
+  }
+  <Content />
+</StarlightPage>
+
+<style>
+  .docs-blog-byline {
+    color: var(--tanrei-sys-color-on-surface-variant);
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+  }
+</style>
