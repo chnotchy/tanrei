@@ -48,8 +48,8 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `trailing-control` | <img src="../../packages/web/snapshots/list-row/trailing-control.png" alt="web trailing-control" width="160"> |
 | `all-parts` | <img src="../../packages/web/snapshots/list-row/all-parts.png" alt="web all-parts" width="160"> |
 | `long-text` | <img src="../../packages/web/snapshots/list-row/long-text.png" alt="web long-text" width="160"> |
-| `compact` | <img src="../../packages/web/snapshots/list-row/compact.png" alt="web compact" width="160"> |
-| `compact-one-line` | <img src="../../packages/web/snapshots/list-row/compact-one-line.png" alt="web compact-one-line" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/list-row/small.png" alt="web small" width="160"> |
+| `small-one-line` | <img src="../../packages/web/snapshots/list-row/small-one-line.png" alt="web small-one-line" width="160"> |
 | `rtl` | <img src="../../packages/web/snapshots/list-row/rtl.png" alt="web rtl" width="160"> |
 
 ## List
@@ -78,7 +78,7 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `icon-space-auto` | <img src="../../packages/web/snapshots/list/icon-space-auto.png" alt="web icon-space-auto" width="160"> |
 | `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
 | `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
-| `density-compact` | <img src="../../packages/web/snapshots/list/density-compact.png" alt="web density-compact" width="160"> |
+| `size-small` | <img src="../../packages/web/snapshots/list/size-small.png" alt="web size-small" width="160"> |
 
 ## Marquee text
 
@@ -196,6 +196,17 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `none` | <img src="../../packages/web/snapshots/scroll-area/none.png" alt="web none" width="160"> |
 | `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
 | `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
+
+## Size transition
+
+| Fixture | Web Components |
+| --- | --- |
+| `block` | <img src="../../packages/web/snapshots/size-transition/block.png" alt="web block" width="160"> |
+| `inline` | <img src="../../packages/web/snapshots/size-transition/inline.png" alt="web inline" width="160"> |
+| `anchor-end` | <img src="../../packages/web/snapshots/size-transition/anchor-end.png" alt="web anchor-end" width="160"> |
+| `anchor-center` | <img src="../../packages/web/snapshots/size-transition/anchor-center.png" alt="web anchor-center" width="160"> |
+| `both` | <img src="../../packages/web/snapshots/size-transition/both.png" alt="web both" width="160"> |
+| `rtl-inline` | <img src="../../packages/web/snapshots/size-transition/rtl-inline.png" alt="web rtl-inline" width="160"> |
 
 ## Split view
 

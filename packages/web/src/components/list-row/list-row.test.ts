@@ -113,17 +113,17 @@ test.describe('behavior', () => {
     near(s.y, h.y + h.height, 'supporting under the headline');
   });
 
-  test('LRW-3: one, two and three lines are their heights in each density, the parts centred on two lines and at the top of three', async ({ page }) => {
+  test('LRW-3: one, two and three lines are their heights at each size, the parts centred on two lines and at the top of three', async ({ page }) => {
     await mount(page);
-    for (const [id, lines, density] of [
-      ['one-line', 'one', 'regular'],
-      ['two-line', 'two', 'regular'],
-      ['three-line', 'three', 'regular'],
-      ['supporting-two-lines', 'three', 'regular'],
-      ['compact-one-line', 'one', 'compact'],
-      ['compact', 'two', 'compact'],
+    for (const [id, lines, size] of [
+      ['one-line', 'one', 'medium'],
+      ['two-line', 'two', 'medium'],
+      ['three-line', 'three', 'medium'],
+      ['supporting-two-lines', 'three', 'medium'],
+      ['small-one-line', 'one', 'small'],
+      ['small', 'two', 'small'],
     ] as const) {
-      near((await box(row(page, id))).height, await token(page, T(`container-height-${lines}-line-${density}`)), id);
+      near((await box(row(page, id))).height, await token(page, T(`container-height-${lines}-line-${size}`)), id);
     }
     const two = row(page, 'leading-icon');
     const icon = await box(part(two, 'leading-icon'));
@@ -178,23 +178,61 @@ test.describe('behavior', () => {
     await expect(rows.nth(2).locator('.leading-room')).toHaveCount(0);
   });
 
-  test('LRW-17: in an item of a list the row draws the list’s density and not its own; taken out of the list it draws its own; a change of the list’s density is drawn at once', async ({ page }) => {
+  test('LRW-17: without a size of its own a row is drawn at the size its nearest list sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 every height is its size’s token', async ({ page }) => {
+    // One line: its text fits every size's height at every density of the sweep, so each row is its token's height.
+    const r = (id: string, size = '') => `<tanrei-list-row id="${id}" ${size ? `size="${size}" ` : ''}leading-icon="wifi" headline="Wi-Fi"></tanrei-list-row>`;
+    const item = (content: string) => `<tanrei-list-item>${content}</tanrei-list-item>`;
     await mountHtml(page, {
-      compact: listOf('density="compact"', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="regular" ')}</tanrei-list-item>`]),
-      regular: listOf('', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="compact" ')}</tanrei-list-item>`]),
-      out: '<div id="out"></div>',
+      small: `<tanrei-list id="small" size="small">${item(r('taken'))}${item(r('own-medium', 'medium'))}</tanrei-list>`,
+      unset: `<tanrei-list id="unset">${item(r('free'))}</tanrei-list>`,
+      // A list in a static item of another list: the nearest list that sets a size decides.
+      nested: `<tanrei-list id="outer" size="small">${item(`<tanrei-list id="inner-unset">${item(r('through'))}</tanrei-list>`)}${item(`<tanrei-list id="inner" size="medium">${item(r('nearest'))}</tanrei-list>`)}</tanrei-list>`,
+      alone: r('alone'),
     });
-    const [regular, compact] = [await token(page, T('container-height-two-line-regular')), await token(page, T('container-height-two-line-compact'))];
-    near((await box(row(page, 'compact'))).height, compact, 'a regular row in a compact list');
-    near((await box(row(page, 'regular'))).height, regular, 'a compact row in a regular list');
-    // Out of the list, its own density.
-    await page.evaluate(() => document.querySelector('#out')!.append(document.querySelector('[data-fixture="compact"] tanrei-list-row')!));
+    const tokens = async () => ({ small: await token(page, T('container-height-one-line-small')), medium: await token(page, T('container-height-one-line-medium')) });
+    const all = ['taken', 'own-medium', 'free', 'through', 'nearest', 'alone'];
+    /** The height of each row, measured in one frame. */
+    const heights = (...ids: string[]) => page.evaluate((list) => Object.fromEntries(list.map((id) => [id, document.getElementById(id)!.getBoundingClientRect().height])), ids);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return Object.fromEntries(list.map((id) => [id, document.getElementById(id)!.getBoundingClientRect().height]));
+        },
+        [change, ids] as const,
+      );
+    // A size it takes, or the default, is not its own: no size attribute is written on a row that sets none.
+    expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      await settled(page);
+      const size = await tokens();
+      expect(await heights(...all), `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, through: size.small, nearest: size.medium, alone: size.medium });
+    }
+    // The sweep moved the heights: medium at 1.5 is not the one at 1.
+    await rootTokens(page, { '--tanrei-dial-density': '1.5' });
+    const roomy = (await tokens()).medium;
+    await rootTokens(page, { '--tanrei-dial-density': '' });
     await settled(page);
-    near((await box(page.locator('#out tanrei-list-row'))).height, regular, 'standing alone');
-    // The list's density changed: its rows follow at once.
-    await page.evaluate(() => ((document.querySelector('[data-fixture="regular"] tanrei-list') as HTMLElement & { density: string }).density = 'compact'));
-    await settled(page);
-    near((await box(row(page, 'regular'))).height, compact, 'the list made compact');
+    const size = await tokens();
+    expect(roomy).toBeGreaterThan(size.medium);
+    // A size the row lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    // Set, changed and removed on the list; set, given back and set to the default's name on the row.
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium')).toEqual({ taken: size.small, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken')).toEqual({ taken: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every list, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('through'))", 'through')).toEqual({ through: size.medium });
+    expect(await afterOneFrame("document.querySelector('#unset tanrei-list-item').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 
   test('LRW-6: the trailing text, the slot’s content and the glyph, in that order at the end; the value never more than half of the row; the chevron mirrored in right-to-left', async ({ page }) => {
@@ -261,7 +299,7 @@ test.describe('behavior', () => {
       reorder: listOf('reorderable label="Networks" drag-handle-label="Reorder {label}"', [`<tanrei-list-item>${TWO}</tanrei-list-item>`, `<tanrei-list-item>${TWO}</tanrei-list-item>`]),
       line: listOf('orientation="horizontal"', [`<tanrei-list-item interactive>${TWO}</tanrei-list-item>`]),
     });
-    const height = await token(page, T('container-height-two-line-regular'));
+    const height = await token(page, T('container-height-two-line-medium'));
     near((await box(page.locator('[data-fixture="alone"] tanrei-list-row'))).height, height, 'alone');
     const items = page.locator('[data-fixture="mixed"] tanrei-list-item, [data-fixture="options"] tanrei-list-item');
     for (let n = 0; n < (await items.count()); n++) near((await box(items.nth(n))).height, height, `item ${n}`);
@@ -379,10 +417,10 @@ test.describe('behavior', () => {
     expect(await page.locator('[data-fixture="all-parts"]').ariaSnapshot()).toContain('Harbour photos');
   });
 
-  test('LRW-14: an unknown density is drawn as regular and reported; a density a system adds is drawn from its tokens; a change is drawn at once', async ({ page }) => {
+  test('LRW-14: an unknown size is drawn as medium and reported; a size a system adds is drawn from its tokens; a change is drawn at once', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('unknown', { headline: 'Wi-Fi', density: 'roomy' }), fx('change', { headline: 'Wi-Fi' })]);
-    near((await box(row(page, 'unknown'))).height, await token(page, T('container-height-one-line-regular')), 'unknown');
+    await mount(page, [fx('unknown', { headline: 'Wi-Fi', size: 'roomy' }), fx('change', { headline: 'Wi-Fi' })]);
+    near((await box(row(page, 'unknown'))).height, await token(page, T('container-height-one-line-medium')), 'unknown');
     expect(seen.some((w) => w.includes('LRW-14'))).toBe(true);
     await rootTokens(page, {
       [T('container-height-one-line-roomy')]: '96px',
@@ -391,19 +429,19 @@ test.describe('behavior', () => {
       [T('container-padding-block-roomy')]: '20px',
     });
     await page.evaluate(() => {
-      const el = document.querySelector('[data-fixture="unknown"] tanrei-list-row') as HTMLElement & { density: string };
-      el.density = 'regular';
+      const el = document.querySelector('[data-fixture="unknown"] tanrei-list-row') as HTMLElement & { size: string };
+      el.size = 'medium';
     });
     await settled(page);
     await page.evaluate(() => {
-      const el = document.querySelector('[data-fixture="unknown"] tanrei-list-row') as HTMLElement & { density: string };
-      el.density = 'roomy';
+      const el = document.querySelector('[data-fixture="unknown"] tanrei-list-row') as HTMLElement & { size: string };
+      el.size = 'roomy';
     });
     await settled(page);
-    near((await box(row(page, 'unknown'))).height, 96, 'added density');
+    near((await box(row(page, 'unknown'))).height, 96, 'added size');
     await page.evaluate(() => document.querySelector('[data-fixture="change"] tanrei-list-row')!.setAttribute('supporting-text', 'Connected'));
     await settled(page);
-    near((await box(row(page, 'change'))).height, await token(page, T('container-height-two-line-regular')), 'changed at once');
+    near((await box(row(page, 'change'))).height, await token(page, T('container-height-two-line-medium')), 'changed at once');
   });
 
   test('LRW-15: in forced colors the texts are the system text color, and its disabled color in a disabled item', async ({ page }) => {
@@ -450,16 +488,16 @@ test.describe('accessibility', () => {
 });
 
 test.describe('fixtures', () => {
-  test('every density of the spec has a fixture, and every fixture is the height of its lines', async ({ page }) => {
+  test('every size of the spec has a fixture, and every fixture is the height of its lines', async ({ page }) => {
     await mount(page);
-    const densities = new Set(spec.fixtures.map((f) => String(f.props.density ?? 'regular')));
-    for (const density of ['regular', 'compact']) expect(densities.has(density), density).toBe(true);
+    const sizes = new Set(spec.fixtures.map((f) => String(f.props.size ?? 'medium')));
+    for (const size of ['small', 'medium']) expect(sizes.has(size), size).toBe(true);
     for (const f of spec.fixtures) {
       const p = f.props;
       const overline = !!p.overline;
       const supporting = !!p.supportingText;
       const lines = supporting && (overline || p.supportingLines === 2) ? 'three' : overline || supporting ? 'two' : 'one';
-      const h = await token(page, T(`container-height-${lines}-line-${p.density ?? 'regular'}`));
+      const h = await token(page, T(`container-height-${lines}-line-${p.size ?? 'medium'}`));
       expect((await box(row(page, f.id))).height, f.id).toBeGreaterThanOrEqual(h - 0.6);
     }
   });

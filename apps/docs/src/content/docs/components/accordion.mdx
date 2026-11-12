@@ -69,7 +69,7 @@ On the web it is `<tanrei-accordion>` around your own native `<details>` element
     import '@tanrei/web/icons.css';
     import '@tanrei/web/accordion.css';
 
-    <Accordion density="compact" exclusive>
+    <Accordion size="small" exclusive>
       {sections.map((section) => (
         <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
           <summary>
@@ -109,8 +109,8 @@ A Markdown renderer passes `<details>` through as HTML. Wrap one or several in `
 
 ## Specs
 
-<Example label="Compact, with a second line and a value at the end: folds in a panel">
-  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+<Example label="Small, with a second line and a value at the end: folds in a panel">
+  <tanrei-accordion class="not-content tanrei-not-prose" size="small">
     <details open>
       <summary>Text<span data-supporting-text>Body, labels and headings</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
       The font stack, in order.
@@ -160,14 +160,14 @@ Closed content costs a press to read and cannot be seen at a glance. Fold what o
 
 Neither look fills anything at rest, and a header keeps its colors while its item is open. Open is shown by the chevron alone.
 
-### Density
+### Size
 
-| `density` | A header of one line | Label | Use for |
+| `size` | A header of one line | Label | Use for |
 | --- | --- | --- | --- |
-| `regular` (default) | 56 | 16 on a line height of 24, medium | A page a person reads: questions, the sections of a long form. |
-| `compact` | 48 | 14 on 20, medium | A panel among controls: settings, an inspector, a card. |
+| `medium` (default) | 56 | 16 on a line height of 24, medium | A page a person reads: questions, the sections of a long form. |
+| `small` | 48 | 14 on 20, medium | A panel among controls: settings, an inspector, a card. |
 
-A header grows with its text. A compact header is a navigation drawer's row: the same height, text style and chevron.
+A header grows with its text. A small header is a navigation drawer's row: the same height, text style and chevron. Both heights follow the system's [density](/foundations/size-and-density/). An accordion that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does. It passes no size to what its items hold: an accordion in an item's content has its own.
 
 ### Telling items apart
 
@@ -213,7 +213,7 @@ On the web `exclusive` is the `name` attribute of `<details>`, which the element
 - Focus never moves when an item opens. If an item closes around the focus, focus goes to its header.
 - The focus ring is drawn inside the header's row while the item is closed, and inside the item's edge, around the header and the content together, while it is open, so nothing clips it.
 - The height moves over the disclosure motion and is drawn at once where motion is reduced.
-- Both densities are at least the touch target high.
+- Both sizes are at least the touch target high.
 - At 200% text labels wrap, headers grow and the chevron stays on the first line.
 - In forced colors the edge and the lines are the text color, and a disabled header is the disabled text's color.
 - A header with no name, a control in a label, an item with no content, an unknown value and more than three levels of nesting are reported in debug builds.

@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor o varios, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -166,13 +166,13 @@ Con `selection` en `multiple`, el cuadro combinado guarda `values`: cualquier n�
 | --- | --- |
 | Pulsa una opción, o pulsa Enter sobre la opción activa | Su valor se añade al final, o se quita si ya estaba elegido. El texto se vacía, vuelven a verse todas las opciones y la lista sigue abierta para elegir otra. |
 | Escribe la etiqueta completa de una opción y pulsa Enter | Se añade esa opción. Con `allowCustomValue`, cualquier otro texto se convierte en un valor propio. |
-| Pulsa Retroceso, o la flecha que apunta al inicio de la línea, con el cursor al principio del texto | El foco pasa al último chip. Todavía no se quita nada. |
-| En un chip, pulsa una flecha, Inicio o Fin | El foco se mueve entre los chips; después del último, vuelve al texto. Escape y Tab también vuelven al texto. |
-| En un chip, pulsa Retroceso o Suprimir, o su botón de quitar | Se quita ese valor, y el foco pasa al chip de al lado o al texto. |
+| Pulsa Retroceso, o la tecla de flecha que apunta al inicio de la línea, con el cursor al principio del texto | El foco pasa al último chip. Todavía no se quita nada. |
+| En un chip, pulsa una flecha, Inicio o Fin | El foco se mueve entre los chips; después del último, vuelve al texto. Esc y Tab también vuelven al texto. |
+| En un chip, pulsa Retroceso o Supr, o su botón de quitar | Se quita ese valor, y el foco pasa al chip de al lado o al texto. |
 | Pulsa un chip | El foco va al texto, y la lista se abre con la opción de ese chip activa. |
-| Sale del campo, o pulsa Escape con la lista cerrada | El texto escrito se vacía. No se elige nada y no se quita ningún valor. |
+| Sale del campo, o pulsa Esc con la lista cerrada | El texto escrito se vacía. No se elige nada y no se quita ningún valor. |
 
-La lista sigue abierta después de elegir, porque quien elige varios valores suele elegirlos seguidos. Se cierra con Escape, con el chevron, con una pulsación fuera o cuando el foco sale. Retroceso pasa al último chip antes de quitar nada, como en el [campo de chips](/es/components/chip-field/): la tecla hace lo mismo en los dos campos, y no se quita nada que la persona no haya visto antes.
+La lista sigue abierta después de elegir, porque quien elige varios valores suele elegirlos seguidos. Se cierra con Esc, con el chevron, con una pulsación fuera o cuando el foco sale. Retroceso pasa al último chip antes de quitar nada, como en el [campo de chips](/es/components/chip-field/): la tecla hace lo mismo en los dos campos, y no se quita nada que la persona no haya visto antes.
 
 En un formulario envía una entrada por cada valor con su `name`, como hace un `<select multiple>`, y ninguna mientras no haya nada elegido. Un campo obligatorio a su alrededor pide al menos un valor.
 
@@ -226,13 +226,13 @@ Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (5
 
 ### Moverse por la lista
 
-Las teclas de flecha dan la vuelta en los extremos de la lista: Flecha abajo en la última opción va a la primera, y Flecha arriba en la primera, a la última. Con `allowCustomValue`, el propio texto es una parada entre ambas, donde no hay ninguna opción activa y Enter conserva lo que se escribió. Pon `wrap` en false para que las teclas se detengan en los extremos. Las teclas de página nunca dan la vuelta.
+Las teclas de flecha dan la vuelta en los extremos de la lista: flecha abajo en la última opción va a la primera, y flecha arriba en la primera, a la última. Con `allowCustomValue`, el propio texto es una parada entre ambas, donde no hay ninguna opción activa y Enter conserva lo que se escribió. Pon `wrap` en false para que las teclas se detengan en los extremos. Las teclas de página nunca dan la vuelta.
 
 ### Los glifos de la lista
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
 
-`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
+Las opciones toman el `size` del combobox. Un combobox `small` abre opciones `small` (de 36 de alto con glifos de 20, la fila `small` del [menú](/es/components/menu/)), y uno `medium` o `large` opciones `medium` (de 48 de alto). El texto conserva su tamaño, y una opción nunca es más baja que el objetivo.
 
 <ComponentSpecs name="combobox" />
 

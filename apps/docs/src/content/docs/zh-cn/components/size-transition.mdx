@@ -1,0 +1,143 @@
+---
+title: 尺寸过渡
+description: 包住尺寸会变化的内容——变长的消息、多了一行的分区、少了一行的面板——并以一段连贯的动画把自身尺寸带到内容的新尺寸，使排在它后面的内容平滑移动而不是突然跳动，同时它所固定的那条边保持不动。
+translationOf: components/size-transition.mdx
+sourceHash: 4a161106f834541ac40e63e66a5a4b4dbde95807
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import Example from '../../../../components/visuals/Example.astro';
+
+## 概览
+
+<ComponentAvailability name="size-transition" />
+
+<Example label="随段落变化的块，以及随文字变化的行内盒子">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">季度报告已经完成。与上一版相比，新增了三个部分：成本、人员和下一季度的计划。</p>
+    </tanrei-size-transition>
+    <div><tanrei-size-transition axis="inline"><span>已保存</span></tanrei-size-transition></div>
+  </div>
+</Example>
+
+当里面的内容改变尺寸时，盒子会从当前显示的尺寸，以一段连贯的动画过渡到新的尺寸。布局中排在它后面的内容也会随之移动，而不会在一帧之内跳过去。它自身不绘制任何东西：没有背景、边框、圆角和内边距。
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 尚在计划中：它们还没有提供尺寸过渡。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-size-transition>
+      <div id="details"></div>
+    </tanrei-size-transition>
+    <p>详情变化时，下面的所有内容都会平滑移动。</p>
+
+    <!-- 停靠在底部：向上增长，最后一行保持不动。 -->
+    <tanrei-size-transition anchor="end">
+      <div id="draft"></div>
+    </tanrei-size-transition>
+
+    <script type="module">
+      import '@tanrei/web/components/size-transition';
+      const box = document.querySelector('tanrei-size-transition');
+      box.addEventListener('settle', (event) => console.log(event.detail.height));
+      document.querySelector('#details').textContent = longerText; // 平滑移动，不会跳动
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SizeTransition } from '@tanrei/react';
+
+    <SizeTransition onSettle={(event) => setHeight(event.detail.height)}>
+      {expanded ? <FullDetails /> : <Summary />}
+    </SizeTransition>
+
+    <SizeTransition axis="inline">
+      <span>{saving ? '正在保存…' : '已保存'}</span>
+    </SizeTransition>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<Example label="固定的边：start（默认）、end 和 center">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">start：第一行保持不动，新的行出现在它下面。</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="end">
+      <p style="margin: 0">end：最后一行始终贴着盒子的底边，新的行出现在它上面。</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="center">
+      <p style="margin: 0">center：两条边各移动变化量的一半。</p>
+    </tanrei-size-transition>
+  </div>
+</Example>
+
+<ComponentSpecs name="size-transition" />
+
+## 指南
+
+### 何时使用
+
+用尺寸过渡包住你自己的、会在用户注视时改变尺寸的内容：换到第二行的回复草稿、被替换成全文的摘要、出现在你自建输入框下方的错误提示、文字变长的状态标签。不包住的话，下面的所有内容都会在一帧之内跳动，用户会找不到自己读到了哪里。
+
+Tanrei 自己的组件已经会为自身的尺寸变化添加动画，例如会变高的文本输入、会展开的消息条（snackbar）、会打开的折叠面板。不需要为此再用尺寸过渡包住它们。
+
+如果要按用户的操作整体展开或收起一个分区，请使用[折叠面板](/zh-cn/components/accordion/)：展开和收起是它的职责。尺寸过渡不会展开或收起任何东西，它只是跟随里面的内容。
+
+### 一次变化需要多长时间
+
+时间随距离增长。在默认系统中，64 像素以内的变化需要 300 ms。距离每再增加 64 像素（不足 64 像素也算一份），就再加 50 ms，最长 400 ms。这样，大的变化放在小的变化旁边不会显得仓促，很远的变化也不会让人久等。只有当某一处需要与产品中其他尺寸过渡不同的节奏时，才设置 `duration`。设为 `0` 时变化立即生效。
+
+### 如何选择轴和固定的边
+
+| 轴 | 用于 |
+| --- | --- |
+| Block（默认） | 高度会变化的内容：段落、列表、多出一行的分区。宽度由布局决定。 |
+| Inline | 宽度会变化的标签：状态文字、计数、按钮上的文字。宽度与内容相同。 |
+| Both | 宽度和高度一起变化的小盒子，例如换到第二行的徽标。两者以同一段动画移动。 |
+
+| 固定的边 | 用于 |
+| --- | --- |
+| Start（默认） | 大多数内容。第一行从不移动，新的内容出现在它后面。 |
+| End | 停靠在容器末端的内容，例如键盘上方的消息输入框。最后一行保持原位，盒子向开头一侧增长。 |
+| Center | 位于所在空间正中的内容，例如空面板正中的提示。 |
+
+### 建议
+
+- 只包住会变化的内容。用它包住整个页面，所有东西都会同时移动。
+- 当内容每一帧都在变化时（例如用户正在里面拖动某样东西），以及对于不需要让用户看到过程的变化（例如列表被替换成搜索结果），使用 `disabled`。
+- 需要在变化之后测量或滚动时，等待 `settle`：它会在最后一帧之后到达，且只到达一次。
+
+### 不建议
+
+- 不要用它让内容淡入或淡出。它只移动尺寸，淡入淡出应由内容自己负责。
+- 不要用尺寸过渡包住已经会为自身尺寸添加动画的 Tanrei 组件。
+- 不要指望它在指标上消除布局偏移。浏览器仍然会把因布局变化而移动的元素计算在内。它消除的是用户看到的跳动。
+
+## 无障碍
+
+<ComponentAccessibility name="size-transition" />
+
+### 组件负责的部分
+
+- 它不向辅助技术公开任何属于自己的东西：没有角色、没有名称、没有状态，也从不成为焦点停留点。里面的内容被读出和到达的方式，就像这个盒子不存在一样。
+- 动画过程中被盒子裁切的内容仍然留在朗读顺序和焦点顺序中。在动画过程中按 Tab 进入的人可以到达它，而且在默认系统中动画会在 400 ms 内结束。
+- 动画过程中不会滚动任何东西：盒子、里面的内容和页面都不会。焦点、光标和选区都保持原位。
+- 在请求减弱动态效果时，所有尺寸变化都立即生效。`settle` 仍然每次变化到达一次。
+- 布局给它的空间发生变化时——窗口尺寸改变、文字大小或方向改变——会立即生效，因此盒子不会落后于正在调整窗口大小的用户。
+- 未知的 `axis` 或 `anchor`，以及为负数或不是数字的 `duration`，都会在调试构建中报告。
+
+### 你需要做的
+
+- 重要的变化要由你自己告知：用实时区域，或用户会看到的通知。尺寸过渡只移动尺寸，什么也不说。
+- 保持内容自身的名称、角色和顺序正确。尺寸过渡不会添加任何东西。

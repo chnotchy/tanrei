@@ -11,8 +11,8 @@
  *   </tanrei-menu>
  *
  * - the surface's padding above and below;
- * - each row — an item of any kind, a submenu's item — at its density's container height or the pointer's target
- *   (none for a compact row), whichever is more, with a line of the label, and a line of the supporting text where the row has one;
+ * - each row — an item of any kind, a submenu's item — at its size's container height or the pointer's target,
+ *   whichever is more, with a line of the label, and a line of the supporting text where the row has one;
  * - a group's title, and between a group and what is next to it the divider's space or, where the separation is gap
  *   (the attribute over comp.menu.separation), the group's gap and the padding of the two tiles it parts.
  *
@@ -25,19 +25,16 @@
  * once the menu is defined.
  */
 @layer tanrei.components {
-  /* MNU-64: the rows' measures of the menu's density (an added density is drawn as the default until defined). */
+  /* MNU-64: the rows' measures of the menu's size (an added size is drawn as the default until defined). */
   :where(tanrei-menu[inline][open]:not(:defined)) {
-    --_mnu-ff-height: var(--tanrei-comp-menu-container-height-regular);
-    --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-regular);
-    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-regular), var(--tanrei-comp-menu-leading-icon-size-regular), var(--tanrei-comp-menu-trailing-icon-size-regular));
-    --_mnu-ff-pointer: var(--tanrei-sys-target-pointer);
+    --_mnu-ff-height: var(--tanrei-comp-menu-container-height-medium);
+    --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-medium);
+    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-medium), var(--tanrei-comp-menu-leading-icon-size-medium), var(--tanrei-comp-menu-trailing-icon-size-medium));
   }
-  :where(tanrei-menu[inline][open][density='compact']:not(:defined)) {
-    --_mnu-ff-height: var(--tanrei-comp-menu-container-height-compact);
-    --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-compact);
-    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-compact), var(--tanrei-comp-menu-leading-icon-size-compact), var(--tanrei-comp-menu-trailing-icon-size-compact));
-    /* MNU-12: for a fine pointer a compact row is as tall as its density gives. */
-    --_mnu-ff-pointer: 0px;
+  :where(tanrei-menu[inline][open][size='small']:not(:defined)) {
+    --_mnu-ff-height: var(--tanrei-comp-menu-container-height-small);
+    --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-small);
+    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-small), var(--tanrei-comp-menu-leading-icon-size-small), var(--tanrei-comp-menu-trailing-icon-size-small));
   }
   :where(tanrei-menu[inline][open]:not(:defined)) {
     display: flex;
@@ -55,7 +52,7 @@
     display: block;
     flex: none;
     box-sizing: border-box;
-    min-block-size: max(var(--_mnu-ff-height), var(--_mnu-ff-pointer));
+    min-block-size: max(var(--_mnu-ff-height), var(--tanrei-sys-target-pointer));
     padding-block: var(--_mnu-ff-padding-block);
     font: var(--tanrei-comp-menu-label-typescale-font);
   }

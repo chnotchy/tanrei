@@ -8,11 +8,11 @@
             "since": "0.1.0"
           },
           "dev.tanrei.axes": {
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "fact.gap",
@@ -24,12 +24,12 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a description list reads: per density, the space between two facts, the space between the term column and the value column, the text styles of a term and of a value, and the text style of a figure in the stat layout; the colors of a term and of a value; the space between a term and the value under it; the space between two columns of facts and the least width of a column that holds values; the one line between facts and how facts are told apart (a line or a gap, following the system's choice).",
+            "usage": "Everything a description list reads: per size (small, medium), the space between two facts, the space between the term column and the value column, the text styles of a term and of a value, and the text style of a figure in the stat layout; the colors of a term and of a value; the space between a term and the value under it; the space between two columns of facts and the least width of a column that holds values; the one line between facts and how facts are told apart (a line or a gap, following the system's choice).",
             "rules": [
               "A description list presents the facts of one thing: each a name and the value that answers it. Many things that share the same names are a table; text that is read in order, with a term now and then, is prose.",
               "Use layout inline for a block of facts a person looks things up in, stacked where values are long or the names are, and stat for a few figures with their labels. An inline list stacks by itself when it is narrow; do not switch the layout by hand for a small window.",
               "Set columns to the most columns you want, and let the list draw fewer when it is narrow. An inline list is always one column.",
-              "Use density compact where a person scans many facts (a side panel, an inspector) and regular where a person reads them.",
+              "Use size small where a person scans many facts (a side panel, an inspector) and medium where a person reads them. A list that sets no size takes the one its container sets.",
               "Write a term as a short name without a colon. Write a value as the person should read it: format numbers, dates and units yourself, and write \"None\" or \"Not set\" where a fact has no value.",
               "A value may hold a tag, a link, inline code or a button; the list places it and styles nothing inside it. A fact, a term and a value are never pressed: put a link or a button inside the value.",
               "A figure in the stat layout is text of the surface's color, never primary and never a status color. Say a change in words, with a glyph (a tag whose label says \"up 12 %\"), never by color alone.",
@@ -69,8 +69,8 @@
         "fact": {
           "gap": {
             "$type": "dimension",
-            "$description": "The space between a fact and the fact below it, per density: once where facts are told apart by space, and on each side of the line where they are told apart by a line. The list has no row height of its own: a fact is as tall as its term and its values.",
-            "regular": {
+            "$description": "The space between a fact and the fact below it, per size: once where facts are told apart by space, and on each side of the line where they are told apart by a line. The list has no row height of its own: a fact is as tall as its term and its values.",
+            "medium": {
               "$value": {
                 "value": 12,
                 "unit": "px"
@@ -85,7 +85,7 @@
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 6,
                 "unit": "px"
@@ -105,11 +105,11 @@
         "term": {
           "gap": {
             "$type": "dimension",
-            "$description": "The space between the term column and the value column while the term sits beside its value, per density.",
-            "regular": {
+            "$description": "The space between the term column and the value column while the term sits beside its value, per size.",
+            "medium": {
               "$value": "{tanrei.sys.space.space200}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.space.space100}"
             }
           },
@@ -120,11 +120,11 @@
           },
           "typescale": {
             "$type": "typography",
-            "$description": "The text of a term, per density: a label, not running text. In the stat layout it is the style of the label under the figure.",
-            "regular": {
+            "$description": "The text of a term, per size: a label, not running text. In the stat layout it is the style of the label under the figure.",
+            "medium": {
               "$value": "{tanrei.sys.typescale.label}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.typescale.label-small}"
             }
           }
@@ -170,11 +170,11 @@
           },
           "typescale": {
             "$type": "typography",
-            "$description": "The text of a value, per density: the interface's running text, as prose sets a description at its medium size.",
-            "regular": {
+            "$description": "The text of a value, per size: the interface's running text, as prose sets a description at its medium size.",
+            "medium": {
               "$value": "{tanrei.sys.typescale.body}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.typescale.body-small}"
             }
           }
@@ -189,11 +189,11 @@
           "value": {
             "typescale": {
               "$type": "typography",
-              "$description": "The text of a figure in the stat layout, per density: a heading role, because the figure is what the fact is read for. Its label takes term.typescale and its color is value.color.",
-              "regular": {
+              "$description": "The text of a figure in the stat layout, per size: a heading role, because the figure is what the fact is read for. Its label takes term.typescale and its color is value.color.",
+              "medium": {
                 "$value": "{tanrei.sys.typescale.heading-1}"
               },
-              "compact": {
+              "small": {
                 "$value": "{tanrei.sys.typescale.heading-3}"
               }
             }

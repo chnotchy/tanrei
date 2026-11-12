@@ -1,0 +1,16 @@
+---
+// A post of the blog in each language but the root's (components/blog/BlogPost.astro says what it is): one page for
+// each language a post is written in, and none for a language it is not.
+import type { GetStaticPaths } from 'astro';
+import BlogPost from '../../../components/blog/BlogPost.astro';
+import { blogPosts, type BlogPost as Post } from '../../../lib/blog-posts';
+import { translations } from '../../../../i18n/locales.mjs';
+
+export const getStaticPaths = (async () =>
+  (await blogPosts())
+    .filter((post) => post.dir !== '')
+    .map((post) => ({ params: { locale: post.dir, slug: post.slug }, props: { post, lang: translations.find((language) => language.dir === post.dir)!.lang } }))) satisfies GetStaticPaths;
+const { post, lang } = Astro.props as { post: Post; lang: string };
+---
+
+<BlogPost post={post} lang={lang} />

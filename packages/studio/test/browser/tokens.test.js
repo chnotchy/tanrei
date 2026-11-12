@@ -127,7 +127,7 @@ studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias r
 });
 
 studioTest('a mul rule keeps its density, its step and its floor: the editor shows them, and an edit writes them back', {}, async ({ page, inspect, saved, onDisk }) => {
-  const ROW = 'tanrei.comp.tree-view.container.height.regular';
+  const ROW = 'tanrei.comp.tree-view.container.height.medium';
   await inspect('tokens');
   await find(page, ROW);
   await row(page, ROW).click();

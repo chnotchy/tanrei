@@ -5,7 +5,8 @@
 //   the breadcrumbs   Tanrei's breadcrumbs (specs/breadcrumbs.spec.json), from the sidebar's own
 //                     hierarchy — the language's first page, the groups the page stands in, the page itself. A group
 //                     is a link where it has a page of its own (Components, Getting started) and plain text where it
-//                     has none. The page itself is the last level, not a link, `aria-current="page"`;
+//                     has none. The page itself is the last level, not a link, `aria-current="page"`. A post of the
+//                     blog, which no group of the sidebar holds, stands under its language's list (lib/blog.ts);
 //   the title         the page's own `h1`, with the id the framework's anchors know;
 //   the description   the page's `description` from its front matter, which until now only the head of the document
 //                     and the search carried. On a component's page it is that page's summary, in the reader's
@@ -53,6 +54,8 @@ import { readerDayScript } from '../../lib/reader-day.mjs';
 import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 import { aroundPlace, isNotFoundPage, levelFacts, listingFacts, specOfPage } from '../../lib/page-head';
 import { componentLinks } from '../../lib/repository';
+import { blogHref, blogPageOf, blogWords } from '../../lib/blog';
+import { pageOf } from '../../lib/seo';
 import { webModuleOf } from '../../lib/repo';
 import Callout from '../Callout.astro';
 import PageActions from './PageActions.astro';
@@ -80,7 +83,8 @@ const [beforeInstead, afterInstead] = aroundPlace(t.listing.placedInstead, 'comp
 // One fact to an element: the index reads everything after a key's colon as its value.
 const indexLevel = levelOf && `level:${levelOf.level}`;
 const indexOnRequest = listingOf?.onRequest ? `onrequest:${t.listing.advanced}` : undefined;
-const levels = route.hasSidebar ? trail(route.sidebar as unknown as Entry[]) : [];
+const { dir, page } = pageOf(route.id);
+const levels = blogPageOf(page)?.kind === 'post' ? [{ label: blogWords(route.lang).title, href: blogHref(dir) }] : route.hasSidebar ? trail(route.sidebar as unknown as Entry[]) : [];
 // The page that was not found has no head: the empty state in its main region holds its heading (components/NotFound.astro).
 const head = !isNotFoundPage(route.id);
 // A page the search reads has its Markdown beside it (lib/page-markdown.mjs), and the actions that copy and open it.
@@ -118,7 +122,7 @@ const actions = head && route.entry.data.pagefind !== false;
   </Callout>
 )}
 {spec && (
-  <tanrei-description-list class="docs-page-facts" layout="stacked" columns="3" density="compact" separation="gap" data-pagefind-meta={indexLevel}>
+  <tanrei-description-list class="docs-page-facts" layout="stacked" columns="3" size="small" separation="gap" data-pagefind-meta={indexLevel}>
     <dl data-pagefind-meta={indexOnRequest}>
       <div><dt>{t.category_}</dt><dd>{t.category[spec.category] ?? spec.category}</dd></div>
       <div><dt>{t.tokens}</dt><dd><code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">{spec.tokens}</code></dd></div>

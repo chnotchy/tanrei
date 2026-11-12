@@ -4,7 +4,7 @@
 <!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
 > **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
 
-**Components:** 15 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
+**Components:** 16 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
 
 <!-- /tanrei:status -->
 
@@ -126,6 +126,24 @@ use instead.
 `data-tanrei-theme="light|dark"` and `data-tanrei-contrast="medium|high"` choose the scheme the same way, on the root
 or on a subtree. Every color pair of every scheme is checked for contrast when the tokens are built.
 
+A program that needs values and not custom properties — a canvas, a chart, a native app, a language model — reads them
+resolved, one file per scheme, from `tanrei build`'s `tokens` output (`<id>.<scheme>.json`). Every token is there by its
+id, with no alias and no expression: a color is `#rrggbb` (`#rrggbbaa` when it is not opaque), a dimension or a duration
+one string with its unit. The shipped systems' values, with their types, are the resolved DTCG files in the
+repository's `design/tokens/`. This package does not carry them: every install would.
+
+The browser paints its own interface (the address bar, a window's title bar) in the page's theme color.
+`themeColorMeta()` from `@tanrei/web/theme-script` writes a `<meta name="theme-color">` per scheme from a system's
+theme colors, `@tanrei/web/systems/<id>.theme-color.json` (the surface of each scheme). Put the tags in `<head>` before
+`themeScript()`, and they follow a theme a person chose as well:
+
+```js
+import { themeColorMeta, themeScript } from '@tanrei/web/theme-script';
+import colors from '@tanrei/web/systems/tanrei.theme-color.json' with { type: 'json' };
+
+const head = `${themeColorMeta(colors)}<script>${themeScript()}</script>`;
+```
+
 Motion is reduced where the person's system asks for it (`prefers-reduced-motion: reduce`). An app that has a "reduce
 motion" setting of its own reduces it the same way with one attribute on the root element:
 
@@ -155,7 +173,7 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 | `steps.css`, `timeline.css`, `previous-next-links.css` | your own ordered lists and `nav` |
 | `table.css`, `description-list.css`, `figure.css`, `accordion.css`, `tree-view.css`, `table-of-contents.css` | the element around your own `<table>`, `<dl>`, `<figure>`, `<details>` and lists |
 | `app-shell.css`, `page-header.css`, `breadcrumbs.css`, `link-card.css` | a page's frame, its header, its trail and its cards |
-| `avatar.css`, `callout.css`, `empty-state.css`, `skeleton.css`, `menu.css`, `menubar.css` | those components, before their elements are defined |
+| `app-bar.css`, `avatar.css`, `callout.css`, `empty-state.css`, `skeleton.css`, `menu.css`, `menubar.css` | those components, before their elements are defined |
 
 `tanrei.css` is every stylesheet of the package in one file — the default system's tokens, these, and `base.css` (the
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not

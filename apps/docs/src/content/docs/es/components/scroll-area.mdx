@@ -181,7 +181,7 @@ El área de desplazamiento es la caja de desplazamiento propia de la plataforma,
 
 ### De qué se encarga el componente
 
-- Mientras su contenido no cabe y nada en su interior recibe el foco del teclado, la propia caja pasa a ser una parada en el orden de foco, expuesta como una región con el nombre de `label`, para que un teclado pueda desplazarla (WCAG 2.1.1). Las flechas, Re Pág, Av Pág, Inicio, Fin y la barra espaciadora la desplazan, como la plataforma desplaza cualquier caja.
+- Mientras su contenido no cabe y nada en su interior recibe el foco del teclado, la propia caja pasa a ser una parada en el orden de foco, expuesta como una región con el nombre de `label`, para que un teclado pueda desplazarla (WCAG 2.1.1). Las teclas de flecha, Re Pág, Av Pág, Inicio, Fin y Espacio la desplazan, como la plataforma desplaza cualquier caja.
 - Mientras algo en su interior recibe el foco, o el contenido cabe, la caja no es una parada de foco y no expone ningún rol: el teclado llega al contenido, y el contenido se desplaza a la vista al recibir el foco.
 - El indicador de foco se dibuja dentro del borde de la caja, por encima de todas las marcas y nunca atenuado por una de ellas, y solo con el foco del teclado.
 - Las marcas están ocultas para la tecnología de apoyo, y toda pulsación, paso del cursor y desplazamiento sobre ellas llega al contenido que hay debajo.
@@ -191,6 +191,6 @@ El área de desplazamiento es la caja de desplazamiento propia de la plataforma,
 
 ### Qué debes hacer tú
 
-- Dale una `label` que diga qué contiene. Quien llega a la caja con el tabulador oye ese nombre; sin él, solo oye que hay una región.
+- Dale una `label` que diga qué contiene. Quien llega a la caja con Tab oye ese nombre; sin él, solo oye que hay una región.
 - Cuenta con que el contenido bajo una franja se lee cuando se desplaza a la vista, no donde está. Una sombra o un desvanecido bajan el contraste del contenido que tienen debajo, a propósito, pero solo dentro de su franja y solo mientras ese contenido está desplazado hacia el borde; el contenido recupera todo su contraste en cuanto se desplaza a la vista.
 - Anuncia el contenido que cambia por sí solo (una lista en directo, mensajes nuevos) como lo harías en cualquier otro sitio. El área no anuncia lo que entra al desplazarse.

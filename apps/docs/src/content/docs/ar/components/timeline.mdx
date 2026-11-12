@@ -2,7 +2,7 @@
 title: الخط الزمني
 description: أحداث مرتبة بترتيب الزمن، لكل حدث علامة ووقت وعنوان ومتن من محتواك، ويصله بالذي يليه خط رفيع. وحيث تكون للأحداث حالة، يقول شكل العلامة وكلماتك أيها اكتمل وأيها جارٍ وأيها آتٍ. هو قائمة تُقرأ، وليس عنصر تحكم أبدًا.
 translationOf: components/timeline.mdx
-sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
+sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -103,7 +103,6 @@ import Example from '../../../../components/visuals/Example.astro';
 | --- | --- |
 | `label` | الخاصية `aria-label` (أو `aria-labelledby` تسمّي عنوان القسم الذي قبل القائمة) |
 | `size: large` | القيمة `data-size="large"` |
-| `density: compact` | القيمة `data-density="compact"` |
 | حدث | عنصر `<li>` |
 | الوقت `time` مع `datetime` | عنصر `<time class="tanrei-timeline-time" datetime="…">` يحمل الكلمات التي تكتبها |
 | الوقت `time` الذي ليس لحظة زمنية | عنصر `<p class="tanrei-timeline-time">` |
@@ -128,13 +127,13 @@ import Example from '../../../../components/visuals/Example.astro';
   </ol>
 </Example>
 
-<Example label="رسوم من عندك، وسجل بالكثافة compact" column>
+<Example label="رسوم من عندك، وسجل بأحداث من سطر واحد" column>
   <ol class="tanrei-timeline" role="list" aria-label="الطلب 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="مكتمل"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">الاثنين، 09:41</p><p class="tanrei-timeline-title">تم تقديم الطلب</p></li>
     <li data-status="current" data-status-label="قيد التنفيذ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">الثلاثاء، 14:05</p><p class="tanrei-timeline-title">في الطريق</p></li>
     <li data-status="upcoming" data-status-label="لم يبدأ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">متوقَّع يوم الخميس</p><p class="tanrei-timeline-title">التسليم</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="النشاط" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="النشاط" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">حُفظت الطبقة</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">فُحص التباين في ستة مخططات لونية</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">غُيّر اللون الأساسي</p></li>
@@ -145,7 +144,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - **الحالة** تغيّر شكل العلامة ولا شيء غيره: حلقة فيها علامة صح للحدث المكتمل، ودائرة معبَّأة فيها نقطة للحدث الجاري، وحلقة فارغة للحدث الآتي. والدائرة المعبَّأة هي اللون الوحيد الذي يأتي به الخط الزمني سوى لون الوقت.
 - **خط الوصل** يمتد من صندوق كل علامة إلى الذي يليه، ويتوقف قبل أن يبلغ أيًّا منهما. والحدث الأخير لا خط له، وهو الخط نفسه بين الأحداث أيًّا كانت حالتها.
 - **الوقت** أول ما في الحدث، بلون هادئ. و**العنوان** يليه بحجم المتن وبوزن العناوين. و**المتن** هو محتواك: بين كل كتلتين فيه 8.
-- **الكثافة**: القيمة regular تضع 16 بين الحدثين، والقيمة compact تضع 8، لسجل طويل من أحداث كل منها سطر واحد. ولا تغيّر إلا تلك المسافة.
+- **المسافة بين حدثين** هي 16 في النظام الافتراضي، بالحجمين معًا. وهي تتبع [كثافة](/ar/foundations/size-and-density/) النظام: فالنظام الذي كثافته أقل من 1 يرسم أحداثه أقرب بعضها إلى بعض. وليس للخط الزمني كثافة خاصة به.
 - **الحجمان** هما حجما النص المتصل (prose): الحجم medium بين عناصر التحكم، والحجم large في صفحة غايتها النص. والعلامة وخط الوصل يطابقان ما في الخطوات، فيُقرأ الاثنان في الصفحة الواحدة أسرةً واحدة.
 
 <ComponentSpecs name="timeline" />
@@ -159,7 +158,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - اكتب نص الحدث في عناصر (`<p>`): النص المكتوب مباشرة في عنصر القائمة لا يمكن إعطاؤه الفراغ الذي تحت الوقت أو العنوان.
 - علامة الصح للحدث المكتمل هي الرسم `check` من مجموعة الأيقونات، فهي تحتاج إلى `icons.css` وخط الأيقونات. ومن دونهما تكون الحلقة فارغة.
 - خارج النص المتصل، يُخطَّط المتن الطويل (قوائم، اقتباسات) كما يُخطَّط في أي مكان من صفحتك، لا كنص متصل.
-- الحجم أو الكثافة التي يضيفها نظام تصميم تُرسم كالقيمة الافتراضية إلى أن يقدّم ذلك النظام قاعدة لها.
+- الحجم الذي يضيفه نظام تصميم يُرسم كالقيمة الافتراضية إلى أن يقدّم ذلك النظام قاعدة لها.
 - من دون سكربت الحزمة لا يُعلَّم أي عنصر بأنه العنصر الحالي في القائمة. والحالة تبقى تُقرأ بالكلمات.
 
 ## الإرشادات
@@ -170,7 +169,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - أعطِ كل حدث له حالة كلماته في `data-status-label`، بلغة قارئك.
 - حيث تهمّ الحالة كل قارئ، أظهرها بالكلمات أيضًا: وسم في العنوان أو في المتن.
 - أعطِ الوقت النسبي («قبل ساعتين») لحظته الدقيقة في `datetime`.
-- استخدم القيمة compact لسجل طويل من أحداث كل منها سطر واحد، وضع زرًّا بعد القائمة لإظهار الأحداث الأقدم.
+- في سجل طويل من أحداث كل منها سطر واحد، أظهر الأحدث بضعة أحداث وضع زرًّا بعد القائمة لإظهار الأحداث الأقدم.
 
 ### لا تفعل
 

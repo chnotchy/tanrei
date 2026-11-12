@@ -519,19 +519,8 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
       )
     )
   ),
-  densitys: TanreiAccordionDensitys(
-    regular: TanreiAccordionDensityTokens(
-      containerHeight: 56,
-      containerPaddingBlock: 16,
-      containerPaddingInline: 16,
-      labelTypescale: tanreiTypescale.heading5,
-      supportingTextTypescale: tanreiTypescale.body,
-      trailingTextTypescale: tanreiTypescale.body,
-      iconSize: 24,
-      chevronSize: 24,
-      contentPaddingBlockEnd: 16
-    ),
-    compact: TanreiAccordionDensityTokens(
+  sizes: TanreiAccordionSizes(
+    small: TanreiAccordionSizeTokens(
       containerHeight: 48,
       containerPaddingBlock: 12,
       containerPaddingInline: 12,
@@ -541,6 +530,17 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
       iconSize: 20,
       chevronSize: 20,
       contentPaddingBlockEnd: 12
+    ),
+    medium: TanreiAccordionSizeTokens(
+      containerHeight: 56,
+      containerPaddingBlock: 16,
+      containerPaddingInline: 16,
+      labelTypescale: tanreiTypescale.heading5,
+      supportingTextTypescale: tanreiTypescale.body,
+      trailingTextTypescale: tanreiTypescale.body,
+      iconSize: 24,
+      chevronSize: 24,
+      contentPaddingBlockEnd: 16
     )
   ),
   hovered: TanreiAccordionStateTokens(
@@ -3366,17 +3366,8 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
       )
     )
   ),
-  densitys: TanreiComboboxDensitys(
-    regular: TanreiComboboxDensityTokens(
-      optionHeight: 48,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 24,
-      optionMarkSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiComboboxDensityTokens(
+  optionSizes: TanreiComboboxOptionSizes(
+    small: TanreiComboboxOptionSizeTokens(
       optionHeight: 36,
       optionPaddingInline: 8,
       optionPaddingBlock: 8,
@@ -3384,6 +3375,15 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiComboboxOptionSizeTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -3572,20 +3572,20 @@ private let tanreiDescriptionListTokens = TanreiDescriptionListTokens(
   stackGap: 4,
   termColor: .role(.onSurfaceVariant),
   valueColor: .role(.onSurface),
-  densitys: TanreiDescriptionListDensitys(
-    regular: TanreiDescriptionListDensityTokens(
-      factGap: 12,
-      termGap: 16,
-      termTypescale: tanreiTypescale.label,
-      valueTypescale: tanreiTypescale.body,
-      statValueTypescale: tanreiTypescale.heading1
-    ),
-    compact: TanreiDescriptionListDensityTokens(
+  sizes: TanreiDescriptionListSizes(
+    small: TanreiDescriptionListSizeTokens(
       factGap: 6,
       termGap: 8,
       termTypescale: tanreiTypescale.labelSmall,
       valueTypescale: tanreiTypescale.bodySmall,
       statValueTypescale: tanreiTypescale.heading3
+    ),
+    medium: TanreiDescriptionListSizeTokens(
+      factGap: 12,
+      termGap: 16,
+      termTypescale: tanreiTypescale.label,
+      valueTypescale: tanreiTypescale.body,
+      statValueTypescale: tanreiTypescale.heading1
     )
   )
 )
@@ -5180,18 +5180,18 @@ private let tanreiListRowTokens = TanreiListRowTokens(
   trailingIconSize: 24,
   trailingTextColor: .role(.onSurfaceVariant),
   trailingTextTypescale: tanreiTypescale.bodySmall,
-  densitys: TanreiListRowDensitys(
-    regular: TanreiListRowDensityTokens(
-      containerHeightOneLine: 56,
-      containerHeightTwoLine: 72,
-      containerHeightThreeLine: 88,
-      containerPaddingBlock: 8
-    ),
-    compact: TanreiListRowDensityTokens(
+  sizes: TanreiListRowSizes(
+    small: TanreiListRowSizeTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
       containerPaddingBlock: 4
+    ),
+    medium: TanreiListRowSizeTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
     )
   )
 )
@@ -5284,14 +5284,14 @@ private let tanreiListTokens = TanreiListTokens(
       )
     )
   ),
-  densitys: TanreiListDensitys(
-    regular: TanreiListDensityTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 8
-    ),
-    compact: TanreiListDensityTokens(
+  sizes: TanreiListSizes(
+    small: TanreiListSizeTokens(
       containerHeight: 36,
       containerPaddingBlock: 6
+    ),
+    medium: TanreiListSizeTokens(
+      containerHeight: 48,
+      containerPaddingBlock: 8
     )
   ),
   hovered: TanreiListStateTokens(
@@ -5869,18 +5869,8 @@ private let tanreiMenuTokens = TanreiMenuTokens(
       )
     )
   ),
-  densitys: TanreiMenuDensitys(
-    regular: TanreiMenuDensityTokens(
-      containerHeight: 48,
-      containerPaddingInline: 12,
-      containerPaddingBlock: 8,
-      containerGap: 12,
-      leadingIconSize: 24,
-      trailingIconSize: 24,
-      markSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiMenuDensityTokens(
+  sizes: TanreiMenuSizes(
+    small: TanreiMenuSizeTokens(
       containerHeight: 36,
       containerPaddingInline: 8,
       containerPaddingBlock: 8,
@@ -5889,6 +5879,16 @@ private let tanreiMenuTokens = TanreiMenuTokens(
       trailingIconSize: 20,
       markSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiMenuSizeTokens(
+      containerHeight: 48,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 24,
+      trailingIconSize: 24,
+      markSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7495,20 +7495,20 @@ private let tanreiSearchTokens = TanreiSearchTokens(
       )
     )
   ),
-  densitys: TanreiSearchDensitys(
-    regular: TanreiSearchDensityTokens(
-      suggestionContainerHeight: 56,
-      suggestionContainerPaddingInline: 16,
-      suggestionContainerPaddingBlock: 8,
-      suggestionContainerGap: 16,
-      suggestionLeadingIconSize: 24
-    ),
-    compact: TanreiSearchDensityTokens(
+  sizes: TanreiSearchSizes(
+    small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 36,
       suggestionContainerPaddingInline: 8,
       suggestionContainerPaddingBlock: 6,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
+    ),
+    medium: TanreiSearchSizeTokens(
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 16,
+      suggestionLeadingIconSize: 24
     )
   ),
   hovered: TanreiSearchStateTokens(
@@ -7904,17 +7904,8 @@ private let tanreiSelectTokens = TanreiSelectTokens(
       )
     )
   ),
-  densitys: TanreiSelectDensitys(
-    regular: TanreiSelectDensityTokens(
-      optionHeight: 48,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 24,
-      optionMarkSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiSelectDensityTokens(
+  optionSizes: TanreiSelectOptionSizes(
+    small: TanreiSelectOptionSizeTokens(
       optionHeight: 36,
       optionPaddingInline: 8,
       optionPaddingBlock: 8,
@@ -7922,6 +7913,15 @@ private let tanreiSelectTokens = TanreiSelectTokens(
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiSelectOptionSizeTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiSelectStateTokens(
@@ -7977,6 +7977,14 @@ private let tanreiSideSheetTokens = TanreiSideSheetTokens(
       outlineColor: .none
     )
   )
+)
+
+private let tanreiSizeTransitionTokens = TanreiSizeTransitionTokens(
+  motionDistanceStep: 64,
+  motionDuration: 300,
+  motionDurationMax: 400,
+  motionDurationStep: 50,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1)
 )
 
 private let tanreiSkeletonTokens = TanreiSkeletonTokens(
@@ -8922,14 +8930,14 @@ private let tanreiTableOfContentsTokens = TanreiTableOfContentsTokens(
       )
     )
   ),
-  densitys: TanreiTableOfContentsDensitys(
-    regular: TanreiTableOfContentsDensityTokens(
-      rowHeight: 44,
-      rowPaddingBlock: 12
-    ),
-    compact: TanreiTableOfContentsDensityTokens(
+  sizes: TanreiTableOfContentsSizes(
+    small: TanreiTableOfContentsSizeTokens(
       rowHeight: 36,
       rowPaddingBlock: 8
+    ),
+    medium: TanreiTableOfContentsSizeTokens(
+      rowHeight: 44,
+      rowPaddingBlock: 12
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9035,18 +9043,18 @@ private let tanreiTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: tanreiTypescale.body,
-      headerTextTypescale: tanreiTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: tanreiTypescale.bodySmall,
       headerTextTypescale: tanreiTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: tanreiTypescale.body,
+      headerTextTypescale: tanreiTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(
@@ -9632,6 +9640,7 @@ private let tanreiTimelineTokens = TanreiTimelineTokens(
   connectorColor: .role(.outlineVariant),
   connectorGap: 4,
   connectorThickness: 1,
+  itemGap: 16,
   markerCurrentContainerColor: .role(.primary),
   markerCurrentIconColor: .role(.onPrimary),
   markerDotColor: .role(.onSurfaceVariant),
@@ -9657,14 +9666,6 @@ private let tanreiTimelineTokens = TanreiTimelineTokens(
       timeTypescale: tanreiTypescale.body,
       titleTypescale: tanreiTypescale.heading5,
       bodyTypescale: tanreiTypescale.bodyLarge
-    )
-  ),
-  densitys: TanreiTimelineDensitys(
-    regular: TanreiTimelineDensityTokens(
-      itemGap: 16
-    ),
-    compact: TanreiTimelineDensityTokens(
-      itemGap: 8
     )
   )
 )
@@ -9870,18 +9871,8 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
       )
     )
   ),
-  densitys: TanreiTreeViewDensitys(
-    regular: TanreiTreeViewDensityTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 12,
-      containerPaddingInline: 12,
-      containerGap: 12,
-      levelIndent: 32,
-      labelTypescale: tanreiTypescale.body,
-      iconSize: 20,
-      chevronSize: 20
-    ),
-    compact: TanreiTreeViewDensityTokens(
+  sizes: TanreiTreeViewSizes(
+    small: TanreiTreeViewSizeTokens(
       containerHeight: 36,
       containerPaddingBlock: 8,
       containerPaddingInline: 8,
@@ -9890,6 +9881,16 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
       labelTypescale: tanreiTypescale.bodySmall,
       iconSize: 16,
       chevronSize: 16
+    ),
+    medium: TanreiTreeViewSizeTokens(
+      containerHeight: 48,
+      containerPaddingBlock: 12,
+      containerPaddingInline: 12,
+      containerGap: 12,
+      levelIndent: 32,
+      labelTypescale: tanreiTypescale.body,
+      iconSize: 20,
+      chevronSize: 20
     )
   ),
   hovered: TanreiTreeViewStateTokens(
@@ -10125,6 +10126,7 @@ extension TanreiSystem {
     segmentedButton: tanreiSegmentedButtonTokens,
     select: tanreiSelectTokens,
     sideSheet: tanreiSideSheetTokens,
+    sizeTransition: tanreiSizeTransitionTokens,
     skeleton: tanreiSkeletonTokens,
     slider: tanreiSliderTokens,
     snackbar: tanreiSnackbarTokens,

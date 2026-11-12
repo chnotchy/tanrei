@@ -43,15 +43,6 @@
     "./dist/primitives/field-frame.js",
     "./dist/words/en.js",
     "./dist/tanrei.bundle.js",
-    "./src/index.ts",
-    "./src/icons.ts",
-    "./src/link.ts",
-    "./src/steps.ts",
-    "./src/timeline.ts",
-    "./src/previous-next-links.ts",
-    "./src/components/**/*.ts",
-    "./src/primitives/field-frame.ts",
-    "./src/words/en.ts",
     "**/*.css"
   ],
   "exports": {
@@ -155,8 +146,10 @@
     "./empty-state.css": "./dist/empty-state.css",
     "./menu.css": "./dist/menu.css",
     "./menubar.css": "./dist/menubar.css",
+    "./app-bar.css": "./dist/app-bar.css",
     "./systems/*.css": "./dist/systems/*.css",
     "./systems/*.components.json": "./dist/systems/*.components.json",
+    "./systems/*.theme-color.json": "./dist/systems/*.theme-color.json",
     "./components/*": {
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"

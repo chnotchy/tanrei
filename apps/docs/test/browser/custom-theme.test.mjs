@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
 import { sheetKept, until } from './kept-sheet.mjs';
-import { bounded, engines, launch } from './launch.mjs';
+import { bounded, engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -157,19 +157,16 @@ for (const engine of ENGINES) {
       const studio = await tabs.newPage();
       await studio.goto(`${origin}/studio/`);
       await studio.waitForSelector('[data-studio][data-pane] [data-share-open]');
-      await studio.evaluate(() => customElements.whenDefined('tanrei-popover'));
+      await settlePage(studio, { tags: ['tanrei-popover'], fonts: false, frames: 0 });
       // The layer the Studio keeps: given as a person would load it, through the browser's own storage.
       await studio.evaluate((layer) => localStorage.setItem('tanrei-theme-studio', JSON.stringify({ layer })), LAYER);
       // Its faces in first: a reload cancels a face still downloading, and Firefox logs the cancelled download as an error.
-      await studio.evaluate(() => document.fonts.ready);
+      await settlePage(studio, { frames: 0 });
       await studio.reload();
       await studio.waitForSelector('[data-studio][data-pane] [data-share-open]');
       // The Studio drawn: every element defined, its faces in, and two frames since (its first computation is done).
-      await studio.evaluate(async () => {
-        await Promise.all([...new Set([...document.querySelectorAll('*')].map((el) => el.localName).filter((name) => name.includes('-')))].map((name) => customElements.whenDefined(name)));
-        await document.fonts.ready;
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      });
+      // Each wait bounded (launch.mjs).
+      await settlePage(studio, { among: '*' });
       // A tab of the documentation, open beside the Studio.
       const reader = await tabs.newPage();
       await reader.goto(`${origin}${PAGE}`);
@@ -251,7 +248,7 @@ for (const engine of ENGINES) {
       await page.reload();
       await page.waitForFunction(() => customElements.get('tanrei-app-bar'));
       assert.deepEqual(await state(page).then(({ look, kept, pending }) => ({ look, kept, pending })), { look: DEFAULT, kept: true, pending: false });
-      await page.evaluate(() => document.fonts.ready);
+      await settlePage(page, { frames: 0 });
       const underDefault = [...new Set((await new AxeBuilder({ page }).include('main').analyze()).violations.map((violation) => violation.id))];
       await page.locator('#docs-appearance').click();
       await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);

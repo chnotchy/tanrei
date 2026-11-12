@@ -7,8 +7,11 @@ import { build } from 'esbuild';
 import { allStylesheets } from './stylesheets.js';
 import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
-import { bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
-import { cssLiteralsPlugin, minifyCssLiterals, remapSourceMap } from './css-literals.js';
+import { DEFAULT_SYSTEM, bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
+import { CONFIG } from '@tanrei/tokens-build/config';
+import { themeColors } from '@tanrei/tokens-build/emit/resolved';
+import { cssLiteralsPlugin, minifyCssLiterals } from './css-literals.js';
+import { sourceSideEffectsPlugin } from './source-side-effects.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -34,6 +37,8 @@ fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty
 fs.copyFileSync('src/components/menu/menu.css', 'dist/menu.css');
 // The menubar before its elements are defined, and where script does not run (MBR-45): its link items, as links that work.
 fs.copyFileSync('src/components/menubar/menubar.css', 'dist/menubar.css');
+// The app bar before its element is defined (APB-34): the block size it will have, so the page under it does not move.
+fs.copyFileSync('src/components/app-bar/app-bar.css', 'dist/app-bar.css');
 // Prose leaves alone what is inside a Tanrei element (PRS-16): the stylesheet's source names the opt-out class, and the
 // tag names of every element this package defines are written beside it here, from the generated manifest — so a new
 // component is an island without anyone editing a list (src/styles/prose.test.ts holds the two together).
@@ -317,6 +322,18 @@ fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
 // what the system ships, with the module that registers each component, generated beside the system's tokens.
 const manifests = fs.readdirSync('../../tokens/generated', { withFileTypes: true }).filter((entry) => entry.isDirectory() && fs.existsSync(`../../tokens/generated/${entry.name}/components.json`));
 for (const { name } of manifests) fs.copyFileSync(`../../tokens/generated/${name}/components.json`, `dist/systems/${name}.components.json`);
+// Each shipped system's theme colors, the surface of each scheme (`@tanrei/web/systems/<id>.theme-color.json`, for
+// `themeColorMeta()`): read from the resolved DTCG `pnpm generate` writes for design tools, design/tokens/[<id>/]. The
+// resolved values themselves are not shipped here — about 0.5 MB a scheme, which every web install would carry: a
+// program that reads values gets them from design/tokens or from `tanrei build`'s tokens output.
+for (const { name } of manifests) {
+  const dir = name === DEFAULT_SYSTEM ? '../../design/tokens' : `../../design/tokens/${name}`;
+  const prefix = `${CONFIG.namespace}.`;
+  const documents = Object.fromEntries(fs.readdirSync(dir).filter((file) => file.startsWith(prefix) && file.endsWith('.tokens.json')).sort()
+    .map((file) => [file.slice(prefix.length, -'.tokens.json'.length), JSON.parse(fs.readFileSync(`${dir}/${file}`, 'utf8'))]));
+  if (!Object.keys(documents).length) throw new Error(`${dir}: no resolved ${prefix}<scheme>.tokens.json for system "${name}" — run pnpm generate`);
+  fs.writeFileSync(`dist/systems/${name}.theme-color.json`, `${JSON.stringify(themeColors(documents), null, 2)}\n`);
+}
 // The entries written from those manifests (scripts/entries.js): `@tanrei/web/<id>` registers what system
 // <id> ships, `@tanrei/web/all` every component, and `@tanrei/web/custom-elements/<id>.json` is the elements' manifest
 // of the components system <id> ships.
@@ -351,8 +368,12 @@ const bundle = await build({
   metafile: true,
   outfile: 'dist/tanrei.bundle.js',
   // The minifier leaves template literals as they are: the components' `css` templates lose their comments and
-  // indentation on the way in (scripts/css-literals.js).
-  plugins: [cssLiteralsPlugin()],
+  // indentation on the way in (scripts/css-literals.js). The bundle is made from the sources, which `sideEffects` does
+  // not name: a source is a side effect where its built module is (scripts/source-side-effects.js). A module that
+  // plugin resolves is not given the tsconfig esbuild finds by itself, so it is named here for every module
+  // (`useDefineForClassFields: false`, which Lit's reactive properties need).
+  plugins: [sourceSideEffectsPlugin(path.resolve('.')), cssLiteralsPlugin()],
+  tsconfig: 'tsconfig.json',
   // A development bundle: debug reports (src/primitives/report.ts) stay on. esbuild would otherwise define
   // process.env.NODE_ENV as "production" for a minified browser bundle.
   define: { 'process.env.NODE_ENV': '"development"', [TABLE_CSS_NAME]: tableText, [ACCORDION_CSS_NAME]: accordionText, [TABLE_OF_CONTENTS_CSS_NAME]: tableOfContentsText, ...Object.fromEntries(LIGHT_SHEETS) },
@@ -361,15 +382,15 @@ const bundle = await build({
 // written beside it, from the packages the bundle was made from.
 writeThirdPartyLicenses('dist', Object.keys(bundle.metafile.inputs).map((input) => path.resolve(input)), { what: 'dist/tanrei.bundle.js (and its source map)' });
 // The compiler's modules too (dist/components/, dist/primitives/, dist/styles/ and the rest), which a bundler of the
-// package's users reads: their `css` templates lose comments and indentation the same way, and each module's source
-// map moves with its code. This runs last, after everything above that imports a module from dist/ to write a sheet.
+// package's users reads: their `css` templates lose comments and indentation the same way. This runs last, after
+// everything above that imports a module from dist/ to write a sheet. The compiler writes them without source maps
+// (tsconfig.json): a map of a module names its source under src/, which the package does not ship, so it would lead a
+// debugger or a product's bundler to files only this repository has. The bundle's map carries its sources in itself.
 for (const file of fs.readdirSync('dist', { recursive: true })) {
   if (!file.endsWith('.js') || file === 'tanrei.bundle.js' || file.startsWith(`links${path.sep}`)) continue;
   const source = fs.readFileSync(`dist/${file}`, 'utf8');
   const { code, edits } = minifyCssLiterals(source);
-  if (!edits.length) continue;
-  fs.writeFileSync(`dist/${file}`, code);
-  if (fs.existsSync(`dist/${file}.map`)) fs.writeFileSync(`dist/${file}.map`, JSON.stringify(remapSourceMap(fs.readFileSync(`dist/${file}.map`, 'utf8'), source, edits)));
+  if (edits.length) fs.writeFileSync(`dist/${file}`, code);
 }
 // `@tanrei/web/links/node`, the build-time helper (src/links/node/REQUIREMENTS.md). It runs under Node only
 // and is JavaScript with types written beside it, so the compiler above does not emit it: its files are copied as
@@ -378,4 +399,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/app-bar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

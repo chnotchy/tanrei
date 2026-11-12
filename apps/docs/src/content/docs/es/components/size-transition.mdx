@@ -1,0 +1,143 @@
+---
+title: Transición de tamaño
+description: Envuelve un contenido cuyo tamaño cambia (un mensaje que crece, una sección que gana una línea, un panel que pierde una fila) y lleva su propio tamaño al nuevo tamaño del contenido en un solo movimiento, de modo que lo que viene después se desplaza con suavidad en lugar de saltar, mientras el borde al que está anclada no se mueve.
+translationOf: components/size-transition.mdx
+sourceHash: 4a161106f834541ac40e63e66a5a4b4dbde95807
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import Example from '../../../../components/visuals/Example.astro';
+
+## Descripción general
+
+<ComponentAvailability name="size-transition" />
+
+<Example label="Un bloque que sigue a su párrafo y una caja en línea que sigue a su palabra">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">El informe trimestral está listo. Desde la última versión se han añadido tres secciones: costes, personal y el plan para el próximo trimestre.</p>
+    </tanrei-size-transition>
+    <div><tanrei-size-transition axis="inline"><span>Guardado</span></tanrei-size-transition></div>
+  </div>
+</Example>
+
+Cuando el contenido que lleva dentro cambia de tamaño, la caja pasa del tamaño que muestra al nuevo en un solo movimiento. Lo que viene después en el diseño se desplaza con ella en lugar de saltar de un fotograma a otro. No dibuja nada propio: ni fondo, ni borde, ni esquinas redondeadas, ni relleno.
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native están previstos: todavía no ofrecen una transición de tamaño.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-size-transition>
+      <div id="details"></div>
+    </tanrei-size-transition>
+    <p>Todo lo que hay debajo se desplaza con suavidad cuando cambian los detalles.</p>
+
+    <!-- Anclada abajo: crece hacia arriba y su última línea no se mueve. -->
+    <tanrei-size-transition anchor="end">
+      <div id="draft"></div>
+    </tanrei-size-transition>
+
+    <script type="module">
+      import '@tanrei/web/components/size-transition';
+      const box = document.querySelector('tanrei-size-transition');
+      box.addEventListener('settle', (event) => console.log(event.detail.height));
+      document.querySelector('#details').textContent = longerText; // se desplaza, no salta
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SizeTransition } from '@tanrei/react';
+
+    <SizeTransition onSettle={(event) => setHeight(event.detail.height)}>
+      {expanded ? <FullDetails /> : <Summary />}
+    </SizeTransition>
+
+    <SizeTransition axis="inline">
+      <span>{saving ? 'Guardando…' : 'Guardado'}</span>
+    </SizeTransition>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<Example label="Anclajes: start (el predeterminado), end y center">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">Start: la primera línea no se mueve y las líneas nuevas aparecen debajo.</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="end">
+      <p style="margin: 0">End: la última línea se queda pegada al final de la caja y las nuevas aparecen encima.</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="center">
+      <p style="margin: 0">Center: cada borde se mueve la mitad del cambio.</p>
+    </tanrei-size-transition>
+  </div>
+</Example>
+
+<ComponentSpecs name="size-transition" />
+
+## Pautas
+
+### Cuándo usarla
+
+Usa una transición de tamaño alrededor de un contenido propio cuyo tamaño cambia mientras la persona lo está mirando: el borrador de una respuesta que pasa a una segunda línea, un resumen que sustituyes por el texto completo, una línea de error que aparece bajo un campo que has construido tú, una etiqueta de estado cuya palabra se alarga. Sin ella, todo lo que hay debajo salta de golpe y la persona pierde el punto por donde iba.
+
+Los componentes de Tanrei ya mueven sus propios cambios de tamaño: un campo de entrada de texto que crece, un snackbar que se despliega, un acordeón que se abre. No hace falta envolverlos en una transición de tamaño para eso.
+
+Para mostrar u ocultar una sección entera a petición de la persona, usa un [acordeón](/es/components/accordion/): abrir y cerrar es su trabajo. Una transición de tamaño no abre ni cierra nada; solo sigue a lo que lleva dentro.
+
+### Cuánto dura un cambio
+
+La duración crece con la distancia. En el sistema predeterminado, un cambio de hasta 64 píxeles dura 300 ms. Cada 64 píxeles más, o una parte de ellos, suma 50 ms, hasta un máximo de 400 ms. Así, un cambio grande no parece precipitado junto a uno pequeño, y uno lejano nunca hace esperar. Define `duration` solo donde un lugar necesite un ritmo distinto del de todas las demás transiciones de tamaño de tu producto. Con `0`, el cambio es inmediato.
+
+### Cómo elegir el eje y el anclaje
+
+| Eje | Úsalo para |
+| --- | --- |
+| Block (predeterminado) | Contenido cuya altura cambia: párrafos, listas, una sección que gana una fila. Su anchura es la del diseño. |
+| Inline | Una etiqueta cuya anchura cambia: una palabra de estado, un recuento, el texto de un botón. Es tan ancha como su contenido. |
+| Both | Una caja pequeña cuya anchura y altura cambian a la vez, como una insignia que pasa a una segunda línea. Las dos se mueven en un solo movimiento. |
+
+| Anclaje | Úsalo para |
+| --- | --- |
+| Start (predeterminado) | La mayoría de los contenidos. La primera línea no se mueve nunca y lo nuevo aparece después. |
+| End | Contenido anclado al final de su contenedor, como el campo para escribir un mensaje encima del teclado. Su última línea se queda donde está y la caja crece hacia el principio. |
+| Center | Algo centrado en su espacio, como un aviso en medio de un panel vacío. |
+
+### Recomendado
+
+- Envuelve el contenido que cambia, y solo ese. Una transición de tamaño alrededor de toda una página lo mueve todo a la vez.
+- Usa `disabled` mientras el contenido cambia en cada fotograma (por ejemplo, mientras la persona arrastra algo dentro) y para un cambio que no hace falta que la persona vea, como una lista que se sustituye por los resultados de una búsqueda.
+- Espera a `settle` cuando necesites medir o desplazarte después del cambio: llega una sola vez, después del último fotograma.
+
+### Evita
+
+- No la uses para que algo aparezca o desaparezca con un fundido. Solo mueve el tamaño; el fundido le corresponde al contenido.
+- No envuelvas en una transición de tamaño un componente de Tanrei que ya mueve su propio tamaño.
+- No cuentes con ella para eliminar el desplazamiento de diseño (layout shift) de tus métricas. Los navegadores siguen contando un elemento que se mueve por un cambio de diseño. Lo que elimina es el salto que ve la persona.
+
+## Accesibilidad
+
+<ComponentAccessibility name="size-transition" />
+
+### De qué se encarga el componente
+
+- No expone nada propio a la tecnología de apoyo: ni rol, ni nombre, ni estado. Nunca es una parada del foco. Su contenido se lee y se alcanza como si la caja no estuviera.
+- El contenido que la caja recorta durante un movimiento sigue en el orden de lectura y en el orden del foco. Quien entra con Tab durante el movimiento lo alcanza, y en el sistema predeterminado el movimiento termina en menos de 400 ms.
+- Mientras se mueve no se desplaza nada: ni la caja, ni su contenido, ni la página. El foco, el cursor de texto y la selección se quedan donde están.
+- Cuando se pide reducir movimiento, todos los cambios de tamaño son inmediatos. `settle` sigue llegando una vez por cambio.
+- Un cambio del espacio que le da el diseño (se cambia el tamaño de la ventana, el tamaño del texto o la dirección) es inmediato, para que la caja nunca vaya por detrás de quien está cambiando el tamaño de la ventana.
+- Las compilaciones de depuración notifican un `axis` o un `anchor` desconocido y una `duration` negativa o que no es un número.
+
+### Qué debes hacer tú
+
+- Anuncia tú un cambio que importe, en una región activa (live region) o en un aviso que la persona vaya a ver. Una transición de tamaño solo mueve su tamaño y no dice nada.
+- Mantén correctos los nombres, los roles y el orden del propio contenido. La transición de tamaño no añade ninguno.

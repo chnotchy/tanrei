@@ -59,7 +59,7 @@ import '../loading-indicator/loading-indicator.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
-import type { TanreiSearchDensityRegistry } from '../../registry.js';
+import type { TanreiSearchSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -89,8 +89,8 @@ export type TanreiSearchStatus = 'idle' | 'loading' | 'error';
 const STATUSES: readonly TanreiSearchStatus[] = ['idle', 'loading', 'error'];
 /** Whether a row of the view keeps the leading icon column where it has no icon (SRC-52). A closed set: the menu's values. */
 export type TanreiSearchIconSpace = 'auto' | 'always' | 'never';
-/** How much room a row of the view takes (SRC-53): `regular`, `compact`, or a density a design system added. */
-export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
+/** How much room a row of the view takes (SRC-53): `small`, `medium`, or a size a design system added. */
+export type TanreiSearchSize = keyof TanreiSearchSizeRegistry;
 const ICON_SPACES: readonly TanreiSearchIconSpace[] = ['auto', 'always', 'never'];
 /**
  * Where the query as typed stands among the suggestions (SRC-14, SRC-57): a row of its own, first and active (`first`),
@@ -707,7 +707,7 @@ export class TanreiSearch extends TanreiElement {
     // default to true, and the property has the attribute's name.
     noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
-    density: { type: String, reflect: true, useDefault: true },
+    size: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
     name: { type: String, reflect: true },
     suggestions: { state: true },
@@ -828,13 +828,14 @@ export class TanreiSearch extends TanreiElement {
   /**
    * How much room a row of the view takes (SRC-53) — a suggestion, a result, a result group's linked heading —: its least
    * height, paddings, the gap after its icon column and the size of its glyph, never its text style; the bar is not
-   * changed. `regular` (the default) is for a product used by touch as well as by pointer; `compact` for a tool used with
-   * a pointer. For touch a row is never lower than the touch target (SRC-16). A design system may add values.
+   * changed. `medium` (the default) is for a product used by touch as well as by pointer; `small` for a tool used with
+   * a pointer. A row is never lower than the target at either size (SRC-16). The search takes no size from a container
+   * around it: its view stands in the top layer. A design system may add values.
    */
-  density: TanreiSearchDensity = 'regular';
+  size: TanreiSearchSize = 'medium';
 
-  /** SRC-53: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
-  private readonly densities = new OpenAxesController(this, { component: 'search', behavior: 'SRC-53', axes: AXES });
+  /** SRC-53: a size a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly sizes = new OpenAxesController(this, { component: 'search', behavior: 'SRC-53', axes: AXES });
 
   /** For tests and documentation: draws the open view in place, without the overlay's behaviour. */
   inline = false;
@@ -2762,6 +2763,7 @@ export class TanreiSearch extends TanreiElement {
                 <tanrei-button
                   class="back"
                   variant="text"
+                  size="medium"
                   label=${this.words.get('backLabel', this.backLabel)}
                   aria-hidden=${
                     // SRC-11: in a view that is not open the button is in no one's reach, and a name it lacks is not

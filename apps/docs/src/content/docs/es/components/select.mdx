@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
+sourceHash: a09887b40f04e27a663a8334d9a5e7f6b8f7af0d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -177,7 +177,7 @@ La lista se abre a una distancia de `comp.select.list.offset` por debajo del con
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
 
-`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
+Las opciones toman el `size` del select. Un select `small` abre opciones `small` (de 36 de alto con glifos de 20, la fila `small` del [menú](/es/components/menu/)), y uno `medium` o `large` opciones `medium` (de 48 de alto). El texto conserva su tamaño, y una opción nunca es más baja que el objetivo.
 
 Una opción cuyo valor es la cadena vacía es una opción como cualquier otra, para «Ninguno» o «Cualquiera». El select no tiene una forma propia de volver a no tener nada elegido: donde se permita no elegir, ofrece una opción que lo diga.
 
@@ -192,7 +192,7 @@ Cuando las opciones vienen de un sitio que tarda o puede fallar, dilo en la list
 | Solo `statusText` | El texto, leído con cortesía ("Tus 3 proyectos más recientes") |
 | `emptyText`, mientras no hay ninguna opción | El texto en lugar de las opciones ("Aún no hay proyectos") |
 
-Esta fila de estado sigue a la vista mientras las opciones se desplazan. No es una opción: pulsarla no hace nada y las flechas nunca llegan a ella. Lo que ya dice cuando se abre la lista se lee al abrirse.
+Esta fila de estado sigue a la vista mientras las opciones se desplazan. No es una opción: pulsarla no hace nada y las teclas de flecha nunca llegan a ella. Lo que ya dice cuando se abre la lista se lee al abrirse.
 
 El select nunca carga, espera ni reintenta nada. Pon `status` en `loading` al empezar, da las opciones y vuelve a `idle` cuando lleguen, o pon `error` con palabras para el fallo.
 
@@ -208,12 +208,12 @@ Un select sin opciones, sin estado y sin `emptyText` no se abre. Dale un `emptyT
 
 | Entrada | Qué ocurre |
 | --- | --- |
-| Una pulsación en el contenedor; Enter, Espacio, Flecha abajo o Flecha arriba | Abre la lista. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
+| Una pulsación en el contenedor; Enter, Espacio, flecha abajo o flecha arriba | Abre la lista. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
 | Un carácter imprimible | Abre la lista y hace activa la siguiente opción que empieza por lo escrito |
-| Flecha abajo, Flecha arriba | La opción siguiente o la anterior, atravesando los grupos y deteniéndose en los extremos |
+| Flecha abajo, flecha arriba | La opción siguiente o la anterior, atravesando los grupos y deteniéndose en los extremos |
 | Inicio, Fin; Av Pág, Re Pág | La primera o la última opción; diez opciones hacia abajo o hacia arriba |
 | Enter o Espacio; una pulsación en una opción | Elige la opción activa y cierra la lista |
-| Escape; Tab; una pulsación fuera; una pulsación en el contenedor | Cierra la lista y no elige nada |
+| Esc; Tab; una pulsación fuera; una pulsación en el contenedor | Cierra la lista y no elige nada |
 
 El valor solo cambia cuando la persona confirma una opción en la lista abierta: con una pulsación, con Enter o con Espacio. En un select cerrado, las teclas de flecha y la escritura abren la lista en lugar de cambiar el valor sin que se vea, porque un `change` puede guardar, navegar o reconstruir una página.
 
@@ -307,7 +307,7 @@ El botón de borrar es un botón propio después del select, no dentro de él, y
 - La opción elegida se distingue de las demás por su marca de verificación, nunca solo por su relleno.
 - Los glifos, el chevron, la marca de verificación, el divisor y el asterisco que sigue a una etiqueta flotante quedan ocultos para la tecnología de apoyo.
 - El select es una sola parada en el orden del foco. Tab cierra una lista abierta y sigue adelante.
-- Escape cierra la lista y no va más allá, de modo que un diálogo que rodee al select permanece abierto.
+- Esc cierra la lista y no va más allá, de modo que un diálogo que rodee al select permanece abierto.
 - El área de pulsación del activador cumple el objetivo mínimo aunque un select pequeño mida 40 de alto, y las opciones son al menos tan altas como el objetivo mínimo.
 - Con el texto al 200%, las opciones y los títulos saltan de línea. Solo el valor del contenedor se queda en una línea, y la lista y la tecnología de apoyo lo siguen dando completo.
 - Con colores forzados, el activador y la lista ganan un borde, la opción activa toma los colores de resaltado y la opción elegida se muestra con su marca de verificación.

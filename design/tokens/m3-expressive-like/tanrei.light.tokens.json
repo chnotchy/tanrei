@@ -5,17 +5,17 @@
       "accordion": {
         "chevron": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -31,49 +31,49 @@
             "$description": "Between the icon, the text, the trailing text and the chevron of a header: a navigation drawer row's gap."
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 48,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 56,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -89,17 +89,17 @@
         },
         "content": {
           "padding-block-end": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -148,17 +148,17 @@
         },
         "icon": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -176,27 +176,7 @@
         },
         "label": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 14,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.1,
-                  "unit": "px"
-                },
-                "lineHeight": 1.4286
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -214,6 +194,26 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.5
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 14,
+                  "unit": "px"
+                },
+                "fontWeight": 500,
+                "letterSpacing": {
+                  "value": 0.1,
+                  "unit": "px"
+                },
+                "lineHeight": 1.4286
               }
             }
           }
@@ -1383,27 +1383,7 @@
         },
         "supporting-text": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0.3996,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -1421,33 +1401,33 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
               }
             }
           }
         },
         "trailing-text": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0.3996,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -1465,6 +1445,26 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
               }
             }
           }
@@ -30600,17 +30600,17 @@
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -30844,33 +30844,33 @@
         },
         "option": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 48,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -30900,17 +30900,17 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 20,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
                   "unit": "px"
                 }
               }
@@ -30918,17 +30918,17 @@
           },
           "mark": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 20,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
                   "unit": "px"
                 }
               }
@@ -31004,33 +31004,33 @@
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -34550,17 +34550,17 @@
         },
         "fact": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -34584,27 +34584,7 @@
         "stat": {
           "value": {
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "Roboto",
-                    "system-ui",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 24,
-                    "unit": "px"
-                  },
-                  "fontWeight": 400,
-                  "letterSpacing": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.3333
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -34622,6 +34602,26 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.25
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Roboto",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 24,
+                    "unit": "px"
+                  },
+                  "fontWeight": 400,
+                  "letterSpacing": {
+                    "value": 0,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.3333
                 }
               }
             }
@@ -34643,43 +34643,23 @@
             "$description": "The text of a term, and of a figure's label in the stat layout: secondary content, quieter than the value it names."
           },
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.5004,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -34697,6 +34677,26 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 500,
+                "letterSpacing": {
+                  "value": 0.5004,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
               }
             }
           }
@@ -34717,27 +34717,7 @@
             "$description": "The text of a value, and of a figure in the stat layout."
           },
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0.3996,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -34755,6 +34735,26 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
+              }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
               }
             }
           }
@@ -53104,66 +53104,66 @@
           },
           "height": {
             "one-line": {
-              "compact": {
+              "medium": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              },
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 40,
                   "unit": "px"
                 }
-              },
-              "regular": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
-                }
               }
             },
             "three-line": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 72,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 88,
                   "unit": "px"
                 }
-              }
-            },
-            "two-line": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
-                }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 72,
+                  "unit": "px"
+                }
+              }
+            },
+            "two-line": {
+              "medium": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
                   "unit": "px"
                 }
               }
             }
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 4,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -53387,36 +53387,36 @@
             "$description": "Space between an item's content and the parts the list draws beside it: the check of an option, the mark of a link that opens a new context, the handle of a reorderable item."
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 56,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 4,
-                "unit": "px"
-              },
-              "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 8,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the list's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
             }
           },
           "padding-inline-end": {
@@ -56468,65 +56468,65 @@
         },
         "container": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 48,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -58986,17 +58986,17 @@
             "$description": "A group's title: quieter than the items, which are what a person acts on."
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -59071,17 +59071,17 @@
         },
         "leading-icon": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -59089,17 +59089,17 @@
         },
         "mark": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -60146,17 +60146,17 @@
         },
         "trailing-icon": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -61011,7 +61011,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own regular rows (comp.menu.container.padding-inline.regular), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
+            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own medium rows (comp.menu.container.padding-inline.medium), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
           },
           "shape": {
             "$type": "dimension",
@@ -76119,66 +76119,66 @@
           },
           "container": {
             "gap": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
                   "unit": "px"
                 }
               }
             },
             "height": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 32,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 56,
                   "unit": "px"
                 }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
               }
             },
             "padding-block": {
-              "compact": {
+              "medium": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                }
+              },
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 4,
                   "unit": "px"
                 },
-                "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
-              },
-              "regular": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
+                "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the search's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
               }
             },
             "padding-inline": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
                   "unit": "px"
                 }
               }
@@ -76216,17 +76216,17 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 20,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
                   "unit": "px"
                 }
               }
@@ -78487,17 +78487,17 @@
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -78747,33 +78747,33 @@
         },
         "option": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 48,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -78803,17 +78803,17 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 20,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
                   "unit": "px"
                 }
               }
@@ -78821,50 +78821,50 @@
           },
           "mark": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 20,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
                   "unit": "px"
                 }
               }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -81052,6 +81052,52 @@
               "hex": "#000000"
             },
             "$description": "The dim over everything behind a modal sheet, alpha included: the modal layer's, unless a system sets the side sheet apart."
+          }
+        }
+      },
+      "size-transition": {
+        "motion": {
+          "distance-step": {
+            "$type": "dimension",
+            "$value": {
+              "value": 64,
+              "unit": "px"
+            },
+            "$description": "The distance by which a change's time grows by one duration-step."
+          },
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long a change of size takes over a distance of up to distance-step: the role of a box that changes its size in place."
+          },
+          "duration-max": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "The longest a change of size takes, however far it moves: the role of a large change of size, so that a far change does not keep the person waiting."
+          },
+          "duration-step": {
+            "$type": "duration",
+            "$value": {
+              "value": 50,
+              "unit": "ms"
+            },
+            "$description": "How much longer a change takes for each further distance-step it moves, so that a large change does not look hurried beside a small one."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of a change of size: something that changes its size in place."
           }
         }
       },
@@ -90846,17 +90892,17 @@
         },
         "row": {
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 44,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -90870,17 +90916,17 @@
             "$description": "How much further from the rail a label starts for each level of nesting. Only the label moves: the row, its state layer and its marker keep the list's full width."
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -90891,7 +90937,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same in both densities: density changes how tall a row is, not where its label starts."
+            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same at both sizes: size changes how tall a row is, not where its label starts."
           },
           "shape": {
             "$type": "dimension",
@@ -90984,39 +91030,39 @@
                 },
                 "lineHeight": 1.3333
               },
-              "$description": "The caption's text style, at both densities: secondary text, one step under the regular cell's."
+              "$description": "The caption's text style, at both sizes: secondary text, one step under the medium cell's."
             }
           }
         },
         "cell": {
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
                 "unit": "px"
               }
             }
@@ -91037,27 +91083,7 @@
               "$description": "The text of a cell, of a row header and of a footer cell."
             },
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "Roboto",
-                    "system-ui",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 12,
-                    "unit": "px"
-                  },
-                  "fontWeight": 400,
-                  "letterSpacing": {
-                    "value": 0.3996,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.3333
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -91075,6 +91101,26 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.4286
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Roboto",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 12,
+                    "unit": "px"
+                  },
+                  "fontWeight": 400,
+                  "letterSpacing": {
+                    "value": 0.3996,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.3333
                 }
               }
             }
@@ -91111,7 +91157,7 @@
               "value": 32,
               "unit": "px"
             },
-            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by density."
+            "$description": "Space above and below what stands in the place of the rows of a table that has none (the product's Empty state). Its inline space is a cell's, by size."
           }
         },
         "focused": {
@@ -91152,7 +91198,7 @@
                 "value": 16,
                 "unit": "px"
               },
-              "$description": "The glyph box of the mark of a sortable column, at both densities: the smallest step of the icon scale, beside a label."
+              "$description": "The glyph box of the mark of a sortable column, at both sizes: the smallest step of the icon scale, beside a label."
             },
             "weight": {
               "$type": "number",
@@ -91176,27 +91222,7 @@
               "$description": "The text of a column header: secondary content, quieter than the data it names."
             },
             "typescale": {
-              "compact": {
-                "$type": "typography",
-                "$value": {
-                  "fontFamily": [
-                    "Roboto",
-                    "system-ui",
-                    "sans-serif"
-                  ],
-                  "fontSize": {
-                    "value": 12,
-                    "unit": "px"
-                  },
-                  "fontWeight": 500,
-                  "letterSpacing": {
-                    "value": 0.5004,
-                    "unit": "px"
-                  },
-                  "lineHeight": 1.3333
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -91214,6 +91240,26 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.4286
+                }
+              },
+              "small": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Roboto",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 12,
+                    "unit": "px"
+                  },
+                  "fontWeight": 500,
+                  "letterSpacing": {
+                    "value": 0.5004,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.3333
                 }
               }
             }
@@ -92020,7 +92066,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by density, so that its text begins where the first column's does."
+            "$description": "Space above and below the content of the status line. Its inline space is a cell's, by size, so that its text begins where the first column's does."
           },
           "text": {
             "color": {
@@ -92056,7 +92102,7 @@
                 },
                 "lineHeight": 1.3333
               },
-              "$description": "The status text, at both densities: the caption's style."
+              "$description": "The status text, at both sizes: the caption's style."
             }
           }
         },
@@ -98494,7 +98540,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "The space between two blocks of one event's body: half the regular space between two events, so what belongs to one event is closer together than two events are."
+            "$description": "The space between two blocks of one event's body: half the space between two events at density 1, so what belongs to one event is closer together than two events are."
           },
           "typescale": {
             "large": {
@@ -98573,20 +98619,12 @@
         },
         "item": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
             },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            }
+            "$description": "The space between the end of one event and the beginning of the next: the space prose puts between two blocks in the default system, times the system's density, so a denser system draws its events closer together."
           }
         },
         "marker": {
@@ -99766,17 +99804,17 @@
       "tree-view": {
         "chevron": {
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 20,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -99784,65 +99822,65 @@
         },
         "container": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 48,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -99951,20 +99989,20 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "The room between the icon (or the icon's kept room) and the label, the same in every density: a compact tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a regular one does. A product's iconGap overrides it."
+            "$description": "The room between the icon (or the icon's kept room) and the label, the same at every size and density: a small tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a medium one does. A product's iconGap overrides it."
           },
           "size": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 20,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -99972,27 +100010,7 @@
         },
         "label": {
           "typescale": {
-            "compact": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0.3996,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -100011,22 +100029,42 @@
                 },
                 "lineHeight": 1.4286
               }
+            },
+            "small": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              }
             }
           }
         },
         "level": {
           "indent": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 32,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
                 "unit": "px"
               }
             }
@@ -100681,7 +100719,7 @@
               },
               "lineHeight": 1.3333
             },
-            "$description": "The note after the label, in both densities: the size of the compact label, at a regular weight."
+            "$description": "The note after the label, at both sizes: the size of the small label, at a regular weight."
           }
         },
         "trailing-text": {
@@ -100704,7 +100742,7 @@
               },
               "lineHeight": 1.3333
             },
-            "$description": "The short value at the end of a row, in both densities: a navigation drawer row's trailing text."
+            "$description": "The short value at the end of a row, at both sizes: a navigation drawer row's trailing text."
           }
         },
         "unselected": {

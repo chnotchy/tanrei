@@ -2,7 +2,7 @@
 title: アコーディオン
 description: 行を押すと、その場でコンテンツを表示したり隠したりします。項目が 1 つなら単独のディスクロージャーで、複数なら、それぞれが独立して開くか、一度に 1 つだけ開くセットです。
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: 4df43bed1d6395d0f95fef683745e6a1b6a6eb48
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -71,7 +71,7 @@ Web では、プロダクト側のネイティブの `<details>` 要素を `<tan
     import '@tanrei/web/icons.css';
     import '@tanrei/web/accordion.css';
 
-    <Accordion density="compact" exclusive>
+    <Accordion size="small" exclusive>
       {sections.map((section) => (
         <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
           <summary>
@@ -111,8 +111,8 @@ Markdown レンダラーは、`<details>` を HTML としてそのまま通し�
 
 ## 仕様
 
-<Example label="compact で、2 行目と末尾の値がある場合：パネルの中の折りたたみ">
-  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+<Example label="small で、2 行目と末尾の値がある場合：パネルの中の折りたたみ">
+  <tanrei-accordion class="not-content tanrei-not-prose" size="small">
     <details open>
       <summary>テキスト<span data-supporting-text>本文、ラベル、見出し</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
       フォントスタックを、優先する順に並べたものです。
@@ -169,7 +169,7 @@ Markdown レンダラーは、`<details>` を HTML としてそのまま通し�
 | `regular`（既定） | 56 | 文字サイズ 16 / 行の高さ 24、太さは medium | 利用者が読むページ：質問や、長いフォームのセクション。 |
 | `compact` | 48 | 14 / 20、太さは medium | コントロールの間に置くパネル：設定、インスペクター、カード。 |
 
-ヘッダーはテキストに合わせて高くなります。compact のヘッダーは、ナビゲーションドロワーの行と同じ高さ、同じテキストスタイル、同じシェブロンです。
+ヘッダーはテキストに合わせて高くなります。`small` のヘッダーは、ナビゲーションドロワーの行と同じ高さ、同じテキストスタイル、同じシェブロンです。どちらの高さもシステムの[密度](/ja/foundations/size-and-density/)に従います。`size` を設定していないアコーディオンは、まわりのコンテナが中身に設定したサイズで描かれ、どのコンテナも設定していなければ `medium` で描かれます。項目の中身にはサイズを渡しません。項目の中に置いたアコーディオンは、それ自身のサイズで描かれます。
 
 ### 項目の区切り方
 
@@ -215,7 +215,7 @@ Web では、`exclusive` は `<details>` の `name` 属性にあたり、要素�
 - 項目が開いても、フォーカスは動きません。フォーカスが中にある項目が閉じたときは、フォーカスはその項目のヘッダーに移ります。
 - フォーカスリングは、項目が閉じているときはヘッダーの行の内側に、開いているときは項目の縁の内側にヘッダーとコンテンツをまとめて囲むように描くので、何にも切り取られません。
 - 高さは、ディスクロージャーのモーションで変わります。動きを減らす設定では、瞬時に切り替わります。
-- どちらの密度でも、高さはタッチターゲット以上です。
+- どちらのサイズでも、高さはタッチターゲット以上です。
 - テキストを 200% にすると、ラベルは折り返し、ヘッダーは高くなり、シェブロンは 1 行目にとどまります。
 - 強制カラーモードでは、縁と線はテキストの色に、無効なヘッダーは無効なテキストの色になります。
 - 名前のないヘッダー、ラベルの中のコントロール、コンテンツのない項目、未知の値、3 階層を超える入れ子は、デバッグビルドで報告します。

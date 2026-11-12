@@ -1,0 +1,108 @@
+/*
+ * App bar before its element is defined (specs/app-bar.spec.json; APB-34): `<tanrei-app-bar>` draws its rows in its
+ * shadow root, so a page that is rendered on a server — or that loads the bar's script late — shows only the glyph names
+ * of its buttons in its place until the script runs, a line high, and everything under it moves down when the bar is
+ * defined. This stylesheet gives that first paint the block size the bar will have, so that nothing moves:
+ *
+ *   <tanrei-app-bar headline="Inbox">
+ *     <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
+ *   </tanrei-app-bar>
+ *
+ * - the parent's full width, in the container color of its condition (APB-1, APB-2), the top system inset above it
+ *   (APB-10);
+ * - a top row container.height.small high — or as high as the cell of an item where the bar holds one and that is
+ *   higher (a 44 row under a coarse pointer) — or as high as the title and the subtitle need on their lines in the top
+ *   row's text roles where that is more (APB-4, APB-5, APB-15);
+ * - for a large bar that will be drawn expanded, its title row under it: container.height.large less the top row, or as
+ *   high as the title and the subtitle need in the large text roles with container.padding-block-end under them where
+ *   that is more (APB-7). A large bar is drawn expanded unless it is `scrolled` and follows no scrolling element
+ *   (`scroll-target="none"`, APB-9): a connected bar takes `scrolled` from the scroll position, at the top of the page
+ *   when it loads;
+ * - nothing of what its slots hold: no glyph name as text, no brand image, no button. The title and the subtitle hold
+ *   their lines unseen.
+ *
+ * What it cannot give: the bottom edge and the elevation (drawn by the element: nothing moves), the items, a size a
+ * design system added (drawn as small), a bar whose scrolling element is already scrolled when it is defined (a page
+ * restored scrolled: a large bar collapses then), and a navigation or action item drawn larger than a medium Button.
+ *
+ * Every value is a `--tanrei-comp-app-bar-*` token, or the cell of an item (the target and a medium Button). Every
+ * selector has no specificity (`:where()`), and none matches once the element is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-app-bar:not(:defined)) {
+    /* The top row's height: the small bar's, or an item's cell where the bar holds an item (APB-4, APB-19). */
+    --_app-bar-row: var(--tanrei-comp-app-bar-container-height-small);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: calc(var(--_app-bar-row) + env(safe-area-inset-top, 0px));
+    padding-block-start: env(safe-area-inset-top, 0px);
+    background: var(--tanrei-comp-app-bar-flat-container-color);
+    overflow: hidden;
+  }
+  :where(tanrei-app-bar[scrolled]:not(:defined)) {
+    background: var(--tanrei-comp-app-bar-scrolled-container-color);
+  }
+  :where(tanrei-app-bar:not(:defined):has(> :is([slot='navigation'], [slot='context'], [slot='actions'], [slot='brand'], [slot='brand-symbol'], [slot='brand-wordmark']))) {
+    --_app-bar-row: max(var(--tanrei-comp-app-bar-container-height-small), var(--tanrei-sys-target-pointer), var(--tanrei-comp-button-container-height-medium));
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-app-bar:not(:defined):has(> :is([slot='navigation'], [slot='context'], [slot='actions'], [slot='brand'], [slot='brand-symbol'], [slot='brand-wordmark']))) {
+      --_app-bar-row: max(var(--tanrei-comp-app-bar-container-height-small), var(--tanrei-sys-target-touch), var(--tanrei-comp-button-container-height-medium));
+    }
+  }
+  :where(tanrei-app-bar[hidden]:not(:defined)) {
+    display: none;
+  }
+  /* What the slots hold is drawn by the element: a glyph is a name until its Button draws it. */
+  :where(tanrei-app-bar:not(:defined)) > :where([slot]) {
+    display: none;
+  }
+
+  /* The title and, under a title, the subtitle: their lines, unseen, in the top row's text roles (APB-5). */
+  :where(tanrei-app-bar:not(:defined))::before,
+  :where(tanrei-app-bar[headline]:not([headline='']):not(:defined))::after {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    visibility: hidden;
+  }
+  :where(tanrei-app-bar:not(:defined))::before {
+    content: attr(headline);
+    font: var(--tanrei-comp-app-bar-title-typescale-small-font);
+  }
+  :where(tanrei-app-bar[headline]:not([headline='']):not(:defined))::after {
+    content: attr(subtitle);
+    font: var(--tanrei-comp-app-bar-subtitle-typescale-small-font);
+  }
+
+  /* APB-7, APB-9: a large bar drawn expanded — the top row, then its title row ending padding-block-end above the
+     bottom edge, at least container.height.large high in all. */
+  :where(tanrei-app-bar[size='large']:not(:defined)) {
+    justify-content: flex-end;
+    min-block-size: calc(var(--tanrei-comp-app-bar-container-height-large) - var(--tanrei-comp-app-bar-container-height-small) + var(--_app-bar-row) + env(safe-area-inset-top, 0px));
+    padding-block-start: calc(var(--_app-bar-row) + env(safe-area-inset-top, 0px));
+    padding-block-end: var(--tanrei-comp-app-bar-container-padding-block-end);
+  }
+  :where(tanrei-app-bar[size='large']:not(:defined))::before {
+    font: var(--tanrei-comp-app-bar-title-typescale-large-font);
+  }
+  :where(tanrei-app-bar[size='large'][headline]:not([headline='']):not(:defined))::after {
+    font: var(--tanrei-comp-app-bar-subtitle-typescale-large-font);
+  }
+  /* A large bar that is scrolled and follows nothing is drawn collapsed: its top row alone (APB-9). */
+  :where(tanrei-app-bar[size='large'][scrolled][scroll-target='none']:not(:defined)) {
+    justify-content: center;
+    min-block-size: calc(var(--_app-bar-row) + env(safe-area-inset-top, 0px));
+    padding-block-start: env(safe-area-inset-top, 0px);
+    padding-block-end: 0;
+  }
+  :where(tanrei-app-bar[size='large'][scrolled][scroll-target='none']:not(:defined))::before {
+    font: var(--tanrei-comp-app-bar-title-typescale-small-font);
+  }
+  :where(tanrei-app-bar[size='large'][scrolled][scroll-target='none'][headline]:not([headline='']):not(:defined))::after {
+    font: var(--tanrei-comp-app-bar-subtitle-typescale-small-font);
+  }
+}

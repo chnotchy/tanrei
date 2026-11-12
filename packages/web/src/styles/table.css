@@ -8,7 +8,7 @@
  * document and is never given another `display`: its semantics, a crawler's reading, copy and paste as a table and a
  * screen reader's table navigation are the browser's own.
  *
- *   <tanrei-table density="compact" striped row-headers sticky-first-column>
+ *   <tanrei-table size="small" striped row-headers sticky-first-column>
  *     <table>
  *       <caption>Visits by region</caption>
  *       <thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">January</th></tr></thead>
@@ -17,7 +17,7 @@
  *     </table>
  *   </tanrei-table>
  *
- * Attributes of the wrapper: `density` (regular | compact), `separation` (auto | divider | gap), `striped`,
+ * Attributes of the wrapper: `size` (small | medium), `separation` (auto | divider | gap), `striped`,
  * `row-headers`, `sticky-header`, `sticky-first-column`, `selection` (none | single | multiple), `loading`, `label`, `caption`,
  * `status`. Attributes of a cell:
  * `data-align` (start | center | end) and `data-wrap="false"`; a renderer's own `align` (left, center, right) is read
@@ -129,19 +129,19 @@
 @layer tanrei.components {
   /* ── The box (TBL-1, TBL-17, TBL-18): as wide as its layout, the scroll box of its table, no look of its own ─── */
   :where(tanrei-table) {
-    /* TBL-4, TBL-5: the density's paddings and text styles (TBL-31: any other density is the default's). */
-    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-regular);
-    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-regular);
-    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-regular-font);
-    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-regular-letter-spacing);
-    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-regular-font-weight-emphasized);
-    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-regular-font);
-    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-regular-letter-spacing);
+    /* TBL-4, TBL-5, TBL-62: the size's paddings and text styles — medium here, small below, set on the table or taken
+       from its container by the element (the custom state size-small); TBL-31: any other size is the default's. */
+    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-medium);
+    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-medium);
+    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-medium-font);
+    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-medium-letter-spacing);
+    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-medium-font-weight-emphasized);
+    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-medium-font);
+    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-medium-letter-spacing);
     /* The height of one line of a header's label, as a length: a sort mark is centred on the label's last line. */
-    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-regular-line-height) * var(--tanrei-comp-table-header-text-typescale-regular-font-size));
+    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-medium-line-height) * var(--tanrei-comp-table-header-text-typescale-medium-font-size));
     /* TBL-40, TBL-47: the least height of a header cell that is a sort button and of a row that holds a checkbox — the
-       pointer's target, the touch target for a coarse pointer at both densities (below), and for a fine pointer at the
-       compact density what its density gives. */
+       pointer's target, and the touch target for a coarse pointer (below), at every size. */
     --_table-sort-target: var(--tanrei-sys-target-pointer);
     /* TBL-9: the separation this table draws — its attribute's, else comp.table.separation's. */
     --_table-separation: var(--tanrei-comp-table-separation);
@@ -176,16 +176,15 @@
     --_table-start: right;
     --_table-end: left;
   }
-  :where(tanrei-table[density='compact']) {
-    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-compact);
-    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-compact);
-    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-compact-font);
-    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-compact-letter-spacing);
-    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-compact-font-weight-emphasized);
-    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-compact-font);
-    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-compact-letter-spacing);
-    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-compact-line-height) * var(--tanrei-comp-table-header-text-typescale-compact-font-size));
-    --_table-sort-target: 0px;
+  :where(tanrei-table[size='small'], tanrei-table:state(size-small)) {
+    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-small);
+    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-small);
+    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-small-font);
+    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-small-letter-spacing);
+    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-small-font-weight-emphasized);
+    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-small-font);
+    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-small-letter-spacing);
+    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-small-line-height) * var(--tanrei-comp-table-header-text-typescale-small-font-size));
   }
   @media (pointer: coarse) {
     :where(tanrei-table) {
@@ -408,9 +407,9 @@
     --_table-select-pad: max(0px, var(--_table-pad-inline) - (var(--tanrei-comp-checkbox-container-size) - var(--tanrei-comp-checkbox-box-size)) / 2);
     padding-inline: var(--_table-select-pad);
     white-space: nowrap;
-    /* The Checkbox's container is a size of its own, and taller than a compact row: what it draws beyond its row is
-       cut at the row's edges, so that the last row's does not make the box scroll (its focus indicator, around the
-       box, is inside the row at both densities). */
+    /* The Checkbox's container is a size of its own, and may be taller than a small row: what it draws beyond its row
+       is cut at the row's edges, so that the last row's does not make the box scroll (its focus indicator, around the
+       box, is inside the row at both sizes). */
     overflow-y: clip;
   }
   /* TBL-60: under single selection the control is the Radio button, whose ring is what stands at the padding. */

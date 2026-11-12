@@ -43,11 +43,11 @@ Una hoja lateral es controlada y nunca se cierra sola. La muestras con `open`. C
 | --- | --- | --- |
 | `close` | Activó el botón de cierre | Estándar y modal |
 | `scrim` | Pulsó la zona atenuada que hay junto a una hoja modal | Modal |
-| `escape` | Pulsó Escape | Modal |
+| `escape` | Pulsó Esc | Modal |
 | `back` | Usó el retroceso de la plataforma: el botón o el gesto de retroceso de Android, el gesto de escape de accesibilidad de iOS | Modal |
 | `drag` | Arrastró la hoja hacia su borde más allá de la mitad de su ancho, o la lanzó en esa dirección | Modal |
 
-Una hoja estándar ignora Escape, el retroceso y los arrastres. Su botón de cierre es la única forma que tiene la persona de cerrarla, a menos que lo haga un control tuyo.
+Una hoja estándar ignora Esc, el retroceso y los arrastres. Su botón de cierre es la única forma que tiene la persona de cerrarla, a menos que lo haga un control tuyo.
 
 La hoja tiene dos formas en `variant`, y un mismo producto suele usar las dos: estándar donde la ventana es lo bastante ancha, modal donde no lo es.
 
@@ -253,11 +253,11 @@ La cabecera y las acciones permanecen en su sitio mientras el contenido se despl
 ### Apertura, foco y cierre
 
 - **Abrir una hoja estándar.** Entra deslizándose por el borde de fin mientras el contenido que tiene al lado le hace sitio. El foco pasa al elemento que marcaste, o a la hoja, de modo que su titular se lee primero. Una hoja que está abierta desde el principio no mueve el foco.
-- **Trabajar junto a una hoja estándar.** Tab pasa de la hoja al contenido, y la hoja sigue abierta. Escape, el retroceso y los arrastres no le hacen nada.
+- **Trabajar junto a una hoja estándar.** Tab pasa de la hoja al contenido, y la hoja sigue abierta. Esc, el retroceso y los arrastres no le hacen nada.
 - **Abrir una hoja modal.** Entra deslizándose desde el borde de fin mientras el velo aparece con un fundido sobre el resto de la ventana. El foco entra como en la hoja estándar y se queda dentro: Tab desde el último elemento enfocable va al primero, y Mayús+Tab desde el primero va al último. Todo lo que queda detrás está inerte. Una hoja modal que está abierta desde el principio también lleva el foco dentro, porque nada de lo que hay detrás puede recibirlo.
 - **Cerrar.** La hoja sale deslizándose hacia el borde de fin y, en una hoja modal, el velo se desvanece. Si el foco estaba dentro, vuelve al elemento que lo tenía cuando se abrió la hoja.
 - **Arrastrar una hoja modal.** Sigue al dedo en cuanto este supera el umbral de arrastre táctil de la plataforma. Soltarla más allá de la mitad de su ancho hacia el borde de fin, o lanzarla en esa dirección, le pide que se cierre con el motivo `drag`. Un arrastre más corto y más lento la devuelve a su sitio. El lanzamiento y el umbral son los que usa la [hoja inferior](/es/components/bottom-sheet/).
-- **Apilamiento.** Un diálogo, un menú u otra hoja modal que se abren desde una hoja lateral modal se apilan por encima de ella. Escape descarta solo la superior.
+- **Apilamiento.** Un diálogo, un menú u otra hoja modal que se abren desde una hoja lateral modal se apilan por encima de ella. Esc descarta solo la superior.
 - **Sin deslizamiento desde el borde para abrir.** La hoja se abre desde un botón, nunca con un deslizamiento desde el borde de la pantalla.
 - Donde el movimiento está reducido, una hoja estándar se abre y se cierra de inmediato, y una hoja modal aparece y desaparece con un fundido, sin deslizarse.
 
@@ -285,12 +285,12 @@ La cabecera y las acciones permanecen en su sitio mientras el contenido se despl
 - Una hoja modal se expone como un diálogo modal que recibe su nombre de su titular. Una hoja estándar es una región complementaria que recibe su nombre de su titular, la región de referencia (landmark) aside en la web.
 - El titular se expone como un encabezado. El divisor queda oculto para la tecnología de apoyo.
 - Al abrirse, el foco pasa al elemento que marcaste, o a la hoja. Al cerrarse, el foco vuelve al elemento que lo tenía cuando se abrió la hoja. Esto vale para las dos formas.
-- En una hoja modal, Tab y Mayús+Tab dan la vuelta dentro de ella, todo lo que queda detrás está inerte y oculto para la tecnología de apoyo, y Escape, el retroceso y una pulsación en el velo le piden que se cierre. Con superposiciones apiladas, solo se descarta la superior.
-- Desde una hoja estándar, Tab sigue hacia el contenido, y la hoja sigue abierta. Ignora Escape y el retroceso.
+- En una hoja modal, Tab y Mayús+Tab dan la vuelta dentro de ella, todo lo que queda detrás está inerte y oculto para la tecnología de apoyo, y Esc, el retroceso y una pulsación en el velo le piden que se cierre. Con superposiciones apiladas, solo se descarta la superior.
+- Desde una hoja estándar, Tab sigue hacia el contenido, y la hoja sigue abierta. Ignora Esc y el retroceso.
 - El botón de cierre es un botón de Tanrei de solo icono que recibe su nombre de `closeLabel`, y las acciones son botones de Tanrei. Cada uno cumple por sí mismo el objetivo mínimo, y los 16 que hay entre las acciones apiladas conservan entero cada objetivo.
 - El foco y los lectores de pantalla encuentran las acciones en el orden de colocación, el mismo orden que ve una persona vidente. Las acciones se mantienen por encima del teclado en pantalla, así que siguen al alcance mientras la persona escribe en la hoja.
 - Enter y Espacio activan el botón de cierre o la acción que tiene el foco. La hoja no añade ninguna acción predeterminada a Enter.
-- Un arrastre nunca es la única forma de cerrar: también lo hacen el botón de cierre, Escape, el retroceso y el velo.
+- Un arrastre nunca es la única forma de cerrar: también lo hacen el botón de cierre, Esc, el retroceso y el velo.
 - Un texto más grande conserva el ancho de la hoja, hace crecer su cabecera con el titular y desplaza el contenido.
 - Las compilaciones de depuración notifican una hoja sin titular, un botón de cierre sin `closeLabel`, una hoja modal abierta sin ninguna acción y una variante que el sistema de diseño no tiene.
 
@@ -299,7 +299,7 @@ Carencias conocidas por plataforma:
 - SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Dibujan el divisor bajo la cabecera solo mientras el contenido está desplazado, como hace `scroll`.
 - Web: en Firefox, una hoja modal desaparece de inmediato en lugar de salir deslizándose, como le ocurre al diálogo. Los arrastres táctiles y los márgenes reales del área segura no están cubiertos por ninguna prueba.
 - SwiftUI no tiene ni un rol de diálogo ni uno de región complementaria: la hoja es un contenedor que recibe su nombre de su titular, con el rasgo modal mientras es modal. SwiftUI no puede dar el foco del teclado a la propia hoja: sin marca, VoiceOver pasa al titular y el foco del teclado se queda donde estaba. Al cerrarse, el foco del teclado no vuelve a ningún elemento; en iOS, la cubierta modal devuelve VoiceOver, y una hoja estándar lo deja ir. Una hoja estándar no se recorta mientras se desliza, así que colócala en el borde de fin de la fila de la ventana. En macOS, una hoja modal cubre solo la vista a la que está unido el modificador, así que únelo a la raíz de la ventana.
-- SwiftUI: el texto sin formato del contenido toma la fuente del cuerpo sin su interlineado, así que no queda colocado exactamente donde lo colocan las demás plataformas. Escape y el gesto de escape de iOS están conectados, pero ninguna prueba los ejecuta.
+- SwiftUI: el texto sin formato del contenido toma la fuente del cuerpo sin su interlineado, así que no queda colocado exactamente donde lo colocan las demás plataformas. Esc y el gesto de escape de iOS están conectados, pero ninguna prueba los ejecuta.
 - Compose: mientras una hoja modal se cierra, su ventana conserva el foco hasta que termina el movimiento de salida. Hasta que se ponga al día, las acciones se llaman en un `RowScope`, pero la hoja las dispone ella misma, así que `weight` y las alineaciones no hacen nada. Sus arrastres se verifican solo con Robolectric, no en un dispositivo.
 - Flutter: una hoja estándar es un contenedor con nombre, no una región de referencia complementaria, porque Flutter 3.32 no tiene ese rol. La hoja todavía no se ha comprobado con TalkBack y VoiceOver en un dispositivo.
 - React Native no puede saber qué elemento tenía el foco, así que, cuando la hoja se cierra, el foco va adonde lo pone la plataforma, no al elemento que la abrió. El Modal, el arrastre, la animación del ancho y los márgenes interiores se verifican solo en Jest, nunca en un dispositivo.

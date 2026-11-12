@@ -2,10 +2,13 @@
 // wordmark, the page's title and description, and on a component's page each platform's status, on the light scheme's
 // surface. One for every page of a language the build has a face for (i18n/locales.mjs, `imageFaces`); a page of
 // another language names the English page's image (lib/seo.ts, `socialImagePath`), and the head names it
-// (src/routeData.ts).
+// (src/routeData.ts). The blog's pages have theirs too (lib/blog.ts, `blogImages`): each language's list, and each post
+// in the language it is written in.
 import path from 'node:path';
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
+import { blogImages } from '../../lib/blog';
+import { blogPosts } from '../../lib/blog-posts';
 import { inkBox } from '../../lib/brand-geometry.mjs';
 import { marks } from '../../lib/brand-marks';
 import { strings } from '../../lib/i18n';
@@ -20,10 +23,15 @@ const repoRoot = path.resolve(process.cwd(), '../..');
 
 export const getStaticPaths = (async () => {
   const entries = await getCollection('docs');
-  return entries
+  const docs = entries
     .map((entry) => ({ entry, ...pageOf(entry.id) }))
     .filter(({ dir }) => drawsLanguage(dir))
     .map(({ entry, dir, page }) => ({ params: { slug: dir ? `${dir}/${page}` : page }, props: { id: entry.id, dir, page, title: entry.data.title, description: entry.data.description } }));
+  const blog = blogImages(await blogPosts()).map(({ dir, page, title, description }) => {
+    const slug = dir ? `${dir}/${page}` : page;
+    return { params: { slug }, props: { id: slug, dir, page, title, description } };
+  });
+  return [...docs, ...blog];
 }) satisfies GetStaticPaths;
 
 /** The light scheme's colors, type and wordmark: one look for every image. The wordmark's ink is measured once. */

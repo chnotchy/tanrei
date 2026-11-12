@@ -51,15 +51,15 @@
       "description": "The most columns of facts the list draws in the stacked and stat layouts; it draws fewer while it is too narrow for that many (DSL-7), and never more than it has facts. An inline list is one column whatever this says."
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How close the facts are and how large their text is. Regular is for facts a person reads: a page, a card, a dialog. Compact (smaller text, half the space) is for facts a person scans: a side panel, an inspector, a card of many figures. A design system may add values.",
-      "axis": "tanrei.comp.description-list.density"
+      "default": "medium",
+      "description": "How close the facts are and how large their text is. medium is for facts a person reads: a page, a card, a dialog. small (smaller text, half the space) is for facts a person scans: a side panel, an inspector, a card of many figures. The space between facts follows the system's density at either size. While it is not set the list is drawn at the size its nearest container sets (DSL-25), and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.description-list.size"
     },
     {
       "name": "separation",
@@ -163,13 +163,13 @@
     },
     {
       "id": "DSL-2",
-      "text": "THE description list SHALL set every term in comp.description-list.term.typescale.regular while density is regular and in comp.description-list.term.typescale.compact while density is compact, in comp.description-list.term.color, and every value in comp.description-list.value.typescale.regular or comp.description-list.value.typescale.compact by density, in comp.description-list.value.color, with digits in figures of equal width so that the numbers of a column of values line up; it SHALL NOT add a colon or any other mark of its own after a term, and SHALL NOT change the weight, the case or the family of what the product wrote.",
-      "verify": "Under the default system a regular term is 14 on a 20 line at weight 500 in on-surface-variant and a regular value 14 on a 22 line in on-surface; compact, 12 on 16 and 13 on 20."
+      "text": "THE description list SHALL set every term in comp.description-list.term.typescale.medium while its size is medium and in comp.description-list.term.typescale.small while its size is small, in comp.description-list.term.color, and every value in comp.description-list.value.typescale.medium or comp.description-list.value.typescale.small by size, in comp.description-list.value.color, with digits in figures of equal width so that the numbers of a column of values line up; it SHALL NOT add a colon or any other mark of its own after a term, and SHALL NOT change the weight, the case or the family of what the product wrote.",
+      "verify": "Under the default system a medium term is 14 on a 20 line at weight 500 in on-surface-variant and a medium value 14 on a 22 line in on-surface; small, 12 on 16 and 13 on 20."
     },
     {
       "id": "DSL-3",
-      "text": "WHILE layout is inline THE description list SHALL draw one column of facts, and in each fact the term at the start and its values after it: every term in one term column, as wide as the widest term of the list set on one line, with no term wrapped or cut; every value in one value column that takes the rest of the list's width; and the two columns comp.description-list.term.gap.regular apart while density is regular and comp.description-list.term.gap.compact apart while density is compact. The first line of a term SHALL share its baseline with the first line of its first value.",
-      "verify": "Under the default system the fixture inline has its four values beginning at one edge, 16 after the end of the widest term (\"Platforms\"); the fixture inline-compact, 8."
+      "text": "WHILE layout is inline THE description list SHALL draw one column of facts, and in each fact the term at the start and its values after it: every term in one term column, as wide as the widest term of the list set on one line, with no term wrapped or cut; every value in one value column that takes the rest of the list's width; and the two columns comp.description-list.term.gap.medium apart while its size is medium and comp.description-list.term.gap.small apart while its size is small. The first line of a term SHALL share its baseline with the first line of its first value.",
+      "verify": "Under the default system the fixture inline has its four values beginning at one edge, 16 after the end of the widest term (\"Platforms\"); the fixture inline-small, 8."
     },
     {
       "id": "DSL-4",
@@ -182,7 +182,7 @@
     },
     {
       "id": "DSL-6",
-      "text": "WHILE layout is stat THE description list SHALL draw in each fact the first value first, as a figure: in comp.description-list.stat.value.typescale.regular while density is regular and comp.description-list.stat.value.typescale.compact while density is compact, in comp.description-list.value.color, with digits in figures of equal width, on one line wherever the fact's column holds it; and the term below the figure after comp.description-list.stack.gap, in the term's own style and color (DSL-2), both beginning at the start edge of the fact's column. It SHALL set the figure's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them. THE description list SHALL still expose the term before its value (DSL-17): the order it draws changes nothing that is read.",
+      "text": "WHILE layout is stat THE description list SHALL draw in each fact the first value first, as a figure: in comp.description-list.stat.value.typescale.medium while its size is medium and comp.description-list.stat.value.typescale.small while its size is small, in comp.description-list.value.color, with digits in figures of equal width, on one line wherever the fact's column holds it; and the term below the figure after comp.description-list.stack.gap, in the term's own style and color (DSL-2), both beginning at the start edge of the fact's column. It SHALL set the figure's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them. THE description list SHALL still expose the term before its value (DSL-17): the order it draws changes nothing that is read.",
       "verify": "Under the default system the fixture stat draws each figure 32 on a 40 line, its label 4 below it in the term's style; the accessibility tree of each fact has the term first."
     },
     {
@@ -210,8 +210,8 @@
     },
     {
       "id": "DSL-12",
-      "text": "WHILE the list's separation is divider (DSL-13) THE description list SHALL draw one line of comp.description-list.divider.thickness in comp.description-list.divider.color above every fact that is not in its first row, as wide as that fact's column — the whole width of the list where it draws one column, a term and its value under one line — and SHALL leave comp.description-list.fact.gap.regular between the line and the content on each side of it while density is regular, and comp.description-list.fact.gap.compact while density is compact, the line taking no room of its own; it SHALL draw no line above the first row or below the last, and none between two columns or between a term and its value.",
-      "verify": "Under the default system the fixture separation-divider has 24 between the last line of a fact and the first of the next, with a 1 line of outline-variant in the middle; the fixture inline-compact, 12."
+      "text": "WHILE the list's separation is divider (DSL-13) THE description list SHALL draw one line of comp.description-list.divider.thickness in comp.description-list.divider.color above every fact that is not in its first row, as wide as that fact's column — the whole width of the list where it draws one column, a term and its value under one line — and SHALL leave comp.description-list.fact.gap.medium between the line and the content on each side of it while its size is medium, and comp.description-list.fact.gap.small while its size is small, the line taking no room of its own; it SHALL draw no line above the first row or below the last, and none between two columns or between a term and its value.",
+      "verify": "Under the default system the fixture separation-divider has 24 between the last line of a fact and the first of the next, with a 1 line of outline-variant in the middle; the fixture inline-small, 12."
     },
     {
       "id": "DSL-13",
@@ -220,7 +220,7 @@
     },
     {
       "id": "DSL-14",
-      "text": "WHILE the list's separation is gap (DSL-13) THE description list SHALL leave comp.description-list.fact.gap.regular of empty space while density is regular, and comp.description-list.fact.gap.compact while density is compact, between every fact and the fact below it, SHALL draw none of the lines of DSL-12, and SHALL leave no such space above the first row or below the last; the facts SHALL stay exposed as facts (DSL-17)."
+      "text": "WHILE the list's separation is gap (DSL-13) THE description list SHALL leave comp.description-list.fact.gap.medium of empty space while its size is medium, and comp.description-list.fact.gap.small while its size is small, between every fact and the fact below it, SHALL draw none of the lines of DSL-12, and SHALL leave no such space above the first row or below the last; the facts SHALL stay exposed as facts (DSL-17)."
     },
     {
       "id": "DSL-15",
@@ -232,7 +232,7 @@
     },
     {
       "id": "DSL-17",
-      "text": "THE description list SHALL be exposed to assistive technology as terms each followed by the value or values that answer it, every value associated with its term, in the order given: on a platform that has the semantics of a description list, as that structure; on a platform that has none, each fact as one element whose text is the term followed by its values, set apart so that they are read as separate phrases (\"Category, Actions\"), with whatever inside the fact takes input still reached as an element of its own. The layout, the number of columns, the density, the separation and the order DSL-6 draws SHALL change nothing that is exposed; THE description list SHALL give a term no heading role and itself no name.",
+      "text": "THE description list SHALL be exposed to assistive technology as terms each followed by the value or values that answer it, every value associated with its term, in the order given: on a platform that has the semantics of a description list, as that structure; on a platform that has none, each fact as one element whose text is the term followed by its values, set apart so that they are read as separate phrases (\"Category, Actions\"), with whatever inside the fact takes input still reached as an element of its own. The layout, the number of columns, the size, the separation and the order DSL-6 draws SHALL change nothing that is exposed; THE description list SHALL give a term no heading role and itself no name.",
       "verify": "On the web: the accessibility tree of every fixture has the description list with its terms and their definitions, term first, also while the list is stacked by DSL-4, in columns, or drawn as stat."
     },
     {
@@ -261,12 +261,17 @@
     },
     {
       "id": "DSL-23",
-      "text": "WHEN density names a value that the active design system does not have, or layout names a value this spec does not have, THE description list SHALL render with the default value (the default density's tokens, layout inline), and in debug builds report the unknown value."
+      "text": "WHEN the size the description list draws (DSL-25) names a value that the active design system does not have, or layout names a value this spec does not have, THE description list SHALL render with the default value (the default size's tokens, layout inline), and in debug builds report the unknown value; a size a design system added SHALL be drawn from its tokens, as the core values are."
     },
     {
       "id": "DSL-24",
       "text": "WHEN its inline size changes THE description list SHALL choose between terms beside and above their values again from the new size.",
       "verify": "On the web an inline list whose widest term is 96 wide, beside a value longer than any width it is given, is connected while it has no width — drawn with its terms above their values, and measured so — and then given one: under the default system it is in two columns at 256 and stacked at 255, as DSL-4 draws a list that had its width from the start."
+    },
+    {
+      "id": "DSL-25",
+      "text": "WHILE size is set THE description list SHALL draw every fact at its own size, whatever a container sets; without its script it SHALL draw that size all the same. WHILE size is not set and a container around the description list sets a size for what it holds — the nearest such container where several do — THE description list SHALL draw at that size, the space between its facts following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; WHILE no container around it sets one it SHALL draw medium. A container whose size is not set SHALL pass none, and the description list SHALL pass none to what its values hold: a tag, a button or a list in a value is the product's, at its own size or at the size of the containers around the list (DSL-10). WHEN the size it draws changes — its own size set, changed or removed, a container's size set, changed or removed, or the list moved into or out of such a container — THE description list SHALL draw the new size at once, without a motion, and lay itself out again where a width changed with it (DSL-3, DSL-4, DSL-7).",
+      "verify": "A description list without a size in a container whose size is small is drawn as the fixture inline-small is, its terms in comp.description-list.term.typescale.small, at density 0.75, 1 and 1.5; one whose size is medium in that container keeps medium; removing the container's size, or moving the list out of it, draws it at medium before the next frame; a Button in a value of a list whose size is small, with no size of its own and no container around the list that sets one, is drawn at its own default."
     }
   ],
   "accessibility": {
@@ -350,9 +355,9 @@
       ]
     },
     {
-      "id": "inline-compact",
+      "id": "inline-small",
       "props": {
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -453,10 +458,10 @@
       ]
     },
     {
-      "id": "stacked-compact",
+      "id": "stacked-small",
       "props": {
         "layout": "stacked",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -765,11 +770,11 @@
       ]
     },
     {
-      "id": "columns-compact",
+      "id": "columns-small",
       "props": {
         "layout": "stacked",
         "columns": 4,
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -840,11 +845,11 @@
       ]
     },
     {
-      "id": "stat-compact",
+      "id": "stat-small",
       "props": {
         "layout": "stat",
         "columns": 3,
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1251,7 +1256,7 @@
       "props": {
         "layout": "layout",
         "columns": "columns",
-        "density": "density",
+        "size": "size",
         "separation": "separation"
       },
       "items": {
@@ -1277,7 +1282,7 @@
           }
         }
       },
-      "notes": "It is the form the table takes. `<tanrei-description-list>` is a custom element with **no shadow root**, wrapped around the product's native `<dl>`, which stays in the light DOM — `<tanrei-description-list layout=\"stacked\" columns=\"3\"><dl><div><dt>Category</dt><dd>Actions</dd></div>…</dl></tanrei-description-list>`. The `dl`, `dt` and `dd` are never given a role, so the description-list semantics are the browser's own, for a screen reader, a crawler and a page without script alike (DSL-17). Everything drawn comes from one stylesheet, `@tanrei/web/description-list.css`, whose selectors start at `tanrei-description-list` and are wrapped in `:where()`; it styles the page before and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `layout`, `columns`, `density`, `separation`. The wrapper is `display: block; container-type: inline-size` with no margin; the `dl` has its browser margins removed and every `dd` its inset. inline (DSL-3): the `dl` is a grid of `max-content minmax(0, 1fr)` and each group a subgrid row spanning both tracks, `align-items: first baseline`. DSL-4 needs the widest term's width, which CSS cannot compare with the container's: the element watches its own box and its terms with a `ResizeObserver` and sets `data-stacked` while the value column would be under the least width; without script the term track is `fit-content(50%)`, so a list that is too narrow wraps its terms instead of stacking — nothing is cut. stacked and stat columns (DSL-7) are pure CSS: `grid-template-columns: repeat(auto-fit, minmax(min(100%, max(<least width>, (100% - (n - 1) * <gap>) / n)), 1fr))`, `n` coming from attribute selectors for `columns` 2 to 6 and from a custom property the element sets for larger numbers; `auto-fit` already draws no more columns than facts. The least width is the token multiplied by the reader's text scale (the root font size over 16), so that it grows with enlarged text (DSL-21). stat (DSL-6): each group is a column-direction flex box with `order` on the `dd:first-of-type`, so the `dt` stays before its `dd` in the document while the figure is drawn first. Lines (DSL-12) are `border-block-start` on each group with the same negative margin and `overflow: clip` on the `dl`, so the first row's lines are not drawn and no script counts rows. `font-variant-numeric: tabular-nums` and `overflow-wrap: anywhere` on `dd` (DSL-2, DSL-8); `unicode-bidi: plaintext` on `dt` and `dd` (DSL-20); under `:lang(ja, zh, ko)` a stat figure's `letter-spacing` is 0 and `line-break: strict` applies. Under `forced-colors: active` the lines are `CanvasText` (DSL-22). A `dl` without groups — bare `dt` and `dd` children, as some Markdown extensions emit — is drawn in one column, inline or stacked, with the line above each `dt` that follows a `dd`; `columns` and `stat` need the groups, and debug builds say so. Tanrei does not transform content: nothing wraps a bare `dl` by itself. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16): prose spaces it and styles nothing inside it, while a bare `dl` beside it stays prose's (PRS-13)."
+      "notes": "It is the form the table takes. `<tanrei-description-list>` is a custom element with **no shadow root**, wrapped around the product's native `<dl>`, which stays in the light DOM — `<tanrei-description-list layout=\"stacked\" columns=\"3\"><dl><div><dt>Category</dt><dd>Actions</dd></div>…</dl></tanrei-description-list>`. The `dl`, `dt` and `dd` are never given a role, so the description-list semantics are the browser's own, for a screen reader, a crawler and a page without script alike (DSL-17). Everything drawn comes from one stylesheet, `@tanrei/web/description-list.css`, whose selectors start at `tanrei-description-list` and are wrapped in `:where()`; it styles the page before and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `layout`, `columns`, `size`, `separation`. The wrapper is `display: block; container-type: inline-size` with no margin; the `dl` has its browser margins removed and every `dd` its inset. inline (DSL-3): the `dl` is a grid of `max-content minmax(0, 1fr)` and each group a subgrid row spanning both tracks, `align-items: first baseline`. DSL-4 needs the widest term's width, which CSS cannot compare with the container's: the element watches its own box and its terms with a `ResizeObserver` and sets `data-stacked` while the value column would be under the least width; without script the term track is `fit-content(50%)`, so a list that is too narrow wraps its terms instead of stacking — nothing is cut. stacked and stat columns (DSL-7) are pure CSS: `grid-template-columns: repeat(auto-fit, minmax(min(100%, max(<least width>, (100% - (n - 1) * <gap>) / n)), 1fr))`, `n` coming from attribute selectors for `columns` 2 to 6 and from a custom property the element sets for larger numbers; `auto-fit` already draws no more columns than facts. The least width is the token multiplied by the reader's text scale (the root font size over 16), so that it grows with enlarged text (DSL-21). stat (DSL-6): each group is a column-direction flex box with `order` on the `dd:first-of-type`, so the `dt` stays before its `dd` in the document while the figure is drawn first. Lines (DSL-12) are `border-block-start` on each group with the same negative margin and `overflow: clip` on the `dl`, so the first row's lines are not drawn and no script counts rows. `font-variant-numeric: tabular-nums` and `overflow-wrap: anywhere` on `dd` (DSL-2, DSL-8); `unicode-bidi: plaintext` on `dt` and `dd` (DSL-20); under `:lang(ja, zh, ko)` a stat figure's `letter-spacing` is 0 and `line-break: strict` applies. Under `forced-colors: active` the lines are `CanvasText` (DSL-22). A `dl` without groups — bare `dt` and `dd` children, as some Markdown extensions emit — is drawn in one column, inline or stacked, with the line above each `dt` that follows a `dd`; `columns` and `stat` need the groups, and debug builds say so. Tanrei does not transform content: nothing wraps a bare `dl` by itself. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16): prose spaces it and styles nothing inside it, while a bare `dl` beside it stays prose's (PRS-13)."
     },
     "swiftui": {
       "status": "planned",
@@ -1285,7 +1290,7 @@
       "props": {
         "layout": "layout",
         "columns": "columns",
-        "density": "density",
+        "size": "size",
         "separation": "separation"
       },
       "items": {
@@ -1311,7 +1316,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiDescriptionList(layout: .stacked, columns: 3, density:, separation:) { TanreiFact(\"Category\", value: \"Actions\"); TanreiFact(\"Status\") { TanreiTag(\"Stable\", status: .success, size: .small) } }`. A custom `Layout` measures the terms once (DSL-3), compares what is left with the least width (DSL-4) and places the facts in equal columns (DSL-7); it is proposed its own width, so the decision is the container's. The least width is a `@ScaledMetric`. Not a `Form`, a `LabeledContent` or a `List`: each brings a look, insets or a row behaviour of its own. Accessibility: SwiftUI has no description-list container, so DSL-17's fallback applies — each fact is `accessibilityElement(children: .combine)` with the term's text before the values', a control inside a value stays an element of its own, and the stat layout sorts the term first with `accessibilitySortPriority`."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiDescriptionList(layout: .stacked, columns: 3, size:, separation:) { TanreiFact(\"Category\", value: \"Actions\"); TanreiFact(\"Status\") { TanreiTag(\"Stable\", status: .success, size: .small) } }`. A custom `Layout` measures the terms once (DSL-3), compares what is left with the least width (DSL-4) and places the facts in equal columns (DSL-7); it is proposed its own width, so the decision is the container's. The least width is a `@ScaledMetric`. Not a `Form`, a `LabeledContent` or a `List`: each brings a look, insets or a row behaviour of its own. Accessibility: SwiftUI has no description-list container, so DSL-17's fallback applies — each fact is `accessibilityElement(children: .combine)` with the term's text before the values', a control inside a value stays an element of its own, and the stat layout sorts the term first with `accessibilitySortPriority`."
     },
     "compose": {
       "status": "planned",
@@ -1319,7 +1324,7 @@
       "props": {
         "layout": "layout",
         "columns": "columns",
-        "density": "density",
+        "size": "size",
         "separation": "separation"
       },
       "items": {
@@ -1353,7 +1358,7 @@
       "props": {
         "layout": "layout",
         "columns": "columns",
-        "density": "density",
+        "size": "size",
         "separation": "separation"
       },
       "items": {
@@ -1387,7 +1392,7 @@
       "props": {
         "layout": "layout",
         "columns": "columns",
-        "density": "density",
+        "size": "size",
         "separation": "separation"
       },
       "items": {

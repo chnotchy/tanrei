@@ -537,7 +537,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /** CCM-41: one line of the typing area's text, as its native element computes it, and the shared rules written from it. */
   private line = '';
   private lineSheet: CSSStyleSheet | null = null;
-  private sizes: ResizeObserver | undefined;
+  /** The measures have been asked for and not read yet: a second request of the turn is the same one. */
+  private measureAsked = false;
+  /** What the shared resize watch observes of this element: its capsule and its typing area. */
   private watched: Element[] = [];
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
   private readonly lent = new Set<Element>();
@@ -1610,35 +1612,72 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    * capsule's corners and the least height of its groups are drawn, by the stylesheet of that line, which every
    * instance that measured it shares (`measuredSheet()`), adopted after the element's stylesheet and in no cascade
    * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width.
+   *
+   * Read with every other host's of the turn (src/primitives/read-phase.ts), after the renders, before any of them
+   * writes: a chat composer that measured in its own turn had the browser style and lay the page out for it, once per
+   * instance.
    */
   private measure() {
+    if (this.measureAsked) return;
+    this.measureAsked = true;
+    readTogether(() => {
+      this.measureAsked = false;
+      return this.readMeasures();
+    });
+  }
+
+  /** What `measure()` reads, returning what it then writes. */
+  private readMeasures(): (() => void) | void {
     const capsule = this.capsule;
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    if (/^[\d.]+px$/.test(line) && line !== this.line) {
-      this.line = line;
-      const root = this.renderRoot;
-      const sheet = measuredSheet(line);
-      if (sheet && root instanceof ShadowRoot && 'adoptedStyleSheets' in root) {
-        root.adoptedStyleSheets = [...root.adoptedStyleSheets.filter((adopted) => adopted !== this.lineSheet), sheet];
-        this.lineSheet = sheet;
-      }
-    }
     const probe = capsule.querySelector('.probe');
     const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];
-    const narrow = width > 0 && least > 0 && width < least - 0.01;
-    if (narrow !== this.narrow) this.narrow = narrow;
+    return () => {
+      if (/^[\d.]+px$/.test(line) && line !== this.line) {
+        this.line = line;
+        const root = this.renderRoot;
+        const sheet = measuredSheet(line);
+        if (sheet && root instanceof ShadowRoot && 'adoptedStyleSheets' in root) {
+          root.adoptedStyleSheets = [...root.adoptedStyleSheets.filter((adopted) => adopted !== this.lineSheet), sheet];
+          this.lineSheet = sheet;
+        }
+      }
+      const narrow = width > 0 && least > 0 && width < least - 0.01;
+      if (narrow !== this.narrow) this.narrow = narrow;
+    };
   }
+
+  /**
+   * CCM-4, CCM-41: one observer watches the capsule and the typing area of every chat composer, so that a frame reports
+   * all that were resized in one callback, all of them read before any writes (`measure()`).
+   */
+  private static sizeWatch: ResizeObserver | null = null;
+  /** The chat composer each watched element belongs to. */
+  private static readonly owners = new WeakMap<Element, TanreiChatComposer>();
 
   private watch() {
     const next = [this.capsule, this.input].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
-    this.sizes?.disconnect();
-    this.watched = next;
+    this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
-    this.sizes ??= new ResizeObserver(() => this.measure());
-    for (const element of next) this.sizes.observe(element);
+    const watch = (TanreiChatComposer.sizeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiChatComposer.owners.get(entry.target)?.measure();
+    }));
+    for (const element of next) {
+      TanreiChatComposer.owners.set(element, this);
+      watch.observe(element);
+    }
+    this.watched = next;
+  }
+
+  private unwatch() {
+    for (const element of this.watched) {
+      TanreiChatComposer.sizeWatch?.unobserve(element);
+      TanreiChatComposer.owners.delete(element);
+    }
+    this.watched = [];
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -1658,8 +1697,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$?.disconnect();
-    this.sizes?.disconnect();
-    this.watched = [];
+    this.unwatch();
     clearTimeout(this.turn);
     this.turn = undefined;
     this.held = null;

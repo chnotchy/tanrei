@@ -15,6 +15,10 @@
 //   - The page's head (the page header) gives the file its title and description, written once, at the top: in a
 //     front matter, with the page's address and the date it last changed, and again as the H1 and a quote under it.
 //     The date is the sitemap's (lib/lastmod.mjs): the same function, read once when the site is built.
+//   - Between the front matter and the title, a quote of one sentence in the language of the page's words leads to the
+//     site's indexes for language models, `/llms.txt` (every page) and `/llms-full.txt` (the default system's
+//     components in one file): a program that is handed one page finds the rest from it. It is in the file alone; the
+//     page itself shows no words it does not say to a reader.
 //   - Headings, paragraphs, lists, description lists, quotes, links and images as Markdown has them; a link or an image
 //     by its absolute address. A link to a page of the site that has its Markdown is a link to that Markdown, its
 //     fragment kept (the headings are the page's, so a renderer that names them names them alike): a program that reads
@@ -146,7 +150,8 @@ function dropped(/** @type {Node} */ node) {
  * read (the page that was not found, the redirects) has no Markdown.
  *
  * @param {string} html
- * @returns {{ url?: string, lang?: string, title: string, description?: string, body: Node } | undefined}
+ * @returns {{ url?: string, lang?: string, title: string, description?: string, body: Node } | undefined} `lang` is the
+ *   language of the page's words (the body's, else the document's).
  */
 export function readPage(html) {
   /** @type {Node} */
@@ -155,6 +160,9 @@ export function readPage(html) {
   if (!body) return undefined;
   const canonical = find(document, (node) => node.name === 'link' && attr(node, 'rel') === 'canonical');
   const htmlElement = find(document, (node) => node.name === 'html');
+  // The language of the page's words: the body's, which says English where a translation does not exist yet and the
+  // page shows the English words in its place; the document's where the body says none.
+  const lang = attr(body, 'lang') || (htmlElement && attr(htmlElement, 'lang')) || undefined;
   const header = find(body, (node) => node.name === 'tanrei-page-header');
   const heading = header ? find(header, (node) => node.name === 'h1') : find(body, (node) => node.name === 'h1');
   const description = header && (header.children ?? []).find((child) => isElement(child) && child.name === 'p' && attr(child, 'data-part') !== 'eyebrow');
@@ -167,7 +175,7 @@ export function readPage(html) {
   for (const facts of findAll(body, (node) => /(^|\s)docs-page-facts(\s|$)/.test(attr(node, 'class') ?? ''))) facts.attributes = { ...facts.attributes, hidden: '' };
   return {
     url: canonical && attr(canonical, 'href'),
-    lang: (htmlElement && attr(htmlElement, 'lang')) || undefined,
+    lang,
     title,
     description: squash(description ? textOf(description) : attr(metaDescription ?? { type: ELEMENT_NODE }, 'content') ?? '') || undefined,
     body,
@@ -610,23 +618,38 @@ export function frontMatter(fields) {
 }
 
 /**
+ * The sentence that leads from a page's Markdown to the site's indexes for language models, as a quote: the
+ * dictionary's sentence in the page's language, its `{index}` and `{full}` the absolute addresses of `/llms.txt` and
+ * `/llms-full.txt` on the site.
+ *
+ * @param {string} sentence The sentence, in Markdown, with its places.
+ * @param {URL | string} site The site's address.
+ */
+export function indexPointer(sentence, site) {
+  const addresses = { index: new URL('/llms.txt', site).href, full: new URL('/llms-full.txt', site).href };
+  for (const place of Object.keys(addresses)) if (!sentence.includes(`{${place}}`)) throw new Error(`The sentence that leads to the indexes has no {${place}}: ${sentence}`);
+  return `> ${sentence.replace(/\{(index|full)\}/g, (_, place) => addresses[/** @type {'index' | 'full'} */ (place)])}`;
+}
+
+/**
  * A built page as Markdown.
  *
  * @param {string} html The page as the site serves it.
- * @param {{ url: string, lastmod?: (url: string) => string | undefined, spec?: (name: string) => string, markdownOf?: (url: string) => string | undefined }} options
+ * @param {{ url: string, lastmod?: (url: string) => string | undefined, spec?: (name: string) => string, markdownOf?: (url: string) => string | undefined, index?: (lang: string | undefined) => string }} options
  *   The page's absolute address (its canonical link wins where it has one), the date a page last changed by its
- *   address, the Markdown of a component's spec by its name, for the part of the page that marks it, and the absolute
+ *   address, the Markdown of a component's spec by its name, for the part of the page that marks it, the absolute
  *   address of the Markdown of a page of the site by the page's absolute address (without its query and fragment), for
- *   a page that has one: the links to it lead there.
+ *   a page that has one: the links to it lead there; and the quote that leads to the indexes for language models, by
+ *   the language of the page's words (`indexPointer`), written between the front matter and the title.
  * @returns {string | undefined} None for a page the search does not read.
  */
-export function pageMarkdown(html, { url, lastmod, spec, markdownOf }) {
+export function pageMarkdown(html, { url, lastmod, spec, markdownOf, index }) {
   const page = readPage(html);
   if (!page) return undefined;
   const address = page.url ?? url;
   const context = { base: address, markdownOf, spec: spec && ((/** @type {string} */ name) => specSection(spec(name))) };
   const body = joinBlocks(dropEmptySections(blocksOf(page.body.children ?? [], context)));
-  const head = [frontMatter({ title: page.title, description: page.description, url: address, last_updated: lastmod?.(address) }), '', `# ${escapeText(page.title)}`];
+  const head = [frontMatter({ title: page.title, description: page.description, url: address, last_updated: lastmod?.(address) }), ...(index ? ['', index(page.lang)] : []), '', `# ${escapeText(page.title)}`];
   if (page.description) head.push('', `> ${escapeText(page.description)}`);
   return `${head.join('\n')}\n\n${body}\n`.replace(/\n{3,}/g, '\n\n');
 }
@@ -650,10 +673,12 @@ export function markdownOfIn(markdownByPage) {
 /**
  * The integration that writes every page's Markdown beside it when the site is built.
  *
- * @param {{ languages: string[], lastmod: (url: string) => string | undefined }} options The translations' folders, and
- *   the date a page last changed by its address — the sitemap's own (`pageLastmod().of`), so that the two agree.
+ * @param {{ languages: string[], lastmod: (url: string) => string | undefined, indexSentence: (lang: string | undefined) => string }} options
+ *   The translations' folders; the date a page last changed by its address — the sitemap's own (`pageLastmod().of`),
+ *   so that the two agree; and the sentence that leads to the indexes for language models in a language
+ *   (`indexPointer`), from the site's dictionary.
  */
-export function pageMarkdownFiles({ languages, lastmod }) {
+export function pageMarkdownFiles({ languages, lastmod, indexSentence }) {
   /** @type {URL} */
   let site;
   return {
@@ -694,7 +719,7 @@ export function pageMarkdownFiles({ languages, lastmod }) {
         for (const file of pages) {
           const pathname = pathnameOf(file);
           const url = new URL(pathname, site).href;
-          const markdown = pageMarkdown(fs.readFileSync(path.join(root, file), 'utf8'), { url, lastmod, spec: specOf, markdownOf: markdownOfIn(markdownByPage) });
+          const markdown = pageMarkdown(fs.readFileSync(path.join(root, file), 'utf8'), { url, lastmod, spec: specOf, markdownOf: markdownOfIn(markdownByPage), index: (lang) => indexPointer(indexSentence(lang), site) });
           if (markdown) written.push([markdownPathOf(pathname, languages), markdown]);
           // The links of every page were led to the Markdown the build writes, and to no other.
           if (Boolean(markdown) !== markdownByPage.has(url)) throw new Error(`${pathname}: the build took it for a page ${markdown ? 'with no' : 'with its'} Markdown, and it has ${markdown ? 'one' : 'none'}.`);

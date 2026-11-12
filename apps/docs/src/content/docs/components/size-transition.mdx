@@ -1,0 +1,141 @@
+---
+title: Size transition
+description: Wraps content whose size changes — a message that grows, a section that gains a line, a panel that loses a row — and moves its own size to the content's new size as one motion, so that what stands after it moves smoothly instead of jumping, while the edge it is anchored to stays still.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import Example from '../../../components/visuals/Example.astro';
+
+## Overview
+
+<ComponentAvailability name="size-transition" />
+
+<Example label="A block that follows its paragraph, and an inline box that follows its word">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">The quarterly report is ready. Three sections were added since the last version: costs, staffing and the plan for the next quarter.</p>
+    </tanrei-size-transition>
+    <div><tanrei-size-transition axis="inline"><span>Saved</span></tanrei-size-transition></div>
+  </div>
+</Example>
+
+When the content inside it changes size, the box moves from the size it shows to the new one in a single motion. Whatever comes after it in the layout moves along with it instead of jumping in one frame. It draws nothing of its own: no background, border, corner or padding.
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a size transition yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-size-transition>
+      <div id="details"></div>
+    </tanrei-size-transition>
+    <p>Everything below moves smoothly when the details change.</p>
+
+    <!-- Docked at the bottom: it grows upward, and its last line stays put. -->
+    <tanrei-size-transition anchor="end">
+      <div id="draft"></div>
+    </tanrei-size-transition>
+
+    <script type="module">
+      import '@tanrei/web/components/size-transition';
+      const box = document.querySelector('tanrei-size-transition');
+      box.addEventListener('settle', (event) => console.log(event.detail.height));
+      document.querySelector('#details').textContent = longerText; // moves, it does not jump
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SizeTransition } from '@tanrei/react';
+
+    <SizeTransition onSettle={(event) => setHeight(event.detail.height)}>
+      {expanded ? <FullDetails /> : <Summary />}
+    </SizeTransition>
+
+    <SizeTransition axis="inline">
+      <span>{saving ? 'Saving…' : 'Saved'}</span>
+    </SizeTransition>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<Example label="Anchors: start (the default), end and center">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">Start: the first line stays still while new lines appear below it.</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="end">
+      <p style="margin: 0">End: the last line stays on the box's end, and new lines appear above it.</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="center">
+      <p style="margin: 0">Center: both edges move by half the change.</p>
+    </tanrei-size-transition>
+  </div>
+</Example>
+
+<ComponentSpecs name="size-transition" />
+
+## Guidelines
+
+### When to use
+
+Use a size transition around content of your own whose size changes while a person is looking at it: a reply draft that wraps onto a second line, a summary that you replace with its full text, an error line that appears below a field you built yourself, a status label whose word gets longer. Without it, everything below jumps in one frame, and the person loses their place.
+
+Tanrei's own components already move their own size changes — a text input that grows, a snackbar that expands, an accordion that opens. Don't wrap them in a size transition to get that.
+
+To show or hide a whole section on request, use an [accordion](/components/accordion/): opening and closing is its job. A size transition does not open or close anything. It follows whatever is inside it.
+
+### How long a change takes
+
+The time grows with the distance. In the default system, a change of up to 64 pixels takes 300 ms. Each further 64 pixels, or part of them, adds 50 ms, up to 400 ms at most. A large change then does not look rushed next to a small one, and a far one never makes people wait. Set `duration` only where one place needs a different tempo from every other size transition in your product. `0` makes the change instant.
+
+### Choosing an axis and an anchor
+
+| Axis | Use for |
+| --- | --- |
+| Block (default) | Content whose height changes: paragraphs, lists, a section that gains a row. Its width is the layout's. |
+| Inline | A label whose width changes: a status word, a count, a button's text. It is as wide as its content. |
+| Both | A small box whose width and height change together, such as a badge that wraps onto a second line. Both move as one motion. |
+
+| Anchor | Use for |
+| --- | --- |
+| Start (default) | Most content. The first line never moves, and what is new appears after it. |
+| End | Content docked at the end of its container, such as a message composer above the keyboard. Its last line stays where it is, and the box grows toward the start. |
+| Center | Something centered in its space, such as a notice in the middle of an empty panel. |
+
+### Do
+
+- Wrap the content that changes, and only that. A size transition around a whole page moves everything at once.
+- Use `disabled` while content changes at every frame — while a person drags something inside it, for example — and for a change that people should not watch, such as a list replaced by search results.
+- Listen for `settle` when you need to measure or scroll after the change: it arrives once, after the last frame.
+
+### Don't
+
+- Don't use it to make things appear or disappear with a fade. It moves only the size. A fade belongs to the content.
+- Don't put a size transition around a Tanrei component that already moves its own size.
+- Don't rely on it to remove layout shift from your metrics. Browsers still count an element moved by a change of layout. It removes the jump a person sees.
+
+## Accessibility
+
+<ComponentAccessibility name="size-transition" />
+
+### What the component handles
+
+- It exposes nothing of its own to assistive technology: no role, no name, no state. It is never a focus stop. Its content is read and reached as if the box were not there.
+- Content that the box clips during a motion stays in the reading and focus order. A person who tabs into it during the motion reaches it, and the motion ends within 400 ms in the default system.
+- While it moves, nothing scrolls: not the box, not its content and not the page. Focus, the caret and a selection stay where they are.
+- When reduced motion is requested, every change of size is instant. `settle` still arrives once per change.
+- A change of the space the layout gives it — the window is resized, the text size or the direction changes — is instant, so the box never lags behind a person resizing the window.
+- An unknown `axis` or `anchor`, and a `duration` that is negative or not a number, are reported in debug builds.
+
+### What you need to do
+
+- Announce a change that matters yourself, in a live region or a notice the person will meet. A size transition only moves its size, and says nothing.
+- Keep the content's own names, roles and order correct. The size transition adds none.

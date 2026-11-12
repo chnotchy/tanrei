@@ -41,11 +41,11 @@
               "default": "stacked",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "option-size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "option.height",
@@ -59,7 +59,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per size (small, medium; the box's size, large drawn as medium) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
             "rules": [
               "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
               "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
@@ -70,7 +70,7 @@
               "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
-              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
+              "The options are drawn at the box's size, a large box's as medium: a small box, in a toolbar or a dense row of controls, opens a list of small rows. A row is never lower than the target at either size. The size never changes a text style.",
               "Restyle through these tokens in a layer; never fork the component.",
               "With clearable the select draws a clear button, an icon-only Button of the text variant at Button's small size with Button's own tokens, before the chevron; container.action-gap is its distance from the chevron, the combobox's gap by default."
             ]
@@ -182,7 +182,7 @@
           "height": {
             "$type": "dimension",
             "$description": "An option's minimum height.",
-            "regular": {
+            "medium": {
               "$value": {
                 "value": 48,
                 "unit": "px"
@@ -198,8 +198,8 @@
                 }
               }
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.height.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.height.small}"
             }
           },
           "shape": {
@@ -224,17 +224,17 @@
           "padding-inline": {
             "$type": "dimension",
             "$description": "Padding at the sides of an option's row.",
-            "regular": {
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.small}"
             }
           },
           "padding-block": {
             "$type": "dimension",
             "$description": "Padding above and below an option's content.",
-            "regular": {
+            "medium": {
               "$value": {
                 "value": 8,
                 "unit": "px"
@@ -243,22 +243,22 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space100}",
-                  "height": "{tanrei.comp.select.option.height.regular}"
+                  "height": "{tanrei.comp.select.option.height.medium}"
                 }
               }
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.padding-block.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.padding-block.small}"
             }
           },
           "gap": {
             "$type": "dimension",
             "$description": "Distance between an option's glyph, its text and its check.",
-            "regular": {
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.gap.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.gap.small}"
             }
           },
           "label": {
@@ -279,11 +279,11 @@
             "size": {
               "$type": "dimension",
               "$description": "An option's glyph.",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.icon.medium}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.menu.leading-icon.size.compact}"
+              "small": {
+                "$value": "{tanrei.comp.menu.leading-icon.size.small}"
               }
             }
           },
@@ -291,11 +291,11 @@
             "size": {
               "$type": "dimension",
               "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike.",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.icon.medium}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.menu.mark.size.compact}"
+              "small": {
+                "$value": "{tanrei.comp.menu.mark.size.small}"
               }
             }
           }
@@ -313,11 +313,11 @@
           "padding-inline": {
             "$type": "dimension",
             "$description": "Inset of a group's heading from the rows' edges.",
-            "regular": {
-              "$value": "{tanrei.comp.select.option.padding-inline.regular}"
+            "medium": {
+              "$value": "{tanrei.comp.select.option.padding-inline.medium}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.select.option.padding-inline.compact}"
+            "small": {
+              "$value": "{tanrei.comp.select.option.padding-inline.small}"
             }
           }
         },

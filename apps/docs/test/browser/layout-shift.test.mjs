@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { register } from 'node:module';
 import { sheetKept, until } from './kept-sheet.mjs';
 import { watchNetwork } from './network-quiet.mjs';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_STYLE_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
@@ -109,23 +109,28 @@ function observeShifts() {
   }).observe({ type: 'layout-shift', buffered: true });
 }
 
-/** Runs in the page before any of its scripts: says when the document is parsed, its faces are ready and two frames have been drawn. */
+/**
+ * Runs in the page before any of its scripts: says when the document is parsed, its faces are ready and two frames
+ * have been drawn. Each wait has the bound `settle` gives it (waits.mjs: 10 s for the faces, 5 s for the frames), after
+ * which the scripts are let through all the same, and the page's `goto` goes on: faces that never came are named by
+ * the wait for the shifts at rest (`settlePage`), not left to hold the scripts until the `goto` runs out.
+ */
 function signalDrawn() {
   if (window !== window.top) return;
+  const within = (ms, promise) => Promise.race([promise, new Promise((resolve) => setTimeout(resolve, ms))]);
   document.addEventListener('readystatechange', async () => {
     // "interactive": parsed, before the deferred and module scripts run (they are what is held).
     if (document.readyState !== 'interactive') return;
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await within(10_000, document.fonts.ready);
+    await within(5_000, new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     window.__docsDrawn();
   });
 }
 
-/** Resolves when the faces are ready and two frames have been drawn since: the shifts kept until then. */
-async function shiftsAtRest() {
-  await document.fonts.ready;
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  return window.__docsLayoutShifts;
+/** The shifts kept until the faces are ready and two frames have been drawn since (each wait bounded: launch.mjs). */
+async function shiftsAtRest(page) {
+  await settlePage(page);
+  return page.evaluate(() => window.__docsLayoutShifts);
 }
 
 // ── The pages ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -152,7 +157,7 @@ async function loadShifts(context, url, settled, done) {
   // (The reader's own theme is computed in a worker the page starts: its script is not counted, network-quiet.mjs.)
   await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
   if (settled) await page.waitForFunction(settled[0], settled[1], { timeout: 60_000 });
-  const shifts = await page.evaluate(shiftsAtRest);
+  const shifts = await shiftsAtRest(page);
   await done?.(page);
   await page.close();
   return shifts;
@@ -177,6 +182,30 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
         }
       });
     }
+  }
+});
+
+// The sidebar as the reader left it on an earlier visit (components/frame/Sidebar.astro): a width they gave it, or
+// folded to its column, given back before the first frame. Neither may move the page by more than the same budget.
+const SIDEBAR_KEPT = [
+  { name: 'a width the reader gave the sidebar', kept: { width: 320 } },
+  { name: 'the sidebar folded to its column', kept: { expanded: false } },
+];
+describe(`with the sidebar as the reader left it, the layout shifts by no more than ${BUDGET} while a page loads`, { concurrency: 2 }, () => {
+  for (const { name, kept } of SIDEBAR_KEPT) {
+    test(`/components/button/ at 1440, ${name}`, LIMIT, async (t) => {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      try {
+        await context.addInitScript((value) => localStorage.setItem('tanrei-docs-sidebar-layout', value), JSON.stringify(kept));
+        const shifts = await loadShifts(context, '/components/button/');
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        assert.ok(total <= BUDGET, `${name}: shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
+      } finally {
+        await context.close();
+      }
+    });
   }
 });
 

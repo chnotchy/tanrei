@@ -144,7 +144,7 @@
       ],
       "default": "medium",
       "axis": "tanrei.comp.input-box.size",
-      "description": "Minimum height of the container: stacked 36 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. These are the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values. While it is not set the combobox draws the size its nearest container sets — a toolbar's size — and medium where none does (CMB-83); setting it, to medium too, makes it the combobox's own."
+      "description": "Minimum height of the container: stacked 36 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. These are the text input's three sizes, small for a bar, a toolbar or a dense row of controls. It is also the size of the options of the list it opens (CMB-68): a small box opens small rows, and a medium or a large box medium ones. The hit area always meets the minimum target. A design system may add values. While it is not set the combobox draws the size its nearest container sets — a toolbar's size — and medium where none does (CMB-83); setting it, to medium too, makes it the combobox's own."
     },
     {
       "name": "selection",
@@ -302,17 +302,6 @@
       ],
       "default": "auto",
       "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a section start on one line — a section being the shown options of a group, or a run of adjacent shown options outside any group. auto: an option keeps the column while another shown option of its section has a leading icon; an option the filter hides does not count. always: every option keeps it. never: only an option that has an icon has the column. The menu's and the select's iconSpace, with the same values and default (CMB-67)."
-    },
-    {
-      "name": "density",
-      "type": "enum",
-      "values": [
-        "regular",
-        "compact"
-      ],
-      "default": "regular",
-      "description": "How much room an option of the list takes: its least height, its paddings, the gap between its columns and the size of its glyphs (the leading icon, the check), and never its text style. regular (a 48 row in the default system) is for a product used by touch as well as by pointer; compact (a 36 row with 20 glyphs, the menu's compact row) is for a tool used with a pointer, whose lists are long. For touch an option is never lower than the touch target in either (CMB-34). The field's own box is not changed: its height is size's. A design system may add values.",
-      "axis": "tanrei.comp.combobox.density"
     },
     {
       "name": "removeLabel",
@@ -557,7 +546,7 @@
     },
     {
       "id": "CMB-32",
-      "text": "WHILE the list is open and statusText is not empty or status is loading THE combobox SHALL draw, after the last option, a status row, under the region that scrolls and always in view (CMB-23): inset by comp.combobox.option.padding-inline.regular at the sides and padded by comp.combobox.option.padding-block.regular above and below, taking no input, no state and never the active option. WHILE status is idle it SHALL draw statusText, wrapping, in comp.combobox.status.typescale and comp.combobox.status.color; WHILE status is error it SHALL draw it in comp.combobox.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading SHALL stay drawn and usable. WHILE the list would show no option, status is idle, statusText is empty, allowCustomValue is false and the text is not empty THE combobox SHALL draw emptyText in the status row's place and style, so that a person who typed something no option holds is told so instead of facing a list that closed; WHILE emptyText is empty and the product's words give none it SHALL draw no such row and in debug builds report it.",
+      "text": "WHILE the list is open and statusText is not empty or status is loading THE combobox SHALL draw, after the last option, a status row, under the region that scrolls and always in view (CMB-23): inset by comp.combobox.option.padding-inline.medium at the sides and padded by comp.combobox.option.padding-block.medium above and below, taking no input, no state and never the active option. WHILE status is idle it SHALL draw statusText, wrapping, in comp.combobox.status.typescale and comp.combobox.status.color; WHILE status is error it SHALL draw it in comp.combobox.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading SHALL stay drawn and usable. WHILE the list would show no option, status is idle, statusText is empty, allowCustomValue is false and the text is not empty THE combobox SHALL draw emptyText in the status row's place and style, so that a person who typed something no option holds is told so instead of facing a list that closed; WHILE emptyText is empty and the product's words give none it SHALL draw no such row and in debug builds report it.",
       "verify": "Fixtures open-loading, open-status, open-status-error and open-filtered-none."
     },
     {
@@ -566,7 +555,7 @@
     },
     {
       "id": "CMB-34",
-      "text": "THE combobox SHALL lay out an option as one row: comp.combobox.option.padding-inline.regular from each edge, the leading icon column (as CMB-67 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.combobox.option.mark.size.regular for the check (CMB-36), each comp.combobox.option.gap.regular from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.combobox.option.height.regular tall, and at least sys.target.touch tall for touch input, in both densities, and for fine pointers at least sys.target.pointer tall WHILE density is regular and as tall as its density gives WHILE density is compact (CMB-68), because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.combobox.option.padding-block.regular above and below; draw the label in comp.combobox.option.label.typescale and the supporting text in comp.combobox.option.supporting-text.typescale, both wrapping and growing the row rather than being cut; and make the whole row the option's target."
+      "text": "THE combobox SHALL lay out an option as one row: comp.combobox.option.padding-inline.medium from each edge, the leading icon column (as CMB-67 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.combobox.option.mark.size.medium for the check (CMB-36), each comp.combobox.option.gap.medium from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.combobox.option.height.medium tall, and at least sys.target.touch tall for touch input and at least sys.target.pointer tall for fine pointers, drawn so, at every size (CMB-68), because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.combobox.option.padding-block.medium above and below; draw the label in comp.combobox.option.label.typescale and the supporting text in comp.combobox.option.supporting-text.typescale, both wrapping and growing the row rather than being cut; and make the whole row the option's target."
     },
     {
       "id": "CMB-35",
@@ -579,7 +568,7 @@
     },
     {
       "id": "CMB-37",
-      "text": "THE combobox SHALL draw an option's leadingIcon at comp.combobox.option.leading-icon.size.regular through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
+      "text": "THE combobox SHALL draw an option's leadingIcon at comp.combobox.option.leading-icon.size.medium through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
     },
     {
       "id": "CMB-38",
@@ -607,7 +596,7 @@
     },
     {
       "id": "CMB-43",
-      "text": "WHILE a group's title is not empty and the group shows at least one option THE combobox SHALL draw the title above the group's options in comp.combobox.group-title.typescale and comp.combobox.group-title.color, starting comp.combobox.group-title.padding-inline.regular from the rows' start edge and ending comp.combobox.group-title.padding-inline.regular from their end edge, with comp.combobox.option.padding-block.regular above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be matched by the filter and SHALL scroll with its options. WHEN a group holds another group THE combobox SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
+      "text": "WHILE a group's title is not empty and the group shows at least one option THE combobox SHALL draw the title above the group's options in comp.combobox.group-title.typescale and comp.combobox.group-title.color, starting comp.combobox.group-title.padding-inline.medium from the rows' start edge and ending comp.combobox.group-title.padding-inline.medium from their end edge, with comp.combobox.option.padding-block.medium above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be matched by the filter and SHALL scroll with its options. WHEN a group holds another group THE combobox SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
     },
     {
       "id": "CMB-44",
@@ -702,13 +691,13 @@
     },
     {
       "id": "CMB-67",
-      "text": "THE combobox SHALL decide the leading icon column for each section of its list as it is shown — the shown options of a group, with the options of a group inside it (CMB-43), or a run of adjacent shown options outside any group: the parts CMB-44 separates. WHILE iconSpace is auto a shown option SHALL keep the column, empty where it has no icon, WHERE a shown option of its section has a leading icon, so that the labels of a section start on one line, and a section where no shown option has one SHALL keep no column, its labels starting at the row's content start; an option the filter hides SHALL NOT count, so that no row keeps room for an icon that is not drawn. WHILE iconSpace is always every shown option SHALL keep the column, whether or not any option has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.combobox.option.leading-icon.size.regular wide with comp.combobox.option.gap.regular after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (CMB-43). WHEN the shown options change — the filter's text, an option added or removed, an option's leadingIcon — THE combobox SHALL decide the sections again; WHEN iconSpace names a value the combobox does not define THE combobox SHALL treat it as auto and in debug builds report the unknown value.",
+      "text": "THE combobox SHALL decide the leading icon column for each section of its list as it is shown — the shown options of a group, with the options of a group inside it (CMB-43), or a run of adjacent shown options outside any group: the parts CMB-44 separates. WHILE iconSpace is auto a shown option SHALL keep the column, empty where it has no icon, WHERE a shown option of its section has a leading icon, so that the labels of a section start on one line, and a section where no shown option has one SHALL keep no column, its labels starting at the row's content start; an option the filter hides SHALL NOT count, so that no row keeps room for an icon that is not drawn. WHILE iconSpace is always every shown option SHALL keep the column, whether or not any option has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.combobox.option.leading-icon.size.medium wide with comp.combobox.option.gap.medium after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (CMB-43). WHEN the shown options change — the filter's text, an option added or removed, an option's leadingIcon — THE combobox SHALL decide the sections again; WHEN iconSpace names a value the combobox does not define THE combobox SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto: in the group Apps, Mail and Messages have icons and Copy link has none, so Copy link's label starts where Messages' does; in the group Files, Print and Save as PDF have none, so their labels start at the row's content start. Fixture icon-space-always: every label after the column. Fixture icon-space-never: Copy link's label starts at the row's content start. Test typing that leaves Copy link alone in its group (its label then starts at the row's content start), options outside any group, a leadingIcon given and taken away, and an unknown value (auto, reported)."
     },
     {
       "id": "CMB-68",
-      "text": "THE combobox SHALL draw the options and the group titles of its list at its density. WHILE density is regular they SHALL take the regular value of every token of the density axis this spec names (comp.combobox.option.height.regular, comp.combobox.option.padding-block.regular, comp.combobox.option.padding-inline.regular, comp.combobox.option.gap.regular, comp.combobox.option.leading-icon.size.regular, comp.combobox.option.mark.size.regular, comp.combobox.group-title.padding-inline.regular); WHILE density is compact they SHALL take the compact value of each in its place (comp.combobox.option.height.compact, comp.combobox.option.padding-block.compact, comp.combobox.option.padding-inline.compact, comp.combobox.option.gap.compact, comp.combobox.option.leading-icon.size.compact, comp.combobox.option.mark.size.compact, comp.combobox.group-title.padding-inline.compact), so that a compact option is lower, set in less from its edges and draws smaller glyphs, the room kept for an empty leading icon column (CMB-67) shrinking with them. The text styles, the list's surface and its paddings, the dividers, the group gap and the status row SHALL be the same in both, and so SHALL the field's box. WHEN density names a value the active design system does not have THE combobox SHALL draw the default density's rows and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the list is open THE combobox SHALL draw the new rows at once, without a motion, keeping the active option.",
-      "verify": "Fixture density-compact under the default system: with a mouse every option is 36 high, the minimum target, its glyphs 20, its content 8 from the row's edges; under touch emulation every option is 36 too, and 48 under a layer that sets sys.target.touch to 48. The field is as high as the regular one's."
+      "text": "THE combobox SHALL draw the options and the group titles of its list at the size of its box: small WHILE size is small, and medium WHILE size is medium or large, a size the options lack being taken as the nearest one they have, the larger on a tie, as a container's size is; the list SHALL take no size from a container around the combobox, because it stands in the top layer, apart from the controls around the box. WHILE it draws medium they SHALL take the medium value of every token of the option-size axis this spec names (comp.combobox.option.height.medium, comp.combobox.option.padding-block.medium, comp.combobox.option.padding-inline.medium, comp.combobox.option.gap.medium, comp.combobox.option.leading-icon.size.medium, comp.combobox.option.mark.size.medium, comp.combobox.group-title.padding-inline.medium); WHILE it draws small they SHALL take the small value of each in its place (comp.combobox.option.height.small, comp.combobox.option.padding-block.small, comp.combobox.option.padding-inline.small, comp.combobox.option.gap.small, comp.combobox.option.leading-icon.size.small, comp.combobox.option.mark.size.small, comp.combobox.group-title.padding-inline.small), so that a small option is lower, set in less from its edges and draws smaller glyphs, the room kept for an empty leading icon column (CMB-67) shrinking with them; the heights follow the system's density at either size. The text styles, the list's surface and its paddings, the dividers, the group gap and the status row SHALL be the same at both. WHEN size names a value the active design system's options do not have and that is not one of the ladder's (extra-small, small, medium, large, extra-large) THE combobox SHALL draw the default size's rows and in debug builds report the unknown value; a size a design system added to the options SHALL be drawn from that size's tokens, as the core values are. WHEN size changes while the list is open THE combobox SHALL draw the new rows at once, without a motion, keeping the active option.",
+      "verify": "Fixture size-small under the default system: the box is the small one, and with a mouse every option is 36 high, the minimum target, its glyphs 20, its content 8 from the row's edges; under touch emulation every option is 36 too, and 48 under a layer that sets sys.target.touch to 48; with a mouse 48 under a layer that sets sys.target.pointer to 48. A combobox of size large opens medium rows (48). Under density 0.75, 1 and 1.5 a small option is as high as comp.combobox.option.height.small."
     },
     {
       "id": "CMB-69",
@@ -875,7 +864,7 @@
       "The combobox draws no frame: the label row, the requirement, the supporting row and the error are those of the Field that frames it (FLD-2 to FLD-13), and the combobox field is that pair as one component. A bare combobox is for a place whose label stands elsewhere — a toolbar, a table cell, a row of an editor — and is named by its own label. The list is an anchored surface by Popover's rules (POP-2 to POP-8, POP-18 to POP-27, POP-34, POP-36, POP-43) with the menu's look; it is not a Popover element, because its content is rows with one meaning, not content of any kind.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "The box is the combobox's own part, not a Text input placed in it: the native text element is itself the combobox — it carries the role, the expanded state and the relations to the list and to the active option, which must stand in one tree with it — and the keys, the text a choice writes and the commit are the combobox's. Its drawing is the box every input control is drawn on, from the one set of tokens `comp.input-box` that the text input, the select, the number input and the color input read too (CMB-63): the two are one drawing, and neither is built from the other.",
-      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (CMB-34). In the default system a compact option is held at the minimum target, which the pointer target aliases; under a system whose pointer target is taller the compact density is lower than it for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular.",
+      "WCAG 2.5.8 (target size): every option is drawn at least the touch target high for touch and the pointer target high for a fine pointer, at every size (CMB-34), because rows that touch cannot reach past each other. In the default system both are the minimum target, at which a small option is held; a system that sets either higher draws its small options that high.",
       "Several values (selection multiple) follow the APG combobox with a listbox that allows several selected options: aria-multiselectable on the listbox and aria-selected on each option, as every other Tanrei list says selection. The chosen values stand before the input as input Chips in a list named by the combobox's name, each with a remove action named in the product's words, and a live region says what was added or removed.",
       "While selection is multiple the list stays open after a choice, so that several values can be chosen in a row, and the typed text empties, so that the next search starts from nothing: as Ant Design's Select in mode multiple, Carbon's multiselect and Mantine's MultiSelect do (MUI's Autocomplete closes unless disableCloseOnSelect is set). Leaving chooses nothing and empties the text, as MUI's Autocomplete and Ant Design's Select clear the search on blur: a value is added only by a choice.",
       "Backspace on an empty input moves focus to the last chosen value and removes nothing; a second Backspace removes it. MUI, Ant Design and Mantine remove the last value at once; Tanrei follows its own chip field (CHF-12), so that the two fields of one product answer the same key the same way and a value is never removed by a key whose effect was not seen first: the focused chip is read out before it can be removed."
@@ -3276,12 +3265,12 @@
       ]
     },
     {
-      "id": "density-compact",
+      "id": "size-small",
       "props": {
         "label": "Share to",
         "value": "mail",
         "open": true,
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -3773,7 +3762,6 @@
         "emptyText": "emptyText",
         "separation": "separation",
         "iconSpace": "iconSpace",
-        "density": "density",
         "removeLabel": "removeLabel",
         "addedText": "addedText",
         "removedText": "removedText"
@@ -3863,7 +3851,6 @@
         "emptyText": "emptyText",
         "separation": "separation",
         "iconSpace": "iconSpace",
-        "density": "density",
         "removeLabel": "removeLabel",
         "addedText": "addedText",
         "removedText": "removedText"
@@ -3924,7 +3911,6 @@
         "emptyText": "emptyText",
         "separation": "separation",
         "iconSpace": "iconSpace",
-        "density": "density",
         "removeLabel": "removeLabel",
         "addedText": "addedText",
         "removedText": "removedText"
@@ -3985,7 +3971,6 @@
         "emptyText": "emptyText",
         "separation": "separation",
         "iconSpace": "iconSpace",
-        "density": "density",
         "removeLabel": "removeLabel",
         "addedText": "addedText",
         "removedText": "removedText"
@@ -4046,7 +4031,6 @@
         "emptyText": "emptyText",
         "separation": "separation",
         "iconSpace": "iconSpace",
-        "density": "density",
         "removeLabel": "removeLabel",
         "addedText": "addedText",
         "removedText": "removedText"

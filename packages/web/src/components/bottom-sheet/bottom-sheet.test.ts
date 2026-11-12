@@ -601,6 +601,19 @@ test.describe('forms, focus and dismissal', () => {
     await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-bottom-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened');
   });
 
+  test('BSH-1, BSH-3: closed at the end of a task that outlasts its motions, a modal sheet slides down and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the control focus left and the opener focus went back to were drawn at their end at once.
+    await mount(page, [fx('s', { open: false, variant: 'modal' }, '<tanrei-button id="marked" autofocus>Apply</tanrei-button>')]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="opener">Open</tanrei-button>'));
+    await tabTo(page, page.locator('#opener'));
+    await host(page).evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    await expectFromNextFrame(host(page), '(el) => { el.open = false; }', ['tanrei-bottom-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'closed');
+  });
+
   const setOpen = (page: P, open: boolean, id = 's') => host(page, id).evaluate(async (el: any, o) => {
     el.open = o;
     await el.updateComplete;

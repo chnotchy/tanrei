@@ -80,7 +80,7 @@ const shown = (value: number) => (Number.isInteger(value) ? String(value) : valu
           <div class="docs-blueprint-stage" inert aria-hidden="true" set:html={stage.html} />
         </div>
         <Fragment slot="legend">
-          <Table label={`${spec.title} · ${t.visuals.measureTitle}`} density="compact">
+          <Table label={`${spec.title} · ${t.visuals.measureTitle}`} size="small">
             <table data-differs={t.visuals.measureDiffers} data-absent={t.visuals.measureAbsent}>
               <thead>
                 <tr>

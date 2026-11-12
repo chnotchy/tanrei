@@ -2,7 +2,7 @@
 title: "时间线"
 description: "按时间顺序排列的事件：每个事件有一个标记、它的时间、一个标题和由你的内容构成的正文，并用一道细线与下一个事件相连。事件有状态时，由标记的形状和你写的文字说明哪些已经完成、哪个正在进行、哪些还在后面。它是供人阅读的列表，从不是控件。"
 translationOf: components/timeline.mdx
-sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
+sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -103,7 +103,6 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 | --- | --- |
 | `label` | `aria-label`（或者用 `aria-labelledby` 指向列表前面的标题元素） |
 | `size: large` | `data-size="large"` |
-| `density: compact` | `data-density="compact"` |
 | 一个事件 | `<li>` |
 | 带 `datetime` 的 `time` | `<time class="tanrei-timeline-time" datetime="…">`，里面是你写的文字 |
 | 不是一个时刻的 `time` | `<p class="tanrei-timeline-time">` |
@@ -128,13 +127,13 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
   </ol>
 </Example>
 
-<Example label="你自己的字形，以及紧凑的日志" column>
+<Example label="你自己的字形，以及单行事件的日志" column>
   <ol class="tanrei-timeline" role="list" aria-label="订单 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="已完成"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">周一 09:41</p><p class="tanrei-timeline-title">已下单</p></li>
     <li data-status="current" data-status-label="进行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">周二 14:05</p><p class="tanrei-timeline-title">运输中</p></li>
     <li data-status="upcoming" data-status-label="未开始"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">预计周四</p><p class="tanrei-timeline-title">送达</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="动态" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="动态" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">已保存设计层</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">已在六种配色方案中检查对比度</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">已更改主色</p></li>
@@ -145,7 +144,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - **状态**只改变标记的形状，不改变别的：已完成是里面有对勾的圆环，正在进行的事件是里面有圆点的填充圆，还在后面的事件是空的圆环。除了时间的颜色之外，这个填充圆是时间线带来的唯一颜色。
 - **连接线**从每个标记的框通向下一个，两端都不与框相接。最后一个事件没有连接线；无论事件处于什么状态，事件之间都是同一种线。
 - **时间**位于事件的最前面，用低调的颜色。**标题**跟在后面，字号与正文相同，字重是标题的字重。**正文**是你的内容：两个块之间相距 8。
-- **密度**：regular 在两个事件之间留 16，compact 留 8，用于由单行事件组成的长日志。它只改变这一段间距。
+- **两个事件之间的间距**在默认系统中，两种尺寸下都是 16。它随系统的[密度](/zh-cn/foundations/size-and-density/)变化：密度低于 1 的系统，事件之间画得更近。时间线没有自己的密度。
 - **尺寸**就是长文排版的那两种：在控件之间用中号，在以文本为主的页面上用大号。标记和连接线与步骤的一致，所以两者在同一个页面上看起来同属一个系列。
 
 <ComponentSpecs name="timeline" />
@@ -159,7 +158,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - 请把事件的文本写在元素（`<p>`）里：直接写在列表项里的文本，无法得到时间或标题下方的那段间隙。
 - 已完成事件的对勾是图标集的 `check`，所以它需要 `icons.css` 和图标字体。没有它们时，圆环是空的。
 - 在长文排版之外，长篇的正文（列表、引文）按它在你页面上任何地方的样子排版，而不是按长文排版来排。
-- 设计系统新增的尺寸或密度，在该系统为它提供规则之前，按默认值绘制。
+- 设计系统新增的尺寸，在该系统为它提供规则之前，按默认值绘制。
 - 没有这个包的脚本时，不会有任何项被标记为列表的当前项。状态仍然会用文字朗读出来。
 
 ## 指南
@@ -170,7 +169,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - 给每个有状态的事件在 `data-status-label` 里写上状态的文字，用读者的语言。
 - 当状态对每一位读者都重要时，也用文字把它显示出来：在标题或正文里放一个标签（Tag）。
 - 给相对时间（“2 小时前”）在 `datetime` 里写上确切的时刻。
-- 由单行事件组成的长日志请使用 compact，并在列表后面放一个 Button，用来显示更早的事件。
+- 对于由单行事件组成的长日志，只显示最近几条，并在列表后面放一个 Button，用来显示更早的事件。
 
 ### 避免
 

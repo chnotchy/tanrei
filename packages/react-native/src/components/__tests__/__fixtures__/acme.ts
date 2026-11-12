@@ -983,9 +983,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 56, containerPaddingBlock: 16, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
-        compact: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
+      sizes: {
+        small: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
+        medium: { containerHeight: 56, containerPaddingBlock: 16, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
       },
     },
     appBar: {
@@ -6309,9 +6309,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+      optionSizes: {
+        small: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+        medium: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     copyButton: {
@@ -6508,9 +6508,9 @@ export const acme = {
       stackGap: 4,
       termColor: { kind: "role", role: "onSurfaceVariant" },
       valueColor: { kind: "role", role: "onSurface" },
-      densitys: {
-        regular: { factGap: 12, termGap: 16, termTypescale: "label", valueTypescale: "body", statValueTypescale: "heading1" },
-        compact: { factGap: 6, termGap: 8, termTypescale: "labelSmall", valueTypescale: "bodySmall", statValueTypescale: "heading3" },
+      sizes: {
+        small: { factGap: 6, termGap: 8, termTypescale: "labelSmall", valueTypescale: "bodySmall", statValueTypescale: "heading3" },
+        medium: { factGap: 12, termGap: 16, termTypescale: "label", valueTypescale: "body", statValueTypescale: "heading1" },
       },
     },
     dialog: {
@@ -8827,9 +8827,9 @@ export const acme = {
       trailingIconSize: 24,
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
-      densitys: {
-        regular: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
-        compact: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+      sizes: {
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
     list: {
@@ -8978,9 +8978,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 48, containerPaddingBlock: 8 },
-        compact: { containerHeight: 36, containerPaddingBlock: 6 },
+      sizes: {
+        small: { containerHeight: 36, containerPaddingBlock: 6 },
+        medium: { containerHeight: 48, containerPaddingBlock: 8 },
       },
     },
     loadingIndicator: {
@@ -10083,9 +10083,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 24, trailingIconSize: 24, markSize: 24, groupTitlePaddingInline: 12 },
-        compact: { containerHeight: 36, containerPaddingInline: 8, containerPaddingBlock: 8, containerGap: 8, leadingIconSize: 20, trailingIconSize: 20, markSize: 20, groupTitlePaddingInline: 8 },
+      sizes: {
+        small: { containerHeight: 36, containerPaddingInline: 8, containerPaddingBlock: 8, containerGap: 8, leadingIconSize: 20, trailingIconSize: 20, markSize: 20, groupTitlePaddingInline: 8 },
+        medium: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 24, trailingIconSize: 24, markSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     menubar: {
@@ -12294,9 +12294,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
-        compact: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+      sizes: {
+        small: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        medium: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
       },
     },
     segmentedButton: {
@@ -13633,9 +13633,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+      optionSizes: {
+        small: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
+        medium: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     sideSheet: {
@@ -13677,6 +13677,13 @@ export const acme = {
           outlineColor: { kind: "none" },
         },
       },
+    },
+    sizeTransition: {
+      motionDistanceStep: 64,
+      motionDuration: 300,
+      motionDurationMax: 400,
+      motionDurationStep: 50,
+      motionEasing: [0.2, 0, 0, 1],
     },
     skeleton: {
       containerGap: 8,
@@ -16001,9 +16008,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { rowHeight: 44, rowPaddingBlock: 12 },
-        compact: { rowHeight: 36, rowPaddingBlock: 8 },
+      sizes: {
+        small: { rowHeight: 36, rowPaddingBlock: 8 },
+        medium: { rowHeight: 44, rowPaddingBlock: 12 },
       },
     },
     table: {
@@ -16163,9 +16170,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
-        compact: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+      sizes: {
+        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {
@@ -17094,6 +17101,7 @@ export const acme = {
       connectorColor: { kind: "role", role: "outlineVariant" },
       connectorGap: 4,
       connectorThickness: 1,
+      itemGap: 16,
       markerCurrentContainerColor: { kind: "role", role: "primary" },
       markerCurrentIconColor: { kind: "role", role: "onPrimary" },
       markerDotColor: { kind: "role", role: "onSurfaceVariant" },
@@ -17110,10 +17118,6 @@ export const acme = {
       sizes: {
         medium: { markerHeight: 24, timeTypescale: "bodySmall", titleTypescale: "heading6", bodyTypescale: "body" },
         large: { markerHeight: 28, timeTypescale: "body", titleTypescale: "heading5", bodyTypescale: "bodyLarge" },
-      },
-      densitys: {
-        regular: { itemGap: 16 },
-        compact: { itemGap: 8 },
       },
     },
     toolbar: {
@@ -17369,9 +17373,9 @@ export const acme = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
-        compact: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
+      sizes: {
+        small: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
+        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
       },
     },
   },

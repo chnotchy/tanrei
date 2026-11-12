@@ -16,7 +16,10 @@
 //   - for a page that draws tokens (it imports one of `src/components/tokens/`), the whole of `tokens/`, which those
 //     tables and specimens read across every tier and system;
 //   - for Theme Studio's page (`/studio/` in each language), which is no page of the content, the component that
-//     writes it (`src/components/StudioPage.astro`).
+//     writes it (`src/components/StudioPage.astro`);
+//   - for a post of the blog (`/blog/<name>/` in a language it is written in), its own file of `src/content/blog/`;
+//     for a language's list of posts (`/blog/`), the component that writes it (`src/components/blog/BlogList.astro`)
+//     and every post of that language, which it lists (lib/blog.ts).
 //
 // The date of a change is the date it reached the branch the site is built from: the history is read along first
 // parents, so a change merged from a pull request carries the date of its merge, not of the commit on its branch.
@@ -40,7 +43,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /** The pages of the site that are not pages of the content, by their address in a language's folder: the file that writes each, relative to the docs' `src/`. */
-const OWN_PAGES = { studio: 'components/StudioPage.astro' };
+const OWN_PAGES = { studio: 'components/StudioPage.astro', blog: 'components/blog/BlogList.astro' };
+/** The blog's posts, relative to the docs' `src/`: English at its root, every other language in its own folder. */
+const BLOG = 'content/blog';
 /** The docs' `src/`, relative to the repository's root: the folder above the content's (`<src>/content/docs`). */
 const srcOf = (contentDir) => path.posix.dirname(path.posix.dirname(contentDir));
 
@@ -66,8 +71,11 @@ export function pageSources(url, { repoRoot, contentDir, languages }) {
   const slug = segments.join('/');
   if (Object.hasOwn(OWN_PAGES, slug)) {
     const file = path.posix.join(srcOf(contentDir), OWN_PAGES[slug]);
-    return fs.existsSync(path.join(repoRoot, file)) ? [file] : [];
+    if (!fs.existsSync(path.join(repoRoot, file))) return [];
+    return slug === 'blog' ? [file, ...blogPostFiles(repoRoot, contentDir, language)] : [file];
   }
+  const post = /^blog\/([^/]+)$/.exec(slug)?.[1];
+  if (post) return blogPostFiles(repoRoot, contentDir, language).filter((file) => path.posix.basename(file).replace(/\.mdx?$/, '') === post);
   const candidates = (dir) => (slug ? [slug, `${slug}/index`] : ['index']).flatMap((name) => EXTENSIONS.map((ext) => path.posix.join(contentDir, dir, name + ext)));
   const source = [...(language ? candidates(language) : []), ...candidates('')].find((file) => fs.existsSync(path.join(repoRoot, file)));
   if (!source) return [];
@@ -77,6 +85,26 @@ export function pageSources(url, { repoRoot, contentDir, languages }) {
   if (spec && fs.existsSync(path.join(repoRoot, spec))) sources.push(spec, ...componentTokenFiles(repoRoot, component, JSON.parse(fs.readFileSync(path.join(repoRoot, spec), 'utf8'))));
   if (DRAWS_TOKENS.test(fs.readFileSync(path.join(repoRoot, source), 'utf8'))) sources.push('tokens');
   return sources;
+}
+
+/**
+ * The posts of the blog in a language (`''` for English), relative to the repository's root, by name: the files of
+ * its folder of `src/content/blog/` (English: of the folder itself) that a post is written in.
+ *
+ * @param {string} repoRoot
+ * @param {string} contentDir
+ * @param {string} language
+ * @returns {string[]}
+ */
+function blogPostFiles(repoRoot, contentDir, language) {
+  const folder = path.posix.join(srcOf(contentDir), BLOG, language);
+  const root = path.join(repoRoot, folder);
+  if (!fs.existsSync(root)) return [];
+  return fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
+    .map((entry) => path.posix.join(folder, entry.name))
+    .sort();
 }
 
 /**
@@ -182,7 +210,7 @@ export const pageDate = (dates, url, where) => newest(dates, pageSources(url, wh
 export function pageLastmod(where) {
   /** @type {Map<string, string> | undefined} */
   let dates;
-  const read = () => commitDates(where.repoRoot, [where.contentDir, 'specs', 'tokens', ...Object.values(OWN_PAGES).map((file) => path.posix.join(srcOf(where.contentDir), file))]);
+  const read = () => commitDates(where.repoRoot, [where.contentDir, 'specs', 'tokens', path.posix.join(srcOf(where.contentDir), BLOG), ...Object.values(OWN_PAGES).map((file) => path.posix.join(srcOf(where.contentDir), file))]);
   const resolved = `\0${LAST_UPDATED_MODULE}`;
   return {
     integration: {

@@ -1,12 +1,12 @@
 /*
- * Table of contents (specs/table-of-contents.spec.json, TOC-1 to TOC-40): the headings
+ * Table of contents (specs/table-of-contents.spec.json, TOC-1 to TOC-42): the headings
  * of the page being read as links to them, sub-headings set in under their heading, the one being read marked.
  *
  * `<tanrei-table-of-contents>` is an element around the product's own nested list of anchors, which stay in the
  * document: before any script runs and without it the page holds a plain list of links that work, which a crawler, a
  * search index and the browser's own list of links read as they are.
  *
- *   <tanrei-table-of-contents label="On this page" density="compact">
+ *   <tanrei-table-of-contents label="On this page" size="small">
  *     <ul>
  *       <li><a href="#install">Install</a>
  *         <ul>
@@ -83,10 +83,11 @@
 
   /* ── The whole (TOC-1): as wide as its layout; no fill, no edge, no padding, no place of its own ────────────── */
   :where(tanrei-table-of-contents) {
-    /* TOC-3: the density's height and block padding (TOC-39: any other density is the default's). */
-    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-regular);
-    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-regular);
-    /* TOC-24: what a row is never lower than — the pointer target at the regular density, the touch target for touch. */
+    /* TOC-3, TOC-42: the size's height and block padding — medium here, small below, set on the element or taken from
+       its container by the element (the custom state size-small); TOC-39: any other size is the default's. */
+    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-medium);
+    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-medium);
+    /* TOC-24: what a row is never lower than, at every size — the pointer target, the touch target for touch. */
     --_toc-row-floor: var(--tanrei-sys-target-pointer);
     /* The first list's labels are not set in. */
     --_toc-next: 0px;
@@ -107,15 +108,12 @@
     --_toc-left: 0;
     --_toc-right: 1;
   }
-  :where(tanrei-table-of-contents[density='compact']) {
-    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-compact);
-    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-compact);
-    /* The one place a row is lower than the pointer target: the density is asked for by name. */
-    --_toc-row-floor: 0px;
+  :where(tanrei-table-of-contents[size='small'], tanrei-table-of-contents:state(size-small)) {
+    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-small);
+    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-small);
   }
   @media (pointer: coarse) {
-    :where(tanrei-table-of-contents),
-    :where(tanrei-table-of-contents[density='compact']) {
+    :where(tanrei-table-of-contents) {
       --_toc-row-floor: var(--tanrei-sys-target-touch);
     }
   }

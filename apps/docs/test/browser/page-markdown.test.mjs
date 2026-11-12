@@ -1,6 +1,7 @@
 // Every page of the built site as Markdown (src/lib/page-markdown.mjs): each page the search reads, in every
 // language, has its `<path>.md` beside it and names it in its head; no other page does; each file opens with its front
-// matter — the page's title, description, address and the date the sitemap gives the page — and holds no broken
+// matter — the page's title, description, address and the date the sitemap gives the page — then the sentence in the
+// language of the page's words that leads to the indexes for language models, before its title, and holds no broken
 // markup; a component's page holds its spec, every requirement by id, in every language; a link to a page that has its
 // Markdown leads to that Markdown; and every page and the indexes for language models link to files the site has. No
 // browser: it reads the files.
@@ -11,10 +12,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { register } from 'node:module';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { markdownPathOf } from '../../src/lib/page-markdown.mjs';
+import { indexPointer, markdownPathOf } from '../../src/lib/page-markdown.mjs';
 import { translations } from '../../i18n/locales.mjs';
+
+register('../vite-shim.mjs', import.meta.url);
+const { strings } = await import('../../src/lib/i18n.ts');
+const config = JSON.parse(fs.readFileSync(new URL('../../../../tanrei.config.json', import.meta.url), 'utf8'));
 
 const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
 const specsDir = fileURLToPath(new URL('../../../../specs/', import.meta.url));
@@ -31,6 +37,8 @@ const pages = files
       file,
       pathname: `/${file.replace(/(^|\/)index\.html$/, '$1')}`,
       searched: /<main\b[^>]*\sdata-pagefind-body[\s>]/.test(html),
+      // The language of the page's words: its main region's.
+      lang: /<main\b[^>]*\slang="([^"]*)"/.exec(html)?.[1],
       describedBy: [...head.matchAll(/<link rel="describedby" href="([^"]*)"/g)].map(([, href]) => href),
       alternates: [...head.matchAll(/<link rel="alternate" type="text\/markdown" href="([^"]*)"/g)].map(([, href]) => href),
       canonical: /<link rel="canonical" href="([^"]*)"/.exec(head)?.[1],
@@ -76,9 +84,12 @@ describe("every page's Markdown", () => {
       if (!fs.existsSync(path.join(dist, expected))) wrong.push(`${page.file}: no ${expected}`);
     }
     assert.deepEqual(wrong, []);
+    // Every language has every page — but a post of the blog, which is in the languages it is written in.
+    const post = (page) => /^\/(?:[a-z-]+\/)?blog\/[^/]+\/$/.test(page.pathname);
+    const every = searched.filter((page) => !post(page));
     for (const dir of ['', ...languages]) {
-      const own = searched.filter((page) => (dir ? page.pathname.startsWith(`/${dir}/`) : !languages.some((each) => page.pathname.startsWith(`/${each}/`))));
-      assert.equal(own.length, searched.length / (languages.length + 1), `the pages of ${dir || 'English'}`);
+      const own = every.filter((page) => (dir ? page.pathname.startsWith(`/${dir}/`) : !languages.some((each) => page.pathname.startsWith(`/${each}/`))));
+      assert.equal(own.length, every.length / (languages.length + 1), `the pages of ${dir || 'English'}`);
     }
   });
   test('no other page names one (the pages that were not found, the redirects)', () => {
@@ -97,7 +108,9 @@ describe("every page's Markdown", () => {
       const markdown = read(markdownPathOf(page.pathname, languages));
       const fields = frontMatter(markdown);
       if (!markdown.startsWith('---\ntitle: ')) wrong.push(`${page.file}: no front matter`);
-      if (!fields.title || !markdown.includes(`\n---\n\n# `)) wrong.push(`${page.file}: no title`);
+      // Between the front matter and the title, the sentence that leads to the indexes, in the language of the words.
+      const pointer = indexPointer(strings(page.lang).markdownIndex.replaceAll('{name}', config.name), new URL(page.canonical ?? '/', 'https://invalid.example').origin);
+      if (!fields.title || !markdown.includes(`\n---\n\n${pointer}\n\n# `)) wrong.push(`${page.file}: no title after the sentence that leads to the indexes (${page.lang})`);
       if (fields.url !== page.canonical) wrong.push(`${page.file}: url ${fields.url}, canonical ${page.canonical}`);
       // The same string: the sitemap's date, in UTC.
       const sitemap = sitemapDates.get(page.canonical);

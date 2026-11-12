@@ -2,7 +2,7 @@
 title: Lista de descripciones
 description: Presenta lo que se sabe de una cosa como datos con nombre, un término discreto y el valor que le responde, con los términos al lado de sus valores, encima de ellos o debajo de una cifra grande. Se dispone según su propia anchura y nunca es un control.
 translationOf: components/description-list.mdx
-sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
+sourceHash: f50d04d5ce041d7fe0606862aa11f2eb7359f970
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -119,8 +119,8 @@ Una `<dl>` sin los grupos `<div>`, como la escriben algunos renderizadores de Ma
   </tanrei-description-list>
 </Example>
 
-<Example label="Compacta y separada por espacio: datos que se recorren con la vista" column>
-  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+<Example label="Pequeña y separada por espacio: datos que se recorren con la vista" column>
+  <tanrei-description-list size="small" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>Valor</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
       <div><dt>Tipo</dt><dd>alias · color</dd></div>
@@ -148,14 +148,14 @@ La lista lo decide todo a partir de su propia anchura, nunca de la de la ventana
 - **Una lista en línea es una sola columna.** `columns` no tiene efecto en ella.
 - **Nada se corta.** Los valores saltan de línea. Un identificador o una dirección que no pueden partirse se parten en el borde de la columna. La lista nunca se desplaza hacia los lados.
 
-### Densidad
+### Tamaño
 
-| `density` | Término y valor | Entre datos | Úsalo para |
+| `size` | Término y valor | Entre datos | Úsalo para |
 | --- | --- | --- | --- |
-| `regular` (predeterminado) | 14 sobre un interlineado de 20, y 14 sobre 22 | 12; con una línea, 12 a cada lado de ella | Datos que se leen: una página, una tarjeta, un diálogo. |
-| `compact` | 12 sobre 16, y 13 sobre 20 | 6; con una línea, 6 a cada lado de ella | Datos que se recorren con la vista: un panel lateral, un inspector. |
+| `medium` (predeterminado) | 14 sobre un interlineado de 20, y 14 sobre 22 | 12; con una línea, 12 a cada lado de ella | Datos que se leen: una página, una tarjeta, un diálogo. |
+| `small` | 12 sobre 16, y 13 sobre 20 | 6; con una línea, 6 a cada lado de ella | Datos que se recorren con la vista: un panel lateral, un inspector. |
 
-La cifra de la disposición stat es de 32 sobre 40 en `regular` y de 20 sobre 28 en `compact`.
+La cifra de la disposición stat es de 32 sobre 40 en `medium` y de 20 sobre 28 en `small`. El espacio entre datos sigue la [densidad](/es/foundations/size-and-density/) del sistema en los dos tamaños. Una lista que no define `size` se dibuja con el tamaño que defina un contenedor a su alrededor para lo que contiene, y con medium si ninguno lo define. No pasa ningún tamaño a lo que contienen sus valores: una etiqueta o un botón dentro de un valor tiene el suyo.
 
 ### Cómo distinguir los datos
 
@@ -187,13 +187,13 @@ No hay línea encima de la primera fila, debajo de la última, entre dos columna
 
 ### De qué se encarga el componente
 
-- La lista nativa sigue siendo una lista de descripciones: los términos y sus definiciones son los del propio navegador, en todas las disposiciones, con cualquiera de las dos densidades, con líneas o sin ellas.
+- La lista nativa sigue siendo una lista de descripciones: los términos y sus definiciones son los del propio navegador, en todas las disposiciones, con cualquiera de los dos tamaños, con líneas o sin ellas.
 - El orden en que se lee nunca cambia. La disposición stat dibuja la cifra encima de su etiqueta y aun así expone primero el término.
 - Nada de la lista recibe el foco ni entrada. Un enlace o un botón dentro de un valor conserva su propio objetivo y su lugar en el orden del foco.
 - Con el texto al 200% y en una ventana de 320 de ancho, las mismas reglas de anchura apilan la lista y reducen sus columnas. La anchura mínima crece con el texto.
 - En un diseño de derecha a izquierda, la columna de términos está a la derecha y las columnas se llenan desde la derecha. Cada término y cada valor conserva su propia dirección, de modo que una versión, una dirección postal y un importe nunca se invierten.
 - Con colores forzados, las líneas y el texto tienen el color del texto. La lista no tiene ningún relleno que perder.
-- Las compilaciones de depuración notifican un valor sin término, `columns` en una lista en línea, un número de columnas que no es entero, la disposición stat o las columnas en una lista sin grupos, y una disposición, una densidad o una separación desconocidas.
+- Las compilaciones de depuración notifican un valor sin término, `columns` en una lista en línea, un número de columnas que no es entero, la disposición stat o las columnas en una lista sin grupos, y una disposición, un tamaño o una separación desconocidos.
 
 ### Qué debes hacer tú
 

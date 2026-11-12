@@ -1,0 +1,75 @@
+---
+// A component's focus order: the live component, drawn from the web package's own stage of one fixture, with a number
+// laid over each element the Tab key stops at, in the order it reaches them, in the docs' one frame (Example.astro).
+// A page writes one line, `<FocusOrder name="tabs" fixture="primary-second-selected" />`, and the six languages share it.
+//
+// - **The order is the browser's, computed from the elements as they stand** (lib/visuals/focus-order.ts): shadow roots
+//   and slots, `tabindex`, `disabled`, `inert`, and a component's roving `tabindex` as it is now. The figure is drawn
+//   again as focus and the keys move in the component.
+// - **The component is live**, not a picture: a reader presses Tab through it and meets the stops the numbers show.
+//   The numbers are hidden from assistive technology; the caption's list says the same stops in words, each by its role
+//   and its name (`visuals.focusStop`), and is read with the figure.
+// - It follows the page's look as every frame does, and holds its room before anything is defined: the fixture's
+//   baseline, and the room the numbers take around it, from the badge's height (they are drawn with its tokens).
+import Example from './Example.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { stagingStyle } from '../../lib/fixture-gallery';
+import { blueprintStageOf } from '../../lib/visuals/anatomy';
+import './blueprint.css';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The fixture to draw, where it is not the spec's first. */
+  fixture?: string;
+}
+const { name, fixture } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const stage = blueprintStageOf(name, fixture);
+if (!stage) throw new Error(`FocusOrder: ${name}'s fixture ${fixture ?? '(first)'} cannot stand in the page (lib/visuals/anatomy.ts, blueprintStageOf)`);
+/** The room around the stage that the numbers stand in: half a number on each side, and a space. */
+const AROUND = ['comp.badge.container.height', 'sys.space.space200'];
+const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
+---
+
+<Fragment set:html={stagingStyle(stage.staging)} />
+<Example label={t.visuals.focusOrderTitle} reserve={{ block: [`${stage.room.height}px`, ...AROUND], inline: [`${stage.room.width}px`, ...AROUND] }} pattern="none" system={stage.system} data-focus-order-figure>
+  <div class="docs-blueprint docs-focus-order" data-focus-order data-fixture-scope>
+    <div class="docs-blueprint-stage" set:html={stage.html} />
+  </div>
+  <Fragment slot="caption">
+    {t.visuals.focusOrderCaption}{' '}
+    {before}
+    <code>{stage.fixture}</code>
+    {after}
+    <ol class="docs-focus-order-list" aria-label={t.visuals.focusOrderList} data-focus-order-list data-stop={t.visuals.focusStop}></ol>
+    <span class="docs-focus-order-list" data-focus-order-none hidden>{t.visuals.focusOrderNone}</span>
+  </Fragment>
+</Example>
+
+<script>
+  import '../../lib/visuals/focus-order';
+</script>
+
+<style is:global>
+  /* The room the numbers take around the stage: half a number on each side of a stop's corner, and a space. */
+  .docs-focus-order {
+    padding: calc(var(--tanrei-comp-badge-container-height) / 2 + var(--tanrei-sys-space-space100));
+  }
+  /* A number is centred on its stop's corner. */
+  .docs-focus-stop {
+    transform: translate(-50%, -50%);
+  }
+  /* The stops in words: read with the figure, never drawn (the numbers say them to the eye). */
+  .docs-focus-order-list {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

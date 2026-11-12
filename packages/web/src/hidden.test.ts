@@ -46,17 +46,22 @@ const CLASSES = fs
 /** The classes a class-form component writes on the product's elements inside it, which name a `display` of their own. */
 const INNER_CLASSES = ['tanrei-previous-next-links-item', 'tanrei-icon', 'tanrei-skeleton-placeholder'];
 
-/** Every stylesheet the package ships for a page (the tokens apart). */
-const SHEETS = fs
-  .readdirSync(path.join(pkg, 'dist'))
-  .filter((file) => file.endsWith('.css') && file !== 'tokens.css')
-  .sort();
+/**
+ * A page with the tokens alone: no stylesheet of the package that could name a `display` for an element.
+ */
+const TOKENS = ['tokens.css'];
+/**
+ * A page with every stylesheet the package ships for a page, in the one file a product links for them (`tanrei.css`:
+ * the base, the tokens and every other stylesheet; test/stylesheets.test.mjs holds that it is all of them), once. Each
+ * stylesheet beside it as well would declare every rule twice, which no product's page does.
+ */
+const EVERY_SHEET = ['tanrei.css'];
 
 const PAGE = 'http://hidden.test/';
 const html = (sheets: string[]) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tokens.css')}</style>${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}</head><body><main></main><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}</head><body><main></main><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`;
 
-async function open(page: Page, sheets: string[] = []) {
+async function open(page: Page, sheets: string[] = TOKENS) {
   await page.route(PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: html(sheets) }));
   await page.goto(PAGE);
   await page.evaluate((tags) => Promise.all(tags.map((tag) => customElements.whenDefined(tag))), TAGS);
@@ -95,8 +100,8 @@ async function drawn(page: Page, subjects: Subject[], where: 'document' | 'shado
 }
 
 /**
- * Drawn still, a known gap: the menu's six elements, the tabs and a tab, and a skeleton's
- * placeholder. They are expected to be drawn — exactly these, in every place — so that the one that is fixed fails
+ * Drawn still with the hidden attribute, a known gap: none — every element and class-form component has no box with
+ * it. A name here would be expected to be drawn — exactly these, in every place — so that the one that is fixed fails
  * here until its name is taken out, and the list cannot outlive its reason. Nothing is added to it.
  */
 const OWED: string[] = [];
@@ -142,7 +147,7 @@ test.describe('hidden hides', () => {
   });
 
   test('on a page that loaded every stylesheet of the package, every element and every class-form component with the hidden attribute has no box', async ({ page }) => {
-    await open(page, SHEETS);
+    await open(page, EVERY_SHEET);
     await expectHidden(page, [...ELEMENTS, ...CLASSED], 'document');
   });
 });

@@ -321,10 +321,10 @@ Un tooltip es una superposición de lectura. Las personas toman información de 
 | Una pulsación larga táctil | De inmediato, sin activar el ancla. | Cuando pasa el tiempo de espera táctil después de levantar el dedo, o antes con un toque en cualquier otro lugar. |
 
 - **Sin límite de tiempo mientras se usa.** Mientras el puntero está sobre el ancla, el tooltip o la separación entre ambos, o el ancla tiene el foco del teclado, se queda abierto. La separación no se dibuja ni recibe pulsaciones: solo cuenta como paso del cursor.
-- **Escape.** Escape lo cierra sin mover el foco y no va más allá, así que un diálogo que lo contenga se queda abierto. Sigue cerrado hasta que el puntero vuelve a entrar en el ancla o esta vuelve a recibir el foco.
+- **Esc.** Esc lo cierra sin mover el foco y no va más allá, así que un diálogo que lo contenga se queda abierto. Sigue cerrado hasta que el puntero vuelve a entrar en el ancla o esta vuelve a recibir el foco.
 - **Activación.** Activar el ancla (un clic, un toque, Enter o Espacio) lo cierra, y el mismo paso del cursor no lo vuelve a abrir.
 - **De uno en uno.** Cuando se abre un tooltip, cualquier otro de la ventana se cierra, y el nuevo se abre sin el retardo, porque la persona ya está leyendo tooltips.
-- **Pasar de un tooltip a otro.** Un tooltip que toma el relevo de otro, o que se abre poco después de que otro se cerrara porque el puntero o el foco salieron de su ancla, aparece entero de inmediato: sin retardo y sin movimiento. Así, un puntero que recorre una barra de herramientas lee un nombre tras otro. Un tooltip cerrado con Escape, al activar su ancla o al pulsarlo no inicia ese tiempo.
+- **Pasar de un tooltip a otro.** Un tooltip que toma el relevo de otro, o que se abre poco después de que otro se cerrara porque el puntero o el foco salieron de su ancla, aparece entero de inmediato: sin retardo y sin movimiento. Así, un puntero que recorre una barra de herramientas lee un nombre tras otro. Un tooltip cerrado con Esc, al activar su ancla o al pulsarlo no inicia ese tiempo.
 - **No toma el foco, no bloquea nada.** No contiene nada que pueda recibir el foco ni pulsarse, no deja nada inerte y no dibuja ningún velo. Una pulsación sobre el tooltip lo cierra y no llega a lo que hay debajo.
 - **Por encima de todo.** Se dibuja por encima de cualquier otra capa de su ventana, incluidos un diálogo abierto y su velo, así que un tooltip dentro de un diálogo es visible.
 - **Colocación.** Se sitúa donde dice `placement`; consulta [Colocación](#colocación). Sigue al ancla cuando esta se mueve, y se cierra cuando el ancla se quita, se oculta, sale de la ventana por el desplazamiento o queda fuera de la vista dentro de un área con desplazamiento.
@@ -371,7 +371,7 @@ Cada plataforma usa una presentación no modal: un elemento `popover="manual"` e
 - Mientras `describes` es true, el texto, después del título en un tooltip rich, es la descripción accesible del ancla, disponible se esté mostrando el tooltip o no. El ancla conserva su propio nombre y su rol. Mientras `describes` es false, el tooltip no añade nada al ancla.
 - Se evita que el tooltip dibujado se lea dos veces. Nunca toma el foco y no contiene nada que pueda recibirlo.
 - El foco del teclado en el ancla lo abre de inmediato, y llevar el foco a otro lugar lo cierra. El tooltip en sí nunca es una parada de tabulación.
-- Escape lo cierra sin mover el foco, y no cierra además un diálogo que lo contenga.
+- Esc lo cierra sin mover el foco, y no cierra además un diálogo que lo contenga.
 - Cumple WCAG 1.4.13 (contenido al pasar el cursor o al recibir el foco): se puede descartar sin mover el puntero ni el foco, se puede pasar el cursor por él con cualquier retardo de ocultación, incluido 0, porque la separación entre el ancla y el tooltip cuenta como paso del cursor, y permanece hasta que termina el paso del cursor o el foco, o hasta que se descarta.
 - Crece con un texto más grande sin recortarlo, y su texto se alinea al inicio de la dirección del diseño.
 - Un atajo se expone como el atajo de teclado del ancla (`aria-keyshortcuts` en la web, en el elemento que recibe el foco), y las teclas dibujadas quedan ocultas para la tecnología de apoyo. Donde el ancla ya declara un atajo propio, las teclas del tooltip se escriben con todas sus letras al final de la descripción, mientras `describes` es true.
@@ -385,18 +385,18 @@ Carencias conocidas por plataforma:
 - Web: una pulsación larga táctil abre un tooltip solo donde el navegador la notifica como un menú contextual. Safari en iOS no lo hace, así que allí un tooltip no se abre con el tacto.
 - Web: el título de un tooltip enriquecido es el atributo `headline`. Un atributo `title` en `<tanrei-tooltip>` es del navegador, que dibuja para él su tooltip nativo: no lo pongas.
 - SwiftUI no tiene rol de tooltip. La descripción es la indicación de accesibilidad del ancla.
-- SwiftUI en iOS: Retorno o Espacio sobre un ancla con foco no cierran el tooltip, y Escape lo cierra solo mientras el ancla tiene el foco. Un ancla que recibe el foco con un toque, como un campo de texto, abre su tooltip. Un ancla que se hace transparente o queda tapada no se detecta como oculta.
+- SwiftUI en iOS: Retorno o Espacio sobre un ancla con foco no cierran el tooltip, y Esc lo cierra solo mientras el ancla tiene el foco. Un ancla que recibe el foco con un toque, como un campo de texto, abre su tooltip. Un ancla que se hace transparente o queda tapada no se detecta como oculta.
 - SwiftUI dibuja los tooltips en una capa que proporcionan `.tanreiTheme(_:)` y un diálogo de Tanrei. El contenido que SwiftUI presenta aparte, como tu propio `.sheet` o `.popover`, necesita `.tanreiTooltipLayer()` para que sus tooltips se muestren.
 - Compose no tiene una propiedad de descripción. El texto pasa a ser la descripción de estado del ancla, que se lee después de su nombre y su rol. Un control de Tanrei la pone en su propio nodo; cualquier otra ancla se describe solo cuando un ancestro que fusiona la recoge. En un ancla conmutadora, como un botón de icono conmutador, sustituye al «On» o al «Off».
 - Compose: un tooltip que muestras desde el código sobre un ancla situada detrás de un diálogo abierto se dibuja debajo de la ventana del diálogo.
-- Compose: mientras el foco está en otro lugar de la ventana y sobre el ancla solo se pasó el cursor, Escape llega al tooltip solo en Android 9 (API 28) y posteriores.
-- Compose: el paso del cursor con un ratón real, un toque fuera, el listener de Escape y la lectura que TalkBack hace de la descripción de estado del ancla se han probado solo en Robolectric, todavía no en un dispositivo.
+- Compose: mientras el foco está en otro lugar de la ventana y sobre el ancla solo se pasó el cursor, Esc llega al tooltip solo en Android 9 (API 28) y posteriores.
+- Compose: el paso del cursor con un ratón real, un toque fuera, el listener de Esc y la lectura que TalkBack hace de la descripción de estado del ancla se han probado solo en Robolectric, todavía no en un dispositivo.
 - Flutter: el tooltip dibujado siempre se excluye de la semántica, porque el rol de tooltip de Flutter todavía no se puede usar. La descripción del ancla no se ve afectada.
-- Flutter: Escape se consume solo mientras el foco está en el ancla, o lo consume un diálogo de Tanrei. Otro ancestro que gestione Escape, como una ruta de diálogo de Material, lo sigue recibiendo mientras el foco está en otro lugar.
+- Flutter: Esc se consume solo mientras el foco está en el ancla, o lo consume un diálogo de Tanrei. Otro ancestro que gestione Esc, como una ruta de diálogo de Material, lo sigue recibiendo mientras el foco está en otro lugar.
 - React Native: la descripción es el `accessibilityHint` del ancla, después de la indicación propia del ancla.
 - React Native: un toque en otro lugar no cierra antes un tooltip abierto con una pulsación larga. El tiempo de espera táctil lo cierra igualmente.
 - React Native: el tooltip no sigue a un ancla que se desplaza, y no se cierra cuando el ancla sale de la vista por el desplazamiento. Se mantiene dentro del área segura solo cuando pasas los márgenes interiores de la ventana a `TanreiProvider`.
-- React Native: el paso del cursor, llevar el puntero hasta el tooltip, la pulsación larga y Escape todavía no se han comprobado en un dispositivo.
+- React Native: el paso del cursor, llevar el puntero hasta el tooltip, la pulsación larga y Esc todavía no se han comprobado en un dispositivo.
 
 ### Qué debes hacer tú
 

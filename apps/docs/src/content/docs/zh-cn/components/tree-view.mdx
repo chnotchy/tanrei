@@ -2,13 +2,14 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
+sourceHash: 6a2512f8c3a945f4f38d5424f5304454ff956bcf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -16,7 +17,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="tree-view" />
 
 <Example label="文件树：按文件夹所在的行，或用方向键来展开它">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="令牌存放在哪里" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="令牌存放在哪里" size="small" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>唯一可信来源，手工编辑</small></bdi></span>
@@ -154,7 +155,7 @@ import Example from '../../../../components/visuals/Example.astro';
 ## 规格
 
 <Example label="选中一项：按行是选择，按 V 形箭头是展开">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="全部令牌" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="全部令牌" selection="single" value="sys.color.primary" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>参考</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
       <li data-open>
@@ -208,19 +209,19 @@ import Example from '../../../../components/visuals/Example.astro';
 
 树把选中填充画在项自己的行上。它不会因为父项下面有选中的项而标记父项，也不会为了显示选择而展开折叠着的父项。如果选中的项应当在视野之内，请在它上面的各级父项上设置 `data-open`：路径是你知道的。
 
-### 密度
+### 尺寸
 
-| `density` | 单行文字的行 | 用于 |
+| `size` | 单行文字的行 | 用于 |
 | --- | --- | --- |
-| `regular`（默认） | 48 | 既用触摸、也用指针操作的产品。 |
-| `compact` | 32 | 用指针浏览的工具，以及文字页面里的一棵小树。 |
+| `medium`（默认） | 48 | 既用触摸、也用指针操作的产品。 |
+| `small` | 36 | 用指针浏览的工具，以及文字页面里的一棵小树。 |
 
-compact 的行比指针目标还矮。这是可以接受的，因为它是按名称明确要求的，从来不是默认值。对触摸而言，两种密度下行的高度都达到触摸目标。
+`small` 的行保持在最小目标，在默认系统中为 36；无论哪种尺寸，行都不会低于目标。两种高度都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的树按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制。
 
 ### 箭头
 
 <Example label="chevron end：像菜单那样，把标记放在值之后">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="end" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><bdi>src</bdi><span data-trailing-text>12</span></span>
@@ -241,7 +242,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 | `none` | 不画 | 用自己的字形表示状态的文件夹。 |
 
 <Example label="chevron none：文件夹字形表示展开和折叠，指针移上去时出现引导线">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="none" guides="hover" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -272,7 +273,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 
 ### 图标及其位置
 
-`icon-space="auto"`（默认）在同一级有其他行带图标时，也为没有图标的行保留图标的位置，使同一级的标签对齐成一列。`always` 为每一行保留，`never` 只在有图标的行保留。`icon-gap` 以像素设定图标与标签之间的距离；保持 `auto` 时为令牌 `comp.tree-view.icon.gap`，两种密度相同。
+`icon-space="auto"`（默认）在同一级有其他行带图标时，也为没有图标的行保留图标的位置，使同一级的标签对齐成一列。`always` 为每一行保留，`never` 只在有图标的行保留。`icon-gap` 以像素设定图标与标签之间的距离；保持 `auto` 时为令牌 `comp.tree-view.icon.gap`，两种尺寸相同。
 
 ### 高亮
 
@@ -364,7 +365,9 @@ tree.addEventListener('create', (event) => {
 
 ## 无障碍
 
-<ComponentAccessibility name="tree-view" />
+<FocusOrder name="tree-view" fixture="filter" />
+
+<ComponentAccessibility name="tree-view" keyboardMap />
 
 ### 组件负责的部分
 
@@ -388,7 +391,7 @@ tree.addEventListener('create', (event) => {
 - 筛选输入框是一个以 `filter-label` 为名称的搜索字段，位于树之前，是一个独立的停靠点，所以树仍然只占一个停靠点。它表明自己控制着这棵树，不指向任何活动后代：按下方向键把焦点移到第一个匹配项时才会读出它。它的清除按钮以 `filter-clear-label` 为名称。
 - 被筛选隐藏的行对辅助技术来说也不存在了，所以用户听到的每一个层级、位置和数量都是筛选之后的。键入停顿一秒后，树旁边的一个状态会以礼貌（polite）的方式说明有多少行匹配，或者一行都不匹配，焦点不会移动：这是树唯一会朗读的内容。结果顶部画出的数量对辅助技术隐藏，辅助技术听到的是这个状态。
 - 匹配的行不加标记，因此没有只靠颜色传达的信息，行的名称仍是完整的标签。
-- 调试构建会报告：空的 `label`、没有标签的项、直接写在行里的标签、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`chevron`、`guides`、`icon-space` 或 `highlight`、不是数字的 `indent` 或 `icon-gap`、在 `chevron="none"` 下没有图标的父项、没有 `edit-label` 的输入框、没有 `filter-label` 的筛选输入框、没有名称的清除按钮，以及包含不止一个组合键的 `filter-shortcut`。
+- 调试构建会报告：空的 `label`、没有标签的项、直接写在行里的标签、行里的控件、不对应任何项的值、两个值相同的项、未知的 `size`、`selection`、`chevron`、`guides`、`icon-space` 或 `highlight`、不是数字的 `indent` 或 `icon-gap`、在 `chevron="none"` 下没有图标的父项、没有 `edit-label` 的输入框、没有 `filter-label` 的筛选输入框、没有名称的清除按钮，以及包含不止一个组合键的 `filter-shortcut`。
 
 ### 需要你做的事
 

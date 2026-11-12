@@ -136,7 +136,7 @@ Los dos tamaños conservan el área táctil mínima. El área que responde se ex
 | `resize` | En cada fotograma en que el arrastre se mueve. `inline` y `block` son la distancia desde la pulsación, en píxeles: `inline` hacia el borde final, `block` hacia abajo. | Fija el tamaño: el del comienzo más la distancia, en tu propia unidad, dentro de tus límites. |
 | `resizeend` | El arrastre terminó, una sola vez. `cancelled` es true cuando la plataforma lo canceló. | Conserva el tamaño, o devuélvelo al anterior si se canceló. Vuelve a activar los iframes. |
 | `step` | Una tecla pidió un cambio: `axis`, `direction` (1 o −1) y `amount` (`one`, `large`, o `limit` para Inicio y Fin). | Decide qué es un paso — una línea, 1 o 10 píxeles, un 5 % — y cambia el tamaño en esa cantidad. |
-| `activate` | Se pulsó y soltó sin arrastrar, o Intro o Espacio. | Alterna entre dos tamaños que conoces: la altura que necesita su texto y la mínima, toda la anchura y la que tenía. |
+| `activate` | Se pulsó y soltó sin arrastrar, o Enter o Espacio. | Alterna entre dos tamaños que conoces: la altura que necesita su texto y la mínima, toda la anchura y la que tenía. |
 
 Después de cada cambio, dale al tirador el tamaño nuevo como `value` (con `min`, `max` y, donde un número no lo diga, `valueText`). Eso es lo que lee la tecnología de asistencia. Un tirador sin `value` es un botón: usa esa forma cuando el tirador solo alterna entre tamaños que conoces, y dale `expanded`.
 
@@ -171,7 +171,7 @@ El tirador ocupa el espacio de su propia caja y nada más: eres tú quien lo col
 
 - Con `value`, es un separador que recibe el foco — el divisor de ventanas de ARIA Authoring Practices —, nombrado por `label`, con su valor, su rango, su texto del valor y la orientación de su línea. Sin él, es un botón, con el estado expandido cuando le das uno.
 - Es una parada del orden de foco, también mientras está oculto. El foco del teclado lo hace aparecer al instante con su anillo de foco, así que quien usa el teclado siempre ve dónde está el foco.
-- Las flechas de su eje piden un paso; Mayús con una flecha, Re Pág y Av Pág, un paso grande; Inicio y Fin, el tamaño mínimo y el máximo. Intro y Espacio lo activan. Las demás teclas te llegan a ti.
+- Las teclas de flecha de su eje piden un paso; Mayús con una flecha, Re Pág y Av Pág, un paso grande; Inicio y Fin, el tamaño mínimo y el máximo. Enter y Espacio lo activan. Las demás teclas te llegan a ti.
 - Una pulsación no toma el foco ni selecciona texto, así que un campo conserva su cursor de texto mientras se arrastra su tirador. El arrastre sigue al puntero más allá del borde de la ventana.
 - Pulsado sin arrastrar, se activa, de modo que cada tamaño que ofreces se alcanza con un clic o un toque.
 - Con el texto ampliado conserva su tamaño: es una marca en un borde, no texto.

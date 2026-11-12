@@ -14,7 +14,7 @@ import {
 } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
-import { readTogether } from '../../primitives/read-phase.js';
+import { readInPhase, readTogether } from '../../primitives/read-phase.js';
 import { CHOICE, EDGES, type Edge, FORMS, LAYERS, SCROLL_EDGES, styles } from './scroll-area.styles.js';
 
 /** How an edge shows that content lies beyond it; `auto` takes the design system's answer (`comp.scroll-area.scroll-edge`). */
@@ -262,6 +262,12 @@ export class TanreiScrollArea extends TanreiElement {
   /**
    * SCA-8: a sentinel left or entered the box — the platform's own notice; nothing is measured. An edge has content
    * beyond it while its sentinel is out of the box. A notice of a box that is not drawn (no root bounds) says nothing.
+   *
+   * SCA-10: a fit that changes here asks again whether anything inside takes focus — read in the next frame's read
+   * phase, with every other area's (src/primitives/read-phase.ts), and written after all of them. Each area's observer
+   * has a root of its own, its box, so a frame tells them one callback after another, with a microtask checkpoint
+   * between: a read made in the callback, or with the reads of the turn (`readTogether`), came after the writes of the
+   * area before it, and the browser styled the page again for each area.
    */
   private readonly intersected = (entries: IntersectionObserverEntry[]) => {
     countWork('scroll-area.intersected');
@@ -270,7 +276,17 @@ export class TanreiScrollArea extends TanreiElement {
       if (!root || root.width === 0 || root.height === 0) continue;
       this.beyond[(entry.target as HTMLElement).dataset.edge as Edge] = !entry.isIntersecting;
     }
-    this.edgesChanged();
+    this.writeEdges();
+    const scrolls = EDGES.some((edge) => this.beyond[edge]);
+    if (scrolls === this.scrolls) return;
+    this.scrolls = scrolls;
+    readInPhase(this, () => {
+      if (!this.isConnected) return;
+      const stop = this.stopFor(this.scrolls);
+      return () => {
+        if (stop !== this.focusStop) this.focusStop = stop;
+      };
+    });
   };
 
   /**
@@ -305,23 +321,16 @@ export class TanreiScrollArea extends TanreiElement {
         frame?.style.setProperty('--_bar-right', bars[1]);
         frame?.style.setProperty('--_bar-bottom', bars[2]);
       }
-      this.edgesChanged(stop);
+      this.writeEdges();
+      if (stop !== null) {
+        this.scrolls = scrolls;
+        if (stop !== this.focusStop) this.focusStop = stop;
+      }
       if (!this.sized) {
         this.sized = true;
         this.checkProductName();
       }
     };
-  }
-
-  /** `stop`: whether the box is a focus stop, read already for the fit now; null reads it if the fit changed. */
-  private edgesChanged(stop: boolean | null = null) {
-    this.writeEdges();
-    const scrolls = EDGES.some((edge) => this.beyond[edge]);
-    if (scrolls !== this.scrolls) {
-      this.scrolls = scrolls;
-      if (stop === null) this.readStop();
-      else if (stop !== this.focusStop) this.focusStop = stop;
-    }
   }
 
   /** SCA-2: `data-<edge>` on the frame while content lies beyond an edge that edges names — written only when it changes. */

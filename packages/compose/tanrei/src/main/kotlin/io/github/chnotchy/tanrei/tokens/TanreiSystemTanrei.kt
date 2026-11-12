@@ -117,6 +117,7 @@ private object TanreiSystemSource {
             segmentedButton = segmentedButton(typescale, elevation),
             select = select(typescale, elevation),
             sideSheet = sideSheet(typescale, elevation),
+            sizeTransition = sizeTransition(typescale, elevation),
             skeleton = skeleton(typescale, elevation),
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
@@ -792,9 +793,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiAccordionDensitys(
-                regular = TanreiAccordionDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 16.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
-                compact = TanreiAccordionDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
+            sizes = TanreiAccordionSizes(
+                small = TanreiAccordionSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
+                medium = TanreiAccordionSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 16.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
             ),
         )
 
@@ -3327,9 +3328,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiComboboxDensitys(
-                regular = TanreiComboboxDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiComboboxDensityTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            optionSizes = TanreiComboboxOptionSizes(
+                small = TanreiComboboxOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiComboboxOptionSizeTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -3505,9 +3506,9 @@ private object TanreiSystemSource {
             stackGap = 4.dp,
             termColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             valueColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-            densitys = TanreiDescriptionListDensitys(
-                regular = TanreiDescriptionListDensityTokens(factGap = 12.dp, termGap = 16.dp, termTypescale = typescale.label, valueTypescale = typescale.body, statValueTypescale = typescale.heading1),
-                compact = TanreiDescriptionListDensityTokens(factGap = 6.dp, termGap = 8.dp, termTypescale = typescale.labelSmall, valueTypescale = typescale.bodySmall, statValueTypescale = typescale.heading3),
+            sizes = TanreiDescriptionListSizes(
+                small = TanreiDescriptionListSizeTokens(factGap = 6.dp, termGap = 8.dp, termTypescale = typescale.labelSmall, valueTypescale = typescale.bodySmall, statValueTypescale = typescale.heading3),
+                medium = TanreiDescriptionListSizeTokens(factGap = 12.dp, termGap = 16.dp, termTypescale = typescale.label, valueTypescale = typescale.body, statValueTypescale = typescale.heading1),
             ),
         )
 
@@ -4975,9 +4976,9 @@ private object TanreiSystemSource {
             trailingIconSize = 24.dp,
             trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             trailingTextTypescale = typescale.bodySmall,
-            densitys = TanreiListRowDensitys(
-                regular = TanreiListRowDensityTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListRowDensityTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+            sizes = TanreiListRowSizes(
+                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+                medium = TanreiListRowSizeTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
             ),
         )
 
@@ -5075,9 +5076,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiListDensitys(
-                regular = TanreiListDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListDensityTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
+            sizes = TanreiListSizes(
+                small = TanreiListSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
+                medium = TanreiListSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 8.dp),
             ),
         )
 
@@ -5594,9 +5595,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiMenuDensitys(
-                regular = TanreiMenuDensityTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiMenuDensityTokens(containerHeight = 36.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            sizes = TanreiMenuSizes(
+                small = TanreiMenuSizeTokens(containerHeight = 36.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiMenuSizeTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -7051,9 +7052,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiSearchDensitys(
-                regular = TanreiSearchDensityTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
-                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 36.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+            sizes = TanreiSearchSizes(
+                small = TanreiSearchSizeTokens(suggestionContainerHeight = 36.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
             ),
         )
 
@@ -7401,9 +7402,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiSelectDensitys(
-                regular = TanreiSelectDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiSelectDensityTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            optionSizes = TanreiSelectOptionSizes(
+                small = TanreiSelectOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiSelectOptionSizeTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -7438,6 +7439,16 @@ private object TanreiSystemSource {
                 standard = TanreiSideSheetVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 modal = TanreiSideSheetVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), containerElevation = elevation.level2, containerShape = 12.dp, outlineColor = TanreiPaint.None),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun sizeTransition(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSizeTransitionTokens =
+        TanreiSizeTransitionTokens(
+            motionDistanceStep = 64.dp,
+            motionDuration = 300,
+            motionDurationMax = 400,
+            motionDurationStep = 50,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -8324,9 +8335,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTableOfContentsDensitys(
-                regular = TanreiTableOfContentsDensityTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
-                compact = TanreiTableOfContentsDensityTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
+            sizes = TanreiTableOfContentsSizes(
+                small = TanreiTableOfContentsSizeTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
+                medium = TanreiTableOfContentsSizeTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
             ),
         )
 
@@ -8427,9 +8438,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTableDensitys(
-                regular = TanreiTableDensityTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
-                compact = TanreiTableDensityTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+            sizes = TanreiTableSizes(
+                small = TanreiTableSizeTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 
@@ -8975,6 +8986,7 @@ private object TanreiSystemSource {
             connectorColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             connectorGap = 4.dp,
             connectorThickness = 1.dp,
+            itemGap = 16.dp,
             markerCurrentContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
             markerCurrentIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
             markerDotColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
@@ -8991,10 +9003,6 @@ private object TanreiSystemSource {
             sizes = TanreiTimelineSizes(
                 medium = TanreiTimelineSizeTokens(markerHeight = 24.dp, timeTypescale = typescale.bodySmall, titleTypescale = typescale.heading6, bodyTypescale = typescale.body),
                 large = TanreiTimelineSizeTokens(markerHeight = 28.dp, timeTypescale = typescale.body, titleTypescale = typescale.heading5, bodyTypescale = typescale.bodyLarge),
-            ),
-            densitys = TanreiTimelineDensitys(
-                regular = TanreiTimelineDensityTokens(itemGap = 16.dp),
-                compact = TanreiTimelineDensityTokens(itemGap = 8.dp),
             ),
         )
 
@@ -9185,9 +9193,9 @@ private object TanreiSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiTreeViewDensitys(
-                regular = TanreiTreeViewDensityTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
-                compact = TanreiTreeViewDensityTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
+            sizes = TanreiTreeViewSizes(
+                small = TanreiTreeViewSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
+                medium = TanreiTreeViewSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
             ),
         )
 }

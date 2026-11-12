@@ -15,7 +15,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { bounded, engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -54,22 +54,8 @@ const root = (page) =>
 // (the shared link, in Firefox and WebKit).
 const LIMIT = { timeout: 150_000 };
 
-/** The page's controls defined, its fonts in, and a frame drawn after both. */
-const settled = (page) =>
-  bounded(
-    `${page.url()}: its controls defined, its fonts loaded and two frames drawn`,
-    page.evaluate(async () => {
-      await Promise.all(['tanrei-app-bar', 'tanrei-button'].map((tag) => customElements.whenDefined(tag)));
-      await document.fonts.ready;
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    }),
-    () =>
-      page.evaluate(() => {
-        const undefinedTags = ['tanrei-app-bar', 'tanrei-button'].filter((tag) => !customElements.get(tag));
-        const loading = [...document.fonts].filter((face) => face.status === 'loading').map((face) => face.family);
-        return `The document is ${document.readyState} and ${document.visibilityState}; not defined: ${undefinedTags.join(', ') || 'none'}; faces loading: ${loading.join(', ') || 'none'} (document.fonts ${document.fonts.status})`;
-      }),
-  );
+/** The page's controls defined, its fonts in, and two frames drawn after both (each wait bounded: launch.mjs). */
+const settled = (page) => settlePage(page, { tags: ['tanrei-app-bar', 'tanrei-button'] });
 
 /** Opens the panel of the button `id` (the bar's, or the drawer's) and waits for it. */
 async function openPanel(page, id = 'docs-appearance') {

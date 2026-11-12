@@ -1,5 +1,5 @@
 // <tanrei-table-of-contents> and table-of-contents.css, driven by specs/table-of-contents.spec.json: every behaviour id
-// (TOC-1…40) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
+// (TOC-1…42) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
 // tokens — never from a number written here (the heights and insets of TOC-3's and TOC-24's verify are the spec's own
 // numbers for the default system). The rule (TOC-9 to TOC-17) cannot be shown by a fixture: its tests build the pages
 // its `verify` texts describe (`reading()`).
@@ -225,14 +225,14 @@ test.describe('the list', () => {
     await expect(nav(page, 'label-hidden')).toHaveAttribute('aria-label', 'On this page');
   });
 
-  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 44 high with the labels of three levels 12, 24 and 36 from the rail at regular, 36 high with the labels at the same places at compact — in label.typescale with corners row.shape and no space between rows; density changes the height and nothing else', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: some('three-levels', 'density-compact-three-levels') });
+  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 44 high with the labels of three levels 12, 24 and 36 from the rail at medium, 36 high with the labels at the same places at small — in label.typescale with corners row.shape and no space between rows; size changes the height and nothing else', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('three-levels', 'size-small-three-levels') });
     const levels = ['#tokens', '#color', '#roles'];
     const starts: number[][] = [];
     for (const [id, height] of [
       ['three-levels', 44],
-      // The compact row: the small step of the control heights, held at the minimum target.
-      ['density-compact-three-levels', 36],
+      // The small row: the small step of the control heights, held at the minimum target.
+      ['size-small-three-levels', 36],
     ] as const) {
       const rail = (await edges(list(page, id))).left;
       const end = (await edges(list(page, id))).right;
@@ -254,9 +254,9 @@ test.describe('the list', () => {
     }
     expect(starts[0]).toEqual(starts[1]);
     expect(await resolveToken(page, T('row-indent'))).toBe(12);
-    near(await px(row(page, 'three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-regular')), 0.01);
-    near(await px(row(page, 'density-compact-three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-compact')), 0.01);
-    expect(await css(row(page, 'three-levels', '#roles'), 'font')).toBe(await css(row(page, 'density-compact-three-levels', '#roles'), 'font'));
+    near(await px(row(page, 'three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-medium')), 0.01);
+    near(await px(row(page, 'size-small-three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-small')), 0.01);
+    expect(await css(row(page, 'three-levels', '#roles'), 'font')).toBe(await css(row(page, 'size-small-three-levels', '#roles'), 'font'));
     // A hovered row's state layer starts at the rail: the fill is the anchor's own box.
     await page.addStyleTag({ content: `${ROW} { transition: none !important; }` });
     await row(page, 'three-levels', '#roles').hover();
@@ -970,18 +970,23 @@ test.describe('states', () => {
     expect(await css(button(page, 'compact-closed'), 'transition-duration')).toBe('0s');
   });
 
-  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a regular row is 44 high, above the pointer target (36), and a compact one 36, the minimum target; for touch under a 48 target both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('nested', 'density-compact-nested', 'compact-closed') });
+  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a medium row is 44 high, above the pointer target (36), and a small one 36, the minimum target; under a 48 pointer target both are 48 with a mouse, and for touch under a 48 touch target both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('nested', 'size-small-nested', 'compact-closed') });
     expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(36);
-    expect(await resolveToken(page, T('row-height-regular'))).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-pointer'));
+    expect(await resolveToken(page, T('row-height-medium'))).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-pointer'));
     for (const anchor of await rows(page, 'nested').all()) expect((await edges(anchor)).height).toBe(44);
-    for (const anchor of await rows(page, 'density-compact-nested').all()) expect((await edges(anchor)).height).toBe(36);
+    for (const anchor of await rows(page, 'size-small-nested').all()) expect((await edges(anchor)).height).toBe(36);
     expect((await edges(button(page, 'compact-closed'))).height).toBe(48);
     expect(await resolveToken(page, T('compact-row-height'))).toBe(48);
-    // A regular row is never lower than the pointer target, whatever its tokens say.
-    await override(page, { [T('row-height-regular')]: '20px', [T('row-padding-block-regular')]: '0px' });
+    // A medium row is never lower than the pointer target, whatever its tokens say.
+    await override(page, { [T('row-height-medium')]: '20px', [T('row-padding-block-medium')]: '0px' });
     expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(36);
-    await override(page, { [T('row-height-regular')]: '', [T('row-padding-block-regular')]: '' });
+    await override(page, { [T('row-height-medium')]: '', [T('row-padding-block-medium')]: '' });
+    // At every size a row is never lower than the pointer target: under a system whose pointer target (48) is taller
+    // than both rows, both are drawn that high with a mouse.
+    await override(page, { '--tanrei-sys-target-pointer': '48px' });
+    for (const id of ['nested', 'size-small-nested']) for (const anchor of await rows(page, id).all()) expect((await edges(anchor)).height).toBe(48);
+    await override(page, { '--tanrei-sys-target-pointer': '' });
     // A press on the indent before a nested label, and at the row's far end, follows that item.
     const nested = row(page, 'nested', '#container');
     const box = await edges(nested);
@@ -999,7 +1004,7 @@ test.describe('states', () => {
     await override(page, { '--tanrei-sys-target-touch': '48px' });
     expect(await resolveToken(page, '--tanrei-sys-target-touch')).toBe(48);
     await expect.poll(async () => (await edges(row(page, 'nested', '#anatomy'))).height).toBe(48);
-    for (const anchor of await rows(page, 'density-compact-nested').all()) expect((await edges(anchor)).height).toBe(48);
+    for (const anchor of await rows(page, 'size-small-nested').all()) expect((await edges(anchor)).height).toBe(48);
     expect((await edges(button(page, 'compact-closed'))).height).toBeGreaterThanOrEqual(48);
   });
 });
@@ -1328,7 +1333,7 @@ test.describe('accessibility', () => {
     // (The system's spaces are measured in the root's text size: each is still its token, read now.)
     const [pad, indent] = [await resolveToken(page, T('row-padding-inline')), await resolveToken(page, T('row-indent'))];
     expect(after.map((x) => Math.round(x))).toEqual([pad, pad + indent, pad + indent * 2].map((x) => Math.round(x)));
-    near(await px(row(page, 'three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-regular')), 0.01);
+    near(await px(row(page, 'three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-medium')), 0.01);
     near(await px(list(page, 'three-levels'), 'border-left-width', '::before'), await resolveToken(page, T('rail-width')), 0.01);
     near(await px(row(page, 'current-third-level', '#schemes'), 'border-left-width', '::before'), await resolveToken(page, T('marker-width')), 0.01);
     expect((await edges(row(page, 'three-levels', '#tokens'))).height).toBeGreaterThan(44);
@@ -1368,8 +1373,8 @@ test.describe('accessibility', () => {
 
 test.describe('right to left', () => {
   test('TOC-35: in a right-to-left layout the rail and the marker are at the right edge, each level’s label is set in further from the right with its lines aligned to the right, and in the disclosure row the title is at the right, the current item’s label after it and the chevron at the left — turned, never mirrored', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('rtl', 'density-compact-rtl', 'rtl-compact-closed', 'rtl-compact-open') });
-    for (const id of ['rtl', 'density-compact-rtl']) {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('rtl', 'size-small-rtl', 'rtl-compact-closed', 'rtl-compact-open') });
+    for (const id of ['rtl', 'size-small-rtl']) {
       const box = await edges(list(page, id));
       const [outer, inner, marked] = [row(page, id, '#anatomy'), row(page, id, '#container'), row(page, id, '#label')];
       near((await edges(outer)).right, box.right);
@@ -1494,14 +1499,14 @@ test.describe('missing, unknown, empty', () => {
     expect([await edges(disclosure.locator('.row-title')), await edges(disclosure.locator('.row-current'))]).toEqual(before);
   });
 
-  test('TOC-39: a presentation or a tracking it does not have behaves as list and auto, and a density the active system does not have is drawn with the default’s tokens, each reported; one a design system adds is drawn from its tokens; a change of density draws the new heights at once, keeping the current item, open and the focus; a manual current that names no item draws none, and is reported; of two items with one href both are drawn and the first is the one that can be current; more than three levels are still drawn, each set in by one indent, and reported', async ({ page }) => {
+  test('TOC-39: a presentation or a tracking it does not have behaves as list and auto, and a size the active system does not have is drawn with the default’s tokens, each reported; one a design system adds is drawn from its tokens; a change of size draws the new heights at once, keeping the current item, open and the focus; a manual current that names no item draws none, and is reported; of two items with one href both are drawn and the first is the one that can be current; more than three levels are still drawn, each set in by one indent, and reported', async ({ page }) => {
     const seen = warnings(page);
     const four = '<ul><li><a href="#a">A</a><ul><li><a href="#b">B</a><ul><li><a href="#c">C</a><ul><li><a href="#d">D</a></li></ul></li></ul></li></ul></li></ul>';
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [
-        raw('unknown', { ...LABEL, presentation: 'sheet', tracking: 'sometimes', density: 'cosy' }, THREE),
-        raw('added', { ...LABEL, density: 'roomy', tracking: 'manual' }, THREE),
+        raw('unknown', { ...LABEL, presentation: 'sheet', tracking: 'sometimes', size: 'cosy' }, THREE),
+        raw('added', { ...LABEL, size: 'roomy', tracking: 'manual' }, THREE),
         raw('no-such', { ...LABEL, tracking: 'manual', current: '#nine' }, THREE),
         raw('twice', { ...LABEL, tracking: 'manual', current: '#one' }, '<ul><li><a href="#one">One</a></li><li><a href="#one">One again</a></li></ul>'),
         raw('deep', { ...LABEL, tracking: 'manual' }, four),
@@ -1509,27 +1514,27 @@ test.describe('missing, unknown, empty', () => {
       ],
     });
     await frame(page);
-    // Unknown values: the list presentation, auto tracking, the default density.
+    // Unknown values: the list presentation, auto tracking, the default size.
     await expect(title(page, 'unknown')).toHaveCount(1);
     await expect(button(page, 'unknown')).toHaveCount(0);
     expect((await edges(row(page, 'unknown', '#one'))).height).toBe(44);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('presentation "sheet"'))).toBe(true);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('tracking "sometimes"'))).toBe(true);
-    expect(seen.some((text) => text.includes('TOC-39') && text.includes('density "cosy"'))).toBe(true);
+    expect(seen.some((text) => text.includes('TOC-39') && text.includes('size "cosy"'))).toBe(true);
     // (auto: with nothing to read, no item is current — and choosing one makes it so.)
     await row(page, 'unknown', '#two').click();
     expect(await prop(host(page, 'unknown'), 'current')).toBe('#two');
-    // A density a design system added is drawn from its tokens.
+    // A size a design system added is drawn from its tokens.
     await override(page, { [T('row-height-roomy')]: '60px', [T('row-padding-block-roomy')]: '20px' });
-    await set(host(page, 'added'), { density: 'regular' });
-    await set(host(page, 'added'), { density: 'roomy' });
+    await set(host(page, 'added'), { size: 'medium' });
+    await set(host(page, 'added'), { size: 'roomy' });
     expect((await edges(row(page, 'added', '#one'))).height).toBe(60);
     expect(await px(row(page, 'added', '#one'), 'padding-top')).toBe(20);
-    // A change of density: the new heights at once, with the current item, open and the focus kept.
+    // A change of size: the new heights at once, with the current item, open and the focus kept.
     const open = host(page, 'compact-open');
     await row(page, 'compact-open', '#container').focus();
     expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(44);
-    await set(open, { density: 'compact' });
+    await set(open, { size: 'small' });
     expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(36);
     expect(await css(row(page, 'compact-open', '#container'), 'transition-property')).not.toContain('block-size');
     expect([await prop(open, 'open'), await prop(open, 'current'), await page.evaluate(() => document.activeElement?.getAttribute('href'))]).toEqual([true, '#label', '#container']);
@@ -1545,6 +1550,77 @@ test.describe('missing, unknown, empty', () => {
     const starts = await Promise.all(['#a', '#b', '#c', '#d'].map(async (href) => Math.round((await textBox(row(page, 'deep', href))).left - rail)));
     expect(starts).toEqual([12, 24, 36, 48]);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('4 levels deep'))).toBe(true);
+  });
+
+  test('TOC-42: without a size of its own a table of contents draws its rows at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping the current item, open and the focus; the disclosure row keeps its height; at density 0.75, 1 and 1.5 every row is its size’s height', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [raw('anchor', LABEL, THREE)] });
+    // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
+    // here (it reports content that is not a Button, BGR-10, and still lays it out).
+    await page.evaluate((three) => {
+      const toc = (id: string, attributes = '') => `<tanrei-table-of-contents id="${id}" label="On this page" tracking="manual" current="#two" ${attributes}>${three}</tanrei-table-of-contents>`;
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">${toc('taken')}${toc('own-medium', 'size="medium"')}${toc('folded', 'presentation="compact" open')}</tanrei-button-group>
+        <tanrei-button-group id="unset">${toc('free')}</tanrei-button-group>
+        <tanrei-button-group id="outer" size="small"><tanrei-button-group id="inner" size="medium">${toc('nearest')}</tanrei-button-group></tanrei-button-group>
+        ${toc('alone')}`;
+      document.body.append(stage);
+    }, THREE);
+    const all = ['taken', 'own-medium', 'folded', 'free', 'nearest', 'alone'];
+    /** The height of each one's last row, measured in one frame. */
+    const measure = `return Object.fromEntries(ids.map((id) => [id, document.querySelector('#' + id + ' a[href="#three"]').getBoundingClientRect().height]));`;
+    const heights = () => page.evaluate(([code, ids]) => new Function('ids', code)(ids) as Record<string, number>, [measure, all] as const);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, read, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return new Function('ids', read)(list) as Record<string, number>;
+        },
+        [change, measure, ids] as const,
+      );
+    const rowsAt = async () => {
+      const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+      return { small: Math.max(pointer, await resolveToken(page, T('row-height-small'))), medium: Math.max(pointer, await resolveToken(page, T('row-height-medium'))) };
+    };
+    // A size it takes, or the default, is not its own: no size attribute is written on one that sets none.
+    expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const size = await rowsAt();
+      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, folded: size.small, free: size.medium, nearest: size.medium, alone: size.medium });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await rowsAt();
+    expect(size.medium).toBeGreaterThan(size.small);
+    // Every member of the size: the block padding is small's; the label's text style is the same at both sizes.
+    const taken = page.locator('#taken a[href="#one"]');
+    expect(await px(taken, 'padding-top')).toBe(await resolveToken(page, T('row-padding-block-small')));
+    expect(await css(taken, 'font')).toBe(await css(page.locator('#free a[href="#one"]'), 'font'));
+    // The disclosure row of the compact presentation keeps its own height.
+    expect((await edges(page.locator('#folded').locator('button.row'))).height).toBe(await resolveToken(page, T('compact-row-height')));
+    // A size it lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    // Focus on a row, the current item and the open list: kept through every change.
+    await page.locator('#folded a[href="#two-a"]').focus();
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium', 'folded')).toEqual({ taken: size.small, 'own-medium': size.medium, folded: size.small });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken', 'folded')).toEqual({ taken: size.medium, folded: size.medium });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'small')", 'taken', 'folded')).toEqual({ taken: size.small, folded: size.small });
+    expect(await page.evaluate(() => document.activeElement?.getAttribute('href'))).toBe('#two-a');
+    expect(await page.evaluate(() => [...document.querySelectorAll('#taken a, #folded a')].filter((a) => a.getAttribute('aria-current') === 'location').map((a) => a.getAttribute('href')))).toEqual(['#two', '#two']);
+    expect(await page.locator('#folded').evaluate((el) => (el as HTMLElement & { open: boolean }).open)).toBe(true);
+    // Set, given back and set to the default's name on the element.
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('free'))", 'free')).toEqual({ free: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 
   test('TOC-40: with an empty label it still renders — no title, and a compact row that shows the current item’s label alone — and reports that the landmark and the row have no name; an item whose label is empty is not drawn, nor are its items, and is reported', async ({ page }) => {
@@ -1577,7 +1653,7 @@ test.describe('missing, unknown, empty', () => {
 
 test.describe('before the element is defined, and without script', () => {
   test('TOC-1, TOC-2, TOC-6, TOC-20: the stylesheet alone draws the title and the list — a plain nested list of anchors with the items’ hrefs, each followed by a click and by Enter, hover and focus drawn, a press the overlay held for press-hold — and nothing of the list presentation moves when the element is defined', async ({ page }) => {
-    const fixtures = [...some('nested', 'density-compact-three-levels', 'flat'), raw('marked', { ...LABEL, tracking: 'manual' }, THREE.replace('href="#two"', 'href="#two" aria-current="location"')), raw('slotted', LABEL, `<h3 slot="title">Contents</h3>${THREE}`)];
+    const fixtures = [...some('nested', 'size-small-three-levels', 'flat'), raw('marked', { ...LABEL, tracking: 'manual' }, THREE.replace('href="#two"', 'href="#two" aria-current="location"')), raw('slotted', LABEL, `<h3 slot="title">Contents</h3>${THREE}`)];
     const markup = await fixturesDocument(spec, { icons: true, fixtures });
     const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
     await page.setContent(markup.replace(bundle, ''));
@@ -1595,8 +1671,8 @@ test.describe('before the element is defined, and without script', () => {
     expect(await host(page, 'nested').evaluate((el) => [...el.querySelectorAll('ul a')].map((a) => a.getAttribute('href')))).toEqual(['#when-to-use', '#anatomy', '#container', '#label', '#behaviour', '#states', '#keyboard', '#accessibility']);
     await expect(host(page, 'nested').getByRole('link')).toHaveCount(8);
     expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(44);
-    expect((await edges(row(page, 'density-compact-three-levels', '#roles'))).height).toBe(36);
-    expect(Math.round((await textBox(row(page, 'density-compact-three-levels', '#roles'))).left - (await edges(list(page, 'density-compact-three-levels'))).left)).toBe(36);
+    expect((await edges(row(page, 'size-small-three-levels', '#roles'))).height).toBe(36);
+    expect(Math.round((await textBox(row(page, 'size-small-three-levels', '#roles'))).left - (await edges(list(page, 'size-small-three-levels'))).left)).toBe(36);
     expect(await css(list(page, 'nested'), 'border-left-color', '::before')).toBe(await resolveColor(page, T('rail-color')));
     expect(await css(row(page, 'nested', '#anatomy'), 'text-decoration-line')).toBe('none');
     // The title, from the label attribute, where the element will draw it.
@@ -1641,7 +1717,7 @@ test.describe('before the element is defined, and without script', () => {
       const outer = document.createElement('div');
       outer.id = 'shadowed';
       outer.attachShadow({ mode: 'open' }).innerHTML =
-        '<tanrei-table-of-contents label="On this page" tracking="manual" current="#b" density="compact"><ul><li><a href="#a">A</a><ul><li><a href="#b">B</a></li></ul></li></ul></tanrei-table-of-contents>';
+        '<tanrei-table-of-contents label="On this page" tracking="manual" current="#b" size="small"><ul><li><a href="#a">A</a><ul><li><a href="#b">B</a></li></ul></li></ul></tanrei-table-of-contents>';
       document.querySelector('main')!.append(outer);
     });
     const inner = page.locator('#shadowed tanrei-table-of-contents');

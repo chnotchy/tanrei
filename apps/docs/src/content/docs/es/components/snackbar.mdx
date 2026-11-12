@@ -337,7 +337,7 @@ Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, 
 | Motivo | Cuándo |
 | --- | --- |
 | `close` | Se activó el botón de cierre. |
-| `escape` | Se pulsó Escape mientras el foco estaba dentro del snackbar. |
+| `escape` | Se pulsó Esc mientras el foco estaba dentro del snackbar. |
 | `timeout` | A un snackbar `short` o `long` se le acabó el tiempo. |
 | `host` | Tu código lo cerró o vació la cola. |
 
@@ -352,7 +352,7 @@ Una superficie modal (un diálogo, una capa modal, una hoja lateral o inferior m
 - Un snackbar pedido mientras hay una superficie abierta aparece cuando le toca, sin esperar a que se cierre.
 - Cuando se abre una superficie mientras se muestra un snackbar, o se cierra la superficie en la que se muestra, el snackbar pasa al instante a la superficie que queda encima o, si no hay ninguna abierta, vuelve al anfitrión: sin su movimiento de entrada, todavía abierto, con su estado expandido y su lugar en la cola, y sin volver a anunciarse. Uno temporizado vuelve a empezar con su duración completa.
 - Sus controles van después de los de la superficie en el orden del foco, y el foco no sale de la superficie. Toma la dirección del diseño de la superficie.
-- Lo que la persona hace en el snackbar se queda en el snackbar: pulsarlo no es pulsar el velo, las teclas de flecha no mueven el contenido de la superficie, y Escape cierra el snackbar y deja abierta la superficie. Solo Tab sigue recorriendo el orden del foco de la superficie.
+- Lo que la persona hace en el snackbar se queda en el snackbar: pulsarlo no es pulsar el velo, las teclas de flecha no mueven el contenido de la superficie, y Esc cierra el snackbar y deja abierta la superficie. Solo Tab sigue recorriendo el orden del foco de la superficie.
 
 En la web, el anfitrión lo muestra en una caja que coloca dentro del `<dialog>` de la superficie, así que ahí el snackbar está en el árbol de sombra de esa superficie:
 
@@ -392,8 +392,8 @@ SwiftUI, Compose, Flutter y React Native todavía no muestran el snackbar dentro
 - Una forma de estado nunca se comunica solo con el color: dibuja el glifo del estado y expone `statusLabel` como texto antes del título. El glifo en sí queda oculto para la tecnología de apoyo, igual que los glifos de expandir y de cierre.
 - La acción recibe su nombre de su etiqueta, el botón de expandir de `expandLabel` y el botón de cierre de `closeLabel`. A todos se llega con Tab en el lugar del anfitrión en el orden del foco, o de inmediato con F6 o Mayús+F6, que desde dentro del snackbar devuelve el foco adonde estaba; se activan con Enter o Espacio.
 - El botón de expandir expone si el texto está expandido y conserva el mismo nombre en los dos estados. Una barra expandida cuyo texto se desplaza convierte el texto en una parada del foco, que recibe su nombre del título y se desplaza con las teclas de flecha y con Re Pág y Av Pág.
-- Escape cierra el snackbar mientras el foco está dentro de él. Cuando se cierra con el foco dentro, el foco vuelve adonde estaba antes.
-- Mientras hay una superficie modal abierta, todo lo que queda fuera de ella es inerte, así que el snackbar se muestra dentro de la superficie que está encima de todas: se anuncia, se puede pulsar y se llega a él con Tab después de los controles de la superficie, sin que el foco salga de ella. Escape cierra el snackbar y deja abierta la superficie.
+- Esc cierra el snackbar mientras el foco está dentro de él. Cuando se cierra con el foco dentro, el foco vuelve adonde estaba antes.
+- Mientras hay una superficie modal abierta, todo lo que queda fuera de ella es inerte, así que el snackbar se muestra dentro de la superficie que está encima de todas: se anuncia, se puede pulsar y se llega a él con Tab después de los controles de la superficie, sin que el foco salga de ella. Esc cierra el snackbar y deja abierta la superficie.
 - El lugar donde está la barra no cambia nada más. Un snackbar en el extremo superior final se alcanza con Tab en el lugar del anfitrión en el orden del foco, se anuncia exactamente igual que uno abajo y nunca tapa una cabecera fija.
 - Un snackbar con una acción no agota su tiempo de forma predeterminada. Los snackbars temporizados se pausan mientras tienen el cursor encima, el foco o están expandidos, se alargan hasta el tiempo de espera de accesibilidad de Android y, con una acción, nunca agotan su tiempo mientras hay un lector de pantalla en funcionamiento.
 - La acción cumple el objetivo mínimo en los dos ejes sin cambiar su tamaño dibujado, y los botones de expandir y de cierre, que son Button, conservan el suyo. Todo anillo de foco se muestra solo para el foco del teclado, en un color de la forma del snackbar, de modo que se ve en cualquier barra: una superficie, el tinte de un estado y una barra en inverso.

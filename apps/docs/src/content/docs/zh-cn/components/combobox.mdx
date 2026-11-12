@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个或多个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -167,12 +167,12 @@ import Example from '../../../../components/visuals/Example.astro';
 | 按下一个选项，或在活动选项上按 Enter | 它的值添加到末尾；如果已经选中，则取消选中。文本清空，所有选项重新显示，列表保持打开，方便继续选择。 |
 | 键入某个选项的完整标签并按 Enter | 添加该选项。设置了 `allowCustomValue` 时，其他文本也会原样成为一个值。 |
 | 插入点在文本开头时，按 Backspace 或指向行首的方向键 | 焦点移到最后一枚纸片。此时不会移除任何东西。 |
-| 在纸片上按方向键、Home 或 End | 在纸片之间移动；越过最后一枚，回到文本。Escape 和 Tab 也回到文本。 |
+| 在纸片上按方向键、Home 或 End | 在纸片之间移动；越过最后一枚，回到文本。Esc 和 Tab 也回到文本。 |
 | 在纸片上按 Backspace 或 Delete，或按它的移除按钮 | 移除这个值，焦点移到旁边的纸片，或者回到文本。 |
 | 按下一枚纸片 | 焦点移到文本，列表打开，并以这枚纸片对应的选项为活动选项。 |
-| 离开字段，或在列表关闭时按 Escape | 键入的文本清空。不会选中任何东西，也不会移除任何值。 |
+| 离开字段，或在列表关闭时按 Esc | 键入的文本清空。不会选中任何东西，也不会移除任何值。 |
 
-选择多个值的人通常会一个接一个地选，所以选择之后列表保持打开。按 Escape、按 V 形图标、在外部按下，或者焦点离开时，列表关闭。Backspace 在移除任何东西之前先移到最后一枚纸片，和[纸片字段](/zh-cn/components/chip-field/)一样：同一个键在两种字段里作用相同，用户没有先看到的东西不会被移除。
+选择多个值的人通常会一个接一个地选，所以选择之后列表保持打开。按 Esc、按 V 形图标、在外部按下，或者焦点离开时，列表关闭。Backspace 在移除任何东西之前先移到最后一枚纸片，和[纸片字段](/zh-cn/components/chip-field/)一样：同一个键在两种字段里作用相同，用户没有先看到的东西不会被移除。
 
 在表单里，它像 `<select multiple>` 一样，为每个值以 `name` 提交一项；没有选中任何值时不提交。外面包着必填的字段时，至少要选一个值。
 
@@ -232,7 +232,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
 
-`density` 决定一个选项占多大空间：`regular`（默认，高 48）或 `compact`（高 32，图标 20，即[菜单](/zh-cn/components/menu/)的紧凑行），后者适用于用鼠标操作、列表很长的工具。文字大小不变，无论密度如何，容器都由 `size` 决定。触摸时选项绝不低于触摸目标。
+选项采用组合框的 `size`。`small` 的组合框打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的组合框打开 medium 选项（高 48）。文字大小不变，选项绝不低于目标。
 
 <ComponentSpecs name="combobox" />
 

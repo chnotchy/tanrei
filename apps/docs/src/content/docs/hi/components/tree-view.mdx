@@ -2,13 +2,14 @@
 title: ट्री व्यू
 description: खुलने और बंद होने वाले आइटम की एक हायरार्की। हर स्तर पर पंक्तियाँ थोड़ा और भीतर से शुरू होती हैं, और जिस पंक्ति में दूसरे आइटम रहते हैं उसकी शुरुआत में एक शेवरॉन होता है। इसे या तो सिर्फ़ पढ़ा और खोला जाता है, या इसमें एक या कई आइटम चुने जाते हैं, और यह फ़ोकस के क्रम का एक ही पड़ाव है।
 translationOf: components/tree-view.mdx
-sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
+sourceHash: 6a2512f8c3a945f4f38d5424f5304454ff956bcf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -16,7 +17,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="tree-view" />
 
 <Example label="फ़ाइलों का ट्री: फ़ोल्डर को उसकी पंक्ति से खोलें, या ऐरो कुंजियों से">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="टोकन कहाँ रहते हैं" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="टोकन कहाँ रहते हैं" size="small" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>प्रामाणिक स्रोत, हाथ से संपादित</small></bdi></span>
@@ -154,7 +155,7 @@ import Example from '../../../../components/visuals/Example.astro';
 ## स्पेक
 
 <Example label="एक आइटम चुना हुआ: पंक्ति चुनती है, शेवरॉन खोलता है">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="हर टोकन" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="हर टोकन" selection="single" value="sys.color.primary" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>रेफ़रेंस</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
       <li data-open>
@@ -208,19 +209,19 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ट्री चयनित फ़िल आइटम की अपनी पंक्ति पर बनाता है। वह किसी पैरेंट को इसलिए चिह्नित नहीं करता कि उसके नीचे का कोई आइटम चयनित है, और चयन दिखाने के लिए किसी बंद पैरेंट को नहीं खोलता। अगर चुना हुआ आइटम नज़र में होना चाहिए, तो उसके ऊपर के पैरेंट पर `data-open` लगाएँ: रास्ता आपको पता है।
 
-### डेंसिटी
+### साइज़
 
-| `density` | एक लाइन के टेक्स्ट वाली पंक्ति | किसके लिए |
+| `size` | एक लाइन के टेक्स्ट वाली पंक्ति | किसके लिए |
 | --- | --- | --- |
-| `regular` (डिफ़ॉल्ट) | 48 | वह प्रॉडक्ट जो टच से भी इस्तेमाल होता है और पॉइंटर से भी। |
-| `compact` | 32 | वह टूल जिसे पॉइंटर से खोल-खोलकर देखा जाता है, और टेक्स्ट वाले पेज के भीतर का छोटा ट्री। |
+| `medium` (डिफ़ॉल्ट) | 48 | वह प्रॉडक्ट जो टच से भी इस्तेमाल होता है और पॉइंटर से भी। |
+| `small` | 36 | वह टूल जिसे पॉइंटर से खोल-खोलकर देखा जाता है, और टेक्स्ट वाले पेज के भीतर का छोटा ट्री। |
 
-compact पंक्ति पॉइंटर टार्गेट से कम ऊँची है। यह इसलिए स्वीकार किया गया है कि उसे नाम लेकर माँगा जाता है और वह कभी डिफ़ॉल्ट नहीं है। टच के लिए पंक्ति दोनों डेंसिटी में टच टार्गेट जितनी ऊँची रहती है।
+`small` पंक्ति न्यूनतम टारगेट पर रोकी जाती है, जो डिफ़ॉल्ट सिस्टम में 36 है, और कोई भी पंक्ति किसी भी साइज़ में टारगेट से कम ऊँची नहीं होती। दोनों ऊँचाइयाँ सिस्टम की [डेंसिटी](/hi/foundations/size-and-density/) के साथ बदलती हैं। जिस ट्री का अपना `size` सेट नहीं है, वह उस साइज़ में बनता है जो उसके आसपास का कंटेनर अपने भीतर की चीज़ों के लिए सेट करता है, और जहाँ कोई सेट नहीं करता वहाँ `medium` में।
 
 ### शेवरॉन
 
 <Example label="chevron end: मान के बाद निशान, जैसे मेन्यू बनाता है">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="end" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><bdi>src</bdi><span data-trailing-text>12</span></span>
@@ -241,7 +242,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
 | `none` | कहीं नहीं | ऐसे फ़ोल्डर जो अपनी स्थिति अपने ग्लिफ़ से दिखाते हैं। |
 
 <Example label="chevron none: फ़ोल्डर का ग्लिफ़ खुला और बंद दिखाता है; गाइड पॉइंटर के नीचे दिखते हैं">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="none" guides="hover" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -272,7 +273,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
 
 ### आइकन और उनकी जगह
 
-`icon-space="auto"` (डिफ़ॉल्ट) बिना आइकन वाली पंक्ति पर आइकन की जगह तब तक रखता है जब तक उसके स्तर की किसी और पंक्ति में आइकन हो, ताकि एक स्तर के लेबल एक कॉलम में खड़े हों। `always` हर पंक्ति पर रखता है, और `never` सिर्फ़ वहाँ जहाँ आइकन है। `icon-gap` आइकन और लेबल के बीच की जगह पिक्सेल में तय करता है; `auto` रहने पर यह टोकन `comp.tree-view.icon.gap` है, दोनों डेंसिटी में एक जैसा।
+`icon-space="auto"` (डिफ़ॉल्ट) बिना आइकन वाली पंक्ति पर आइकन की जगह तब तक रखता है जब तक उसके स्तर की किसी और पंक्ति में आइकन हो, ताकि एक स्तर के लेबल एक कॉलम में खड़े हों। `always` हर पंक्ति पर रखता है, और `never` सिर्फ़ वहाँ जहाँ आइकन है। `icon-gap` आइकन और लेबल के बीच की जगह पिक्सेल में तय करता है; `auto` रहने पर यह टोकन `comp.tree-view.icon.gap` है, दोनों साइज़ में एक जैसा।
 
 ### हाइलाइट
 
@@ -364,7 +365,9 @@ tree.addEventListener('create', (event) => {
 
 ## सुलभता
 
-<ComponentAccessibility name="tree-view" />
+<FocusOrder name="tree-view" fixture="filter" />
+
+<ComponentAccessibility name="tree-view" keyboardMap />
 
 ### कंपोनेंट क्या सँभालता है
 
@@ -388,7 +391,7 @@ tree.addEventListener('create', (event) => {
 - फ़िल्टर का फ़ील्ड एक खोज फ़ील्ड है जिसका नाम `filter-label` है। वह ट्री से पहले आता है और अपना अलग पड़ाव है, इसलिए ट्री एक ही पड़ाव बना रहता है। वह बताता है कि वह ट्री को नियंत्रित करता है, और किसी सक्रिय डिसेंडेंट को नहीं बताता: पहली मेल खाने वाली पंक्ति तब पढ़ी जाती है जब Down Arrow फ़ोकस को उस पर ले जाती है। उसके मिटाने के बटन का नाम `filter-clear-label` है।
 - फ़िल्टर जिन पंक्तियों को छिपाता है, वे सहायक तकनीक के लिए भी चली जाती हैं, इसलिए व्यक्ति जो भी स्तर, जगह और गिनती सुनता है, वह फ़िल्टर के बाद की होती है। टाइप करना एक सेकंड रुकने पर, ट्री के बग़ल की एक स्थिति बिना टोके (polite) और फ़ोकस हिलाए बिना बताती है कि कितनी पंक्तियाँ मेल खाती हैं, या कोई नहीं: ट्री बस यही एक चीज़ कभी पढ़कर सुनाता है। नतीजों के सबसे ऊपर बनी गिनती सहायक तकनीक से छिपी रहती है, जो उसकी जगह यह स्थिति सुनती है।
 - मेल खाने वाली पंक्ति चिह्नित नहीं होती, इसलिए कोई बात सिर्फ़ रंग से नहीं बताई जाती, और पंक्ति का नाम उसका पूरा लेबल ही रहता है।
-- ख़ाली `label`, बिना लेबल का आइटम, पंक्ति के अपने टेक्स्ट के रूप में लिखा लेबल, पंक्ति में कंट्रोल, ऐसा मान जो किसी आइटम का नहीं है, एक ही मान वाले दो आइटम, अनजान `density`, `selection`, `chevron`, `guides`, `icon-space` या `highlight`, ऐसा `indent` या `icon-gap` जो संख्या नहीं है, `chevron="none"` में बिना आइकन का पैरेंट, बिना `edit-label` का फ़ील्ड, बिना `filter-label` का फ़िल्टर फ़ील्ड, बिना नाम का मिटाने का बटन, और एक से ज़्यादा कॉर्ड वाला `filter-shortcut` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+- ख़ाली `label`, बिना लेबल का आइटम, पंक्ति के अपने टेक्स्ट के रूप में लिखा लेबल, पंक्ति में कंट्रोल, ऐसा मान जो किसी आइटम का नहीं है, एक ही मान वाले दो आइटम, अनजान `size`, `selection`, `chevron`, `guides`, `icon-space` या `highlight`, ऐसा `indent` या `icon-gap` जो संख्या नहीं है, `chevron="none"` में बिना आइकन का पैरेंट, बिना `edit-label` का फ़ील्ड, बिना `filter-label` का फ़िल्टर फ़ील्ड, बिना नाम का मिटाने का बटन, और एक से ज़्यादा कॉर्ड वाला `filter-shortcut` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
 
 ### आपको क्या करना है
 

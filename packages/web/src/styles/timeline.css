@@ -13,7 +13,7 @@
  *     </li>
  *     <li><p class="tanrei-timeline-time">Wave 1</p><h3>The controls of day one</h3><p>…</p></li>
  *   </ol>
- *   <ol class="tanrei-timeline" role="list" data-size="large" data-density="compact">
+ *   <ol class="tanrei-timeline" role="list" data-size="large">
  *     <li data-status="done" data-status-label="Done">…</li>                           a check in a ring
  *     <li data-status="current" data-status-label="In progress">…</li>                 a filled circle with a dot
  *     <li data-status="upcoming" data-status-label="Not started">…</li>                an empty ring
@@ -55,8 +55,8 @@
  */
 /* timeline:rules */
 @layer tanrei.components {
-  /* ── The list: the text styles and the measures of its size and density (TML-1, TML-2, TML-5, TML-10; TML-21: any
-        other size or density is the default) ─────────────────────────────────────────────────────────────────────── */
+  /* ── The list: the text styles and the measures of its size (TML-1, TML-2, TML-5, TML-10; TML-21: any other size
+        is the default) ───────────────────────────────────────────────────────────────────────────────────────────── */
   :where(.tanrei-timeline) {
     --_timeline-body-font: var(--tanrei-comp-timeline-body-typescale-medium-font);
     --_timeline-body-tracking: var(--tanrei-comp-timeline-body-typescale-medium-letter-spacing);
@@ -72,8 +72,8 @@
     --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-medium-font-size) * var(--tanrei-comp-timeline-time-typescale-medium-line-height));
     /* TML-1, TML-6: the marker's box, which is also the marker column. */
     --_timeline-marker: var(--tanrei-comp-timeline-marker-height-medium);
-    /* TML-2: the space between two events. */
-    --_timeline-gap: var(--tanrei-comp-timeline-item-gap-regular);
+    /* TML-2: the space between two events, which follows the system's density. */
+    --_timeline-gap: var(--tanrei-comp-timeline-item-gap);
     --tanrei-text-emphasized-weight: var(--_timeline-body-emphasized);
     display: block;
     /* TML-10: a block in the flow, as wide as its container, with no inset and no space after it. */
@@ -103,9 +103,6 @@
     --_timeline-time-emphasized: var(--tanrei-comp-timeline-time-typescale-large-font-weight-emphasized);
     --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-large-font-size) * var(--tanrei-comp-timeline-time-typescale-large-line-height));
     --_timeline-marker: var(--tanrei-comp-timeline-marker-height-large);
-  }
-  :where(.tanrei-timeline[data-density='compact']) {
-    --_timeline-gap: var(--tanrei-comp-timeline-item-gap-compact);
   }
   /* TML-10: the space before it is its container's (PRS-15) — prose's rhythm inside a prose, none of its own elsewhere. */
   :where(.tanrei-timeline:not(.tanrei-prose *)) {
