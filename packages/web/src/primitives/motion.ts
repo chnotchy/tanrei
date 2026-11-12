@@ -575,8 +575,14 @@ export class AppearController implements ReactiveController {
     const motion = this.options.motion();
     if (!motion || !this.opened) return;
     motion.setAttribute(APPEARING, '');
-    if (this.instant || !documentPainted() || !motion.isConnected) atOnce(motion);
-    else fromNextFrame(motion);
+    if (this.instant || !documentPainted() || !motion.isConnected) {
+      // Made at once, it has no entrance: `atOnce` finished every transition and put the transitions back with no value
+      // changed, which starts none. Asking for them again had the page styled once more for nothing.
+      atOnce(motion);
+      this.entrance = [];
+      return;
+    }
+    fromNextFrame(motion);
     this.entrance = appearing(motion);
   }
 

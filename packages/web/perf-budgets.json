@@ -696,16 +696,16 @@
         "measured": 1079
       },
       "menu": {
-        "budget": 189,
-        "measured": 180
+        "budget": 94,
+        "measured": 90
       },
       "modal-layer": {
         "budget": 756,
         "measured": 720
       },
       "popover": {
-        "budget": 187,
-        "measured": 179
+        "budget": 93,
+        "measured": 89
       },
       "side-sheet": {
         "budget": 283,
