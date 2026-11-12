@@ -1,5 +1,5 @@
-// What a published package's tarball should not hold (src/pack-contents.js), on file lists made up here; the web
-// package's own tarball is checked after its build (packages/web/test/pack.test.mjs).
+// What a published package's tarball should not hold (src/pack-contents.js), on file lists made up here; each published
+// package's own tarball is checked by its tests, after its build (web, react, cli, mcp, token-engine).
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { packFindings } from '../src/pack-contents.js';
