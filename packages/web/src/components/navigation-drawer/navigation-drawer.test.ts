@@ -4648,6 +4648,26 @@ test.describe('resizable', () => {
     }
   });
 
+  test('NVD-18, NVD-97: a standard drawer that opens lays its rows out at its width from the task that opens it — its slide, held at its start until the next frame, is no narrower room — and slides in to its width', async ({ page }) => {
+    // The slide stands at a width of none until the next frame draws it (statesFromNextFrame). Read as the room the
+    // parent gives, it had the rows laid out at none through the slide, and the drawer drawn without motion (as a room's
+    // change is) from that task, and again once the room came back: a slide cut off, or a close in those frames drawn at once.
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await allSettled(page);
+    const pad = await px(page, T('container-padding-inline'));
+    const opened = await drawer(page, 's').evaluate(async (el: HTMLElement) => {
+      (el as HTMLElement & { open: boolean }).open = true;
+      // The drawer's update and the reads it asks for together (src/primitives/read-phase.ts): microtasks of this task.
+      for (let turn = 0; turn < 200; turn++) await null;
+      const row = el.querySelector('tanrei-navigation-drawer-item')!.shadowRoot!.querySelector('.row > .container')!;
+      return { row: row.getBoundingClientRect().width, host: el.getBoundingClientRect().width };
+    });
+    await motionEnded(page);
+    const width = await drawnWidth(page, 's');
+    expect(opened, 'in the task that opens it: its rows at its width, and the drawer at the start of its slide').toEqual({ row: width - 2 * pad, host: 0 });
+    expect((await bounds(box(page, 's', 0))).width).toBe(width - 2 * pad);
+  });
+
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {
     await wide(page);
     await mount(page, [fixture('d', SIDE, { width: 300 })]);

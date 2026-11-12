@@ -3321,13 +3321,18 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less a touch target,
    * APS-5), or else what the drawer's own `max-inline-size: 100%` left of `intended` the last time the drawer was seen
-   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset.
+   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset. A motion of
+   * the host's own is not rest, whether it runs or stands held at its start until the next frame (statesFromNextFrame):
+   * an opening's slide is held at a width of none in the task that opens the drawer, which read as rest would have the
+   * rows laid out at no room through the slide, and the room coming back at its end draw the host without motion for
+   * the frames after it (data-resizing), a close in them included.
    */
   private room(intended: number): number | null {
     const inset = this.panel ? Number.parseFloat(getComputedStyle(this.panel).paddingInlineStart) || 0 : 0;
     const max = getComputedStyle(this).getPropertyValue('max-inline-size').trim();
     if (max.endsWith('px') && Number.isFinite(Number.parseFloat(max))) return Number.parseFloat(max) - inset;
-    if (this.collapsed || this.resizeDrag || this.getAnimations().some((motion) => motion.playState === 'running')) return this.lastRoom;
+    const moving = this.getAnimations().some((motion) => motion.playState === 'running' || motion.playState === 'paused');
+    if (this.collapsed || this.resizeDrag || moving) return this.lastRoom;
     const drawn = this.getBoundingClientRect().width - inset;
     this.lastRoom = drawn < intended - 0.5 ? drawn : null;
     return this.lastRoom;
