@@ -11,6 +11,7 @@ import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindo
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -2242,6 +2243,22 @@ test.describe('compact window', () => {
     await settle(page);
     await motionEnded(sheet(page, id));
   }
+  test('POP-22, POP-41: closed at the end of a task that outlasts its motions, the sheet slides out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the control focus left and the opener focus went back to would be drawn at their end at once.
+    await mount(page, `<div style="padding: 120px 40px 0"><tanrei-button id="a">Storage</tanrei-button></div>${popover('headline="Empty the trash?"', `The 12 files in it will be deleted.${ACTIONS.replace('dismissive', 'dismissive autofocus')}`)}`, { ...COMPACT, reducedMotion: false });
+    // Settled first (MOT-3): focus given to the opener while it settles starts no motion.
+    await allSettled(page);
+    await tabTo(page, page.locator('#a'));
+    await set(page, { open: true });
+    await expect.poll(() => isSheet(page)).toBe(true);
+    await settle(page);
+    await motionEnded(page);
+    expect(await activeButton(page)).toBe('Cancel');
+    await expectFromNextFrame(host(page), '(el) => { el.open = false; }', ['tanrei-popover dialog.container translate', 'tanrei-button button background-color'], 'closed');
+    expect(await activeButton(page)).toBe('Storage');
+  });
+
   const page320 = (attributes = '', content = `The 12 files in it will be deleted.<button id="in" type="button">Details</button>${ACTIONS}`) =>
     `<div style="padding: 120px 40px 0"><button id="a" type="button">Storage</button> <button id="behind" type="button">Behind</button></div>${popover(`headline="Empty the trash?" ${attributes}`, content)}`;
 
