@@ -48,7 +48,7 @@ export interface TanreiLoadingIndicatorSizeRegistry {
 // The box of the text input, the select, the combobox, the number input and the color input is one set of tokens,
 // `comp.input-box`: its sizes and its looks are the box's, and the five controls' `size` and `variant`
 // are defined from these two. A layer that adds a size or a look adds it to the box, and all five take it. A control
-// offers the sizes its spec lists: the select all three, the four others every one but `small`.
+// offers the sizes its spec lists: all five offer all three.
 export interface TanreiInputBoxSizeRegistry {
   small: true;
   medium: true;

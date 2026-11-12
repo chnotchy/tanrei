@@ -58,8 +58,8 @@ import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
-/** The container's minimum height: the box's `medium` and `large` (`small` is a size of the box this control does not offer). A design system may add values. */
-export type TanreiComboboxSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The container's minimum height: the box's `small`, `medium` and `large`. A design system may add values. */
+export type TanreiComboboxSize = keyof TanreiInputBoxSizeRegistry;
 /** How a group of options is told from what is next to it: the design system's answer (auto), a line, or empty space. */
 export type TanreiComboboxSeparation = SeparationProp;
 /** Whether a shown option keeps the leading icon column where it has no icon (CMB-67). A closed set: the menu's values. */

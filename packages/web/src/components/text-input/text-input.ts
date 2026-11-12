@@ -66,8 +66,8 @@ import type { TanreiHandle, TanreiHandleResizeDetail, TanreiHandleStepDetail } f
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
-/** The box's sizes a text input offers (medium, large — `small` is a size of the box it does not offer), plus any a design system's generated `.d.ts` registers. */
-export type TanreiTextInputSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The box's sizes (small, medium, large), plus any a design system's generated `.d.ts` registers for the box. */
+export type TanreiTextInputSize = keyof TanreiInputBoxSizeRegistry;
 /** What the value is: the keyboard, autocorrection, obscured entry and semantics (TXI-20). */
 export type TanreiTextInputType = 'text' | 'email' | 'password' | 'number' | 'search' | 'tel' | 'url' | 'code' | 'date' | 'time' | 'date-time';
 

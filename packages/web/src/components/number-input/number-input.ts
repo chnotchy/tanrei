@@ -31,8 +31,8 @@ import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of its Field (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiNumberInputVariant = keyof TanreiInputBoxVariantRegistry;
-/** The container's minimum height: the box's `medium` and `large` (`small` is a size of the box this control does not offer). A design system may add values. */
-export type TanreiNumberInputSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The container's minimum height: the box's `small`, `medium` and `large`. A design system may add values. */
+export type TanreiNumberInputSize = keyof TanreiInputBoxSizeRegistry;
 /** Where the number stands in the input: at the field's start edge, or at its end edge. */
 export type TanreiNumberInputAlign = 'start' | 'end';
 /** `input`'s detail: the number the text reads as — not clamped, not rounded — or null while it reads as none. */
@@ -434,7 +434,7 @@ export class TanreiNumberInput extends TanreiElement {
   /** NMI-30: the limits as decimals; a `max` below `min` is no limit. */
   /** NMI-25: the steppers' Button size — small in a small box, which is as tall as a small Button; medium otherwise. */
   private get stepperSize(): 'small' | 'medium' {
-    return (this.size as string) === 'small' ? 'small' : 'medium';
+    return this.size === 'small' ? 'small' : 'medium';
   }
 
   private get limits(): { min: Decimal | null; max: Decimal | null } {

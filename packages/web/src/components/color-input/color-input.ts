@@ -16,8 +16,8 @@ import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box that draws no label (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiColorInputVariant = keyof TanreiInputBoxVariantRegistry;
-/** The container's minimum height: the box's `medium` and `large` (`small` is a size of the box this control does not offer). A design system may add values. */
-export type TanreiColorInputSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The container's minimum height: the box's `small`, `medium` and `large`. A design system may add values. */
+export type TanreiColorInputSize = keyof TanreiInputBoxSizeRegistry;
 /** `pickerrequest`'s detail: the value the input holds — a color, or the empty string. */
 export interface TanreiColorInputPickerRequestDetail {
   value: string;
