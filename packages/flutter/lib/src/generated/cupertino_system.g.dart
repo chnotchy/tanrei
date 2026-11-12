@@ -3483,17 +3483,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiComboboxDensitys(
-      regular: TanreiComboboxDensityTokens(
-        optionHeight: 44.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 16.0,
-        optionMarkSize: 16.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiComboboxDensityTokens(
+    optionSizes: TanreiComboboxOptionSizes(
+      small: TanreiComboboxOptionSizeTokens(
         optionHeight: 32.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 6.0,
@@ -3501,6 +3492,15 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         optionLeadingIconSize: 16.0,
         optionMarkSize: 16.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiComboboxOptionSizeTokens(
+        optionHeight: 44.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 16.0,
+        optionMarkSize: 16.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiComboboxStateTokens(
@@ -5958,18 +5958,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiMenuDensitys(
-      regular: TanreiMenuDensityTokens(
-        containerHeight: 44.0,
-        containerPaddingInline: 12.0,
-        containerPaddingBlock: 8.0,
-        containerGap: 12.0,
-        leadingIconSize: 16.0,
-        trailingIconSize: 16.0,
-        markSize: 16.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiMenuDensityTokens(
+    sizes: TanreiMenuSizes(
+      small: TanreiMenuSizeTokens(
         containerHeight: 32.0,
         containerPaddingInline: 8.0,
         containerPaddingBlock: 6.0,
@@ -5978,6 +5968,16 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         trailingIconSize: 16.0,
         markSize: 16.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiMenuSizeTokens(
+        containerHeight: 44.0,
+        containerPaddingInline: 12.0,
+        containerPaddingBlock: 8.0,
+        containerGap: 12.0,
+        leadingIconSize: 16.0,
+        trailingIconSize: 16.0,
+        markSize: 16.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiMenuStateTokens(
@@ -7565,19 +7565,19 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSearchDensitys(
-      regular: TanreiSearchDensityTokens(
-        suggestionContainerHeight: 44.0,
-        suggestionContainerPaddingInline: 12.0,
-        suggestionContainerPaddingBlock: 8.0,
-        suggestionContainerGap: 12.0,
-        suggestionLeadingIconSize: 20.0,
-      ),
-      compact: TanreiSearchDensityTokens(
+    sizes: TanreiSearchSizes(
+      small: TanreiSearchSizeTokens(
         suggestionContainerHeight: 32.0,
         suggestionContainerPaddingInline: 8.0,
         suggestionContainerPaddingBlock: 4.0,
         suggestionContainerGap: 8.0,
+        suggestionLeadingIconSize: 20.0,
+      ),
+      medium: TanreiSearchSizeTokens(
+        suggestionContainerHeight: 44.0,
+        suggestionContainerPaddingInline: 12.0,
+        suggestionContainerPaddingBlock: 8.0,
+        suggestionContainerGap: 12.0,
         suggestionLeadingIconSize: 20.0,
       ),
     ),
@@ -7972,17 +7972,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSelectDensitys(
-      regular: TanreiSelectDensityTokens(
-        optionHeight: 44.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 16.0,
-        optionMarkSize: 16.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiSelectDensityTokens(
+    optionSizes: TanreiSelectOptionSizes(
+      small: TanreiSelectOptionSizeTokens(
         optionHeight: 32.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 6.0,
@@ -7990,6 +7981,15 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         optionLeadingIconSize: 16.0,
         optionMarkSize: 16.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiSelectOptionSizeTokens(
+        optionHeight: 44.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 16.0,
+        optionMarkSize: 16.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiSelectStateTokens(

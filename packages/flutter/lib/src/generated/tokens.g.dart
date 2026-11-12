@@ -7971,23 +7971,23 @@ class TanreiComboboxVariants {
   }
 }
 
-/// The key of a density of combobox (`comp.combobox`, axis `density`).
+/// The key of a option-size of combobox (`comp.combobox`, axis `option-size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiComboboxDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiComboboxDensity(String name) {
-  static const regular = TanreiComboboxDensity('regular');
-  static const compact = TanreiComboboxDensity('compact');
+/// `const TanreiComboboxOptionSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiComboboxOptionSize(String name) {
+  static const small = TanreiComboboxOptionSize('small');
+  static const medium = TanreiComboboxOptionSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiComboboxDensity> core = <TanreiComboboxDensity>[regular, compact];
+  static const List<TanreiComboboxOptionSize> core = <TanreiComboboxOptionSize>[small, medium];
 }
 
-/// The tokens of one combobox density.
+/// The tokens of one combobox option-size.
 @immutable
-class TanreiComboboxDensityTokens {
-  const TanreiComboboxDensityTokens({
+class TanreiComboboxOptionSizeTokens {
+  const TanreiComboboxOptionSizeTokens({
     required this.optionHeight,
     required this.optionPaddingInline,
     required this.optionPaddingBlock,
@@ -7997,23 +7997,23 @@ class TanreiComboboxDensityTokens {
     required this.groupTitlePaddingInline,
   });
 
-  /// `comp.combobox.option-height.<density>`
+  /// `comp.combobox.option-height.<option-size>`
   final double optionHeight;
-  /// `comp.combobox.option-padding-inline.<density>`
+  /// `comp.combobox.option-padding-inline.<option-size>`
   final double optionPaddingInline;
-  /// `comp.combobox.option-padding-block.<density>`
+  /// `comp.combobox.option-padding-block.<option-size>`
   final double optionPaddingBlock;
-  /// `comp.combobox.option-gap.<density>`
+  /// `comp.combobox.option-gap.<option-size>`
   final double optionGap;
-  /// `comp.combobox.option-leading-icon-size.<density>`
+  /// `comp.combobox.option-leading-icon-size.<option-size>`
   final double optionLeadingIconSize;
-  /// `comp.combobox.option-mark-size.<density>`
+  /// `comp.combobox.option-mark-size.<option-size>`
   final double optionMarkSize;
-  /// `comp.combobox.group-title-padding-inline.<density>`
+  /// `comp.combobox.group-title-padding-inline.<option-size>`
   final double groupTitlePaddingInline;
 
   /// A copy with the given tokens replaced.
-  TanreiComboboxDensityTokens copyWith({
+  TanreiComboboxOptionSizeTokens copyWith({
     double? optionHeight,
     double? optionPaddingInline,
     double? optionPaddingBlock,
@@ -8021,7 +8021,7 @@ class TanreiComboboxDensityTokens {
     double? optionLeadingIconSize,
     double? optionMarkSize,
     double? groupTitlePaddingInline,
-  }) => TanreiComboboxDensityTokens(
+  }) => TanreiComboboxOptionSizeTokens(
         optionHeight: optionHeight ?? this.optionHeight,
         optionPaddingInline: optionPaddingInline ?? this.optionPaddingInline,
         optionPaddingBlock: optionPaddingBlock ?? this.optionPaddingBlock,
@@ -8032,58 +8032,58 @@ class TanreiComboboxDensityTokens {
       );
 }
 
-/// Every density of combobox: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every option-size of combobox: the core values by name, the values a design system added in [extra].
+/// Look one up with `optionSizes[key]`; the lookup is total.
 @immutable
-class TanreiComboboxDensitys {
-  const TanreiComboboxDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiComboboxDensity, TanreiComboboxDensityTokens>{},
+class TanreiComboboxOptionSizes {
+  const TanreiComboboxOptionSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiComboboxOptionSize, TanreiComboboxOptionSizeTokens>{},
   });
 
-  /// `comp.combobox` density `regular`
-  final TanreiComboboxDensityTokens regular;
-  /// `comp.combobox` density `compact`
-  final TanreiComboboxDensityTokens compact;
+  /// `comp.combobox` option-size `small`
+  final TanreiComboboxOptionSizeTokens small;
+  /// `comp.combobox` option-size `medium`
+  final TanreiComboboxOptionSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiComboboxDensity, TanreiComboboxDensityTokens> extra;
+  /// The option-sizes a design system added to the core vocabulary.
+  final Map<TanreiComboboxOptionSize, TanreiComboboxOptionSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiComboboxDensitys copyWith({
-    TanreiComboboxDensityTokens? regular,
-    TanreiComboboxDensityTokens? compact,
-    Map<TanreiComboboxDensity, TanreiComboboxDensityTokens>? extra,
-  }) => TanreiComboboxDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiComboboxDensity, TanreiComboboxDensityTokens>{...this.extra, ...extra},
+  TanreiComboboxOptionSizes copyWith({
+    TanreiComboboxOptionSizeTokens? small,
+    TanreiComboboxOptionSizeTokens? medium,
+    Map<TanreiComboboxOptionSize, TanreiComboboxOptionSizeTokens>? extra,
+  }) => TanreiComboboxOptionSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiComboboxOptionSize, TanreiComboboxOptionSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [option-size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A option-size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiComboboxDensityTokens operator [](TanreiComboboxDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiComboboxOptionSizeTokens operator [](TanreiComboboxOptionSize optionSize) => switch (optionSize.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[optionSize] ?? _fallback(optionSize),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiComboboxDensity density) => TanreiComboboxDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [option-size].
+  bool has(TanreiComboboxOptionSize optionSize) => TanreiComboboxOptionSize.core.contains(optionSize) || extra.containsKey(optionSize);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiComboboxDensity> get keys => <TanreiComboboxDensity>[...TanreiComboboxDensity.core, ...extra.keys];
+  /// Every option-size this design system has: the core values, then the added ones.
+  List<TanreiComboboxOptionSize> get keys => <TanreiComboboxOptionSize>[...TanreiComboboxOptionSize.core, ...extra.keys];
 
-  TanreiComboboxDensityTokens _fallback(TanreiComboboxDensity density) {
+  TanreiComboboxOptionSizeTokens _fallback(TanreiComboboxOptionSize optionSize) {
     assert(() {
-      debugTanreiReportUnknownValue('combobox density', density.name, 'regular');
+      debugTanreiReportUnknownValue('combobox option-size', optionSize.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -8147,7 +8147,7 @@ class TanreiComboboxTokens {
     required this.statusErrorColor,
     required this.statusTypescale,
     required this.variants,
-    required this.densitys,
+    required this.optionSizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -8230,8 +8230,8 @@ class TanreiComboboxTokens {
   final TanreiTextStyle statusTypescale;
   /// The `variant` axis: `variants[variant]`.
   final TanreiComboboxVariants variants;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiComboboxDensitys densitys;
+  /// The `option-size` axis: `optionSizes[option-size]`.
+  final TanreiComboboxOptionSizes optionSizes;
   /// `comp.combobox.hovered.*`
   final TanreiComboboxStateTokens hovered;
   /// `comp.combobox.focused.*`
@@ -8281,7 +8281,7 @@ class TanreiComboboxTokens {
     TanreiPaint? statusErrorColor,
     TanreiTextStyle? statusTypescale,
     TanreiComboboxVariants? variants,
-    TanreiComboboxDensitys? densitys,
+    TanreiComboboxOptionSizes? optionSizes,
     TanreiComboboxStateTokens? hovered,
     TanreiComboboxStateTokens? focused,
     TanreiComboboxStateTokens? pressed,
@@ -8325,7 +8325,7 @@ class TanreiComboboxTokens {
         statusErrorColor: statusErrorColor ?? this.statusErrorColor,
         statusTypescale: statusTypescale ?? this.statusTypescale,
         variants: variants ?? this.variants,
-        densitys: densitys ?? this.densitys,
+        optionSizes: optionSizes ?? this.optionSizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
@@ -15282,23 +15282,23 @@ class TanreiMenuConditions {
   }
 }
 
-/// The key of a density of menu (`comp.menu`, axis `density`).
+/// The key of a size of menu (`comp.menu`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiMenuDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiMenuDensity(String name) {
-  static const regular = TanreiMenuDensity('regular');
-  static const compact = TanreiMenuDensity('compact');
+/// `const TanreiMenuSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiMenuSize(String name) {
+  static const small = TanreiMenuSize('small');
+  static const medium = TanreiMenuSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiMenuDensity> core = <TanreiMenuDensity>[regular, compact];
+  static const List<TanreiMenuSize> core = <TanreiMenuSize>[small, medium];
 }
 
-/// The tokens of one menu density.
+/// The tokens of one menu size.
 @immutable
-class TanreiMenuDensityTokens {
-  const TanreiMenuDensityTokens({
+class TanreiMenuSizeTokens {
+  const TanreiMenuSizeTokens({
     required this.containerHeight,
     required this.containerPaddingInline,
     required this.containerPaddingBlock,
@@ -15309,25 +15309,25 @@ class TanreiMenuDensityTokens {
     required this.groupTitlePaddingInline,
   });
 
-  /// `comp.menu.container-height.<density>`
+  /// `comp.menu.container-height.<size>`
   final double containerHeight;
-  /// `comp.menu.container-padding-inline.<density>`
+  /// `comp.menu.container-padding-inline.<size>`
   final double containerPaddingInline;
-  /// `comp.menu.container-padding-block.<density>`
+  /// `comp.menu.container-padding-block.<size>`
   final double containerPaddingBlock;
-  /// `comp.menu.container-gap.<density>`
+  /// `comp.menu.container-gap.<size>`
   final double containerGap;
-  /// `comp.menu.leading-icon-size.<density>`
+  /// `comp.menu.leading-icon-size.<size>`
   final double leadingIconSize;
-  /// `comp.menu.trailing-icon-size.<density>`
+  /// `comp.menu.trailing-icon-size.<size>`
   final double trailingIconSize;
-  /// `comp.menu.mark-size.<density>`
+  /// `comp.menu.mark-size.<size>`
   final double markSize;
-  /// `comp.menu.group-title-padding-inline.<density>`
+  /// `comp.menu.group-title-padding-inline.<size>`
   final double groupTitlePaddingInline;
 
   /// A copy with the given tokens replaced.
-  TanreiMenuDensityTokens copyWith({
+  TanreiMenuSizeTokens copyWith({
     double? containerHeight,
     double? containerPaddingInline,
     double? containerPaddingBlock,
@@ -15336,7 +15336,7 @@ class TanreiMenuDensityTokens {
     double? trailingIconSize,
     double? markSize,
     double? groupTitlePaddingInline,
-  }) => TanreiMenuDensityTokens(
+  }) => TanreiMenuSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
@@ -15348,58 +15348,58 @@ class TanreiMenuDensityTokens {
       );
 }
 
-/// Every density of menu: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of menu: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiMenuDensitys {
-  const TanreiMenuDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiMenuDensity, TanreiMenuDensityTokens>{},
+class TanreiMenuSizes {
+  const TanreiMenuSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiMenuSize, TanreiMenuSizeTokens>{},
   });
 
-  /// `comp.menu` density `regular`
-  final TanreiMenuDensityTokens regular;
-  /// `comp.menu` density `compact`
-  final TanreiMenuDensityTokens compact;
+  /// `comp.menu` size `small`
+  final TanreiMenuSizeTokens small;
+  /// `comp.menu` size `medium`
+  final TanreiMenuSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiMenuDensity, TanreiMenuDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiMenuSize, TanreiMenuSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiMenuDensitys copyWith({
-    TanreiMenuDensityTokens? regular,
-    TanreiMenuDensityTokens? compact,
-    Map<TanreiMenuDensity, TanreiMenuDensityTokens>? extra,
-  }) => TanreiMenuDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiMenuDensity, TanreiMenuDensityTokens>{...this.extra, ...extra},
+  TanreiMenuSizes copyWith({
+    TanreiMenuSizeTokens? small,
+    TanreiMenuSizeTokens? medium,
+    Map<TanreiMenuSize, TanreiMenuSizeTokens>? extra,
+  }) => TanreiMenuSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiMenuSize, TanreiMenuSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiMenuDensityTokens operator [](TanreiMenuDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiMenuSizeTokens operator [](TanreiMenuSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiMenuDensity density) => TanreiMenuDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiMenuSize size) => TanreiMenuSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiMenuDensity> get keys => <TanreiMenuDensity>[...TanreiMenuDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiMenuSize> get keys => <TanreiMenuSize>[...TanreiMenuSize.core, ...extra.keys];
 
-  TanreiMenuDensityTokens _fallback(TanreiMenuDensity density) {
+  TanreiMenuSizeTokens _fallback(TanreiMenuSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('menu density', density.name, 'regular');
+      debugTanreiReportUnknownValue('menu size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -15474,7 +15474,7 @@ class TanreiMenuTokens {
     required this.surfaceViewportMargin,
     required this.trailingTextTypescale,
     required this.conditions,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -15569,8 +15569,8 @@ class TanreiMenuTokens {
   final TanreiTextStyle trailingTextTypescale;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiMenuConditions conditions;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiMenuDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiMenuSizes sizes;
   /// `comp.menu.hovered.*`
   final TanreiMenuStateTokens hovered;
   /// `comp.menu.focused.*`
@@ -15626,7 +15626,7 @@ class TanreiMenuTokens {
     double? surfaceViewportMargin,
     TanreiTextStyle? trailingTextTypescale,
     TanreiMenuConditions? conditions,
-    TanreiMenuDensitys? densitys,
+    TanreiMenuSizes? sizes,
     TanreiMenuStateTokens? hovered,
     TanreiMenuStateTokens? focused,
     TanreiMenuStateTokens? pressed,
@@ -15676,7 +15676,7 @@ class TanreiMenuTokens {
         surfaceViewportMargin: surfaceViewportMargin ?? this.surfaceViewportMargin,
         trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
         conditions: conditions ?? this.conditions,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
@@ -20149,23 +20149,23 @@ class TanreiSearchConditions {
   }
 }
 
-/// The key of a density of search (`comp.search`, axis `density`).
+/// The key of a size of search (`comp.search`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiSearchDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiSearchDensity(String name) {
-  static const regular = TanreiSearchDensity('regular');
-  static const compact = TanreiSearchDensity('compact');
+/// `const TanreiSearchSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiSearchSize(String name) {
+  static const small = TanreiSearchSize('small');
+  static const medium = TanreiSearchSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiSearchDensity> core = <TanreiSearchDensity>[regular, compact];
+  static const List<TanreiSearchSize> core = <TanreiSearchSize>[small, medium];
 }
 
-/// The tokens of one search density.
+/// The tokens of one search size.
 @immutable
-class TanreiSearchDensityTokens {
-  const TanreiSearchDensityTokens({
+class TanreiSearchSizeTokens {
+  const TanreiSearchSizeTokens({
     required this.suggestionContainerHeight,
     required this.suggestionContainerPaddingInline,
     required this.suggestionContainerPaddingBlock,
@@ -20173,25 +20173,25 @@ class TanreiSearchDensityTokens {
     required this.suggestionLeadingIconSize,
   });
 
-  /// `comp.search.suggestion-container-height.<density>`
+  /// `comp.search.suggestion-container-height.<size>`
   final double suggestionContainerHeight;
-  /// `comp.search.suggestion-container-padding-inline.<density>`
+  /// `comp.search.suggestion-container-padding-inline.<size>`
   final double suggestionContainerPaddingInline;
-  /// `comp.search.suggestion-container-padding-block.<density>`
+  /// `comp.search.suggestion-container-padding-block.<size>`
   final double suggestionContainerPaddingBlock;
-  /// `comp.search.suggestion-container-gap.<density>`
+  /// `comp.search.suggestion-container-gap.<size>`
   final double suggestionContainerGap;
-  /// `comp.search.suggestion-leading-icon-size.<density>`
+  /// `comp.search.suggestion-leading-icon-size.<size>`
   final double suggestionLeadingIconSize;
 
   /// A copy with the given tokens replaced.
-  TanreiSearchDensityTokens copyWith({
+  TanreiSearchSizeTokens copyWith({
     double? suggestionContainerHeight,
     double? suggestionContainerPaddingInline,
     double? suggestionContainerPaddingBlock,
     double? suggestionContainerGap,
     double? suggestionLeadingIconSize,
-  }) => TanreiSearchDensityTokens(
+  }) => TanreiSearchSizeTokens(
         suggestionContainerHeight: suggestionContainerHeight ?? this.suggestionContainerHeight,
         suggestionContainerPaddingInline: suggestionContainerPaddingInline ?? this.suggestionContainerPaddingInline,
         suggestionContainerPaddingBlock: suggestionContainerPaddingBlock ?? this.suggestionContainerPaddingBlock,
@@ -20200,58 +20200,58 @@ class TanreiSearchDensityTokens {
       );
 }
 
-/// Every density of search: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of search: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiSearchDensitys {
-  const TanreiSearchDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiSearchDensity, TanreiSearchDensityTokens>{},
+class TanreiSearchSizes {
+  const TanreiSearchSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiSearchSize, TanreiSearchSizeTokens>{},
   });
 
-  /// `comp.search` density `regular`
-  final TanreiSearchDensityTokens regular;
-  /// `comp.search` density `compact`
-  final TanreiSearchDensityTokens compact;
+  /// `comp.search` size `small`
+  final TanreiSearchSizeTokens small;
+  /// `comp.search` size `medium`
+  final TanreiSearchSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiSearchDensity, TanreiSearchDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiSearchSize, TanreiSearchSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiSearchDensitys copyWith({
-    TanreiSearchDensityTokens? regular,
-    TanreiSearchDensityTokens? compact,
-    Map<TanreiSearchDensity, TanreiSearchDensityTokens>? extra,
-  }) => TanreiSearchDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiSearchDensity, TanreiSearchDensityTokens>{...this.extra, ...extra},
+  TanreiSearchSizes copyWith({
+    TanreiSearchSizeTokens? small,
+    TanreiSearchSizeTokens? medium,
+    Map<TanreiSearchSize, TanreiSearchSizeTokens>? extra,
+  }) => TanreiSearchSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiSearchSize, TanreiSearchSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiSearchDensityTokens operator [](TanreiSearchDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiSearchSizeTokens operator [](TanreiSearchSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiSearchDensity density) => TanreiSearchDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiSearchSize size) => TanreiSearchSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiSearchDensity> get keys => <TanreiSearchDensity>[...TanreiSearchDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiSearchSize> get keys => <TanreiSearchSize>[...TanreiSearchSize.core, ...extra.keys];
 
-  TanreiSearchDensityTokens _fallback(TanreiSearchDensity density) {
+  TanreiSearchSizeTokens _fallback(TanreiSearchSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('search density', density.name, 'regular');
+      debugTanreiReportUnknownValue('search size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -20335,7 +20335,7 @@ class TanreiSearchTokens {
     required this.viewScrimColor,
     required this.viewViewportMargin,
     required this.conditions,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -20448,8 +20448,8 @@ class TanreiSearchTokens {
   final double viewViewportMargin;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiSearchConditions conditions;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiSearchDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiSearchSizes sizes;
   /// `comp.search.hovered.*`
   final TanreiSearchStateTokens hovered;
   /// `comp.search.focused.*`
@@ -20514,7 +20514,7 @@ class TanreiSearchTokens {
     TanreiPaint? viewScrimColor,
     double? viewViewportMargin,
     TanreiSearchConditions? conditions,
-    TanreiSearchDensitys? densitys,
+    TanreiSearchSizes? sizes,
     TanreiSearchStateTokens? hovered,
     TanreiSearchStateTokens? focused,
     TanreiSearchStateTokens? pressed,
@@ -20573,7 +20573,7 @@ class TanreiSearchTokens {
         viewScrimColor: viewScrimColor ?? this.viewScrimColor,
         viewViewportMargin: viewViewportMargin ?? this.viewViewportMargin,
         conditions: conditions ?? this.conditions,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
@@ -21195,23 +21195,23 @@ class TanreiSelectVariants {
   }
 }
 
-/// The key of a density of select (`comp.select`, axis `density`).
+/// The key of a option-size of select (`comp.select`, axis `option-size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiSelectDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiSelectDensity(String name) {
-  static const regular = TanreiSelectDensity('regular');
-  static const compact = TanreiSelectDensity('compact');
+/// `const TanreiSelectOptionSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiSelectOptionSize(String name) {
+  static const small = TanreiSelectOptionSize('small');
+  static const medium = TanreiSelectOptionSize('medium');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiSelectDensity> core = <TanreiSelectDensity>[regular, compact];
+  static const List<TanreiSelectOptionSize> core = <TanreiSelectOptionSize>[small, medium];
 }
 
-/// The tokens of one select density.
+/// The tokens of one select option-size.
 @immutable
-class TanreiSelectDensityTokens {
-  const TanreiSelectDensityTokens({
+class TanreiSelectOptionSizeTokens {
+  const TanreiSelectOptionSizeTokens({
     required this.optionHeight,
     required this.optionPaddingInline,
     required this.optionPaddingBlock,
@@ -21221,23 +21221,23 @@ class TanreiSelectDensityTokens {
     required this.groupTitlePaddingInline,
   });
 
-  /// `comp.select.option-height.<density>`
+  /// `comp.select.option-height.<option-size>`
   final double optionHeight;
-  /// `comp.select.option-padding-inline.<density>`
+  /// `comp.select.option-padding-inline.<option-size>`
   final double optionPaddingInline;
-  /// `comp.select.option-padding-block.<density>`
+  /// `comp.select.option-padding-block.<option-size>`
   final double optionPaddingBlock;
-  /// `comp.select.option-gap.<density>`
+  /// `comp.select.option-gap.<option-size>`
   final double optionGap;
-  /// `comp.select.option-leading-icon-size.<density>`
+  /// `comp.select.option-leading-icon-size.<option-size>`
   final double optionLeadingIconSize;
-  /// `comp.select.option-mark-size.<density>`
+  /// `comp.select.option-mark-size.<option-size>`
   final double optionMarkSize;
-  /// `comp.select.group-title-padding-inline.<density>`
+  /// `comp.select.group-title-padding-inline.<option-size>`
   final double groupTitlePaddingInline;
 
   /// A copy with the given tokens replaced.
-  TanreiSelectDensityTokens copyWith({
+  TanreiSelectOptionSizeTokens copyWith({
     double? optionHeight,
     double? optionPaddingInline,
     double? optionPaddingBlock,
@@ -21245,7 +21245,7 @@ class TanreiSelectDensityTokens {
     double? optionLeadingIconSize,
     double? optionMarkSize,
     double? groupTitlePaddingInline,
-  }) => TanreiSelectDensityTokens(
+  }) => TanreiSelectOptionSizeTokens(
         optionHeight: optionHeight ?? this.optionHeight,
         optionPaddingInline: optionPaddingInline ?? this.optionPaddingInline,
         optionPaddingBlock: optionPaddingBlock ?? this.optionPaddingBlock,
@@ -21256,58 +21256,58 @@ class TanreiSelectDensityTokens {
       );
 }
 
-/// Every density of select: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every option-size of select: the core values by name, the values a design system added in [extra].
+/// Look one up with `optionSizes[key]`; the lookup is total.
 @immutable
-class TanreiSelectDensitys {
-  const TanreiSelectDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiSelectDensity, TanreiSelectDensityTokens>{},
+class TanreiSelectOptionSizes {
+  const TanreiSelectOptionSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiSelectOptionSize, TanreiSelectOptionSizeTokens>{},
   });
 
-  /// `comp.select` density `regular`
-  final TanreiSelectDensityTokens regular;
-  /// `comp.select` density `compact`
-  final TanreiSelectDensityTokens compact;
+  /// `comp.select` option-size `small`
+  final TanreiSelectOptionSizeTokens small;
+  /// `comp.select` option-size `medium`
+  final TanreiSelectOptionSizeTokens medium;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiSelectDensity, TanreiSelectDensityTokens> extra;
+  /// The option-sizes a design system added to the core vocabulary.
+  final Map<TanreiSelectOptionSize, TanreiSelectOptionSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiSelectDensitys copyWith({
-    TanreiSelectDensityTokens? regular,
-    TanreiSelectDensityTokens? compact,
-    Map<TanreiSelectDensity, TanreiSelectDensityTokens>? extra,
-  }) => TanreiSelectDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiSelectDensity, TanreiSelectDensityTokens>{...this.extra, ...extra},
+  TanreiSelectOptionSizes copyWith({
+    TanreiSelectOptionSizeTokens? small,
+    TanreiSelectOptionSizeTokens? medium,
+    Map<TanreiSelectOptionSize, TanreiSelectOptionSizeTokens>? extra,
+  }) => TanreiSelectOptionSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiSelectOptionSize, TanreiSelectOptionSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [option-size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A option-size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiSelectDensityTokens operator [](TanreiSelectDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiSelectOptionSizeTokens operator [](TanreiSelectOptionSize optionSize) => switch (optionSize.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[optionSize] ?? _fallback(optionSize),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiSelectDensity density) => TanreiSelectDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [option-size].
+  bool has(TanreiSelectOptionSize optionSize) => TanreiSelectOptionSize.core.contains(optionSize) || extra.containsKey(optionSize);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiSelectDensity> get keys => <TanreiSelectDensity>[...TanreiSelectDensity.core, ...extra.keys];
+  /// Every option-size this design system has: the core values, then the added ones.
+  List<TanreiSelectOptionSize> get keys => <TanreiSelectOptionSize>[...TanreiSelectOptionSize.core, ...extra.keys];
 
-  TanreiSelectDensityTokens _fallback(TanreiSelectDensity density) {
+  TanreiSelectOptionSizeTokens _fallback(TanreiSelectOptionSize optionSize) {
     assert(() {
-      debugTanreiReportUnknownValue('select density', density.name, 'regular');
+      debugTanreiReportUnknownValue('select option-size', optionSize.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -21365,7 +21365,7 @@ class TanreiSelectTokens {
     required this.statusErrorColor,
     required this.statusTypescale,
     required this.variants,
-    required this.densitys,
+    required this.optionSizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -21436,8 +21436,8 @@ class TanreiSelectTokens {
   final TanreiTextStyle statusTypescale;
   /// The `variant` axis: `variants[variant]`.
   final TanreiSelectVariants variants;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiSelectDensitys densitys;
+  /// The `option-size` axis: `optionSizes[option-size]`.
+  final TanreiSelectOptionSizes optionSizes;
   /// `comp.select.hovered.*`
   final TanreiSelectStateTokens hovered;
   /// `comp.select.focused.*`
@@ -21481,7 +21481,7 @@ class TanreiSelectTokens {
     TanreiPaint? statusErrorColor,
     TanreiTextStyle? statusTypescale,
     TanreiSelectVariants? variants,
-    TanreiSelectDensitys? densitys,
+    TanreiSelectOptionSizes? optionSizes,
     TanreiSelectStateTokens? hovered,
     TanreiSelectStateTokens? focused,
     TanreiSelectStateTokens? pressed,
@@ -21519,7 +21519,7 @@ class TanreiSelectTokens {
         statusErrorColor: statusErrorColor ?? this.statusErrorColor,
         statusTypescale: statusTypescale ?? this.statusTypescale,
         variants: variants ?? this.variants,
-        densitys: densitys ?? this.densitys,
+        optionSizes: optionSizes ?? this.optionSizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,

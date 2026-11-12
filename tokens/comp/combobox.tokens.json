@@ -41,11 +41,11 @@
               "default": "stacked",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "option-size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "option.height",
@@ -59,7 +59,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners, text styles and how the matched letters are marked (their color, added weight and fill, and the two in the chosen option); a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
+            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; per size (small, medium; the box's size, large drawn as medium) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners, text styles and how the matched letters are marked (their color, added weight and fill, and the two in the chosen option); a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
             "rules": [
               "A combobox holds one value a person finds by typing. For a short closed list use a select; for a query that finds things to go to use the search; for actions use a menu.",
               "A combobox is the bare box and its list: it has no label row, no requirement tag, no help and no error text. Put it in a Field for those, or use the combobox field, which is that pair; their tokens are comp.field.*.",
@@ -68,7 +68,7 @@
               "The chosen option is the quiet selection: selected-option.container.color under on-secondary-container content, always with the check.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
               "The clear button is an icon-only Button of the text variant with Button's own tokens; container.action-gap is its distance from the chevron.",
-              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
+              "The options are drawn at the box's size, a large box's as medium: a small box, in a toolbar or a dense row of controls, opens a list of small rows. A row is never lower than the target at either size. The size never changes a text style.",
               "Restyle through these tokens in a layer; never fork the component.",
               "A match is marked as a search marks one — the stronger text color, a raised weight and a quiet fill behind it (option.match.container.color, the secondary container in the default system) — so that it never depends on color alone; its text takes no hue."
             ]
@@ -486,7 +486,7 @@
           "height": {
             "$type": "dimension",
             "$description": "Minimum height of an option's row; the row grows with its text.",
-            "regular": {
+            "medium": {
               "$value": {
                 "value": 48,
                 "unit": "px"
@@ -502,8 +502,8 @@
                 }
               }
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.height.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.height.small}"
             }
           },
           "shape": {
@@ -528,17 +528,17 @@
           "padding-inline": {
             "$type": "dimension",
             "$description": "Padding at each end of a row.",
-            "regular": {
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.small}"
             }
           },
           "padding-block": {
             "$type": "dimension",
             "$description": "Padding above and below a row's text; also above and below a group's title and the status row.",
-            "regular": {
+            "medium": {
               "$value": {
                 "value": 8,
                 "unit": "px"
@@ -547,22 +547,22 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space100}",
-                  "height": "{tanrei.comp.combobox.option.height.regular}"
+                  "height": "{tanrei.comp.combobox.option.height.medium}"
                 }
               }
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.padding-block.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.padding-block.small}"
             }
           },
           "gap": {
             "$type": "dimension",
             "$description": "Distance between a row's glyph, its text and its check.",
-            "regular": {
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.menu.container.gap.compact}"
+            "small": {
+              "$value": "{tanrei.comp.menu.container.gap.small}"
             }
           },
           "label": {
@@ -583,11 +583,11 @@
             "size": {
               "$type": "dimension",
               "$description": "The glyph before an option's label.",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.icon.medium}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.menu.leading-icon.size.compact}"
+              "small": {
+                "$value": "{tanrei.comp.menu.leading-icon.size.small}"
               }
             }
           },
@@ -595,11 +595,11 @@
             "size": {
               "$type": "dimension",
               "$description": "The check at the end of the chosen option's row, and the box kept for it in every row.",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.icon.medium}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.menu.mark.size.compact}"
+              "small": {
+                "$value": "{tanrei.comp.menu.mark.size.small}"
               }
             }
           },
@@ -679,11 +679,11 @@
           "padding-inline": {
             "$type": "dimension",
             "$description": "A title starts where the rows' content starts.",
-            "regular": {
-              "$value": "{tanrei.comp.combobox.option.padding-inline.regular}"
+            "medium": {
+              "$value": "{tanrei.comp.combobox.option.padding-inline.medium}"
             },
-            "compact": {
-              "$value": "{tanrei.comp.combobox.option.padding-inline.compact}"
+            "small": {
+              "$value": "{tanrei.comp.combobox.option.padding-inline.small}"
             }
           }
         },

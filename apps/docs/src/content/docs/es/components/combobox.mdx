@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor o varios, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -232,7 +232,7 @@ Las teclas de flecha dan la vuelta en los extremos de la lista: flecha abajo en 
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
 
-`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
+Las opciones toman el `size` del combobox. Un combobox `small` abre opciones `small` (de 36 de alto con glifos de 20, la fila `small` del [menú](/es/components/menu/)), y uno `medium` o `large` opciones `medium` (de 48 de alto). El texto conserva su tamaño, y una opción nunca es más baja que el objetivo.
 
 <ComponentSpecs name="combobox" />
 
