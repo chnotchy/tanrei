@@ -8129,6 +8129,14 @@ private let acmeSideSheetTokens = TanreiSideSheetTokens(
   )
 )
 
+private let acmeSizeTransitionTokens = TanreiSizeTransitionTokens(
+  motionDistanceStep: 64,
+  motionDuration: 300,
+  motionDurationMax: 400,
+  motionDurationStep: 50,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1)
+)
+
 private let acmeSkeletonTokens = TanreiSkeletonTokens(
   containerGap: 8,
   motionAnimation: 0,
@@ -10284,6 +10292,7 @@ extension TanreiSystem {
     segmentedButton: acmeSegmentedButtonTokens,
     select: acmeSelectTokens,
     sideSheet: acmeSideSheetTokens,
+    sizeTransition: acmeSizeTransitionTokens,
     skeleton: acmeSkeletonTokens,
     slider: acmeSliderTokens,
     snackbar: acmeSnackbarTokens,

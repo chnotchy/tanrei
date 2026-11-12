@@ -2491,6 +2491,59 @@ Limits: the web cannot tell a glyph name the icon set lacks from a font still lo
 name in place of `star` and is not reported (RAT-18's last clause). `aria-*` the product writes on the host do not
 reach the element with the role.
 
+## `<tanrei-size-transition>`
+
+A box whose size follows its content as one motion, the edge it is anchored to still (`specs/size-transition.spec.json`,
+SZT-1…13).
+
+```html
+<tanrei-size-transition>
+  <p>A reply that grows by a line moves what follows it, instead of pushing it down at once.</p>
+</tanrei-size-transition>
+<tanrei-size-transition axis="inline"><span>Saved</span></tanrei-size-transition>
+<tanrei-size-transition anchor="end">…</tanrei-size-transition>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `axis` | `block` \| `inline` \| `both` | `block` | which size follows the content; `inline` and `both` make the host an inline block; reflected |
+| `anchor` | `start` \| `end` \| `center` | `start` | the edge that stays still (mirrored right to left on the inline axis); reflected |
+| `duration` | number \| null | `null` | ms for every distance, 0 at once; null grows with the distance (SZT-3). The attribute is parsed as the tooltip's delays are |
+| `disabled` | boolean | `false` | follows the content at once (SZT-8); reflected |
+
+Event: `settle` — a `CustomEvent<{ width, height }>` that does not bubble, once per change, after its last frame
+(SZT-11). The host carries `data-resizing` while it moves.
+
+**It is the public form of `AnimatedSize`** (`src/primitives/motion.ts`). The shadow root holds `.box` and, in it,
+`.content` around the slot. A change is seen two ways. A change of the product's markup in it (a `MutationObserver` of
+its light DOM: child lists and text) moves the box in the task that made it, so `startFromNextFrame()` holds the motion
+for the next frame drawn, as every other `AnimatedSize` does. Any other change — a component inside that changes its own
+size, an image or a face that loads, a style — is seen by a `ResizeObserver` of `.content` after layout and before the
+frame is painted; the box is set back to the size the last frame drew (the content's previous report, given to
+`fit()`: engines do not agree on which of two resize observers reports first, so the box's own report may already be
+this frame's) and moves from there. The resize observer's next report of a size the markup's change already went to
+is left alone.
+
+**The anchor is layout, not a translation.** `.box` is a flex container (a column on the block axis, a row on the
+inline axis and with both) whose `justify-content` (and, with both, `align-items`) is the anchor's edge, so `.content`
+is laid out at its own size and overflows the edge that moves; justification follows the direction. `AnimatedSize`
+is given `anchor: 'start'` and moves nothing itself. `.content` keeps its width while the box moves on the inline axis
+(`flex-shrink: 0` under `.box[data-resizing]`), so its lines are laid out once.
+
+**Time** (SZT-3): `AnimatedSize` asks for the duration with the distance it covers (the largest of the sizes' changes,
+from the size shown); `durationFor()` reads `motion.duration`, `motion.duration-step` and `motion.duration-max` as the
+computed transition durations of `.timing`, a `display: none` span, and `motion.distance-step` as its inline size.
+
+**At once** (SZT-6 to SZT-9): a change of the window's size (its `resize` event, in the same frame), of the box's
+width on the block axis, of its font size or of its direction; while a size transition in its light DOM carries
+`data-resizing` (it follows that one at every frame, and settles after it — heard on the inner one's way down, then
+emitted after its listeners); `disabled`; reduced motion; a hidden document; and a report of a size of 0 × 0 (not drawn),
+after which the next report is a first frame again.
+
+Limits: a size transition inside another component's shadow root, inside this one, is not seen as one to follow; a
+change of the room the layout gives an inline box other than the window's (a pane that narrows) is moved, not taken at
+once.
+
 ## `<tanrei-select>`, `<tanrei-option>` and `<tanrei-option-group>`
 
 One value chosen from a closed list: a trigger that looks and measures like a text input's box and shows the chosen

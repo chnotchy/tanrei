@@ -95,6 +95,7 @@ export { SegmentedButton } from './wrappers/segmented-button.js';
 export { Select, type SelectMarks } from './wrappers/select.js';
 export { SelectField, type SelectFieldMarks } from './wrappers/select-field.js';
 export { SideSheet } from './wrappers/side-sheet.js';
+export { SizeTransition } from './wrappers/size-transition.js';
 export { Skeleton } from './wrappers/skeleton.js';
 export { Slider, type SliderMarks } from './wrappers/slider.js';
 export { SliderField, type SliderFieldMarks } from './wrappers/slider-field.js';

@@ -6650,6 +6650,11 @@
     --tanrei-comp-side-sheet-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-side-sheet-scrim-blur: var(--tanrei-comp-modal-layer-scrim-blur);
     --tanrei-comp-side-sheet-scrim-color: var(--tanrei-comp-modal-layer-scrim-color);
+    --tanrei-comp-size-transition-motion-distance-step: var(--tanrei-sys-space-space800);
+    --tanrei-comp-size-transition-motion-duration: var(--tanrei-sys-motion-role-resize-default);
+    --tanrei-comp-size-transition-motion-duration-max: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-size-transition-motion-duration-step: var(--tanrei-sys-motion-duration-short1);
+    --tanrei-comp-size-transition-motion-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-skeleton-container-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-skeleton-motion-animation: pulse;
     --tanrei-comp-skeleton-motion-dim-duration: var(--tanrei-sys-motion-duration-extra-long4);

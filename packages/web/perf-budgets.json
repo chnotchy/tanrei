@@ -525,6 +525,11 @@
         "button"
       ]
     },
+    "size-transition": {
+      "budget": 11100,
+      "measured": 10502,
+      "allowedComponents": []
+    },
     "skeleton": {
       "budget": 15500,
       "measured": 14758,

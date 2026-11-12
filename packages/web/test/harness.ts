@@ -1138,6 +1138,12 @@ const STAGING: Record<string, Staging> = {
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
+  // A size transition draws nothing (SZT-12): its text in the body style and color, a block one in a 240-wide place
+  // that its long fixture's text wraps in, an inline one as wide as its text.
+  'size-transition': {
+    css: () =>
+      `tanrei-size-transition { color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); } tanrei-size-transition:not([axis='inline']):not([axis='both']) { inline-size: 240px; }`,
+  },
   // A ticker has no text style of its own (NTK-1): it is staged as a dashboard's figure, in a heading's style and the
   // surface's text color, which it takes from its stage.
   'number-ticker': {

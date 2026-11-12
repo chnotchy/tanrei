@@ -181,6 +181,9 @@
           "$ref": "comp/marquee-text.tokens.json"
         },
         {
+          "$ref": "comp/size-transition.tokens.json"
+        },
+        {
           "$ref": "comp/side-sheet.tokens.json"
         },
         {
