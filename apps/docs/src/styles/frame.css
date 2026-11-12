@@ -364,18 +364,13 @@
     }
   }
   /* A drawer the reader folded to its column in an expanded window, and was given back folded (Sidebar.astro), is drawn
-     as that column once it is defined: until then it stands at the column's width, empty, as in a medium window. */
+     as that column once it is defined: until then the shell gives it the column's width (APS-24), and it stands there
+     empty, as in a medium window. */
   @container style(--tanrei-app-shell-window-class: expanded) {
-    tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
-    }
     tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined)::before,
     tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
       display: none;
     }
-  }
-  tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) {
-    inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
   }
   tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined)::before,
   tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
