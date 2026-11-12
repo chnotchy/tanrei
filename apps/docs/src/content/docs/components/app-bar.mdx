@@ -64,6 +64,7 @@ The title is the screen's name and its heading. On the web it is `headline`, bec
       import '@tanrei/web/components/app-bar';
       import '@tanrei/web/components/button';
       import '@tanrei/web/components/search';
+      import '@tanrei/web/app-bar.css'; // the block size the bar keeps before its element is defined, so the page under it does not move
       // The buttons are yours: the bar adds no events of its own.
       document.querySelector('[label="Back"]').addEventListener('click', () => history.back());
     </script>

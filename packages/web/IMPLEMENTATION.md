@@ -25,7 +25,7 @@ import '@tanrei/web/shape.css';    // optional: corner smoothing on your own box
 
 Those specifiers are the package's `exports`, resolved by a bundler. A browser does not resolve a bare specifier in
 `<link href>` or `<script src>`: without a bundler, serve `node_modules/@tanrei/web/dist/` and reference the files
-by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`,
+by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/app-bar.css`,
 `dist/systems/<id>.css`, and `dist/tanrei.bundle.js`, a self-contained ES module (Lit included) that registers every
 element:
 
