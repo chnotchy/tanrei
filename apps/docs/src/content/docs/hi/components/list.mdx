@@ -2,13 +2,14 @@
 title: लिस्ट
 description: प्रॉडक्ट के अपने आइटम (पंक्तियाँ, टाइलें, कार्ड, फ़ाइलें) एक कॉलम, एक पंक्ति, या ग्रिड बनाती हुई मुड़ती पंक्तियों में रखती है। लोग उन्हें पढ़ते हैं, एक-एक करके खोलते हैं, उनमें से चुनते हैं, या ड्रैग करके दूसरे क्रम में रखते हैं।
 translationOf: components/list.mdx
-sourceHash: 081a8ec1fda34270e381e2c9347ef5c6a532a6e1
+sourceHash: 49cb98ac1ef0c2751e9a2a944d48c0f8fb696349
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
@@ -279,6 +280,8 @@ SwiftUI, Compose, Flutter और React Native पीछे हैं: वे प
 - अपना ड्रैग हैंडल या हिलाने के बटन न बनाएँ: `reorderable` हैंडल बनाता है, और उसका मेन्यू बिना ड्रैग के हिलाने का तरीक़ा है।
 
 ## एक्सेसिबिलिटी
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

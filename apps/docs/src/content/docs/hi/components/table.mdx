@@ -2,13 +2,14 @@
 title: टेबल
 description: पंक्तियों और कॉलम वाला डेटा दिखाती है, नाम वाले कॉलम, वैकल्पिक पंक्ति हेडर, कैप्शन और फ़ुटर पंक्तियों के साथ। जब वह अपनी जगह में नहीं समाती तो अपने ही बॉक्स में स्क्रॉल होती है। कॉलम का हेडर पंक्तियों को अपने क्रम में माँग सकता है और पंक्तियाँ चुनी जा सकती हैं; टेबल ख़ुद कभी सॉर्ट नहीं करती।
 translationOf: components/table.mdx
-sourceHash: c6ecb98b17bef34b234659115320a4b862e3c5ee
+sourceHash: 4a4e0c9ed0fdd67465b80d254f9158df13d09392
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
@@ -564,6 +565,8 @@ export function rehypeTanreiTable() {
 - टेबल के लोड होते समय उसे धुँधला या अक्षम न करें।
 
 ## सुलभता
+
+<FocusOrder name="table" fixture="selection" />
 
 <ComponentAccessibility name="table" />
 

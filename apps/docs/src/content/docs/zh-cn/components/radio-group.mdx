@@ -2,13 +2,14 @@
 title: "单选组"
 description: "提出一个在同时全部显示出来的少量选项中恰好只有一个答案的问题——一组单选按钮，由它保存选中的值；它带有可以说明必填或选填的标签、一段描述，以及针对整组的一条错误。"
 translationOf: components/radio-group.mdx
-sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
+sourceHash: a927ce4297ca8cd5f137d1c844c5040d0ddf0683
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -222,6 +223,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 不要用禁用整个组来充当只读：禁用的组什么都不提交，也无法到达。请使用 `readOnly`，它让这组选项留在焦点顺序中并提交它的值。
 
 ## 无障碍
+
+<FocusOrder name="radio-group" fixture="default" />
 
 <ComponentAccessibility name="radio-group" />
 

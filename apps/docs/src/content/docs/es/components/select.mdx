@@ -2,13 +2,14 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: a09887b40f04e27a663a8334d9a5e7f6b8f7af0d
+sourceHash: ef7d7bf2e491e0e8690b9f0302d702ff2703e869
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -294,6 +295,8 @@ El botón de borrar es un botón propio después del select, no dentro de él, y
 - No deshabilites una opción sin dar una forma de saber por qué. Dilo en su texto de apoyo.
 
 ## Accesibilidad
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

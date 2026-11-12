@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 import ProductWords from '../../../components/ProductWords.astro';
 
@@ -210,6 +211,8 @@ That call is the one this page runs: every calendar on it is named by those word
 - Don't treat a month coming into view as a choice. A scroll and a drag change what is shown, never `value`, and emit nothing.
 
 ## Accessibility
+
+<FocusOrder name="calendar" fixture="single" />
 
 <ComponentAccessibility name="calendar" />
 

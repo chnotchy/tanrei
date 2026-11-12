@@ -2,13 +2,14 @@
 title: ツールバー
 description: 関連するコントロールをひとまとめにし、Tab で止まる位置を 1 か所にします。コンテンツが必要とする場所にインラインで置くか、画面の下端に固定するか、コンテンツの上に浮かせて置きます。コントロールの間は矢印キーで移動し、収まらないものはオーバーフローメニューに入ります。
 translationOf: components/toolbar.mdx
-sourceHash: 143ac10ad1060e6880626356b277939a462728f1
+sourceHash: 1327d86415c8f6908fb2e64720953a22e06b32d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -428,6 +429,8 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 - ナビゲーションの行き先をツールバーに入れない。ツールバーの項目は、コンテンツに働きかけるコントロールです。
 
 ## アクセシビリティ
+
+<FocusOrder name="toolbar" fixture="inline-fields" />
 
 <ComponentAccessibility name="toolbar" />
 

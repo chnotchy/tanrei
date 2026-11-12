@@ -2,13 +2,14 @@
 title: "组合框"
 description: "用户在里面键入以找到一个或多个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
+sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 不要在组合框上写 `supporting-text`、`error-text`、`required` 或 `optional`。它们是字段的，组合框一样都不绘制。
 
 ## 无障碍
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

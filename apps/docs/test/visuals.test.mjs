@@ -601,7 +601,7 @@ describe('the keyboard map and the focus order figure', () => {
           .filter((file) => file.endsWith('.mdx'))
           .map((file) => {
             const text = fs.readFileSync(`${dir}/${file}`, 'utf8');
-            return [file, [...[...text.matchAll(/<FocusOrder name="([\w-]+)"(?: fixture="([\w-]+)")? \/>/g)].map(([, name, fixture]) => `focus ${name} ${fixture ?? ''}`), ...[...text.matchAll(/<ComponentAccessibility name="([\w-]+)" keyboardMap \/>/g)].map(([, name]) => `keys ${name}`)]];
+            return [file, [...[...text.matchAll(/<FocusOrder name="([\w-]+)"(?: fixture="([\w-]+)")? \/>/g)].map(([, name, fixture]) => `focus ${name} ${fixture ?? ''}`), ...[...text.matchAll(/<ComponentAccessibility name="([\w-]+)" \/>/g)].map(([, name]) => `keys ${name}`)]];
           }),
       );
     };

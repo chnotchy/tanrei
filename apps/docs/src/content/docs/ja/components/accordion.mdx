@@ -2,13 +2,14 @@
 title: アコーディオン
 description: 行を押すと、その場でコンテンツを表示したり隠したりします。項目が 1 つなら単独のディスクロージャーで、複数なら、それぞれが独立して開くか、一度に 1 つだけ開くセットです。
 translationOf: components/accordion.mdx
-sourceHash: 4df43bed1d6395d0f95fef683745e6a1b6a6eb48
+sourceHash: aecaadd19c8c644d3738c1d1aceb8d2eb1572126
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -200,6 +201,8 @@ Web では、`exclusive` は `<details>` の `name` 属性にあたり、要素�
 - 中のフィールドが invalid の状態だからといって、読み手に何も伝えずに項目を開かない。フォームが受け付けられなかったときは、最初のエラーがある項目を開いてから、そのフィールドにフォーカスを移します。
 
 ## アクセシビリティ
+
+<FocusOrder name="accordion" fixture="plain" />
 
 <ComponentAccessibility name="accordion" />
 

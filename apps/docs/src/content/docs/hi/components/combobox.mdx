@@ -2,13 +2,14 @@
 title: कॉम्बोबॉक्स
 description: वह बॉक्स जिसमें लोग एक या कई मान खोजने के लिए टाइप करते हैं, और विकल्पों की वह लिस्ट जो वह खोलता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/combobox.mdx
-sourceHash: c9d3f74aa6af656b599ac75b2a5f042e9ac58649
+sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - कॉम्बोबॉक्स पर `supporting-text`, `error-text`, `required` या `optional` न लिखें। वे फ़ील्ड के हैं, और कॉम्बोबॉक्स इनमें से कुछ नहीं दिखाता।
 
 ## सुलभता
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

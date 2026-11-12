@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -94,6 +95,8 @@ The words are yours: Tanrei ships none. Give them on each element, or once for t
 - Don't hide previous and next on the first and last page. They are disabled and keep their places.
 
 ## Accessibility
+
+<FocusOrder name="pagination" fixture="default" />
 
 <ComponentAccessibility name="pagination" />
 

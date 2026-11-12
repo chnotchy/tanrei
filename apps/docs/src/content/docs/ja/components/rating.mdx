@@ -2,13 +2,14 @@
 title: レーティング
 description: 星などいくつかの印で点数を付けてもらう、または付いた点数を示します。点数は印 1 つ単位で、プロダクトが許せば半分単位で扱います。
 translationOf: components/rating.mdx
-sourceHash: 25b13f989c447c068d88297e731129b9728740f5
+sourceHash: d6759e45e0b267257c520c8632a1d055e372e4ae
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -127,6 +128,8 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 - ひと目で数えられないほど多くの印を使わない。読みやすいのは 10 個までです。
 
 ## アクセシビリティ
+
+<FocusOrder name="rating" fixture="value" />
 
 <ComponentAccessibility name="rating" />
 
