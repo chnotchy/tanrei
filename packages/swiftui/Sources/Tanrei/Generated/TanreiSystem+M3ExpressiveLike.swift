@@ -9170,18 +9170,18 @@ private let m3ExpressiveLikeTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: m3ExpressiveLikeTypescale.body,
-      headerTextTypescale: m3ExpressiveLikeTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
       headerTextTypescale: m3ExpressiveLikeTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: m3ExpressiveLikeTypescale.body,
+      headerTextTypescale: m3ExpressiveLikeTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(

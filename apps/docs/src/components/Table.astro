@@ -17,7 +17,7 @@
 interface Props {
   /** The table's accessible name (it has no caption): what the heading above it says. */
   label: string;
-  density?: 'regular' | 'compact';
+  size?: 'small' | 'medium';
   /** The first column names its rows. */
   rowHeaders?: boolean;
   /** The first column stays in view while the others scroll under it: for a wide table whose first column names the row. */
@@ -28,10 +28,10 @@ interface Props {
   /** Custom properties the caller's own rules read on the box (the room a table holds before it is laid out). */
   style?: string;
 }
-const { label, density, rowHeaders = false, stickyFirstColumn = false, sorts = false, class: className, style } = Astro.props;
+const { label, size, rowHeaders = false, stickyFirstColumn = false, sorts = false, class: className, style } = Astro.props;
 ---
 
-<tanrei-table class={className} style={style} data-tanrei-code="plain" label={label} density={density} row-headers={rowHeaders ? '' : undefined} sticky-first-column={stickyFirstColumn ? '' : undefined} data-docs-sorts={sorts ? '' : undefined}><slot /></tanrei-table>
+<tanrei-table class={className} style={style} data-tanrei-code="plain" label={label} size={size} row-headers={rowHeaders ? '' : undefined} sticky-first-column={stickyFirstColumn ? '' : undefined} data-docs-sorts={sorts ? '' : undefined}><slot /></tanrei-table>
 
 <script>
   import '@tanrei/web/components/table';

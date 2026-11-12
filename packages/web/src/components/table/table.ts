@@ -6,6 +6,7 @@ import {
   SEPARATIONS,
   SHEET_TOUCH_SLOP,
   SEPARATION_VALUES,
+  SizeConsumerController,
   type SeparationProp,
   compChoice,
   isGlyphProbe,
@@ -16,13 +17,13 @@ import {
 } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
-import type { TanreiTableDensityRegistry } from '../../registry.js';
+import type { TanreiTableSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { readInPhase } from '../../primitives/read-phase.js';
 
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiTableDensity = keyof TanreiTableDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiTableSize = keyof TanreiTableSizeRegistry;
 /** How a row is told from the row next to it (TBL-9): `auto` takes `comp.table.separation`. */
 export type TanreiTableSeparation = SeparationProp;
 /** The order a sortable column's header asks for (TBL-34). */
@@ -54,10 +55,10 @@ const TABLE_CSS: string = (() => {
 
 const TAG = 'tanrei-table';
 const PREFIX = '--tanrei-comp-table';
-const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`) as table.css names them. */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const CORE_SIZES: readonly string[] = ['small', 'medium'];
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`) as table.css names them. */
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_table-pad-block', 'cell-padding-block-*'],
   ['--_table-pad-inline', 'cell-padding-inline-*'],
   ['--_table-cell-font', 'cell-text-typescale-*-font'],
@@ -66,9 +67,9 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_table-header-font', 'header-text-typescale-*-font'],
   ['--_table-header-tracking', 'header-text-typescale-*-letter-spacing'],
 ];
-/** The height of a line of a header's label at a density a design system added: its two tokens, multiplied (table.css). */
-const DENSITY_LEADING = (density: string) =>
-  `--_table-header-leading: calc(var(${PREFIX}-header-text-typescale-${density}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_DENSITY}-line-height)) * var(${PREFIX}-header-text-typescale-${density}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_DENSITY}-font-size)));`;
+/** The height of a line of a header's label at a size a design system added: its two tokens, multiplied (table.css). */
+const SIZE_LEADING = (size: string) =>
+  `--_table-header-leading: calc(var(${PREFIX}-header-text-typescale-${size}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-line-height)) * var(${PREFIX}-header-text-typescale-${size}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-font-size)));`;
 /** The control of a sortable column's header, from anything inside it (TBL-32): the product's button, or its anchor. */
 const SORT_CONTROL = 'th[aria-sort] > button, th[aria-sort] > a[href]';
 /** The same, from its header cell. */
@@ -127,7 +128,7 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
   return made;
 }
 
-// The rules the element writes — a density a design system added, a column's alignment by position, the surplus cells
+// The rules the element writes — a size a design system added, a column's alignment by position, the surplus cells
 // — are in NO cascade layer: a page may load a copy of table.css into a layer of its own that comes after
 // `tanrei.components` (a site whose framework's reset is layered does), and a later layer wins whatever the order of
 // the rules, so the copy's `text-align: start` on every cell would undo a column's alignment. They keep no
@@ -135,11 +136,14 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 // write theirs the same way.) Each names the cells it styles (`th, td`), so that an engine restyles the cells when the
 // wrapper's attribute changes, not everything inside them.
 
-/** TBL-31: a density a design system added — the default's rules, read from that density's tokens. */
-const densityRules = (density: string) =>
-  `:where(${TAG}[density='${density}']) { ${DENSITY_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', DEFAULT_DENSITY)}));`,
-  ).join(' ')} ${DENSITY_LEADING(density)} }`;
+/**
+ * TBL-31: a size a design system added — the default's rules, read from that size's tokens — for a table that sets it
+ * and for one that takes it from its container (TBL-62: the custom state that carries the size the table draws).
+ */
+const sizeRules = (size: string) =>
+  `:where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
+    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
+  ).join(' ')} ${SIZE_LEADING(size)} }`;
 
 /**
  * The rules of one column position (TBL-3, TBL-7): its cells take the alignment and the wrapping the column's header
@@ -295,7 +299,7 @@ function mark(element: Element, name: string, value: string | null) {
  * copy and paste as a table and a screen reader's table navigation are the browser's own.
  *
  * ```html
- * <tanrei-table density="compact" row-headers sticky-first-column>
+ * <tanrei-table size="small" row-headers sticky-first-column>
  *   <table>
  *     <caption>Visits by region</caption>
  *     <thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">January</th></tr></thead>
@@ -391,7 +395,9 @@ export class TanreiTable extends TanreiLightElement {
     caption: { type: String },
     label: { type: String },
     // The defaults are not reflected: a table that is defined is the table that was written.
-    density: { type: String, reflect: true, useDefault: true },
+    // TBL-62: the size the product set, or none: a table that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     separation: { type: String, reflect: true, useDefault: true },
     striped: { type: Boolean, reflect: true },
     rowHeaders: { type: Boolean, reflect: true, attribute: 'row-headers' },
@@ -415,8 +421,33 @@ export class TanreiTable extends TanreiLightElement {
   /** The table's accessible name where no caption is drawn, because a heading just above it already says what it is. Not drawn; ignored where the table has a caption. */
   label = '';
 
-  /** How close the rows are: regular for a table a person reads, compact for one a person scans. A design system may add values. */
-  density: TanreiTableDensity = 'regular';
+  /**
+   * How close the rows are: `medium` for a table a person reads, `small` for one a person scans. While it is not set
+   * the table draws the size its nearest container sets (TBL-62), and `medium` where none does; reading it then gives
+   * `medium`. Setting it (to any value, `medium` included) makes it the table's own; removing the attribute gives that
+   * back. It is not passed to what the cells hold. A design system may add values.
+   */
+  get size(): TanreiTableSize {
+    return (this.sizeCascade.own ?? DEFAULT_SIZE) as TanreiTableSize;
+  }
+
+  set size(value: TanreiTableSize | null | undefined) {
+    this.sizeCascade.setOwn(value);
+  }
+
+  /** TBL-62: the size the product set, and the one the nearest container around the table sets, while one does. */
+  private readonly sizeCascade = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal TBL-62: the size the table draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizeCascade.drawn;
+  }
+
+  /** TBL-62: carries the size the table draws to table.css, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** TBL-31: the size last read for a value the core does not have. */
+  private sizeRead = DEFAULT_SIZE;
 
   /** How a row is told from the row next to it: `divider` is one hairline, `gap` empty space and no line; `auto` takes `comp.table.separation`, the design system's answer. */
   separation: TanreiTableSeparation = 'auto';
@@ -559,7 +590,8 @@ export class TanreiTable extends TanreiLightElement {
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'TBL-9', `separation "${this.separation}" is not a value the table defines; it is drawn as "auto"`);
     }
-    if (changed.has('density')) this.readDensity();
+    // TBL-31, TBL-62: the size it draws — its own or its container's — when that changed.
+    if (this.sizeCascade.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizeCascade.drawn));
     // TBL-42: a selection the table does not define is none (no rule matches the attribute); a debug build says so.
     if (changed.has('selection') && this.selection !== 'none' && this.selection !== 'single' && this.selection !== 'multiple') {
       report(this, 'TBL-42', `selection "${String(this.selection)}" is not a value the table defines; it is drawn as "none"`);
@@ -567,17 +599,22 @@ export class TanreiTable extends TanreiLightElement {
     this.read();
   }
 
+  protected override willUpdate() {
+    // TBL-62: the size it draws, as a custom state table.css matches (a name that is no token name is drawn as the
+    // default by the table's own rules, TBL-31).
+    this.sizeCascade.syncState(this.internals);
+  }
+
   /**
-   * TBL-31: a density the core does not have was added by a design system — its rules are added to the root, falling
+   * TBL-31: a size the core does not have was added by a design system — its rules are added to the root, falling
    * back to the default's tokens — or is unknown to the active one, which a debug build says.
    */
-  private readDensity() {
-    const density = String(this.density ?? '');
-    if (CORE_DENSITIES.includes(density)) return;
-    const known = KEY.test(density);
-    if (known) adopt(this.getRootNode() as Root, sheet(`density:${density}`, () => densityRules(density)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-cell-padding-block-${density}`).trim() === '') {
-      report(this, 'TBL-31', `density "${density}" is not a value of the active design system; it is drawn as "${DEFAULT_DENSITY}"`);
+  private readSize(size: string) {
+    if (CORE_SIZES.includes(size)) return;
+    const known = KEY.test(size);
+    if (known) adopt(this.getRootNode() as Root, sheet(`size:${size}`, () => sizeRules(size)));
+    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-cell-padding-block-${size}`).trim() === '') {
+      report(this, 'TBL-31', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
 

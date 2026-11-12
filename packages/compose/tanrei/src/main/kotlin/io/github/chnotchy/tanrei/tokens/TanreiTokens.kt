@@ -10718,23 +10718,23 @@ public data class TanreiTableParts(
 }
 
 /**
- * A density of table: the key of one entry of [TanreiTableDensitys]. The set is OPEN — the constants are the core
+ * A size of table: the key of one entry of [TanreiTableSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Regular].
+ * A key the current system does not have draws as [Medium].
  */
 @JvmInline
-public value class TanreiTableDensity(public val key: String) {
+public value class TanreiTableSize(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
-        public val Regular: TanreiTableDensity = TanreiTableDensity("regular")
-        public val Compact: TanreiTableDensity = TanreiTableDensity("compact")
+        public val Small: TanreiTableSize = TanreiTableSize("small")
+        public val Medium: TanreiTableSize = TanreiTableSize("medium")
     }
 }
 
-/** The tokens of one density of table. */
+/** The tokens of one size of table. */
 @Immutable
-public data class TanreiTableDensityTokens(
+public data class TanreiTableSizeTokens(
     public val cellPaddingBlock: Dp,
     public val cellPaddingInline: Dp,
     public val cellTextTypescale: TanreiTextStyle,
@@ -10742,29 +10742,29 @@ public data class TanreiTableDensityTokens(
 )
 
 /**
- * Every density of table: a named member per core value, plus [extra] for the values a design system added.
+ * Every size of table: a named member per core value, plus [extra] for the values a design system added.
  */
 @Immutable
-public data class TanreiTableDensitys(
-    public val regular: TanreiTableDensityTokens,
-    public val compact: TanreiTableDensityTokens,
+public data class TanreiTableSizes(
+    public val small: TanreiTableSizeTokens,
+    public val medium: TanreiTableSizeTokens,
     /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiTableDensity, TanreiTableDensityTokens> = emptyMap(),
+    public val extra: Map<TanreiTableSize, TanreiTableSizeTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiTableDensity> get() = linkedSetOf(TanreiTableDensity.Regular, TanreiTableDensity.Compact) + extra.keys
+    public val keys: Set<TanreiTableSize> get() = linkedSetOf(TanreiTableSize.Small, TanreiTableSize.Medium) + extra.keys
 
-    public operator fun contains(key: TanreiTableDensity): Boolean = find(key) != null
+    public operator fun contains(key: TanreiTableSize): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiTableDensity): TanreiTableDensityTokens? = when (key) {
-        TanreiTableDensity.Regular -> regular
-        TanreiTableDensity.Compact -> compact
+    public fun find(key: TanreiTableSize): TanreiTableSizeTokens? = when (key) {
+        TanreiTableSize.Small -> small
+        TanreiTableSize.Medium -> medium
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTableDensity): TanreiTableDensityTokens = find(key) ?: regular
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiTableSize): TanreiTableSizeTokens = find(key) ?: medium
 }
 
 /** What every variant of table shares in one interaction state. */
@@ -10773,7 +10773,7 @@ public data class TanreiTableStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.table`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`, `densitys[density]`). */
+/** `comp.table`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`, `sizes[size]`). */
 @Immutable
 public data class TanreiTableTokens(
     public val captionGap: Dp,
@@ -10817,7 +10817,7 @@ public data class TanreiTableTokens(
     public val focused: TanreiTableStateTokens,
     public val pressed: TanreiTableStateTokens,
     public val parts: TanreiTableParts,
-    public val densitys: TanreiTableDensitys,
+    public val sizes: TanreiTableSizes,
 ) {
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
     public fun opacity(state: TanreiInteractionState): Float = when (state) {

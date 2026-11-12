@@ -1289,7 +1289,7 @@ test.describe('scaling, forced colors, roles', () => {
     expect(paragraph.width).toBeLessThan(prose.width);
     // PRS-16: an island — the cell's text is the table's, a long run is not broken as prose breaks it, and an anchor
     // and code in a cell are not prose's.
-    expect(await style(page, '#in-prose td', 'fontSize')).toBe(`${await resolveToken(page, '--tanrei-comp-table-cell-text-typescale-regular-font-size')}px`);
+    expect(await style(page, '#in-prose td', 'fontSize')).toBe(`${await resolveToken(page, '--tanrei-comp-table-cell-text-typescale-medium-font-size')}px`);
     expect(await style(page, '#in-prose td', 'overflowWrap')).toBe('normal');
     const linked = (selector: string) => page.locator(selector).evaluate((el) => getComputedStyle(el).getPropertyValue('--_link-label').trim() !== '');
     expect([await linked('#prose-link'), await linked('#cell-link')]).toEqual([true, false]);

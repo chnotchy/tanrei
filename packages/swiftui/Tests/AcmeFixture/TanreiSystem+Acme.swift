@@ -9193,18 +9193,18 @@ private let acmeTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: acmeTypescale.body,
-      headerTextTypescale: acmeTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: acmeTypescale.bodySmall,
       headerTextTypescale: acmeTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: acmeTypescale.body,
+      headerTextTypescale: acmeTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(

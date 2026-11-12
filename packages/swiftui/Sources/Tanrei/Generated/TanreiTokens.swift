@@ -17273,27 +17273,27 @@ public struct TanreiTableParts: Sendable, Equatable {
   public var keys: [TanreiTablePart] { TanreiTablePart.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// A value of table's `density` axis.
+/// A value of table's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiTableDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiTableDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiTableSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiTableSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiTableDensity(rawValue: "regular")
-  public static let compact = TanreiTableDensity(rawValue: "compact")
+  public static let small = TanreiTableSize(rawValue: "small")
+  public static let medium = TanreiTableSize(rawValue: "medium")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiTableDensity] = [.regular, .compact]
+  public static let core: [TanreiTableSize] = [.small, .medium]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTableDensity.regular
+  public static let fallback = TanreiTableSize.medium
 }
 
-/// Everything of table that depends on its density.
-public struct TanreiTableDensityTokens: Sendable, Equatable {
+/// Everything of table that depends on its size.
+public struct TanreiTableSizeTokens: Sendable, Equatable {
   public var cellPaddingBlock: CGFloat
   public var cellPaddingInline: CGFloat
   public var cellTextTypescale: TanreiTextStyle
@@ -17312,43 +17312,43 @@ public struct TanreiTableDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of table: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiTableDensitys: Sendable, Equatable {
-  public var regular: TanreiTableDensityTokens
-  public var compact: TanreiTableDensityTokens
+/// The sizes of table: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiTableSizes: Sendable, Equatable {
+  public var small: TanreiTableSizeTokens
+  public var medium: TanreiTableSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiTableDensity: TanreiTableDensityTokens]
+  public var extra: [TanreiTableSize: TanreiTableSizeTokens]
 
   public init(
-    regular: TanreiTableDensityTokens,
-    compact: TanreiTableDensityTokens,
-    extra: [TanreiTableDensity: TanreiTableDensityTokens] = [:]
+    small: TanreiTableSizeTokens,
+    medium: TanreiTableSizeTokens,
+    extra: [TanreiTableSize: TanreiTableSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.small = small
+    self.medium = medium
     self.extra = extra
   }
 
-  /// The tokens of one table density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiTableDensity) -> TanreiTableDensityTokens? {
+  /// The tokens of one table size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiTableSize) -> TanreiTableSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .small: return small
+    case .medium: return medium
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a table density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a table size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiTableDensity) -> TanreiTableDensityTokens {
+  public subscript(key: TanreiTableSize) -> TanreiTableSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no table density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no table size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every table density of this design system: the core ones, then what it added.
-  public var keys: [TanreiTableDensity] { TanreiTableDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every table size of this design system: the core ones, then what it added.
+  public var keys: [TanreiTableSize] { TanreiTableSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Values of table that depend on the state but not on the variant.
@@ -17402,7 +17402,7 @@ public struct TanreiTableTokens: Sendable, Equatable {
   public var stickyContainerColor: TanreiPaint
   public var stripeContainerColor: TanreiPaint
   public var parts: TanreiTableParts
-  public var densitys: TanreiTableDensitys
+  public var sizes: TanreiTableSizes
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiTableStateTokens
   /// Values of the focused state shared by every variant.
@@ -17449,7 +17449,7 @@ public struct TanreiTableTokens: Sendable, Equatable {
     stickyContainerColor: TanreiPaint,
     stripeContainerColor: TanreiPaint,
     parts: TanreiTableParts,
-    densitys: TanreiTableDensitys,
+    sizes: TanreiTableSizes,
     hovered: TanreiTableStateTokens,
     focused: TanreiTableStateTokens,
     pressed: TanreiTableStateTokens
@@ -17492,7 +17492,7 @@ public struct TanreiTableTokens: Sendable, Equatable {
     self.stickyContainerColor = stickyContainerColor
     self.stripeContainerColor = stripeContainerColor
     self.parts = parts
-    self.densitys = densitys
+    self.sizes = sizes
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed

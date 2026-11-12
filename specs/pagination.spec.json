@@ -88,7 +88,7 @@
       ],
       "default": "medium",
       "axis": "tanrei.comp.pagination.size",
-      "description": "An item's height (36 / 40 under the default system, never drawn below sys.target.minimum). small is for a dense place, such as the status line of a compact table. The hit area always meets the minimum target. A design system may add sizes."
+      "description": "An item's height (36 / 40 under the default system, never drawn below sys.target.minimum). small is for a dense place, such as the status line of a small table. The hit area always meets the minimum target. A design system may add sizes."
     },
     {
       "name": "firstLast",
