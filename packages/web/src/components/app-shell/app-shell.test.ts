@@ -1831,21 +1831,23 @@ test.describe('before its code runs, text size, forced colors, insets, direction
     await expect.poll(() => page.evaluate(() => (window as unknown as { __told: string[] }).__told)).toEqual(['medium']);
   });
 
-  test('APS-24: before the element is defined a drawer the product gives back folded or at a width keeps the place it will have — a collapsible drawer written expanded false its column in an expanded window, a responsive one that is not collapsible none, a drawer with a width that width held between its least and greatest — and defining the drawer then moves nothing and records no layout shift', async ({ page: first, browserName }) => {
-    const width = (px: number) => `width="${px}" style="--tanrei-navigation-drawer-width: ${px}px"`;
-    const cases: { name: string; attributes: string; window: number; expected: (page: P) => Promise<number> }[] = [
-      { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-      { name: 'folded, compact', attributes: 'responsive collapsible density="compact" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-compact') },
-      { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${width(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-      { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-      { name: 'hidden', attributes: 'responsive expanded="false"', window: 1280, expected: async () => 0 },
-      { name: 'a width', attributes: `responsive collapsible ${width(320)}`, window: 1280, expected: async () => 320 },
-      { name: 'a width above the greatest', attributes: `responsive collapsible ${width(2000)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-max-width') },
-      { name: 'a width below the least', attributes: `responsive collapsible ${width(40)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-min-width') },
-      // In a medium window the column keeps its own width, whatever the width and the fold say.
-      { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${width(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-    ];
-    for (const c of cases) {
+  // One test a case: each opens a window, writes the frame into it and runs the whole bundle there, which takes a
+  // runner's WebKit about four seconds — nine of them in one test ran past its time.
+  const widthOf = (px: number) => `width="${px}" style="--tanrei-navigation-drawer-width: ${px}px"`;
+  const givenBack: { name: string; attributes: string; window: number; expected: (page: P) => Promise<number> }[] = [
+    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'folded, compact', attributes: 'responsive collapsible density="compact" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-compact') },
+    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'hidden', attributes: 'responsive expanded="false"', window: 1280, expected: async () => 0 },
+    { name: 'a width', attributes: `responsive collapsible ${widthOf(320)}`, window: 1280, expected: async () => 320 },
+    { name: 'a width above the greatest', attributes: `responsive collapsible ${widthOf(2000)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-max-width') },
+    { name: 'a width below the least', attributes: `responsive collapsible ${widthOf(40)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-min-width') },
+    // In a medium window the column keeps its own width, whatever the width and the fold say.
+    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+  ];
+  for (const c of givenBack) {
+    test(`APS-24: before the element is defined a drawer the product gives back folded or at a width keeps the place it will have — a collapsible drawer written expanded false its column in an expanded window, a responsive one that is not collapsible none, a drawer with a width that width held between its least and greatest — and defining the drawer then moves nothing and records no layout shift: ${c.name}`, async ({ page: first, browserName }) => {
       const page = await withoutScript(first, real({ navigation: DRAWER(c.attributes) }), c.window);
       // The app bar and its menu button draw themselves when they are defined: here they keep the place they will
       // have, so that what is measured is the frame's and the drawer's own.
@@ -1876,8 +1878,8 @@ test.describe('before its code runs, text size, forced colors, insets, direction
       expect(placed(await geometry(page)), c.name).toEqual(placed(before));
       if (browserName === 'chromium') expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift), c.name).toBe(0);
       await page.close();
-    }
-  });
+    });
+  }
 
   test('APS-25: at 200 % text in a window 320 wide the frame keeps its gutters, every region grows with its text, the frame is one column with a main region no narrower than the window less two gutters, no height is fixed, and nothing scrolls sideways but a block that scrolls in its own box', async ({ page }) => {
     await mount(page, 'compact-narrowest');
