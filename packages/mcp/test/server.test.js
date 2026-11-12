@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { packed } from '../../tools/src/pack-contents.js';
+import { packedSpec } from '../../tools/src/packed-vocabulary.js';
 import { leavesNothingBehind, tempDir } from '../../tools/src/test-tmp.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -969,9 +970,10 @@ test('the packaged server (bundle + its own copy of the vocabulary and the regis
   const generated = path.join(pkg, 'dist/vocabulary/tokens/generated');
   const shippedOutput = fs.existsSync(generated) ? fs.readdirSync(generated, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile()).map((entry) => path.relative(generated, path.join(entry.parentPath ?? entry.path, entry.name))).sort() : [];
   assert.deepEqual(shippedOutput, [...SHIPPED.filter(fidelityReport).map((id) => path.join(id, 'fidelity.json')), ...LISTED.map((id) => path.join(id, 'components.json'))].sort());
-  // The component tools answer from the specs and the catalog: every spec is carried.
+  // The component tools answer from the specs and the catalog: every spec is carried, without what the server never
+  // reads (test/packed-vocabulary.test.js proves every answer is the same without it).
   const specs = fs.readdirSync(path.join(repo, 'specs')).filter((name) => name.endsWith('.spec.json'));
-  for (const name of specs) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(pkg, 'dist/vocabulary/specs', name), 'utf8')), readJson('specs', name), name);
+  for (const name of specs) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(pkg, 'dist/vocabulary/specs', name), 'utf8')), packedSpec(readJson('specs', name)), name);
   assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/packages/tokens-build/generated/component-catalog.json')));
   assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/docs/governance/mimicry-gaps.json')));
   const packaged = await connect({ fromSource: false });

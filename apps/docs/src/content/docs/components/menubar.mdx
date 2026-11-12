@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -309,6 +310,8 @@ A desktop system's bar outside the window, and a tablet's bar for a hardware key
 - Don't restyle a bar's menus apart from the product's other menus. They are Menus, and take the menu's tokens.
 
 ## Accessibility
+
+<FocusOrder name="menubar" fixture="default" />
 
 <ComponentAccessibility name="menubar" />
 

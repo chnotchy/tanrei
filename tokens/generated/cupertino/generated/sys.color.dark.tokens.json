@@ -15,7 +15,7 @@
           }
         },
         "primary": {
-          "$value": "{tanrei.ref.palette.primary.60}",
+          "$value": "{tanrei.ref.palette.primary.59}",
           "$description": "The product's main action and brand emphasis. Separate from every other intent because a product's brand color is rarely its error, success or link color.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
@@ -87,7 +87,7 @@
           }
         },
         "error": {
-          "$value": "{tanrei.ref.palette.error.60}",
+          "$value": "{tanrei.ref.palette.error.58}",
           "$description": "Something failed or is destructive. Every product with a form or a delete button needs it.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
@@ -123,7 +123,7 @@
           }
         },
         "success": {
-          "$value": "{tanrei.ref.palette.success.60}",
+          "$value": "{tanrei.ref.palette.success.74}",
           "$description": "Something succeeded or is valid: form validation, completed steps, positive status.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
@@ -159,7 +159,7 @@
           }
         },
         "warning": {
-          "$value": "{tanrei.ref.palette.warning.60}",
+          "$value": "{tanrei.ref.palette.warning.71}",
           "$description": "Something needs attention before it becomes an error: caution banners, risky choices.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
@@ -195,7 +195,7 @@
           }
         },
         "info": {
-          "$value": "{tanrei.ref.palette.info.60}",
+          "$value": "{tanrei.ref.palette.info.79}",
           "$description": "Neutral, non-urgent system information, distinct from the brand color so notices do not read as calls to action.",
           "$extensions": {
             "dev.tanrei.vocabulary": {

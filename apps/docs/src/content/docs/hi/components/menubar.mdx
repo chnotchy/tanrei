@@ -2,13 +2,14 @@
 title: मेन्यू बार
 description: ऐप्लिकेशन के कमांड को नाम वाले मेन्यू (फ़ाइल, संपादन, व्यू…) की एक ऐसी पंक्ति में पहुँच के भीतर रखता है जो हमेशा बनी रहती है। हर मेन्यू अपने शीर्षक के नीचे खुलता है, और ऐरो कुंजियाँ पंक्ति पर आगे-पीछे और हर मेन्यू के भीतर ले जाती हैं।
 translationOf: components/menubar.mdx
-sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
+sourceHash: cdc7e2d44e1ccb83b5e663479be4f3df464f63fd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -311,6 +312,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - बार के मेन्यू को प्रॉडक्ट के बाक़ी मेन्यू से अलग स्टाइल न दें। वे Menu हैं और मेन्यू के टोकन लेते हैं।
 
 ## सुलभता
+
+<FocusOrder name="menubar" fixture="default" />
 
 <ComponentAccessibility name="menubar" />
 

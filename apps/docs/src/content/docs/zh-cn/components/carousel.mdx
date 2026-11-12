@@ -9,6 +9,7 @@ import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -401,6 +402,8 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 - 不要隐藏播放控件，除非你的产品提供了另一种停止动效的办法。
 
 ## 无障碍
+
+<FocusOrder name="carousel" fixture="navigation" />
 
 <ComponentAccessibility name="carousel" />
 

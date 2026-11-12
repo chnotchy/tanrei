@@ -2,13 +2,14 @@
 title: テーブル
 description: 行と列のあるデータを示します。列の見出し、行見出し、キャプション、フッター行を持てます。収まらないときは自身の枠の中でスクロールします。列の見出しは、その列の順に行を並べるよう求めることができ、行は選択できます。テーブル自身は並べ替えません。
 translationOf: components/table.mdx
-sourceHash: c6ecb98b17bef34b234659115320a4b862e3c5ee
+sourceHash: 4a4e0c9ed0fdd67465b80d254f9158df13d09392
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
@@ -564,6 +565,8 @@ export function rehypeTanreiTable() {
 - 読み込み中のテーブルを薄くしたり、無効にしたりしない。
 
 ## アクセシビリティ
+
+<FocusOrder name="table" fixture="selection" />
 
 <ComponentAccessibility name="table" />
 

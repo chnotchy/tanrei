@@ -651,6 +651,16 @@
       "kind": "anatomy",
       "status": "open",
       "proposal": "Tanrei's reorderable list draws its handle at the start of every item, always, and lets the whole item be dragged (a long press on touch), with a menu of moves on the handle. A choice of where the handle stands (start | end) would let cupertino place it at the trailing end; an edit mode is the product's (it sets reorderable)."
+    },
+    {
+      "id": "emphasis-per-style",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "Each text style has an emphasized weight of its own: Title 1 and Title 2 go from Regular to Bold, Title 3 from Regular to Semibold, and Headline stays Semibold. Apple's controls also set some text at a style's emphasized weight: the large navigation title is Large Title, Bold.",
+      "kind": "mechanism",
+      "status": "open",
+      "proposal": "Tanrei's emphasis is one weight step per family (`sys.typescale.emphasis.*`), so cupertino's heading step (300, Title 1 and Title 2) draws heading-3 and heading-4 heavier than Apple's emphasized Title 3 and Headline (the fidelity map lists both); and a component's text style aliases a role at its own weight, so cupertino's large app-bar title is Regular. An emphasized weight per role, and a component text style that can name its role's emphasized weight, would close both."
     }
   ]
 }

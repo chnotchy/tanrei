@@ -2,13 +2,14 @@
 title: वन-टाइम कोड इनपुट
 description: व्यक्ति को भेजा गया छोटा कोड, जैसे साइन-इन या पुष्टि कोड, एक ही टेक्स्ट मान के रूप में लेता है और उसे अलग-अलग सेल में दिखाता है, ताकि कोड की लंबाई और जो अभी बाक़ी है वह दिखे, और प्लैटफ़ॉर्म उसे एक ही बार में भर सके।
 translationOf: components/one-time-code-input.mdx
-sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
+sourceHash: 790c00ccbc5b99fdcb1ad91d703ec883964327fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -181,6 +182,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - फ़ील्ड के भीतर `label` इस्तेमाल न करें। कंट्रोल को नाम फ़ील्ड देता है।
 
 ## सुलभता
+
+<FocusOrder name="one-time-code-input" fixture="partial" />
 
 <ComponentAccessibility name="one-time-code-input" />
 

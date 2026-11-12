@@ -2,7 +2,7 @@
 title: Tipografía
 description: Dieciséis estilos de texto nombrados por nivel (un display, seis títulos, tres tamaños de cuerpo, etiquetas, código y un antetítulo), compuestos en Inter, con el énfasis como un paso de peso y no como un rol.
 translationOf: foundations/typography.mdx
-sourceHash: f6541882f9778c5b231eb39cda781d02ae19685e
+sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -93,7 +93,7 @@ Para destacar un texto sin cambiar su nivel (la pestaña seleccionada, una cifra
 
 <SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
 
-Tanrei suma 100 a todas las familias, así que un `heading-1` con énfasis es 600 y un `body` con énfasis es 500. Un sistema de diseño que destaca de forma distinta según la familia define los cuatro números: `m3-like` suma 200 a las etiquetas, como hacen los estilos de etiqueta con énfasis de Material; `cupertino` suma 200 a los títulos, al cuerpo y a las etiquetas. La familia de un rol es el primer segmento de su nombre; `caption`, `code`, `code-small` y `eyebrow` toman el paso de las etiquetas.
+Tanrei suma 100 a todas las familias, así que un `heading-1` con énfasis es 600 y un `body` con énfasis es 500. Un sistema de diseño que destaca de forma distinta según la familia define los cuatro números: `m3-like` suma 200 a las etiquetas, como hacen los estilos de etiqueta con énfasis de Material; `cupertino` suma 300 a display y a los títulos, y 200 al cuerpo y a las etiquetas. La familia de un rol es el primer segmento de su nombre; `caption`, `code`, `code-small` y `eyebrow` toman el paso de las etiquetas.
 
 Todas las plataformas exponen el mismo modificador: `emphasized` en la API de estilos de texto (`.tanreiTextStyle(system.typescale.heading1, emphasized: true)` en SwiftUI; `typescale.heading1.emphasized()` en Compose, o `emphasized(system.typescale.emphasis)` fuera de la composición; `theme.textStyle(system.typescale.heading1, emphasized: true)` en Flutter; `text('heading1', { emphasized: true })` de `useTanrei()` en React Native; `--tanrei-sys-typescale-<role>-font-weight-emphasized` y `.tanrei-text-emphasized` en la web). No hay roles con énfasis que nombrar ni una segunda escala que mantener al día.
 
@@ -155,7 +155,7 @@ Las guías de primeros pasos y el README de cada paquete tienen los detalles. Co
 Un preajuste que imita otro sistema de diseño conserva los dieciséis nombres y les da los valores de ese sistema; donde su origen tiene un estilo que el núcleo no nombra, *extiende* el vocabulario con un rol propio. Los nombres nunca se mueven, así que un producto construido sobre `tanrei` pasa a `m3-like` sin tocar un solo título.
 
 - **`m3-like`** da nuevos valores a todos los roles a partir de la escala tipográfica de Material Design 3 (`heading-1` toma el *headline large* de Material, `body` su *body medium*, `label` su *label large*) y añade `display-large` (57px) y `display-small` (36px), porque Material tiene tres tamaños de display y un producto necesita uno. Sus pasos de énfasis son los de Material: 100 en display, títulos y cuerpo, y 200 en las etiquetas. El arnés de fidelidad mide todos los estilos de texto que publica Material, los treinta, incluidos los de énfasis, junto con los roles de color y Button: de 288 tokens medidos, 273 son iguales, 14 están cubiertos por otro token, 1 no tiene correspondencia y está amparado por una laguna de imitación registrada, y ninguno es distinto. En la [página de sistemas de diseño](/es/foundations/design-systems/) se muestra como 273 / 274, porque no cuenta los cubiertos. Las cifras se leen de `tokens/generated/m3-like/fidelity.json`, que la compilación reescribe.
-- **`cupertino`** da nuevos valores a todos los roles a partir de los once estilos de texto de iOS de Apple, de Large Title a Caption 2, y añade los tres que el núcleo no nombra: `body-callout`, `body-subhead` y `caption-small`. Sus pasos de énfasis son 100 en display y 200 en lo demás, que es la distancia entre los estilos normal y con énfasis de Apple.
+- **`cupertino`** da nuevos valores a todos los roles a partir de los once estilos de texto de iOS de Apple, de Large Title a Caption 2, y añade los tres que el núcleo no nombra: `body-callout`, `body-subhead` y `caption-small`. Large Title y Title 1 a 3 son Regular, como los de Apple. Sus pasos de énfasis son 300 en display y los títulos y 200 en el cuerpo y las etiquetas: los Large Title, Title 1 y Title 2 con énfasis de Apple son Bold, y sus estilos de cuerpo con énfasis, Semibold. Apple da a Title 3 y a Headline un paso menor (con énfasis, los dos son Semibold), que un solo paso por familia no puede dibujar.
 
 Un rol que añade un preajuste es un token corriente en todas las plataformas: el `display-large` de `m3-like` es `--tanrei-sys-typescale-display-large-font` en la web y un miembro de la escala tipográfica en cada paquete nativo. La vista previa de Theme Studio lo dibuja en la escala de tipos junto a los dieciséis.
 

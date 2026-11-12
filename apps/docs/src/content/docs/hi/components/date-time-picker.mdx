@@ -2,13 +2,14 @@
 title: DateTimePicker
 description: व्यक्ति को कोई तारीख़, कोई समय, या तारीख़ और समय दोनों (या इनमें से किसी की रेंज) चुनने देता है, कैलेंडर और समय के व्हील या घड़ी के डायल से, किसी डायलॉग में या किसी फ़ील्ड के नीचे खुलने वाली सरफ़ेस में।
 translationOf: components/date-time-picker.mdx
-sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
+sourceHash: 7f0394b12f3f4abdb141a87576cde62cf2aac770
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -272,6 +273,8 @@ Tanrei अपना कोई शब्द साथ नहीं देता: 
 - प्रॉडक्ट में वेब का `inline` ऐट्रिब्यूट इस्तेमाल न करें। वह सरफ़ेस को ओवरले के व्यवहार के बिना बनाता है।
 
 ## सुलभता
+
+<FocusOrder name="date-time-picker" fixture="docked-date" />
 
 <ComponentAccessibility name="date-time-picker" />
 

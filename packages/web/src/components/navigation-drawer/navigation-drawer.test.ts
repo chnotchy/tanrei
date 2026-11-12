@@ -12,6 +12,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -1850,6 +1851,41 @@ test.describe('forms and focus', () => {
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = true; }', rows, 'the collapsible drawer opened');
     await motionEnded(page);
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = false; }', rows, 'the collapsible drawer closed');
+  });
+
+  test('NVD-22: closed at the end of a task that outlasts its motions, a modal drawer slides out and the opener outside it takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the opener focus went back to would be drawn at its end at once.
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="menu">Menu</tanrei-button>'));
+    // Settled first (MOT-3): focus given to it while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, page.locator('#menu'));
+    await drawer(page, 'm').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    expect(await activeValue(page)).toBe('inbox');
+    await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = false; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
+  });
+
+  test('NVD-18, NVD-28: opened, and closed with focus inside, at the end of a task that outlasts its motions, a standard drawer slides in and out and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
+    // motions last, the drawer was drawn in place or gone, and what focus went to drawn focused, at once.
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="menu">Menu</tanrei-button>'));
+    // Settled first (MOT-3): focus given to it while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, page.locator('#menu'));
+    // Its focus motion over first: the opening's blur begins one of its own.
+    await motionEnded(page);
+    const motions = [' tanrei-navigation-drawer width', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'];
+    await expectFromNextFrame(drawer(page, 's'), '(el) => { el.open = true; }', motions, 'the standard drawer opened');
+    await motionEnded(page);
+    expect(await activeValue(page)).toBe('inbox');
+    await expectFromNextFrame(drawer(page, 's'), '(el) => { el.open = false; }', motions, 'the standard drawer closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
   });
 
   test('NVD-18: a standard drawer takes its form’s width while open and none while closed — hidden from assistive technology and focus — sliding over the enter and exit motion, at once where motion is reduced; no scrim, no close, no trap', async ({ page }) => {
@@ -4610,6 +4646,26 @@ test.describe('resizable', () => {
       await expect.poll(() => drawnWidth(page, id), id).toBe(360);
       await expect.poll(async () => (await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
     }
+  });
+
+  test('NVD-18, NVD-97: a standard drawer that opens lays its rows out at its width from the task that opens it — its slide, held at its start until the next frame, is no narrower room — and slides in to its width', async ({ page }) => {
+    // The slide stands at a width of none until the next frame draws it (statesFromNextFrame). Read as the room the
+    // parent gives, it had the rows laid out at none through the slide, and the drawer drawn without motion (as a room's
+    // change is) from that task, and again once the room came back: a slide cut off, or a close in those frames drawn at once.
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await allSettled(page);
+    const pad = await px(page, T('container-padding-inline'));
+    const opened = await drawer(page, 's').evaluate(async (el: HTMLElement) => {
+      (el as HTMLElement & { open: boolean }).open = true;
+      // The drawer's update and the reads it asks for together (src/primitives/read-phase.ts): microtasks of this task.
+      for (let turn = 0; turn < 200; turn++) await null;
+      const row = el.querySelector('tanrei-navigation-drawer-item')!.shadowRoot!.querySelector('.row > .container')!;
+      return { row: row.getBoundingClientRect().width, host: el.getBoundingClientRect().width };
+    });
+    await motionEnded(page);
+    const width = await drawnWidth(page, 's');
+    expect(opened, 'in the task that opens it: its rows at its width, and the drawer at the start of its slide').toEqual({ row: width - 2 * pad, host: 0 });
+    expect((await bounds(box(page, 's', 0))).width).toBe(width - 2 * pad);
   });
 
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {
