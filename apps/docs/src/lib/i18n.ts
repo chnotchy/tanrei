@@ -296,6 +296,11 @@ const en = {
     commandFailed: 'The command could not be copied.',
     error: 'Error',
   },
+  // The sentence at the head of every page's Markdown, between its front matter and its title, that leads to the
+  // site's indexes for language models (lib/page-markdown.mjs, `indexPointer`): Markdown, `{name}` the system's name
+  // (tanrei.config.json), `{index}` and `{full}` the addresses of /llms.txt and /llms-full.txt. The indexes are written
+  // in English, and a translation says so.
+  markdownIndex: "This page is part of the {name} documentation. The index at [llms.txt]({index}) lists every page; the specs of the default system's components are in one file, [llms-full.txt]({full}).",
   group: {
     primary: 'Primary',
     secondary: 'Secondary',
@@ -569,6 +574,7 @@ const ja: typeof en = {
     commandFailed: 'コマンドをコピーできませんでした。',
     error: 'エラー',
   },
+  markdownIndex: 'このページは {name} のドキュメントの一部です。すべてのページは索引 [llms.txt]({index})（英語）に並んでいて、既定のシステムのコンポーネントの仕様は 1 つのファイル [llms-full.txt]({full}) にまとまっています。',
   group: {
     primary: 'プライマリ',
     secondary: 'セカンダリ',
@@ -834,6 +840,7 @@ const zh: typeof en = {
     commandFailed: '无法复制命令。',
     error: '错误',
   },
+  markdownIndex: '本页是 {name} 文档的一部分。索引 [llms.txt]({index})（英文）列出了所有页面；默认系统中各组件的规格汇总在一个文件 [llms-full.txt]({full}) 中。',
   group: {
     primary: '主色（Primary）',
     secondary: '次色（Secondary）',
@@ -1098,6 +1105,7 @@ const es: typeof en = {
     commandFailed: 'No se ha podido copiar el comando.',
     error: 'Error',
   },
+  markdownIndex: 'Esta página forma parte de la documentación de {name}. El índice [llms.txt]({index}) (en inglés) enumera todas las páginas; las especificaciones de los componentes del sistema predeterminado están reunidas en un solo archivo, [llms-full.txt]({full}).',
   group: {
     primary: 'Primario',
     secondary: 'Secundario',
@@ -1362,6 +1370,7 @@ const hi: typeof en = {
     commandFailed: 'कमांड कॉपी नहीं हो सकी।',
     error: 'त्रुटि',
   },
+  markdownIndex: 'यह पेज {name} दस्तावेज़ का हिस्सा है। सभी पेज इंडेक्स [llms.txt]({index}) (अंग्रेज़ी में) में दिए गए हैं, और डिफ़ॉल्ट सिस्टम के कंपोनेंट के स्पेक एक ही फ़ाइल [llms-full.txt]({full}) में हैं।',
   group: {
     primary: 'प्राइमरी',
     secondary: 'सेकंडरी',
@@ -1629,6 +1638,7 @@ const ar: typeof en = {
     commandFailed: 'تعذّر نسخ الأمر.',
     error: 'خطأ',
   },
+  markdownIndex: 'هذه الصفحة جزء من توثيق {name}. يسرد الفهرس [llms.txt]({index}) (بالإنجليزية) كل الصفحات، وتجتمع مواصفات مكوّنات النظام الافتراضي في ملف واحد هو [llms-full.txt]({full}).',
   group: {
     primary: 'الأساسي',
     secondary: 'الثانوي',
