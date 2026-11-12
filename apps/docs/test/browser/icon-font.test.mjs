@@ -14,11 +14,31 @@ import { fileURLToPath } from 'node:url';
 import { iconFont } from '../../../../packages/tools/src/icon-font.js';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, outstanding } from './launch.mjs';
+import { SETTLE } from './waits.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the icons of the Text
 // field page, took 18 s in CI.
 const LIMIT = { timeout: 120_000 };
+
+/**
+ * The face of `font` that draws `text` loaded in `page` (`document.fonts.load`), within the bound the fonts are given
+ * (waits.mjs); one that does not come fails at once, naming the faces still loading and the requests not ended.
+ * @param {import('@playwright/test').Page} page
+ */
+async function loadFace(page, font, text) {
+  const lost = await page.evaluate(
+    async ([font, text, ms]) => {
+      let timer;
+      const loaded = await Promise.race([document.fonts.load(font, text).then(() => true), new Promise((resolve) => (timer = setTimeout(() => resolve(false), ms)))]);
+      clearTimeout(timer);
+      const loading = [...document.fonts].filter((face) => face.status === 'loading').map((face) => `${face.family} ${face.weight} ${face.style}`);
+      return loaded ? null : `the face of ${font} for "${text}" not loaded after ${ms / 1000} s (${loading.length ? `loading: ${loading.join(', ')}` : 'no face loading'})`;
+    },
+    [font, text, SETTLE.fonts],
+  );
+  if (lost) throw new Error(`${page.url()}: ${lost}. Outstanding: ${outstanding(page)}.`);
+}
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -249,13 +269,13 @@ describe('the Theme Studio page', () => {
         return { asked: entry.startTime, loaded: nav.loadEventStart };
       });
       assert.ok(full.asked >= full.loaded, `the full file was asked for at ${Math.round(full.asked)} ms, before the page's load at ${Math.round(full.loaded)} ms`);
-      await page.evaluate(() => document.fonts.load("24px 'Material Symbols Rounded'", 'pets'));
+      await loadFace(page, "24px 'Material Symbols Rounded'", 'pets');
       await page.waitForFunction(() => document.fonts.status === 'loaded');
       assert.equal(Math.round(await width()), 24, 'a glyph outside the lists is drawn as a glyph');
 
       // Any other page draws it as its name: the cut-down file is all it has.
       await page.goto(`${origin}/foundations/icons/`, { waitUntil: 'load' });
-      await page.evaluate(() => document.fonts.load("24px 'Material Symbols Rounded'", 'pets'));
+      await loadFace(page, "24px 'Material Symbols Rounded'", 'pets');
       assert.ok((await width()) > 30, 'on another page the full file is not registered');
     } finally {
       await context.close();

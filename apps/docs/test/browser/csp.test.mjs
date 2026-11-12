@@ -14,7 +14,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { headerRules, headersFor, serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the file item’s picture,
 // took 14 s in CI.
@@ -91,8 +91,8 @@ for (const engine of ENGINES) {
       });
       const response = await page.goto(`${origin}${address}`, { waitUntil: 'load' });
       assert.ok(response.headers()['content-security-policy']);
-      // Settled: what the page defines is defined, and two frames drawn after.
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      // Settled: two frames drawn after its load (bounded: launch.mjs).
+      await settlePage(page, { fonts: false });
       return { page, refused };
     }
 
@@ -174,7 +174,7 @@ for (const engine of ENGINES) {
     test('a demo’s event handler runs (it is held by its hash)', LIMIT, async () => {
       const { page, refused } = await open('/components/callout/');
       try {
-        await page.evaluate(() => customElements.whenDefined('tanrei-callout'));
+        await settlePage(page, { tags: ['tanrei-callout'], fonts: false, frames: 0 });
         const callout = page.locator('#callout-demo-closable');
         await callout.evaluate((element) => (element.open = false));
         await page.locator('tanrei-button[onclick*="callout-demo-closable"]').click();

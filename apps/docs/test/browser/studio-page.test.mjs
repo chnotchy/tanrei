@@ -16,7 +16,8 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
-import { engines, launch, settlePage } from './launch.mjs';
+import { engines, launch, outstanding, settlePage } from './launch.mjs';
+import { SETTLE } from './waits.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the preview’s five
 // screens, took 64 s in CI.
@@ -325,17 +326,24 @@ for (const engine of ENGINES) {
       const { page, problems, close } = await open(browser);
       try {
         const screens = ['overview', 'dashboard', 'settings', 'list', 'docs'];
-        /** A tab of the preview's bar pressed; how long until the frame after the one the switch was drawn in. */
-        const press = (group, value) =>
-          page.evaluate(
-            ([selector, value]) =>
+        /**
+         * A tab of the preview's bar pressed; how long until the frame after the one the switch was drawn in. The two
+         * frames are given the bound of `settle` (waits.mjs), and fail at once when they do not come.
+         */
+        const press = async (group, value) => {
+          const ms = await page.evaluate(
+            ([selector, value, bound]) =>
               new Promise((resolve) => {
                 const started = performance.now();
+                const timer = setTimeout(() => resolve(null), bound);
                 document.querySelector(`${selector} > tanrei-tab[data-value="${value}"]`).click();
-                requestAnimationFrame(() => requestAnimationFrame(() => resolve(Math.round(performance.now() - started))));
+                requestAnimationFrame(() => requestAnimationFrame(() => (clearTimeout(timer), resolve(Math.round(performance.now() - started)))));
               }),
-            [group, value],
+            [group, value, SETTLE.frames],
           );
+          if (ms === null) throw new Error(`${value} pressed in ${group}: two frames not drawn in ${SETTLE.frames / 1000} s. Outstanding: ${outstanding(page)}.`);
+          return ms;
+        };
         const drawn = async (screen) => {
           await page.waitForSelector(`[data-scope] [data-screen="${screen}"]`);
           await settlePage(page, { among: '[data-scope] *', fonts: false });

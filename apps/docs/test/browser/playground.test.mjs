@@ -20,7 +20,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch, settle } from './launch.mjs';
+import { engines, launch, settle, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a control setting its
 // prop, in WebKit, took 23 s in CI.
@@ -182,7 +182,7 @@ for (const engine of ENGINES) {
             return { stage: height(frame.querySelector('[data-example-stage]')), controls: height(frame.querySelector('[data-example-controls]')), header: height(frame.querySelector('header')) };
           }, FRAME);
         await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), FRAME);
-        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        await settlePage(page, { fonts: false });
         const parsed = await boxes();
         release();
         await settled(page);

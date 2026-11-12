@@ -20,7 +20,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { headerRules, headersFor, serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Button page, took 91 s
 // in CI, and the Navigation drawer's 219 s on a loaded Mac beside two other files. It is above ANSWER (below), so a
@@ -458,13 +458,13 @@ async function ownHeight(name, id, width) {
     const address = `${origin}/__own-document/${name}/${encodeURIComponent(id)}/`;
     await page.route(address, (route) => route.fulfill({ status: 200, headers: { 'content-security-policy': PAGE_POLICY }, contentType: 'text/html', body: html }));
     await bounded(`${name}/${id} in its own document: opening it`, page.goto(address, { waitUntil: 'load' }));
-    return await evaluateBounded(page, `${name}/${id} in its own document`, async () => {
+    await evaluateBounded(page, `${name}/${id} in its own document`, async () => {
       const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
       await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
-      await document.fonts.ready;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      return document.querySelector('.stage')?.getBoundingClientRect().height ?? 0;
     });
+    // The fonts in and two frames drawn, each within its bound (launch.mjs).
+    await settlePage(page);
+    return await evaluateBounded(page, `${name}/${id} in its own document`, () => document.querySelector('.stage')?.getBoundingClientRect().height ?? 0);
   } finally {
     await close();
   }

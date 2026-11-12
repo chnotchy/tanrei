@@ -19,7 +19,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Arabic navigation
 // drawer’s page, in WebKit, took 40 s in CI.
@@ -148,7 +148,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
           }, i);
           const frame = page.locator('iframe.docs-window-frame').nth(i);
           await page.waitForFunction((element) => element.contentDocument?.querySelector('body > .stages > .stage') && !element.hasAttribute('inert'), await frame.elementHandle(), { timeout: 15_000 });
-          await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          await settlePage(page, { fonts: false });
           const now = await page.evaluate(() => ({ y: scrollY, focus: document.activeElement?.id || document.activeElement?.localName }));
           if (Math.abs(now.y - at) > 1) moved.push(`${await frame.getAttribute('title')}: the page was scrolled from ${Math.round(at)} to ${Math.round(now.y)}`);
           if (i >= count / 2 && now.focus !== 'probe') moved.push(`${await frame.getAttribute('title')}: the focus moved to ${now.focus}`);
