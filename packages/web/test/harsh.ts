@@ -123,6 +123,18 @@ export const harsh: Harsh | undefined =
  */
 export const HARSH_OPT_OUTS: readonly { title: RegExp; reason: string }[] = [];
 
+/**
+ * The annotation by which a test asks harsh mode to leave its pages' motion at its own speed (the gaps around input
+ * actions stay): `test.describe(title, motionAtItsOwnSpeed(reason), …)` or `test(title, motionAtItsOwnSpeed(reason), …)`.
+ * Only a test that counts the engine's own work belongs here, and says why. Chromium's motion rate is set over the
+ * DevTools protocol's Animation domain, and with that domain on the engine works differently: it skips one forced
+ * style pass for each motion a component holds to its next frame and plays on in that frame's callback
+ * (`startFromNextFrame`). perf-budget.test.ts counted 180 forced passes fewer from ten dialogs to a hundred with it on
+ * than a product's page makes. A test that reads a motion has a race to fix, not this.
+ */
+export const MOTION_AT_ITS_OWN_SPEED = 'harsh mode: motion at its own speed';
+export const motionAtItsOwnSpeed = (reason: string) => ({ annotation: { type: MOTION_AT_ITS_OWN_SPEED, description: reason } });
+
 /** The opt-outs as one pattern for a project's `grepInvert`. */
 export const harshOptOuts = (): RegExp => (HARSH_OPT_OUTS.length ? new RegExp(HARSH_OPT_OUTS.map(({ title }) => `(?:${title.source})`).join('|')) : /(?!)/);
 
