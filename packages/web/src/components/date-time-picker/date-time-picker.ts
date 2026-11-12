@@ -55,6 +55,7 @@ import {
   periodOf,
   periodPlace,
   placeMenu,
+  readTogether,
   report,
   roundDown,
   shownHour12,
@@ -615,7 +616,19 @@ export class TanreiDateTimePicker extends TanreiElement {
   /** DTM-46: the period wheel — its rows' position is 0 before noon and 1 after, and never past either. */
   private readonly periodWheel: WheelMotion = { at: 0, shift: 0, pointer: null, startY: 0, moved: false, samples: [], settling: 0, scrolling: 0 };
   private readonly placement = new ActionPlacement(this);
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.arrange());
+  /**
+   * DTM-9: one observer watches the surface and the body of every picker, so that a frame reports all that were resized
+   * in one callback, and they are arranged together (`arrange()`).
+   */
+  private static resizeWatch: ResizeObserver | null = null;
+  /** The picker each watched element belongs to. */
+  private static readonly watchedBy = new WeakMap<Element, TanreiDateTimePicker>();
+  /** What this picker's resize watch observes now: its surface and its body. */
+  private watched: Element[] = [];
+  /** The arrangement that runs now: one asked again before it ended stops it, and runs in its place. */
+  private arrangement: object | null = null;
+  /** The arrangement has been asked for and not read yet: a second request of the turn is the same one. */
+  private arrangeAsked = false;
 
   /** DTM-29, DTM-30: each selector is pressed on its own (data-pressed, press-hold, the ripple). */
   private readonly presses: Record<Unit, PressController> = (() => {
@@ -652,7 +665,7 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.resize$?.disconnect();
+    this.unwatchSizes();
     this.stopFollowing();
     this.listen(false);
     window.removeEventListener('resize', this.onWindow);
@@ -2233,32 +2246,122 @@ export class TanreiDateTimePicker extends TanreiElement {
    * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says; for auto, horizontal only when the
    * vertical one does not fit the window's height and the horizontal one fits its width — the actions in a row or a
    * column, and the whole surface scrolling as one when the header and the actions leave no room between them.
+   *
+   * Read with every other picker's of the turn (src/primitives/read-phase.ts), step by step: each step reads what the
+   * writes of the one before laid out — the arrangement token, whether the vertical layout overflows, whether the
+   * horizontal one fits, the actions' widths, the room left — and every picker reads it before any writes, so the page
+   * is laid out once per step, however many pickers there are. A picker that read and wrote in its own update had the
+   * browser lay the page out for it at every step, once per instance.
    */
   private arrange() {
+    if (this.arrangeAsked) return;
+    this.arrangeAsked = true;
+    readTogether(() => {
+      this.arrangeAsked = false;
+      const run = {};
+      this.arrangement = run;
+      return this.arrangeFrom(run);
+    });
+  }
+
+  /** The first step of `arrange()`: the arrangement the cascade names, and the layout set to be measured. */
+  private arrangeFrom(run: object): (() => void) | void {
     const surface = this.surface;
     const body = this.renderRoot?.querySelector<HTMLElement>('.body');
-    if (!surface || !body || !this.session) return;
-    surface.dataset.arrangement = compChoice(this, `${PREFIX}-actions-arrangement`, ARRANGEMENTS);
+    if (!surface || !body || !this.session || !this.isConnected) return;
+    const arrangement = compChoice(this, `${PREFIX}-actions-arrangement`, ARRANGEMENTS);
     const { layout } = this.cfg;
-    const overflows = () => body.scrollHeight > body.clientHeight + 0.5;
-    surface.classList.remove('whole');
-    if (layout !== 'auto' || this.inline) surface.dataset.layout = layout === 'horizontal' ? 'horizontal' : 'vertical';
-    else {
-      surface.dataset.layout = 'vertical';
-      if (overflows()) {
-        surface.dataset.layout = 'horizontal';
-        const fits = surface.scrollWidth <= surface.clientWidth + 0.5;
-        if (!fits) surface.dataset.layout = 'vertical';
+    const auto = layout === 'auto' && !this.inline;
+    return () => {
+      if (this.arrangement !== run) return;
+      surface.dataset.arrangement = arrangement;
+      surface.classList.remove('whole');
+      surface.dataset.layout = auto || layout !== 'horizontal' ? 'vertical' : 'horizontal';
+      if (!auto) {
+        this.arrangeActions(run, surface, body, arrangement);
+        return;
       }
-    }
+      // For auto, horizontal only when the vertical layout overflows the window's height…
+      this.step(run, () => (body.scrollHeight > body.clientHeight + 0.5 ? true : null), () => {
+        surface.dataset.layout = 'horizontal';
+        // …and the horizontal one fits its width.
+        this.step(run, () => surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
+          if (!fits) surface.dataset.layout = 'vertical';
+          this.arrangeActions(run, surface, body, arrangement);
+        });
+      }, () => this.arrangeActions(run, surface, body, arrangement));
+    };
+  }
+
+  /**
+   * A step of `arrange()` read with every other picker's: `read` after the writes before it, then `write` with what it
+   * read — or `otherwise`, where it read null.
+   */
+  private step<T>(run: object, read: () => T | null, write: (value: T) => void, otherwise?: () => void) {
+    readTogether(() => {
+      if (this.arrangement !== run || !this.isConnected) return;
+      const value = read();
+      return () => {
+        if (this.arrangement !== run) return;
+        if (value === null) otherwise?.();
+        else write(value);
+      };
+    });
+  }
+
+  /** The last steps of `arrange()`: the actions measured as a row, then the room the header and the actions leave. */
+  private arrangeActions(run: object, surface: HTMLElement, body: HTMLElement, arrangement: string) {
     const box = this.renderRoot.querySelector<HTMLElement>('.actions');
-    if (box) {
-      this.placement.read([...box.children]);
-      const { changed } = this.placement.measure(box, surface.dataset.arrangement === 'end' ? 'packed' : 'fill');
-      if (changed) this.stacked = this.placement.stacked;
+    const room = () =>
+      this.step(
+        run,
+        () => {
+          const line = Number.parseFloat(getComputedStyle(body).getPropertyValue('--_line')) || 0;
+          return body.scrollHeight > body.clientHeight + 0.5 && body.clientHeight < line;
+        },
+        (whole) => {
+          surface.classList.toggle('whole', whole);
+          this.arrangement = null;
+        },
+      );
+    if (!box) {
+      room();
+      return;
     }
-    const line = Number.parseFloat(getComputedStyle(body).getPropertyValue('--_line')) || 0;
-    surface.classList.toggle('whole', overflows() && body.clientHeight < line);
+    this.placement.read([...box.children]);
+    this.placement.startMeasure(box);
+    this.step(
+      run,
+      () => this.placement.readMeasure(box, arrangement === 'end' ? 'packed' : 'fill'),
+      (measured) => {
+        const { changed } = this.placement.endMeasure(box, measured);
+        if (changed) this.stacked = this.placement.stacked;
+        room();
+      },
+    );
+  }
+
+  private watchSizes() {
+    const next = [this.surface, this.renderRoot.querySelector('.body')].filter((element): element is HTMLElement => !!element);
+    if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
+    this.unwatchSizes();
+    if (typeof ResizeObserver === 'undefined') return;
+    const watch = (TanreiDateTimePicker.resizeWatch ??= new ResizeObserver((entries) => {
+      for (const entry of entries) TanreiDateTimePicker.watchedBy.get(entry.target)?.arrange();
+    }));
+    for (const element of next) {
+      TanreiDateTimePicker.watchedBy.set(element, this);
+      watch.observe(element);
+    }
+    this.watched = next;
+  }
+
+  private unwatchSizes() {
+    for (const element of this.watched) {
+      TanreiDateTimePicker.resizeWatch?.unobserve(element);
+      TanreiDateTimePicker.watchedBy.delete(element);
+    }
+    this.watched = [];
   }
 
   /** DTM-1, DTM-2, DTM-3: the overlay is presented and focus moves in — when it opens, not when its motion ends. */
@@ -2485,11 +2588,11 @@ export class TanreiDateTimePicker extends TanreiElement {
     }
     this.syncOpener();
     this.linkPanels();
-    const surface = this.surface;
-    if (surface) this.resize$?.observe(surface);
-    const body = this.renderRoot.querySelector('.body');
-    if (body) this.resize$?.observe(body);
-    if (this.shown || this.inline) this.arrange();
+    this.watchSizes();
+    // An update that only lets the handle move with motion again (DTM-25, a frame after it opened) changes no layout:
+    // it arranges nothing, which a hundred pickers opened at once would each do in a turn of their own.
+    const transitionOnly = changed.size === 1 && (changed as Map<PropertyKey, unknown>).has('instant');
+    if ((this.shown || this.inline) && !transitionOnly) this.arrange();
     // DTM-33: the error line is announced once, politely, when it appears.
     const error = this.session && this.rangeError;
     if (error && !this.errorShown) {

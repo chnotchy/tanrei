@@ -125,8 +125,21 @@ export class ActionPlacement {
    * Returns whether the orientation changed (the host then assigns the slots again) and the measure.
    */
   measure(box: HTMLElement, arrangement: ActionArrangement): ActionMeasure & { changed: boolean } {
+    this.startMeasure(box);
+    return this.endMeasure(box, this.readMeasure(box, arrangement));
+  }
+
+  /**
+   * `measure()` in three steps, for a host that reads with others (src/primitives/read-phase.ts): the box set to
+   * measure (a write), what it measures (a read, with every other host's), and the orientation drawn from it (a write).
+   */
+  startMeasure(box: HTMLElement) {
     box.classList.remove('stacked');
     box.classList.add('measuring');
+  }
+
+  /** What `measure()` reads, once the box is set to measure (`startMeasure()`); it writes nothing. */
+  readMeasure(box: HTMLElement, arrangement: ActionArrangement): ActionMeasure & { fits: boolean } {
     const drawn = this.actions.filter((action) => action.getClientRects().length > 0);
     // In the box's own pixels, as its gap and its inner width are: under an ancestor's zoom a drawn width is that much
     // larger (`cssZoom()`).
@@ -141,8 +154,12 @@ export class ActionPlacement {
     const inner = box.clientWidth - (Number.parseFloat(style.paddingInlineStart) || 0) - (Number.parseFloat(style.paddingInlineEnd) || 0);
     const share = widths.length ? (inner - gaps) / widths.length : inner;
     const fits = packed ? row <= inner + 0.5 : widths.every((width) => width <= share + 0.5);
+    return { stacked: widths.length > 0 && !fits, row, natural, fits };
+  }
+
+  /** The orientation `readMeasure()` found, drawn on the box; returns the measure and whether it changed. */
+  endMeasure(box: HTMLElement, { stacked, row, natural }: ActionMeasure): ActionMeasure & { changed: boolean } {
     box.classList.remove('measuring');
-    const stacked = widths.length > 0 && !fits;
     box.classList.toggle('stacked', stacked);
     const changed = stacked !== this.stacked;
     this.stacked = stacked;
