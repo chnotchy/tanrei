@@ -1382,6 +1382,10 @@ export class TanreiImagePreview extends TanreiElement {
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);
+    // IMP-4, IMP-33: what closing began — the colors of what focus left inside it and of the element it went back to —
+    // begins in the first frame drawn after this task, as its exit does (statesFromNextFrame). WebKit dated it from the
+    // frame drawn before the task, and where closing took longer than it lasts drew it over at once.
+    statesFromNextFrame([this, restore ? opener : null]);
   }
 
   /** IMP-28: what assistive technology is told, politely: each sentence a block of its own, in place of what was said. */

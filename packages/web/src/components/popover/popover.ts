@@ -1043,6 +1043,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       this.withdrawSheet(true);
       this.giveBack(opener);
       this.lastReason = null;
+      // POP-22, POP-41: what closing began — the colors of the element focus left and of the opener it went back to —
+      // begins in the first frame drawn after this task, as the sheet's slide does (statesFromNextFrame).
+      statesFromNextFrame([this, opener]);
       return;
     }
     this.presented = false;
