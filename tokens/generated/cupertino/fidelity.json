@@ -1,0 +1,317 @@
+{
+  "system": "cupertino",
+  "reference": {
+    "name": "Apple Human Interface Guidelines",
+    "source": "https://developer.apple.com/design/human-interface-guidelines/",
+    "version": "read 2026-11-12",
+    "license": "Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.",
+    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the default appearances.",
+    "pages": [
+      {
+        "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
+        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/accessibility.json",
+        "changed": "2025-06-09"
+      },
+      {
+        "url": "https://developer.apple.com/design/human-interface-guidelines/color",
+        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json",
+        "changed": "2025-12-16"
+      },
+      {
+        "url": "https://developer.apple.com/design/human-interface-guidelines/typography",
+        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json",
+        "changed": "2025-12-16"
+      }
+    ]
+  },
+  "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
+  "total": 52,
+  "equal": 38,
+  "covered": 0,
+  "different": [
+    {
+      "ref": "apple.color.blue",
+      "tanrei": "tanrei.sys.color.primary",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": "#0088ff",
+          "actual": "#087aff"
+        },
+        {
+          "scheme": "dark",
+          "expected": "#0091ff",
+          "actual": "#4c8eff"
+        }
+      ]
+    },
+    {
+      "ref": "apple.color.cyan",
+      "tanrei": "tanrei.sys.color.info",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": "#00c0e8",
+          "actual": "#0088b9"
+        },
+        {
+          "scheme": "dark",
+          "expected": "#3cd3fe",
+          "actual": "#159bd1"
+        }
+      ]
+    },
+    {
+      "ref": "apple.color.green",
+      "tanrei": "tanrei.sys.color.success",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": "#34c759",
+          "actual": "#009336"
+        },
+        {
+          "scheme": "dark",
+          "expected": "#30d158",
+          "actual": "#11a740"
+        }
+      ]
+    },
+    {
+      "ref": "apple.color.orange",
+      "tanrei": "tanrei.sys.color.warning",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": "#ff8d28",
+          "actual": "#b46f00"
+        },
+        {
+          "scheme": "dark",
+          "expected": "#ff9230",
+          "actual": "#cd7f00"
+        }
+      ]
+    },
+    {
+      "ref": "apple.color.red",
+      "tanrei": "tanrei.sys.color.error",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": "#ff383c",
+          "actual": "#ee372b"
+        },
+        {
+          "scheme": "dark",
+          "expected": "#ff4245",
+          "actual": "#ff5544"
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.headline-emphasized-weight",
+      "tanrei": "tanrei.sys.typescale.heading-4",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 600,
+          "actual": 800
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.large-title-emphasized-weight",
+      "tanrei": "tanrei.sys.typescale.display",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 700,
+          "actual": 800
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.large-title-weight",
+      "tanrei": "tanrei.sys.typescale.display",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 400,
+          "actual": 700
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-1-emphasized-weight",
+      "tanrei": "tanrei.sys.typescale.heading-1",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 700,
+          "actual": 900
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-1-weight",
+      "tanrei": "tanrei.sys.typescale.heading-1",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 400,
+          "actual": 700
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-2-emphasized-weight",
+      "tanrei": "tanrei.sys.typescale.heading-2",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 700,
+          "actual": 900
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-2-weight",
+      "tanrei": "tanrei.sys.typescale.heading-2",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 400,
+          "actual": 700
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-3-emphasized-weight",
+      "tanrei": "tanrei.sys.typescale.heading-3",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 600,
+          "actual": 800
+        }
+      ]
+    },
+    {
+      "ref": "apple.typescale.title-3-weight",
+      "tanrei": "tanrei.sys.typescale.heading-3",
+      "problems": [
+        {
+          "scheme": "light",
+          "expected": 400,
+          "actual": 600
+        }
+      ]
+    }
+  ],
+  "unmapped": [],
+  "unaccounted": [],
+  "outside": [
+    {
+      "ref": "apple.color.brown",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.gray",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.gray-2",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.gray-3",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.gray-4",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.gray-5",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.gray-6",
+      "reason": "Apple publishes the six grays as a ramp, not as roles, and does not publish which gray a background, fill or separator is (its semantic colors are named without values). cupertino's neutral roles cannot be paired with a gray step on Apple's word."
+    },
+    {
+      "ref": "apple.color.indigo",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.mint",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.pink",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.purple",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.teal",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.color.yellow",
+      "reason": "A system color no Tanrei role stands for: cupertino's colored roles are its accent (blue) and the four statuses."
+    },
+    {
+      "ref": "apple.typescale.body-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.callout-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.caption-1-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.caption-2-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.footnote-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.headline-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.large-title-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.subhead-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.title-1-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.title-2-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.typescale.title-3-tracking",
+      "reason": "Apple publishes tracking for mockups: \"In a running app, the system font dynamically adjusts tracking at every point size\" (Typography). cupertino names the system font and leaves its letter spacing at 0, so the font's own tracking stands."
+    },
+    {
+      "ref": "apple.target.macos.minimum",
+      "reason": "Tanrei has one least drawn size for every input (sys.target.minimum); cupertino takes the iOS figure, the larger of the two."
+    }
+  ],
+  "fidelity": 0.731
+}
