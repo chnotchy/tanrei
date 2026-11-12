@@ -23,3 +23,8 @@ What changed on the elements:
   size the same way; set, `medium` included, it is written and is the box's own.
 - `TanreiTextInputSize`, `TanreiNumberInputSize`, `TanreiColorInputSize` and `TanreiComboboxSize` now include `small`,
   which their specs have always listed and their styles have always drawn.
+
+The byte budget of `@tanrei/web/all` is raised from 664500 to 664900 bytes gzip (664838 measured; 764 more than
+before this change): five boxes now take a size from their container, with its custom state, its re-layout when the
+drawn size changes, and six composed fields that forward only the size the product set. What the size consumers wrote
+each for themselves — the drawn size's selector, its axis read, the token-name check — is shared now, 222 bytes less.
