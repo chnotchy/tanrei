@@ -9453,7 +9453,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 <link rel="stylesheet" href="@tanrei/web/icons.css" />
 <link rel="stylesheet" href="@tanrei/web/accordion.css" />
 
-<tanrei-accordion variant="outlined" density="compact" separation="gap" exclusive>
+<tanrei-accordion variant="outlined" size="small" separation="gap" exclusive>
   <details open>
     <summary>
       <span class="tanrei-icon" aria-hidden="true">palette</span>
@@ -9476,7 +9476,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 
 | Spec | Web |
 | --- | --- |
-| `variant`, `density`, `separation`, `exclusive` | attributes (and properties) of `<tanrei-accordion>` |
+| `variant`, `size`, `separation`, `exclusive` | attributes (and properties) of `<tanrei-accordion>` |
 | an item | a `<details>` child; `open` is its own attribute and property |
 | `label` | the text of its `<summary>` |
 | the label slot | ONE element in the text's place: a heading, or a `<span>` around text with inline content |
@@ -9485,7 +9485,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 | `disabled` | `<summary aria-disabled="true" tabindex="-1">` |
 | `toggle` | the item's own `toggle` (it does not bubble; `event.newState`) |
 
-**What the stylesheet draws alone**, before the element is defined and without script: both looks, both densities, each separation, every part of a header, hover, the focus ring, a press (the overlay, held for press-hold), the disabled look, forced colors, right to left, and — in a browser that can move a height to `auto` in CSS (`calc-size()`) — the height motion. Nothing moves when the element is defined.
+**What the stylesheet draws alone**, before the element is defined and without script: both looks, both sizes set on it, each separation, every part of a header, hover, the focus ring, a press (the overlay, held for press-hold), the disabled look, forced colors, right to left, and — in a browser that can move a height to `auto` in CSS (`calc-size()`) — the height motion. Nothing moves when the element is defined.
 
 **What the script adds**: the system's answer to a press (`data-pressed`: overlay, ripple, dim, none); the arrow keys; `exclusive`, as a `name` of the accordion's own on its items (a `name` you wrote is left alone); the height motion where the browser cannot move a height to `auto`; the pressed header kept in place while an item above it closes; focus given to the header when its item closes around it; the supporting and the trailing text as the header's description instead of part of its name (`aria-describedby`, with the two parts hidden from the name) and `dir="auto"` on each; `tabindex="-1"` on a disabled summary that lacks it, and a disabled summary's click refused; the debug reports.
 
@@ -9499,7 +9499,8 @@ How it is built, and what follows from it:
 - **Find-in-page and fragment links** are the browser's too: a link to a place inside a closed item opens it in Chromium, Firefox and WebKit, and the element draws that change at once. A match of the browser's own search opens the item where the engine reveals a details element for it; that reveal cannot be told from any other change of `open`, so it moves as one.
 - **A heading in a summary** keeps its role and its level in the document. What a screen reader does with a heading inside a button differs; see the docs page.
 - **A label of bare text takes the layout direction.** A stylesheet cannot give a text node a direction of its own: wrap a label that may be written in the other direction in a `<span>`.
-- **A density or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
+- **A size taken from a container** (ACC-37) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script an accordion is drawn at the size it sets, or at medium.
+- **A size or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
 - **Without `::details-content`** an item opens and closes at once, inset by the item's own padding.
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)
@@ -10125,7 +10126,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 ```html
 <link rel="stylesheet" href="@tanrei/web/icons.css" />
 <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
-<tanrei-tree-view label="Project files" selection="single" value="src/index.ts" density="compact" guides>
+<tanrei-tree-view label="Project files" selection="single" value="src/index.ts" size="small" guides>
   <ul>
     <li data-value="src" data-open>
       <span>
@@ -10149,7 +10150,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 | `selection` | `none` \| `single` \| `multiple` | `none` | whether items are chosen |
 | `value` | text \| `null` | `null` | the chosen item's `data-value` (single); set by the tree at a choice, with `change` |
 | `values` | a JSON array (attribute), `string[]` (property) | `[]` | the chosen items' values (multiple) |
-| `density` | `regular` \| `compact` (a design system may add values) | `regular` | 48 rows with the body text, or 32 rows with the small one |
+| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium |
 | `guides` | boolean | off | a hairline down from each open parent beside the rows it holds |
 | `loading-label` / `loadingLabel` | text | `''` | the words of a loading row |
 

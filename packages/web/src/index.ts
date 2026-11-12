@@ -41,7 +41,7 @@ export {
   type TanreiFieldGroupRequiredMark,
   type TanreiFieldGroupSpacing,
 } from './components/field-group/field-group.js';
-export { TanreiAccordion, type TanreiAccordionDensity, type TanreiAccordionSeparation, type TanreiAccordionVariant } from './components/accordion/accordion.js';
+export { TanreiAccordion, type TanreiAccordionSeparation, type TanreiAccordionSize, type TanreiAccordionVariant } from './components/accordion/accordion.js';
 export { TanreiAppBar, type TanreiAppBarSize, type TanreiAppBarTitleAlignment } from './components/app-bar/app-bar.js';
 export {
   TanreiAppShell,
@@ -144,7 +144,7 @@ export {
 export { TanreiPageHeader, type TanreiPageHeaderActionsPlacement, type TanreiPageHeaderSize } from './components/page-header/page-header.js';
 export { TanreiBreadcrumbs, type TanreiBreadcrumbsOverflow, type TanreiBreadcrumbsUnderline } from './components/breadcrumbs/breadcrumbs.js';
 export { TanreiPagination, type TanreiPaginationChangeDetail, type TanreiPaginationSize, type TanreiPaginationVariant } from './components/pagination/pagination.js';
-export { TanreiTreeView, type TanreiTreeViewChangeDetail, type TanreiTreeViewDensity, type TanreiTreeViewSelection, type TanreiTreeViewToggleDetail } from './components/tree-view/tree-view.js';
+export { TanreiTreeView, type TanreiTreeViewChangeDetail, type TanreiTreeViewSelection, type TanreiTreeViewSize, type TanreiTreeViewToggleDetail } from './components/tree-view/tree-view.js';
 export {
   TanreiPopover,
   type TanreiPopoverCloseDetail,

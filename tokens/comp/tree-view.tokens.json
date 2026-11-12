@@ -36,11 +36,11 @@
               "default": "unselected",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "container.height",
@@ -55,7 +55,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a tree view reads: per density (regular, compact) a row's least height, paddings, gap, the indent of one level, the label's text style and the sizes of the glyph and the chevron; the text styles of the note after a label and of the value at a row's end; the row's corners; the guide line; the motion of a press and of opening and closing; and for each condition (unselected, selected) the colors of a row's container, label, supporting text, trailing text, icon, chevron and state layer in each state. Also, for a filterable tree: the gap under its filter field, the status line's text style and color, and how a match in a label is marked (color, added weight, fill, and the two on a selected row).",
+            "usage": "Everything a tree view reads: per size (small, medium) a row's least height, paddings, gap, the indent of one level, the label's text style and the sizes of the glyph and the chevron; the text styles of the note after a label and of the value at a row's end; the row's corners; the guide line; the motion of a press and of opening and closing; and for each condition (unselected, selected) the colors of a row's container, label, supporting text, trailing text, icon, chevron and state layer in each state. Also, for a filterable tree: the gap under its filter field, the status line's text style and color, and how a match in a label is marked (color, added weight, fill, and the two on a selected row).",
             "rules": [
               "A tree view shows a hierarchy whose items open and close, and lets a person choose in it where the product asks. A hierarchy of places to go is a navigation drawer: a drawer navigates, a tree reveals or selects. Content folded under a row is an accordion. Rows of one level are a list.",
               "One tab stop: the arrow keys move through the rows that are shown, the arrow toward the end of the line opens a parent or steps into it, the arrow toward the start closes it or steps out. Do not add tab stops inside a row.",
@@ -65,7 +65,7 @@
               "The selected fill is the quiet selection, the same in a list, a drawer and a table: in the default system a layer of the row's content color. Never use the primary fill or the accent for it: primary is the one chosen now among actions, and the accent is the keyboard focus ring alone.",
               "A row holds no control: no link, button or field. A word such as a tag or a count is the trailing slot or the trailing text.",
               "The tree shows what it is given. Filtering, sorting, searching and fetching are the product's: it gives the tree the items that match and opens the parents that hold them.",
-              "compact is for a tool used with a pointer and for a small tree inside text. Touch always gets rows of the touch target.",
+              "small is for a tool used with a pointer and for a small tree inside text. A row is never lower than the target at either size. A tree that sets no size takes the one its container sets.",
               "Each condition's state-layer.color is the color hover, focus and press mix into the row; it aliases the condition's label color.",
               "Restyle through these tokens in a layer; never draw nested lists with chevrons by hand."
             ]
@@ -74,8 +74,8 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A row's least height, per density: the box that carries hover, focus, press and the selected fill. Regular is a navigation drawer's row, 48 in the default system. Compact is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; for touch a row is never lower than the touch target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
-            "regular": {
+            "$description": "A row's least height, per size: the box that carries hover, focus, press and the selected fill. Medium is a navigation drawer's row, 48 in the default system. Small is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; a row is never lower than the target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
+            "medium": {
               "$value": {
                 "value": 48,
                 "unit": "px"
@@ -91,7 +91,7 @@
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 36,
                 "unit": "px"
@@ -108,8 +108,8 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Above the first line and below the last line of a row's text, per density. With one line of the label it gives the height or leaves room; it holds the room when the label wraps or the text is enlarged.",
-            "regular": {
+            "$description": "Above the first line and below the last line of a row's text, per size. With one line of the label it gives the height or leaves room; it holds the room when the label wraps or the text is enlarged.",
+            "medium": {
               "$value": {
                 "value": 12,
                 "unit": "px"
@@ -118,11 +118,11 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space150}",
-                  "height": "{tanrei.comp.tree-view.container.height.regular}"
+                  "height": "{tanrei.comp.tree-view.container.height.medium}"
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 8,
                 "unit": "px"
@@ -131,28 +131,28 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space75}",
-                  "height": "{tanrei.comp.tree-view.container.height.compact}"
+                  "height": "{tanrei.comp.tree-view.container.height.small}"
                 }
               }
             }
           },
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Before the chevron's box and after the last part of a row, per density, inside the row's container.",
-            "regular": {
+            "$description": "Before the chevron's box and after the last part of a row, per size, inside the row's container.",
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.space.space100}"
             }
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the chevron's box, the icon, the text, the trailing content and the trailing text of a row, per density. Regular is a navigation drawer row's gap.",
-            "regular": {
+            "$description": "Between the chevron's box, the icon, the text, the trailing content and the trailing text of a row, per size. Medium is a navigation drawer row's gap.",
+            "medium": {
               "$value": "{tanrei.sys.space.space150}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.space.space100}"
             }
           },
@@ -171,23 +171,23 @@
           },
           "indent": {
             "$type": "dimension",
-            "$description": "How much further from the start edge a row's container begins for each level below the first, per density: the chevron's box and one gap, so that a child's chevron stands under its parent's icon or label.",
-            "regular": {
+            "$description": "How much further from the start edge a row's container begins for each level below the first, per size: the chevron's box and one gap, so that a child's chevron stands under its parent's icon or label.",
+            "medium": {
               "$value": "{tanrei.sys.space.space400}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.space.space300}"
             }
           }
         },
         "label": {
           "typescale": {
-            "$description": "The label's text style, per density. Regular is a list item's headline; compact is one step smaller, a table's compact cell.",
-            "regular": {
+            "$description": "The label's text style, per size. Medium is a list item's headline; small is one step smaller, a table's compact cell.",
+            "medium": {
               "$type": "typography",
               "$value": "{tanrei.sys.typescale.body}"
             },
-            "compact": {
+            "small": {
               "$type": "typography",
               "$value": "{tanrei.sys.typescale.body-small}"
             }
@@ -203,7 +203,7 @@
           "typescale": {
             "$type": "typography",
             "$value": "{tanrei.sys.typescale.body-small}",
-            "$description": "The note after the label, in both densities: the size of the compact label, at a regular weight."
+            "$description": "The note after the label, at both sizes: the size of the small label, at a regular weight."
           }
         },
         "trailing-text": {
@@ -216,24 +216,24 @@
           "typescale": {
             "$type": "typography",
             "$value": "{tanrei.sys.typescale.body-small}",
-            "$description": "The short value at the end of a row, in both densities: a navigation drawer row's trailing text."
+            "$description": "The short value at the end of a row, at both sizes: a navigation drawer row's trailing text."
           }
         },
         "icon": {
           "size": {
             "$type": "dimension",
-            "$description": "The box of the glyph before the label, per density: no taller than one line of the label, so that it sits on the first line without making the row taller.",
-            "regular": {
+            "$description": "The box of the glyph before the label, per size: no taller than one line of the label, so that it sits on the first line without making the row taller.",
+            "medium": {
               "$value": "{tanrei.sys.icon.small}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.icon.extra-small}"
             }
           },
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "The room between the icon (or the icon's kept room) and the label, the same in every density: a compact tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a regular one does. A product's iconGap overrides it.",
+            "$description": "The room between the icon (or the icon's kept room) and the label, the same at every size and density: a small tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a medium one does. A product's iconGap overrides it.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product sets a name apart from its glyph by one distance in every tree it draws, dense or not, apart from the gaps between a row's other parts.",
@@ -251,11 +251,11 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The chevron's box at the start of a row, per density; a leaf keeps the box empty. Regular is the size of a navigation drawer group's chevron.",
-            "regular": {
+            "$description": "The chevron's box at the start of a row, per size; a leaf keeps the box empty. Medium is the size of a navigation drawer group's chevron.",
+            "medium": {
               "$value": "{tanrei.sys.icon.small}"
             },
-            "compact": {
+            "small": {
               "$value": "{tanrei.sys.icon.extra-small}"
             }
           }

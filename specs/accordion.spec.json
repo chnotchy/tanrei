@@ -74,15 +74,15 @@
       "axis": "tanrei.comp.accordion.variant"
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How much room a header takes, in a table's words. regular (a 56 header with a 16 label in the default system) is for a page a person reads: the questions of a help page, the sections of a long form. compact (a 48 header with a 14 label, a navigation drawer row's) is for a panel among controls: settings, an inspector, a card. A design system may add values.",
-      "axis": "tanrei.comp.accordion.density"
+      "default": "medium",
+      "description": "How much room a header takes, in a list's and a tree view's words: its least height, its paddings, its text styles, its glyphs and the space under an open item's content. medium (a 56 header with a 16 label in the default system) is for a page a person reads: the questions of a help page, the sections of a long form. small (a 48 header with a 14 label, a navigation drawer row's) is for a panel among controls: settings, an inspector, a card. Its heights follow the system's density at either size. While it is not set the accordion is drawn at the size its nearest container sets (ACC-37), and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.accordion.size"
     },
     {
       "name": "separation",
@@ -176,26 +176,26 @@
     },
     {
       "id": "ACC-2",
-      "text": "THE accordion SHALL draw each item as a header and, WHILE the item is open, its content below the header (ACC-8). A header is one row across the item's whole width, at least as high as its density gives (comp.accordion.container.height.regular for regular and comp.accordion.container.height.compact for compact) and growing with its text, padded at its start and end by comp.accordion.container.padding-inline.regular for regular and comp.accordion.container.padding-inline.compact for compact and above its first line and below its last by comp.accordion.container.padding-block.regular for regular and comp.accordion.container.padding-block.compact for compact. Inside it SHALL lay out, from the start: the icon, where the item has one (ACC-5); the text, a column that takes the remaining width and holds the label (ACC-3) and under it the supporting text (ACC-4); the trailing text, where it has one (ACC-4); and the chevron (ACC-6); with comp.accordion.container.gap between each two of them. THE accordion SHALL centre the icon, the trailing text and the chevron on the label's first line and keep them there however tall the text grows, and any height a header has beyond its text SHALL be shared equally above and below it.",
-      "verify": "Under the default system a regular header with a one-line label is 56 high with the label 16 from the start edge and the chevron's box 16 from the end edge; a compact one is 48 high with 12 and 12, the height, the text style and the chevron of a navigation drawer group's row."
+      "text": "THE accordion SHALL draw each item as a header and, WHILE the item is open, its content below the header (ACC-8). A header is one row across the item's whole width, at least as high as its size gives (comp.accordion.container.height.medium for medium and comp.accordion.container.height.small for small) and growing with its text, padded at its start and end by comp.accordion.container.padding-inline.medium for medium and comp.accordion.container.padding-inline.small for small and above its first line and below its last by comp.accordion.container.padding-block.medium for medium and comp.accordion.container.padding-block.small for small. Inside it SHALL lay out, from the start: the icon, where the item has one (ACC-5); the text, a column that takes the remaining width and holds the label (ACC-3) and under it the supporting text (ACC-4); the trailing text, where it has one (ACC-4); and the chevron (ACC-6); with comp.accordion.container.gap between each two of them. THE accordion SHALL centre the icon, the trailing text and the chevron on the label's first line and keep them there however tall the text grows, and any height a header has beyond its text SHALL be shared equally above and below it.",
+      "verify": "Under the default system a medium header with a one-line label is 56 high with the label 16 from the start edge and the chevron's box 16 from the end edge; a small one is 48 high with 12 and 12, the height, the text style and the chevron of a navigation drawer group's row."
     },
     {
       "id": "ACC-3",
-      "text": "THE accordion SHALL draw an item's label in the text style of its density (comp.accordion.label.typescale.regular for regular and comp.accordion.label.typescale.compact for compact) and the label color of its variant (comp.accordion.plain.label.color for plain, comp.accordion.outlined.label.color for outlined); the label SHALL wrap and SHALL never be cut. WHERE the item's label slot holds content THE accordion SHALL draw that content in the label's place, style and color instead of the label, and SHALL change neither its role nor its level: a label given as text is plain text and never a heading, and a label the product gives as a heading stays a heading of the level the product gave it, drawn as every other label is. The label slot SHALL hold text, inline content or a heading and no control: IF it holds a link, a button or a field THE accordion SHALL still render it and in debug builds report that a header is one button and holds no other. THE accordion SHALL set the label's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them.",
+      "text": "THE accordion SHALL draw an item's label in the text style of its size (comp.accordion.label.typescale.medium for medium and comp.accordion.label.typescale.small for small) and the label color of its variant (comp.accordion.plain.label.color for plain, comp.accordion.outlined.label.color for outlined); the label SHALL wrap and SHALL never be cut. WHERE the item's label slot holds content THE accordion SHALL draw that content in the label's place, style and color instead of the label, and SHALL change neither its role nor its level: a label given as text is plain text and never a heading, and a label the product gives as a heading stays a heading of the level the product gave it, drawn as every other label is. The label slot SHALL hold text, inline content or a heading and no control: IF it holds a link, a button or a field THE accordion SHALL still render it and in debug builds report that a header is one button and holds no other. THE accordion SHALL set the label's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them.",
       "verify": "Test a label slot holding a heading of level 2 and one of level 4: both are drawn in the label's text style, and the accessibility tree keeps levels 2 and 4."
     },
     {
       "id": "ACC-4",
-      "text": "WHILE an item's supportingText is not empty THE accordion SHALL draw it under the label, in the text style of its density (comp.accordion.supporting-text.typescale.regular for regular and comp.accordion.supporting-text.typescale.compact for compact) and the supporting-text color of its variant (comp.accordion.plain.supporting-text.color, comp.accordion.outlined.supporting-text.color); it SHALL wrap and SHALL never be cut, and the header SHALL grow to hold it. WHILE an item's trailingText is not empty THE accordion SHALL draw it on one line between the text and the chevron, in the text style of its density (comp.accordion.trailing-text.typescale.regular for regular and comp.accordion.trailing-text.typescale.compact for compact) and the trailing-text color of its variant (comp.accordion.plain.trailing-text.color, comp.accordion.outlined.trailing-text.color); it SHALL NOT wrap, and WHILE it would take more than half of the header's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half."
+      "text": "WHILE an item's supportingText is not empty THE accordion SHALL draw it under the label, in the text style of its size (comp.accordion.supporting-text.typescale.medium for medium and comp.accordion.supporting-text.typescale.small for small) and the supporting-text color of its variant (comp.accordion.plain.supporting-text.color, comp.accordion.outlined.supporting-text.color); it SHALL wrap and SHALL never be cut, and the header SHALL grow to hold it. WHILE an item's trailingText is not empty THE accordion SHALL draw it on one line between the text and the chevron, in the text style of its size (comp.accordion.trailing-text.typescale.medium for medium and comp.accordion.trailing-text.typescale.small for small) and the trailing-text color of its variant (comp.accordion.plain.trailing-text.color, comp.accordion.outlined.trailing-text.color); it SHALL NOT wrap, and WHILE it would take more than half of the header's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half."
     },
     {
       "id": "ACC-5",
-      "text": "WHILE an item's icon is not empty THE accordion SHALL draw that glyph of the system's icon set at the start of the header, in a box of comp.accordion.icon.size.regular for regular and comp.accordion.icon.size.compact for compact, in the icon color of its variant (comp.accordion.plain.icon.color, comp.accordion.outlined.icon.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE accordion SHALL draw no glyph and keep no room for one: the label starts at the start padding. The icon SHALL be the same glyph whether the item is open or closed."
+      "text": "WHILE an item's icon is not empty THE accordion SHALL draw that glyph of the system's icon set at the start of the header, in a box of comp.accordion.icon.size.medium for medium and comp.accordion.icon.size.small for small, in the icon color of its variant (comp.accordion.plain.icon.color, comp.accordion.outlined.icon.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE accordion SHALL draw no glyph and keep no room for one: the label starts at the start padding. The icon SHALL be the same glyph whether the item is open or closed."
     },
     {
       "id": "ACC-6",
-      "text": "THE accordion SHALL draw a chevron at the end of every header: the icon set's expand_more in a box of comp.accordion.chevron.size.regular for regular and comp.accordion.chevron.size.compact for compact, in the chevron color of its variant (comp.accordion.plain.chevron.color, comp.accordion.outlined.chevron.color), drawn as ACC-5 draws a glyph, turned half a turn WHILE the item is open, and kept from assistive technology, which is given the item's state in words (ACC-24). The chevron SHALL be the only thing about a header that shows whether its item is open: the header's container, label, texts and icon SHALL be the same open and closed. A disabled item SHALL keep its chevron.",
-      "verify": "The fixtures plain and compact: the open item's chevron points up, every other points down, and nothing else differs between the headers. The chevron of a compact header has the box, the glyph and the turn of a navigation drawer group's chevron."
+      "text": "THE accordion SHALL draw a chevron at the end of every header: the icon set's expand_more in a box of comp.accordion.chevron.size.medium for medium and comp.accordion.chevron.size.small for small, in the chevron color of its variant (comp.accordion.plain.chevron.color, comp.accordion.outlined.chevron.color), drawn as ACC-5 draws a glyph, turned half a turn WHILE the item is open, and kept from assistive technology, which is given the item's state in words (ACC-24). The chevron SHALL be the only thing about a header that shows whether its item is open: the header's container, label, texts and icon SHALL be the same open and closed. A disabled item SHALL keep its chevron.",
+      "verify": "The fixtures plain and small: the open item's chevron points up, every other points down, and nothing else differs between the headers. The chevron of a small header has the box, the glyph and the turn of a navigation drawer group's chevron."
     },
     {
       "id": "ACC-7",
@@ -204,7 +204,7 @@
     },
     {
       "id": "ACC-8",
-      "text": "WHILE an item is open THE accordion SHALL draw the content of its default slot under its header, inset at its start and end by the header's inline padding (comp.accordion.container.padding-inline.regular for regular and comp.accordion.container.padding-inline.compact for compact), so that it starts under the first part of the header, with no space above it and comp.accordion.content.padding-block-end.regular for regular and comp.accordion.content.padding-block-end.compact for compact below it. The content is the product's: THE accordion SHALL give it no text style and no color, which it takes from where the accordion stands, SHALL add no style to anything inside a component placed in it (PRS-16), and SHALL neither cut it nor limit its height. The content SHALL be held whole by the item: a margin of its first or last part is space inside the content, under the header and above the space below the content, and SHALL NOT reach out of the item. WHILE the item is open it is one target (ACC-36), and its hovered, focused and pressed states are the whole item's: THE accordion SHALL draw the container color of that state under the content as under the header (ACC-17) and SHALL give the content the state's opacity, and SHALL change nothing else about it — not its box, its text style or its color."
+      "text": "WHILE an item is open THE accordion SHALL draw the content of its default slot under its header, inset at its start and end by the header's inline padding (comp.accordion.container.padding-inline.medium for medium and comp.accordion.container.padding-inline.small for small), so that it starts under the first part of the header, with no space above it and comp.accordion.content.padding-block-end.medium for medium and comp.accordion.content.padding-block-end.small for small below it. The content is the product's: THE accordion SHALL give it no text style and no color, which it takes from where the accordion stands, SHALL add no style to anything inside a component placed in it (PRS-16), and SHALL neither cut it nor limit its height. The content SHALL be held whole by the item: a margin of its first or last part is space inside the content, under the header and above the space below the content, and SHALL NOT reach out of the item. WHILE the item is open it is one target (ACC-36), and its hovered, focused and pressed states are the whole item's: THE accordion SHALL draw the container color of that state under the content as under the header (ACC-17) and SHALL give the content the state's opacity, and SHALL change nothing else about it — not its box, its text style or its color."
     },
     {
       "id": "ACC-9",
@@ -228,7 +228,7 @@
     {
       "id": "ACC-13",
       "text": "WHEN an item's open changes THE accordion SHALL reveal or hide its content from the header downward, the item growing or shrinking in height and everything after it moving with its lower edge, and SHALL turn the chevron, over comp.accordion.motion.disclosure-duration with comp.accordion.motion.disclosure-easing, at once where motion is reduced. The content SHALL be laid out once, at the width and height it has when shown, and the motion SHALL only change how much of it is seen: its lines SHALL NOT wrap again, its parts SHALL NOT be resized and nothing in it SHALL be measured again from frame to frame. The item's height SHALL go from its height at rest before the change to its height at rest after it with no jump at the start or at the end, whatever margins the content's first and last parts have. Content that is being hidden SHALL stay drawn until the motion ends and SHALL leave the focus order and assistive technology when the motion begins. WHEN open changes again before the motion ends THE accordion SHALL go on from where the motion is toward the new state, without a jump. toggle SHALL be emitted when the change begins, not when the motion ends.",
-      "verify": "Test with the web's animations inspected: one height motion and one rotation of the chosen duration per change; none while prefers-reduced-motion is reduce; a second activation at half way returns from half way; content of paragraphs, whose first and last parts have margins, opens and closes with no frame in which the height moves further than the motion does. A navigation drawer's group and a compact item open over the same duration with the same curve in the default system."
+      "verify": "Test with the web's animations inspected: one height motion and one rotation of the chosen duration per change; none while prefers-reduced-motion is reduce; a second activation at half way returns from half way; content of paragraphs, whose first and last parts have margins, opens and closes with no frame in which the height moves further than the motion does. A navigation drawer's group and a small item open over the same duration with the same curve in the default system."
     },
     {
       "id": "ACC-14",
@@ -257,7 +257,7 @@
     {
       "id": "ACC-19",
       "text": "WHERE a header is lower than the minimum target THE accordion SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row, from the item's start edge to its end edge, its paddings, icon, texts and chevron included, SHALL be the header's hit area; WHILE the item is open, its content, down to the item's lower edge, SHALL be part of the item's hit area too: the open item is one target, as ACC-36 says.",
-      "verify": "Under the default system both densities already hold the touch target (56 and 48). Test under a layer that sets the compact height to 32, sys.target.pointer to 44 and sys.target.touch to 48: the header is drawn 48 high for touch and 44 for a fine pointer. A press on an open item's content closes it as ACC-36 says."
+      "verify": "Under the default system both sizes already hold the touch target (56 and 48). Test under a layer that sets the small height to 32, sys.target.pointer to 44 and sys.target.touch to 48: the header is drawn 48 high for touch and 44 for a fine pointer. A press on an open item's content closes it as ACC-36 says."
     },
     {
       "id": "ACC-20",
@@ -318,7 +318,7 @@
     },
     {
       "id": "ACC-32",
-      "text": "WHERE an item's content holds another accordion THE accordion SHALL treat it as content like any other: the inner accordion is laid out inside the item's inset (ACC-8), which is what shows its depth; it has its own variant, density, separation and exclusive; its headers answer the keys of ACC-11 for its own items only; and WHEN the outer item closes and opens again the inner items SHALL be as their open said. IF accordions nest more than three levels deep THE accordion SHALL still render them, and in debug builds report the depth."
+      "text": "WHERE an item's content holds another accordion THE accordion SHALL treat it as content like any other: the inner accordion is laid out inside the item's inset (ACC-8), which is what shows its depth; it has its own variant, size, separation and exclusive, and the outer accordion passes it no size (ACC-37); its headers answer the keys of ACC-11 for its own items only; and WHEN the outer item closes and opens again the inner items SHALL be as their open said. IF accordions nest more than three levels deep THE accordion SHALL still render them, and in debug builds report the depth."
     },
     {
       "id": "ACC-33",
@@ -326,7 +326,7 @@
     },
     {
       "id": "ACC-34",
-      "text": "WHEN variant or density names a value that the active design system does not have THE accordion SHALL render with the default value (the default variant's or density's tokens), and in debug builds report the unknown value."
+      "text": "WHEN variant, or the size the accordion draws (ACC-37), names a value that the active design system does not have THE accordion SHALL render with the default value (the default variant's or size's tokens), and in debug builds report the unknown value; a variant or a size a design system added SHALL be drawn from its tokens, as the core values are."
     },
     {
       "id": "ACC-35",
@@ -336,6 +336,11 @@
       "id": "ACC-36",
       "text": "WHEN the content of an open item is pressed and released with the primary mouse button, a touch or a pen, without the pointer moving further than the platform's touch slop between the two, THE accordion SHALL close that item exactly as a press on its header does: one toggle with false, the motion of ACC-13 and the header kept where it is as ACC-14 says, with exclusive (ACC-12) closing nothing else. The item's whole frame is its hit area while it is open: the content from the item's start edge to its end edge and down to its lower edge, the space under the content (ACC-8) included, the way a whole card answers a press while the controls inside it keep their own. THE accordion SHALL NOT close the item IF the press lands on or inside something that answers a press itself — a link, a button, a field, a select, a label, a summary, an editable element, an element with a tab index, an element with a widget role, a custom element that takes focus, or an element to which the product gave the pointer cursor where the item's own is not (the pointer the item shows for itself does not count) — which keeps its own behaviour; IF the release ends a text selection, that is, the selection is not empty and lies in the item once the press is released; IF the pointer moved further than the slop (a drag, a scroll); IF a modifier key (Control, Command, Shift, Alt or Option) is held or a button other than the primary is used; IF the press is the second or a later press of a multiple click; WHILE the item is disabled (ACC-20); or IF the press lands inside an item of an accordion nested in the content: such a press belongs to the innermost item, so a press in a nested open item's content closes that item only, and a nested header toggles its own item only. For a pointer the open item is one target, as a whole clickable card is, and not a header and a content styled alike: WHILE a fine pointer is over the item where a press would toggle or close it — its header, or its content outside a descendant that takes a press itself — THE accordion SHALL show the hovered state on the whole item (ACC-17) and the pointer cursor; a press SHALL show the pressed state on the whole item (ACC-21, ACC-22); keyboard focus on the header SHALL be shown around the whole item (ACC-18). WHILE the pointer is over a descendant that takes a press itself, that descendant SHALL keep its own cursor, hover and press, and the item SHALL show neither its hovered state nor the pointer cursor. The content SHALL get no role, no name, no focus stop and no announcement: the header stays the one button with the expanded state, and the keyboard and assistive technology reach the item through it alone (ACC-11, ACC-24). WHERE the platform's content answers no press (on the web, without the element's script) the content SHALL show neither the pointer cursor nor a state.",
       "verify": "Test with one open item whose content holds text, a link, a button, a field, a label and a nested accordion: a click on the text closes the item with one toggle of false, and so does a click under the last line; a click on the link (its default prevented), the button, the field and the label leaves it open; a word selected by dragging over it, a drag of 20 px, ctrl-, meta-, shift- and alt-clicks and a middle-button click leave it open, while a press moved by 4 px closes it; a click in the nested accordion's open item's content closes that item and not the outer one, and a nested header toggles its own item only; a disabled open item does not close; a script's click() on the content closes nothing; Tab reaches the same stops as before, Enter, Space and the arrows on a header still toggle it, and the content has no role and no tab index. Under the `acme` fixture system: hovered over its text and under its last line the item is drawn hovered as a whole with the pointer cursor over the text, and over its header the same; hovered over the field, the link or the button it is drawn at rest and each shows its own cursor; hovered over the nested open item's content, the nested item is the target and not the outer one; pressed on its content it is drawn pressed as a whole at once; focused by the keyboard it is ringed and drawn focused as a whole. Without the script, the content shows no pointer cursor and no state, and a press there closes nothing."
+    },
+    {
+      "id": "ACC-37",
+      "text": "WHILE size is set THE accordion SHALL draw every header, and the space under every open item's content, at its own size, whatever a container sets; without its script it SHALL draw that size all the same. WHILE size is not set and a container around the accordion sets a size for what it holds — the nearest such container where several do — THE accordion SHALL draw at that size, its heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; WHILE no container around it sets one it SHALL draw medium. A container whose size is not set SHALL pass none, and the accordion SHALL pass none to what its items hold: their content is the product's (ACC-8), and an accordion nested in it takes the size of the containers around both (ACC-32). WHEN the size it draws changes — its own size set, changed or removed, a container's size set, changed or removed, or the accordion moved into or out of such a container — THE accordion SHALL draw the new size at once, without a motion, keeping every item's open and focus.",
+      "verify": "An accordion without a size in a container whose size is small is drawn as the fixture small is, every header comp.accordion.container.height.small high, at density 0.75, 1 and 1.5; one whose size is medium in that container keeps medium; removing the container's size, or moving the accordion out of it, draws it at medium before the next frame, with the same items open; an accordion nested in an open item of an outer accordion whose size is small, with no size of its own, is drawn medium."
     }
   ],
   "accessibility": {
@@ -368,7 +373,7 @@
       "exclusive moves the page: opening one item closes another, and what the reader was looking at goes. The accordion keeps the activated header where it is (ACC-14), which removes the worst of it; even so, keep exclusive for items that exclude each other. A person who wants two answers side by side cannot have them.",
       "Where the platform's own search can reach closed content (the web's find-in-page), a match opens the item (ACC-16), so closing content does not hide it from someone who looks for its words. Native platforms have no such search: there, text in a closed item is found only by the product's own search, which sets the item's open.",
       "A header holds no control (ACC-3). A switch, a menu button or a link beside the label would be a control inside a button: unreachable or ambiguous for assistive technology, and a press on it would also toggle the item. An action that belongs to an item goes into its content, or beside the accordion.",
-      "WCAG 2.5.8 (target size): a header is the whole row and at least the touch target high in both densities; rows that touch do not share or extend hit areas (ACC-19).",
+      "WCAG 2.5.8 (target size): a header is the whole row and at least the touch target high at both sizes; rows that touch do not share or extend hit areas (ACC-19).",
       "WCAG 2.1.1 (keyboard) and 4.1.2 (name, role, value): closing an item by a press on its open content (ACC-36) is a convenience for a pointer only. The header is the one control, reached by the keyboard and named with its expanded state; the content gains no role, no focus stop and no announcement, so nothing is offered to a pointer that the keyboard and assistive technology do not already have through the header. An open item is one target, as a whole clickable card is (the maintainers' decision, 2026-10-13): the region that answers a press is the region that looks it — the pointer cursor over it, the hovered and pressed states drawn on the whole item, and keyboard focus ringed around the whole item, so that hover, press and focus all show the same one target, never a header and a content styled alike. This follows the clickable-card practice: the whole card is the target's area while the controls inside it keep their own press (Bootstrap, \"Stretched link\"), and the pointer cursor is set by the script, since without it the style would deceive (Inclusive Components, \"Cards\") — without the script the content shows no pointer and no state. Where the pointer is over a control in the content, that control is the target: it keeps its own cursor and states and the item shows none, as a nested button in a card answers alone. WCAG 2.4.7, 2.4.11 and 2.4.13 (focus visible, not obscured, appearance): the ring around an open item is the system's focus ring of the same widths and colors, inside the item's edge and drawn over its content, so nothing in the item, no neighbouring item, outlined edge or scrolling ancestor covers or cuts it, and it encloses a larger area than the header's. What a press must not be is kept from the same practice: a press that ends a text selection, or that is a drag, is not taken (that card pattern tells a selection by the press's length; the accordion tells it by the selection itself and by the slop).",
       "WCAG 1.4.1 (use of color): open and closed are told by the chevron's turn and by the expanded state, never by color; the header keeps its colors when open. Disabled is told by the faded header and by the disabled state.",
       "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the label is on-surface and the supporting text, trailing text, icon and chevron are on-surface-variant, on the surface the accordion stands on; each is held to 4.5:1 on every surface role by the token invariants. The edge and the lines are decorative: every header is told as a button by its chevron and its states.",
@@ -560,9 +565,9 @@
       ]
     },
     {
-      "id": "compact",
+      "id": "small",
       "props": {
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -590,9 +595,9 @@
       ]
     },
     {
-      "id": "compact-outlined",
+      "id": "small-outlined",
       "props": {
-        "density": "compact",
+        "size": "small",
         "variant": "outlined"
       },
       "items": [
@@ -621,9 +626,9 @@
       ]
     },
     {
-      "id": "compact-outlined-gap",
+      "id": "small-outlined-gap",
       "props": {
-        "density": "compact",
+        "size": "small",
         "variant": "outlined",
         "separation": "gap"
       },
@@ -946,9 +951,9 @@
       ]
     },
     {
-      "id": "all-parts-compact",
+      "id": "all-parts-small",
       "props": {
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1160,7 +1165,7 @@
       "id": "docs-on-this-page",
       "props": {
         "variant": "outlined",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1176,7 +1181,7 @@
     {
       "id": "docs-conflicts",
       "props": {
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1192,7 +1197,7 @@
     {
       "id": "studio-folds",
       "props": {
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1231,7 +1236,7 @@
       "name": "tanrei-accordion",
       "props": {
         "variant": "variant",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "exclusive": "exclusive"
       },
@@ -1252,14 +1257,14 @@
           "notes": "A native `<details>` whose first child is its `<summary>`. The summary's content is the label (the label slot): text, inline content, or a heading (`<summary><h3>…</h3></summary>`, which HTML allows). Inside the summary, an element with `data-supporting-text` holds the supporting text and one with `data-trailing-text` the trailing text; a `.tanrei-icon` element first in the summary is the icon. `open` is the element's own attribute and property, and `toggle` its own event (not bubbling; `event.newState` is `open` or `closed`), which the browser also sends when the product changes `open` — a product that sets `open` itself tells its own changes by the state it set. A disabled item is written `<summary aria-disabled=\"true\" tabindex=\"-1\">`: the stylesheet draws it and takes the pointer from it, `tabindex` takes it from the focus order, and the script refuses what is left."
         }
       },
-      "notes": "Form: `<tanrei-accordion>` is a custom element with **no shadow root**, around the product's own native `<details>` elements in the light DOM — `<tanrei-accordion variant=\"outlined\"><details open><summary>Colors</summary><p>…</p></details><details>…</details></tanrei-accordion>`. The browser's disclosure is kept whole: it opens and closes without script, a summary is focusable and answers Enter and Space, it is exposed with its expanded state, its closed content stays in the document, find-in-page and a fragment link open it where the browser does that for a details element (ACC-16; in a browser that does not, the script listens for `beforematch` and `hashchange` where they exist, and otherwise closed content is not found, as in every details element there), and `exclusive` is the `name` attribute, which the element writes on its own `<details>` children with a name of its own (a nested accordion gets another, ACC-12); markup that must be exclusive without script writes `name` itself. Everything drawn comes from one stylesheet, `@tanrei/web/accordion.css`, whose selectors start at `tanrei-accordion` and are wrapped in `:where()`; it styles the page before the element is defined and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `variant`, `density`, `separation`, `exclusive`. The summary is a grid (icon, text, trailing text, chevron); the browser's own marker is removed (`list-style: none` and the `::-webkit-details-marker` rule) and the chevron is the summary's `::after` in the icon font (`expand_more`), rotated under `details[open]`. The content's inset is padding on the `<details>` with the summary pulled back out by a negative inline margin, so no wrapper is needed around the product's content. The stylesheet alone gives the default system's whole look and every state: hover, `:focus-visible` with the ring as an inset outline, `:active` with the press-hold as a delayed transition back, the disabled look from `summary[aria-disabled=\"true\"]`, forced colors, and the separation through a style query on the component token's custom property with the `separation` attribute over it. The content's box is the details element's own `::details-content`, a block formatting context (`display: flow-root`): the margins of the content's first and last parts stay inside it, at rest and at every height of the motion, so the height the motion starts and ends at is the height at rest (ACC-8, ACC-13). Motion (ACC-13) is CSS where the browser can move a height to `auto` (`::details-content` with `block-size` from 0 to `calc-size(auto, size)`, `overflow: clip`, and `content-visibility` transitioned discretely so that closing content stays drawn until the end); elsewhere the script measures the content's height once, before the first frame, and the stylesheet moves the box between 0 and that height; where the browser has no `::details-content` the item opens at once, and so it does where motion is reduced. The script reads layout from frame to frame only for an item turned back in the first half of its motion on the script's path, whose height goes on with no event to tell its end: it reads the item's height once a frame until it stands still. The package's script, where it is loaded, adds what a stylesheet cannot: the shared press primitive on the summary (ripple and dim, ACC-22), the arrow keys of ACC-11, the `name` of `exclusive`, holding the activated header's place where the browser's scroll anchoring does not (ACC-14), moving focus to the summary when an item closes around it (ACC-15), refusing a disabled summary's click, closing an open item when its content is pressed (ACC-36), and every debug report. ACC-36 is the script's alone: before the element is defined, and without script, only the summary toggles its item, and the content shows no pointer cursor and no state (they would promise a press nothing answers). Once the element is defined an open item is drawn as one target by accordion.css: the `<details>` paints the container color of its state (at rest the look's container color, no fill in every shipped system), the summary paints none and is not a positioning container, so its focus ring (`::before`, with the outer stroke as the item's own `outline`) and its ripple are laid out on the whole item, under the header and the content; the content's box (`::details-content`) takes the state's opacity. The element writes `data-tanrei-hit` on the item a mouse or a pen is over where a press would toggle or close it (from `pointerover`, by the same rule as a press), which draws it hovered and gives it `cursor: pointer`; over a control in the content the attribute is off, so the control's own cursor and states show and the item's none. To tell a box the product gave the pointer cursor from the content inheriting the item's, the element sets the item's cursor aside (`data-tanrei-reading`) while it reads the pressed element's. A press in the content is the summary's press primitive (`data-pressed` on the summary), drawn on the whole item, and ends when the pointer leaves the item or moves past the slop. Where the browser has no `::details-content` the content's opacity is not changed. The element listens for `pointerdown`, `pointermove` and `click` on itself; a click closes the item when it follows a press with the primary button (any touch or pen) in that same item's content, the pointer has not moved more than 8 CSS pixels (the touch slop the sheets and the tabs use, the web naming none of its own), no modifier key is held, `event.detail` is 1, the document's selection is collapsed or outside the item, the innermost `<details>` on the event's composed path is the item itself, and nothing on that path between the target and the item is a link, a button, a field, a select, a textarea, a label, a summary, editable, a `[tabindex]`, an element with a widget role, a custom element that delegates focus or takes it, or (the element pressed) drawn with `cursor: pointer` while the item, its own pointer set aside, is not. The click is decided a task after it is dispatched, so that a handler of the product's on the content is heard first: a click it cancelled (`preventDefault()`) closes nothing. It then sets the item's `open` to false, so the browser sends `toggle` and the motion, focus and exclusive rules run as for a press on the summary. Nothing is written into the content and no style is added to anything in it. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16); the product makes an item's long-form content prose by its own `<div class=\"tanrei-prose\" data-measure=\"false\">`. Markdown: a renderer passes `<details>` through as HTML; the product wraps one or several in `<tanrei-accordion>`. React: `Accordion` and `AccordionItem` render the same elements."
+      "notes": "Form: `<tanrei-accordion>` is a custom element with **no shadow root**, around the product's own native `<details>` elements in the light DOM — `<tanrei-accordion variant=\"outlined\"><details open><summary>Colors</summary><p>…</p></details><details>…</details></tanrei-accordion>`. The browser's disclosure is kept whole: it opens and closes without script, a summary is focusable and answers Enter and Space, it is exposed with its expanded state, its closed content stays in the document, find-in-page and a fragment link open it where the browser does that for a details element (ACC-16; in a browser that does not, the script listens for `beforematch` and `hashchange` where they exist, and otherwise closed content is not found, as in every details element there), and `exclusive` is the `name` attribute, which the element writes on its own `<details>` children with a name of its own (a nested accordion gets another, ACC-12); markup that must be exclusive without script writes `name` itself. Everything drawn comes from one stylesheet, `@tanrei/web/accordion.css`, whose selectors start at `tanrei-accordion` and are wrapped in `:where()`; it styles the page before the element is defined and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `variant`, `size`, `separation`, `exclusive`. The summary is a grid (icon, text, trailing text, chevron); the browser's own marker is removed (`list-style: none` and the `::-webkit-details-marker` rule) and the chevron is the summary's `::after` in the icon font (`expand_more`), rotated under `details[open]`. The content's inset is padding on the `<details>` with the summary pulled back out by a negative inline margin, so no wrapper is needed around the product's content. The stylesheet alone gives the default system's whole look and every state: hover, `:focus-visible` with the ring as an inset outline, `:active` with the press-hold as a delayed transition back, the disabled look from `summary[aria-disabled=\"true\"]`, forced colors, and the separation through a style query on the component token's custom property with the `separation` attribute over it. The content's box is the details element's own `::details-content`, a block formatting context (`display: flow-root`): the margins of the content's first and last parts stay inside it, at rest and at every height of the motion, so the height the motion starts and ends at is the height at rest (ACC-8, ACC-13). Motion (ACC-13) is CSS where the browser can move a height to `auto` (`::details-content` with `block-size` from 0 to `calc-size(auto, size)`, `overflow: clip`, and `content-visibility` transitioned discretely so that closing content stays drawn until the end); elsewhere the script measures the content's height once, before the first frame, and the stylesheet moves the box between 0 and that height; where the browser has no `::details-content` the item opens at once, and so it does where motion is reduced. The script reads layout from frame to frame only for an item turned back in the first half of its motion on the script's path, whose height goes on with no event to tell its end: it reads the item's height once a frame until it stands still. The package's script, where it is loaded, adds what a stylesheet cannot: the shared press primitive on the summary (ripple and dim, ACC-22), the arrow keys of ACC-11, the `name` of `exclusive`, holding the activated header's place where the browser's scroll anchoring does not (ACC-14), moving focus to the summary when an item closes around it (ACC-15), refusing a disabled summary's click, closing an open item when its content is pressed (ACC-36), and every debug report. ACC-36 is the script's alone: before the element is defined, and without script, only the summary toggles its item, and the content shows no pointer cursor and no state (they would promise a press nothing answers). Once the element is defined an open item is drawn as one target by accordion.css: the `<details>` paints the container color of its state (at rest the look's container color, no fill in every shipped system), the summary paints none and is not a positioning container, so its focus ring (`::before`, with the outer stroke as the item's own `outline`) and its ripple are laid out on the whole item, under the header and the content; the content's box (`::details-content`) takes the state's opacity. The element writes `data-tanrei-hit` on the item a mouse or a pen is over where a press would toggle or close it (from `pointerover`, by the same rule as a press), which draws it hovered and gives it `cursor: pointer`; over a control in the content the attribute is off, so the control's own cursor and states show and the item's none. To tell a box the product gave the pointer cursor from the content inheriting the item's, the element sets the item's cursor aside (`data-tanrei-reading`) while it reads the pressed element's. A press in the content is the summary's press primitive (`data-pressed` on the summary), drawn on the whole item, and ends when the pointer leaves the item or moves past the slop. Where the browser has no `::details-content` the content's opacity is not changed. The element listens for `pointerdown`, `pointermove` and `click` on itself; a click closes the item when it follows a press with the primary button (any touch or pen) in that same item's content, the pointer has not moved more than 8 CSS pixels (the touch slop the sheets and the tabs use, the web naming none of its own), no modifier key is held, `event.detail` is 1, the document's selection is collapsed or outside the item, the innermost `<details>` on the event's composed path is the item itself, and nothing on that path between the target and the item is a link, a button, a field, a select, a textarea, a label, a summary, editable, a `[tabindex]`, an element with a widget role, a custom element that delegates focus or takes it, or (the element pressed) drawn with `cursor: pointer` while the item, its own pointer set aside, is not. The click is decided a task after it is dispatched, so that a handler of the product's on the content is heard first: a click it cancelled (`preventDefault()`) closes nothing. It then sets the item's `open` to false, so the browser sends `toggle` and the motion, focus and exclusive rules run as for a press on the summary. Nothing is written into the content and no style is added to anything in it. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16); the product makes an item's long-form content prose by its own `<div class=\"tanrei-prose\" data-measure=\"false\">`. Markdown: a renderer passes `<details>` through as HTML; the product wraps one or several in `<tanrei-accordion>`. React: `Accordion` and `AccordionItem` render the same elements."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiAccordion",
       "props": {
         "variant": "variant",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "exclusive": "isExclusive"
       },
@@ -1280,14 +1285,14 @@
           "notes": "`TanreiAccordionItem(_ title: String, supportingText: String = \"\", trailingText: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>) { content }`, as SwiftUI's `DisclosureGroup` binds its state and as `TanreiNavigationDrawerGroup` does; toggling writes the binding. A second initializer takes the label as a `@ViewBuilder` (the label slot; `.accessibilityAddTraits(.isHeader)` is the product's). `disabled` follows `.disabled(_:)`."
         }
       },
-      "notes": "`TanreiAccordion(variant:, density:, separation:, isExclusive:) { TanreiAccordionItem(…) { … } … }`. The header is a button whose accessibility value is expanded or collapsed. An exclusive accordion writes false to the binding of the item it closes. Closed content is not in the view tree; state that must outlive a close is the product's (ACC-7). There is no search of the screen's text to answer (ACC-16)."
+      "notes": "`TanreiAccordion(variant:, size:, separation:, isExclusive:) { TanreiAccordionItem(…) { … } … }`. The header is a button whose accessibility value is expanded or collapsed. An exclusive accordion writes false to the binding of the item it closes. Closed content is not in the view tree; state that must outlive a close is the product's (ACC-7). There is no search of the screen's text to answer (ACC-16)."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiAccordion",
       "props": {
         "variant": "variant",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "exclusive": "exclusive"
       },
@@ -1308,14 +1313,14 @@
           "notes": "`TanreiAccordionItem(label, expanded, onExpandedChange, supportingText = \"\", trailingText = \"\", icon = null, enabled = true, labelContent = null) { content }`, the names of `TanreiNavigationDrawerGroup`; the header has `Modifier.semantics { expand() / collapse() }` and the expanded state. `enabled` is the inverse flag; `labelContent` is the label slot."
         }
       },
-      "notes": "`TanreiAccordion(variant, density, separation, exclusive) { TanreiAccordionItem(…) { … } }`, items in a scope of the accordion. Controlled: an exclusive accordion calls `onExpandedChange(false)` on the item it closes. Closed content leaves the composition; `rememberSaveable` in the content keeps what the product wants kept (ACC-7)."
+      "notes": "`TanreiAccordion(variant, size, separation, exclusive) { TanreiAccordionItem(…) { … } }`, items in a scope of the accordion. Controlled: an exclusive accordion calls `onExpandedChange(false)` on the item it closes. Closed content leaves the composition; `rememberSaveable` in the content keeps what the product wants kept (ACC-7)."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiAccordion",
       "props": {
         "variant": "variant",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "exclusive": "exclusive"
       },
@@ -1336,14 +1341,14 @@
           "notes": "`TanreiAccordionItem(label:, supportingText: '', trailingText: '', icon:, expanded:, onExpansionChanged:, enabled: true, labelWidget:, child:)`, controlled, with the callback name of `TanreiNavigationDrawerGroup`; the header carries `Semantics(button: true, expanded:)`. `labelWidget` is the label slot."
         }
       },
-      "notes": "`TanreiAccordion(variant:, density:, separation:, exclusive:, children: [TanreiAccordionItem(…)])`. An exclusive accordion calls `onExpansionChanged(false)` on the item it closes. A closed item's `child` is not built; a `PageStorageKey` or the product's own state keeps what must be kept (ACC-7)."
+      "notes": "`TanreiAccordion(variant:, size:, separation:, exclusive:, children: [TanreiAccordionItem(…)])`. An exclusive accordion calls `onExpansionChanged(false)` on the item it closes. A closed item's `child` is not built; a `PageStorageKey` or the product's own state keeps what must be kept (ACC-7)."
     },
     "react-native": {
       "status": "planned",
       "name": "Accordion",
       "props": {
         "variant": "variant",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "exclusive": "exclusive"
       },

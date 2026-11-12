@@ -532,19 +532,8 @@ private let acmeAccordionTokens = TanreiAccordionTokens(
       )
     )
   ),
-  densitys: TanreiAccordionDensitys(
-    regular: TanreiAccordionDensityTokens(
-      containerHeight: 56,
-      containerPaddingBlock: 16,
-      containerPaddingInline: 16,
-      labelTypescale: acmeTypescale.heading5,
-      supportingTextTypescale: acmeTypescale.body,
-      trailingTextTypescale: acmeTypescale.body,
-      iconSize: 24,
-      chevronSize: 24,
-      contentPaddingBlockEnd: 16
-    ),
-    compact: TanreiAccordionDensityTokens(
+  sizes: TanreiAccordionSizes(
+    small: TanreiAccordionSizeTokens(
       containerHeight: 48,
       containerPaddingBlock: 12,
       containerPaddingInline: 12,
@@ -554,6 +543,17 @@ private let acmeAccordionTokens = TanreiAccordionTokens(
       iconSize: 20,
       chevronSize: 20,
       contentPaddingBlockEnd: 12
+    ),
+    medium: TanreiAccordionSizeTokens(
+      containerHeight: 56,
+      containerPaddingBlock: 16,
+      containerPaddingInline: 16,
+      labelTypescale: acmeTypescale.heading5,
+      supportingTextTypescale: acmeTypescale.body,
+      trailingTextTypescale: acmeTypescale.body,
+      iconSize: 24,
+      chevronSize: 24,
+      contentPaddingBlockEnd: 16
     )
   ),
   hovered: TanreiAccordionStateTokens(
@@ -10028,18 +10028,8 @@ private let acmeTreeViewTokens = TanreiTreeViewTokens(
       )
     )
   ),
-  densitys: TanreiTreeViewDensitys(
-    regular: TanreiTreeViewDensityTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 12,
-      containerPaddingInline: 12,
-      containerGap: 12,
-      levelIndent: 32,
-      labelTypescale: acmeTypescale.body,
-      iconSize: 20,
-      chevronSize: 20
-    ),
-    compact: TanreiTreeViewDensityTokens(
+  sizes: TanreiTreeViewSizes(
+    small: TanreiTreeViewSizeTokens(
       containerHeight: 36,
       containerPaddingBlock: 8,
       containerPaddingInline: 8,
@@ -10048,6 +10038,16 @@ private let acmeTreeViewTokens = TanreiTreeViewTokens(
       labelTypescale: acmeTypescale.bodySmall,
       iconSize: 16,
       chevronSize: 16
+    ),
+    medium: TanreiTreeViewSizeTokens(
+      containerHeight: 48,
+      containerPaddingBlock: 12,
+      containerPaddingInline: 12,
+      containerGap: 12,
+      levelIndent: 32,
+      labelTypescale: acmeTypescale.body,
+      iconSize: 20,
+      chevronSize: 20
     )
   ),
   hovered: TanreiTreeViewStateTokens(

@@ -8,7 +8,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by\nthemselves or, with `exclusive`, one at a time. A help page's questions, the sections of a settings screen, the\nadvanced part of a form.\n\nContract: specs/accordion.spec.json. The element has **no shadow root**: its items are the product's own native\n`<details>` elements, which stay in the document. They open and close, are focusable, carry the expanded state, keep\ntheir closed content in the page (a field in it keeps its value and is sent with its form) and are opened by a link\nto a fragment and by the browser's find-in-page, before any script runs and without it.\n\n```html\n<tanrei-accordion variant=\"outlined\">\n  <details open>\n    <summary>\n      <span class=\"tanrei-icon\" aria-hidden=\"true\">palette</span>\n      Colors\n      <span data-supporting-text>Roles, palettes and the six schemes</span>\n      <span data-trailing-text>48 roles</span>\n    </summary>\n    <p>Every color a component reads is a role.</p>\n  </details>\n  <details>\n    <summary><h3>A label that is a heading</h3></summary>\n    <p>…</p>\n  </details>\n  <details>\n    <summary aria-disabled=\"true\" tabindex=\"-1\">A disabled item</summary>\n    <p>…</p>\n  </details>\n</tanrei-accordion>\n```\n\nAn item is a `<details>` whose first child is its `<summary>`: the header. The summary's text is the label, or ONE\nelement in its place — a heading of the level the page's outline needs, or a `<span>` around text with inline\ncontent; an element with `data-supporting-text` is the line under the label, one with `data-trailing-text` the short\nvalue before the chevron, a `.tanrei-icon` the glyph at the start. `open` is the item's own attribute and property\nand `toggle` its own event (it does not bubble; `event.newState` is `open` or `closed`) — the browser also sends it\nwhen the product sets `open`. A disabled item is `<summary aria-disabled=\"true\" tabindex=\"-1\">`.\n\nEverything drawn is `@tanrei/web/accordion.css` — every value a `--tanrei-comp-accordion-*` token — which draws the\nwhole look and every state before and without this script; the element adds the same sheet to the root it is\nconnected to, so it also works inside another component's shadow root. The script adds what a stylesheet cannot:\nthe system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the\nheight motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an\nitem above it closes, focus given to the header when its item closes around it, the supporting and trailing text\nread as the header's description instead of as part of its name, a disabled header refused, an open item drawn\nand answered as one target — closed by a press on its content, hovered, pressed and focused as a whole, with the\npointer cursor over it (ACC-36; without script only the header is a target), and the debug reports.\n\nAn accordion in an item's content is content like any other, drawn by its own attributes.",
+          "description": "Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by\nthemselves or, with `exclusive`, one at a time. A help page's questions, the sections of a settings screen, the\nadvanced part of a form.\n\nContract: specs/accordion.spec.json. The element has **no shadow root**: its items are the product's own native\n`<details>` elements, which stay in the document. They open and close, are focusable, carry the expanded state, keep\ntheir closed content in the page (a field in it keeps its value and is sent with its form) and are opened by a link\nto a fragment and by the browser's find-in-page, before any script runs and without it.\n\n```html\n<tanrei-accordion variant=\"outlined\">\n  <details open>\n    <summary>\n      <span class=\"tanrei-icon\" aria-hidden=\"true\">palette</span>\n      Colors\n      <span data-supporting-text>Roles, palettes and the six schemes</span>\n      <span data-trailing-text>48 roles</span>\n    </summary>\n    <p>Every color a component reads is a role.</p>\n  </details>\n  <details>\n    <summary><h3>A label that is a heading</h3></summary>\n    <p>…</p>\n  </details>\n  <details>\n    <summary aria-disabled=\"true\" tabindex=\"-1\">A disabled item</summary>\n    <p>…</p>\n  </details>\n</tanrei-accordion>\n```\n\nAn item is a `<details>` whose first child is its `<summary>`: the header. The summary's text is the label, or ONE\nelement in its place — a heading of the level the page's outline needs, or a `<span>` around text with inline\ncontent; an element with `data-supporting-text` is the line under the label, one with `data-trailing-text` the short\nvalue before the chevron, a `.tanrei-icon` the glyph at the start. `open` is the item's own attribute and property\nand `toggle` its own event (it does not bubble; `event.newState` is `open` or `closed`) — the browser also sends it\nwhen the product sets `open`. A disabled item is `<summary aria-disabled=\"true\" tabindex=\"-1\">`.\n\nEverything drawn is `@tanrei/web/accordion.css` — every value a `--tanrei-comp-accordion-*` token — which draws the\nwhole look and every state before and without this script; the element adds the same sheet to the root it is\nconnected to, so it also works inside another component's shadow root. The script adds what a stylesheet cannot:\nthe system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the\nheight motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an\nitem above it closes, focus given to the header when its item closes around it, the supporting and trailing text\nread as the header's description instead of as part of its name, a disabled header refused, an open item drawn\nand answered as one target — closed by a press on its content, hovered, pressed and focused as a whole, with the\npointer cursor over it (ACC-36; without script only the header is a target), and the debug reports.\n\nAn accordion in an item's content is content like any other, drawn by its own attributes: the outer accordion passes\nit no size, and while it sets none it takes the size of the containers around both (ACC-32, ACC-37).",
           "name": "TanreiAccordion",
           "slots": [
             {
@@ -31,15 +31,13 @@
             },
             {
               "kind": "field",
-              "name": "density",
+              "name": "size",
               "privacy": "public",
               "type": {
-                "text": "TanreiAccordionDensity"
+                "text": "TanreiAccordionSize"
               },
-              "default": "'regular'",
-              "description": "How much room a header takes: regular for a page a person reads, compact for a panel among controls. A design system may add values.",
-              "attribute": "density",
-              "reflects": true
+              "description": "How much room a header takes: `medium` for a page a person reads, `small` for a panel among controls. While it is\nnot set the accordion draws the size its nearest container sets (ACC-37), and `medium` where none does; reading it\nthen gives `medium`. Setting it (to any value, `medium` included) makes it the accordion's own; removing the\nattribute gives that back. It is not passed to what the items hold. A design system may add values.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -77,13 +75,12 @@
               "fieldName": "variant"
             },
             {
-              "name": "density",
+              "name": "size",
               "type": {
-                "text": "TanreiAccordionDensity"
+                "text": "TanreiAccordionSize"
               },
-              "default": "'regular'",
-              "description": "How much room a header takes: regular for a page a person reads, compact for a panel among controls. A design system may add values.",
-              "fieldName": "density"
+              "description": "How much room a header takes: `medium` for a page a person reads, `small` for a panel among controls. While it is\nnot set the accordion draws the size its nearest container sets (ACC-37), and `medium` where none does; reading it\nthen gives `medium`. Setting it (to any value, `medium` included) makes it the accordion's own; removing the\nattribute gives that back. It is not passed to what the items hold. A design system may add values.",
+              "fieldName": "size"
             },
             {
               "name": "separation",
@@ -53551,15 +53548,13 @@
             },
             {
               "kind": "field",
-              "name": "density",
+              "name": "size",
               "privacy": "public",
               "type": {
-                "text": "TanreiTreeViewDensity"
+                "text": "TanreiTreeViewSize"
               },
-              "default": "'regular'",
-              "description": "How much room a row takes: regular for a product used by touch as well, compact for a tool and for a small tree inside text. A design system may add values.",
-              "attribute": "density",
-              "reflects": true
+              "description": "How much room a row takes: `medium` (48 rows in the default system) for a product used by touch as well, `small`\n(36) for a tool and for a small tree inside text. While it is not set the tree draws the size its nearest container\nsets (TRV-73), and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it the tree's own; removing the attribute gives that back. A design system may add values.",
+              "attribute": "size"
             },
             {
               "kind": "field",
@@ -53628,7 +53623,7 @@
                 "text": "number | null"
               },
               "default": "null",
-              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no density changes.",
+              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no size changes.",
               "attribute": "icon-gap"
             },
             {
@@ -53943,13 +53938,12 @@
               "fieldName": "values"
             },
             {
-              "name": "density",
+              "name": "size",
               "type": {
-                "text": "TanreiTreeViewDensity"
+                "text": "TanreiTreeViewSize"
               },
-              "default": "'regular'",
-              "description": "How much room a row takes: regular for a product used by touch as well, compact for a tool and for a small tree inside text. A design system may add values.",
-              "fieldName": "density"
+              "description": "How much room a row takes: `medium` (48 rows in the default system) for a product used by touch as well, `small`\n(36) for a tool and for a small tree inside text. While it is not set the tree draws the size its nearest container\nsets (TRV-73), and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it the tree's own; removing the attribute gives that back. A design system may add values.",
+              "fieldName": "size"
             },
             {
               "name": "chevron",
@@ -54002,7 +53996,7 @@
                 "text": "number | null"
               },
               "default": "null",
-              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no density changes.",
+              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no size changes.",
               "fieldName": "iconGap"
             },
             {
