@@ -11,6 +11,7 @@ import { DEFAULT_SYSTEM, bundleSource, entryFiles, readManifests, systemElements
 import { CONFIG } from '@tanrei/tokens-build/config';
 import { themeColors } from '@tanrei/tokens-build/emit/resolved';
 import { cssLiteralsPlugin, minifyCssLiterals } from './css-literals.js';
+import { sourceSideEffectsPlugin } from './source-side-effects.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -367,8 +368,12 @@ const bundle = await build({
   metafile: true,
   outfile: 'dist/tanrei.bundle.js',
   // The minifier leaves template literals as they are: the components' `css` templates lose their comments and
-  // indentation on the way in (scripts/css-literals.js).
-  plugins: [cssLiteralsPlugin()],
+  // indentation on the way in (scripts/css-literals.js). The bundle is made from the sources, which `sideEffects` does
+  // not name: a source is a side effect where its built module is (scripts/source-side-effects.js). A module that
+  // plugin resolves is not given the tsconfig esbuild finds by itself, so it is named here for every module
+  // (`useDefineForClassFields: false`, which Lit's reactive properties need).
+  plugins: [sourceSideEffectsPlugin(path.resolve('.')), cssLiteralsPlugin()],
+  tsconfig: 'tsconfig.json',
   // A development bundle: debug reports (src/primitives/report.ts) stay on. esbuild would otherwise define
   // process.env.NODE_ENV as "production" for a minified browser bundle.
   define: { 'process.env.NODE_ENV': '"development"', [TABLE_CSS_NAME]: tableText, [ACCORDION_CSS_NAME]: accordionText, [TABLE_OF_CONTENTS_CSS_NAME]: tableOfContentsText, ...Object.fromEntries(LIGHT_SHEETS) },

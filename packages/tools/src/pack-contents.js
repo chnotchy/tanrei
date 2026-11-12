@@ -1,8 +1,10 @@
 // What a published package's tarball holds, against what it should not: the files `npm pack` would put in it (the
-// `files` list, `.npmignore` and npm's own rules decide), read without packing anything.
+// `files` list, `.npmignore` and npm's own rules decide), read without packing anything. Every published package's
+// tests hold its tarball to this, after its build:
 //
-//   import { packedFiles, packFindings } from '../../tools/src/pack-contents.js';
-//   assert.deepEqual(packFindings(packedFiles(dir), (file) => fs.readFileSync(path.join(dir, file), 'utf8')), []);
+//   import { packed } from '../../tools/src/pack-contents.js';
+//   const { files, findings } = packed(dir);
+//   assert.deepEqual(findings, []);
 //
 // A tarball carries the package's code and what that code reads at run time. Not in it:
 // - the repository's own working files: tests, fixtures, snapshots, TypeScript sources (a declaration `.d.ts` is
@@ -12,6 +14,7 @@
 //   files only the maintainers' checkout has — and a bundler that reads it warns about every one;
 // - a `//# sourceMappingURL=` comment naming a map the tarball does not hold.
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 
 const WORKING_FILE = [
@@ -45,4 +48,10 @@ export function packFindings(files, read) {
     }
   }
   return findings;
+}
+
+/** The files `npm pack` would put in the tarball of the package at `dir`, and what should not be among them. */
+export function packed(dir) {
+  const files = packedFiles(dir);
+  return { files, findings: packFindings(files, (file) => fs.readFileSync(path.join(dir, file), 'utf8')) };
 }
