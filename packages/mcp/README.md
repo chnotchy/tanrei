@@ -146,6 +146,6 @@ Had the agent written `"tanrei.comp.button.container.height.3x": { … }` under 
 
 ## Inside the Tanrei monorepo
 
-`bin/tanrei-mcp.js` runs the bundled `dist/server.js` with its copy of the vocabulary (`dist/vocabulary`: the sources under `tokens/` plus the presets' `fidelity.json` reports and each system's `components.json` — no other build output —, the component catalog, the specs, `tanrei.config.json`, the mimicry-gaps registry) when `dist/` exists. Set `TANREI_MCP_FROM_SOURCE=1` to run `src/` against the repository's own `tokens/`. `pnpm --filter @tanrei/mcp build` produces `dist/`; `node --test` covers both modes over stdio.
+`bin/tanrei-mcp.js` runs the bundled `dist/server.js` with its copy of the vocabulary (`dist/vocabulary`: the sources under `tokens/` plus the presets' `fidelity.json` reports and each system's `components.json` — no other build output —, the component catalog, the specs, `tanrei.config.json`, the mimicry-gaps registry; only what the server reads, so a spec leaves out what no tool returns, such as each rule's `verify`) when `dist/` exists. Set `TANREI_MCP_FROM_SOURCE=1` to run `src/` against the repository's own `tokens/`. `pnpm --filter @tanrei/mcp build` produces `dist/`; `node --test` covers both modes over stdio.
 
 License: Apache-2.0.
