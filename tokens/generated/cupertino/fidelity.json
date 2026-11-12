@@ -5,7 +5,7 @@
     "source": "https://developer.apple.com/design/human-interface-guidelines/",
     "version": "read 2026-11-12",
     "license": "Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.",
-    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the default appearances.",
+    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the light and dark appearances, at the default and the increased contrast.",
     "pages": [
       {
         "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
@@ -26,89 +26,9 @@
   },
   "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
   "total": 52,
-  "equal": 38,
+  "equal": 50,
   "covered": 0,
   "different": [
-    {
-      "ref": "apple.color.blue",
-      "tanrei": "tanrei.sys.color.primary",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": "#0088ff",
-          "actual": "#087aff"
-        },
-        {
-          "scheme": "dark",
-          "expected": "#0091ff",
-          "actual": "#4c8eff"
-        }
-      ]
-    },
-    {
-      "ref": "apple.color.cyan",
-      "tanrei": "tanrei.sys.color.info",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": "#00c0e8",
-          "actual": "#0088b9"
-        },
-        {
-          "scheme": "dark",
-          "expected": "#3cd3fe",
-          "actual": "#159bd1"
-        }
-      ]
-    },
-    {
-      "ref": "apple.color.green",
-      "tanrei": "tanrei.sys.color.success",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": "#34c759",
-          "actual": "#009336"
-        },
-        {
-          "scheme": "dark",
-          "expected": "#30d158",
-          "actual": "#11a740"
-        }
-      ]
-    },
-    {
-      "ref": "apple.color.orange",
-      "tanrei": "tanrei.sys.color.warning",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": "#ff8d28",
-          "actual": "#b46f00"
-        },
-        {
-          "scheme": "dark",
-          "expected": "#ff9230",
-          "actual": "#cd7f00"
-        }
-      ]
-    },
-    {
-      "ref": "apple.color.red",
-      "tanrei": "tanrei.sys.color.error",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": "#ff383c",
-          "actual": "#ee372b"
-        },
-        {
-          "scheme": "dark",
-          "expected": "#ff4245",
-          "actual": "#ff5544"
-        }
-      ]
-    },
     {
       "ref": "apple.typescale.headline-emphasized-weight",
       "tanrei": "tanrei.sys.typescale.heading-4",
@@ -116,73 +36,7 @@
         {
           "scheme": "light",
           "expected": 600,
-          "actual": 800
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.large-title-emphasized-weight",
-      "tanrei": "tanrei.sys.typescale.display",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 700,
-          "actual": 800
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.large-title-weight",
-      "tanrei": "tanrei.sys.typescale.display",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 400,
-          "actual": 700
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.title-1-emphasized-weight",
-      "tanrei": "tanrei.sys.typescale.heading-1",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 700,
           "actual": 900
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.title-1-weight",
-      "tanrei": "tanrei.sys.typescale.heading-1",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 400,
-          "actual": 700
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.title-2-emphasized-weight",
-      "tanrei": "tanrei.sys.typescale.heading-2",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 700,
-          "actual": 900
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.title-2-weight",
-      "tanrei": "tanrei.sys.typescale.heading-2",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 400,
-          "actual": 700
         }
       ]
     },
@@ -193,18 +47,7 @@
         {
           "scheme": "light",
           "expected": 600,
-          "actual": 800
-        }
-      ]
-    },
-    {
-      "ref": "apple.typescale.title-3-weight",
-      "tanrei": "tanrei.sys.typescale.heading-3",
-      "problems": [
-        {
-          "scheme": "light",
-          "expected": 400,
-          "actual": 600
+          "actual": 700
         }
       ]
     }
@@ -313,5 +156,5 @@
       "reason": "Tanrei has one least drawn size for every input (sys.target.minimum); cupertino takes the iOS figure, the larger of the two."
     }
   ],
-  "fidelity": 0.731
+  "fidelity": 0.962
 }

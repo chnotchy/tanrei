@@ -21054,11 +21054,11 @@
                 "colorSpace": "srgb",
                 "components": [
                   0,
-                  0.3529,
-                  0.7608
+                  0.3686,
+                  0.702
                 ],
                 "alpha": 0.16,
-                "hex": "#005ac2"
+                "hex": "#005eb3"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
@@ -25852,11 +25852,11 @@
                   "colorSpace": "srgb",
                   "components": [
                     0,
-                    0.3529,
-                    0.7608
+                    0.3686,
+                    0.702
                   ],
                   "alpha": 0.16,
-                  "hex": "#005ac2"
+                  "hex": "#005eb3"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {

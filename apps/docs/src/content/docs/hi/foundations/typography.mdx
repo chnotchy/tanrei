@@ -2,7 +2,7 @@
 title: टाइपोग्राफ़ी
 description: स्तर के नाम वाले सोलह टेक्स्ट स्टाइल — एक डिस्प्ले, छह हेडिंग, बॉडी के तीन साइज़, लेबल, कोड, एक आइब्रो — Inter में सेट, जिनमें एम्फ़ेसिस कोई रोल नहीं, वेट का एक स्टेप है।
 translationOf: foundations/typography.mdx
-sourceHash: f6541882f9778c5b231eb39cda781d02ae19685e
+sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -93,7 +93,7 @@ Tanrei के टेक्स्ट स्टाइल के नाम उस *
 
 <SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
 
-Tanrei हर फ़ैमिली में 100 जोड़ता है, इसलिए एम्फ़ेसिस वाला `heading-1` 600 है और एम्फ़ेसिस वाला `body` 500। जो डिज़ाइन सिस्टम हर फ़ैमिली पर अलग ढंग से ज़ोर देता है, वह चारों संख्याएँ सेट करता है: `m3-like` लेबल में 200 जोड़ता है, जैसा Material के एम्फ़ेसिस वाले लेबल स्टाइल करते हैं; `cupertino` हेडिंग, बॉडी और लेबल में 200 जोड़ता है। रोल की फ़ैमिली उसके नाम का पहला खंड है; `caption`, `code`, `code-small` और `eyebrow` लेबल वाला स्टेप लेते हैं।
+Tanrei हर फ़ैमिली में 100 जोड़ता है, इसलिए एम्फ़ेसिस वाला `heading-1` 600 है और एम्फ़ेसिस वाला `body` 500। जो डिज़ाइन सिस्टम हर फ़ैमिली पर अलग ढंग से ज़ोर देता है, वह चारों संख्याएँ सेट करता है: `m3-like` लेबल में 200 जोड़ता है, जैसा Material के एम्फ़ेसिस वाले लेबल स्टाइल करते हैं; `cupertino` डिस्प्ले और हेडिंग में 300 और बॉडी और लेबल में 200 जोड़ता है। रोल की फ़ैमिली उसके नाम का पहला खंड है; `caption`, `code`, `code-small` और `eyebrow` लेबल वाला स्टेप लेते हैं।
 
 हर प्लैटफ़ॉर्म वही मॉडिफ़ायर देता है: टेक्स्ट-स्टाइल API पर `emphasized` (SwiftUI में `.tanreiTextStyle(system.typescale.heading1, emphasized: true)`, Compose में `typescale.heading1.emphasized()` — कंपोज़िशन के बाहर `emphasized(system.typescale.emphasis)` — Flutter में `theme.textStyle(system.typescale.heading1, emphasized: true)`, React Native में `useTanrei()` से मिला `text('heading1', { emphasized: true })`, और वेब पर `--tanrei-sys-typescale-<role>-font-weight-emphasized` और `.tanrei-text-emphasized`)। न एम्फ़ेसिस वाले रोल को नाम देना पड़ता है, न किसी दूसरे स्केल को साथ-साथ मिलाकर रखना पड़ता है।
 
@@ -155,7 +155,7 @@ Tanrei किसी भी डिज़ाइन सिस्टम के ल�
 जो प्रीसेट किसी दूसरे डिज़ाइन सिस्टम की नक़ल करता है, वह सोलह नाम रखता है और उन्हें उस सिस्टम के मान देता है; जहाँ उसके स्रोत में ऐसा स्टाइल है जिसका कोर में नाम नहीं, वहाँ वह अपने एक रोल के साथ शब्दावली का **विस्तार** करता है। नाम कभी नहीं खिसकते, इसलिए `tanrei` पर बना प्रॉडक्ट एक भी हेडिंग छुए बिना `m3-like` पर चला जाता है।
 
 - **`m3-like`** हर रोल को Material Design 3 के टाइप स्केल से नया मान देता है — `heading-1` Material का "headline large" लेता है, `body` उसका "body medium", `label` उसका "label large" — और `display-large` (57px) और `display-small` (36px) जोड़ता है, क्योंकि Material में डिस्प्ले के तीन साइज़ हैं और एक प्रॉडक्ट को एक चाहिए। इसके एम्फ़ेसिस स्टेप Material के हैं: डिस्प्ले, हेडिंग और बॉडी पर 100, लेबल पर 200। फ़िडेलिटी हार्नेस Material के प्रकाशित हर टेक्स्ट स्टाइल को मापता है, एम्फ़ेसिस वालों समेत सभी तीस, और साथ में कलर रोल और Button को: मापे गए 288 टोकन में से 273 बराबर हैं, 14 किसी दूसरे टोकन से कवर हैं, 1 एक दर्ज मिमिक्री गैप के अंतर्गत बिना मैपिंग के है, और कोई भी अलग नहीं है — [डिज़ाइन सिस्टम पेज](/hi/foundations/design-systems/) पर यह 273 / 274 के रूप में दिखता है, जो कवर किए गए टोकन को गिनती से बाहर रखता है। ये संख्याएँ `tokens/generated/m3-like/fidelity.json` से पढ़ी जाती हैं, जिसे बिल्ड दोबारा लिखता है।
-- **`cupertino`** हर रोल को Apple के iOS के ग्यारह टेक्स्ट स्टाइल से नया मान देता है — Large Title से लेकर Caption 2 तक — और वे तीन जोड़ता है जिनका कोर में नाम नहीं: `body-callout`, `body-subhead` और `caption-small`। इसके एम्फ़ेसिस स्टेप डिस्प्ले पर 100 और बाक़ी जगह 200 हैं, जो Apple के regular और emphasized स्टाइल के बीच की दूरी है।
+- **`cupertino`** हर रोल को Apple के iOS के ग्यारह टेक्स्ट स्टाइल से नया मान देता है — Large Title से लेकर Caption 2 तक — और वे तीन जोड़ता है जिनका कोर में नाम नहीं: `body-callout`, `body-subhead` और `caption-small`। Large Title और Title 1 से 3, Apple की तरह, Regular हैं। इसके एम्फ़ेसिस स्टेप डिस्प्ले और हेडिंग पर 300 और बॉडी और लेबल पर 200 हैं: Apple के एम्फ़ेसिस वाले Large Title, Title 1 और Title 2 Bold हैं, और एम्फ़ेसिस वाले बॉडी स्टाइल Semibold। Apple में Title 3 और Headline का स्टेप छोटा है (एम्फ़ेसिस के साथ दोनों Semibold), जिसे हर फ़ैमिली का एक स्टेप नहीं बना सकता।
 
 प्रीसेट का जोड़ा हुआ रोल हर प्लैटफ़ॉर्म पर एक साधारण टोकन है: `m3-like` का `display-large` वेब पर `--tanrei-sys-typescale-display-large-font` है और हर नेटिव पैकेज में टाइप स्केल का एक सदस्य। Theme Studio का प्रीव्यू इसे टाइप रैंप में सोलह के बग़ल में बनाता है।
 
