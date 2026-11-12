@@ -5437,18 +5437,18 @@ const TanreiSystem acmeSystem = TanreiSystem(
     trailingIconSize: 24.0,
     trailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     trailingTextTypescale: _typescaleBodySmall,
-    densitys: TanreiListRowDensitys(
-      regular: TanreiListRowDensityTokens(
-        containerHeightOneLine: 56.0,
-        containerHeightTwoLine: 72.0,
-        containerHeightThreeLine: 88.0,
-        containerPaddingBlock: 8.0,
-      ),
-      compact: TanreiListRowDensityTokens(
+    sizes: TanreiListRowSizes(
+      small: TanreiListRowSizeTokens(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
         containerPaddingBlock: 4.0,
+      ),
+      medium: TanreiListRowSizeTokens(
+        containerHeightOneLine: 56.0,
+        containerHeightTwoLine: 72.0,
+        containerHeightThreeLine: 88.0,
+        containerPaddingBlock: 8.0,
       ),
     ),
   ),
@@ -5540,14 +5540,14 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiListDensitys(
-      regular: TanreiListDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 8.0,
-      ),
-      compact: TanreiListDensityTokens(
+    sizes: TanreiListSizes(
+      small: TanreiListSizeTokens(
         containerHeight: 36.0,
         containerPaddingBlock: 6.0,
+      ),
+      medium: TanreiListSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingBlock: 8.0,
       ),
     ),
     hovered: TanreiListStateTokens(

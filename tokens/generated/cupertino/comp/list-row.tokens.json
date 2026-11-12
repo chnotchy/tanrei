@@ -8,11 +8,11 @@
             "since": "0.1.0"
           },
           "dev.tanrei.axes": {
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "container.height.one-line",
@@ -23,14 +23,14 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a list row reads: per density (regular, compact) its least height for one, two and three lines of text and the space above and below its text; the space before and after its parts and between them; the text style and the color of its overline, headline, supporting text and trailing text; and the box and the color of its leading and trailing glyphs.",
+            "usage": "Everything a list row reads: per size (small, medium) its least height for one, two and three lines of text and the space above and below its text; the space before and after its parts and between them; the text style and the color of its overline, headline, supporting text and trailing text; and the box and the color of its leading and trailing glyphs.",
             "rules": [
               "A list row is the content of a list item, or stands alone. It draws text and glyphs, never a fill, an edge, a divider or a state: hover, focus, press, the selected fill, the check, the handle and the divider are the List's.",
               "Put a row as the direct child of a list item. The item tells it what it is: inside an action, a link or an option the item's paddings are the row's, and a selected option recolors every text and glyph of the row in its content color.",
               "A row never makes itself pressable. To make a row open something, make its list item interactive or give it an href; to choose rows, make the list selectable.",
               "Put a control (a switch, a checkbox, an icon-only Button) in the leading or trailing slot only while the row is static: a row standing alone, or the content of a static or reorderable item.",
               "The headline is the row's name: the list item is named by it. Keep the overline a short category, and the trailing text a short value.",
-              "compact is for a tool used with a pointer: an item that is an action, a link or an option is never lower than the list's own minimum height and the target, whatever this says.",
+              "small is for a tool used with a pointer: an item that is an action, a link or an option is never lower than the list's own minimum height and the target, whatever this says. A row that sets no size takes the size its list sets; set it once on the list, not on each row.",
               "Restyle through these tokens in a layer; never draw the row's parts by hand in a list item."
             ]
           }
@@ -38,9 +38,9 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The least height of a row, per number of lines of its text and per density: one line (a headline), two lines (a headline with an overline or with one line of supporting text), three lines (a headline with an overline and supporting text, or with two lines of supporting text). A minimum: a row grows with enlarged text. Inside a list item that is an action, a link or an option, the item's own padding is part of it.",
+            "$description": "The least height of a row, per number of lines of its text and per size: one line (a headline), two lines (a headline with an overline or with one line of supporting text), three lines (a headline with an overline and supporting text, or with two lines of supporting text). A minimum: a row grows with enlarged text. Inside a list item that is an action, a link or an option, the item's own padding is part of it.",
             "one-line": {
-              "regular": {
+              "medium": {
                 "$value": {
                   "value": 44,
                   "unit": "px"
@@ -53,7 +53,7 @@
                   }
                 }
               },
-              "compact": {
+              "small": {
                 "$value": {
                   "value": 40,
                   "unit": "px"
@@ -71,7 +71,7 @@
               }
             },
             "two-line": {
-              "regular": {
+              "medium": {
                 "$value": {
                   "value": 72,
                   "unit": "px"
@@ -87,7 +87,7 @@
                   }
                 }
               },
-              "compact": {
+              "small": {
                 "$value": {
                   "value": 56,
                   "unit": "px"
@@ -105,7 +105,7 @@
               }
             },
             "three-line": {
-              "regular": {
+              "medium": {
                 "$value": {
                   "value": 88,
                   "unit": "px"
@@ -121,7 +121,7 @@
                   }
                 }
               },
-              "compact": {
+              "small": {
                 "$value": {
                   "value": 72,
                   "unit": "px"
@@ -141,8 +141,8 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Above the first line and below the last line of a row's text, per density, while the row draws its own paddings (standing alone, or in a static item). It holds the room when the text is enlarged.",
-            "regular": {
+            "$description": "Above the first line and below the last line of a row's text, per size, while the row draws its own paddings (standing alone, or in a static item). It holds the room when the text is enlarged.",
+            "medium": {
               "$value": {
                 "value": 8,
                 "unit": "px"
@@ -151,11 +151,11 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space100}",
-                  "height": "{tanrei.comp.list-row.container.height.one-line.regular}"
+                  "height": "{tanrei.comp.list-row.container.height.one-line.medium}"
                 }
               }
             },
-            "compact": {
+            "small": {
               "$value": {
                 "value": 4,
                 "unit": "px"
@@ -164,7 +164,7 @@
                 "dev.tanrei.derive": {
                   "fn": "pad",
                   "of": "{tanrei.sys.space.space50}",
-                  "height": "{tanrei.comp.list-row.container.height.one-line.compact}"
+                  "height": "{tanrei.comp.list-row.container.height.one-line.small}"
                 }
               }
             }

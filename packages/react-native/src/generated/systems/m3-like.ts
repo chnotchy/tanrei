@@ -8025,9 +8025,9 @@ export const m3Like = {
       trailingIconSize: 24,
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
-      densitys: {
-        regular: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
-        compact: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+      sizes: {
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
     list: {
@@ -8156,9 +8156,9 @@ export const m3Like = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 56, containerPaddingBlock: 8 },
-        compact: { containerHeight: 32, containerPaddingBlock: 4 },
+      sizes: {
+        small: { containerHeight: 32, containerPaddingBlock: 4 },
+        medium: { containerHeight: 56, containerPaddingBlock: 8 },
       },
     },
     loadingIndicator: {

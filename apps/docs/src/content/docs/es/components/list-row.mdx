@@ -2,7 +2,7 @@
 title: Fila de lista
 description: Una fila de texto con algo antes y algo después. Un titular, una línea corta encima y una o dos debajo; un glifo, una imagen o un control al inicio; un valor corto, un glifo o un control al final. Dentro de un elemento de lista se adapta a cada modo de la lista, y también se usa sola.
 translationOf: components/list-row.mdx
-sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
+sourceHash: 41f984c791cdc3339a1ddf402fb3e93b9b6d2464
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -98,11 +98,11 @@ Pon la fila como hija directa del elemento. Una fila envuelta en otro elemento d
 
 ## Especificaciones
 
-<Example label="Una, dos y tres líneas; una imagen y un valor; compact">
+<Example label="Una, dos y tres líneas; una imagen y un valor; small">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Conectado a Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="Compartido" headline="Fotos del puerto" supporting-text="48 elementos, editado hoy" trailing-text="2,4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
-  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" size="small" style="inline-size: 22rem"></tanrei-list-row>
 </Example>
 
 <ComponentSpecs name="list-row" />
@@ -127,9 +127,9 @@ Usa una fila de lista en cada elemento de una lista de personas, lugares, ajuste
 
 El titular, el sobretítulo y el texto de apoyo se cortan con puntos suspensivos donde no caben, y un tooltip muestra completos el titular y el texto de apoyo cortados al pasar el puntero y con el foco del teclado. El texto final nunca ocupa más de la mitad de la fila.
 
-### Densidad
+### Tamaño
 
-En el sistema por defecto, las filas `regular` miden 56, 72 y 88 de alto para una, dos y tres líneas, para un producto que se usa tanto con el dedo como con el puntero. Las filas `compact` (40, 56 y 72) son para una herramienta que se usa con el puntero. Una acción, un enlace o una opción nunca es más baja que la altura mínima de la propia lista y que el objetivo táctil, diga lo que diga la densidad.
+En el sistema por defecto, las filas `medium` miden 56, 72 y 88 de alto para una, dos y tres líneas, para un producto que se usa tanto con el dedo como con el puntero. Las filas `small` (40, 56 y 72) son para una herramienta que se usa con el puntero. Una fila que no fija `size` toma el tamaño de su lista, así que fíjalo una sola vez en la lista. Una acción, un enlace o una opción nunca es más baja que la altura mínima de la propia lista y que el objetivo, diga lo que diga el tamaño.
 
 ### Recomendado
 
@@ -154,7 +154,7 @@ En el sistema por defecto, las filas `regular` miden 56, 72 y 88 de alto para un
 - Un texto cortado siempre llega completo a la tecnología de asistencia. Su tooltip queda oculto para ella, se abre al pasar el puntero y con el foco del teclado del elemento, se queda mientras el puntero está encima y se cierra con Esc.
 - En una disposición de derecha a izquierda la fila se refleja, y cada texto conserva su propia dirección.
 - En colores forzados, los textos y los glifos toman el color de texto del sistema, y su color de texto deshabilitado en un elemento deshabilitado.
-- Las compilaciones de depuración informan de una fila sin titular, de un `supportingLines` que no es 1 ni 2, de un glifo inicial que la ranura inicial sustituye y de una densidad desconocida.
+- Las compilaciones de depuración informan de una fila sin titular, de un `supportingLines` que no es 1 ni 2, de un glifo inicial que la ranura inicial sustituye y de un tamaño desconocido.
 
 ### Qué debes hacer tú
 

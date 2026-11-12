@@ -61,7 +61,7 @@ const MINIMUM_TARGET_36 = new Set([
   'comp.menu.container.height.compact', 'comp.menu.container.padding-block.compact',
   'comp.select.option.height.compact', 'comp.select.option.padding-block.compact',
   'comp.combobox.option.height.compact', 'comp.combobox.option.padding-block.compact',
-  'comp.list.container.height.compact', 'comp.list.container.padding-block.compact',
+  'comp.list.container.height.small', 'comp.list.container.padding-block.small',
   'comp.search.suggestion.container.height.compact', 'comp.search.suggestion.container.padding-block.compact',
   'comp.button-group.standard.gap', 'comp.toolbar.container.gap.docked', 'comp.search.container.gap',
   'comp.radio-button.option.min-height', 'comp.carousel.controls.height',
