@@ -3498,17 +3498,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiComboboxDensitys(
-      regular: TanreiComboboxDensityTokens(
-        optionHeight: 48.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 24.0,
-        optionMarkSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiComboboxDensityTokens(
+    optionSizes: TanreiComboboxOptionSizes(
+      small: TanreiComboboxOptionSizeTokens(
         optionHeight: 36.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 8.0,
@@ -3516,6 +3507,15 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         optionLeadingIconSize: 20.0,
         optionMarkSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiComboboxOptionSizeTokens(
+        optionHeight: 48.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 24.0,
+        optionMarkSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiComboboxStateTokens(
@@ -5973,18 +5973,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiMenuDensitys(
-      regular: TanreiMenuDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingInline: 12.0,
-        containerPaddingBlock: 8.0,
-        containerGap: 12.0,
-        leadingIconSize: 24.0,
-        trailingIconSize: 24.0,
-        markSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiMenuDensityTokens(
+    sizes: TanreiMenuSizes(
+      small: TanreiMenuSizeTokens(
         containerHeight: 36.0,
         containerPaddingInline: 8.0,
         containerPaddingBlock: 8.0,
@@ -5993,6 +5983,16 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         trailingIconSize: 20.0,
         markSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiMenuSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingInline: 12.0,
+        containerPaddingBlock: 8.0,
+        containerGap: 12.0,
+        leadingIconSize: 24.0,
+        trailingIconSize: 24.0,
+        markSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiMenuStateTokens(
@@ -7580,20 +7580,20 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSearchDensitys(
-      regular: TanreiSearchDensityTokens(
-        suggestionContainerHeight: 56.0,
-        suggestionContainerPaddingInline: 16.0,
-        suggestionContainerPaddingBlock: 8.0,
-        suggestionContainerGap: 16.0,
-        suggestionLeadingIconSize: 24.0,
-      ),
-      compact: TanreiSearchDensityTokens(
+    sizes: TanreiSearchSizes(
+      small: TanreiSearchSizeTokens(
         suggestionContainerHeight: 36.0,
         suggestionContainerPaddingInline: 8.0,
         suggestionContainerPaddingBlock: 6.0,
         suggestionContainerGap: 8.0,
         suggestionLeadingIconSize: 20.0,
+      ),
+      medium: TanreiSearchSizeTokens(
+        suggestionContainerHeight: 56.0,
+        suggestionContainerPaddingInline: 16.0,
+        suggestionContainerPaddingBlock: 8.0,
+        suggestionContainerGap: 16.0,
+        suggestionLeadingIconSize: 24.0,
       ),
     ),
     hovered: TanreiSearchStateTokens(
@@ -7987,17 +7987,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSelectDensitys(
-      regular: TanreiSelectDensityTokens(
-        optionHeight: 48.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 24.0,
-        optionMarkSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiSelectDensityTokens(
+    optionSizes: TanreiSelectOptionSizes(
+      small: TanreiSelectOptionSizeTokens(
         optionHeight: 36.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 8.0,
@@ -8005,6 +7996,15 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         optionLeadingIconSize: 20.0,
         optionMarkSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiSelectOptionSizeTokens(
+        optionHeight: 48.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 24.0,
+        optionMarkSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiSelectStateTokens(

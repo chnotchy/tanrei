@@ -30,8 +30,8 @@ test('the floored heights: every pressable height and row the core derives with 
     'comp.button.container.height.large',
     'comp.input-box.stacked.container.height.small', // an alias of the small Button
     'comp.tree-view.container.height.compact', // the small step of the ladder, with the minimum
-    'comp.menu.container.height.compact',
-    'comp.select.option.height.compact', // an alias of the menu's
+    'comp.menu.container.height.small',
+    'comp.select.option.height.small', // an alias of the menu's
     'comp.list-row.container.height.three-line.regular',
     'comp.navigation-drawer.collapsed.item.container.width.compact',
     'comp.snackbar.controls.height',

@@ -3516,17 +3516,8 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
       )
     )
   ),
-  densitys: TanreiComboboxDensitys(
-    regular: TanreiComboboxDensityTokens(
-      optionHeight: 48,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 24,
-      optionMarkSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiComboboxDensityTokens(
+  optionSizes: TanreiComboboxOptionSizes(
+    small: TanreiComboboxOptionSizeTokens(
       optionHeight: 36,
       optionPaddingInline: 8,
       optionPaddingBlock: 8,
@@ -3534,6 +3525,15 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiComboboxOptionSizeTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -6019,18 +6019,8 @@ private let acmeMenuTokens = TanreiMenuTokens(
       )
     )
   ),
-  densitys: TanreiMenuDensitys(
-    regular: TanreiMenuDensityTokens(
-      containerHeight: 48,
-      containerPaddingInline: 12,
-      containerPaddingBlock: 8,
-      containerGap: 12,
-      leadingIconSize: 24,
-      trailingIconSize: 24,
-      markSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiMenuDensityTokens(
+  sizes: TanreiMenuSizes(
+    small: TanreiMenuSizeTokens(
       containerHeight: 36,
       containerPaddingInline: 8,
       containerPaddingBlock: 8,
@@ -6039,6 +6029,16 @@ private let acmeMenuTokens = TanreiMenuTokens(
       trailingIconSize: 20,
       markSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiMenuSizeTokens(
+      containerHeight: 48,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 24,
+      trailingIconSize: 24,
+      markSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7645,20 +7645,20 @@ private let acmeSearchTokens = TanreiSearchTokens(
       )
     )
   ),
-  densitys: TanreiSearchDensitys(
-    regular: TanreiSearchDensityTokens(
-      suggestionContainerHeight: 56,
-      suggestionContainerPaddingInline: 16,
-      suggestionContainerPaddingBlock: 8,
-      suggestionContainerGap: 16,
-      suggestionLeadingIconSize: 24
-    ),
-    compact: TanreiSearchDensityTokens(
+  sizes: TanreiSearchSizes(
+    small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 36,
       suggestionContainerPaddingInline: 8,
       suggestionContainerPaddingBlock: 6,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
+    ),
+    medium: TanreiSearchSizeTokens(
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 16,
+      suggestionLeadingIconSize: 24
     )
   ),
   hovered: TanreiSearchStateTokens(
@@ -8054,17 +8054,8 @@ private let acmeSelectTokens = TanreiSelectTokens(
       )
     )
   ),
-  densitys: TanreiSelectDensitys(
-    regular: TanreiSelectDensityTokens(
-      optionHeight: 48,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 24,
-      optionMarkSize: 24,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiSelectDensityTokens(
+  optionSizes: TanreiSelectOptionSizes(
+    small: TanreiSelectOptionSizeTokens(
       optionHeight: 36,
       optionPaddingInline: 8,
       optionPaddingBlock: 8,
@@ -8072,6 +8063,15 @@ private let acmeSelectTokens = TanreiSelectTokens(
       optionLeadingIconSize: 20,
       optionMarkSize: 20,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiSelectOptionSizeTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiSelectStateTokens(

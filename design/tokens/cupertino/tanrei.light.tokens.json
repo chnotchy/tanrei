@@ -29433,17 +29433,17 @@
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -29650,33 +29650,33 @@
         },
         "option": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 44,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -29708,14 +29708,14 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
@@ -29726,14 +29726,14 @@
           },
           "mark": {
             "size": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
@@ -29812,33 +29812,33 @@
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -50004,65 +50004,65 @@
         },
         "container": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 44,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -52522,17 +52522,17 @@
             "$description": "A group's title: quieter than the items, which are what a person acts on."
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -52611,14 +52611,14 @@
         },
         "leading-icon": {
           "size": {
-            "compact": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
                 "unit": "px"
               }
             },
-            "regular": {
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
@@ -52629,14 +52629,14 @@
         },
         "mark": {
           "size": {
-            "compact": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
                 "unit": "px"
               }
             },
-            "regular": {
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
@@ -53659,14 +53659,14 @@
         },
         "trailing-icon": {
           "size": {
-            "compact": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
                 "unit": "px"
               }
             },
-            "regular": {
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 16,
@@ -54526,7 +54526,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own regular rows (comp.menu.container.padding-inline.regular), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
+            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own medium rows (comp.menu.container.padding-inline.medium), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
           },
           "shape": {
             "$type": "dimension",
@@ -69647,66 +69647,66 @@
           },
           "container": {
             "gap": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 12,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
                   "unit": "px"
                 }
               }
             },
             "height": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 32,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 44,
                   "unit": "px"
                 }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
               }
             },
             "padding-block": {
-              "compact": {
+              "medium": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                }
+              },
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 4,
                   "unit": "px"
                 },
-                "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
-              },
-              "regular": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
+                "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the search's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
               }
             },
             "padding-inline": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 8,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 12,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
                   "unit": "px"
                 }
               }
@@ -69746,14 +69746,14 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
@@ -72118,17 +72118,17 @@
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -72351,33 +72351,33 @@
         },
         "option": {
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 44,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             }
@@ -72409,14 +72409,14 @@
           },
           "leading-icon": {
             "size": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
@@ -72427,14 +72427,14 @@
           },
           "mark": {
             "size": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
                   "value": 16,
@@ -72444,33 +72444,33 @@
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 6,
                 "unit": "px"
               }
-            },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }

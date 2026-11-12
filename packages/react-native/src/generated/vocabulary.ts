@@ -1706,19 +1706,19 @@ export interface TanreiComboboxVariantTokens {
 export type TanreiComboboxVariants = { readonly [Key in TanreiCoreComboboxVariant]: TanreiComboboxVariantTokens } & { readonly [Key in TanreiComboboxVariant]?: TanreiComboboxVariantTokens };
 
 /**
- * Every value of `comp.combobox`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.combobox`'s `option-size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiComboboxDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiComboboxOptionSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiComboboxDensity = keyof TanreiComboboxDensityRegistry;
-export type TanreiCoreComboboxDensity = "regular" | "compact";
+export type TanreiComboboxOptionSize = keyof TanreiComboboxOptionSizeRegistry;
+export type TanreiCoreComboboxOptionSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.combobox`. */
-export interface TanreiComboboxDensityTokens {
+/** The tokens of one `option-size` of `comp.combobox`. */
+export interface TanreiComboboxOptionSizeTokens {
   readonly optionHeight: number;
   readonly optionPaddingInline: number;
   readonly optionPaddingBlock: number;
@@ -1728,11 +1728,11 @@ export interface TanreiComboboxDensityTokens {
   readonly groupTitlePaddingInline: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiComboboxDensitys = { readonly [Key in TanreiCoreComboboxDensity]: TanreiComboboxDensityTokens } & { readonly [Key in TanreiComboboxDensity]?: TanreiComboboxDensityTokens };
+export type TanreiComboboxOptionSizes = { readonly [Key in TanreiCoreComboboxOptionSize]: TanreiComboboxOptionSizeTokens } & { readonly [Key in TanreiComboboxOptionSize]?: TanreiComboboxOptionSizeTokens };
 
 /**
  * `comp.combobox`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `optionSizes`), keyed by the axis value.
  */
 export interface TanreiComboboxTokens {
   readonly containerActionGap: number;
@@ -1777,7 +1777,7 @@ export interface TanreiComboboxTokens {
   readonly statusErrorColor: TanreiPaint;
   readonly statusTypescale: TanreiTypescaleRole;
   readonly variants: TanreiComboboxVariants;
-  readonly densitys: TanreiComboboxDensitys;
+  readonly optionSizes: TanreiComboboxOptionSizes;
 }
 
 /**
@@ -3276,19 +3276,19 @@ export interface TanreiMenuConditionTokens {
 export type TanreiMenuConditions = { readonly [Key in TanreiCoreMenuCondition]: TanreiMenuConditionTokens } & { readonly [Key in TanreiMenuCondition]?: TanreiMenuConditionTokens };
 
 /**
- * Every value of `comp.menu`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.menu`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiMenuDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiMenuSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiMenuDensity = keyof TanreiMenuDensityRegistry;
-export type TanreiCoreMenuDensity = "regular" | "compact";
+export type TanreiMenuSize = keyof TanreiMenuSizeRegistry;
+export type TanreiCoreMenuSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.menu`. */
-export interface TanreiMenuDensityTokens {
+/** The tokens of one `size` of `comp.menu`. */
+export interface TanreiMenuSizeTokens {
   readonly containerHeight: number;
   readonly containerPaddingInline: number;
   readonly containerPaddingBlock: number;
@@ -3299,11 +3299,11 @@ export interface TanreiMenuDensityTokens {
   readonly groupTitlePaddingInline: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiMenuDensitys = { readonly [Key in TanreiCoreMenuDensity]: TanreiMenuDensityTokens } & { readonly [Key in TanreiMenuDensity]?: TanreiMenuDensityTokens };
+export type TanreiMenuSizes = { readonly [Key in TanreiCoreMenuSize]: TanreiMenuSizeTokens } & { readonly [Key in TanreiMenuSize]?: TanreiMenuSizeTokens };
 
 /**
  * `comp.menu`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `sizes`), keyed by the axis value.
  */
 export interface TanreiMenuTokens {
   readonly checkboxItemMark: number;
@@ -3358,7 +3358,7 @@ export interface TanreiMenuTokens {
   readonly surfaceViewportMargin: number;
   readonly trailingTextTypescale: TanreiTypescaleRole;
   readonly conditions: TanreiMenuConditions;
-  readonly densitys: TanreiMenuDensitys;
+  readonly sizes: TanreiMenuSizes;
 }
 
 /**
@@ -4323,19 +4323,19 @@ export interface TanreiSearchConditionTokens {
 export type TanreiSearchConditions = { readonly [Key in TanreiCoreSearchCondition]: TanreiSearchConditionTokens } & { readonly [Key in TanreiSearchCondition]?: TanreiSearchConditionTokens };
 
 /**
- * Every value of `comp.search`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.search`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiSearchDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiSearchSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
-export type TanreiCoreSearchDensity = "regular" | "compact";
+export type TanreiSearchSize = keyof TanreiSearchSizeRegistry;
+export type TanreiCoreSearchSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.search`. */
-export interface TanreiSearchDensityTokens {
+/** The tokens of one `size` of `comp.search`. */
+export interface TanreiSearchSizeTokens {
   readonly suggestionContainerHeight: number;
   readonly suggestionContainerPaddingInline: number;
   readonly suggestionContainerPaddingBlock: number;
@@ -4343,11 +4343,11 @@ export interface TanreiSearchDensityTokens {
   readonly suggestionLeadingIconSize: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiSearchDensitys = { readonly [Key in TanreiCoreSearchDensity]: TanreiSearchDensityTokens } & { readonly [Key in TanreiSearchDensity]?: TanreiSearchDensityTokens };
+export type TanreiSearchSizes = { readonly [Key in TanreiCoreSearchSize]: TanreiSearchSizeTokens } & { readonly [Key in TanreiSearchSize]?: TanreiSearchSizeTokens };
 
 /**
  * `comp.search`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `sizes`), keyed by the axis value.
  */
 export interface TanreiSearchTokens {
   readonly containerButtonGap: number;
@@ -4411,7 +4411,7 @@ export interface TanreiSearchTokens {
   readonly viewScrimColor: TanreiPaint;
   readonly viewViewportMargin: number;
   readonly conditions: TanreiSearchConditions;
-  readonly densitys: TanreiSearchDensitys;
+  readonly sizes: TanreiSearchSizes;
 }
 
 /**
@@ -4541,19 +4541,19 @@ export interface TanreiSelectVariantTokens {
 export type TanreiSelectVariants = { readonly [Key in TanreiCoreSelectVariant]: TanreiSelectVariantTokens } & { readonly [Key in TanreiSelectVariant]?: TanreiSelectVariantTokens };
 
 /**
- * Every value of `comp.select`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.select`'s `option-size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiSelectDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiSelectOptionSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiSelectDensity = keyof TanreiSelectDensityRegistry;
-export type TanreiCoreSelectDensity = "regular" | "compact";
+export type TanreiSelectOptionSize = keyof TanreiSelectOptionSizeRegistry;
+export type TanreiCoreSelectOptionSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.select`. */
-export interface TanreiSelectDensityTokens {
+/** The tokens of one `option-size` of `comp.select`. */
+export interface TanreiSelectOptionSizeTokens {
   readonly optionHeight: number;
   readonly optionPaddingInline: number;
   readonly optionPaddingBlock: number;
@@ -4563,11 +4563,11 @@ export interface TanreiSelectDensityTokens {
   readonly groupTitlePaddingInline: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiSelectDensitys = { readonly [Key in TanreiCoreSelectDensity]: TanreiSelectDensityTokens } & { readonly [Key in TanreiSelectDensity]?: TanreiSelectDensityTokens };
+export type TanreiSelectOptionSizes = { readonly [Key in TanreiCoreSelectOptionSize]: TanreiSelectOptionSizeTokens } & { readonly [Key in TanreiSelectOptionSize]?: TanreiSelectOptionSizeTokens };
 
 /**
  * `comp.select`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `optionSizes`), keyed by the axis value.
  */
 export interface TanreiSelectTokens {
   readonly containerActionGap: number;
@@ -4606,7 +4606,7 @@ export interface TanreiSelectTokens {
   readonly statusErrorColor: TanreiPaint;
   readonly statusTypescale: TanreiTypescaleRole;
   readonly variants: TanreiSelectVariants;
-  readonly densitys: TanreiSelectDensitys;
+  readonly optionSizes: TanreiSelectOptionSizes;
 }
 
 /**
@@ -6023,7 +6023,7 @@ declare module './vocabulary' {
   interface TanreiCodeBlockVariantRegistry {}
   interface TanreiCodeBlockSyntaxRegistry {}
   interface TanreiComboboxVariantRegistry {}
-  interface TanreiComboboxDensityRegistry {}
+  interface TanreiComboboxOptionSizeRegistry {}
   interface TanreiDateTimePickerConditionRegistry {}
   interface TanreiDescriptionListDensityRegistry {}
   interface TanreiEmbeddedTextInputConditionRegistry {}
@@ -6051,7 +6051,7 @@ declare module './vocabulary' {
   interface TanreiMainActionButtonSizeRegistry {}
   interface TanreiMainActionButtonVariantRegistry {}
   interface TanreiMenuConditionRegistry {}
-  interface TanreiMenuDensityRegistry {}
+  interface TanreiMenuSizeRegistry {}
   interface TanreiMenubarConditionRegistry {}
   interface TanreiMeterSizeRegistry {}
   interface TanreiNavigationBarConditionRegistry {}
@@ -6069,11 +6069,11 @@ declare module './vocabulary' {
   interface TanreiRatingSizeRegistry {}
   interface TanreiRatingConditionRegistry {}
   interface TanreiSearchConditionRegistry {}
-  interface TanreiSearchDensityRegistry {}
+  interface TanreiSearchSizeRegistry {}
   interface TanreiSegmentedButtonSizeRegistry {}
   interface TanreiSegmentedButtonConditionRegistry {}
   interface TanreiSelectVariantRegistry {}
-  interface TanreiSelectDensityRegistry {}
+  interface TanreiSelectOptionSizeRegistry {}
   interface TanreiSideSheetVariantRegistry {}
   interface TanreiSliderSizeRegistry {}
   interface TanreiSliderConditionRegistry {}

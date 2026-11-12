@@ -1389,6 +1389,1126 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.menu.density",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size, which every submenu takes from it: regular is medium and compact is small",
+      "replacedBy": "comp.menu.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.height.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.container.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.height.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.container.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.container.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.container.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.container.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.container.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.container.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.leading-icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.leading-icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.leading-icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.leading-icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.trailing-icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.trailing-icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.trailing-icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.trailing-icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.mark.size.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.mark.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.mark.size.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.mark.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.group-title.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "comp.menu.group-title.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.menu.group-title.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "comp.menu.group-title.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-height-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-container-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-height-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-container-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-container-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-container-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-container-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-container-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-container-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-leading-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-leading-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-leading-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-leading-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-trailing-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-trailing-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-trailing-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-trailing-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-mark-size-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-mark-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-mark-size-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-mark-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-group-title-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-menu-group-title-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-menu-group-title-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the menu's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-menu-group-title-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.density",
+      "since": "2026-11-12",
+      "reason": "the select has no density: its options take the size of its box, small for small and medium for medium and large (regular is medium and compact is small)",
+      "replacedBy": "comp.select.option-size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.height.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.height.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.leading-icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.leading-icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.leading-icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.leading-icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.mark.size.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.option.mark.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.option.mark.size.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.option.mark.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.group-title.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "comp.select.group-title.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.select.group-title.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "comp.select.group-title.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-height-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-height-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-leading-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-leading-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-leading-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-leading-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-mark-size-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-option-mark-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-option-mark-size-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-option-mark-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-group-title-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-select-group-title-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-select-group-title-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the select's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-select-group-title-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.density",
+      "since": "2026-11-12",
+      "reason": "the combobox has no density: its options take the size of its box, small for small and medium for medium and large (regular is medium and compact is small)",
+      "replacedBy": "comp.combobox.option-size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.height.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.height.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.leading-icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.leading-icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.leading-icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.leading-icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.mark.size.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.option.mark.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.option.mark.size.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.option.mark.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.group-title.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "comp.combobox.group-title.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.combobox.group-title.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "comp.combobox.group-title.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-height-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-height-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-leading-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-leading-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-leading-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-leading-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-mark-size-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-option-mark-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-option-mark-size-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-option-mark-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-group-title-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: regular is medium",
+      "replacedBy": "--tanrei-comp-combobox-group-title-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-combobox-group-title-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the combobox's options' density is their size: compact is small",
+      "replacedBy": "--tanrei-comp-combobox-group-title-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.density",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium and compact is small",
+      "replacedBy": "comp.search.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.height.regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "comp.search.suggestion.container.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.height.compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "comp.search.suggestion.container.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.padding-inline.regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "comp.search.suggestion.container.padding-inline.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.padding-inline.compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "comp.search.suggestion.container.padding-inline.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "comp.search.suggestion.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "comp.search.suggestion.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.gap.regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "comp.search.suggestion.container.gap.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.container.gap.compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "comp.search.suggestion.container.gap.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.leading-icon.size.regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "comp.search.suggestion.leading-icon.size.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.search.suggestion.leading-icon.size.compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "comp.search.suggestion.leading-icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-height-regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-height-compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-padding-inline-regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-padding-inline-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-padding-inline-compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-padding-inline-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-gap-regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-gap-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-container-gap-compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-search-suggestion-container-gap-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-leading-icon-size-regular",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-search-suggestion-leading-icon-size-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-search-suggestion-leading-icon-size-compact",
+      "since": "2026-11-12",
+      "reason": "the search's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-search-suggestion-leading-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

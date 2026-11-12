@@ -13,6 +13,7 @@ import { PointerMovedController } from './pointer-moved.js';
 import { PressController, pressHold } from './press.js';
 import { RovingKeys } from './roving.js';
 import { SELECTION_STATES } from './selection.js';
+import { nearestSize } from './size-cascade.js';
 import { separationHost, syncSeparation, whenGap } from './separation.js';
 import { reducedMotion } from '../styles/motion.js';
 
@@ -360,34 +361,76 @@ export interface OptionListStyleOptions {
   maxWidth?: string;
 }
 
-/** The densities every design system has (SEL-70, CMB-68). A layer may add more; those get their rules on demand. */
-export const OPTION_DENSITIES = ['regular', 'compact'] as const;
-const DEFAULT_DENSITY = 'regular';
-/** The members of the field's density axis (`dev.tanrei.axes.density.members`), as the rows read them. */
-const DENSITY_MEMBERS = ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'] as const;
+/** The sizes every design system draws options at (SEL-70, CMB-68). A layer may add more; those get their rules on demand. */
+export const OPTION_SIZES = ['small', 'medium'] as const;
+const DEFAULT_OPTION_SIZE = 'medium';
+/** The members of the field's size axis (`dev.tanrei.axes.size.members`), as the rows read them. */
+const OPTION_SIZE_MEMBERS = ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'] as const;
+/** A name a custom state may carry: a token name. */
+const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
 /**
- * The rows' measures of one density, as private switches on the field's host (`--_opt-<member>`); a value the core does
- * not have falls back to the default's tokens where the active design system lacks it. For a fine pointer a compact
- * row is as tall as its density gives (SEL-37, CMB-34); every other density holds it to the pointer target.
+ * The size the options of a field whose box has `size` are drawn at (SEL-70, CMB-68): the box's size, as its nearest
+ * along the ladder where the options lack it (a large box opens medium rows); a name off the ladder, one a design system
+ * added, as it is, for the open axis to draw or report.
  */
-export function optionDensityRules(prefix: string, density: string, selector: string, fallback: string | null = null): string {
-  const ref = (member: string) => (fallback ? `var(${prefix}-${member}-${density}, var(${prefix}-${member}-${fallback}))` : `var(${prefix}-${member}-${density})`);
+export const optionSizeOf = (size: string): string => nearestSize(size || DEFAULT_OPTION_SIZE, OPTION_SIZES);
+
+/** Where the rules of the options drawn at `size` apply: the field carries that size as the custom state `option-size-<name>`. */
+const optionsDrawnAt = (size: string) => `:host(:state(option-size-${size}))`;
+
+/**
+ * The rows' measures of one size, as private switches on the field's host (`--_opt-<member>`); a value the core does not
+ * have falls back to the default's tokens where the active design system lacks it. A row is held to the target of its
+ * input at every size (SEL-37, CMB-34).
+ */
+export function optionSizeRules(prefix: string, size: string, selector: string, fallback: string | null = null): string {
+  const ref = (member: string) => (fallback ? `var(${prefix}-${member}-${size}, var(${prefix}-${member}-${fallback}))` : `var(${prefix}-${member}-${size})`);
   return `${selector} {
-  ${DENSITY_MEMBERS.map((member) => `--_opt-${member}: ${ref(member)};`).join('\n  ')}
-  --_opt-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+  ${OPTION_SIZE_MEMBERS.map((member) => `--_opt-${member}: ${ref(member)};`).join('\n  ')}
 }`;
 }
 
-/** The field's open density axis (`OpenAxesController`): a density a layer added gets its rules on demand. */
-export function optionDensityAxis(prefix: `--${string}`): OpenAxis {
+/**
+ * The field's open size axis of its options (`OpenAxesController`): the size its box's `size` gives them, and a size a
+ * layer added gets its rules on demand.
+ */
+export function optionSizeAxis(prefix: `--${string}`): OpenAxis {
   return {
-    name: 'density',
-    core: OPTION_DENSITIES,
-    default: DEFAULT_DENSITY,
-    rules: (value, selector) => optionDensityRules(prefix, value, selector, DEFAULT_DENSITY),
+    // Named apart from the box's size axis: a report is said once per message, and the box's for the same value would silence this one.
+    name: "the options' size",
+    core: OPTION_SIZES,
+    default: DEFAULT_OPTION_SIZE,
+    rules: (value, selector) => optionSizeRules(prefix, value, selector, DEFAULT_OPTION_SIZE),
     probe: (value) => `${prefix}-option-height-${value}` as const,
+    drawn: { read: (host) => optionSizeOf(String((host as HTMLElement & { size?: unknown }).size ?? '')), selector: optionsDrawnAt },
   };
+}
+
+/**
+ * Carries the size a field's options are drawn at (SEL-70, CMB-68) as its custom state `option-size-<name>`, which the
+ * options' size rules match: set before every render, from the box's `size`. A name that is no token name carries none
+ * and is drawn as the default.
+ */
+export class OptionSizeController implements ReactiveController {
+  private state = '';
+
+  constructor(
+    private readonly host: ReactiveControllerHost & HTMLElement & { size: string },
+    private readonly internals: () => ElementInternals,
+  ) {
+    host.addController(this);
+  }
+
+  hostUpdate() {
+    const drawn = optionSizeOf(String(this.host.size ?? ''));
+    const state = STATE_NAME.test(drawn) ? `option-size-${drawn}` : '';
+    if (state === this.state) return;
+    const { states } = this.internals();
+    if (this.state) states.delete(this.state);
+    if (state) states.add(state);
+    this.state = state;
+  }
 }
 
 /** The most the list may be now: what the placement allows (the window less its margins, or the room its side leaves). */
@@ -426,10 +469,10 @@ export function optionListStyles({ prefix, variants, minWidth, maxWidth }: Optio
     ${ROW}-container-shape-pill: var(${prefix}-option-shape-pill, 0);
 ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-shape')};\n    ${ROW}-${state}-container-shape-pill: var(${prefix}-option-shape-pill, 0);\n    ${ROW}-${state}-opacity: ${T(`${state}-opacity`)};`).join('\n')}
   }
-  /* SEL-70, CMB-68: the rows' measures of the field's density. */
-  ${optionDensityRules(prefix, DEFAULT_DENSITY, ':host')}
-  ${OPTION_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
-    .map((density) => optionDensityRules(prefix, density, `:host([density='${density}'])`))
+  /* SEL-70, CMB-68: the rows' measures of the size the options are drawn at (the box's). */
+  ${optionSizeRules(prefix, DEFAULT_OPTION_SIZE, ':host')}
+  ${OPTION_SIZES.filter((size) => size !== DEFAULT_OPTION_SIZE)
+    .map((size) => optionSizeRules(prefix, size, optionsDrawnAt(size)))
     .join('\n  ')}
   /* What separates the groups: the field's attribute, else its separation token. */
   ${separationHost(`${prefix}-separation`)}
@@ -569,7 +612,7 @@ ${
     padding-block: var(--_opt-option-padding-block);
     padding-inline: var(--_opt-option-padding-inline);
   }
-  ${rowTarget('.row', 'var(--_opt-option-height)', 'var(--_opt-pointer-target)')}
+  ${rowTarget('.row', 'var(--_opt-option-height)')}
   /* The columns — the leading icon, the texts, the check's box — a gap apart, each centred on the label's first line. */
   .row-content {
     --_first: max(1lh, var(--_opt-option-mark-size), var(--_opt-option-leading-icon-size));
