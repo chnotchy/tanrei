@@ -228,8 +228,9 @@ export class TanreiComboboxField extends ComposedControl<string> {
   /** @from tanrei-combobox.variant */
   variant: TanreiComboboxVariant = 'stacked';
 
+  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-combobox.size */
-  size: TanreiComboboxSize = 'medium';
+  size?: TanreiComboboxSize;
 
   /** @from tanrei-combobox.value */
   get value(): string {

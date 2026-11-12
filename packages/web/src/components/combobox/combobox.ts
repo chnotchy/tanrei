@@ -14,6 +14,7 @@ import {
   GlyphMirrorController,
   NativeTextController,
   OpenAxesController,
+  SizeConsumerController,
   SEPARATION_VALUES,
   type SeparationProp,
   SystemWatchController,
@@ -49,7 +50,7 @@ import '../option/option.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { AXES, INSET, PREFIX, styles } from './combobox.styles.js';
+import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -228,7 +229,9 @@ export class TanreiCombobox extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // CMB-83: the size the product set, or none: a combobox that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     selection: { type: String, reflect: true },
     value: { type: String },
     values: { attribute: 'values', converter: { fromAttribute: parseValues } },
@@ -266,8 +269,31 @@ export class TanreiCombobox extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label above it is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the combobox does not know by name is laid out as stacked. Reflected. */
   variant: TanreiComboboxVariant = 'stacked';
 
-  /** The container's minimum height: `medium` or `large` (48 / 56 in the default system), the text input's two sizes. The hit area always meets the minimum target. Reflected. */
-  size: TanreiComboboxSize = 'medium';
+  /**
+   * The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same
+   * size, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.
+   * The hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container
+   * sets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
+   * value, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiComboboxSize {
+    return (this.sizes.own ?? 'medium') as TanreiComboboxSize;
+  }
+
+  set size(value: TanreiComboboxSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** CMB-83: the size the product set, and the one the nearest container around the combobox sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /**
+   * @internal CMB-83: the size the combobox draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
 
   /** Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected. */
   selection: TanreiComboboxSelection = 'single';
@@ -649,7 +675,7 @@ export class TanreiCombobox extends TanreiElement {
    * styles). And that it is drawn focused for as long as its list is open, whether or not it has focus (CMB-15).
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium';
+    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium';
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size, { leading: !!this.leading, trailing: this.chevronShown || this.clearShown }),
@@ -1403,6 +1429,9 @@ export class TanreiCombobox extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues) {
+    // CMB-83: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, CMB-56).
+    this.sizes.syncState(this.internals);
     // The first render already draws the glyphs' room: the light-DOM children are there before the slots say so.
     if (!this.hasUpdated) this.hasLeading = [...this.children].some((child) => child.slot === 'leading-icon');
     if (this.inert_) this.focused = false;
@@ -1452,7 +1481,7 @@ export class TanreiCombobox extends TanreiElement {
     // CMB-16, CMB-31: the text is shown in the element — never into a composition.
     this.show();
     // CMB-8: a floating label whose words, mark or text style changed — its own, or what its Field gives — may wrap.
-    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || changed.has('size')) this.floating.measure();
+    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged) this.floating.measure();
     this.frameChanged = false;
 
     // CMB-31: the product's `open`, and what makes the list unusable, show or remove the list without `toggle`.

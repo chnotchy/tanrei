@@ -244,8 +244,9 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-text-input.variant */
   variant: TanreiTextInputVariant = 'stacked';
 
+  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-text-input.size */
-  size: TanreiTextInputSize = 'medium';
+  size?: TanreiTextInputSize;
 
   /** @from tanrei-text-input.type */
   type: TanreiTextInputType = 'text';

@@ -162,8 +162,9 @@ export class TanreiColorField extends ComposedControl<string> {
   /** @from tanrei-color-input.variant */
   variant: TanreiColorInputVariant = 'stacked';
 
+  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-color-input.size */
-  size: TanreiColorInputSize = 'medium';
+  size?: TanreiColorInputSize;
 
   /** @from tanrei-color-input.value */
   get value(): string {

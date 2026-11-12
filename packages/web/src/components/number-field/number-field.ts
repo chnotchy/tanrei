@@ -207,8 +207,9 @@ export class TanreiNumberField extends ComposedControl<number | null> {
   /** @from tanrei-number-input.variant */
   variant: TanreiNumberInputVariant = 'stacked';
 
+  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-number-input.size */
-  size: TanreiNumberInputSize = 'medium';
+  size?: TanreiNumberInputSize;
 
   /** @from tanrei-number-input.value */
   get value(): number | null {

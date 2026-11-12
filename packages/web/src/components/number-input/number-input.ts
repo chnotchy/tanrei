@@ -7,6 +7,7 @@ import {
   KeptLengths,
   NativeTextController,
   OpenAxesController,
+  SizeConsumerController,
   ambientLocale,
   report,
   supportedLocale,
@@ -22,7 +23,7 @@ import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { AXES, INSET, styles } from './number-input.styles.js';
+import { AXES, CORE_SIZES, INSET, styles } from './number-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, compare, decimalFromString, decimalOf, format, numberForm, numberOf, read, round, stepped } from './number-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -166,7 +167,9 @@ export class TanreiNumberInput extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // NMI-49: the size the product set, or none: a number input that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     value: NUMBER_OR_NULL,
     name: { type: String, reflect: true },
     label: { type: String },
@@ -198,8 +201,31 @@ export class TanreiNumberInput extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box whose label is the row of its Field; `filled` and `outlined` float the label inside the box. Use one style per form. A value the number input does not know by name is laid out as stacked. Reflected. */
   variant: TanreiNumberInputVariant = 'stacked';
 
-  /** The container's minimum height: `medium` or `large` (48 / 56 in the default system), the text input's two sizes. The hit area always meets the minimum target. Reflected. */
-  size: TanreiNumberInputSize = 'medium';
+  /**
+   * The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same
+   * size, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.
+   * The hit area always meets the minimum target. While it is not set the number input draws the size its nearest container
+   * sets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
+   * value, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiNumberInputSize {
+    return (this.sizes.own ?? 'medium') as TanreiNumberInputSize;
+  }
+
+  set size(value: TanreiNumberInputSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** NMI-49: the size the product set, and the one the nearest container around the number input sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /**
+   * @internal NMI-49: the size the number input draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
 
   /** The committed number, or null while the input holds none. It changes when the person commits — focus leaves, Enter, a step — not on every keystroke; `input` carries what is being typed. The `value` attribute is a plain decimal number ("12.5"), and the value a form reset returns to. */
   get value(): number | null {
@@ -411,7 +437,7 @@ export class TanreiNumberInput extends TanreiElement {
   private get saysToField(): FieldSays {
     return {
       drawsLabel: this.layout !== 'stacked',
-      inset: INSET(/^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium'),
+      inset: INSET(/^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium'),
       refusal: this.entryError ? { text: this.invalidText } : null,
     };
   }
@@ -434,7 +460,7 @@ export class TanreiNumberInput extends TanreiElement {
   /** NMI-30: the limits as decimals; a `max` below `min` is no limit. */
   /** NMI-25: the steppers' Button size — small in a small box, which is as tall as a small Button; medium otherwise. */
   private get stepperSize(): 'small' | 'medium' {
-    return this.size === 'small' ? 'small' : 'medium';
+    return this.drawnSize === 'small' ? 'small' : 'medium';
   }
 
   private get limits(): { min: Decimal | null; max: Decimal | null } {
@@ -897,6 +923,9 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues) {
+    // NMI-49: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, NMI-43).
+    this.sizes.syncState(this.internals);
     if (this.inert_) this.focused = false;
 
     // NMI-31: a value the product set is written into the input whatever the person had typed, ends an entry error and
@@ -921,7 +950,7 @@ export class TanreiNumberInput extends TanreiElement {
       }
     }
     // NMI-8: the label's lines follow its text — the Field's, where it gives the name —, the asterisk and the size.
-    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || changed.has('size')) this.floating.measure();
+    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged) this.floating.measure();
     this.frameChanged = false;
     // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The
     // observer reports the first layout (and every later change of the container's or the line's size), so nothing is

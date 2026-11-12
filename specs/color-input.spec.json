@@ -74,7 +74,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Minimum height of the container: stacked 36 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. These are the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Minimum height of the container: stacked 36 / 40 / 56, as tall as a Button of the same size, so that the box and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. These are the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values. While it is not set the color input draws the size its nearest container sets — a toolbar's size — and medium where none does (CLI-47); setting it, to medium too, makes it the color input's own.",
       "axis": "tanrei.comp.input-box.size"
     },
     {
@@ -315,6 +315,11 @@
     {
       "id": "CLI-46",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE color input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the color input is invalid — except those the color input owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE color input SHALL take it off that element. WHEN the product sets an aria- attribute the color input owns THE color input SHALL report it in debug builds."
+    },
+    {
+      "id": "CLI-47",
+      "text": "WHILE size is not set and a container around the color input sets a size for what it holds — a toolbar's size (TBR-31), or another container that passes its size to a Button (BTN-48), the nearest such container where several do — THE color input SHALL draw its box at that size, its height following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE color input SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the color input moved into or out of such a container — THE color input SHALL be drawn at the size it now takes at once. It takes a container's size as a Button does because a stacked box and a Button of one size stand as tall as each other: in a small toolbar the box stands as tall as the small Buttons beside it.",
+      "verify": "In a toolbar whose size is small, a color input without a size is as high as comp.input-box.stacked.container.height.small (as high as the toolbar's small Buttons), and one with size large as high as comp.input-box.stacked.container.height.large; removing the toolbar's size, or moving the color input out, draws it at medium; one whose size is set to medium keeps medium in a small toolbar."
     }
   ],
   "accessibility": {

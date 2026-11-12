@@ -1051,6 +1051,43 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     expect((await bounds(inner(page, 'floating-small', 0))).height).toBe(small);
   });
 
+  test('TBR-31: a Select, a Number input and a Text input that set no size are drawn at a size set on the toolbar, as tall as its small Buttons (SEL-73, NMI-49, TXI-73), and one that sets its own keeps it; a Slider, whose size is its track’s weight, takes none', async ({ page }) => {
+    const fields = spec.fixtures.find((f) => f.id === 'inline-fields')!;
+    const slider = spec.fixtures.find((f) => f.id === 'inline-slider')!;
+    const own = (item: FixtureItem): FixtureItem => (item.kind === 'group' ? item : { ...item, props: { ...item.props, size: 'medium' } });
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        { ...fields, id: 'fields-small', props: { ...fields.props, size: 'small' } },
+        { ...fields, id: 'fields-small-own', props: { ...fields.props, size: 'small' }, items: fields.items!.map(own) },
+        { ...slider, id: 'slider-large', props: { ...slider.props, size: 'large' } },
+        slider,
+      ],
+    });
+    const box = (name: string) => resolveToken(page, `--tanrei-comp-input-box-stacked-container-height-${name}`);
+    const [small, medium] = [await box('small'), await box('medium')];
+    expect(small).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-small'));
+    /** The heights of the select's, the number input's and the text input's boxes, and of the Buttons beside them: the group's and the overflow button. */
+    const heights = (id: string) =>
+      bar(page, id).evaluate((el) => ({
+        fields: ['tanrei-select', 'tanrei-number-input', 'tanrei-text-input'].map((tag) => el.querySelector(tag)!.shadowRoot!.querySelector('[part="container"]')!.getBoundingClientRect().height),
+        buttons: [...el.querySelectorAll(':scope > tanrei-toolbar-group > tanrei-button'), el.shadowRoot!.querySelector('[part="overflow-button"]')!].map((button) => button.shadowRoot!.querySelector('button')!.getBoundingClientRect().height),
+      }));
+    const taken = await heights('fields-small');
+    expect(taken.fields).toEqual([small, small, small]);
+    // The Buttons the toolbar has not hidden into its overflow menu (TBR-18) stand beside the fields: the overflow button at least.
+    const shown = taken.buttons.filter((height) => height > 0);
+    expect(shown.length).toBeGreaterThan(0);
+    for (const height of shown) expect(height, 'the small Buttons beside the fields').toBe(small);
+    // What they take is not theirs: no size attribute is written on them.
+    expect(await bar(page, 'fields-small').evaluate((el) => ['tanrei-select', 'tanrei-number-input', 'tanrei-text-input'].map((tag) => el.querySelector(tag)!.getAttribute('size')))).toEqual([null, null, null]);
+    expect((await heights('fields-small-own')).fields).toEqual([medium, medium, medium]);
+    // A Slider keeps its own default (small: its size is its track's weight) in a large toolbar.
+    const sliderHeight = (id: string) => bar(page, id).locator('tanrei-slider').evaluate((el) => el.getBoundingClientRect().height);
+    expect(await sliderHeight('slider-large')).toBe(await sliderHeight('inline-slider'));
+    expect(await bar(page, 'slider-large').locator('tanrei-slider').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('small');
+  });
+
   test('TBR-18: items that do not fit are hidden from the end, one at a time, skipping those whose overflow is never; the overflow button — an icon-only text Button showing more_horiz (more_vert in a column), named by overflowLabel or the product’s words, a button that opens a menu — stands after the last item that remains; right-to-left from the right', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {

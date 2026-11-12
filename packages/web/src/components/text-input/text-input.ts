@@ -10,6 +10,7 @@ import {
   FieldControlController,
   type FieldSays,
   OpenAxesController,
+  SizeConsumerController,
   type SegmentUnit,
   ambientLocale,
   asciiDigits,
@@ -53,7 +54,7 @@ import {
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
-import { AXES, INSET, styles } from './text-input.styles.js';
+import { AXES, CORE_SIZES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -371,7 +372,9 @@ export class TanreiTextInput extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // TXI-73: the size the product set, or none: a field that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     // The default is not reflected: a field that is written without `type` is not given `type="text"` when it is
     // defined. Nothing reads the attribute, and writing it is not free: `type` is a name `:has()` asks about on a page
     // with prose (`li:has(> input[type='checkbox'])`), so a browser walks up from every element that writes it and asks
@@ -430,8 +433,31 @@ export class TanreiTextInput extends TanreiElement {
    */
   variant: TanreiTextInputVariant = 'stacked';
 
-  /** Minimum height of a single-line field's container (48 / 56 in the default system). The hit area always meets the minimum target. */
-  size: TanreiTextInputSize = 'medium';
+  /**
+   * Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and
+   * filled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is
+   * not set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none
+   * does; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever
+   * a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiTextInputSize {
+    return (this.sizes.own ?? 'medium') as TanreiTextInputSize;
+  }
+
+  set size(value: TanreiTextInputSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** TXI-73: the size the product set, and the one the nearest container around the field sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /**
+   * @internal TXI-73: the size the field draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
 
   /**
    * What the value is: chooses the keyboard, autocorrection, obscured entry and semantics. `code` is text written for
@@ -819,7 +845,7 @@ export class TanreiTextInput extends TanreiElement {
    * And an entry error, with its words.
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium';
+    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium';
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size, { leading: this.hasLeading, trailing: this.hasTrailing || this.ownButtons > 0, lead: this.iconBoxes.lead }),
@@ -1946,6 +1972,9 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // TXI-73: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, TXI-9).
+    this.sizes.syncState(this.internals);
     // TXI-65: entries the input holds when it first updates float its label in its first frame. The slot's
     // `slotchange` arrives after that frame's style was read, and the label would be drawn over the chips and then
     // move up over the label motion; it keeps the slot's answer from then on.
@@ -2005,9 +2034,10 @@ export class TanreiTextInput extends TanreiElement {
     this.nativeSeen = this.nativeInput?.value;
     const input = this.textarea;
     if (input) {
-      const laidOut = ['multiline', 'type', 'noWrap', 'minRows', 'maxRows', 'resize', 'resizeAxis', 'size', 'variant'] as const;
-      // TXI-38: a height that follows the value moves; the first one, and one that follows anything else, does not.
-      if (input !== this.sized || laidOut.some((name) => changed.has(name))) fitTogether(this);
+      const laidOut = ['multiline', 'type', 'noWrap', 'minRows', 'maxRows', 'resize', 'resizeAxis', 'variant'] as const;
+      // TXI-38: a height that follows the value moves; the first one, and one that follows anything else — a size its
+      // own or a container's (TXI-73) included — does not.
+      if (input !== this.sized || this.sizes.drawnChanged || laidOut.some((name) => changed.has(name))) fitTogether(this);
       else if (written) this.fitHeight(true);
     } else {
       this.sized = null;
@@ -2123,9 +2153,10 @@ export class TanreiTextInput extends TanreiElement {
 
   /** TXI-32: the Button size with the field's size name, or Button's default for a size Button does not have. */
   private get pickerSize(): string {
-    if (BUTTON_SIZES.has(this.size)) return this.size;
-    const own = /^[a-z0-9][a-z0-9-]*$/.test(this.size) && getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${this.size}`).trim();
-    return own ? this.size : 'medium';
+    const size = this.drawnSize;
+    if (BUTTON_SIZES.has(size)) return size;
+    const own = /^[a-z0-9][a-z0-9-]*$/.test(size) && getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
+    return own ? size : 'medium';
   }
 
   private renderPicker() {

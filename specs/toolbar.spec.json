@@ -106,7 +106,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "The size of the Buttons and Buttons with menu it holds, as the Button's size: set on the toolbar, it is the size of every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set on the toolbar is passed down, not this default: a toolbar that sets none leaves each item at its own default, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of the toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system adds to the Button may be named."
+      "description": "The size of the Buttons and Buttons with menu it holds, as the Button's size: set on the toolbar, it is the size of every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31), and the size of the box of every Select, Number input and Text input that sets none, so that it stands as tall as the Buttons beside it (a Slider takes none). Only a size set on the toolbar is passed down, not this default: a toolbar that sets none leaves each item at its own default, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of the toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system adds to the Button may be named."
     }
   ],
   "items": [
@@ -381,7 +381,7 @@
     },
     {
       "name": "select",
-      "summary": "A Select (a heading level, a typeface, a zoom): the stacked variant at the medium size unless the product sets otherwise, as tall as a medium Button, laid out by the toolbar at the length the product gives it and not restyled; its own keys open and move through its list (TBR-29). Horizontal toolbars only.",
+      "summary": "A Select (a heading level, a typeface, a zoom): the stacked variant, at the toolbar's size where one is set and it sets none (TBR-31) and the medium size otherwise, unless the product sets otherwise, as tall as a Button of that size, laid out by the toolbar at the length the product gives it and not restyled; its own keys open and move through its list (TBR-29). Horizontal toolbars only.",
       "component": "select",
       "props": [
         {
@@ -412,7 +412,7 @@
     },
     {
       "name": "number-input",
-      "summary": "A Number input (a font size, a zoom percentage): the stacked variant at the medium size unless the product sets otherwise, laid out by the toolbar at the length the product gives it and not restyled; Up Arrow and Down Arrow step it, and Left Arrow and Right Arrow move its caret before they move focus (TBR-29). Horizontal toolbars only.",
+      "summary": "A Number input (a font size, a zoom percentage): the stacked variant, at the toolbar's size where one is set and it sets none (TBR-31) and the medium size otherwise, unless the product sets otherwise, laid out by the toolbar at the length the product gives it and not restyled; Up Arrow and Down Arrow step it, and Left Arrow and Right Arrow move its caret before they move focus (TBR-29). Horizontal toolbars only.",
       "component": "number-input",
       "props": [
         {
@@ -459,7 +459,7 @@
     },
     {
       "name": "text-input",
-      "summary": "A Text input (find in the document, a filter): the toolbar's last item only, a Tab stop of its own after the toolbar's whose keys are all its own (TBR-29); the stacked variant at the medium size unless the product sets otherwise, laid out at the length the product gives it and not restyled. Horizontal toolbars only.",
+      "summary": "A Text input (find in the document, a filter): the toolbar's last item only, a Tab stop of its own after the toolbar's whose keys are all its own (TBR-29); the stacked variant, at the toolbar's size where one is set and it sets none (TBR-31) and the medium size otherwise, unless the product sets otherwise, laid out at the length the product gives it and not restyled. Horizontal toolbars only.",
       "component": "text-input",
       "props": [
         {
@@ -738,8 +738,8 @@
     },
     {
       "id": "TBR-31",
-      "text": "WHILE size is set THE toolbar SHALL give it to every Button and Button with menu it holds, in a group or not, that sets no size of its own, which is then drawn at it (BTN-48, SPB-37), and an item that sets its own SHALL keep it; WHILE size is not set THE toolbar SHALL give none, so that each item is drawn at its own default, or at the size a container around the toolbar sets: only a size set on a container is passed down. Its overflow button sets no size of its own, and SHALL be drawn at the size the toolbar gives, or else as an item that sets none. WHEN size is set, changed or removed THE toolbar SHALL have its items drawn at the size they now take at once, and SHALL lay them out again as for any change of their lengths (TBR-18, TBR-19). A size the Button or the Button with menu does not have SHALL be drawn as BTN-7 and SPB-8 say. THE toolbar SHALL draw nothing of its own by its size: its container size across its axis, its paddings, its gaps and its dividers stay those of its variant — an inline toolbar is still at least comp.toolbar.container.size.inline across its axis around smaller items, and as large as larger ones (TBR-14, TBR-17) — and its items keep their targets apart as TBR-9 and TBR-16 say, from the lengths they are drawn at. A Select, a Number input, a Text input or a Slider it holds takes none of it: each keeps the size the product gives it, and its own default where the product gives none.",
-      "verify": "The fixture inline-small is the inline-button-with-menu fixture's items at the small size, set once on the toolbar. Under the default system its actions and both halves of its Button with menu are as high as comp.button.container.height.small and comp.button-with-menu.container.height.small (36, held at the minimum), its two icon-only actions as long, 4 apart (the inline gap: they lack nothing of the 36 target), and the toolbar is 40 high (comp.toolbar.container.size.inline). An item that sets large keeps 56 and the toolbar is then 56 high; removing the toolbar's size draws the others at medium; in a narrow toolbar the overflow button is as high as the small items; a floating toolbar of size small under a 48 target stands its 36 items 12 apart, as TBR-16 says."
+      "text": "WHILE size is set THE toolbar SHALL give it to every Button and Button with menu it holds, in a group or not, that sets no size of its own, which is then drawn at it (BTN-48, SPB-37), and an item that sets its own SHALL keep it; WHILE size is not set THE toolbar SHALL give none, so that each item is drawn at its own default, or at the size a container around the toolbar sets: only a size set on a container is passed down. Its overflow button sets no size of its own, and SHALL be drawn at the size the toolbar gives, or else as an item that sets none. WHEN size is set, changed or removed THE toolbar SHALL have its items drawn at the size they now take at once, and SHALL lay them out again as for any change of their lengths (TBR-18, TBR-19). A size the Button or the Button with menu does not have SHALL be drawn as BTN-7 and SPB-8 say. THE toolbar SHALL draw nothing of its own by its size: its container size across its axis, its paddings, its gaps and its dividers stay those of its variant — an inline toolbar is still at least comp.toolbar.container.size.inline across its axis around smaller items, and as large as larger ones (TBR-14, TBR-17) — and its items keep their targets apart as TBR-9 and TBR-16 say, from the lengths they are drawn at. WHILE size is set THE toolbar SHALL give it as well to every Select, Number input and Text input it holds that sets no size of its own, whose box is then drawn at it (SEL-73, NMI-49, TXI-73), so that a field stands as tall as the Buttons beside it, and a field that sets its own SHALL keep it. A Slider it holds takes none of it, because its size is the weight of its track and not a height that stands beside a Button's: it keeps the size the product gives it, and its own default where the product gives none.",
+      "verify": "The fixture inline-small is the inline-button-with-menu fixture's items at the small size, set once on the toolbar. Under the default system its actions and both halves of its Button with menu are as high as comp.button.container.height.small and comp.button-with-menu.container.height.small (36, held at the minimum), its two icon-only actions as long, 4 apart (the inline gap: they lack nothing of the 36 target), and the toolbar is 40 high (comp.toolbar.container.size.inline). An item that sets large keeps 56 and the toolbar is then 56 high; removing the toolbar's size draws the others at medium; in a narrow toolbar the overflow button is as high as the small items; a floating toolbar of size small under a 48 target stands its 36 items 12 apart, as TBR-16 says. A Select, a Number input and a Text input without a size in an inline toolbar of size small are as high as comp.input-box.stacked.container.height.small, as its small Buttons are; one that sets medium keeps medium."
     }
   ],
   "accessibility": {

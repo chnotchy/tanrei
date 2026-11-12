@@ -14,6 +14,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('color-input');
 type P = Page;
@@ -2080,6 +2081,13 @@ test.describe('the frame around it', () => {
     await page.locator('#outside').click();
     expect(await read(page, 'one')).toMatchObject({ focused: true, value: '#0f766e', text: '#0f766e' });
     expect(await heard(page)).toEqual([]);
+  });
+});
+
+test.describe('the size a container sets', () => {
+  test('CLI-47: without a size of its own a color input draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default — and its picker button follows it (CLI-27); its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectBoxTakesContainerSize(page, 'tanrei-color-input', T, { attrs: 'picker picker-label="Choose a color"', inner: { selector: '[part="picker-button"]', sizes: ['small', 'large', 'medium'] } });
   });
 });
 
