@@ -3,7 +3,9 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 // The size cascade (system → container → component). The system decides how much room every height takes, once: its
 // density moves the size steps' tokens, so nothing here reads it. What is set locally is a size, which a container
 // passes down to what it holds: a container that has a size SET provides it (BGR-26, TBR-31), and a component that sets
-// none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21). A container's default
+// none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21, and the input boxes'
+// TXI-73, NMI-49, CLI-47, SEL-73, CMB-83, as Carbon's Layout size and SwiftUI's `.controlSize` reach a text field and a
+// picker as well as a button, so that a box stands as tall as the Buttons beside it). A container's default
 // is never passed, so a container that says nothing leaves what it holds at its own default, or at the size a container
 // around it sets — as SwiftUI's `.controlSize` and Carbon's `Layout` pass only what is set. A component's own size
 // always wins.
@@ -87,6 +89,9 @@ function announce() {
 /** A name a custom state may carry: a token name. */
 const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
+/** The selector a consumer's size block is written under: the custom state `size-<name>` its controller carries. */
+export const drawnSizeAt = (size: string) => `:host(:state(size-${size}))`;
+
 /** The host of a component that takes a size: its `size` is a custom accessor that hands every write to `setOwn`. */
 type ConsumerHost = ReactiveControllerHost & HTMLElement & { requestUpdate(name?: PropertyKey, oldValue?: unknown): void };
 
@@ -102,6 +107,14 @@ export class SizeConsumerController implements ReactiveController {
   own: string | null = null;
   /** The custom state that carries the drawn size to the host's styles (`size-<name>`), while one does. */
   private state = '';
+  /** The size drawn at the last `syncState`. */
+  private synced: string | null = null;
+  /**
+   * Whether the last `syncState` drew another size than the one before it (true at the first): what the host lays out
+   * by its size — a measure, a fitted height — is laid out again in that update, whether its own size or a container's
+   * changed it.
+   */
+  drawnChanged = false;
 
   constructor(
     private readonly host: ConsumerHost,
@@ -143,6 +156,8 @@ export class SizeConsumerController implements ReactiveController {
    */
   syncState(internals: ElementInternals) {
     const drawn = this.drawn;
+    this.drawnChanged = drawn !== this.synced;
+    this.synced = drawn;
     const state = STATE_NAME.test(drawn) ? `size-${drawn}` : '';
     if (state === this.state) return;
     if (this.state) internals.states.delete(this.state);

@@ -200,7 +200,7 @@
 export { iconGlyph } from '../styles/icons.js';
 export { cornerRadius, shape } from '../styles/shape.js';
 export { type OpenAxis, OpenAxesController, type OpenAxesOptions } from './axes.js';
-export { SIZE_LADDER, SizeConsumerController, SizeProviderController, nearestSize } from './size-cascade.js';
+export { SIZE_LADDER, SizeConsumerController, SizeProviderController, drawnSizeAt, nearestSize } from './size-cascade.js';
 export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedback } from './behavior.js';
 export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
