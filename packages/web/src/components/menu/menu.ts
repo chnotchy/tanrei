@@ -2063,7 +2063,13 @@ export class TanreiMenu extends TanreiElement {
     if (event.key === 'Tab') {
       // Focus goes to the anchor first, so that the Tab's own move goes on from there, as it would have from the anchor.
       this.requestClose('tab');
-      if (!this.inline) this.focusReturn?.focus();
+      if (!this.inline) {
+        const back = this.focusReturn;
+        back?.focus();
+        // MNU-1, MNU-5: the colors of the anchor focus went back to begin in the first frame drawn after this task, as
+        // closing's do (statesFromNextFrame): closing finds focus already outside the menu and holds only its own.
+        statesFromNextFrame([back]);
+      }
       return;
     }
     if (event.altKey || event.ctrlKey || event.metaKey) return;
