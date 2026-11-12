@@ -1,5 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
-import { afterFirstPaint, documentPainted, startFromNextFrame } from './motion.js';
+import { afterFirstPaint, documentPainted, startFromNextFrame, startTogetherFromNextFrame } from './motion.js';
 import { deepActive, modalLayer } from './modal.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
@@ -293,8 +293,10 @@ export function openModal(dialog: HTMLDialogElement, { instant = !documentPainte
   }
   const taken = leaving.get(dialog)?.moves ?? [];
   show(dialog, keep);
-  // Asking flushes style: the transitions the open state starts exist now.
-  startFromNextFrame([...turning(dialog, [...moves, ...taken]), ...scrimMotions(dialog)]);
+  // Asking flushes style: the transitions the open state starts exist then. They are asked for with every other host's
+  // reads of the turn (`startTogetherFromNextFrame`), not here after this dialog's own writes: a hundred dialogs opened in
+  // one task style the page once for them, not once each.
+  startTogetherFromNextFrame(() => [...turning(dialog, [...moves, ...taken]), ...scrimMotions(dialog)]);
 }
 
 /**
