@@ -100,14 +100,22 @@
      here, so it lays them out as the defined bar does — in its one row, with no title line before them (the bar is
      given no `headline`, Header.astro) — and shows the brand and the actions the package's stand-in leaves out: in a
      column they stood one under the other, and the row was taller than the bar it stands for. The items' `display` has
-     no weight (`:where()`), so each rule of this file that hides one still does. */
+     no weight (`:where()`), so each rule of this file that hides one still does.
+
+     The defined bar lays itself out over the system insets at its edges (APB-10): its row stands below the top inset,
+     which its height includes, and inside the left and right ones. The package's stand-in gives the top inset as the
+     padding above the row; the row's height here adds it too, and the inline padding adds the side insets, so that on
+     a device with a notch or a status bar over the page the header is as tall, and its items stand where they will,
+     before the bar is defined (test/browser/header.test.mjs). */
   tanrei-app-bar:not(:defined) {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    min-block-size: var(--tanrei-comp-app-bar-container-height-small);
+    min-block-size: calc(var(--tanrei-comp-app-bar-container-height-small) + env(safe-area-inset-top, 0px));
     gap: var(--tanrei-comp-app-bar-actions-gap);
-    padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
+    padding-block-start: env(safe-area-inset-top, 0px);
+    padding-left: calc(var(--tanrei-comp-app-bar-container-padding-inline) + env(safe-area-inset-left, 0px));
+    padding-right: calc(var(--tanrei-comp-app-bar-container-padding-inline) + env(safe-area-inset-right, 0px));
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
   /* The header's bar alone: an app bar a page shows as an example keeps the package's stand-in. */
