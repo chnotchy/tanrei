@@ -15,7 +15,7 @@ const MenuElement = /* @__PURE__ */ createComponent({
     onContextRequest: 'contextrequest' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuContextRequestDetail>>>,
   },
 });
-const MenuAttributes = { open: ['open', false], placement: ['placement', 'bottom-start'], trigger: ['trigger', 'anchor'], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], anchor: ['anchor', ''], inline: ['inline', false] } as const;
+const MenuAttributes = { open: ['open', false], placement: ['placement', 'bottom-start'], trigger: ['trigger', 'anchor'], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], size: ['size', 'medium'], anchor: ['anchor', ''], inline: ['inline', false] } as const;
 /**
  * Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, with further levels in submenus where the set needs them.
  *

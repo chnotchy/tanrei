@@ -4359,9 +4359,9 @@ export const cupertino = {
           },
         },
       },
-      densitys: {
-        regular: { optionHeight: 44, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 8 },
+      optionSizes: {
+        small: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 8 },
+        medium: { optionHeight: 44, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 12 },
       },
     },
     copyButton: {
@@ -7340,9 +7340,9 @@ export const cupertino = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 44, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 16, trailingIconSize: 16, markSize: 16, groupTitlePaddingInline: 12 },
-        compact: { containerHeight: 32, containerPaddingInline: 8, containerPaddingBlock: 6, containerGap: 8, leadingIconSize: 16, trailingIconSize: 16, markSize: 16, groupTitlePaddingInline: 8 },
+      sizes: {
+        small: { containerHeight: 32, containerPaddingInline: 8, containerPaddingBlock: 6, containerGap: 8, leadingIconSize: 16, trailingIconSize: 16, markSize: 16, groupTitlePaddingInline: 8 },
+        medium: { containerHeight: 44, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 16, trailingIconSize: 16, markSize: 16, groupTitlePaddingInline: 12 },
       },
     },
     menubar: {
@@ -9187,9 +9187,9 @@ export const cupertino = {
           },
         },
       },
-      densitys: {
-        regular: { suggestionContainerHeight: 44, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 20 },
-        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+      sizes: {
+        small: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        medium: { suggestionContainerHeight: 44, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 20 },
       },
     },
     segmentedButton: {
@@ -9667,9 +9667,9 @@ export const cupertino = {
           },
         },
       },
-      densitys: {
-        regular: { optionHeight: 44, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 12 },
-        compact: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 8 },
+      optionSizes: {
+        small: { optionHeight: 32, optionPaddingInline: 8, optionPaddingBlock: 6, optionGap: 8, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 8 },
+        medium: { optionHeight: 44, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 16, optionMarkSize: 16, groupTitlePaddingInline: 12 },
       },
     },
     sideSheet: {

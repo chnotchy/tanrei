@@ -3309,9 +3309,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiComboboxDensitys(
-                regular = TanreiComboboxDensityTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiComboboxDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
+            optionSizes = TanreiComboboxOptionSizes(
+                small = TanreiComboboxOptionSizeTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiComboboxOptionSizeTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -5576,9 +5576,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiMenuDensitys(
-                regular = TanreiMenuDensityTokens(containerHeight = 44.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiMenuDensityTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 8.dp),
+            sizes = TanreiMenuSizes(
+                small = TanreiMenuSizeTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiMenuSizeTokens(containerHeight = 44.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -7033,9 +7033,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiSearchDensitys(
-                regular = TanreiSearchDensityTokens(suggestionContainerHeight = 44.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 20.dp),
-                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+            sizes = TanreiSearchSizes(
+                small = TanreiSearchSizeTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 44.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 
@@ -7383,9 +7383,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiSelectDensitys(
-                regular = TanreiSelectDensityTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
-                compact = TanreiSelectDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
+            optionSizes = TanreiSelectOptionSizes(
+                small = TanreiSelectOptionSizeTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
+                medium = TanreiSelectOptionSizeTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 

@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 9a1beddfa16fafffea78472659a15cdfc168a92a
+sourceHash: beaaa785553b00605b66aae4156a4ad7c7f4e343
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -431,9 +431,11 @@ La marca de un elemento de casilla de verificación o de opción está en la col
 
 Cada superficie decide por sí misma, y un submenú sigue el `iconSpace` de su menú. El título de un grupo empieza donde empieza el contenido de las filas, guarden lo que guarden. La [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
 
-### Densidad
+### Tamaño
 
-`density` fija cuánto espacio ocupa una fila. `regular` (el valor por defecto: una fila de 48 con glifos de 24) es para un producto que se usa tanto con el tacto como con un puntero. `compact` (una fila de 32 con glifos de 20, la fila compacta de la [vista de árbol](/es/components/tree-view/)) es para una herramienta que se usa con el ratón, cuyos menús son largos y se abren a menudo. El texto conserva su tamaño en ambas. Con el tacto una fila nunca es más baja que el objetivo táctil, así que un menú compacto en un teléfono sigue teniendo filas de 48. Cada submenú toma la densidad de su menú.
+`size` fija cuánto espacio ocupa una fila. `medium` (el valor por defecto: una fila de 48 con glifos de 24) es para un producto que se usa tanto con el tacto como con un puntero. `small` (una fila de 36 con glifos de 20, la fila `small` de la [vista de árbol](/es/components/tree-view/)) es para una herramienta que se usa con el ratón, cuyos menús son largos y se abren a menudo. El texto conserva su tamaño en ambos, y una fila nunca es más baja que el objetivo. Cada submenú toma el tamaño de su menú.
+
+Un menú no toma el tamaño de lo que lo rodea. Uno que se abre desde un botón de una [barra de herramientas](/es/components/toolbar/) `small` es `medium` salvo que fijes su propio `size`: se abre sobre la página, aparte de los controles que rodean al botón.
 
 ### Enlaces
 

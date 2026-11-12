@@ -153,10 +153,6 @@
     {
       "name": "iconSpace",
       "from": "combobox.iconSpace"
-    },
-    {
-      "name": "density",
-      "from": "combobox.density"
     }
   ],
   "slots": [
@@ -286,8 +282,7 @@
         "statusText": "statusText",
         "emptyText": "emptyText",
         "separation": "separation",
-        "iconSpace": "iconSpace",
-        "density": "density"
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "input",
@@ -353,8 +348,7 @@
         "statusText": "statusText",
         "emptyText": "emptyText",
         "separation": "separation",
-        "iconSpace": "iconSpace",
-        "density": "density"
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "text",
@@ -416,8 +410,7 @@
         "statusText": "statusText",
         "emptyText": "emptyText",
         "separation": "separation",
-        "iconSpace": "iconSpace",
-        "density": "density"
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
@@ -479,8 +472,7 @@
         "statusText": "statusText",
         "emptyText": "emptyText",
         "separation": "separation",
-        "iconSpace": "iconSpace",
-        "density": "density"
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputChanged",
@@ -542,8 +534,7 @@
         "statusText": "statusText",
         "emptyText": "emptyText",
         "separation": "separation",
-        "iconSpace": "iconSpace",
-        "density": "density"
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
