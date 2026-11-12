@@ -3,6 +3,7 @@ import { live } from 'lit/directives/live.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
 import { ComposedElement, composedHost, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
+import { forwardedOwnSize } from '../../primitives/size-cascade.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
@@ -197,7 +198,8 @@ export class TanreiChipField extends ComposedElement {
     separators: { attribute: 'separators', converter: STRINGS },
     maxEntries: { type: Number, attribute: 'max-entries' },
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // Declared as the box's is: a custom accessor, reflected by the own size while it is set.
+    size: { type: String, noAccessor: true },
     type: { type: String, reflect: true, useDefault: true },
     placeholder: { type: String },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
@@ -278,9 +280,18 @@ export class TanreiChipField extends ComposedElement {
   /** @from tanrei-text-input.variant */
   variant: TanreiTextInputVariant = 'stacked';
 
-  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-text-input.size */
-  size?: TanreiTextInputSize;
+  get size(): TanreiTextInputSize {
+    return (this.ownSize.own ?? 'medium') as TanreiTextInputSize;
+  }
+
+  set size(value: TanreiTextInputSize | null | undefined) {
+    this.ownSize.setOwn(value);
+  }
+
+  // Forwarded as the product set it, not as it reads: the box is given no size while the product set none here, and
+  // draws the size its container sets.
+  private readonly ownSize = forwardedOwnSize(this);
 
   /** @from tanrei-text-input.type */
   type: TanreiTextInputType = 'text';

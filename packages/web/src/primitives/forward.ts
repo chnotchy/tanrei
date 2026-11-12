@@ -16,9 +16,28 @@ class Forward extends Directive {
 
   override update(part: ElementPart, [from, names]: [object, readonly string[]]) {
     const member = part.element as unknown as Record<string, unknown>;
-    for (const name of names) member[name] = (from as Record<string, unknown>)[name];
+    const reads = readers.get(from);
+    for (const name of names) {
+      const read = reads?.get(name);
+      member[name] = read ? read() : (from as Record<string, unknown>)[name];
+    }
     return noChange;
   }
+}
+
+/** For each composed element that has any, what it forwards under a name in place of what reading the property gives. */
+const readers = new WeakMap<object, Map<string, () => unknown>>();
+
+/**
+ * W2: `forward()` passes `read()` under `name`, not what reading the property gives. The one case is a size the
+ * member takes from its containers while it sets none (`forwardedOwnSize()`, size-cascade.ts): the element's `size`
+ * reads as the default's name while the product set none, and the member is given none, so that it still takes its
+ * containers' size. The member is still given the value as it is set, unchanged.
+ */
+export function forwardAs(from: object, name: string, read: () => unknown) {
+  let reads = readers.get(from);
+  if (!reads) readers.set(from, (reads = new Map()));
+  reads.set(name, read);
 }
 
 /**

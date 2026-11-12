@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { forwardedOwnSize } from '../../primitives/size-cascade.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
@@ -173,7 +174,8 @@ export class TanreiTextField extends ComposedControl<string> {
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // Declared as the box's is: a custom accessor, reflected by the own size while it is set.
+    size: { type: String, noAccessor: true },
     type: { type: String, reflect: true, useDefault: true },
     value: { type: String },
     placeholder: { type: String },
@@ -244,9 +246,18 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-text-input.variant */
   variant: TanreiTextInputVariant = 'stacked';
 
-  // Unset until the product sets it: the box it is forwarded to then draws the size its container sets.
   /** @from tanrei-text-input.size */
-  size?: TanreiTextInputSize;
+  get size(): TanreiTextInputSize {
+    return (this.ownSize.own ?? 'medium') as TanreiTextInputSize;
+  }
+
+  set size(value: TanreiTextInputSize | null | undefined) {
+    this.ownSize.setOwn(value);
+  }
+
+  // Forwarded as the product set it, not as it reads: the box is given no size while the product set none here, and
+  // draws the size its container sets.
+  private readonly ownSize = forwardedOwnSize(this);
 
   /** @from tanrei-text-input.type */
   type: TanreiTextInputType = 'text';

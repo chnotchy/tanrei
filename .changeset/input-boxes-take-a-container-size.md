@@ -17,7 +17,8 @@ What changed on the elements:
   reading `size` there still gives `medium`. A style or a test that matched `tanrei-select[size='medium']` on a box
   that sets no size no longer matches.
 - The React wrappers no longer write `size="medium"` by default (that would have made it the box's own).
-- The Text field, Number field, Color field, Select field, Combobox field and Chip field no longer default `size` to
-  `medium`: unset, the box inside them takes its container's size the same way.
+- The Text field, Number field, Color field, Select field, Combobox field and Chip field declare `size` as their box
+  does: unset, it is not written and reads `medium`, and the box inside them is given none and takes its container's
+  size the same way; set, `medium` included, it is written and is the box's own.
 - `TanreiTextInputSize`, `TanreiNumberInputSize`, `TanreiColorInputSize` and `TanreiComboboxSize` now include `small`,
   which their specs have always listed and their styles have always drawn.
