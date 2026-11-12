@@ -13,7 +13,7 @@ import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, l
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { motionCount, motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('app-shell');
@@ -826,6 +826,27 @@ test.describe('the menu button', () => {
     expect(stops.some((stop) => stop.includes('tanrei-navigation-drawer'))).toBe(true);
     expect(back.some((stop) => stop.startsWith('menu'))).toBe(true);
     expect(back.some((stop) => stop === '#notice')).toBe(true);
+  });
+
+  test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
+    // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
+    await mount(page, real(), { width: 400 });
+    // Settled first (MOT-3): focus given to the menu button while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, menu(page));
+    await motionEnded(page);
+    const motions =['tanrei-navigation-drawer nav.drawer translate', 'tanrei-navigation-drawer div.scrim opacity', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button.has-icon background-color'];
+    await expectFromNextFrame(shell(page), '(el) => { el.navigationOpen = true; }', motions, 'opened');
+    expect(await active(page)).toContain('tanrei-navigation-drawer');
+    await motionEnded(page);
+    await expectFromNextFrame(
+      drawer(page),
+      "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
+      motions,
+      'closed by Escape',
+    );
+    expect(await active(page)).toMatch(/^menu/);
   });
 
   for (const width of [400, 800] as const) {
@@ -1830,6 +1851,56 @@ test.describe('before its code runs, text size, forced colors, insets, direction
     await page.addScriptTag({ content: fs.readFileSync(path.join(pkg, 'dist/tanrei.bundle.js'), 'utf8'), type: 'module' });
     await expect.poll(() => page.evaluate(() => (window as unknown as { __told: string[] }).__told)).toEqual(['medium']);
   });
+
+  // One test a case: each opens a window, writes the frame into it and runs the whole bundle there, which takes a
+  // runner's WebKit about four seconds — nine of them in one test ran past its time.
+  const widthOf = (px: number) => `width="${px}" style="--tanrei-navigation-drawer-width: ${px}px"`;
+  const givenBack: { name: string; attributes: string; window: number; expected: (page: P) => Promise<number> }[] = [
+    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'folded, compact', attributes: 'responsive collapsible density="compact" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-compact') },
+    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'hidden', attributes: 'responsive expanded="false"', window: 1280, expected: async () => 0 },
+    { name: 'a width', attributes: `responsive collapsible ${widthOf(320)}`, window: 1280, expected: async () => 320 },
+    { name: 'a width above the greatest', attributes: `responsive collapsible ${widthOf(2000)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-max-width') },
+    { name: 'a width below the least', attributes: `responsive collapsible ${widthOf(40)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-min-width') },
+    // In a medium window the column keeps its own width, whatever the width and the fold say.
+    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+  ];
+  for (const c of givenBack) {
+    test(`APS-24: before the element is defined a drawer the product gives back folded or at a width keeps the place it will have — a collapsible drawer written expanded false its column in an expanded window, a responsive one that is not collapsible none, a drawer with a width that width held between its least and greatest — and defining the drawer then moves nothing and records no layout shift: ${c.name}`, async ({ page: first, browserName }) => {
+      const page = await withoutScript(first, real({ navigation: DRAWER(c.attributes) }), c.window);
+      // The app bar and its menu button draw themselves when they are defined: here they keep the place they will
+      // have, so that what is measured is the frame's and the drawer's own.
+      await page.addStyleTag({
+        content:
+          'tanrei-app-bar:not(:defined) { display: block; block-size: var(--tanrei-comp-app-bar-container-height-small); overflow: hidden; } tanrei-button:not(:defined) { box-sizing: border-box; inline-size: var(--tanrei-comp-button-container-height-medium); block-size: var(--tanrei-comp-button-container-height-medium); overflow: hidden; }',
+      });
+      const expected = await c.expected(page);
+      const drawn = await drawer(page).evaluate((el) => el.getBoundingClientRect().width);
+      expect(Math.round(drawn * 100) / 100, c.name).toBe(expected);
+      expect((await edges(main(page))).left, c.name).toBe(expected);
+      const before = await geometry(page);
+      if (browserName === 'chromium') {
+        await page.evaluate(() => {
+          const w = window as unknown as { __shift: number };
+          w.__shift = 0;
+          new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) w.__shift += (entry as unknown as { value: number }).value;
+          }).observe({ type: 'layout-shift', buffered: false });
+        });
+      }
+      await page.addScriptTag({ content: fs.readFileSync(path.join(pkg, 'dist/tanrei.bundle.js'), 'utf8'), type: 'module' });
+      await page.waitForFunction(() => !!customElements.get('tanrei-navigation-drawer') && !!customElements.get('tanrei-app-shell'));
+      await allSettled(page);
+      await frame(page);
+      // (A hidden drawer is no box before and a box of no width after: both take no space.)
+      const placed = (lines: string[]) => lines.map((line) => (/^\S+ \S+ \S+ 0 /.test(line) ? `${line.split(' ')[0]} no space` : line));
+      expect(placed(await geometry(page)), c.name).toEqual(placed(before));
+      if (browserName === 'chromium') expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift), c.name).toBe(0);
+      await page.close();
+    });
+  }
 
   test('APS-25: at 200 % text in a window 320 wide the frame keeps its gutters, every region grows with its text, the frame is one column with a main region no narrower than the window less two gutters, no height is fixed, and nothing scrolls sideways but a block that scrolls in its own box', async ({ page }) => {
     await mount(page, 'compact-narrowest');

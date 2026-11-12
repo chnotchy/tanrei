@@ -13,35 +13,34 @@ const PREFIX = '--tanrei-comp-menu';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
 
-/** The densities every design system has (MNU-64). A layer may add more; those get their rules on demand. */
-export const CORE_DENSITIES = ['regular', 'compact'] as const;
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`), as the rows read them. */
-const DENSITY_MEMBERS = ['container-height', 'container-padding-block', 'container-padding-inline', 'container-gap', 'leading-icon-size', 'trailing-icon-size', 'mark-size', 'group-title-padding-inline'] as const;
-type DensityMember = (typeof DENSITY_MEMBERS)[number];
+/** The sizes every design system has (MNU-64). A layer may add more; those get their rules on demand. */
+export const CORE_SIZES = ['small', 'medium'] as const;
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`), as the rows read them. */
+const SIZE_MEMBERS = ['container-height', 'container-padding-block', 'container-padding-inline', 'container-gap', 'leading-icon-size', 'trailing-icon-size', 'mark-size', 'group-title-padding-inline'] as const;
+type SizeMember = (typeof SIZE_MEMBERS)[number];
 // A value the core does not have may be missing from the active design system: fall back to the default's token.
-const ref = (member: string, density: string, fallback: string | null) =>
-  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+const ref = (member: string, size: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${size}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${size})`;
 /**
- * MNU-64: the menu's density, set on the menu's host as private switches that its items, groups and submenus — its
- * descendants — inherit, so that every surface takes the menu's density. MNU-12: a fine pointer's row is held to the
- * pointer target, except in the compact density.
+ * MNU-64: the menu's size, set on the menu's host as private switches that its items, groups and submenus — its
+ * descendants — inherit, so that every surface takes the menu's size. The menu takes no size from a container around
+ * it: its surface stands in the top layer.
  */
-const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
-  ${DENSITY_MEMBERS.map((member) => `--_mnu-${member}: ${ref(member, density, fallback)};`).join('\n  ')}
-  --_mnu-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {
+  ${SIZE_MEMBERS.map((member) => `--_mnu-${member}: ${ref(member, size, fallback)};`).join('\n  ')}
 }`;
-/** What a row reads: the menu's density, or the regular one where it stands outside a menu. */
-const D = (member: DensityMember) => `var(--_mnu-${member}, var(${PREFIX}-${member}-${DEFAULT_DENSITY}))`;
-const d = (member: DensityMember) => unsafeCSS(D(member));
+/** What a row reads: the menu's size, or the medium one where it stands outside a menu. */
+const D = (member: SizeMember) => `var(--_mnu-${member}, var(${PREFIX}-${member}-${DEFAULT_SIZE}))`;
+const d = (member: SizeMember) => unsafeCSS(D(member));
 
-/** MNU-64: a density a layer added gets its block on demand, falling back to the default's tokens. */
+/** MNU-64: a size a layer added gets its block on demand, falling back to the default's tokens. */
 export const AXES: readonly OpenAxis[] = [
   {
-    name: 'density',
-    core: CORE_DENSITIES,
-    default: DEFAULT_DENSITY,
-    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    name: 'size',
+    core: CORE_SIZES,
+    default: DEFAULT_SIZE,
+    rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-height-${value}` as const,
   },
 ];
@@ -228,10 +227,10 @@ export const menuStyles = css`
        page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
     isolation: isolate;
   }
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(
-    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
-      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+    CORE_SIZES.filter((size) => size !== DEFAULT_SIZE)
+      .map((size) => sizeBlock(size, `:host([size='${size}'])`))
       .join('\n'),
   )}
   /* MNU-35: the separation this menu draws — its attribute's, else comp.menu.separation's; every submenu inherits it. */
@@ -320,7 +319,7 @@ export const itemStyles = css`
     display: block;
     /* MNU-11: the ring is drawn inside the row, never around the host. */
     outline: none;
-    /* MNU-64: the glyphs' boxes of the menu's density, as properties the glyph rules name. */
+    /* MNU-64: the glyphs' boxes of the menu's size, as properties the glyph rules name. */
     --_mi-leading-icon-size: ${d('leading-icon-size')};
     --_mi-trailing-icon-size: ${d('trailing-icon-size')};
     --_mi-mark-size: ${d('mark-size')};
@@ -363,9 +362,8 @@ export const itemStyles = css`
     padding-block: ${d('container-padding-block')};
     padding-inline: ${d('container-padding-inline')};
   }
-  /* MNU-12: at least the minimum target tall — stacked items cannot extend a hit area over each other; for a fine
-     pointer a compact row is as tall as its density gives (MNU-64). */
-  ${rowTarget('.row', D('container-height'), 'var(--_mnu-pointer-target, var(--tanrei-sys-target-pointer))')}
+  /* MNU-12: at least the target tall, at every size — stacked items cannot extend a hit area over each other. */
+  ${rowTarget('.row', D('container-height'))}
 
   /* The columns — mark, leading icon, the text, the shortcut or trailing text, trailing icon — each a gap apart. Every
      column is centered on the label's FIRST line (a wrapping label keeps its check and icon beside its first line):

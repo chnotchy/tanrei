@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -230,7 +231,7 @@ The arrow keys go round at the ends of the list: Down Arrow on the last option g
 
 An option's glyph stands in a column before its label. `iconSpace` says where that column is kept in an option without a glyph. `auto` (the default) keeps it in a section where another option has a glyph, so that the labels of the section start on one line, and keeps none in a section without glyphs; a section is a group, or a run of options outside any group. `always` keeps it in every option, and `never` only in an option that has a glyph. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default. Only the options the filter shows count.
 
-`density` sets how much room an option takes: `regular` (the default, 48 high) or `compact` (32 high with 20 glyphs, the [menu](/components/menu/)'s compact row), for a tool used with a mouse whose lists are long. The text keeps its size, and the container is `size`'s whatever the density. For touch an option is never lower than the touch target.
+The options take the combobox's `size`. A `small` combobox opens small options (36 high with 20 glyphs, the [menu](/components/menu/)'s small row), and a `medium` or `large` one medium options (48 high). The text keeps its size, and an option is never lower than the target.
 
 <ComponentSpecs name="combobox" />
 
@@ -278,6 +279,8 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - Don't write `supporting-text`, `error-text`, `required` or `optional` on a combobox. They are a field's, and a combobox draws none of them.
 
 ## Accessibility
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

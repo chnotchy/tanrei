@@ -2,13 +2,14 @@
 title: Grupo de botones de opción
 description: Hace una pregunta que tiene exactamente una respuesta entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de botones de opción que guarda el valor elegido, bajo una etiqueta que puede decir si la respuesta es obligatoria u opcional, con una descripción y un único error para el conjunto.
 translationOf: components/radio-group.mdx
-sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
+sourceHash: a927ce4297ca8cd5f137d1c844c5040d0ddf0683
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -222,6 +223,8 @@ Un grupo de solo lectura muestra su respuesta en su sitio, para que la persona l
 - No hagas que un conjunto sea de solo lectura deshabilitando el grupo: un grupo deshabilitado no envía nada y no se puede alcanzar. Usa `readOnly`, que mantiene el conjunto en el orden del foco y envía su valor.
 
 ## Accesibilidad
+
+<FocusOrder name="radio-group" fixture="default" />
 
 <ComponentAccessibility name="radio-group" />
 

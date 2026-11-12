@@ -4,7 +4,7 @@
 <!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
 > **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
 
-**Components:** 15 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
+**Components:** 16 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
 
 <!-- /tanrei:status -->
 
@@ -173,7 +173,7 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 | `steps.css`, `timeline.css`, `previous-next-links.css` | your own ordered lists and `nav` |
 | `table.css`, `description-list.css`, `figure.css`, `accordion.css`, `tree-view.css`, `table-of-contents.css` | the element around your own `<table>`, `<dl>`, `<figure>`, `<details>` and lists |
 | `app-shell.css`, `page-header.css`, `breadcrumbs.css`, `link-card.css` | a page's frame, its header, its trail and its cards |
-| `avatar.css`, `callout.css`, `empty-state.css`, `skeleton.css`, `menu.css`, `menubar.css` | those components, before their elements are defined |
+| `app-bar.css`, `avatar.css`, `callout.css`, `empty-state.css`, `skeleton.css`, `menu.css`, `menubar.css` | those components, before their elements are defined |
 
 `tanrei.css` is every stylesheet of the package in one file — the default system's tokens, these, and `base.css` (the
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not

@@ -1858,8 +1858,8 @@ test.describe('behavior: the list', () => {
     let row_ = status('open-status');
     await expect(row_.locator('.said').first()).toHaveText('2 of 48 people shown. Keep typing to narrow.');
     expect((await box(row_)).y, 'after the last option').toBeGreaterThanOrEqual((await box(rows(page, 'open-status').last())).y + (await box(rows(page, 'open-status').last())).height - 0.6);
-    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline-regular'), 'option.padding-inline');
-    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block-regular'), 'option.padding-block');
+    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline-medium'), 'option.padding-inline');
+    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block-medium'), 'option.padding-block');
     near(await px(row_, 'font-size'), await token(page, 'status-typescale-font-size'), 'status.typescale');
     expect(await css(row_, 'color')).toBe(await color(page, 'status-color'));
     expect(await row_.evaluate((el) => [el.getAttribute('role'), el.tabIndex, el.closest('[role="listbox"]')]), 'not an option, and not in the list box').toEqual([null, -1, null]);
@@ -1872,7 +1872,7 @@ test.describe('behavior: the list', () => {
     const spinner = row_.locator('tanrei-loading-indicator');
     expect(await spinner.evaluate((el) => [el.getAttribute('size'), el.getAttribute('label')])).toEqual(['small', 'Loading people']);
     expect(await row_.locator('.said').allTextContents()).toEqual(['', '']);
-    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-regular'), 'at the row’s start', 1);
+    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-medium'), 'at the row’s start', 1);
     await set(page, 'open-status', { statusText: 'x' });
     near((await box(row_)).height, (await box(status('open-status'))).height, 'one line of text tall');
     // The option left in the list while loading is drawn and usable.
@@ -1940,19 +1940,19 @@ test.describe('behavior: the list', () => {
     const plain = row(page, 'stacked-open', 'Kyoto');
     const b = await box(plain);
     const [label, markBox] = [await box(plain.locator('.option-label')), await box(plain.locator('.row-column.mark'))];
-    near(label.x - b.x, await token(page, 'option-padding-inline-regular'), 'padding-inline before the label');
-    near(b.x + b.width - (markBox.x + markBox.width), await token(page, 'option-padding-inline-regular'), 'padding-inline after the box');
-    near(markBox.width, await token(page, 'option-mark-size-regular'), 'the check’s box');
-    near(markBox.height, await token(page, 'option-mark-size-regular'), 'the check’s box');
-    expect(b.height).toBeGreaterThanOrEqual((await token(page, 'option-height-regular')) - 0.6);
+    near(label.x - b.x, await token(page, 'option-padding-inline-medium'), 'padding-inline before the label');
+    near(b.x + b.width - (markBox.x + markBox.width), await token(page, 'option-padding-inline-medium'), 'padding-inline after the box');
+    near(markBox.width, await token(page, 'option-mark-size-medium'), 'the check’s box');
+    near(markBox.height, await token(page, 'option-mark-size-medium'), 'the check’s box');
+    expect(b.height).toBeGreaterThanOrEqual((await token(page, 'option-height-medium')) - 0.6);
     expect(b.height).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
-    near(await px(plain, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
+    near(await px(plain, 'padding-top'), await token(page, 'option-padding-block-medium'), 'padding-block');
     near(await px(plain.locator('.option-label'), 'font-size'), await token(page, 'option-label-typescale-font-size'), 'the label’s text style');
     // The icon column: kept in every row of a list where any option has a glyph, so that labels align.
     const [withIcon, without] = [row(page, 'open-icons', 'Bus'), row(page, 'open-icons', 'On foot')];
     const icon = await box(withIcon.locator('.option-icon'));
-    near(icon.width, await token(page, 'option-leading-icon-size-regular'), 'the glyph');
-    near((await box(withIcon.locator('.option-label'))).x - (icon.x + icon.width), await token(page, 'option-gap-regular'), 'option.gap');
+    near(icon.width, await token(page, 'option-leading-icon-size-medium'), 'the glyph');
+    near((await box(withIcon.locator('.option-label'))).x - (icon.x + icon.width), await token(page, 'option-gap-medium'), 'option.gap');
     near((await box(without.locator('.option-label'))).x, (await box(withIcon.locator('.option-label'))).x, 'the labels align');
     await expect(row(page, 'stacked-open', 'Kyoto').locator('.row-column.leading')).toHaveCount(0);
     // The supporting text: below the label, in its own text style.
@@ -2044,7 +2044,7 @@ test.describe('behavior: the list', () => {
     const id = 'open-icons';
     const [bus, train, foot] = [row(page, id, 'Bus').locator('.option-icon'), row(page, id, 'Train').locator('.option-icon'), row(page, id, 'On foot').locator('.option-icon')];
     await expect(bus).toHaveText('directions_bus');
-    near((await box(bus)).width, await token(page, 'option-leading-icon-size-regular'), 'option.leading-icon.size');
+    near((await box(bus)).width, await token(page, 'option-leading-icon-size-medium'), 'option.leading-icon.size');
     expect(await css(bus, 'color')).toBe(await color(page, 'stacked-option-leading-icon-color'));
     expect(await css(train, 'color')).toBe(await color(page, 'stacked-selected-option-leading-icon-color'));
     const family = async (name: string) => (await css(page.locator('html'), `--tanrei-sys-icon-family-${name}`)).replaceAll('"', '').trim();
@@ -2233,8 +2233,8 @@ test.describe('behavior: the list', () => {
     await expect(title).toHaveText('Asia');
     expect(await css(title, 'color')).toBe(await color(page, 'group-title-color'));
     near(await px(title, 'font-size'), await token(page, 'group-title-typescale-font-size'), 'group-title.typescale');
-    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline-regular'), 'padding-inline');
-    near(await px(title, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
+    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline-medium'), 'padding-inline');
+    near(await px(title, 'padding-top'), await token(page, 'option-padding-block-medium'), 'padding-block');
     near((await box(title)).x, (await box(rows(page, id).first())).x, 'from the rows’ start edge');
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
@@ -2351,7 +2351,7 @@ test.describe('behavior: the list', () => {
       fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
       fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
     ]);
-    const [pad, gap, size] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-leading-icon-size-regular')];
+    const [pad, gap, size] = [await token(page, 'option-padding-inline-medium'), await token(page, 'option-gap-medium'), await token(page, 'option-leading-icon-size-medium')];
     const none = pad;
     const kept = pad + size + gap;
     /** Where an option's label starts, from its row's start edge. */
@@ -2388,23 +2388,19 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
-  test('CMB-68: a compact combobox draws its options and group titles from the compact tokens — lower, set in less, smaller glyphs, the same text — as low as its density gives for a mouse and the touch target for touch, the field’s box unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+  test('CMB-68: a small combobox draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large combobox draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
     const seen = warnings(page);
-    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
-    await mount(page, [
-      compact,
-      { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
-      { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
-      { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
-    ]);
-    const sizes = async (density: string) => {
+    const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
+    const at = (id: string, size: string) => ({ ...smallFixture, id, props: { ...smallFixture.props, size } }) as Fixture;
+    await mount(page, [smallFixture, at('size-medium', 'medium'), at('size-large', 'large'), at('size-odd', 'huge'), at('size-added', 'roomy')]);
+    const sizes = async (size: string) => {
       const [height, padBlock, padInline, gap, icon, mark, title] = await Promise.all(
-        ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'].map((n) => token(page, `${n}-${density}`)),
+        ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'].map((n) => token(page, `${n}-${size}`)),
       );
       return { height, padBlock, padInline, gap, icon, mark, title };
     };
-    const [regular, small] = [await sizes('regular'), await sizes('compact')];
-    // The default system's compact option: the menu's compact row, 36 high (the minimum target) with 20 glyphs, 8 from its edges.
+    const [medium, small] = [await sizes('medium'), await sizes('small')];
+    // The default system's small option: the menu's small row, 36 high (the minimum target) with 20 glyphs, 8 from its edges.
     expect([small.height, small.icon, small.mark, small.padInline]).toEqual([36, 20, 20, 8]);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const drawn = async (id: string, label: string) => {
@@ -2412,39 +2408,54 @@ test.describe('behavior: the list', () => {
       const [b, l, icon, font] = [await box(r), await box(r.locator('.option-label')), await px(r.locator('.option-icon'), 'font-size'), await css(r.locator('.option-label'), 'font-size')];
       return { height: b.height, start: l.x - b.x, icon, font };
     };
-    const mail = await drawn('density-compact', 'Mail');
-    const mailRegular = await drawn('density-regular', 'Mail');
-    near(mail.height, small.height, 'a compact option');
-    // In the default system the compact row is held at the minimum target, which the pointer target aliases.
+    const mail = await drawn('size-small', 'Mail');
+    const mailMedium = await drawn('size-medium', 'Mail');
+    near(mail.height, small.height, 'a small option');
+    // In the default system the small row is held at the minimum target, which the pointer target aliases.
     expect(mail.height).toBe(pointer);
     near(mail.icon, small.icon, 'its glyph');
     near(mail.start, small.padInline + small.icon + small.gap, 'its label after the padding, the glyph and the gap');
-    near(mailRegular.height, Math.max(regular.height, pointer), 'a regular option');
-    near(mailRegular.start, regular.padInline + regular.icon + regular.gap, 'a regular label');
-    // The density never changes a text style; the check's box and a group's title take the density.
-    expect(mail.font).toBe(mailRegular.font);
-    const titles = part(page, 'density-compact', '.group-title');
+    near(mailMedium.height, Math.max(medium.height, pointer), 'a medium option');
+    near(mailMedium.start, medium.padInline + medium.icon + medium.gap, 'a medium label');
+    // A large box opens medium rows: the options' nearest size.
+    near((await drawn('size-large', 'Mail')).height, mailMedium.height, 'a large combobox’s option');
+    near((await drawn('size-large', 'Mail')).icon, medium.icon, 'a large combobox’s glyph');
+    // The size never changes a text style; the check's box and a group's title take the size.
+    expect(mail.font).toBe(mailMedium.font);
+    const titles = part(page, 'size-small', '.group-title');
     near(await px(titles.first(), 'padding-inline-start'), small.title, 'a group title’s inset');
-    // The field's own box is size's, not the density's.
-    near((await box(container(page, 'density-compact'))).height, (await box(container(page, 'density-regular'))).height, 'the field’s box');
-    // An unknown density is drawn as regular, and a debug build says so.
-    near((await drawn('density-odd', 'Mail')).height, mailRegular.height, 'an unknown density');
+    // The box is the box's size: a small combobox's box is lower than a medium one's.
+    expect((await box(container(page, 'size-small'))).height, 'the field’s box').toBeLessThan((await box(container(page, 'size-medium'))).height);
+    // An unknown size is drawn as medium, and a debug build says so.
+    near((await drawn('size-odd', 'Mail')).height, mailMedium.height, 'an unknown size');
     await expect.poll(() => seen.filter((w) => w.includes('CMB-68') && w.includes('"huge"')).length).toBe(1);
-    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    // A size a design system adds to the options is drawn from their tokens, the default's where it has none.
     await rootTokens(page, { [T('option-height-roomy')]: '60px', [T('option-leading-icon-size-roomy')]: '28px' });
-    await expect.poll(async () => (await drawn('density-added', 'Mail')).height).toBeCloseTo(60, 0);
-    near((await drawn('density-added', 'Mail')).icon, 28, 'an added density’s glyph');
+    await expect.poll(async () => (await drawn('size-added', 'Mail')).height).toBeCloseTo(60, 0);
+    near((await drawn('size-added', 'Mail')).icon, 28, 'an added size’s glyph');
     // A change is drawn at once.
-    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
-    await expect.poll(async () => (await drawn('density-regular', 'Mail')).height).toBeCloseTo(mail.height, 0);
-    // CMB-34: for touch a compact option is the touch target — seen under a system whose touch target (48) is taller
-    // than the compact row, as the default system's (36) is not.
+    await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
+    await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mail.height, 0);
+    await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'large'));
+    await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mailMedium.height, 0);
+    // The heights follow the system's density: a small option is the small token at each.
+    for (const density of ['0.75', '1.5', '']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const step = await token(page, 'option-height-small');
+      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 0);
+    }
+    // CMB-34: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
+    // is taller than the small row, as the default system's (36) is not.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '48px' });
+    if (await page.evaluate(() => matchMedia('(pointer: fine)').matches)) await expect.poll(async () => (await drawn('size-small', 'Mail')).height).toBeGreaterThanOrEqual(48 - 0.5);
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '' });
+    // …and for touch the touch target, under a layer whose touch target is 48.
     if (browserName !== 'chromium') return;
     await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
-    await expect.poll(async () => (await drawn('density-compact', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+    await expect.poll(async () => (await drawn('size-small', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
   });
 
   test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
@@ -2803,7 +2814,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     const [glyph, name, check] = [await box(chosen.locator('.option-icon')), await box(chosen.locator('.option-label')), await box(chosen.locator('.check'))];
     expect(glyph.x, 'the glyph at the right of the label').toBeGreaterThanOrEqual(name.x + name.width - 0.6);
     expect(check.x + check.width, 'the check at the left').toBeLessThanOrEqual(name.x + 0.6);
-    near((await box(chosen)).x + (await box(chosen)).width - (glyph.x + glyph.width), await token(page, 'option-padding-inline-regular'), 'logical paddings');
+    near((await box(chosen)).x + (await box(chosen)).width - (glyph.x + glyph.width), await token(page, 'option-padding-inline-medium'), 'logical paddings');
   });
 
   test('CMB-53: the layout direction comes from the nearest ancestor that sets one, and a change of it while the combobox is shown — its list open — is drawn at once, keeping the value, the text, the open state, the active option and focus, the list placed again by the new direction', async ({ page }) => {
@@ -2851,7 +2862,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect(arrow).toHaveText('arrow_forward');
     expect(await arrow.getAttribute('data-tanrei-mirrored'), 'arrow_forward is in the icon set’s list').not.toBeNull();
     expect(await mirrored(arrow)).toBe(true);
-    near((await box(arrow)).width, await token(page, 'option-leading-icon-size-regular'), 'the same box');
+    near((await box(arrow)).width, await token(page, 'option-leading-icon-size-medium'), 'the same box');
     expect(await mirrored(part(page, open, '.row.selected .check'))).toBe(false);
     expect(await mirrored(part(page, open, '.chevron-glyph'))).toBe(false);
     expect(await mirrored(part(page, 'stacked-required-rtl', '.clear-glyph'))).toBe(false);

@@ -262,7 +262,9 @@ test('emphasis is a weight step per family: the four numbers a layer resolves, a
   const { emphasisFamily } = await import('../src/core.js');
   assert.deepEqual(studio.typeEmphasis(blank()), { display: 100, heading: 100, body: 100, label: 100 });
   assert.deepEqual(studio.typeEmphasis(blank('m3-like')), { display: 100, heading: 100, body: 100, label: 200 }, 'Material adds 200 to labels');
-  assert.deepEqual(studio.typeEmphasis(blank('cupertino')), { display: 100, heading: 200, body: 200, label: 200 });
+  // Apple's titles are Regular and their emphasized Large Title, Title 1 and Title 2 are Bold (400 + 300); emphasized
+  // body and label text is Semibold (+200). tokens/systems/cupertino.system.json writes those four steps.
+  assert.deepEqual(studio.typeEmphasis(blank('cupertino')), { display: 300, heading: 300, body: 200, label: 200 }, 'cupertino writes Apple’s steps');
   const heavier = studio.applyOperation(blank(), `${NS}.sys.typescale.emphasis.heading`, { $value: 300, reason: 'Our headings jump a whole class when stressed.' }).layer;
   assert.equal(studio.typeEmphasis(heavier).heading, 300);
   assert.deepEqual(['display', 'heading-1', 'heading-6', 'body-large', 'body', 'body-small', 'label', 'label-small', 'caption', 'code', 'code-small', 'eyebrow', 'body-callout'].map(emphasisFamily), ['display', 'heading', 'heading', 'body', 'body', 'body', 'label', 'label', 'label', 'label', 'label', 'label', 'body']);

@@ -70,7 +70,7 @@ On the web it is `<tanrei-table-of-contents>` around your own nested list of anc
     import { TableOfContents } from '@tanrei/react';
     import '@tanrei/web/table-of-contents.css';
 
-    <TableOfContents label="On this page" density="compact">
+    <TableOfContents label="On this page" size="small">
       <ul>
         {headings.map((heading) => (
           <li key={heading.id}>
@@ -106,8 +106,8 @@ The items are given, not discovered. A page built by a site generator or a frame
 
 ## Specs
 
-<Example label="Compact density, three levels, the third item current">
-  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+<Example label="Small size, three levels, the third item current">
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" size="small" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
         <a href="#tokens-demo">Tokens</a>
@@ -153,14 +153,14 @@ The component fills the width it is given and decides nothing about its place. T
 - which presentation a window gets: set `presentation="compact"` where there is no room beside the text;
 - a scrolling column around a long list. The component then keeps its current row in view inside that column.
 
-### Density
+### Size
 
-| `density` | A row of one line | Use for |
+| `size` | A row of one line | Use for |
 | --- | --- | --- |
-| `regular` (default) | 44, the pointer target | Most pages. |
-| `compact` | 32 | A long list of headings beside the text, in a product used with a pointer. |
+| `medium` (default) | 44, above the pointer target | Most pages. |
+| `small` | 36, the minimum target | A long list of headings beside the text, in a product used with a pointer. |
 
-A compact row is lower than the pointer target. That is acceptable because it is asked for by name and is never the default. For touch a row is the touch target high in both densities. The text style and the indent are the same in both.
+`size` is how tall a row is; it is not the compact form. A row is never lower than the pointer target for a pointer, nor the touch target for touch, at either size: a system that sets either target higher draws its small rows that high. Both heights follow the system's [density](/foundations/size-and-density/). The text style and the indent are the same at both. A table of contents that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does.
 
 ### Which item is current
 

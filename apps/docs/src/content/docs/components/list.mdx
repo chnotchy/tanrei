@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../components/ListReorderProduct.astro';
 
@@ -262,7 +263,7 @@ When the items hold [list rows](/components/list-row/) and only some of the rows
 
 The list decides for all its rows together, in every arrangement and mode. An avatar, a picture or a control in a row's `leading` slot does not count and keeps no room beside it, because its size is yours and differs from row to row. The [menu](/components/menu/), the [tree view](/components/tree-view/) and the [navigation drawer](/components/navigation-drawer/) have the same `iconSpace`, with the same values and default.
 
-`density` sets how much room an item takes: `regular` (the default) or `compact`, for a tool used with a mouse where many items are looked through. In a compact list an action, a link or an option of plain text is 32 high, and every [list row](/components/list-row/) of an item is drawn compact whatever its own `density`, so that the rows of one list are of one density. For touch an item is never lower than the touch target.
+`size` sets how much room an item takes: `medium` (the default) or `small`, for a tool used with a mouse where many items are looked through. In a small list an action, a link or an option of plain text is 36 high in the default system, held at the minimum target. Set the size once on the list: every [list row](/components/list-row/) in it that sets no `size` of its own takes it. A list that sets no size passes none, so its rows keep their own. An item is never lower than the target at either size.
 
 ### Do
 
@@ -277,6 +278,8 @@ The list decides for all its rows together, in every arrangement and mode. An av
 - Don't draw your own drag handle or move buttons: `reorderable` draws the handle, and its menu is the way to move that needs no dragging.
 
 ## Accessibility
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

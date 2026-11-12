@@ -2,13 +2,14 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
+sourceHash: 49cb98ac1ef0c2751e9a2a944d48c0f8fb696349
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
@@ -264,7 +265,7 @@ Cuando los elementos contienen [filas de lista](/es/components/list-row/) y solo
 
 La lista decide por todas sus filas a la vez, en cualquier disposición y modo. Un avatar, una imagen o un control en la ranura `leading` de una fila no cuenta y no guarda espacio a su lado, porque su tamaño lo decides tú y cambia de una fila a otra. El [menú](/es/components/menu/), la [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
 
-`density` fija cuánto espacio ocupa un elemento: `regular` (el valor por defecto) o `compact`, para una herramienta que se usa con el ratón y en la que se recorren muchos elementos. En una lista compacta una acción, un enlace o una opción de texto simple mide 32 de alto, y cada [fila de lista](/es/components/list-row/) de un elemento se dibuja compacta sea cual sea su propio `density`, de modo que las filas de una lista tienen una sola densidad. Con el tacto un elemento nunca es más bajo que el objetivo táctil.
+`size` fija cuánto espacio ocupa un elemento: `medium` (el valor por defecto) o `small`, para una herramienta que se usa con el ratón y en la que se recorren muchos elementos. En una lista `small`, una acción, un enlace o una opción de texto simple mide 36 de alto en el sistema por defecto, porque no baja del objetivo mínimo. Fija el tamaño una sola vez en la lista: cada [fila de lista](/es/components/list-row/) que no fija su propio `size` lo toma. Una lista sin tamaño no pasa ninguno, así que sus filas conservan el suyo. Con ninguno de los dos tamaños un elemento es más bajo que el objetivo.
 
 ### Recomendado
 
@@ -279,6 +280,8 @@ La lista decide por todas sus filas a la vez, en cualquier disposición y modo. 
 - No dibujes tu propio tirador de arrastre ni botones de mover: `reorderable` dibuja el tirador, y su menú es la forma de mover que no necesita arrastrar.
 
 ## Accesibilidad
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

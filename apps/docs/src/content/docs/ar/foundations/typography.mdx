@@ -2,7 +2,7 @@
 title: الطباعة
 description: ستة عشر نمط نص مسمّاة بحسب المستوى (عرض واحد، وستة عناوين، وثلاثة أحجام للمتن، وتسميات، وشيفرة، وعنوان علوي) مكتوبة بخط Inter، والتوكيد فيها درجة وزن لا دور.
 translationOf: foundations/typography.mdx
-sourceHash: f6541882f9778c5b231eb39cda781d02ae19685e
+sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -93,7 +93,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
 
-يضيف Tanrei 100 إلى كل فئة، فيكون `heading-1` المؤكَّد 600 و `body` المؤكَّد 500. ونظام التصميم الذي يؤكِّد بطريقة مختلفة لكل فئة يضبط الأرقام الأربعة: `m3-like` يضيف 200 إلى التسميات، كما تفعل أنماط التسميات المؤكَّدة في Material؛ و `cupertino` يضيف 200 إلى العناوين والمتن والتسميات. فئة الدور هي المقطع الأول من اسمه؛ وتأخذ `caption` و `code` و `code-small` و `eyebrow` درجة التسميات.
+يضيف Tanrei 100 إلى كل فئة، فيكون `heading-1` المؤكَّد 600 و `body` المؤكَّد 500. ونظام التصميم الذي يؤكِّد بطريقة مختلفة لكل فئة يضبط الأرقام الأربعة: `m3-like` يضيف 200 إلى التسميات، كما تفعل أنماط التسميات المؤكَّدة في Material؛ و `cupertino` يضيف 300 إلى العرض والعناوين و 200 إلى المتن والتسميات. فئة الدور هي المقطع الأول من اسمه؛ وتأخذ `caption` و `code` و `code-small` و `eyebrow` درجة التسميات.
 
 تتيح كل منصة المعدِّل نفسه: `emphasized` في واجهة أنماط النص (`.tanreiTextStyle(system.typescale.heading1, emphasized: true)` في SwiftUI، و `typescale.heading1.emphasized()` في Compose، وخارج التركيب `emphasized(system.typescale.emphasis)`، و `theme.textStyle(system.typescale.heading1, emphasized: true)` في Flutter، و `text('heading1', { emphasized: true })` من `useTanrei()` في React Native، و `--tanrei-sys-typescale-<role>-font-weight-emphasized` و `.tanrei-text-emphasized` على الويب). لا توجد أدوار مؤكَّدة تحتاج إلى أسماء، ولا سلّم ثانٍ يحتاج إلى مواكبة.
 
@@ -155,7 +155,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 الإعداد الجاهز الذي يحاكي نظام تصميم آخر يحتفظ بالأسماء الستة عشر ويعطيها قيم ذلك النظام؛ وحيث يكون في مصدره نمط لا يسمّيه الأساس **يوسّع** المفردات بدور خاص به. الأسماء لا تتحرك أبدًا، فالمنتج المبني على `tanrei` ينتقل إلى `m3-like` دون أن يمسّ عنوانًا.
 
 - النظام **`m3-like`** يعطي كل دور قيمة جديدة من السلّم الطباعي في Material Design 3 (يأخذ `heading-1` النمط «headline large» من Material، و `body` النمط «body medium»، و `label` النمط «label large»)، ويضيف `display-large` بحجم 57px و `display-small` بحجم 36px، لأن في Material ثلاثة أحجام عرض والمنتج الواحد يحتاج إلى واحد. ودرجات التوكيد فيه هي درجات Material: 100 للعرض والعناوين والمتن، و 200 للتسميات. تقيس أداة المطابقة كل نمط نص ينشره Material، وهي ثلاثون بما فيها المؤكَّدة، مع أدوار الألوان والمكوّن Button: من 288 رمزًا مقيسًا، 273 مساوية، و 14 مغطاة برمز آخر، و 1 بلا مقابل تحت فجوة محاكاة مسجَّلة، ولا واحد مختلف. ويُعرض ذلك بالصيغة `273 / 274` في [صفحة أنظمة التصميم](/ar/foundations/design-systems/) التي تستثني المغطاة من العدّ. الأرقام مقروءة من `tokens/generated/m3-like/fidelity.json`، وهو ملف يعيد البناء كتابته.
-- النظام **`cupertino`** يعطي كل دور قيمة جديدة من أنماط النص الأحد عشر في iOS لدى Apple، من Large Title نزولًا إلى Caption 2، ويضيف الثلاثة التي لا يسمّيها الأساس: `body-callout` و `body-subhead` و `caption-small`. ودرجات التوكيد فيه 100 للعرض و 200 لما سواه، وهي المسافة بين أنماط Apple العادية والمؤكَّدة.
+- النظام **`cupertino`** يعطي كل دور قيمة جديدة من أنماط النص الأحد عشر في iOS لدى Apple، من Large Title نزولًا إلى Caption 2، ويضيف الثلاثة التي لا يسمّيها الأساس: `body-callout` و `body-subhead` و `caption-small`. وأنماط Large Title و Title 1 إلى 3 فيه Regular كما هي لدى Apple. ودرجات التوكيد فيه 300 للعرض والعناوين و 200 للمتن والتسميات: فأنماط Large Title و Title 1 و Title 2 المؤكَّدة لدى Apple هي Bold، وأنماط المتن المؤكَّدة Semibold. أما Title 3 و Headline فدرجتهما لدى Apple أصغر (كلاهما Semibold حين يؤكَّد)، ولا تستطيع درجة واحدة لكل فئة أن ترسم ذلك.
 
 الدور الذي يضيفه إعداد جاهز رمز عادي على كل منصة: `display-large` في `m3-like` هو `--tanrei-sys-typescale-display-large-font` على الويب، وعضو في السلّم الطباعي في كل حزمة أصلية. وترسمه معاينة Theme Studio في سلّم الخطوط بجوار الستة عشر.
 

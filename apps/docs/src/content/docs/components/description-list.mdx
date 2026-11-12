@@ -117,8 +117,8 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
   </tanrei-description-list>
 </Example>
 
-<Example label="Compact, parted by space: facts a person scans" column>
-  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+<Example label="Small, parted by space: facts a person scans" column>
+  <tanrei-description-list size="small" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>Value</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
       <div><dt>Kind</dt><dd>alias · color</dd></div>
@@ -146,14 +146,14 @@ The list decides everything from its own width, never the window's. The same lis
 - **An inline list is one column.** `columns` has no effect on it.
 - **Nothing is cut.** Values wrap. An identifier or an address that cannot break is broken at the column's edge. The list never scrolls sideways.
 
-### Density
+### Size
 
-| `density` | Term and value | Between facts | Use for |
+| `size` | Term and value | Between facts | Use for |
 | --- | --- | --- | --- |
-| `regular` (default) | 14 on a line height of 20, and 14 on 22 | 12; with a line, 12 on each side of it | Facts a person reads: a page, a card, a dialog. |
-| `compact` | 12 on 16, and 13 on 20 | 6; with a line, 6 on each side of it | Facts a person scans: a side panel, an inspector. |
+| `medium` (default) | 14 on a line height of 20, and 14 on 22 | 12; with a line, 12 on each side of it | Facts a person reads: a page, a card, a dialog. |
+| `small` | 12 on 16, and 13 on 20 | 6; with a line, 6 on each side of it | Facts a person scans: a side panel, an inspector. |
 
-The stat figure is 32 on 40 at `regular` and 20 on 28 at `compact`.
+The stat figure is 32 on 40 at `medium` and 20 on 28 at `small`. The space between facts follows the system's [density](/foundations/size-and-density/) at both sizes. A list that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does. It passes no size to what its values hold: a tag or a button in a value has its own.
 
 ### Telling facts apart
 
@@ -185,13 +185,13 @@ There is no line above the first row, below the last, between two columns or bet
 
 ### What the component handles
 
-- The native list stays a description list: terms and their definitions are the browser's own, in every layout, at either density, with or without lines.
+- The native list stays a description list: terms and their definitions are the browser's own, in every layout, at either size, with or without lines.
 - The order that is read never changes. The stat layout draws the figure above its label and still exposes the term first.
 - Nothing in the list takes focus or input. A link or a button inside a value keeps its own target and its place in the focus order.
 - At 200% text and in a 320 wide window the same width rules stack the list and reduce its columns. The least width grows with the text.
 - In a right-to-left layout the term column is at the right and columns fill from the right. Each term and value keeps its own direction, so a version, an address and an amount are never reversed.
 - In forced colors the lines and the text are the text color. The list has no fill to lose.
-- A value with no term, `columns` on an inline list, a number of columns that is not whole, the stat layout or columns on a list without groups, and an unknown layout, density or separation are reported in debug builds.
+- A value with no term, `columns` on an inline list, a number of columns that is not whole, the stat layout or columns on a list without groups, and an unknown layout, size or separation are reported in debug builds.
 
 ### What you need to do
 

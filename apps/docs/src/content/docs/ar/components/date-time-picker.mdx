@@ -2,13 +2,14 @@
 title: DateTimePicker
 description: يتيح للشخص أن يختار تاريخًا أو وقتًا أو تاريخًا ووقتًا، أو مدى من أي منها، من تقويم ومن عجلات للوقت أو قرص ساعة، في مربع حوار أو في سطح ينسدل من حقل.
 translationOf: components/date-time-picker.mdx
-sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
+sourceHash: 7f0394b12f3f4abdb141a87576cde62cf2aac770
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -272,6 +273,8 @@ export const words = {
 - لا تستخدم خاصية HTML `inline` الخاصة بالويب في منتج. فهي ترسم السطح بلا سلوك التراكب.
 
 ## إمكانية الوصول
+
+<FocusOrder name="date-time-picker" fixture="docked-date" />
 
 <ComponentAccessibility name="date-time-picker" />
 

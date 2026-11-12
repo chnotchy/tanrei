@@ -25,7 +25,7 @@ import '@tanrei/web/shape.css';    // optional: corner smoothing on your own box
 
 Those specifiers are the package's `exports`, resolved by a bundler. A browser does not resolve a bare specifier in
 `<link href>` or `<script src>`: without a bundler, serve `node_modules/@tanrei/web/dist/` and reference the files
-by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`,
+by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/app-bar.css`,
 `dist/systems/<id>.css`, and `dist/tanrei.bundle.js`, a self-contained ES module (Lit included) that registers every
 element:
 
@@ -2491,6 +2491,59 @@ Limits: the web cannot tell a glyph name the icon set lacks from a font still lo
 name in place of `star` and is not reported (RAT-18's last clause). `aria-*` the product writes on the host do not
 reach the element with the role.
 
+## `<tanrei-size-transition>`
+
+A box whose size follows its content as one motion, the edge it is anchored to still (`specs/size-transition.spec.json`,
+SZT-1…13).
+
+```html
+<tanrei-size-transition>
+  <p>A reply that grows by a line moves what follows it, instead of pushing it down at once.</p>
+</tanrei-size-transition>
+<tanrei-size-transition axis="inline"><span>Saved</span></tanrei-size-transition>
+<tanrei-size-transition anchor="end">…</tanrei-size-transition>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `axis` | `block` \| `inline` \| `both` | `block` | which size follows the content; `inline` and `both` make the host an inline block; reflected |
+| `anchor` | `start` \| `end` \| `center` | `start` | the edge that stays still (mirrored right to left on the inline axis); reflected |
+| `duration` | number \| null | `null` | ms for every distance, 0 at once; null grows with the distance (SZT-3). The attribute is parsed as the tooltip's delays are |
+| `disabled` | boolean | `false` | follows the content at once (SZT-8); reflected |
+
+Event: `settle` — a `CustomEvent<{ width, height }>` that does not bubble, once per change, after its last frame
+(SZT-11). The host carries `data-resizing` while it moves.
+
+**It is the public form of `AnimatedSize`** (`src/primitives/motion.ts`). The shadow root holds `.box` and, in it,
+`.content` around the slot. A change is seen two ways. A change of the product's markup in it (a `MutationObserver` of
+its light DOM: child lists and text) moves the box in the task that made it, so `startFromNextFrame()` holds the motion
+for the next frame drawn, as every other `AnimatedSize` does. Any other change — a component inside that changes its own
+size, an image or a face that loads, a style — is seen by a `ResizeObserver` of `.content` after layout and before the
+frame is painted; the box is set back to the size the last frame drew (the content's previous report, given to
+`fit()`: engines do not agree on which of two resize observers reports first, so the box's own report may already be
+this frame's) and moves from there. The resize observer's next report of a size the markup's change already went to
+is left alone.
+
+**The anchor is layout, not a translation.** `.box` is a flex container (a column on the block axis, a row on the
+inline axis and with both) whose `justify-content` (and, with both, `align-items`) is the anchor's edge, so `.content`
+is laid out at its own size and overflows the edge that moves; justification follows the direction. `AnimatedSize`
+is given `anchor: 'start'` and moves nothing itself. `.content` keeps its width while the box moves on the inline axis
+(`flex-shrink: 0` under `.box[data-resizing]`), so its lines are laid out once.
+
+**Time** (SZT-3): `AnimatedSize` asks for the duration with the distance it covers (the largest of the sizes' changes,
+from the size shown); `durationFor()` reads `motion.duration`, `motion.duration-step` and `motion.duration-max` as the
+computed transition durations of `.timing`, a `display: none` span, and `motion.distance-step` as its inline size.
+
+**At once** (SZT-6 to SZT-9): a change of the window's size (its `resize` event, in the same frame), of the box's
+width on the block axis, of its font size or of its direction; while a size transition in its light DOM carries
+`data-resizing` (it follows that one at every frame, and settles after it — heard on the inner one's way down, then
+emitted after its listeners); `disabled`; reduced motion; a hidden document; and a report of a size of 0 × 0 (not drawn),
+after which the next report is a first frame again.
+
+Limits: a size transition inside another component's shadow root, inside this one, is not seen as one to follow; a
+change of the room the layout gives an inline box other than the window's (a pane that narrows) is moved, not taken at
+once.
+
 ## `<tanrei-select>`, `<tanrei-option>` and `<tanrei-option-group>`
 
 One value chosen from a closed list: a trigger that looks and measures like a text input's box and shows the chosen
@@ -4939,7 +4992,7 @@ controls (no role, focus or press of their own; the item stays `menuitemcheckbox
 filled in it with the icon set's check at `control.mark.size` and `control.mark.weight` (the checkbox's own weight, CHK-12; the check of the glyph look keeps `sys.icon.weight`) in the `control-mark` color — and a ring of
 `control.ring.size`, stroked at `control.ring.width`, or — checked — at `control.ring.selected-width-share` of its
 radius with its inside filled at `control.fill.opacity`. Both are drawn in both conditions and change over the state
-motion without moving. A **glyph mark** is drawn at the mark size of the menu's density (`--tanrei-comp-menu-mark-size-regular`, `-compact`), in the selected family and fill, in
+motion without moving. A **glyph mark** is drawn at the mark size of the menu's size (`--tanrei-comp-menu-mark-size-medium`, `-small`), in the selected family and fill, in
 the mark color; the check is never mirrored, a named glyph by the icon set's list; the
 menu draws no mark of its own. A change of `checked` fades it in or out over the state motion (at once under reduced
 motion), without moving or scaling it — also during a Space's press-hold — and while the item is not checked nothing is
@@ -8900,7 +8953,7 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/table.css" />
-<tanrei-table density="compact" striped row-headers sticky-first-column>
+<tanrei-table size="small" striped row-headers sticky-first-column>
   <table>
     <caption>Visits by region</caption>
     <thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">January</th></tr></thead>
@@ -8912,7 +8965,7 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 | Attribute | Values | Default | |
 |---|---|---|---|
-| `density` | `regular` \| `compact` (open) | `regular` | a row of one line is 46 or 32 in the default system; a row has no height of its own; reflected |
+| `size` | `small` \| `medium` (open) | the size its nearest container sets, else `medium` | a row of one line is 46 or 32 in the default system, and a row that holds a control at least the target (36); a row has no height of its own; reflected only where set; without script a table is drawn at the size it sets, or at medium |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | a hairline between rows, or `comp.table.row.gap` of space and no line; `auto` is `comp.table.separation`, which follows `sys.behavior.separation`; reflected |
 | `striped` | boolean | `false` | every second body row that is shown is filled with `comp.table.stripe.container.color` |
 | `row-headers` (`rowHeaders`) | boolean | `false` | the first column names its rows: write its cells as `<th scope="row">`. Where they are plain `<td>` (rendered Markdown) they are drawn as row headers and the element gives them `role="rowheader"` |
@@ -8991,8 +9044,8 @@ Keyboard focus stays on the button through the press, and comes back to the butt
 replaced the header row with the rows. One column at a time is sorted (a second is drawn as given and reported in a
 debug build); a header cell with `aria-sort` and no button is a plain header — do not write the attribute there; a
 button without text is not drawn (and is reported). A header row with a sort button is at least `sys.target.pointer`
-high at the regular density, as high as a compact header row at the compact one, and `sys.target.touch` high for a
-coarse pointer at both.
+high for a fine pointer and `sys.target.touch` high for a coarse one, at both sizes: a small header row that sorts is
+36 high in the default system where one that sorts nothing is 32.
 
 **A table ordered by the server** holds an anchor in place of the button — `<a href="?sort=price&order=asc">Price</a>`,
 to the same table in the other order — which works without script. `sort` is then emitted before the browser follows
@@ -9115,8 +9168,8 @@ reports once per table. The element also writes `label-hidden` on a `<tanrei-che
 **It is still a table.** No role is replaced, no row gets a selected state, and no key moves focus from cell to cell:
 each checkbox is a Tab stop of its own, after the header's controls, row by row, and says by its checked state that
 its row is chosen. That is also what is left in forced colors, where the fill is gone. A row that holds a checkbox is
-at least `sys.target.pointer` high at the regular density, as high as a compact row at the compact one, and
-`sys.target.touch` high — its selection cell that wide — for a coarse pointer at both. Keyboard focus stays on a
+at least `sys.target.pointer` high for a fine pointer, and `sys.target.touch` high — its selection cell that wide —
+for a coarse pointer, at both sizes: a small row that holds one is 36 high in the default system. Keyboard focus stays on a
 checkbox through a change of rows (the checkbox of the row with the same `data-value` takes it), and a checkbox that
 takes focus under a header row or a status line kept in view is brought out from under it.
 
@@ -9168,9 +9221,9 @@ Good to know about these:
 - **`selectionchange` is also the browser's name** for a change of the text selection, and that event bubbles from a
   text field: a text field in a cell sends one through the table. The table's is a `CustomEvent` with `detail.values`;
   the browser's is a plain `Event`. Tell them apart as above.
-- **The Checkbox's container is taller than a compact row** (40 in a row of 32 in the default system): what it draws
+- **The Checkbox's container is taller than a small row** (40 in a row of 36 in the default system): what it draws
   beyond its row — the round state layer under the pointer — is cut at the row's edges. Its focus indicator is around
-  the box and inside the row at both densities.
+  the box and inside the row at both sizes.
 - **A tonal tag and tonal inline code lose their own fill on a chosen row in the default system**: their containers
   are within 1.15:1 of `secondary-container` in all six schemes. Their text keeps its contrast; a tag in a table whose rows are chosen reads best
   outlined.
@@ -9209,10 +9262,13 @@ Good to know:
 - **A browser without style container queries** draws the separation the tokens name when the element reads the
   table (it writes `data-separation` on the `<table>`); a system switched later is seen at its next reading. The
   attribute `separation` is exact everywhere.
-- **A density a design system adds** gets its rules from the element, falling back to `regular`'s tokens;
-  without script it is drawn as `regular`.
+- **A size taken from a container** (TBL-62) is drawn once the element is defined: it carries the size it draws as
+  the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script a table is
+  drawn at the size it sets, or at `medium`. The table passes no size to what its cells hold.
+- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens;
+  without script it is drawn as `medium`.
 - **The rules the element writes are in no cascade layer** — a column's alignment and wrapping by position, the cells
-  after the last column, an added density — so that they win over a copy of the stylesheet you load into a layer of
+  after the last column, an added size — so that they win over a copy of the stylesheet you load into a layer of
   your own (a later layer wins whatever the rules are, and the copy says `text-align: start` of every cell). Unlayered
   CSS of yours still wins by one class.
 - **What the element writes, it writes once, and every table of a page together.** Its attributes (`data-columns`,
@@ -9256,7 +9312,7 @@ script. The element adds the same sheet to the root it is connected to.
 |---|---|---|---|
 | `layout` | `inline` \| `stacked` \| `stat` | `inline` | the term beside its value in a column all terms share; the term above its value; the first value first, as a figure, with the term under it. Any other value is `inline` and is reported; reflected |
 | `columns` | a whole number | `1` | the most columns of facts in `stacked` and `stat`: each is at least `comp.description-list.column.min-width` wide, so the list draws fewer when narrow, and never more than it has facts. `inline` is one column. Reflected |
-| `density` | `regular` \| `compact` (open) | `regular` | the text styles and the space between facts; reflected |
+| `size` | `small` \| `medium` (open) | the size its nearest container sets, else `medium` | the text styles and the space between facts; reflected only when set on the list; without script a list is drawn at the size it sets, or at medium |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | one hairline between a fact and the fact below it, or `fact.gap` of space and no line; `auto` is `comp.description-list.separation`, which follows `sys.behavior.separation`; reflected |
 
 A **fact** is a `<div>` around one `<dt>` and its `<dd>`s. A term and a value hold text or any element of yours; a
@@ -9277,7 +9333,7 @@ there is written in the next frame. One observer of sizes and one of changes per
 Good to know:
 
 - **Without script** an inline list that is too narrow wraps its terms beside its values, which keep the least width;
-  nothing is cut. Everything else — the term column, columns of facts, the stat layout, lines, densities — is the
+  nothing is cut. Everything else — the term column, columns of facts, the stat layout, lines, the size set on it — is the
   stylesheet's, and defining the element moves nothing.
 - **The list is a size container** (`container-type: inline-size`), so it takes its width from its layout, never from
   its facts: in a parent that shrinks to its content, give the element a width.
@@ -9293,7 +9349,8 @@ Good to know:
   (`data-separation` on the `<dl>`); a system switched later is seen at its next reading. The attribute `separation`
   is exact everywhere.
 - **`columns` above 6** gets its rule from the element; without script such a list draws one column.
-- **A density a design system adds** gets its rules from the element, falling back to `regular`'s tokens.
+- **A size taken from a container** (DSL-25) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. A list passes no size to what its values hold.
+- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens.
 - **In prose** the element is an island (PRS-16): prose spaces it as a block and styles nothing inside it, while a
   bare `<dl>` beside it stays prose's reading form (PRS-13). Nothing turns the one into the other.
 - An empty `<dl>` is not drawn and not exposed (`display: none`). A fact with no `<dd>` keeps one line of the value's
@@ -9400,7 +9457,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 <link rel="stylesheet" href="@tanrei/web/icons.css" />
 <link rel="stylesheet" href="@tanrei/web/accordion.css" />
 
-<tanrei-accordion variant="outlined" density="compact" separation="gap" exclusive>
+<tanrei-accordion variant="outlined" size="small" separation="gap" exclusive>
   <details open>
     <summary>
       <span class="tanrei-icon" aria-hidden="true">palette</span>
@@ -9423,7 +9480,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 
 | Spec | Web |
 | --- | --- |
-| `variant`, `density`, `separation`, `exclusive` | attributes (and properties) of `<tanrei-accordion>` |
+| `variant`, `size`, `separation`, `exclusive` | attributes (and properties) of `<tanrei-accordion>` |
 | an item | a `<details>` child; `open` is its own attribute and property |
 | `label` | the text of its `<summary>` |
 | the label slot | ONE element in the text's place: a heading, or a `<span>` around text with inline content |
@@ -9432,7 +9489,7 @@ Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 
 | `disabled` | `<summary aria-disabled="true" tabindex="-1">` |
 | `toggle` | the item's own `toggle` (it does not bubble; `event.newState`) |
 
-**What the stylesheet draws alone**, before the element is defined and without script: both looks, both densities, each separation, every part of a header, hover, the focus ring, a press (the overlay, held for press-hold), the disabled look, forced colors, right to left, and — in a browser that can move a height to `auto` in CSS (`calc-size()`) — the height motion. Nothing moves when the element is defined.
+**What the stylesheet draws alone**, before the element is defined and without script: both looks, both sizes set on it, each separation, every part of a header, hover, the focus ring, a press (the overlay, held for press-hold), the disabled look, forced colors, right to left, and — in a browser that can move a height to `auto` in CSS (`calc-size()`) — the height motion. Nothing moves when the element is defined.
 
 **What the script adds**: the system's answer to a press (`data-pressed`: overlay, ripple, dim, none); the arrow keys; `exclusive`, as a `name` of the accordion's own on its items (a `name` you wrote is left alone); the height motion where the browser cannot move a height to `auto`; the pressed header kept in place while an item above it closes; focus given to the header when its item closes around it; the supporting and the trailing text as the header's description instead of part of its name (`aria-describedby`, with the two parts hidden from the name) and `dir="auto"` on each; `tabindex="-1"` on a disabled summary that lacks it, and a disabled summary's click refused; the debug reports.
 
@@ -9446,17 +9503,18 @@ How it is built, and what follows from it:
 - **Find-in-page and fragment links** are the browser's too: a link to a place inside a closed item opens it in Chromium, Firefox and WebKit, and the element draws that change at once. A match of the browser's own search opens the item where the engine reveals a details element for it; that reveal cannot be told from any other change of `open`, so it moves as one.
 - **A heading in a summary** keeps its role and its level in the document. What a screen reader does with a heading inside a button differs; see the docs page.
 - **A label of bare text takes the layout direction.** A stylesheet cannot give a text node a direction of its own: wrap a label that may be written in the other direction in a `<span>`.
-- **A density or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
+- **A size taken from a container** (ACC-37) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script an accordion is drawn at the size it sets, or at medium.
+- **A size or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
 - **Without `::details-content`** an item opens and closes at once, inset by the item's own padding.
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)
 
-The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`, TOC-1 to TOC-40). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
+The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`, TOC-1 to TOC-42). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
 
-<tanrei-table-of-contents label="On this page" density="compact">
+<tanrei-table-of-contents label="On this page" size="small">
   <ul>
     <li><a href="#top">Overview</a></li>
     <li><a href="#install">Install</a>
@@ -9471,7 +9529,7 @@ The headings of the page being read as links to them, the one being read marked,
 
 | Spec | Web |
 | --- | --- |
-| `label`, `labelHidden`, `presentation`, `density`, `open`, `current`, `tracking` | attributes `label`, `label-hidden`, `presentation` (`list`, `compact`), `density` (`regular`, `compact`), `open`, `current`, `tracking` (`auto`, `manual`), and properties |
+| `label`, `labelHidden`, `presentation`, `size`, `open`, `current`, `tracking` | attributes `label`, `label-hidden`, `presentation` (`list`, `compact`), `size` (`small`, `medium`; without it, the size its nearest container sets), `open`, `current`, `tracking` (`auto`, `manual`), and properties |
 | an item | an `<li>` whose first child is its `<a href>`; the label is the anchor's text |
 | an item's own items | a `<ul>` after the anchor, inside the same `<li>` |
 | the `title` slot | a child with `slot="title"`: a heading of the level your outline needs |
@@ -9480,7 +9538,7 @@ The headings of the page being read as links to them, the one being read marked,
 | `select` | `select`, `detail.href`; cancelable, and cancelling it cancels the anchor's click |
 | `toggle` | `toggle`, `detail.open` |
 
-**What the stylesheet draws alone**, before the element is defined and without script: the title (from the `label` attribute), the rows of both densities, the indent of every level, the rail, an item you marked `aria-current` yourself with its marker and heavier label, hover, the focus ring, a press (the overlay, held for press-hold), forced colors and right to left. The list presentation does not move when the element is defined. The compact presentation shows its whole list until then (there is no row yet): a layout that must not show that for a moment hides `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
+**What the stylesheet draws alone**, before the element is defined and without script: the title (from the `label` attribute), the rows of both sizes set on it, the indent of every level, the rail, an item you marked `aria-current` yourself with its marker and heavier label, hover, the focus ring, a press (the overlay, held for press-hold), forced colors and right to left. The list presentation does not move when the element is defined. The compact presentation shows its whole list until then (there is no row yet): a layout that must not show that for a moment hides `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
 
 **What the script adds**: which item is current; the landmark, and the list role on your lists; the compact form; the system's answer to a press (`data-pressed`: overlay, ripple, dim, none); the row kept as high for its label at the current item's weight as at its own (`data-tanrei-label` on each `<li>`); each label's own direction (`dir="auto"` on an anchor whose label has a letter); the debug reports.
 
@@ -9506,7 +9564,8 @@ How it is built, and what follows from it:
 - **`display`** of the element is the stylesheet's (`block`, and a flex column in the compact presentation once defined): what the document says of an element wins over what its shadow root says.
 - **The compact form's height** is its layout's: give the element a `max-block-size` (or hold it in a flex or grid track) and the list scrolls inside while the row stays.
 - **`select` and focus in the compact form.** The list closes after the browser has taken the navigation, and nothing is focused: the next Tab continues from the chosen heading, as after any link to a place on the page.
-- **A density a design system adds** gets its rules from the element, read from that density's tokens with the default's as fallbacks.
+- **A size taken from a container** (TOC-42) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which table-of-contents.css matches beside the `size` attribute.
+- **A size a design system adds** gets its rules from the element, read from that size's tokens with the default's as fallbacks.
 - **Inside a shadow root** the element adds the stylesheet to that root. Targets are looked up in the document.
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
@@ -10072,7 +10131,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 ```html
 <link rel="stylesheet" href="@tanrei/web/icons.css" />
 <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
-<tanrei-tree-view label="Project files" selection="single" value="src/index.ts" density="compact" guides>
+<tanrei-tree-view label="Project files" selection="single" value="src/index.ts" size="small" guides>
   <ul>
     <li data-value="src" data-open>
       <span>
@@ -10096,7 +10155,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 | `selection` | `none` \| `single` \| `multiple` | `none` | whether items are chosen |
 | `value` | text \| `null` | `null` | the chosen item's `data-value` (single); set by the tree at a choice, with `change` |
 | `values` | a JSON array (attribute), `string[]` (property) | `[]` | the chosen items' values (multiple) |
-| `density` | `regular` \| `compact` (a design system may add values) | `regular` | 48 rows with the body text, or 32 rows with the small one |
+| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium |
 | `guides` | boolean | off | a hairline down from each open parent beside the rows it holds |
 | `loading-label` / `loadingLabel` | text | `''` | the words of a loading row |
 
@@ -10501,7 +10560,7 @@ and without the stylesheet it is the browser's numbered list of dated paragraphs
     <p>The token pipeline, the spec schema and the first spec exist.</p>
   </li>
 </ol>
-<ol class="tanrei-timeline" role="list" data-size="large" data-density="compact" aria-label="Roadmap">
+<ol class="tanrei-timeline" role="list" data-size="large" aria-label="Roadmap">
   <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 1</p><h3>Controls</h3></li>
   <li data-status="current" data-status-label="In progress">…</li>
   <li data-status="upcoming" data-status-label="Not started">…</li>
@@ -10513,7 +10572,6 @@ and without the stylesheet it is the browser's numbered list of dated paragraphs
 |---|---|
 | `label` | `aria-label`, or `aria-labelledby` naming the heading before it. |
 | `size: large` | `data-size="large"`. An unknown value is the default. |
-| `density: compact` | `data-density="compact"`. An unknown value is the default. |
 | an event | `<li>`. |
 | `time`, `datetime` | `<time class="tanrei-timeline-time" datetime="…">` with the words you write as its text; a `<p class="tanrei-timeline-time">` where the time is not a moment ("Wave 1"). Nothing formats, translates or updates it. |
 | `title` | an element with `class="tanrei-timeline-title"` (a `<p>`). |
@@ -10551,7 +10609,7 @@ item is the event's body; write its text in elements (`<p>`).
 What the stylesheet alone cannot do:
 
 - **The current item** is the script's: without it no item carries `aria-current`, and the words still say it.
-- **A size or a density a design system adds** is known to the script by its tokens and is not reported,
+- **A size a design system adds** is known to the script by its tokens and is not reported,
   but a stylesheet cannot read a token whose name comes from an attribute: it is drawn as the default until the layer
   ships its own rule (`.tanrei-timeline[data-size='small'] { --_timeline-marker: … }` is private today).
 - **The check of a done event** needs `icons.css` and the icon face. Without the stylesheet the ring is empty, as an

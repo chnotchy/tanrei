@@ -775,8 +775,12 @@ export interface AnimatedSizeOptions {
   axis?: SizeAxis;
   /** Default `auto`. */
   anchor?: () => SizeAnchor;
-  /** The duration and the curve, as CSS values: by default `sys.motion.role.resize.default` and `sys.motion.easing.spatial`. */
-  duration?: string;
+  /**
+   * The duration and the curve, as CSS values: by default `sys.motion.role.resize.default` and `sys.motion.easing.spatial`.
+   * The duration may be a function of the distance the motion covers — the largest of its sizes' changes, in CSS pixels,
+   * from the size shown — for a time that grows with the distance (the size transition, SZT-3).
+   */
+  duration?: string | ((distance: number) => string);
   easing?: string;
   /** A change is made at once while this answers true (a pointer held down in the text, ETI-9). */
   still?: () => boolean;
@@ -880,15 +884,18 @@ export class AnimatedSize implements ReactiveController {
   /**
    * Fits the box to its content, after the content changed. With `animate`, the size moves from the one shown — the
    * size the last frame drew, or where a motion under way has got to — to the natural one, as one motion. Without it,
-   * or where a change is made at once, the box is its natural size now.
+   * or where a change is made at once, the box is its natural size now. `drawn`: the size the last frame drew, in CSS
+   * pixels, where the caller knows it and the box's own report may already be this frame's (a caller that hears the
+   * change from a resize observer of the content: engines do not agree on which observer reports first).
    */
-  fit(animate = true): void {
+  fit(animate = true, drawn?: { inline: number; block: number }): void {
     const box = this.options.box();
     if (!box) return;
     const run = ++this.run;
     const axis = this.options.axis ?? 'block';
     // The size shown: where the motion under way has got to, or what the last frame drew…
-    const shown = this.resizing ? this.sizes(box) : this.drawn(box);
+    const told = drawn && Object.fromEntries(SIZE[axis].map((property) => [property, `${property === 'block-size' ? drawn.block : drawn.inline}px`]));
+    const shown = this.resizing ? this.sizes(box) : (told ?? this.drawn(box));
     // …and the natural one, with the motion stopped (it would hold the box at its value otherwise).
     this.stop(box);
     if (!animate || !shown || this.options.still?.() || motionReduced() || !box.isConnected) return;
@@ -916,7 +923,9 @@ export class AnimatedSize implements ReactiveController {
     if (content && shift) content.style.setProperty('translate', `${shift[0]}px ${shift[1]}px`);
     void getComputedStyle(content ?? box).getPropertyValue('translate');
     // …to the end size, as one motion, the content (where it is held at the end) on the same curve.
-    const duration = this.options.duration ?? 'var(--tanrei-sys-motion-role-resize-default)';
+    const given = this.options.duration;
+    const duration =
+      typeof given === 'function' ? given(Math.max(...moves.map((property) => Math.abs(px(shown[property]) - px(end[property]))))) : (given ?? 'var(--tanrei-sys-motion-role-resize-default)');
     const easing = this.options.easing ?? 'var(--tanrei-sys-motion-easing-spatial)';
     const timing = (element: HTMLElement, properties: string) => {
       element.style.setProperty('transition-property', properties);

@@ -12,6 +12,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -373,12 +374,21 @@ test.describe('states, press and focus', () => {
       expect(hit, id).toBeCloseTo(Math.max(box.height + gap, pointer), 1);
       const at = (x: number, y: number) => page.evaluate(([xx, yy]) => document.elementFromPoint(xx, yy)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [x, y]);
       expect(await at(box.x + 2, box.y + 2), id).toBe('sent');
-      // To the resize handle's band at the end edge, which takes half a pointer target of the drawer (NVD-96).
-      expect(await at(box.x + box.width - pointer / 2 - 2, box.y + box.height - 2), id).toBe('sent');
+      // To the drawer's end edge: the resize handle's band lies wholly beside it (NVD-96).
+      expect(await at(box.x + box.width - 1, box.y + box.height - 2), id).toBe('sent');
       expect(await at(box.x + 2, box.y + box.height + 2), id).toBe('drafts');
-      await page.mouse.move(box.x + box.width - pointer / 2 - 3, box.y + 2);
+      await page.mouse.move(box.x + box.width - 1, box.y + 2);
       await expect.poll(() => css(item(page, id, 1).locator('.indicator'), 'background-color'), id).toBe(await resolveColor(page, T(`${id === 'c' ? 'collapsed-' : ''}unselected-hovered-item-container-color`)));
     }
+    // A press on a row's last pixel chooses the row, in both forms.
+    await wire(page);
+    for (const id of ['r', 'c']) {
+      await drawer(page, id).scrollIntoViewIfNeeded();
+      const last = await bounds(cell(page, id, 2));
+      await page.mouse.click(last.x + last.width - 1, last.y + last.height / 2);
+      expect(await drawer(page, id).evaluate((el: any) => el.value), id).toBe('drafts');
+    }
+    expect(await log(page)).toEqual(['change:drafts:drafts', 'change:drafts:drafts']);
     // A system whose cells and gap give less still reaches the target.
     await override(page, { [T('item-container-height-regular')]: '20px', [T('container-gap-regular')]: '0px' });
     expect(await cell(page, 'r', 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBe(pointer);
@@ -1841,6 +1851,41 @@ test.describe('forms and focus', () => {
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = true; }', rows, 'the collapsible drawer opened');
     await motionEnded(page);
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = false; }', rows, 'the collapsible drawer closed');
+  });
+
+  test('NVD-22: closed at the end of a task that outlasts its motions, a modal drawer slides out and the opener outside it takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the opener focus went back to would be drawn at its end at once.
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="menu">Menu</tanrei-button>'));
+    // Settled first (MOT-3): focus given to it while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, page.locator('#menu'));
+    await drawer(page, 'm').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    expect(await activeValue(page)).toBe('inbox');
+    await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = false; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
+  });
+
+  test('NVD-18, NVD-28: opened, and closed with focus inside, at the end of a task that outlasts its motions, a standard drawer slides in and out and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
+    // motions last, the drawer was drawn in place or gone, and what focus went to drawn focused, at once.
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="menu">Menu</tanrei-button>'));
+    // Settled first (MOT-3): focus given to it while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, page.locator('#menu'));
+    // Its focus motion over first: the opening's blur begins one of its own.
+    await motionEnded(page);
+    const motions = [' tanrei-navigation-drawer width', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'];
+    await expectFromNextFrame(drawer(page, 's'), '(el) => { el.open = true; }', motions, 'the standard drawer opened');
+    await motionEnded(page);
+    expect(await activeValue(page)).toBe('inbox');
+    await expectFromNextFrame(drawer(page, 's'), '(el) => { el.open = false; }', motions, 'the standard drawer closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
   });
 
   test('NVD-18: a standard drawer takes its form’s width while open and none while closed — hidden from assistive technology and focus — sliding over the enter and exit motion, at once where motion is reduced; no scrim, no close, no trap', async ({ page }) => {
@@ -3478,18 +3523,17 @@ test.describe('groups that are destinations', () => {
     const startOfHit = p.x + p.width - hit.width;
     const y = c.y + c.height / 2;
     expect(await at(page, startOfHit + 1, y)).toBe('toggle');
-    // To the resize handle's band, which takes the last half of a target of the drawer's width (NVD-96)…
-    expect(await at(page, p.x + p.width - target / 2 - 1, y)).toBe('toggle');
-    // …where a press is the handle's.
-    expect(await at(page, p.x + p.width - 1, y)).toBe('div');
-    expect(await page.evaluate(([xx, yy]) => document.elementFromPoint(xx!, yy!)?.shadowRoot?.elementFromPoint(xx!, yy!)?.localName, [p.x + p.width - 1, y])).toBe('tanrei-handle');
+    // To the drawer's end edge: the resize handle's band lies wholly beside it (NVD-96), and takes the press past it.
+    expect(await at(page, p.x + p.width - 1, y)).toBe('toggle');
+    expect(await page.evaluate(([xx, yy]) => document.elementFromPoint(xx!, yy!)?.shadowRoot?.elementFromPoint(xx!, yy!)?.localName, [p.x + p.width + 1, y])).toBe('tanrei-handle');
     expect(await at(page, startOfHit - 1, y)).toBe('row');
     // The chevron's box covers the chevron.
     const chevron = await bounds(group(page, id, 1).locator('.chevron').first());
     const box = await bounds(toggle(page, id, 1));
     expect(box.x).toBeLessThanOrEqual(chevron.x);
     expect(box.x + box.width).toBeGreaterThanOrEqual(chevron.x + chevron.width);
-    await page.mouse.click(p.x + p.width - target / 2 - 4, y);
+    // The whole target is the chevron's, to the drawer's last pixel.
+    await page.mouse.click(p.x + p.width - 1, y);
     expect(await log(page)).toEqual(['toggle:Components:false:false']);
     await page.mouse.click(startOfHit - 2, y);
     expect(await log(page)).toEqual(['toggle:Components:false:false', 'reselect:components:components']);
@@ -4423,11 +4467,11 @@ const listenResize = (page: P) =>
   });
 const resizeLog = (page: P): Promise<string[]> => page.evaluate(() => (window as any).resizeLog);
 const clearResizeLog = (page: P) => page.evaluate(() => ((window as any).resizeLog.length = 0));
-/** Where a press on the edge is taken: the edge's x, at a height from the drawer's top. */
+/** Where a press on the edge is taken: the first pixel past the edge (the handle's target lies wholly beside the drawer), at a height from the drawer's top. */
 const edgeAt = async (page: P, id: string, fromTop = 300) => {
   const box = await bounds(drawer(page, id));
   const rtl = await drawer(page, id).evaluate((el) => getComputedStyle(el).direction === 'rtl');
-  return { x: rtl ? box.x : box.x + box.width, y: box.y + fromTop };
+  return { x: rtl ? box.x - 1 : box.x + box.width, y: box.y + fromTop };
 };
 /** A drag on the edge: pressed at `fromTop`, moved by each of `steps` (inline distances from the press), released. Returns the width drawn after each move. */
 const dragEdge = async (page: P, id: string, steps: number[], { fromTop = 300, release = true } = {}) => {
@@ -4447,7 +4491,7 @@ const SIDE = [d('inbox', 'Inbox', 'inbox', { trailingText: '24' }), d('sent', 'S
 const wide = (page: P) => page.setViewportSize({ width: 1280, height: 1800 });
 
 test.describe('resizable', () => {
-  test('NVD-96: a standard drawer that is open, expanded or collapsed, has a Handle with axis horizontal, size medium and reach edge on its end edge, its box at the middle of the edge; a modal drawer, a collapsible modal drawer’s column, a closed drawer and resizable false have none', async ({ page }) => {
+  test('NVD-96: a standard drawer that is open, expanded or collapsed, has a Handle with axis horizontal, size medium and reach edge beside its end edge, its box at the middle of its target, which starts at the edge, halfway down; a modal drawer, a collapsible modal drawer’s column, a closed drawer and resizable false have none', async ({ page }) => {
     await wide(page);
     await mount(page, [
       fixture('open', SIDE),
@@ -4463,7 +4507,8 @@ test.describe('resizable', () => {
       await expect(resizer(page, id), id).toHaveAttribute('reach', 'edge');
       const edge = await bounds(drawer(page, id));
       const box = await bounds(resizer(page, id).locator('.container'));
-      expect(box.x + box.width / 2, id).toBeCloseTo(edge.x + edge.width, 0);
+      const reach = await px(page, '--tanrei-sys-target-pointer');
+      expect(box.x + box.width / 2, id).toBeCloseTo(edge.x + edge.width + reach / 2, 0);
       expect(box.y + box.height / 2, id).toBeCloseTo(edge.y + edge.height / 2, 0);
     }
     for (const id of ['closed', 'off', 'column']) await expect(resizer(page, id), id).toHaveCount(0);
@@ -4473,7 +4518,7 @@ test.describe('resizable', () => {
     await expect(resizer(page, 'off')).toHaveCount(1);
   });
 
-  test('NVD-96: a press is taken along the edge’s whole height — 10 from its top and its bottom — half over the drawer and half over the content; the line is out of sight at rest and comes into sight with the resize cursor', async ({ page }) => {
+  test('NVD-96: a press is taken along the edge’s whole height — 10 from its top and its bottom — wholly over the content, from the end edge; the drawer’s last pixel is its row’s; the line is out of sight at rest and comes into sight with the resize cursor; a drag from the band’s far side resizes', async ({ page }) => {
     await wide(page);
     await mount(page, [fixture('open', SIDE)]);
     const edge = await bounds(drawer(page, 'open'));
@@ -4481,18 +4526,27 @@ test.describe('resizable', () => {
     const hit = (x: number, y: number) => drawer(page, 'open').evaluate((el, [hx, hy]) => el.shadowRoot!.elementFromPoint(hx!, hy!)?.localName ?? null, [x, y]);
     const end = edge.x + edge.width;
     for (const y of [edge.y + 10, edge.y + edge.height - 10]) {
-      expect(await hit(end - reach / 2 + 2, y), `over the drawer at ${y}`).toBe('tanrei-handle');
-      expect(await hit(end + reach / 2 - 2, y), `over the content at ${y}`).toBe('tanrei-handle');
-      expect(await hit(end - reach / 2 - 4, y), `inside the target at ${y}`).not.toBe('tanrei-handle');
+      expect(await hit(end + 1, y), `at the edge at ${y}`).toBe('tanrei-handle');
+      expect(await hit(end + reach - 1, y), `at the target's far side at ${y}`).toBe('tanrei-handle');
+      expect(await hit(end - 1, y), `over the drawer at ${y}`).not.toBe('tanrei-handle');
+      expect(await hit(end + reach + 1, y), `past the target at ${y}`).not.toBe('tanrei-handle');
     }
     const line = resizer(page, 'open').locator('.capsule');
     expect(Number(await css(line, 'opacity'))).toBe(0);
     await page.mouse.move(end, edge.y + 10);
     await expect.poll(async () => Number(await css(line, 'opacity'))).toBe(1);
     await expect(resizer(page, 'open').locator('.container')).toHaveCSS('cursor', 'ew-resize');
+    // A drag pressed at the band's far side, not on the edge, resizes the drawer.
+    await listenResize(page);
+    await page.mouse.move(end + reach - 2, edge.y + 300);
+    await page.mouse.down();
+    await page.mouse.move(end + reach - 2 + 40, edge.y + 300);
+    expect(await drawnWidth(page, 'open')).toBe(edge.width + 40);
+    await page.mouse.up();
+    expect(await resizeLog(page)).toEqual([`width ${edge.width + 40} set ${edge.width + 40}`]);
   });
 
-  test('NVD-96: where the items show a scrollbar that takes room, the target lies wholly beside the drawer and the scrollbar is still taken', async ({ page, browserName }) => {
+  test('NVD-96: where the items show a scrollbar that takes room, the target still lies wholly beside the drawer and the scrollbar is still taken', async ({ page, browserName }) => {
     await wide(page);
     // A scrollbar that takes room: Chromium's and WebKit's drawn by ::-webkit-scrollbar through the part, Firefox's by
     // scrollbar-width (which takes room where the platform's scrollbars are not overlaid). As Playwright launches them,
@@ -4503,8 +4557,7 @@ test.describe('resizable', () => {
     await mount(page, [fixture('long', many, { value: 'd0' })], { lead: `<style>${style}</style>` });
     const scroller = drawer(page, 'long').locator('.items');
     const room = await scroller.evaluate((el: HTMLElement) => el.offsetWidth - el.clientWidth);
-    test.skip(room === 0, 'this engine overlays its scrollbars here: they take no room, and the target stays centred on the edge');
-    await expect(drawer(page, 'long')).toHaveAttribute('data-scrollbar', '');
+    test.skip(room === 0, 'this engine overlays its scrollbars here: they take no room');
     const edge = await bounds(drawer(page, 'long'));
     const end = edge.x + edge.width;
     const hit = (x: number, y: number) => drawer(page, 'long').evaluate((el, [hx, hy]) => el.shadowRoot!.elementFromPoint(hx!, hy!)?.localName ?? null, [x, y]);
@@ -4558,6 +4611,61 @@ test.describe('resizable', () => {
     // Over the content it is container.width.
     await drawer(page, 'm').evaluate((el: any) => (el.open = true));
     await expect.poll(async () => (await bounds(drawer(page, 'm').locator('dialog'))).width).toBe(width);
+  });
+
+  test('NVD-97: in a parent narrower than its width the drawer lays its rows out at the room — every row within the drawer, a label that no longer fits cut with an ellipsis — resizable or not, and at its width again when the room comes back', async ({ page }) => {
+    await wide(page);
+    const rows = [d('inbox', 'Inbox for everything the team writes', 'inbox', { trailingText: '24' }), d('sent', 'Sent', 'send'), d('drafts', 'Drafts', 'draft')];
+    await mount(page, [fixture('n', rows, { width: 360 }), fixture('n-off', rows, { width: 360, resizable: false })]);
+    const pad = await px(page, T('container-padding-inline'));
+    for (const id of ['n', 'n-off']) {
+      const stage = page.locator(`[data-fixture="${id}"]`);
+      expect((await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
+      expect(await item(page, id, 0).locator('.label').evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(false);
+      // The stage's padding at its end is 16: its content box is 280 wide.
+      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '296px'));
+      await expect.poll(() => drawnWidth(page, id), id).toBe(280);
+      // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer).
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+      const p = await bounds(panel(page, id));
+      const host = await bounds(drawer(page, id));
+      expect([p.x, p.width], id).toEqual([host.x, 280]);
+      for (const n of [0, 1, 2]) {
+        const row = await bounds(box(page, id, n));
+        expect([row.x, row.width], `${id} row ${n}`).toEqual([p.x + pad, 280 - 2 * pad]);
+        const c = await bounds(cell(page, id, n));
+        expect([c.x, c.width], `${id} cell ${n}`).toEqual([p.x, 280]);
+      }
+      const trailing = await bounds(item(page, id, 0).locator('.trailing-text'));
+      expect(trailing.x + trailing.width, id).toBeLessThanOrEqual(p.x + p.width - pad);
+      const label = item(page, id, 0).locator('.label');
+      expect(await label.evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(true);
+      expect(await css(label, 'text-overflow'), id).toBe('ellipsis');
+      // The room comes back: the width, and the rows at it.
+      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await expect.poll(() => drawnWidth(page, id), id).toBe(360);
+      await expect.poll(async () => (await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
+    }
+  });
+
+  test('NVD-18, NVD-97: a standard drawer that opens lays its rows out at its width from the task that opens it — its slide, held at its start until the next frame, is no narrower room — and slides in to its width', async ({ page }) => {
+    // The slide stands at a width of none until the next frame draws it (statesFromNextFrame). Read as the room the
+    // parent gives, it had the rows laid out at none through the slide, and the drawer drawn without motion (as a room's
+    // change is) from that task, and again once the room came back: a slide cut off, or a close in those frames drawn at once.
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await allSettled(page);
+    const pad = await px(page, T('container-padding-inline'));
+    const opened = await drawer(page, 's').evaluate(async (el: HTMLElement) => {
+      (el as HTMLElement & { open: boolean }).open = true;
+      // The drawer's update and the reads it asks for together (src/primitives/read-phase.ts): microtasks of this task.
+      for (let turn = 0; turn < 200; turn++) await null;
+      const row = el.querySelector('tanrei-navigation-drawer-item')!.shadowRoot!.querySelector('.row > .container')!;
+      return { row: row.getBoundingClientRect().width, host: el.getBoundingClientRect().width };
+    });
+    await motionEnded(page);
+    const width = await drawnWidth(page, 's');
+    expect(opened, 'in the task that opens it: its rows at its width, and the drawer at the start of its slide').toEqual({ row: width - 2 * pad, host: 0 });
+    expect((await bounds(box(page, 's', 0))).width).toBe(width - 2 * pad);
   });
 
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {
@@ -4817,7 +4925,8 @@ test.describe('resizable', () => {
     await listenResize(page);
     const edge = await bounds(drawer(page, 'rtl'));
     const box = await bounds(resizer(page, 'rtl').locator('.container'));
-    expect(box.x + box.width / 2).toBeCloseTo(edge.x, 0);
+    // Its target lies wholly beside the drawer, on the left: the box at its middle.
+    expect(box.x + box.width / 2).toBeCloseTo(edge.x - (await px(page, '--tanrei-sys-target-pointer')) / 2, 0);
     expect(await dragEdge(page, 'rtl', [-40])).toEqual([340]);
     await tabTo(page, separator(page, 'rtl'));
     await page.keyboard.press('ArrowLeft');

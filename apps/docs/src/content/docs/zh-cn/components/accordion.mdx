@@ -2,13 +2,14 @@
 title: "折叠面板"
 description: "由一行来就地显示和隐藏的内容。单独一项就是一个可以展开和折叠的区块；多项组成一组，各项可以各自展开，也可以一次只展开一项。"
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: aecaadd19c8c644d3738c1d1aceb8d2eb1572126
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -71,7 +72,7 @@ import Example from '../../../../components/visuals/Example.astro';
     import '@tanrei/web/icons.css';
     import '@tanrei/web/accordion.css';
 
-    <Accordion density="compact" exclusive>
+    <Accordion size="small" exclusive>
       {sections.map((section) => (
         <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
           <summary>
@@ -111,8 +112,8 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 
 ## 规格
 
-<Example label="紧凑密度，带第二行文字，行末有一个值：面板里的折叠项">
-  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+<Example label="small 尺寸，带第二行文字，行末有一个值：面板里的折叠项">
+  <tanrei-accordion class="not-content tanrei-not-prose" size="small">
     <details open>
       <summary>文本<span data-supporting-text>正文、标签和标题</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
       字体栈，按顺序排列。
@@ -169,7 +170,7 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 | `regular`（默认） | 56 | 16，行高 24，medium 字重 | 供人阅读的页面：常见问题、长表单的各个部分。 |
 | `compact` | 48 | 14，行高 20，medium 字重 | 控件之间的面板：设置、检查器、卡片。 |
 
-标题行随其中的文本增高。compact 的标题行就是导航抽屉的一行：高度、文本样式和箭头都相同。
+标题行随其中的文本增高。`small` 的标题行就是导航抽屉的一行：高度、文本样式和箭头都相同。两种高度都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的折叠面板按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制。它不向各项所含的内容传递尺寸：放在某项内容里的折叠面板有自己的尺寸。
 
 ### 区分各项
 
@@ -201,6 +202,8 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 
 ## 无障碍
 
+<FocusOrder name="accordion" fixture="plain" />
+
 <ComponentAccessibility name="accordion" />
 
 ### 组件负责的部分
@@ -215,7 +218,7 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 - 项展开时，焦点绝不移动。如果某一项折叠时焦点在它里面，焦点就移到它的标题行上。
 - 项折叠时，焦点环画在标题行这一行的内部；项展开时，画在整项边缘的内部，把标题行和内容一起围住，所以不会被任何东西裁掉。
 - 高度按展开动效变化；在减弱动态效果时，则立即画成最终的高度。
-- 两种密度的标题行都不低于触摸目标的高度。
+- 两种尺寸的标题行都不低于触摸目标的高度。
 - 文本放大到 200% 时，标签换行，标题行增高，箭头留在第一行。
 - 在强制颜色模式下，边线和线都是文本颜色，禁用的标题行是禁用文本的颜色。
 - 没有名称的标题行、标签里的控件、没有内容的项、未知的值，以及超过三层的嵌套，会在调试构建中报告。

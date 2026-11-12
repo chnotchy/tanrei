@@ -9,7 +9,10 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
 // The page is loaded twice: once with every script refused (the elements are never defined: what a reader sees
-// before they are), and once as it is, until the drawer and the switch are defined.
+// before they are), and once as it is, until the drawer and the switch are defined. (The script inline after the
+// drawer still runs: it is what gives back a width and a fold kept from an earlier visit before the first frame.) So it
+// is too with a width the reader gave the drawer and with the drawer folded to its column, kept from an earlier visit:
+// the stand-in is as wide as the drawer will be, and folded it is the column, empty, as in a medium window.
 // It reads `dist/` and serves it on a free port the way the host does (host.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -64,15 +67,20 @@ function boxes() {
     .slice(0, 6)
     .map(({ y }) => y);
   return {
+    drawer: Math.round(drawer.getBoundingClientRect().width * 2) / 2,
     switch: box(drawer.querySelector(':scope > .docs-listing-row > .docs-listing')),
     rows,
   };
 }
 
-async function measure(width, url, scripts) {
+/** Where Sidebar.astro keeps the width and the fold. */
+const KEY = 'tanrei-docs-sidebar-layout';
+
+async function measure(width, url, scripts, kept = null) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   try {
     const page = await context.newPage();
+    if (kept) await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [KEY, JSON.stringify(kept)]);
     if (!scripts) await page.route(/\.m?js(\?|$)/, (route) => route.abort());
     const network = await watchNetwork(page);
     await page.goto(origin + url, { waitUntil: 'load' });
@@ -97,6 +105,7 @@ for (const width of WIDTHS) {
         const drawn = await measure(width, url, true);
         // In a medium window the column holds the groups' glyphs only once the drawer is defined: nothing stands in, and
         // the collapsed drawer draws no switch.
+        assert.ok(near(standIn.drawer, drawn.drawer), `the drawer's width: ${standIn.drawer} before it is defined, ${drawn.drawer} once it is`);
         if (width === 1000) {
           assert.equal(drawn.switch, null, 'a collapsed drawer draws no switch');
           assert.equal(standIn.switch, null);
@@ -115,3 +124,31 @@ for (const width of WIDTHS) {
     }
   });
 }
+
+/** A width and a fold kept from an earlier visit, at a desktop's width. */
+const KEPT = [
+  { name: 'a width the reader gave it', kept: { width: 320 } },
+  { name: 'folded to its column', kept: { expanded: false } },
+];
+describe('the sidebar before its drawer is defined, at 1440 px, given back as the reader left it', { concurrency: 2 }, () => {
+  for (const { name, kept } of KEPT) {
+    for (const url of PAGES.slice(0, 2)) {
+      test(`${url}, ${name}: the stand-in is as wide as the drawer, and its rows are where the drawer draws them`, LIMIT, async () => {
+        const standIn = await measure(1440, url, false, kept);
+        const drawn = await measure(1440, url, true, kept);
+        assert.ok(near(standIn.drawer, drawn.drawer), `the drawer's width: ${standIn.drawer} before it is defined, ${drawn.drawer} once it is`);
+        if (kept.expanded === false) {
+          assert.equal(drawn.switch, null, 'a folded drawer draws no switch');
+          assert.equal(standIn.switch, null);
+          return assert.deepEqual(standIn.rows, []);
+        }
+        assert.ok(near(drawn.drawer, kept.width), `drawn at the width kept: ${drawn.drawer}`);
+        for (const side of ['x', 'y', 'width', 'height']) {
+          assert.ok(near(standIn.switch[side], drawn.switch[side]), `switch ${side}: ${standIn.switch[side]} before the drawer is defined, ${drawn.switch[side]} once it is`);
+        }
+        assert.ok(standIn.rows.length > 0);
+        standIn.rows.forEach((y, index) => assert.ok(near(y, drawn.rows[index]), `row ${index + 1}: top ${y} before the drawer is defined, ${drawn.rows[index]} once it is`));
+      });
+    }
+  }
+});

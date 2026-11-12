@@ -23,22 +23,46 @@
     },
     "error": {
       "source": {
-        "seed": "#f0382c"
+        "seed": "#ff383c",
+        "tones": {
+          "50": "#e9152d",
+          "57": "#ff383c",
+          "58": "#ff4245",
+          "62": "#ff6165"
+        }
       }
     },
     "success": {
       "source": {
-        "seed": "#2fb84f"
+        "seed": "#34c759",
+        "tones": {
+          "50": "#008932",
+          "71": "#34c759",
+          "74": "#30d158",
+          "77": "#4ad968"
+        }
       }
     },
     "warning": {
       "source": {
-        "seed": "#f59a0b"
+        "seed": "#ff8d28",
+        "tones": {
+          "50": "#c55300",
+          "70": "#ff8d28",
+          "71": "#ff9230",
+          "74": "#ffa056"
+        }
       }
     },
     "info": {
       "source": {
-        "seed": "#32a9e0"
+        "seed": "#00c0e8",
+        "tones": {
+          "49": "#007eae",
+          "72": "#00c0e8",
+          "79": "#3cd3fe",
+          "82": "#6dd9ff"
+        }
       }
     },
     "error-quiet": {
@@ -113,7 +137,13 @@
     },
     "primary": {
       "source": {
-        "seed": "#0a7aff"
+        "seed": "#0088ff",
+        "tones": {
+          "49": "#1e6ef4",
+          "57": "#0088ff",
+          "59": "#0091ff",
+          "72": "#5cb8ff"
+        }
       }
     }
   },
@@ -188,10 +218,10 @@
     "tanrei.comp.handle.standard.disabled.container.color": {"$value": "{tanrei.comp.handle.standard.container.color}", "reason": "Not taken from Apple's Human Interface Guidelines: cupertino keeps the value it drew when the root held it. A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."},
     "tanrei.comp.bottom-sheet.drag-handle.hovered.grip.color": {"$value": "{tanrei.comp.handle.standard.hovered.line.color}", "reason": "Not taken from Apple's Human Interface Guidelines: cupertino keeps the value it drew when the root held it. The sheet's drag handle is a Handle (BSH-12): its grip answers a pointer as every handle's line does (HDL-4)."},
     "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {"$value": "{tanrei.comp.handle.standard.pressed.line.color}", "reason": "Not taken from Apple's Human Interface Guidelines: cupertino keeps the value it drew when the root held it. The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."},
-    "tanrei.sys.typescale.display": {"$value": {"lineHeight": 1.2059, "fontWeight": 700}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 2.125, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
-    "tanrei.sys.typescale.heading-1": {"$value": {"lineHeight": 1.2143, "fontWeight": 700}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.75, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
-    "tanrei.sys.typescale.heading-2": {"$value": {"lineHeight": 1.2727, "fontWeight": 700}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.375, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
-    "tanrei.sys.typescale.heading-3": {"$value": {"lineHeight": 1.25, "fontWeight": 600}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.25, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
+    "tanrei.sys.typescale.display": {"$value": {"lineHeight": 1.2059, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Large Title is Regular (Typography, read 2026-11-12); its emphasized weight is the display step.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 2.125, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
+    "tanrei.sys.typescale.heading-1": {"$value": {"lineHeight": 1.2143, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 1 is Regular (Typography, read 2026-11-12).", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.75, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
+    "tanrei.sys.typescale.heading-2": {"$value": {"lineHeight": 1.2727, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 2 is Regular (Typography, read 2026-11-12).", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.375, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
+    "tanrei.sys.typescale.heading-3": {"$value": {"lineHeight": 1.25, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight. Title 3 is Regular (Typography, read 2026-11-12).", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.25, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.typescale.heading-4": {"$value": {"lineHeight": 1.2941, "fontWeight": 600}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.0625, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.typescale.heading-5": {"$value": {"lineHeight": 1.3125, "fontWeight": 600}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.0, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.typescale.heading-6": {"$value": {"lineHeight": 1.3333, "fontWeight": 600}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 0.9375, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
@@ -201,8 +231,8 @@
     "tanrei.sys.typescale.label": {"$value": {"lineHeight": 1.2941, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 1.0625, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.typescale.label-small": {"$value": {"lineHeight": 1.3846, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 0.8125, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.typescale.caption": {"$value": {"lineHeight": 1.3333, "fontWeight": 400}, "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight.", "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 0.75, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
-    "tanrei.sys.typescale.emphasis.display": {"$value": 100, "reason": "Apple's emphasized weight for this family."},
-    "tanrei.sys.typescale.emphasis.heading": {"$value": 200, "reason": "Apple's emphasized weight for this family."},
+    "tanrei.sys.typescale.emphasis.display": {"$value": 300, "reason": "Apple's emphasized Large Title is Bold: Regular 400 plus 300 (Typography, read 2026-11-12)."},
+    "tanrei.sys.typescale.emphasis.heading": {"$value": 300, "reason": "Apple's emphasized Title 1 and Title 2 are Bold: Regular 400 plus 300 (Typography, read 2026-11-12). One step serves the whole family, so Title 3 (emphasized Semibold, +200) and Headline (emphasized Semibold, +0) are drawn heavier than Apple's: the fidelity map lists both."},
     "tanrei.sys.typescale.emphasis.body": {"$value": 200, "reason": "Apple's emphasized weight for this family."},
     "tanrei.sys.typescale.emphasis.label": {"$value": 200, "reason": "Apple's emphasized weight for this family."},
     "tanrei.sys.behavior.pressed-feedback": {"$value": 2, "reason": "Apple platforms dim the whole control while it is pressed; no state layer is drawn."},
@@ -214,23 +244,23 @@
     "tanrei.comp.menubar.expanded.container.color": {"derive": {"fn": "alpha", "of": "{tanrei.comp.menubar.expanded.state-layer.color}", "amount": 0.08}, "reason": "A Mac menu bar marks the title whose menu is open with a fill. The default system derives it from the hover layer, which this system sets to 0, so the fill keeps the default's amount."},
     "tanrei.comp.menubar.expanded.focused.container.color": {"derive": {"fn": "alpha", "of": "{tanrei.comp.menubar.expanded.state-layer.color}", "amount": 0.1}, "reason": "Under keyboard focus the open title keeps its fill, at the default system's focus-layer amount (this system's is 0)."},
     "tanrei.sys.shape.corner-smoothing": {"$value": 0.6, "reason": "Apple platforms draw continuous corners: Figma's 60 % corner smoothing."},
-    "tanrei.sys.color.primary": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
+    "tanrei.sys.color.primary": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [57, 49, 49], "dark": [59, 72, 72]}}, "reason": "Apple's system Blue (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."},
     "tanrei.sys.color.on-primary": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [100], "dark": [100, 5, 0]}}},
     "tanrei.sys.color.primary-container": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [92, 90, 88], "dark": [25]}}},
     "tanrei.sys.color.on-primary-container": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [35, 28, 12], "dark": [85, 90, 97]}}},
-    "tanrei.sys.color.error": {"derive": {"fn": "tone", "palette": "error", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
+    "tanrei.sys.color.error": {"derive": {"fn": "tone", "palette": "error", "tone": {"light": [57, 50, 50], "dark": [58, 62, 62]}}, "reason": "Apple's system Red (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."},
     "tanrei.sys.color.on-error": {"derive": {"fn": "tone", "palette": "error", "tone": {"light": [100], "dark": [100, 5, 0]}}},
     "tanrei.sys.color.error-container": {"derive": {"fn": "tone", "palette": "error", "tone": {"light": [92, 90, 88], "dark": [25]}}},
     "tanrei.sys.color.on-error-container": {"derive": {"fn": "tone", "palette": "error", "tone": {"light": [35, 28, 12], "dark": [85, 90, 97]}}},
-    "tanrei.sys.color.success": {"derive": {"fn": "tone", "palette": "success", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
+    "tanrei.sys.color.success": {"derive": {"fn": "tone", "palette": "success", "tone": {"light": [71, 50, 50], "dark": [74, 77, 77]}}, "reason": "Apple's system Green (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."},
     "tanrei.sys.color.on-success": {"derive": {"fn": "tone", "palette": "success", "tone": {"light": [100], "dark": [100, 5, 0]}}},
     "tanrei.sys.color.success-container": {"derive": {"fn": "tone", "palette": "success", "tone": {"light": [92, 90, 88], "dark": [25]}}},
     "tanrei.sys.color.on-success-container": {"derive": {"fn": "tone", "palette": "success", "tone": {"light": [35, 28, 12], "dark": [85, 90, 97]}}},
-    "tanrei.sys.color.warning": {"derive": {"fn": "tone", "palette": "warning", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
+    "tanrei.sys.color.warning": {"derive": {"fn": "tone", "palette": "warning", "tone": {"light": [70, 50, 50], "dark": [71, 74, 74]}}, "reason": "Apple's system Orange (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."},
     "tanrei.sys.color.on-warning": {"derive": {"fn": "tone", "palette": "warning", "tone": {"light": [100], "dark": [100, 5, 0]}}},
     "tanrei.sys.color.warning-container": {"derive": {"fn": "tone", "palette": "warning", "tone": {"light": [92, 90, 88], "dark": [25]}}},
     "tanrei.sys.color.on-warning-container": {"derive": {"fn": "tone", "palette": "warning", "tone": {"light": [35, 28, 12], "dark": [85, 90, 97]}}},
-    "tanrei.sys.color.info": {"derive": {"fn": "tone", "palette": "info", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
+    "tanrei.sys.color.info": {"derive": {"fn": "tone", "palette": "info", "tone": {"light": [72, 49, 49], "dark": [79, 82, 82]}}, "reason": "Apple's system Cyan (Human Interface Guidelines, Color › System colors, read 2026-11-12): the default light and dark swatches, and in both raised contrasts the increased-contrast swatch, for Apple has one increased contrast. Each is pinned at its own tone of the palette."},
     "tanrei.sys.color.on-info": {"derive": {"fn": "tone", "palette": "info", "tone": {"light": [100], "dark": [100, 5, 0]}}},
     "tanrei.sys.color.info-container": {"derive": {"fn": "tone", "palette": "info", "tone": {"light": [92, 90, 88], "dark": [25]}}},
     "tanrei.sys.color.on-info-container": {"derive": {"fn": "tone", "palette": "info", "tone": {"light": [35, 28, 12], "dark": [85, 90, 97]}}},
@@ -387,10 +417,10 @@
     "tanrei.comp.chip.elevated.container.elevation": {"$value": "{tanrei.sys.elevation.level1}", "reason": "A raised capsule sits on one soft shadow; the default system's level2 rest is for its ring-only level1."},
     "tanrei.comp.chip.elevated.selected.container.elevation": {"$value": "{tanrei.sys.elevation.level1}", "reason": "As the elevated chip at rest."},
     "tanrei.comp.chip.label.typescale.small": {"$value": "{tanrei.sys.typescale.caption}", "reason": "Apple's Footnote (13pt, label-small here) has a line too tall for a 24pt chip with its padding; Caption 1 (12pt) fits, the size of the default system's small chip label."},
-    "tanrei.comp.list.container.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}},
+    "tanrei.comp.list.container.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}},
     "tanrei.comp.list.content.typescale": {"$value": "{tanrei.sys.typescale.body-large}", "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."},
     "tanrei.comp.list-row.headline.typescale": {"$value": "{tanrei.sys.typescale.body-large}", "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."},
-    "tanrei.comp.list-row.container.height.one-line.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "Apple's list row of one line is 44 points tall, as this preset's list items are."},
+    "tanrei.comp.list-row.container.height.one-line.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "Apple's list row of one line is 44 points tall, as this preset's list items are."},
     "tanrei.comp.code-block.line.added.container.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "This preset draws no band behind an added line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."},
     "tanrei.comp.code-block.line.removed.container.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "This preset draws no band behind a removed line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."},
     "tanrei.comp.list.selected.container.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Apple shows a chosen row by a check in the tint, with no fill."},
@@ -431,7 +461,7 @@
     "tanrei.comp.app-bar.container.height.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}},
     "tanrei.comp.app-bar.container.height.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 24}},
     "tanrei.comp.app-bar.title.typescale.small": {"$value": "{tanrei.sys.typescale.heading-4}", "reason": "Apple's inline navigation title is Headline (17pt semibold), heading-4 here."},
-    "tanrei.comp.app-bar.title.typescale.large": {"$value": "{tanrei.sys.typescale.display}", "reason": "Apple's large navigation title is Large Title (34pt bold), display here."},
+    "tanrei.comp.app-bar.title.typescale.large": {"$value": "{tanrei.sys.typescale.display}", "reason": "Apple's large navigation title is Large Title, display here. Apple draws it at the emphasized weight (Bold); display is the style's own Regular, and a component's text style cannot take its role's emphasized weight (mimicry gap emphasis-per-style)."},
     "tanrei.comp.app-bar.flat.container.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "At the scroll edge Apple's bar shows the page through."},
     "tanrei.comp.app-bar.scrolled.container.color": {"$value": "{tanrei.sys.color.surface-container-low}"},
     "tanrei.comp.app-bar.container.padding-inline": {"$value": "{tanrei.sys.space.space100}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
@@ -594,21 +624,21 @@
     "tanrei.comp.radio-button.error-selected.fill.color": {"$value": "{tanrei.sys.color.on-error}", "reason": "The light center of the selected radio, kept while the band takes the error color: a band and a center of one color would be a disc, and the selection would no longer be told."},
     "tanrei.comp.radio-button.error-unselected.fill.color": {"$value": "{tanrei.comp.radio-button.unselected.fill.color}", "reason": "The light disc of the unselected radio, kept in error."},
     "tanrei.comp.radio-button.fill.opacity": {"$value": 1, "reason": "Apple's radio fills are opaque."},
-    "tanrei.comp.menu.leading-icon.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.menu.mark.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.menu.trailing-icon.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.menu.leading-icon.size.compact": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."},
-    "tanrei.comp.menu.mark.size.compact": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A compact row keeps this preset's check size: its regular check is already the smaller one, and a compact row draws no larger mark than a regular one."},
-    "tanrei.comp.menu.trailing-icon.size.compact": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."},
-    "tanrei.comp.menu.container.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.menu.leading-icon.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.menu.mark.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.menu.trailing-icon.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.menu.leading-icon.size.small": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A small row keeps this preset's glyph size: its medium glyph is already the smaller one, and a small row draws no larger glyph than a medium one."},
+    "tanrei.comp.menu.mark.size.small": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A small row keeps this preset's check size: its medium check is already the smaller one, and a small row draws no larger mark than a medium one."},
+    "tanrei.comp.menu.trailing-icon.size.small": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "A small row keeps this preset's glyph size: its medium glyph is already the smaller one, and a small row draws no larger glyph than a medium one."},
+    "tanrei.comp.menu.container.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.navigation-drawer.item.icon.size.regular": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.search.leading-icon.size": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.search.suggestion.leading-icon.size.regular": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.search.suggestion.leading-icon.size.medium": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.search.suggestion.completion.emphasis": {"$value": "{tanrei.sys.typescale.emphasis.body}", "reason": "This preset's body emphasis is already Apple's step to semibold (200): the default system's three steps would draw the completion at 1000, heavier than any weight its original sets running text in. One step keeps it at semibold; what its original draws there is a fidelity decision for this preset."},
     "tanrei.comp.search.header.height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 14}, "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.search.suggestion.container.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.search.suggestion.container.padding-inline.regular": {"$value": "{tanrei.sys.space.space150}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.search.suggestion.container.gap.regular": {"$value": "{tanrei.sys.space.space150}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.search.suggestion.container.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.search.suggestion.container.padding-inline.medium": {"$value": "{tanrei.sys.space.space150}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.search.suggestion.container.gap.medium": {"$value": "{tanrei.sys.space.space150}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.button-with-menu.icon.size.large": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.button-with-menu.icon.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.button-with-menu.icon.size.small": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
@@ -721,9 +751,9 @@
     "tanrei.comp.select.divider.thickness": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 2}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.divider.thickness: Apple separates a menu's groups with a thick band, not a hairline."},
     "tanrei.comp.select.divider.color": {"$value": "{tanrei.sys.color.surface-container-high}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.divider.color."},
     "tanrei.comp.select.divider.space": {"$value": "{tanrei.sys.space.space0}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.divider.space."},
-    "tanrei.comp.select.option.leading-icon.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.select.option.mark.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.select.option.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.select.option.leading-icon.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.medium: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.select.option.mark.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size.medium: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.select.option.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height.medium: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.select.stacked.selected-option.container.color": {"$value": "{tanrei.comp.select.stacked.option.container.color}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},
     "tanrei.comp.select.filled.selected-option.container.color": {"$value": "{tanrei.comp.select.filled.option.container.color}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},
     "tanrei.comp.select.outlined.selected-option.container.color": {"$value": "{tanrei.comp.select.outlined.option.container.color}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},
@@ -748,9 +778,9 @@
     "tanrei.comp.combobox.divider.thickness": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 2}, "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.divider.thickness: Apple separates a menu's groups with a thick band, not a hairline."},
     "tanrei.comp.combobox.divider.color": {"$value": "{tanrei.sys.color.surface-container-high}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.divider.color."},
     "tanrei.comp.combobox.divider.space": {"$value": "{tanrei.sys.space.space0}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.divider.space."},
-    "tanrei.comp.combobox.option.leading-icon.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.combobox.option.mark.size.regular": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.combobox.option.height.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.combobox.option.leading-icon.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.medium: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.combobox.option.mark.size.medium": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size.medium: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.combobox.option.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height.medium: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.combobox.stacked.selected-option.container.color": {"$value": "{tanrei.comp.combobox.stacked.option.container.color}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},
     "tanrei.comp.combobox.filled.selected-option.container.color": {"$value": "{tanrei.comp.combobox.filled.option.container.color}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},
     "tanrei.comp.combobox.outlined.selected-option.container.color": {"$value": "{tanrei.comp.combobox.outlined.option.container.color}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: This preset gives a checked item no fill, where the default system gives it one: a chosen row of Apple's menus is not tinted; measuring it is a fidelity decision for this preset."},

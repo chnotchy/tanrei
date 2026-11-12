@@ -57,8 +57,11 @@ export function measureFidelity(model, { map, reference }) {
     return Boolean(rule);
   };
 
-  // Every color role the reference publishes, by name (extensions included: `primary-fixed`, `background`…).
+  // Every color role the reference publishes, by name (extensions included: `primary-fixed`, `background`…), in
+  // the schemes `map.colors.schemes` names — `{ <Tanrei scheme>: <the reference's appearance> }`, so a reference
+  // with one raised contrast can stand for both of Tanrei's — else in light and dark.
   if (map.colors) {
+    const colorSchemes = Object.entries(map.colors.schemes ?? { light: 'light', dark: 'dark' });
     const prefix = map.colors.prefix ?? 'md.sys.color.';
     const skipped = new Map((map.colors.unmapped ?? []).map((u) => [u.ref, u]));
     const outside = outsideOf('colors');
@@ -69,9 +72,10 @@ export function measureFidelity(model, { map, reference }) {
       if (skipped.has(role)) { result.unmapped.push({ ref: id, ...skipped.get(role) }); continue; }
       const tanrei = `tanrei.sys.color.${map.colors.rename?.[role] ?? role}`;
       const problems = [];
-      for (const scheme of schemes) {
+      for (const [scheme, appearance] of colorSchemes) {
         const token = tokenIn(tanrei, scheme);
-        const expected = hex(parseHex(refValue(id, scheme)));
+        const published = parseHex(refValue(id, appearance));
+        const expected = published ? hex(published) : `no ${appearance} value in the reference`;
         const actual = token ? hex(rgba(token.value)) : `no role ${tanrei}`;
         if (expected !== actual) problems.push({ scheme, expected, actual });
       }

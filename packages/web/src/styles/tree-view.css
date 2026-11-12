@@ -6,7 +6,7 @@
  * document: a hierarchy is a nested list, and that is what the page shows, a crawler keeps and a reader mode reads
  * where no script runs.
  *
- *   <tanrei-tree-view label="Project files" selection="single" value="src/index.ts" density="compact" guides>
+ *   <tanrei-tree-view label="Project files" selection="single" value="src/index.ts" size="small" guides>
  *     <ul>
  *       <li data-value="src" data-open>
  *         <span>
@@ -41,7 +41,7 @@
  * Attributes of the item: `data-value`, `data-open`, `data-expandable`, `data-loading`, `data-disabled`. A parent's
  * `.tanrei-icon` may name the glyph it shows while open in `data-open-icon` (TRV-5), and `data-supporting-position=
  * "inline"` puts its supporting text after its label (TRV-7). Attributes of the tree that this stylesheet reads:
- * `density`, `chevron` (start, end, none: TRV-4, TRV-44), `expandable="false"` (TRV-49), `guides` (shown — the bare
+ * `size`, `chevron` (start, end, none: TRV-4, TRV-44), `expandable="false"` (TRV-49), `guides` (shown — the bare
  * attribute too — or hover: TRV-8), `icon-space` (TRV-43), `highlight` (TRV-51), `label-wrap` and `supporting-wrap`
  * (TRV-6, TRV-7). A product's `indent` and `icon-gap` are lengths the element writes as `--_trv-indent-own` and
  * `--_trv-icon-gap-own` on the tree (TRV-3, TRV-2), and `data-tanrei-flat` where the step is 0 (no guides, TRV-8).
@@ -115,25 +115,27 @@
 
   /* ── The column (TRV-1): as wide as its layout, no space, no size and no look of its own ────────────────────── */
   :where(tanrei-tree-view) {
-    /* TRV-2 to TRV-7: the density's sizes and text style (TRV-41: any other density is the default's). */
-    --_trv-height: var(--tanrei-comp-tree-view-container-height-regular);
-    --_trv-pad-block: var(--tanrei-comp-tree-view-container-padding-block-regular);
-    --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-regular);
-    --_trv-gap: var(--tanrei-comp-tree-view-container-gap-regular);
-    --_trv-indent: var(--tanrei-comp-tree-view-level-indent-regular);
-    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-regular-font);
-    --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-regular-letter-spacing);
-    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-regular-font-size);
-    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-regular-line-height);
-    --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-regular);
-    --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-regular);
-    /* TRV-2: the room between the icon and the label — the token, which no density changes, or the product's iconGap
+    /* TRV-2 to TRV-7, TRV-73: the size's heights, paddings, glyphs and text style — medium here, small below, set on
+       the tree or taken from its container by the element (the custom state size-small); TRV-41: any other size is
+       the default's. */
+    --_trv-height: var(--tanrei-comp-tree-view-container-height-medium);
+    --_trv-pad-block: var(--tanrei-comp-tree-view-container-padding-block-medium);
+    --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-medium);
+    --_trv-gap: var(--tanrei-comp-tree-view-container-gap-medium);
+    --_trv-indent: var(--tanrei-comp-tree-view-level-indent-medium);
+    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-medium-font);
+    --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-medium-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-medium-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-medium-line-height);
+    --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-medium);
+    --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-medium);
+    /* TRV-2: the room between the icon and the label — the token, which no size changes, or the product's iconGap
        (written by the element as `--_trv-icon-gap-own`). */
     --_trv-icon-gap: var(--_trv-icon-gap-own, var(--tanrei-comp-tree-view-icon-gap));
     /* TRV-4: whether a chevron's box stands at the start (1 or 0), and at the end. */
     --_trv-cs: 1;
     --_trv-ce: 0;
-    /* TRV-26: for a fine pointer a regular row is at least the pointer target high. */
+    /* TRV-26: for a fine pointer a row is at least the pointer target high, at every size. */
     --_trv-min: max(var(--_trv-height), var(--tanrei-sys-target-pointer));
     --_trv-target: var(--tanrei-sys-target-pointer);
     /* TRV-3: the first level begins at the tree's start edge: no step before it. */
@@ -187,22 +189,20 @@
     --_trv-turn: -0.25turn;
     --_trv-mirror: -1 1;
   }
-  :where(tanrei-tree-view[density='compact']) {
-    --_trv-height: var(--tanrei-comp-tree-view-container-height-compact);
-    --_trv-pad-block: var(--tanrei-comp-tree-view-container-padding-block-compact);
-    --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-compact);
-    --_trv-gap: var(--tanrei-comp-tree-view-container-gap-compact);
-    --_trv-indent: var(--tanrei-comp-tree-view-level-indent-compact);
-    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-compact-font);
-    --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-compact-letter-spacing);
-    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-compact-font-size);
-    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-compact-line-height);
-    --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-compact);
-    --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-compact);
-    /* TRV-26: the one place where a row is lower than the pointer target. */
-    --_trv-min: var(--_trv-height);
+  :where(tanrei-tree-view[size='small'], tanrei-tree-view:state(size-small)) {
+    --_trv-height: var(--tanrei-comp-tree-view-container-height-small);
+    --_trv-pad-block: var(--tanrei-comp-tree-view-container-padding-block-small);
+    --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-small);
+    --_trv-gap: var(--tanrei-comp-tree-view-container-gap-small);
+    --_trv-indent: var(--tanrei-comp-tree-view-level-indent-small);
+    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-small-font);
+    --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-small-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-small-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-small-line-height);
+    --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-small);
+    --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-small);
   }
-  /* TRV-26: for touch a row is at least the touch target high, in every density. */
+  /* TRV-26: for touch a row is at least the touch target high, at every size. */
   @media (pointer: coarse) {
     :where(tanrei-tree-view) {
       --_trv-min: max(var(--_trv-height), var(--tanrei-sys-target-touch));
@@ -229,7 +229,7 @@
     --_trv-from: var(--_trv-in);
     /* TRV-3, TRV-43: what this item's row holds before its label — the chevron's box and its gap at the start, and
        the icon (or its kept room) and the icon gap — is the step of the items it holds while indent is auto; a row
-       that holds nothing before its label steps its items in by the density's level.indent token. */
+       that holds nothing before its label steps its items in by the size's level.indent token. */
     --_trv-has-icon: 0;
     --_trv-room: max(var(--_trv-has-icon), var(--_trv-reserve));
     --_trv-lead-li: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)) + var(--_trv-room) * (var(--_trv-icon-size) + var(--_trv-icon-gap)));
@@ -631,7 +631,7 @@
     unicode-bidi: plaintext;
     transition: color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
   }
-  /* TRV-5: the icon — a glyph of icons.css in the density's box after the chevron's, outlined unless its own item is
+  /* TRV-5: the icon — a glyph of icons.css in the size's box after the chevron's, outlined unless its own item is
      selected, whatever an ancestor says of a selection. (The glyph's declarations, and its mirroring, are icons.css's:
      TRV-38.) */
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon {

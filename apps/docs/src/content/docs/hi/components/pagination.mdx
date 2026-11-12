@@ -2,13 +2,14 @@
 title: पेजिनेशन
 description: एक ही सूची के नंबर वाले पेजों के बीच ले जाता है। मौजूदा पेज पर निशान के साथ पेज नंबर, पिछला और अगला, ज़रूरत हो तो पहला और आख़िरी, और एक छोटा रूप जो बताता है कि कितने में से कौन-सा पेज है।
 translationOf: components/pagination.mdx
-sourceHash: 458a4038d3550060a61fbd6920da965d35815a5d
+sourceHash: c81aaf3b88321f2e789dc7009742f08169abf441
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -96,6 +97,8 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 - पहले और आख़िरी पेज पर पिछला और अगला न छिपाएँ। वे डिसेबल होते हैं और अपनी जगह बनाए रखते हैं।
 
 ## सुलभता
+
+<FocusOrder name="pagination" fixture="default" />
 
 <ComponentAccessibility name="pagination" />
 

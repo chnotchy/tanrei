@@ -2,13 +2,14 @@
 title: DateTimePicker
 description: Permite elegir una fecha, una hora o una fecha y hora (o un intervalo de cualquiera de ellas) con un calendario y unas ruedas de hora o la esfera de un reloj, en un diálogo o en una superficie que se despliega bajo un campo.
 translationOf: components/date-time-picker.mdx
-sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
+sourceHash: 7f0394b12f3f4abdb141a87576cde62cf2aac770
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -272,6 +273,8 @@ Esa llamada es la que ejecuta esta página: los ejemplos de arriba llevan un `la
 - No uses el atributo `inline` de la web en un producto. Dibuja la superficie sin el comportamiento de la superposición.
 
 ## Accesibilidad
+
+<FocusOrder name="date-time-picker" fixture="docked-date" />
 
 <ComponentAccessibility name="date-time-picker" />
 

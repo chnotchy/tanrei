@@ -2,13 +2,14 @@
 title: "列表"
 description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
+sourceHash: 49cb98ac1ef0c2751e9a2a944d48c0f8fb696349
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
@@ -264,7 +265,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 
 无论怎样排列、处于哪种模式，列表都统一决定它的所有行。行的 `leading` 插槽中的头像、图片或控件不计入，也不在其旁边保留空间，因为它的尺寸由你决定，并且每行不同。[菜单](/zh-cn/components/menu/)、[树视图](/zh-cn/components/tree-view/)和[导航抽屉](/zh-cn/components/navigation-drawer/)也有同样的 `iconSpace`，取值和默认值都相同。
 
-`density` 决定一个项目占多大空间：`regular`（默认）或 `compact`，后者适用于用鼠标操作、需要浏览大量项目的工具。在紧凑列表中，操作、链接或纯文本选项高 32，项目中的每个[列表行](/zh-cn/components/list-row/)都以紧凑方式绘制，不论其自身的 `density`，因此同一列表的行只有一种密度。触摸时项目绝不低于触摸目标。
+`size` 决定一个项目占多大空间：`medium`（默认）或 `small`，后者适用于用鼠标操作、需要浏览大量项目的工具。在默认系统中，`small` 列表里的操作、链接或纯文本选项高 36，因为它不会低于最小目标。尺寸只需在列表上设置一次：列表中没有设置自己 `size` 的每个[列表行](/zh-cn/components/list-row/)都会采用它。没有设置尺寸的列表不传递尺寸，其中的行保持各自的尺寸。无论哪种尺寸，项目都不会低于目标。
 
 ### 推荐做法
 
@@ -279,6 +280,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 - 不要自己绘制拖动手柄或移动按钮：`reorderable` 会绘制手柄，它的菜单就是无需拖动的移动方式。
 
 ## 无障碍
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

@@ -13,36 +13,34 @@ const PREFIX = '--tanrei-comp-search';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
 
-/** The densities every design system has (SRC-53). A layer may add more; those get their rules on demand. */
-export const CORE_DENSITIES = ['regular', 'compact'] as const;
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`), as the view's rows read them. */
-const DENSITY_MEMBERS = ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'] as const;
-type DensityMember = (typeof DENSITY_MEMBERS)[number];
-const ref = (member: string, density: string, fallback: string | null) =>
-  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+/** The sizes every design system has (SRC-53). A layer may add more; those get their rules on demand. */
+export const CORE_SIZES = ['small', 'medium'] as const;
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`), as the view's rows read them. */
+const SIZE_MEMBERS = ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'] as const;
+type SizeMember = (typeof SIZE_MEMBERS)[number];
+const ref = (member: string, size: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${size}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${size})`;
 /**
- * SRC-53: the search's density, set on its host as private switches that its suggestions, results and result groups —
- * its descendants — inherit. SRC-16: a fine pointer's row is held to the pointer target, except in the compact density.
+ * SRC-53: the search's size, set on its host as private switches that its suggestions, results and result groups — its
+ * descendants — inherit. The search takes no size from a container around it: its view stands in the top layer.
  */
-const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
-  ${DENSITY_MEMBERS.map((member) => `--_src-${member}: ${ref(member, density, fallback)};`).join('\n  ')}
-  --_src-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {
+  ${SIZE_MEMBERS.map((member) => `--_src-${member}: ${ref(member, size, fallback)};`).join('\n  ')}
 }`;
-/** What a row reads: the search's density, or the regular one where it stands outside a search. */
-const D = (member: DensityMember) => `var(--_src-${member}, var(${PREFIX}-${member}-${DEFAULT_DENSITY}))`;
-const d = (member: DensityMember) => unsafeCSS(D(member));
-const POINTER = 'var(--_src-pointer-target, var(--tanrei-sys-target-pointer))';
-/** The rows' measures that no density changes (the status row, the product's content, a group's title: SRC-53). */
-const R = (member: DensityMember) => unsafeCSS(`var(${PREFIX}-${member}-${DEFAULT_DENSITY})`);
+/** What a row reads: the search's size, or the medium one where it stands outside a search. */
+const D = (member: SizeMember) => `var(--_src-${member}, var(${PREFIX}-${member}-${DEFAULT_SIZE}))`;
+const d = (member: SizeMember) => unsafeCSS(D(member));
+/** The rows' measures that no size changes (the status row, the product's content, a group's title: SRC-53). */
+const R = (member: SizeMember) => unsafeCSS(`var(${PREFIX}-${member}-${DEFAULT_SIZE})`);
 
-/** SRC-53: a density a layer added gets its block on demand, falling back to the default's tokens. */
+/** SRC-53: a size a layer added gets its block on demand, falling back to the default's tokens. */
 export const AXES: readonly OpenAxis[] = [
   {
-    name: 'density',
-    core: CORE_DENSITIES,
-    default: DEFAULT_DENSITY,
-    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    name: 'size',
+    core: CORE_SIZES,
+    default: DEFAULT_SIZE,
+    rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-suggestion-container-height-${value}` as const,
   },
 ];
@@ -179,14 +177,14 @@ export const styles = css`
     display: block;
     min-inline-size: 0;
   }
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   :host {
-    /* SRC-53: the glyph's box of the density, as a property the glyph rules name. */
+    /* SRC-53: the glyph's box of the size, as a property the glyph rules name. */
     --_src-glyph: var(--_src-suggestion-leading-icon-size);
   }
   ${unsafeCSS(
-    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
-      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+    CORE_SIZES.filter((size) => size !== DEFAULT_SIZE)
+      .map((size) => sizeBlock(size, `:host([size='${size}'])`))
       .join('\n'),
   )}
   :host([hidden]) {
@@ -745,7 +743,7 @@ export const styles = css`
       background-color ${unsafeCSS(MOTION)},
       opacity ${unsafeCSS(MOTION)};
   }
-  ${rowTarget('.option', D('suggestion-container-height'), POINTER)}
+  ${rowTarget('.option', D('suggestion-container-height'))}
   /* SRC-17, SRC-20: hovered, active (the focused tokens) and pressed, in that precedence. */
   ${stateRules(onRow, {
     hovered: paint(ROW, '-h', 'hovered'),
@@ -899,7 +897,7 @@ export const rowStyles = css`
   :host {
     display: block;
     min-inline-size: 0;
-    /* SRC-53: the glyph's box of the search's density. */
+    /* SRC-53: the glyph's box of the search's size. */
     --_src-glyph: ${d('suggestion-leading-icon-size')};
   }
   :host([hidden]) {
@@ -938,7 +936,7 @@ export const rowStyles = css`
       background-color ${unsafeCSS(MOTION)},
       opacity ${unsafeCSS(MOTION)};
   }
-  ${rowTarget('.row', D('suggestion-container-height'), POINTER)}
+  ${rowTarget('.row', D('suggestion-container-height'))}
   /* SRC-42: hovered, focused (where a suggestion is active) and pressed, in that precedence (SRC-17, SRC-20). */
   ${stateRules(onResult, {
     hovered: paint(ROW, '-h', 'hovered'),

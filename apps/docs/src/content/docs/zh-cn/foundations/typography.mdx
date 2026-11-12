@@ -2,7 +2,7 @@
 title: "字体排印"
 description: "十六种按层级命名的文本样式——一种 display、六级标题、三种正文尺寸、标签、代码和一个眉标——以 Inter 排印；强调是字重上的一个级差，而不是一个角色。"
 translationOf: foundations/typography.mdx
-sourceHash: f6541882f9778c5b231eb39cda781d02ae19685e
+sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -93,7 +93,7 @@ Tanrei 的文本样式按一段文字在页面中的**层级**命名，而不是
 
 <SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
 
-Tanrei 给每个系列都加 100，所以强调的 `heading-1` 是 600，强调的 `body` 是 500。各系列强调幅度不同的设计系统，分别设置这四个数：`m3-like` 给标签加 200，与 Material 的强调标签样式一致；`cupertino` 给标题、正文和标签加 200。角色所属的系列是其名称的第一段；`caption`、`code`、`code-small` 和 `eyebrow` 采用 label 的级差。
+Tanrei 给每个系列都加 100，所以强调的 `heading-1` 是 600，强调的 `body` 是 500。各系列强调幅度不同的设计系统，分别设置这四个数：`m3-like` 给标签加 200，与 Material 的强调标签样式一致；`cupertino` 给 display 和标题加 300，给正文和标签加 200。角色所属的系列是其名称的第一段；`caption`、`code`、`code-small` 和 `eyebrow` 采用 label 的级差。
 
 每个平台都提供同一个修饰方式：文本样式 API 上的 `emphasized`（SwiftUI 中是 `.tanreiTextStyle(system.typescale.heading1, emphasized: true)`；Compose 中是 `typescale.heading1.emphasized()`，在组合之外则是 `emphasized(system.typescale.emphasis)`；Flutter 中是 `theme.textStyle(system.typescale.heading1, emphasized: true)`；React Native 中是来自 `useTanrei()` 的 `text('heading1', { emphasized: true })`；Web 上是 `--tanrei-sys-typescale-<role>-font-weight-emphasized` 和 `.tanrei-text-emphasized`）。没有需要另外命名的强调角色，也没有需要保持同步的第二套字阶。
 
@@ -155,7 +155,7 @@ Tanrei 不为任何设计系统提供字体文件。字体栈是一份名称列�
 模仿另一个设计系统的预设保留这十六个名称，并给它们那个系统的取值；如果参照对象有核心没有命名的样式，预设就用一个自己的角色来**扩展**词汇。名称从不变动，所以基于 `tanrei` 构建的产品换到 `m3-like` 时，不必改动任何一个标题。
 
 - **`m3-like`** 按 Material Design 3 的字阶为每个角色重新赋值——`heading-1` 取 Material 的 headline large，`body` 取 body medium，`label` 取 label large——并添加了 `display-large`（57px）和 `display-small`（36px），因为 Material 有三种 display 尺寸，而一个产品只需要一种。它的强调级差就是 Material 的：display、标题和正文加 100，标签加 200。保真度测量工具会测量 Material 发布的每一种文本样式（包括强调样式在内共三十种），连同颜色角色和 Button 一起：在 288 个被测量的令牌中，273 个相等，14 个被另一个令牌覆盖，1 个在一条已登记的模仿差距之下列为未映射，没有一个不同——在[设计系统页面](/zh-cn/foundations/design-systems/)上显示为 273 / 274，那里不把被覆盖的令牌计算在内。这些数字读取自 `tokens/generated/m3-like/fidelity.json`，该文件由构建重写。
-- **`cupertino`** 按 Apple 的十一种 iOS 文本样式——从 Large Title 到 Caption 2——为每个角色重新赋值，并添加了核心没有命名的三种：`body-callout`、`body-subhead` 和 `caption-small`。它的强调级差是 display 加 100，其余加 200，这正是 Apple 的常规样式与强调样式之间的差距。
+- **`cupertino`** 按 Apple 的十一种 iOS 文本样式——从 Large Title 到 Caption 2——为每个角色重新赋值，并添加了核心没有命名的三种：`body-callout`、`body-subhead` 和 `caption-small`。Large Title 和 Title 1 至 3 与 Apple 一样是 Regular。它的强调级差是 display 和标题加 300，正文和标签加 200：Apple 强调的 Large Title、Title 1 和 Title 2 是 Bold，强调的正文样式是 Semibold。Apple 中 Title 3 和 Headline 的级差更小（强调后都是 Semibold），每个系列一个级差无法表现这一点。
 
 预设添加的角色在每个平台上都是普通的令牌：`m3-like` 的 `display-large` 在 Web 上是 `--tanrei-sys-typescale-display-large-font`，在每个原生软件包中则是字阶的一个成员。Theme Studio 的预览会把它画在字阶预览里，与那十六个角色并列。
 

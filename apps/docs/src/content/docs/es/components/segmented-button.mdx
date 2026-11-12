@@ -2,13 +2,14 @@
 title: Botón segmentado
 description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
 translationOf: components/segmented-button.mdx
-sourceHash: f5dba2ffe4e9e720932015a4fb412a533c20b3b9
+sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -280,6 +281,8 @@ El conjunto no tiene un `disabled` propio. Deshabilita los segmentos uno a uno. 
 - No cambies la etiqueta de un segmento según su estado. La selección se anuncia por separado.
 
 ## Accesibilidad
+
+<FocusOrder name="segmented-button" fixture="single" />
 
 <ComponentAccessibility name="segmented-button" />
 

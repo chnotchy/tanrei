@@ -2,7 +2,7 @@
 title: العرض الشجري
 description: تسلسل هرمي من عناصر تُفتح وتُغلق. تبدأ الصفوف أبعد إلى الداخل مع كل مستوى، وفي بداية كل صف يحمل غيره سهم صغير. يُقرأ ويُفتح فقط، أو يُختار فيه عنصر واحد أو عدة عناصر، وهو موضع توقف واحد في ترتيب التركيز.
 translationOf: components/tree-view.mdx
-sourceHash: 09e04ed2fb833d9b3865135fa0bf97cead808e91
+sourceHash: 009cdefef85fdf78f01e2291384238744f74271f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="tree-view" />
 
 <Example label="شجرة ملفات: افتح مجلدًا من صفه، أو بمفاتيح الأسهم">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="أين توجد الرموز" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="أين توجد الرموز" size="small" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>مصدر الحقيقة، يُعدَّل يدويًّا</small></bdi></span>
@@ -155,7 +155,7 @@ import Example from '../../../../components/visuals/Example.astro';
 ## المواصفات
 
 <Example label="عنصر واحد مختار: الصف يختار، والسهم الصغير يفتح">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="كل الرموز" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="كل الرموز" selection="single" value="sys.color.primary" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>المرجع</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
       <li data-open>
@@ -209,19 +209,19 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ترسم الشجرة تعبئة التحديد على صف العنصر نفسه. لا تعلّم عنصرًا أبًا لأن عنصرًا تحته محدَّد، ولا تفتح عنصرًا أبًا مغلقًا لتُظهر تحديدًا. وإن وجب أن يكون العنصر المختار ظاهرًا، فضع `data-open` على العناصر الآباء التي فوقه: أنت تعرف المسار.
 
-### الكثافة
+### الحجم
 
-| `density` | الصف ذو السطر الواحد | يُستخدم لـ |
+| `size` | الصف ذو السطر الواحد | يُستخدم لـ |
 | --- | --- | --- |
-| `regular` (الافتراضي) | 48 | منتج يُستخدم باللمس كما يُستخدم بمؤشر الإدخال. |
-| `compact` | 32 | أداة تُتصفَّح بمؤشر الإدخال، وشجرة صغيرة داخل صفحة نصية. |
+| `medium` (الافتراضي) | 48 | منتج يُستخدم باللمس كما يُستخدم بمؤشر الإدخال. |
+| `small` | 36 | أداة تُتصفَّح بمؤشر الإدخال، وشجرة صغيرة داخل صفحة نصية. |
 
-الصف بالكثافة compact أقصر من هدف مؤشر الإدخال. وهذا مقبول لأنه يُطلب بالاسم وليس الافتراضي أبدًا. أما للّمس فالصف بارتفاع هدف اللمس في الكثافتين.
+يُثبَّت الصف بالحجم `small` عند الحد الأدنى للهدف، وهو 36 في النظام الافتراضي، ولا يكون أي صف أقصر من الهدف في أي من الحجمين. ويتبع الارتفاعان [كثافة](/ar/foundations/size-and-density/) النظام. والشجرة التي لا يُضبط لها `size` تُرسم بالحجم الذي تضبطه لما تحتويه حاويةٌ تحيط بها، وبالحجم `medium` حيث لا تضبطه أي حاوية.
 
 ### السهم
 
 <Example label="chevron end: العلامة بعد القيمة، كما ترسمها القائمة">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" chevron="end" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><bdi>src</bdi><span data-trailing-text>12</span></span>
@@ -242,7 +242,7 @@ import Example from '../../../../components/visuals/Example.astro';
 | `none` | لا مكان | مجلدات تُظهر حالتها برسمها. |
 
 <Example label="chevron none: رسم المجلد يبيّن الفتح والإغلاق؛ وتظهر خطوط الإرشاد تحت المؤشر">
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" chevron="none" guides="hover" size="small" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -273,7 +273,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### الأيقونات وحيّزها
 
-`icon-space="auto"` (الافتراضي) يحتفظ بحيّز أيقونة في صف بلا أيقونة ما دام في مستواه صف آخر له أيقونة، كي تقف تسميات المستوى في عمود واحد. و`always` يحتفظ به في كل صف، و`never` حيث توجد أيقونة فقط. و`icon-gap` يضبط بالبكسل الحيّز بين الأيقونة والتسمية؛ وإن تُرك `auto` فهو الرمز `comp.tree-view.icon.gap`، نفسه في الكثافتين.
+`icon-space="auto"` (الافتراضي) يحتفظ بحيّز أيقونة في صف بلا أيقونة ما دام في مستواه صف آخر له أيقونة، كي تقف تسميات المستوى في عمود واحد. و`always` يحتفظ به في كل صف، و`never` حيث توجد أيقونة فقط. و`icon-gap` يضبط بالبكسل الحيّز بين الأيقونة والتسمية؛ وإن تُرك `auto` فهو الرمز `comp.tree-view.icon.gap`، نفسه في الحجمين.
 
 ### التمييز
 
@@ -367,7 +367,7 @@ tree.addEventListener('create', (event) => {
 
 <FocusOrder name="tree-view" fixture="filter" />
 
-<ComponentAccessibility name="tree-view" keyboardMap />
+<ComponentAccessibility name="tree-view" />
 
 ### ما يتكفل به المكوّن
 
@@ -391,7 +391,7 @@ tree.addEventListener('create', (event) => {
 - حقل التصفية حقل بحث اسمه `filter-label`، قبل الشجرة، وهو موضع توقف مستقل، فتبقى الشجرة موضع توقف واحدًا. ويقول إنه يتحكم في الشجرة، ولا يسمّي فرعًا نشطًا (active descendant): تُقرأ المطابقة الأولى حين ينقل السهم للأسفل التركيز إليها. وزر المسح فيه اسمه `filter-clear-label`.
 - الصفوف التي تخفيها التصفية تزول عن التقنيات المساعدة أيضًا، فكل مستوى وموضع وعدد يسمعه الشخص هو ما بعد التصفية. وحين تتوقف الكتابة ثانية واحدة، تقول حالة بجانب الشجرة، بتهذيب (polite) ومن غير نقل التركيز، كم صفًّا يطابق، أو أنه لا يطابق أي صف: وهذا وحده ما تُعلنه الشجرة. والعدد المرسوم في أعلى النتائج مخفي عن التقنيات المساعدة، التي تسمع الحالة بدلًا منه.
 - لا يُميَّز الصف المطابق، فلا يُنقل شيء باللون وحده، ويبقى اسم الصف تسميته كاملة.
-- يُبلَّغ في بنيات التنقيح عن `label` فارغة، وعن عنصر بلا تسمية، وعن تسمية مكتوبة نصًّا للصف نفسه، وعن عنصر تحكم في صف، وعن قيمة لا تسمّي أي عنصر، وعن عنصرين لهما قيمة واحدة، وعن قيمة غير معروفة للخاصية `density` أو `selection` أو `chevron` أو `guides` أو `icon-space` أو `highlight`، وعن `indent` أو `icon-gap` ليس عددًا، وعن عنصر أب بلا أيقونة مع `chevron="none"`، وعن حقل بلا `edit-label`، وعن حقل تصفية بلا `filter-label`، وعن زر مسح بلا اسم، وعن `filter-shortcut` فيه أكثر من تآلف مفاتيح واحد.
+- يُبلَّغ في بنيات التنقيح عن `label` فارغة، وعن عنصر بلا تسمية، وعن تسمية مكتوبة نصًّا للصف نفسه، وعن عنصر تحكم في صف، وعن قيمة لا تسمّي أي عنصر، وعن عنصرين لهما قيمة واحدة، وعن قيمة غير معروفة للخاصية `size` أو `selection` أو `chevron` أو `guides` أو `icon-space` أو `highlight`، وعن `indent` أو `icon-gap` ليس عددًا، وعن عنصر أب بلا أيقونة مع `chevron="none"`، وعن حقل بلا `edit-label`، وعن حقل تصفية بلا `filter-label`، وعن زر مسح بلا اسم، وعن `filter-shortcut` فيه أكثر من تآلف مفاتيح واحد.
 
 ### ما عليك فعله
 

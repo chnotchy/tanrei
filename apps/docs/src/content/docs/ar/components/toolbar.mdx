@@ -2,13 +2,14 @@
 title: شريط الأدوات
 description: يجمع مجموعة من عناصر التحكم المترابطة في موضع توقف واحد للمفتاح Tab، ضمن المحتوى حيث يحتاج إليه، أو راسيًا على امتداد الحافة السفلية، أو عائمًا فوق المحتوى. تنقل مفاتيح الأسهم بين عناصر التحكم فيه، وما لا تتسع له المساحة ينتقل إلى قائمة الفائض.
 translationOf: components/toolbar.mdx
-sourceHash: 143ac10ad1060e6880626356b277939a462728f1
+sourceHash: 1327d86415c8f6908fb2e64720953a22e06b32d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -428,6 +429,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تضع وجهات تنقل في شريط الأدوات. عناصره عناصر تحكم تعمل على المحتوى.
 
 ## إمكانية الوصول
+
+<FocusOrder name="toolbar" fixture="inline-fields" />
 
 <ComponentAccessibility name="toolbar" />
 

@@ -1,4 +1,4 @@
-// 113 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 226 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // System values of "cupertino". Generated the same way for every system; the types are in TanreiTokens.swift.
@@ -26,19 +26,19 @@ private let cupertinoTypescale = TanreiTypescale(
   caption: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 12, weight: 400, tracking: 0, lineHeight: 16, family: .label),
   code: TanreiTextStyle(font: cupertinoTypefaces.mono, size: 13, weight: 400, tracking: 0, lineHeight: 20, family: .label),
   codeSmall: TanreiTextStyle(font: cupertinoTypefaces.mono, size: 12, weight: 400, tracking: 0, lineHeight: 16, family: .label),
-  display: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 34, weight: 700, tracking: 0, lineHeight: 41, family: .display),
+  display: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 34, weight: 400, tracking: 0, lineHeight: 41, family: .display),
   eyebrow: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 12, weight: 500, tracking: 0.96, lineHeight: 16, family: .label),
-  heading1: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 28, weight: 700, tracking: 0, lineHeight: 34, family: .heading),
-  heading2: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 22, weight: 700, tracking: 0, lineHeight: 28, family: .heading),
-  heading3: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 20, weight: 600, tracking: 0, lineHeight: 25, family: .heading),
+  heading1: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 28, weight: 400, tracking: 0, lineHeight: 34, family: .heading),
+  heading2: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 22, weight: 400, tracking: 0, lineHeight: 28, family: .heading),
+  heading3: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 20, weight: 400, tracking: 0, lineHeight: 25, family: .heading),
   heading4: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 17, weight: 600, tracking: 0, lineHeight: 22, family: .heading),
   heading5: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 16, weight: 600, tracking: 0, lineHeight: 21, family: .heading),
   heading6: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 15, weight: 600, tracking: 0, lineHeight: 20, family: .heading),
   label: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 17, weight: 400, tracking: 0, lineHeight: 22, family: .label),
   labelSmall: TanreiTextStyle(font: cupertinoTypefaces.brand, size: 13, weight: 400, tracking: 0, lineHeight: 18, family: .label),
   emphasis: TanreiTypeEmphasis(
-    display: 100,
-    heading: 200,
+    display: 300,
+    heading: 300,
     body: 200,
     label: 200
   ),
@@ -73,41 +73,41 @@ private let cupertinoLightColors = TanreiColors(scheme: .light, values: [
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.08),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.12),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.2),
-  .error: TanreiColorValue(red: 0.9333, green: 0.2157, blue: 0.1686, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 1, green: 0.8863, blue: 0.8667, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0.0314, green: 0.4784, blue: 1, opacity: 1),
+  .error: TanreiColorValue(red: 1, green: 0.2196, blue: 0.2353, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 1, green: 0.8863, blue: 0.8745, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0, green: 0.4941, blue: 0.9294, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0, green: 0.5333, blue: 0.7255, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0.8196, green: 0.9255, blue: 1, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0.502, green: 0.6667, blue: 1, opacity: 1),
+  .info: TanreiColorValue(red: 0, green: 0.7529, blue: 0.9098, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0.7725, green: 0.9373, blue: 1, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0.4627, green: 0.6745, blue: 1, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0.9882, green: 0.9725, blue: 0.9804, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0.502, green: 0.6667, blue: 1, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0.4627, green: 0.6745, blue: 1, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .link: TanreiColorValue(red: 0.0314, green: 0.4784, blue: 1, opacity: 1),
+  .link: TanreiColorValue(red: 0, green: 0.4941, blue: 0.9294, opacity: 1),
   .onError: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 0.6627, green: 0, blue: 0.0235, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 0.6627, green: 0, blue: 0.0863, opacity: 1),
   .onInfo: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0, green: 0.349, blue: 0.4784, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0, green: 0.3529, blue: 0.4314, opacity: 1),
   .onPrimary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.3098, blue: 0.6706, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.3216, blue: 0.6196, opacity: 1),
   .onSecondary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0.0314, green: 0.4784, blue: 1, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0, green: 0.4941, blue: 0.9294, opacity: 1),
   .onSuccess: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.3765, blue: 0.1255, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.3765, blue: 0.1333, opacity: 1),
   .onSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.4196, green: 0.4157, blue: 0.4235, opacity: 1),
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 0.4667, green: 0.2824, blue: 0, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 0.5098, green: 0.2549, blue: 0, opacity: 1),
   .outline: TanreiColorValue(red: 0.7647, green: 0.7529, blue: 0.7608, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.12),
-  .primary: TanreiColorValue(red: 0.0314, green: 0.4784, blue: 1, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0.8784, green: 0.9098, blue: 1, opacity: 1),
+  .primary: TanreiColorValue(red: 0, green: 0.5333, blue: 1, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0.8706, green: 0.9098, blue: 1, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.5216, green: 0.5137, blue: 0.5216, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0, green: 0.5765, blue: 0.2118, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0.5961, green: 1, blue: 0.6235, opacity: 1),
+  .success: TanreiColorValue(red: 0.2039, green: 0.7804, blue: 0.349, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0.5961, green: 1, blue: 0.6275, opacity: 1),
   .surface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
@@ -117,8 +117,8 @@ private let cupertinoLightColors = TanreiColors(scheme: .light, values: [
   .surfaceContainerLowest: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .warning: TanreiColorValue(red: 0.7059, green: 0.4353, blue: 0, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 1, green: 0.8941, blue: 0.7882, opacity: 1),
+  .warning: TanreiColorValue(red: 1, green: 0.5529, blue: 0.1569, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 1, green: 0.8902, blue: 0.8196, opacity: 1),
 ])
 
 private let cupertinoLightMediumColors = TanreiColors(scheme: .lightMedium, values: [
@@ -126,41 +126,41 @@ private let cupertinoLightMediumColors = TanreiColors(scheme: .lightMedium, valu
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.08),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.12),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.2),
-  .error: TanreiColorValue(red: 0.7451, green: 0.0431, blue: 0.051, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 1, green: 0.8549, blue: 0.8353, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0, green: 0.3529, blue: 0.7608, opacity: 1),
+  .error: TanreiColorValue(red: 0.9137, green: 0.0824, blue: 0.1765, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 1, green: 0.8549, blue: 0.8431, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0, green: 0.3686, blue: 0.702, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0, green: 0.3961, blue: 0.5451, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0.7725, green: 0.9059, blue: 1, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0.5922, green: 0.7216, blue: 1, opacity: 1),
+  .info: TanreiColorValue(red: 0, green: 0.4941, blue: 0.6824, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0.7059, green: 0.9216, blue: 1, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0.5647, green: 0.7294, blue: 1, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0.9882, green: 0.9725, blue: 0.9804, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0.5922, green: 0.7216, blue: 1, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0.5647, green: 0.7294, blue: 1, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .link: TanreiColorValue(red: 0, green: 0.3529, blue: 0.7608, opacity: 1),
+  .link: TanreiColorValue(red: 0, green: 0.3686, blue: 0.702, opacity: 1),
   .onError: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 0.5451, green: 0, blue: 0.0157, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 0.5412, green: 0, blue: 0.0627, opacity: 1),
   .onInfo: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0, green: 0.2784, blue: 0.3882, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0, green: 0.2863, blue: 0.349, opacity: 1),
   .onPrimary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.2471, blue: 0.5451, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.2588, blue: 0.5059, opacity: 1),
   .onSecondary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0, green: 0.3529, blue: 0.7608, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0, green: 0.3686, blue: 0.702, opacity: 1),
   .onSuccess: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.3059, blue: 0.0941, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.3059, blue: 0.102, opacity: 1),
   .onSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.3255, green: 0.3216, blue: 0.3294, opacity: 1),
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 0.3765, green: 0.2235, blue: 0, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 0.4157, green: 0.2039, blue: 0, opacity: 1),
   .outline: TanreiColorValue(red: 0.4706, green: 0.4667, blue: 0.4706, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.18),
-  .primary: TanreiColorValue(red: 0, green: 0.3529, blue: 0.7608, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0.8471, green: 0.8863, blue: 1, opacity: 1),
+  .primary: TanreiColorValue(red: 0.1176, green: 0.4314, blue: 0.9569, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0.8353, green: 0.8902, blue: 1, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.3922, green: 0.3882, blue: 0.3922, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.8941, green: 0.8863, blue: 0.8902, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0, green: 0.4314, blue: 0.149, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0.4784, green: 0.9922, blue: 0.5412, opacity: 1),
+  .success: TanreiColorValue(red: 0, green: 0.5373, blue: 0.1961, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0.4471, green: 0.9961, blue: 0.5333, opacity: 1),
   .surface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
@@ -170,8 +170,8 @@ private let cupertinoLightMediumColors = TanreiColors(scheme: .lightMedium, valu
   .surfaceContainerLowest: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .warning: TanreiColorValue(red: 0.5294, green: 0.3216, blue: 0, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 1, green: 0.8667, blue: 0.7294, opacity: 1),
+  .warning: TanreiColorValue(red: 0.7725, green: 0.3255, blue: 0, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 1, green: 0.8627, blue: 0.7725, opacity: 1),
 ])
 
 private let cupertinoLightHighColors = TanreiColors(scheme: .lightHigh, values: [
@@ -179,41 +179,41 @@ private let cupertinoLightHighColors = TanreiColors(scheme: .lightHigh, values: 
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.08),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.12),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.2),
-  .error: TanreiColorValue(red: 0.5765, green: 0, blue: 0.0157, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 1, green: 0.8275, blue: 0.8, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0, green: 0.2667, blue: 0.5804, opacity: 1),
+  .error: TanreiColorValue(red: 0.9137, green: 0.0824, blue: 0.1765, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 1, green: 0.8235, blue: 0.8078, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0, green: 0.2745, blue: 0.5373, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0, green: 0.298, blue: 0.4157, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0.7216, green: 0.8902, blue: 1, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0.7647, green: 0.8314, blue: 1, opacity: 1),
+  .info: TanreiColorValue(red: 0, green: 0.4941, blue: 0.6824, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0.6392, green: 0.9059, blue: 1, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0.749, green: 0.8353, blue: 1, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0.9882, green: 0.9725, blue: 0.9804, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0.7647, green: 0.8314, blue: 1, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0.749, green: 0.8353, blue: 1, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .link: TanreiColorValue(red: 0, green: 0.2667, blue: 0.5804, opacity: 1),
+  .link: TanreiColorValue(red: 0, green: 0.2745, blue: 0.5373, opacity: 1),
   .onError: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 0.2863, green: 0, blue: 0.0039, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 0.2824, green: 0, blue: 0.0157, opacity: 1),
   .onInfo: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0, green: 0.1333, blue: 0.1961, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0, green: 0.1373, blue: 0.1765, opacity: 1),
   .onPrimary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.1176, blue: 0.2863, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0, green: 0.1216, blue: 0.2627, opacity: 1),
   .onSecondary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0, green: 0.1961, blue: 0.4471, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0, green: 0.2039, blue: 0.4118, opacity: 1),
   .onSuccess: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.149, blue: 0.0314, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0, green: 0.149, blue: 0.0353, opacity: 1),
   .onSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.1882, green: 0.1882, blue: 0.1961, opacity: 1),
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 0.1922, green: 0.1059, blue: 0, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 0.2118, green: 0.0902, blue: 0, opacity: 1),
   .outline: TanreiColorValue(red: 0.3255, green: 0.3216, blue: 0.3294, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.3),
-  .primary: TanreiColorValue(red: 0, green: 0.2667, blue: 0.5804, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0.8118, green: 0.8667, blue: 1, opacity: 1),
+  .primary: TanreiColorValue(red: 0.1176, green: 0.4314, blue: 0.9569, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0.8, green: 0.8667, blue: 1, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.2588, green: 0.2588, blue: 0.2627, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.8745, green: 0.8627, blue: 0.8706, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0, green: 0.3255, blue: 0.1059, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0.4588, green: 0.9686, blue: 0.5216, opacity: 1),
+  .success: TanreiColorValue(red: 0, green: 0.5373, blue: 0.1961, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0.4235, green: 0.9725, blue: 0.5137, opacity: 1),
   .surface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
@@ -223,8 +223,8 @@ private let cupertinoLightHighColors = TanreiColors(scheme: .lightHigh, values: 
   .surfaceContainerLowest: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0.9529, green: 0.9412, blue: 0.9451, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .warning: TanreiColorValue(red: 0.4039, green: 0.2392, blue: 0, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 1, green: 0.8392, blue: 0.6706, opacity: 1),
+  .warning: TanreiColorValue(red: 0.7725, green: 0.3255, blue: 0, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 1, green: 0.8314, blue: 0.7255, opacity: 1),
 ])
 
 private let cupertinoDarkColors = TanreiColors(scheme: .dark, values: [
@@ -232,41 +232,41 @@ private let cupertinoDarkColors = TanreiColors(scheme: .dark, values: [
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.3),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.5),
-  .error: TanreiColorValue(red: 1, green: 0.3333, blue: 0.2667, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 0.4941, green: 0, blue: 0.0118, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0.298, green: 0.5569, blue: 1, opacity: 1),
+  .error: TanreiColorValue(red: 1, green: 0.2588, blue: 0.2706, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 0.4902, green: 0, blue: 0.0549, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0.2039, green: 0.5686, blue: 1, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0.0824, green: 0.6078, blue: 0.8196, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0, green: 0.251, blue: 0.3529, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0, green: 0.4, blue: 0.851, opacity: 1),
+  .info: TanreiColorValue(red: 0.2353, green: 0.8275, blue: 0.9961, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0, green: 0.2549, blue: 0.3176, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0, green: 0.4157, blue: 0.7882, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0, green: 0.4, blue: 0.851, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0, green: 0.4157, blue: 0.7882, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .link: TanreiColorValue(red: 0.298, green: 0.5569, blue: 1, opacity: 1),
+  .link: TanreiColorValue(red: 0.2039, green: 0.5686, blue: 1, opacity: 1),
   .onError: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 1, green: 0.7804, blue: 0.749, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 1, green: 0.7804, blue: 0.7608, opacity: 1),
   .onInfo: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0.6431, green: 0.8627, blue: 1, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0.5255, green: 0.8824, blue: 1, opacity: 1),
   .onPrimary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0.7647, green: 0.8314, blue: 1, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0.749, green: 0.8353, blue: 1, opacity: 1),
   .onSecondary: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0.298, green: 0.5569, blue: 1, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0.2039, green: 0.5686, blue: 1, opacity: 1),
   .onSuccess: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0.4235, green: 0.9333, blue: 0.4902, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0.3882, green: 0.9373, blue: 0.4824, opacity: 1),
   .onSurface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.6235, green: 0.6157, blue: 0.6235, opacity: 1),
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 1, green: 0.7961, blue: 0.5725, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 1, green: 0.7922, blue: 0.6471, opacity: 1),
   .outline: TanreiColorValue(red: 0.3255, green: 0.3216, blue: 0.3294, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.16),
-  .primary: TanreiColorValue(red: 0.298, green: 0.5569, blue: 1, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0, green: 0.2235, blue: 0.4941, opacity: 1),
+  .primary: TanreiColorValue(red: 0, green: 0.5686, blue: 1, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0, green: 0.2314, blue: 0.4588, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.6235, green: 0.6157, blue: 0.6235, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0.0667, green: 0.6549, blue: 0.251, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0824, opacity: 1),
+  .success: TanreiColorValue(red: 0.1882, green: 0.8196, blue: 0.3451, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0863, opacity: 1),
   .surface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
@@ -276,8 +276,8 @@ private let cupertinoDarkColors = TanreiColors(scheme: .dark, values: [
   .surfaceContainerLowest: TanreiColorValue(red: 0.1137, green: 0.1137, blue: 0.1216, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .warning: TanreiColorValue(red: 0.8039, green: 0.498, blue: 0, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 0.3412, green: 0.2, blue: 0, opacity: 1),
+  .warning: TanreiColorValue(red: 1, green: 0.5725, blue: 0.1882, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 0.3725, green: 0.1804, blue: 0, opacity: 1),
 ])
 
 private let cupertinoDarkMediumColors = TanreiColors(scheme: .darkMedium, values: [
@@ -285,41 +285,41 @@ private let cupertinoDarkMediumColors = TanreiColors(scheme: .darkMedium, values
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.3),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.5),
-  .error: TanreiColorValue(red: 1, green: 0.5765, blue: 0.5176, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 0.4941, green: 0, blue: 0.0118, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0.5412, green: 0.6902, blue: 1, opacity: 1),
+  .error: TanreiColorValue(red: 1, green: 0.3804, blue: 0.3961, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 0.4902, green: 0, blue: 0.0549, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0.3608, green: 0.7216, blue: 1, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0.298, green: 0.7333, blue: 0.9529, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0, green: 0.251, blue: 0.3529, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0, green: 0.3373, blue: 0.7216, opacity: 1),
+  .info: TanreiColorValue(red: 0.4275, green: 0.851, blue: 1, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0, green: 0.2549, blue: 0.3176, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0, green: 0.349, blue: 0.6706, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0, green: 0.3373, blue: 0.7216, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0, green: 0.349, blue: 0.6706, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .link: TanreiColorValue(red: 0.5412, green: 0.6902, blue: 1, opacity: 1),
-  .onError: TanreiColorValue(red: 0.1765, green: 0, blue: 0, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 1, green: 0.8549, blue: 0.8353, opacity: 1),
-  .onInfo: TanreiColorValue(red: 0, green: 0.0745, blue: 0.1176, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0.7725, green: 0.9059, blue: 1, opacity: 1),
-  .onPrimary: TanreiColorValue(red: 0, green: 0.0627, blue: 0.1765, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0.8471, green: 0.8863, blue: 1, opacity: 1),
+  .link: TanreiColorValue(red: 0.3608, green: 0.7216, blue: 1, opacity: 1),
+  .onError: TanreiColorValue(red: 0.1765, green: 0, blue: 0.0078, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 1, green: 0.8549, blue: 0.8431, opacity: 1),
+  .onInfo: TanreiColorValue(red: 0, green: 0.0745, blue: 0.102, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0.7059, green: 0.9216, blue: 1, opacity: 1),
+  .onPrimary: TanreiColorValue(red: 0, green: 0.0667, blue: 0.1608, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0.8353, green: 0.8902, blue: 1, opacity: 1),
   .onSecondary: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0.6118, green: 0.7333, blue: 1, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0.5804, green: 0.7412, blue: 1, opacity: 1),
   .onSuccess: TanreiColorValue(red: 0, green: 0.0824, blue: 0.0118, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0.4784, green: 0.9922, blue: 0.5412, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0.4471, green: 0.9961, blue: 0.5333, opacity: 1),
   .onSurface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.7647, green: 0.7529, blue: 0.7608, opacity: 1),
-  .onWarning: TanreiColorValue(red: 0.1098, green: 0.051, blue: 0, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 1, green: 0.8667, blue: 0.7294, opacity: 1),
+  .onWarning: TanreiColorValue(red: 0.1255, green: 0.0431, blue: 0, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 1, green: 0.8627, blue: 0.7725, opacity: 1),
   .outline: TanreiColorValue(red: 0.6235, green: 0.6157, blue: 0.6235, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.24),
-  .primary: TanreiColorValue(red: 0.5412, green: 0.6902, blue: 1, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0, green: 0.2235, blue: 0.4941, opacity: 1),
+  .primary: TanreiColorValue(red: 0.3608, green: 0.7216, blue: 1, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0, green: 0.2314, blue: 0.4588, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.7647, green: 0.7529, blue: 0.7608, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.1804, green: 0.1804, blue: 0.1843, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0.2667, green: 0.7882, blue: 0.3647, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0824, opacity: 1),
+  .success: TanreiColorValue(red: 0.2902, green: 0.851, blue: 0.4078, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0863, opacity: 1),
   .surface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
@@ -329,8 +329,8 @@ private let cupertinoDarkMediumColors = TanreiColors(scheme: .darkMedium, values
   .surfaceContainerLowest: TanreiColorValue(red: 0.1137, green: 0.1137, blue: 0.1216, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .warning: TanreiColorValue(red: 0.9686, green: 0.6118, blue: 0.0588, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 0.3412, green: 0.2, blue: 0, opacity: 1),
+  .warning: TanreiColorValue(red: 1, green: 0.6275, blue: 0.3373, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 0.3725, green: 0.1804, blue: 0, opacity: 1),
 ])
 
 private let cupertinoDarkHighColors = TanreiColors(scheme: .darkHigh, values: [
@@ -338,41 +338,41 @@ private let cupertinoDarkHighColors = TanreiColors(scheme: .darkHigh, values: [
   .elevationShadow1: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.3),
   .elevationShadow2: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .elevationShadow3: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.5),
-  .error: TanreiColorValue(red: 1, green: 0.8118, blue: 0.7843, opacity: 1),
-  .errorContainer: TanreiColorValue(red: 0.4941, green: 0, blue: 0.0118, opacity: 1),
-  .focusRing: TanreiColorValue(red: 0.7961, green: 0.8549, blue: 1, opacity: 1),
+  .error: TanreiColorValue(red: 1, green: 0.3804, blue: 0.3961, opacity: 1),
+  .errorContainer: TanreiColorValue(red: 0.4902, green: 0, blue: 0.0549, opacity: 1),
+  .focusRing: TanreiColorValue(red: 0.7843, green: 0.8588, blue: 1, opacity: 1),
   .focusRingInner: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0),
-  .info: TanreiColorValue(red: 0.6941, green: 0.8784, blue: 1, opacity: 1),
-  .infoContainer: TanreiColorValue(red: 0, green: 0.251, blue: 0.3529, opacity: 1),
-  .inverseLink: TanreiColorValue(red: 0, green: 0.2471, blue: 0.5451, opacity: 1),
+  .info: TanreiColorValue(red: 0.4275, green: 0.851, blue: 1, opacity: 1),
+  .infoContainer: TanreiColorValue(red: 0, green: 0.2549, blue: 0.3176, opacity: 1),
+  .inverseLink: TanreiColorValue(red: 0, green: 0.2588, blue: 0.5059, opacity: 1),
   .inverseOnSurface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .inversePrimary: TanreiColorValue(red: 0, green: 0.2471, blue: 0.5451, opacity: 1),
+  .inversePrimary: TanreiColorValue(red: 0, green: 0.2588, blue: 0.5059, opacity: 1),
   .inverseSurface: TanreiColorValue(red: 0.9176, green: 0.9059, blue: 0.9137, opacity: 1),
-  .link: TanreiColorValue(red: 0.7961, green: 0.8549, blue: 1, opacity: 1),
+  .link: TanreiColorValue(red: 0.7843, green: 0.8588, blue: 1, opacity: 1),
   .onError: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onErrorContainer: TanreiColorValue(red: 1, green: 0.9569, blue: 0.949, opacity: 1),
+  .onErrorContainer: TanreiColorValue(red: 1, green: 0.9569, blue: 0.9529, opacity: 1),
   .onInfo: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onInfoContainer: TanreiColorValue(red: 0.9373, green: 0.9686, blue: 1, opacity: 1),
+  .onInfoContainer: TanreiColorValue(red: 0.9216, green: 0.9765, blue: 1, opacity: 1),
   .onPrimary: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onPrimaryContainer: TanreiColorValue(red: 0.9608, green: 0.9647, blue: 1, opacity: 1),
+  .onPrimaryContainer: TanreiColorValue(red: 0.9569, green: 0.9647, blue: 1, opacity: 1),
   .onSecondary: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onSecondaryContainer: TanreiColorValue(red: 0.8784, green: 0.9098, blue: 1, opacity: 1),
+  .onSecondaryContainer: TanreiColorValue(red: 0.8706, green: 0.9098, blue: 1, opacity: 1),
   .onSuccess: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onSuccessContainer: TanreiColorValue(red: 0.8784, green: 1, blue: 0.8588, opacity: 1),
+  .onSuccessContainer: TanreiColorValue(red: 0.8784, green: 1, blue: 0.8627, opacity: 1),
   .onSurface: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .onSurfaceVariant: TanreiColorValue(red: 0.8941, green: 0.8863, blue: 0.8902, opacity: 1),
   .onWarning: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .onWarningContainer: TanreiColorValue(red: 1, green: 0.9608, blue: 0.9294, opacity: 1),
+  .onWarningContainer: TanreiColorValue(red: 1, green: 0.9569, blue: 0.9373, opacity: 1),
   .outline: TanreiColorValue(red: 0.7843, green: 0.7765, blue: 0.7804, opacity: 1),
   .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.4),
-  .primary: TanreiColorValue(red: 0.7961, green: 0.8549, blue: 1, opacity: 1),
-  .primaryContainer: TanreiColorValue(red: 0, green: 0.2235, blue: 0.4941, opacity: 1),
+  .primary: TanreiColorValue(red: 0.3608, green: 0.7216, blue: 1, opacity: 1),
+  .primaryContainer: TanreiColorValue(red: 0, green: 0.2314, blue: 0.4588, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
   .secondary: TanreiColorValue(red: 0.8941, green: 0.8863, blue: 0.8902, opacity: 1),
   .secondaryContainer: TanreiColorValue(red: 0.2078, green: 0.2039, blue: 0.2118, opacity: 1),
   .shadow: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
-  .success: TanreiColorValue(red: 0.4471, green: 0.9569, blue: 0.5098, opacity: 1),
-  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0824, opacity: 1),
+  .success: TanreiColorValue(red: 0.2902, green: 0.851, blue: 0.4078, opacity: 1),
+  .successContainer: TanreiColorValue(red: 0, green: 0.2745, blue: 0.0863, opacity: 1),
   .surface: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceBright: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
   .surfaceContainer: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
@@ -382,8 +382,8 @@ private let cupertinoDarkHighColors = TanreiColors(scheme: .darkHigh, values: [
   .surfaceContainerLowest: TanreiColorValue(red: 0.1137, green: 0.1137, blue: 0.1216, opacity: 1),
   .surfaceDim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .surfaceVariant: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1686, opacity: 1),
-  .warning: TanreiColorValue(red: 1, green: 0.8235, blue: 0.6392, opacity: 1),
-  .warningContainer: TanreiColorValue(red: 0.3412, green: 0.2, blue: 0, opacity: 1),
+  .warning: TanreiColorValue(red: 1, green: 0.6275, blue: 0.3373, opacity: 1),
+  .warningContainer: TanreiColorValue(red: 0.3725, green: 0.1804, blue: 0, opacity: 1),
 ])
 
 private let cupertinoAccordionTokens = TanreiAccordionTokens(
@@ -497,19 +497,8 @@ private let cupertinoAccordionTokens = TanreiAccordionTokens(
       )
     )
   ),
-  densitys: TanreiAccordionDensitys(
-    regular: TanreiAccordionDensityTokens(
-      containerHeight: 56,
-      containerPaddingBlock: 16,
-      containerPaddingInline: 16,
-      labelTypescale: cupertinoTypescale.heading5,
-      supportingTextTypescale: cupertinoTypescale.body,
-      trailingTextTypescale: cupertinoTypescale.body,
-      iconSize: 24,
-      chevronSize: 24,
-      contentPaddingBlockEnd: 16
-    ),
-    compact: TanreiAccordionDensityTokens(
+  sizes: TanreiAccordionSizes(
+    small: TanreiAccordionSizeTokens(
       containerHeight: 48,
       containerPaddingBlock: 12,
       containerPaddingInline: 12,
@@ -519,6 +508,17 @@ private let cupertinoAccordionTokens = TanreiAccordionTokens(
       iconSize: 20,
       chevronSize: 20,
       contentPaddingBlockEnd: 12
+    ),
+    medium: TanreiAccordionSizeTokens(
+      containerHeight: 56,
+      containerPaddingBlock: 16,
+      containerPaddingInline: 16,
+      labelTypescale: cupertinoTypescale.heading5,
+      supportingTextTypescale: cupertinoTypescale.body,
+      trailingTextTypescale: cupertinoTypescale.body,
+      iconSize: 24,
+      chevronSize: 24,
+      contentPaddingBlockEnd: 16
     )
   ),
   hovered: TanreiAccordionStateTokens(
@@ -3344,17 +3344,8 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
       )
     )
   ),
-  densitys: TanreiComboboxDensitys(
-    regular: TanreiComboboxDensityTokens(
-      optionHeight: 44,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 16,
-      optionMarkSize: 16,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiComboboxDensityTokens(
+  optionSizes: TanreiComboboxOptionSizes(
+    small: TanreiComboboxOptionSizeTokens(
       optionHeight: 32,
       optionPaddingInline: 8,
       optionPaddingBlock: 6,
@@ -3362,6 +3353,15 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
       optionLeadingIconSize: 16,
       optionMarkSize: 16,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiComboboxOptionSizeTokens(
+      optionHeight: 44,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -3550,20 +3550,20 @@ private let cupertinoDescriptionListTokens = TanreiDescriptionListTokens(
   stackGap: 4,
   termColor: .role(.onSurfaceVariant),
   valueColor: .role(.onSurface),
-  densitys: TanreiDescriptionListDensitys(
-    regular: TanreiDescriptionListDensityTokens(
-      factGap: 12,
-      termGap: 16,
-      termTypescale: cupertinoTypescale.label,
-      valueTypescale: cupertinoTypescale.body,
-      statValueTypescale: cupertinoTypescale.heading1
-    ),
-    compact: TanreiDescriptionListDensityTokens(
+  sizes: TanreiDescriptionListSizes(
+    small: TanreiDescriptionListSizeTokens(
       factGap: 6,
       termGap: 8,
       termTypescale: cupertinoTypescale.labelSmall,
       valueTypescale: cupertinoTypescale.bodySmall,
       statValueTypescale: cupertinoTypescale.heading3
+    ),
+    medium: TanreiDescriptionListSizeTokens(
+      factGap: 12,
+      termGap: 16,
+      termTypescale: cupertinoTypescale.label,
+      valueTypescale: cupertinoTypescale.body,
+      statValueTypescale: cupertinoTypescale.heading1
     )
   )
 )
@@ -5158,18 +5158,18 @@ private let cupertinoListRowTokens = TanreiListRowTokens(
   trailingIconSize: 24,
   trailingTextColor: .role(.onSurfaceVariant),
   trailingTextTypescale: cupertinoTypescale.bodySmall,
-  densitys: TanreiListRowDensitys(
-    regular: TanreiListRowDensityTokens(
-      containerHeightOneLine: 44,
-      containerHeightTwoLine: 72,
-      containerHeightThreeLine: 88,
-      containerPaddingBlock: 8
-    ),
-    compact: TanreiListRowDensityTokens(
+  sizes: TanreiListRowSizes(
+    small: TanreiListRowSizeTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
       containerPaddingBlock: 4
+    ),
+    medium: TanreiListRowSizeTokens(
+      containerHeightOneLine: 44,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
     )
   )
 )
@@ -5262,14 +5262,14 @@ private let cupertinoListTokens = TanreiListTokens(
       )
     )
   ),
-  densitys: TanreiListDensitys(
-    regular: TanreiListDensityTokens(
-      containerHeight: 44,
-      containerPaddingBlock: 8
-    ),
-    compact: TanreiListDensityTokens(
+  sizes: TanreiListSizes(
+    small: TanreiListSizeTokens(
       containerHeight: 32,
       containerPaddingBlock: 4
+    ),
+    medium: TanreiListSizeTokens(
+      containerHeight: 44,
+      containerPaddingBlock: 8
     )
   ),
   hovered: TanreiListStateTokens(
@@ -5847,18 +5847,8 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
       )
     )
   ),
-  densitys: TanreiMenuDensitys(
-    regular: TanreiMenuDensityTokens(
-      containerHeight: 44,
-      containerPaddingInline: 12,
-      containerPaddingBlock: 8,
-      containerGap: 12,
-      leadingIconSize: 16,
-      trailingIconSize: 16,
-      markSize: 16,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiMenuDensityTokens(
+  sizes: TanreiMenuSizes(
+    small: TanreiMenuSizeTokens(
       containerHeight: 32,
       containerPaddingInline: 8,
       containerPaddingBlock: 6,
@@ -5867,6 +5857,16 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
       trailingIconSize: 16,
       markSize: 16,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiMenuSizeTokens(
+      containerHeight: 44,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 16,
+      trailingIconSize: 16,
+      markSize: 16,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7473,19 +7473,19 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
       )
     )
   ),
-  densitys: TanreiSearchDensitys(
-    regular: TanreiSearchDensityTokens(
-      suggestionContainerHeight: 44,
-      suggestionContainerPaddingInline: 12,
-      suggestionContainerPaddingBlock: 8,
-      suggestionContainerGap: 12,
-      suggestionLeadingIconSize: 20
-    ),
-    compact: TanreiSearchDensityTokens(
+  sizes: TanreiSearchSizes(
+    small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 32,
       suggestionContainerPaddingInline: 8,
       suggestionContainerPaddingBlock: 4,
       suggestionContainerGap: 8,
+      suggestionLeadingIconSize: 20
+    ),
+    medium: TanreiSearchSizeTokens(
+      suggestionContainerHeight: 44,
+      suggestionContainerPaddingInline: 12,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 12,
       suggestionLeadingIconSize: 20
     )
   ),
@@ -7882,17 +7882,8 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
       )
     )
   ),
-  densitys: TanreiSelectDensitys(
-    regular: TanreiSelectDensityTokens(
-      optionHeight: 44,
-      optionPaddingInline: 12,
-      optionPaddingBlock: 8,
-      optionGap: 12,
-      optionLeadingIconSize: 16,
-      optionMarkSize: 16,
-      groupTitlePaddingInline: 12
-    ),
-    compact: TanreiSelectDensityTokens(
+  optionSizes: TanreiSelectOptionSizes(
+    small: TanreiSelectOptionSizeTokens(
       optionHeight: 32,
       optionPaddingInline: 8,
       optionPaddingBlock: 6,
@@ -7900,6 +7891,15 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
       optionLeadingIconSize: 16,
       optionMarkSize: 16,
       groupTitlePaddingInline: 8
+    ),
+    medium: TanreiSelectOptionSizeTokens(
+      optionHeight: 44,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 12
     )
   ),
   hovered: TanreiSelectStateTokens(
@@ -7955,6 +7955,14 @@ private let cupertinoSideSheetTokens = TanreiSideSheetTokens(
       outlineColor: .none
     )
   )
+)
+
+private let cupertinoSizeTransitionTokens = TanreiSizeTransitionTokens(
+  motionDistanceStep: 64,
+  motionDuration: 300,
+  motionDurationMax: 400,
+  motionDurationStep: 50,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1)
 )
 
 private let cupertinoSkeletonTokens = TanreiSkeletonTokens(
@@ -8900,14 +8908,14 @@ private let cupertinoTableOfContentsTokens = TanreiTableOfContentsTokens(
       )
     )
   ),
-  densitys: TanreiTableOfContentsDensitys(
-    regular: TanreiTableOfContentsDensityTokens(
-      rowHeight: 44,
-      rowPaddingBlock: 12
-    ),
-    compact: TanreiTableOfContentsDensityTokens(
+  sizes: TanreiTableOfContentsSizes(
+    small: TanreiTableOfContentsSizeTokens(
       rowHeight: 32,
       rowPaddingBlock: 6
+    ),
+    medium: TanreiTableOfContentsSizeTokens(
+      rowHeight: 44,
+      rowPaddingBlock: 12
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9013,18 +9021,18 @@ private let cupertinoTableTokens = TanreiTableTokens(
       )
     )
   ),
-  densitys: TanreiTableDensitys(
-    regular: TanreiTableDensityTokens(
-      cellPaddingBlock: 12,
-      cellPaddingInline: 16,
-      cellTextTypescale: cupertinoTypescale.body,
-      headerTextTypescale: cupertinoTypescale.label
-    ),
-    compact: TanreiTableDensityTokens(
+  sizes: TanreiTableSizes(
+    small: TanreiTableSizeTokens(
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: cupertinoTypescale.bodySmall,
       headerTextTypescale: cupertinoTypescale.labelSmall
+    ),
+    medium: TanreiTableSizeTokens(
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16,
+      cellTextTypescale: cupertinoTypescale.body,
+      headerTextTypescale: cupertinoTypescale.label
     )
   ),
   hovered: TanreiTableStateTokens(
@@ -9610,6 +9618,7 @@ private let cupertinoTimelineTokens = TanreiTimelineTokens(
   connectorColor: .role(.outlineVariant),
   connectorGap: 4,
   connectorThickness: 1,
+  itemGap: 16,
   markerCurrentContainerColor: .role(.primary),
   markerCurrentIconColor: .role(.onPrimary),
   markerDotColor: .role(.onSurfaceVariant),
@@ -9635,14 +9644,6 @@ private let cupertinoTimelineTokens = TanreiTimelineTokens(
       timeTypescale: cupertinoTypescale.body,
       titleTypescale: cupertinoTypescale.heading5,
       bodyTypescale: cupertinoTypescale.bodyLarge
-    )
-  ),
-  densitys: TanreiTimelineDensitys(
-    regular: TanreiTimelineDensityTokens(
-      itemGap: 16
-    ),
-    compact: TanreiTimelineDensityTokens(
-      itemGap: 8
     )
   )
 )
@@ -9848,18 +9849,8 @@ private let cupertinoTreeViewTokens = TanreiTreeViewTokens(
       )
     )
   ),
-  densitys: TanreiTreeViewDensitys(
-    regular: TanreiTreeViewDensityTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 12,
-      containerPaddingInline: 12,
-      containerGap: 12,
-      levelIndent: 32,
-      labelTypescale: cupertinoTypescale.body,
-      iconSize: 20,
-      chevronSize: 20
-    ),
-    compact: TanreiTreeViewDensityTokens(
+  sizes: TanreiTreeViewSizes(
+    small: TanreiTreeViewSizeTokens(
       containerHeight: 32,
       containerPaddingBlock: 6,
       containerPaddingInline: 8,
@@ -9868,6 +9859,16 @@ private let cupertinoTreeViewTokens = TanreiTreeViewTokens(
       labelTypescale: cupertinoTypescale.bodySmall,
       iconSize: 16,
       chevronSize: 16
+    ),
+    medium: TanreiTreeViewSizeTokens(
+      containerHeight: 48,
+      containerPaddingBlock: 12,
+      containerPaddingInline: 12,
+      containerGap: 12,
+      levelIndent: 32,
+      labelTypescale: cupertinoTypescale.body,
+      iconSize: 20,
+      chevronSize: 20
     )
   ),
   hovered: TanreiTreeViewStateTokens(
@@ -10103,6 +10104,7 @@ extension TanreiSystem {
     segmentedButton: cupertinoSegmentedButtonTokens,
     select: cupertinoSelectTokens,
     sideSheet: cupertinoSideSheetTokens,
+    sizeTransition: cupertinoSizeTransitionTokens,
     skeleton: cupertinoSkeletonTokens,
     slider: cupertinoSliderTokens,
     snackbar: cupertinoSnackbarTokens,

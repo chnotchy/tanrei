@@ -5,6 +5,7 @@ import {
   type KeyboardConvention,
   PressController,
   RovingKeys,
+  SizeConsumerController,
   ambientConvention,
   chordPressed,
   chordsConverter,
@@ -25,7 +26,7 @@ import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-tex
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
-import type { TanreiTreeViewDensityRegistry } from '../../registry.js';
+import type { TanreiTreeViewSizeRegistry } from '../../registry.js';
 import '../loading-indicator/loading-indicator.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 // TRV-54, TRV-64: the filter field is a Text input, and its clear button a Button.
@@ -38,8 +39,8 @@ import { holdsProductName, nameHost, namedByProduct } from '../../primitives/del
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiTreeViewDensity = keyof TanreiTreeViewDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiTreeViewSize = keyof TanreiTreeViewSizeRegistry;
 /** Where a parent's chevron stands: at the start of its row, at its very end, or nowhere (TRV-4, TRV-44). */
 export type TanreiTreeViewChevron = 'start' | 'end' | 'none';
 /** Whether the guide lines are drawn: never, always, or while a pointer or focus is in the tree (TRV-8). */
@@ -116,10 +117,10 @@ const guidesConverter = {
   fromAttribute: (value: string | null) => (value === null || value === 'false' || value === 'none' ? 'none' : value === '' || value === 'true' ? 'shown' : value),
   toAttribute: (value: unknown) => (value === true ? 'shown' : value === false || value === 'none' ? null : String(value)),
 };
-const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`) as tree-view.css names them. */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const CORE_SIZES: readonly string[] = ['small', 'medium'];
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`) as tree-view.css names them. */
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_trv-height', 'container-height-*'],
   ['--_trv-pad-block', 'container-padding-block-*'],
   ['--_trv-pad-inline', 'container-padding-inline-*'],
@@ -204,10 +205,13 @@ function treeLengths(tree: Element): { indent: number; target: number } {
   return { indent: indent ?? Number.NaN, target: target ?? Number.NaN };
 }
 
-/** TRV-41: a density a design system added — the default's rules, read from that density's tokens. */
-const densityRules = (density: string) =>
-  `@layer tanrei.components { :where(${TAG}[density='${density}']) { ${DENSITY_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', DEFAULT_DENSITY)}));`,
+/**
+ * TRV-41: a size a design system added — the default's rules, read from that size's tokens — for a tree that sets it
+ * and for one that takes it from its container (TRV-73: the custom state that carries the size the tree draws).
+ */
+const sizeRules = (size: string) =>
+  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
+    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
   ).join(' ')} } }`;
 
 /** Writes an attribute only when it differs: what is written here may be observed, and must settle. */
@@ -387,7 +391,9 @@ export class TanreiTreeView extends TanreiLightElement {
         },
       },
     },
-    density: { type: String, reflect: true, useDefault: true },
+    // TRV-73: the size the product set, or none: a tree that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     chevron: { type: String, reflect: true, useDefault: true },
     expandable: { reflect: true, converter: onUnlessFalse, useDefault: true },
     guides: { reflect: true, converter: guidesConverter, useDefault: true },
@@ -425,8 +431,33 @@ export class TanreiTreeView extends TanreiLightElement {
   /** The values of the selected items while selection is multiple. The attribute is a JSON array (a value may hold a space). */
   values: string[] = [];
 
-  /** How much room a row takes: regular for a product used by touch as well, compact for a tool and for a small tree inside text. A design system may add values. */
-  density: TanreiTreeViewDensity = 'regular';
+  /**
+   * How much room a row takes: `medium` (48 rows in the default system) for a product used by touch as well, `small`
+   * (36) for a tool and for a small tree inside text. While it is not set the tree draws the size its nearest container
+   * sets (TRV-73), and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`
+   * included) makes it the tree's own; removing the attribute gives that back. A design system may add values.
+   */
+  get size(): TanreiTreeViewSize {
+    return (this.sizes.own ?? DEFAULT_SIZE) as TanreiTreeViewSize;
+  }
+
+  set size(value: TanreiTreeViewSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** TRV-73: the size the product set, and the one the nearest container around the tree sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal TRV-73: the size the tree draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** TRV-73: carries the size the tree draws to tree-view.css, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** TRV-41: the size last read for a value the core does not have. */
+  private sizeRead = DEFAULT_SIZE;
 
   /** Where a parent's chevron stands: start (before the icon), end (after the trailing content), none (a parent opens by its icon, its open icon showing the state, and by the arrow keys). */
   chevron: TanreiTreeViewChevron = 'start';
@@ -443,7 +474,7 @@ export class TanreiTreeView extends TanreiLightElement {
   /** Whether a row without an icon keeps an icon's room: auto (while another row of its level has an icon), always, never. */
   iconSpace: TanreiTreeViewIconSpace = 'auto';
 
-  /** The room between the icon and the label, in pixels; null (`auto`) is the token, which no density changes. */
+  /** The room between the icon and the label, in pixels; null (`auto`) is the token, which no size changes. */
   iconGap: number | null = null;
 
   /** How far a row's fill, state layers and focus ring reach: indented (from its level), full (across the tree). */
@@ -582,6 +613,9 @@ export class TanreiTreeView extends TanreiLightElement {
 
   protected override willUpdate() {
     if (!this.hasUpdated) this.drawStates();
+    // TRV-73: the size it draws, as a custom state tree-view.css matches (a name that is no token name is drawn as the
+    // default by the tree's own rules, TRV-41).
+    this.sizes.syncState(this.internals);
   }
 
   /**
@@ -599,7 +633,8 @@ export class TanreiTreeView extends TanreiLightElement {
     if (changed.has('selection') && !SELECTIONS.includes(this.selection)) {
       report(this, 'TRV-41', `selection "${this.selection}" is not a value the tree view defines; it is drawn as "none"`);
     }
-    if (changed.has('density')) this.readDensity(String(this.density ?? ''));
+    // TRV-41, TRV-73: the size it draws — its own or its container's — when that changed.
+    if (this.sizes.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizes.drawn));
     // TRV-41: a value the tree does not define is the default's (no rule matches the attribute); a debug build says so.
     for (const [name, values, fallback] of [
       ['chevron', CHEVRONS, 'start'],
@@ -967,13 +1002,13 @@ export class TanreiTreeView extends TanreiLightElement {
     if (count > 1) report(this, 'TRV-15', `${count} items carry the value "${name}"; each is drawn as selected, and a value should be unique within the tree`);
   }
 
-  /** TRV-41: a density the core does not have was added by a design system, or is unknown to the active one. */
-  private readDensity(value: string) {
-    if (CORE_DENSITIES.includes(value)) return;
+  /** TRV-41: a size the core does not have was added by a design system, or is unknown to the active one. */
+  private readSize(value: string) {
+    if (CORE_SIZES.includes(value)) return;
     const known = KEY.test(value);
-    if (known) adopt(this.getRootNode() as Root, sheet(`density:${value}`, () => densityRules(value)));
+    if (known) adopt(this.getRootNode() as Root, sheet(`size:${value}`, () => sizeRules(value)));
     if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-container-height-${value}`).trim() === '') {
-      report(this, 'TRV-41', `density "${value}" is not a value of the active design system; it is drawn as "${DEFAULT_DENSITY}"`);
+      report(this, 'TRV-41', `size "${value}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
 

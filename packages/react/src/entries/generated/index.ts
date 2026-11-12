@@ -88,6 +88,7 @@ export { SearchResult } from '../../generated/wrappers/search-result.js';
 export { SearchResultGroup } from '../../generated/wrappers/search-result-group.js';
 export { SearchSuggestion } from '../../generated/wrappers/search-suggestion.js';
 export { SideSheet } from '../../generated/wrappers/side-sheet.js';
+export { SizeTransition } from '../../generated/wrappers/size-transition.js';
 export { Skeleton } from '../../generated/wrappers/skeleton.js';
 export { Slider, type SliderMarks } from '../../generated/wrappers/slider.js';
 export { SliderField, type SliderFieldMarks } from '../../generated/wrappers/slider-field.js';

@@ -11,6 +11,7 @@ import { DEFAULT_SYSTEM, bundleSource, entryFiles, readManifests, systemElements
 import { CONFIG } from '@tanrei/tokens-build/config';
 import { themeColors } from '@tanrei/tokens-build/emit/resolved';
 import { cssLiteralsPlugin, minifyCssLiterals } from './css-literals.js';
+import { sourceSideEffectsPlugin } from './source-side-effects.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -36,6 +37,8 @@ fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty
 fs.copyFileSync('src/components/menu/menu.css', 'dist/menu.css');
 // The menubar before its elements are defined, and where script does not run (MBR-45): its link items, as links that work.
 fs.copyFileSync('src/components/menubar/menubar.css', 'dist/menubar.css');
+// The app bar before its element is defined (APB-34): the block size it will have, so the page under it does not move.
+fs.copyFileSync('src/components/app-bar/app-bar.css', 'dist/app-bar.css');
 // Prose leaves alone what is inside a Tanrei element (PRS-16): the stylesheet's source names the opt-out class, and the
 // tag names of every element this package defines are written beside it here, from the generated manifest — so a new
 // component is an island without anyone editing a list (src/styles/prose.test.ts holds the two together).
@@ -365,8 +368,12 @@ const bundle = await build({
   metafile: true,
   outfile: 'dist/tanrei.bundle.js',
   // The minifier leaves template literals as they are: the components' `css` templates lose their comments and
-  // indentation on the way in (scripts/css-literals.js).
-  plugins: [cssLiteralsPlugin()],
+  // indentation on the way in (scripts/css-literals.js). The bundle is made from the sources, which `sideEffects` does
+  // not name: a source is a side effect where its built module is (scripts/source-side-effects.js). A module that
+  // plugin resolves is not given the tsconfig esbuild finds by itself, so it is named here for every module
+  // (`useDefineForClassFields: false`, which Lit's reactive properties need).
+  plugins: [sourceSideEffectsPlugin(path.resolve('.')), cssLiteralsPlugin()],
+  tsconfig: 'tsconfig.json',
   // A development bundle: debug reports (src/primitives/report.ts) stay on. esbuild would otherwise define
   // process.env.NODE_ENV as "production" for a minified browser bundle.
   define: { 'process.env.NODE_ENV': '"development"', [TABLE_CSS_NAME]: tableText, [ACCORDION_CSS_NAME]: accordionText, [TABLE_OF_CONTENTS_CSS_NAME]: tableOfContentsText, ...Object.fromEntries(LIGHT_SHEETS) },
@@ -392,4 +399,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/app-bar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

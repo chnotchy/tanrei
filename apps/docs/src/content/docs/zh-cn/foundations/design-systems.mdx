@@ -2,7 +2,7 @@
 title: "设计系统与定制"
 description: "一套词汇，多个设计系统。改一个调节量、声明一个调色板、重新指向一个令牌——所有平台在同一次提交中跟着变化。"
 translationOf: foundations/design-systems.mdx
-sourceHash: a369e7b893ff42d30fd51a6f7588542767c83a8b
+sourceHash: fcf54d6541a4eeda68ecf3c7d5098ad34e7357e8
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -40,7 +40,7 @@ Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈�
 - **固定值**——一个写明理由的字面量，不受调节量影响（`corner.full`、一条缓动曲线、法律规定的脚注字号）；
 - **别名**——一个可以重新指向的引用（`button.container.gap` → `space100`）。
 
-在 Web 上，调节量还可以实时生效：推导出的令牌以 `calc()` 表达式输出，所以在任意元素上设置 `--tanrei-dial-type-base`，就会重新缩放其中的一切。有一项测试会在真实浏览器中、在多组调节量设置下对每个推导令牌求值，并要求结果与构建的结果相等。
+在 Web 上，调节量还可以实时生效：推导出的令牌以 `calc()` 表达式输出，所以在根元素上设置 `--tanrei-dial-type-base`，就会重新缩放整个页面。推导出的令牌声明在根元素上，因此在更下层的元素上设置调节量不会改变它们。有一项测试会在真实浏览器中、在多组调节量设置下对每个推导令牌求值，并要求结果与构建的结果相等。
 
 ## 设计系统是一个层
 

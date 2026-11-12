@@ -48,7 +48,7 @@ const WRITE_BUDGET = 0.005;
  * Counted, not timed, because the time of such a write is not the package's to keep: a product's `:root:has(…)` is
  * asked again of the whole document at each write some `:has()` of the page asks about — 7 ms of the 26 ms the table
  * takes to style whole, on this page — whatever the package's selectors are. The style time is still read, and the
- * old shape must cost more of it: `TABLE_WRITE_TIME` of what it cost is the most the new one may (0.4 measured).
+ * old shape must cost more of it: `TABLE_WRITE_TIME` of what it cost is the most the new one may (0.42 to 0.48 measured).
  */
 const TABLE_WRITE_ELEMENTS = 12;
 const TABLE_WRITE_TIME = 0.7;
@@ -151,7 +151,10 @@ test.describe('what prose costs', () => {
   test('PRS-16 one attribute written, or one child added, inside a table of 2,500 elements in prose restyles the element, not the table — with every stylesheet of the package on the page, and the product’s own :has() rules beside them', async ({ page }) => {
     const manifest = JSON.parse(read('custom-elements.json')) as { modules: { declarations?: { tagName?: string }[] }[] };
     const tags = [...new Set(manifest.modules.flatMap((m) => m.declarations ?? []).map((d) => d.tagName).filter((t): t is string => !!t))];
-    const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
+    // Every stylesheet of the package, in the one file a product links for them (`@tanrei/web/tanrei.css`: the base, the
+    // tokens and every other stylesheet), once. Each stylesheet beside it as well would declare every rule twice, which
+    // no product's page does.
+    const sheets = read('dist/tanrei.css');
     // What a product's own stylesheet may hold, and the docs site's did: a question asked of the root about anything
     // below it — after which every element of the page is one whose changes `:has()` may concern — and a rule that
     // asks one element for the sake of another the engine cannot name. Neither matches anything here.
@@ -165,7 +168,7 @@ test.describe('what prose costs', () => {
       // Every stylesheet a page can load and every element of the package (each adds its styles to its shadow root or
       // to the document: an engine keeps one account of `:has()` for all of them), then the table.
       await page.setContent(
-        `<!doctype html><html lang="en"><head><meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>${PRODUCT}${extra}</style></head><body><div hidden>${tags
+        `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${sheets}</style><style>${PRODUCT}${extra}</style></head><body><div hidden>${tags
           .filter((tag) => tag !== 'tanrei-table')
           .map((tag) => `<${tag}></${tag}>`)
           .join('')}</div>${fixturesTablePage({ footer })}<script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`,

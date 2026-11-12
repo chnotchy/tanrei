@@ -11,7 +11,7 @@ const AccordionElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const AccordionAttributes = { variant: ['variant', 'plain'], density: ['density', 'regular'], separation: ['separation', 'auto'], exclusive: ['exclusive', false] } as const;
+const AccordionAttributes = { variant: ['variant', 'plain'], size: ['size'], separation: ['separation', 'auto'], exclusive: ['exclusive', false] } as const;
 /**
  * Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by themselves or, with `exclusive`, one at a time. A help page's questions, the sections of a settings screen, the advanced part of a form.
  *

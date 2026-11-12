@@ -35,7 +35,7 @@ function lists(open: 'all' | 'first'): string {
   }
   return `${html}</ul>`;
 }
-const tree = (open: 'all' | 'first') => `<tanrei-tree-view id="tree" label="Every token" selection="single" density="compact" guides>${lists(open)}</tanrei-tree-view>`;
+const tree = (open: 'all' | 'first') => `<tanrei-tree-view id="tree" label="Every token" selection="single" size="small" guides>${lists(open)}</tanrei-tree-view>`;
 
 /** One row's change may style this many elements again, in all the style passes it takes: the row, its parts, the item, and what the page asks of its root. Counted: 12 for an arrow key (the row that loses focus and the row that takes it, six boxes each), 15 to 18 for a choice. */
 const ROW_ELEMENTS = 16;
@@ -99,9 +99,11 @@ test.describe('a tree of 5,000 rows', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const manifest = JSON.parse(read('custom-elements.json')) as { modules: { declarations?: { tagName?: string }[] }[] };
     const tags = [...new Set(manifest.modules.flatMap((m) => m.declarations ?? []).map((d) => d.tagName).filter((t): t is string => !!t)), 'tanrei-tree-view'];
-    const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
     const PRODUCT = ':root:has(.product-menu-open) { --product-menu: 1; }';
-    const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>${PRODUCT} body { margin: 0; } #pane { inline-size: 360px; block-size: 600px; overflow: auto; }</style>`;
+    // Every stylesheet of the package, in the one file a product links for them (`@tanrei/web/tanrei.css`: the base, the
+    // tokens and every other stylesheet), once. Each stylesheet beside it as well would declare every rule twice, which
+    // no product's page does.
+    const head = `<meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>${PRODUCT} body { margin: 0; } #pane { inline-size: 360px; block-size: 600px; overflow: auto; }</style>`;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Performance.enable');
 

@@ -310,7 +310,7 @@ test.describe('layout', () => {
 
   test('SRC-16: each suggestion is one row — its minimum height and the target, its paddings, the icon column in every row, the gap, both text roles, the corners — and wraps rather than cuts; right to left mirrors it', async ({ page }) => {
     const [height, pointer, padInline, padBlock, gap, iconSize] = await Promise.all(
-      ['suggestion-container-height-regular', '--tanrei-sys-target-pointer', 'suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular', 'suggestion-container-gap-regular', 'suggestion-leading-icon-size-regular'].map((n) =>
+      ['suggestion-container-height-medium', '--tanrei-sys-target-pointer', 'suggestion-container-padding-inline-medium', 'suggestion-container-padding-block-medium', 'suggestion-container-gap-medium', 'suggestion-leading-icon-size-medium'].map((n) =>
         resolveToken(page, n.startsWith('--') ? n : T(n)),
       ),
     );
@@ -377,9 +377,9 @@ test.describe('layout', () => {
         { id: 'odd', props: { label: 'Search', expanded: true, iconSpace: 'sometimes' } as Fixture['props'], items: [suggestion('a', 'a', { leadingIcon: 'history' }), suggestion('b')] },
       ],
     });
-    const pad = await resolveToken(page, T('suggestion-container-padding-inline-regular'));
-    const size = await resolveToken(page, T('suggestion-leading-icon-size-regular'));
-    const gap = await resolveToken(page, T('suggestion-container-gap-regular'));
+    const pad = await resolveToken(page, T('suggestion-container-padding-inline-medium'));
+    const size = await resolveToken(page, T('suggestion-leading-icon-size-medium'));
+    const gap = await resolveToken(page, T('suggestion-container-gap-medium'));
     const none = pad;
     const kept = pad + size + gap;
     /** Where a suggestion's headline starts, from its row's start edge. */
@@ -419,28 +419,31 @@ test.describe('layout', () => {
     await expect.poll(() => resultAt('mixed-never')).toBeCloseTo(kept, 0);
   });
 
-  test('SRC-53: a compact search draws every row of its view — a suggestion and a result — from the compact tokens, lower, set in less, a smaller glyph, the same text, as low as its density gives for a mouse and the touch target for touch, the bar unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+  test('SRC-53: a small search draws every row of its view — a suggestion and a result — from the small tokens, lower, set in less, a smaller glyph, the same text, never below the target, the bar unchanged; a search takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
     const seen = warnings(page);
-    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
+    const { size: _, ...unset } = smallFixture.props as Record<string, unknown>;
     const result = (value: string, headline: string): FixtureItem => ({ kind: 'result', props: { value, headline, href: `#${value}`, leadingIcon: 'description' } });
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [
-        compact,
-        { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
-        { id: 'density-results', props: { label: 'Search', expanded: true, density: 'compact' }, items: [result('r', 'A result')] },
-        { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
-        { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
+        smallFixture,
+        { ...smallFixture, id: 'size-medium', props: { ...smallFixture.props, size: 'medium' } },
+        { ...smallFixture, id: 'size-unset', props: unset as Fixture['props'] },
+        { ...smallFixture, id: 'size-in-toolbar', props: unset as Fixture['props'] },
+        { id: 'size-results', props: { label: 'Search', expanded: true, size: 'small' }, items: [result('r', 'A result')] },
+        { ...smallFixture, id: 'size-odd', props: { ...smallFixture.props, size: 'huge' } as Fixture['props'] },
+        { ...smallFixture, id: 'size-added', props: { ...smallFixture.props, size: 'roomy' } as Fixture['props'] },
       ],
     });
-    const sizes = async (density: string) => {
+    const sizes = async (size: string) => {
       const [height, padBlock, padInline, gap, icon] = await Promise.all(
-        ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'].map((n) => resolveToken(page, T(`${n}-${density}`))),
+        ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'].map((n) => resolveToken(page, T(`${n}-${size}`))),
       );
       return { height, padBlock, padInline, gap, icon };
     };
-    const [regular, small] = [await sizes('regular'), await sizes('compact')];
-    // The default system's compact row: the small step of the control heights, held at the minimum target — 36 high
+    const [medium, small] = [await sizes('medium'), await sizes('small')];
+    // The default system's small row: the small step of the control heights, held at the minimum target — 36 high
     // with a 20 glyph, 8 from its edges.
     expect([small.height, small.icon, small.padInline]).toEqual([36, 20, 8]);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
@@ -448,42 +451,65 @@ test.describe('layout', () => {
       const [b, icon, headline, font] = [await bounds(r), await bounds(r.locator('.option-icon, .icon').first()), await bounds(r.locator('.headline')), await px(r.locator('.headline'), 'font-size')];
       return { height: b.height, icon: icon.width, start: headline.x - b.x, font };
     };
-    const first = await drawn(row(page, 'density-compact', 0));
-    const firstRegular = await drawn(row(page, 'density-regular', 0));
+    const first = await drawn(row(page, 'size-small', 0));
+    const firstMedium = await drawn(row(page, 'size-medium', 0));
     expect(first.height).toBeCloseTo(small.height, 0);
-    // In the default system the compact row is held at the minimum target, which the pointer target aliases.
+    // In the default system the small row is held at the minimum target, which the pointer target aliases.
     expect(first.height).toBeCloseTo(pointer, 0);
     expect(first.icon).toBeCloseTo(small.icon, 0);
     expect(first.start).toBeCloseTo(small.padInline + small.icon + small.gap, 0);
-    expect(firstRegular.height).toBeCloseTo(Math.max(regular.height, pointer), 0);
-    // The density never changes a text style; a row with supporting text grows with it.
-    expect(first.font).toBe(firstRegular.font);
-    expect((await bounds(row(page, 'density-compact', 2))).height).toBeGreaterThan(first.height);
-    // A result's row takes the search's density too.
-    const resultRow = await drawn(host(page, 'density-results').locator('tanrei-search-result').first().locator('.row'));
+    expect(firstMedium.height).toBeCloseTo(Math.max(medium.height, pointer), 0);
+    // A search that sets no size is medium, and no size attribute is written on it.
+    expect((await drawn(row(page, 'size-unset', 0))).height).toBeCloseTo(firstMedium.height, 0);
+    expect(await host(page, 'size-unset').getAttribute('size')).toBeNull();
+    // The size never changes a text style; a row with supporting text grows with it.
+    expect(first.font).toBe(firstMedium.font);
+    expect((await bounds(row(page, 'size-small', 2))).height).toBeGreaterThan(first.height);
+    // A result's row takes the search's size too.
+    const resultRow = await drawn(host(page, 'size-results').locator('tanrei-search-result').first().locator('.row'));
     expect(resultRow.height).toBeCloseTo(small.height, 0);
     expect(resultRow.icon).toBeCloseTo(small.icon, 0);
-    // The bar is the bar's, whatever the density.
+    // The bar is the bar's, whatever the size.
     const bar = (id: string) => host(page, id).locator('.bar').first();
-    expect((await bounds(bar('density-compact'))).height).toBeCloseTo((await bounds(bar('density-regular'))).height, 0);
-    // An unknown density is drawn as regular, and a debug build says so.
-    expect((await drawn(row(page, 'density-odd', 0))).height).toBeCloseTo(firstRegular.height, 0);
+    expect((await bounds(bar('size-small'))).height).toBeCloseTo((await bounds(bar('size-medium'))).height, 0);
+    // A search takes no size from a container around it: in a toolbar whose size is small its rows are medium.
+    await page.evaluate(() => {
+      const search = document.querySelector('[data-fixture="size-in-toolbar"] tanrei-search')!;
+      const toolbar = document.createElement('tanrei-toolbar');
+      toolbar.setAttribute('size', 'small');
+      toolbar.setAttribute('overflow', 'scroll');
+      search.before(toolbar);
+      toolbar.append(search);
+    });
+    await expect.poll(async () => (await drawn(row(page, 'size-in-toolbar', 0))).height).toBeCloseTo(firstMedium.height, 0);
+    // An unknown size is drawn as medium, and a debug build says so.
+    expect((await drawn(row(page, 'size-odd', 0))).height).toBeCloseTo(firstMedium.height, 0);
     await expect.poll(() => seen.filter((w) => w.includes('SRC-53') && w.includes('"huge"')).length).toBe(1);
-    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    // A size a design system adds is drawn from its tokens, the default's where it has none.
     await rootTokens(page, { [T('suggestion-container-height-roomy')]: '64px', [T('suggestion-leading-icon-size-roomy')]: '28px' });
-    await expect.poll(async () => (await drawn(row(page, 'density-added', 0))).height).toBeCloseTo(64, 0);
-    expect((await drawn(row(page, 'density-added', 0))).icon).toBeCloseTo(28, 0);
+    await expect.poll(async () => (await drawn(row(page, 'size-added', 0))).height).toBeCloseTo(64, 0);
+    expect((await drawn(row(page, 'size-added', 0))).icon).toBeCloseTo(28, 0);
     // A change is drawn at once.
-    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
-    await expect.poll(async () => (await drawn(row(page, 'density-regular', 0))).height).toBeCloseTo(first.height, 0);
-    // SRC-16: for touch a compact row is the touch target — seen under a system whose touch target (48) is taller than
-    // the compact row, as the default system's (36) is not.
+    await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
+    await expect.poll(async () => (await drawn(row(page, 'size-medium', 0))).height).toBeCloseTo(first.height, 0);
+    // The heights follow the system's density: a small row is the small token at each.
+    for (const density of ['0.75', '1.5', '']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const step = await resolveToken(page, T('suggestion-container-height-small'));
+      await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height, `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 0);
+    }
+    // SRC-16: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
+    // is taller than the small row, as the default system's (36) is not.
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '48px' });
+    if (await page.evaluate(() => matchMedia('(pointer: fine)').matches)) await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height).toBeGreaterThanOrEqual(48 - 0.5);
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '' });
+    // …and for touch the touch target, under a layer whose touch target is 48.
     if (browserName !== 'chromium') return;
     await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
-    await expect.poll(async () => (await drawn(row(page, 'density-compact', 0))).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+    await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
   });
 
   test('SRC-7: the docked fixture draws the bar 16 from the stage’s top and sides and the view in place under it, offset away, as wide as the bar, on its color, elevation and corners, its content inset by the padding', async ({ page }) => {
@@ -542,7 +568,7 @@ test.describe('layout', () => {
     const content = host(page, 'content').locator('.content');
     await expect(content).toBeVisible();
     expect(await css(content, 'color')).toBe(await resolveColor(page, S('suggestion-headline-color')));
-    expect(await px(content, 'padding-left')).toBe(await resolveToken(page, T('suggestion-container-padding-inline-regular')));
+    expect(await px(content, 'padding-left')).toBe(await resolveToken(page, T('suggestion-container-padding-inline-medium')));
     expect(await px(content, 'font-size')).toBe(await resolveToken(page, '--tanrei-sys-typescale-body-font-size'));
     expect((await bounds(content)).y).toBeGreaterThan((await bounds(row(page, 'content', 0))).y);
     // Content alone is still a view.
@@ -1732,7 +1758,7 @@ test.describe('suggestions', () => {
     await expect(glyph).toHaveText('search');
     await expect(glyph).toHaveAttribute('aria-hidden', 'true');
     await expect(glyph).toHaveAttribute('data-drawn', '');
-    expect((await bounds(glyph)).width).toBeCloseTo(await resolveToken(page, T('suggestion-leading-icon-size-regular')), 1);
+    expect((await bounds(glyph)).width).toBeCloseTo(await resolveToken(page, T('suggestion-leading-icon-size-medium')), 1);
     await expect(q.locator('.headline')).toHaveText('inv');
     await expect(q.locator('.supporting')).toHaveText('Search all mail');
     await expect(page.getByRole('option', { name: 'inv', exact: true })).toHaveAccessibleDescription('Search all mail');
@@ -2893,7 +2919,7 @@ test.describe('dialog view', () => {
     expect(await s.locator('.full .scroll').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     expect((await bounds(s.locator('.header'))).y).toBe(box.y);
     // A window too short for the offset and one row gives the offset up, down to the margin; a narrow one keeps the margin at each side.
-    const oneRow = (await resolveToken(page, T('header-height'))) + (await resolveToken(page, T('divider-thickness'))) + 2 * (await resolveToken(page, T('view-padding-block'))) + (await resolveToken(page, T('suggestion-container-height-regular')));
+    const oneRow = (await resolveToken(page, T('header-height'))) + (await resolveToken(page, T('divider-thickness'))) + 2 * (await resolveToken(page, T('view-padding-block'))) + (await resolveToken(page, T('suggestion-container-height-medium')));
     const between = Math.round(oneRow + margin + (offset + margin) / 2);
     await page.setViewportSize({ width: 400, height: between });
     await expect.poll(async () => (await bounds(d)).y).toBeCloseTo(between - margin - oneRow, 0);
@@ -3085,7 +3111,7 @@ test.describe('results', () => {
 
   test('SRC-44: a group is its heading and then its results, group.gap from what stands above and below it; without href the heading is a quiet title that takes no input, with one it is a result’s row and its results step in by group.indent, hit areas with them; right to left mirrors the inset', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
-    const [gap, indent, padInline, padBlock] = await Promise.all(['group-gap', 'group-indent', 'suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular'].map((n) => resolveToken(page, T(n))));
+    const [gap, indent, padInline, padBlock] = await Promise.all(['group-gap', 'group-indent', 'suggestion-container-padding-inline-medium', 'suggestion-container-padding-block-medium'].map((n) => resolveToken(page, T(n))));
     // A titled group (docked-results): the title in group-title.typescale and color, inset as a row is.
     const title = host(page, 'docked-results').locator('tanrei-search-result-group .title');
     await expect(title).toHaveText('Messages');
@@ -3249,7 +3275,7 @@ test.describe('results', () => {
 test.describe('status', () => {
   test('SRC-47: the status row is drawn while there is statusText or the search is loading, inset as a suggestion’s row and taking no input: the text in status.typescale and status.color, in status.error.color for an error, and while loading a small loading indicator named by statusText in the text’s place, the row one line high whether or not it shows yet; the results stay usable', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
-    const [padInline, padBlock] = await Promise.all(['suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular'].map((n) => resolveToken(page, T(n))));
+    const [padInline, padBlock] = await Promise.all(['suggestion-container-padding-inline-medium', 'suggestion-container-padding-block-medium'].map((n) => resolveToken(page, T(n))));
     const none = statusRow(page, 'dialog-none');
     await expect(none).toHaveText('No results for tokne');
     expect(await px(none, 'font-size')).toBe(await resolveToken(page, T('status-typescale-font-size')));

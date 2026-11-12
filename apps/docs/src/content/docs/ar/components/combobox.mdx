@@ -2,13 +2,14 @@
 title: مربع التحرير والسرد
 description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة أو أكثر، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -232,7 +233,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 يقف رمز الخيار في عمود قبل تسميته. وتقرر الخاصية `iconSpace` أين يُحتفظ بهذا العمود في خيار بلا رمز. تحتفظ به `auto` (الافتراضية) في قسم فيه خيار آخر له رمز، لتبدأ تسميات القسم على خط واحد، ولا تحتفظ به في قسم بلا رموز؛ والقسم مجموعة، أو سلسلة من الخيارات المتجاورة خارج أي مجموعة. وتحتفظ به `always` في كل خيار، و`never` في الخيار الذي له رمز فقط. وفي [قائمة الخيارات](/ar/components/menu/) الخاصية `iconSpace` نفسها، بالقيم نفسها والقيمة الافتراضية نفسها. ولا تُحسب إلا الخيارات التي يُظهرها الترشيح.
 
-تحدد `density` المساحة التي يأخذها الخيار: `regular` (الافتراضية، بارتفاع 48) أو `compact` (بارتفاع 32 ورموز بحجم 20، الصف المضغوط في [القائمة](/ar/components/menu/))، لأداة تُستخدم بالفأرة وقوائمها طويلة. يبقى حجم النص كما هو، والحاوية تتبع `size` أيًّا كانت الكثافة. باللمس لا يكون الخيار أبدًا أقل من هدف اللمس.
+تأخذ الخيارات `size` مربع التحرير والسرد. فالمربع `small` يفتح خيارات `small` (بارتفاع 36 ورموز بحجم 20، صف `small` في [القائمة](/ar/components/menu/))، والذي حجمه `medium` أو `large` يفتح خيارات `medium` (بارتفاع 48). يبقى حجم النص كما هو، ولا يكون الخيار أبدًا أدنى من الهدف.
 
 <ComponentSpecs name="combobox" />
 
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تكتب `supporting-text` أو `error-text` أو `required` أو `optional` على مربع تحرير وسرد. فهي للحقل، ومربع التحرير والسرد لا يرسم أيًّا منها.
 
 ## إمكانية الوصول
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

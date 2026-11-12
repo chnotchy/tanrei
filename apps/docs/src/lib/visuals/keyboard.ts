@@ -127,7 +127,7 @@ export function keySegments(phrase: string): KeySegment[] {
     const [keys, length] = chord;
     const previous = out.at(-1);
     const before = out.at(-2);
-    // «Ctrl+Enter / Command+Enter»: one chord, once Control is `mod`.
+    // «Control+Enter / Command+Enter»: one chord, once Control is `mod`.
     if (previous && 'or' in previous && before && 'chord' in before && before.chord.join('+') === keys.join('+')) out.pop();
     else out.push({ chord: keys });
     index += length;

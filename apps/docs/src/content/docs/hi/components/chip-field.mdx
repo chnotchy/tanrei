@@ -2,13 +2,14 @@
 title: चिप फ़ील्ड
 description: छोटे टेक्स्ट की एक लिस्ट इकट्ठा करता है — ईमेल पते, टेलीफ़ोन नंबर, कीवर्ड — जो एक ही फ़ील्ड में एक के बाद एक टाइप किए जाते हैं। आपकी जाँच जिस टेक्स्ट को स्वीकार करती है, वह एक चिप बन जाता है जिसे हटाया जा सकता है, या बदलने के लिए टाइप करने वाले भाग में वापस रखा जा सकता है, और यह लिस्ट फ़ील्ड का एक ही मान है।
 translationOf: components/chip-field.mdx
-sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
+sourceHash: cc0d8982de4f0f47a03f683e9d3e40e3f98c5d10
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -211,6 +212,8 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 - टाइप किए गए टेक्स्ट को मान का हिस्सा न मानें। वह तब एंट्री बनता है जब फ़ोकस हटता है; जो प्रॉडक्ट फ़ील्ड पर फ़ोकस रहते स्क्रिप्ट से सबमिट करता है, वह `inputValue` पढ़ता है।
 
 ## सुलभता
+
+<FocusOrder name="chip-field" fixture="email-entries" />
 
 <ComponentAccessibility name="chip-field" />
 

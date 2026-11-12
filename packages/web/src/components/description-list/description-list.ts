@@ -1,15 +1,15 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
-import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
+import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, SizeConsumerController, compChoice, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
-import type { TanreiDescriptionListDensityRegistry } from '../../registry.js';
+import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiDescriptionListDensity = keyof TanreiDescriptionListDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiDescriptionListSize = keyof TanreiDescriptionListSizeRegistry;
 /** How a fact is told from the fact below it (DSL-13): `auto` takes `comp.description-list.separation`. */
 export type TanreiDescriptionListSeparation = SeparationProp;
 
@@ -28,12 +28,12 @@ const LIST_CSS: string = (() => {
 const TAG = 'tanrei-description-list';
 const PREFIX = '--tanrei-comp-description-list';
 const LAYOUTS: readonly string[] = ['inline', 'stacked', 'stat'];
-const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
-const DEFAULT_DENSITY = 'regular';
+const CORE_SIZES: readonly string[] = ['small', 'medium'];
+const DEFAULT_SIZE = 'medium';
 /** The most columns description-list.css reads from the attribute itself; the element writes the rule of a larger number. */
 const COLUMNS_IN_SHEET = 6;
-/** The members of the density axis (`dev.tanrei.axes.density.members`) as description-list.css names them. */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+/** The members of the size axis (`dev.tanrei.axes.size.members`) as description-list.css names them. */
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_dl-fact-gap', 'fact-gap-*'],
   ['--_dl-term-gap', 'term-gap-*'],
   ['--_dl-term-font', 'term-typescale-*-font'],
@@ -67,10 +67,13 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
   return made;
 }
 
-/** DSL-23: a density a design system added — the default's rules, read from that density's tokens. */
-const densityRules = (density: string) =>
-  `:where(${TAG}[density='${density}']) { ${DENSITY_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', DEFAULT_DENSITY)}));`,
+/**
+ * DSL-23: a size a design system added — the default's rules, read from that size's tokens — for a list that sets it
+ * and for one that takes it from its container (DSL-25: the custom state that carries the size it draws).
+ */
+const sizeRules = (size: string) =>
+  `:where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
+    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
   ).join(' ')} }`;
 
 /** DSL-7: more columns than the stylesheet reads from the attribute. */
@@ -160,7 +163,9 @@ export class TanreiDescriptionList extends TanreiLightElement {
     // The defaults are not reflected: a list that is defined is the list that was written.
     layout: { type: String, reflect: true, useDefault: true },
     columns: { type: Number, reflect: true, useDefault: true },
-    density: { type: String, reflect: true, useDefault: true },
+    // DSL-25: the size the product set, or none: a list that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     separation: { type: String, reflect: true, useDefault: true },
   };
 
@@ -175,8 +180,33 @@ export class TanreiDescriptionList extends TanreiLightElement {
   /** The most columns of facts the list draws in the stacked and stat layouts; it draws fewer while it is too narrow for that many, and never more than it has facts. An inline list is one column. */
   columns = 1;
 
-  /** How close the facts are and how large their text is: regular for facts a person reads, compact for facts a person scans. A design system may add values. */
-  density: TanreiDescriptionListDensity = 'regular';
+  /**
+   * How close the facts are and how large their text is: `medium` for facts a person reads, `small` for facts a person
+   * scans. While it is not set the list draws the size its nearest container sets (DSL-25), and `medium` where none does;
+   * reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the list's own; removing the
+   * attribute gives that back. It is not passed to what the values hold. A design system may add values.
+   */
+  get size(): TanreiDescriptionListSize {
+    return (this.sizes.own ?? DEFAULT_SIZE) as TanreiDescriptionListSize;
+  }
+
+  set size(value: TanreiDescriptionListSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** DSL-25: the size the product set, and the one the nearest container around the list sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal DSL-25: the size the list draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** DSL-25: carries the size the list draws to description-list.css, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** DSL-23: the size last read for a value the core does not have. */
+  private sizeRead = DEFAULT_SIZE;
 
   /** How a fact is told from the fact below it: `divider` is one hairline, `gap` empty space and no line; `auto` takes `comp.description-list.separation`, the design system's answer. */
   separation: TanreiDescriptionListSeparation = 'auto';
@@ -244,6 +274,12 @@ export class TanreiDescriptionList extends TanreiLightElement {
     this.watched = list;
   }
 
+  protected override willUpdate() {
+    // DSL-25: the size it draws, as a custom state description-list.css matches (a name that is no token name is drawn
+    // as the default by the list's own rules, DSL-23).
+    this.sizes.syncState(this.internals);
+  }
+
   protected override updated(changed: PropertyValues) {
     // DSL-13: a separation the list does not define is auto (no rule matches the attribute); a debug build says so.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
@@ -253,22 +289,22 @@ export class TanreiDescriptionList extends TanreiLightElement {
     if (changed.has('layout') && !LAYOUTS.includes(this.layout)) {
       report(this, 'DSL-23', `layout "${this.layout}" is not a value the description list defines; it is drawn as "inline"`);
     }
-    if (changed.has('density')) this.readDensity();
+    // DSL-23, DSL-25: the size it draws — its own or its container's — when that changed.
+    if (this.sizes.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizes.drawn));
     if (changed.has('columns') || changed.has('layout')) this.readColumns();
     this.read();
   }
 
   /**
-   * DSL-23: a density the core does not have was added by a design system — its rules are added to the root, falling
+   * DSL-23: a size the core does not have was added by a design system — its rules are added to the root, falling
    * back to the default's tokens — or is unknown to the active one, which a debug build says.
    */
-  private readDensity() {
-    const density = String(this.density ?? '');
-    if (CORE_DENSITIES.includes(density)) return;
-    const known = KEY.test(density);
-    if (known) adopt(this.getRootNode() as Root, writtenSheet(`density:${density}`, () => densityRules(density)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-fact-gap-${density}`).trim() === '') {
-      report(this, 'DSL-23', `density "${density}" is not a value of the active design system; it is drawn as "${DEFAULT_DENSITY}"`);
+  private readSize(size: string) {
+    if (CORE_SIZES.includes(size)) return;
+    const known = KEY.test(size);
+    if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
+    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-fact-gap-${size}`).trim() === '') {
+      report(this, 'DSL-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
 

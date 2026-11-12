@@ -48,7 +48,7 @@ export interface TanreiLoadingIndicatorSizeRegistry {
 // The box of the text input, the select, the combobox, the number input and the color input is one set of tokens,
 // `comp.input-box`: its sizes and its looks are the box's, and the five controls' `size` and `variant`
 // are defined from these two. A layer that adds a size or a look adds it to the box, and all five take it. A control
-// offers the sizes its spec lists: the select all three, the four others every one but `small`.
+// offers the sizes its spec lists.
 export interface TanreiInputBoxSizeRegistry {
   small: true;
   medium: true;
@@ -150,9 +150,9 @@ export interface TanreiEmptyStateSizeRegistry {
   large: true;
 }
 
-export interface TanreiTableDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTableSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiCodeBlockSizeRegistry {
@@ -165,9 +165,9 @@ export interface TanreiCodeBlockVariantRegistry {
   outlined: true;
 }
 
-export interface TanreiDescriptionListDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiDescriptionListSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiFigureVariantRegistry {
@@ -186,44 +186,47 @@ export interface TanreiAccordionVariantRegistry {
   outlined: true;
 }
 
-export interface TanreiAccordionDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiAccordionSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiTreeViewDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTreeViewSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiListRowDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListRowSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiListDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiMenuDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiMenuSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiSelectDensityRegistry {
-  regular: true;
-  compact: true;
+// The sizes the options of a select's and a combobox's list are drawn at. They have no prop of their own: the list takes
+// the box's size (`TanreiInputBoxSizeRegistry`) as its nearest of these, so a layer that adds a size to the box and
+// wants its options drawn at it adds the same name here.
+export interface TanreiSelectOptionSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiComboboxDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiComboboxOptionSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiSearchDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiSearchSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiPageHeaderSizeRegistry {
@@ -232,9 +235,9 @@ export interface TanreiPageHeaderSizeRegistry {
   large: true;
 }
 
-export interface TanreiTableOfContentsDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTableOfContentsSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiFieldGroupSpacingRegistry {

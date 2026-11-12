@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: 9a1beddfa16fafffea78472659a15cdfc168a92a
+sourceHash: 0efa21c846500b22bfd3a30cbaca612c9a4ed23c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -431,9 +431,11 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 每个表面各自决定，子菜单跟随其菜单的 `iconSpace`。无论组内各行保留什么，组的标题都从行内容开始的位置起画。[树视图](/zh-cn/components/tree-view/)和[导航抽屉](/zh-cn/components/navigation-drawer/)也有同样的 `iconSpace`，取值和默认值都相同。
 
-### 密度
+### 尺寸
 
-`density` 决定一行占多大空间。`regular`（默认：行高 48，图标 24）适用于既用触摸也用指针的产品。`compact`（行高 32，图标 20，即[树视图](/zh-cn/components/tree-view/)的紧凑行）适用于用鼠标操作、菜单很长且经常打开的工具。两者的文字大小相同。触摸时行高绝不低于触摸目标，所以手机上的紧凑菜单行高仍是 48。每个子菜单都采用其菜单的密度。
+`size` 决定一行占多大空间。`medium`（默认：行高 48，图标 24）适用于既用触摸也用指针的产品。`small`（行高 36，图标 20，即[树视图](/zh-cn/components/tree-view/)的 small 行）适用于用鼠标操作、菜单很长且经常打开的工具。两者的文字大小相同，行高绝不低于目标。每个子菜单都采用其菜单的尺寸。
+
+菜单不从周围的元素获取尺寸。从 small [工具栏](/zh-cn/components/toolbar/)中的按钮打开的菜单，除非设置它自己的 `size`，否则仍是 medium：菜单在页面之上打开，与按钮周围的控件分开。
 
 ### 链接
 
@@ -536,7 +538,7 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 无障碍
 
-<ComponentAccessibility name="menu" keyboardMap />
+<ComponentAccessibility name="menu" />
 
 ### 组件负责的部分
 

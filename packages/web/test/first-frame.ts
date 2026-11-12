@@ -223,12 +223,29 @@ export async function appearAgain(page: Page, id: string, { sample, measured = f
 const LENGTHS = new Set(['clip-path', 'translate']);
 
 /**
+ * A computed value of lengths written out in full: the engine leaves out what repeats — `inset(4px 0px 4px 0px)` is
+ * `inset(4px 0px)`, `translate: 3px 0px 0px` is `3px` — so a value a hundredth of a pixel off the even one is written
+ * with more numbers than the even one (a tab's indicator cut from a box measured at 3.96px rather than 4px).
+ */
+const fully = (property: string, value: string): string => {
+  if (property === 'translate') {
+    const [x, y = '0px', z = '0px'] = value.trim().split(/\s+/);
+    return value === 'none' ? value : `${x} ${y} ${z}`;
+  }
+  return value.replace(/inset\(([^)]*?)(\s+round\s+[^)]*)?\)/g, (_, offsets: string, round = '') => {
+    const [top, right = top, bottom = top, left = right] = offsets.trim().split(/\s+/);
+    return `inset(${top} ${right} ${bottom} ${left}${round})`;
+  });
+};
+
+/**
  * Two computed values of `property` are the same: equal, or — for a property of lengths alone — the same but for
  * numbers within `tolerance` px of each other (a ring cut from a box measured a fiftieth of a pixel otherwise).
  */
 function sameStyle(property: string, a: string | undefined, b: string | undefined, tolerance: number): boolean {
   if (a === b) return true;
   if (a === undefined || b === undefined || !LENGTHS.has(property)) return false;
+  [a, b] = [fully(property, a), fully(property, b)];
   const number = /-?\d*\.?\d+(?:e-?\d+)?/g;
   if (a.replace(number, '#') !== b.replace(number, '#')) return false;
   const [x, y] = [a.match(number) ?? [], b.match(number) ?? []];

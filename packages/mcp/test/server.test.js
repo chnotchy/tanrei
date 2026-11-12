@@ -8,6 +8,8 @@ import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { packed } from '../../tools/src/pack-contents.js';
+import { packedSpec } from '../../tools/src/packed-vocabulary.js';
 import { leavesNothingBehind, tempDir } from '../../tools/src/test-tmp.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -576,21 +578,21 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
   assert.deepEqual([valid.valid, valid.problems, valid.chain], [true, [], ['core', 'tanrei', 'acme']]);
   // The chip holds its label: its small padding-block is 2 (a 20 glyph in a 24 height).
   // The list is exact, by token: each of these heights is its padding twice plus one line of its label at a 16px
-  // base, with nothing to spare (the tree view's regular row has 2), so at 18px the line is taller than the height
+  // base, with nothing to spare (the tree view's medium row has 2), so at 18px the line is taller than the height
   // (which platforms treat as a minimum). A component that joins or leaves this list is a change to notice, not a count to adjust.
   const HEIGHTS_WITHOUT_ROOM_AT_18 = [
-    'accordion.container.height.regular',
+    'accordion.container.height.medium',
     'button-with-menu.container.height.small',
     'button.container.height.small',
     'segmented-button.container.height.small',
     'tag.container.height.medium',
     'tag.container.height.small',
-    'tree-view.container.height.compact',
-    'tree-view.container.height.regular',
+    'tree-view.container.height.medium',
+    'tree-view.container.height.small',
   ].map((rest) => `tanrei.comp.${rest}`);
   assert.equal(valid.warnings.total, HEIGHTS_WITHOUT_ROOM_AT_18.length);
-  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the regular header of the accordion (24 + 2 × 16 = 56), nor a row of the tree view at either density (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
-  assert.match(valid.warnings.first[0], /accordion\.container\.height\.regular: 56px cannot hold its content — 2 × padding-block \(16px\) \+ one label line = 59px/);
+  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the medium header of the accordion (24 + 2 × 16 = 56), nor a row of the tree view at either size (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
+  assert.match(valid.warnings.first[0], /accordion\.container\.height\.medium: 56px cannot hold its content — 2 × padding-block \(16px\) \+ one label line = 59px/);
   assert.match(valid.warnings.first[1], /container\.height\.small: 36px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 38\.5px/);
   assert.match(valid.warnings.first[4], /tag\.container\.height\.medium: 24px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 26\.5px/);
   assert.match(valid.warnings.first[5], /tag\.container\.height\.small: 20px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 22px/);
@@ -968,9 +970,10 @@ test('the packaged server (bundle + its own copy of the vocabulary and the regis
   const generated = path.join(pkg, 'dist/vocabulary/tokens/generated');
   const shippedOutput = fs.existsSync(generated) ? fs.readdirSync(generated, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile()).map((entry) => path.relative(generated, path.join(entry.parentPath ?? entry.path, entry.name))).sort() : [];
   assert.deepEqual(shippedOutput, [...SHIPPED.filter(fidelityReport).map((id) => path.join(id, 'fidelity.json')), ...LISTED.map((id) => path.join(id, 'components.json'))].sort());
-  // The component tools answer from the specs and the catalog: every spec is carried.
+  // The component tools answer from the specs and the catalog: every spec is carried, without what the server never
+  // reads (test/packed-vocabulary.test.js proves every answer is the same without it).
   const specs = fs.readdirSync(path.join(repo, 'specs')).filter((name) => name.endsWith('.spec.json'));
-  for (const name of specs) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(pkg, 'dist/vocabulary/specs', name), 'utf8')), readJson('specs', name), name);
+  for (const name of specs) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(pkg, 'dist/vocabulary/specs', name), 'utf8')), packedSpec(readJson('specs', name)), name);
   assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/packages/tokens-build/generated/component-catalog.json')));
   assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/docs/governance/mimicry-gaps.json')));
   const packaged = await connect({ fromSource: false });
@@ -1000,5 +1003,16 @@ test('the packaged server (bundle + its own copy of the vocabulary and the regis
     assert.equal((await packaged.client.readResource({ uri: 'tanrei://schema/system' })).contents[0].text, (await server.client.readResource({ uri: 'tanrei://schema/system' })).contents[0].text);
   } finally {
     await packaged.client.close();
+  }
+});
+
+// Here, not in a file of its own: the build above and this one rewrite dist/, and test files run side by side.
+test('the tarball holds the bundle and its vocabulary, and nothing a product should not get', () => {
+  execFileSync(process.execPath, [path.join(pkg, 'scripts/build.js')], { cwd: pkg });
+  const { files, findings } = packed(pkg);
+  assert.deepEqual(findings, []);
+  // The premise: it read a built package.
+  for (const file of ['package.json', 'README.md', 'NOTICE', 'bin/tanrei-mcp.js', 'dist/server.js', 'dist/vocabulary/tanrei.config.json', 'dist/vocabulary/specs/inventory.json']) {
+    assert.ok(files.includes(file), `${file} is packed`);
   }
 });

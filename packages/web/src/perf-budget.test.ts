@@ -3,14 +3,18 @@
 // reported (the components' own *.perf.test.ts report it beside their counts).
 //
 // The page is what a product ships: every element of the package (`@tanrei/web/all`) bundled with
-// `process.env.NODE_ENV` defined as "production" — no debug report runs, and reads nothing — and every stylesheet.
+// `process.env.NODE_ENV` defined as "production" — no debug report runs, and reads nothing — and every stylesheet, in
+// the one file a product links for them (`@tanrei/web/tanrei.css`: the base, the tokens and every other stylesheet), once.
+// Each stylesheet beside it as well would declare every token and every rule twice, which no product's page does.
 //
 //   forced   the passes building N copies of a component's first fixture forced the browser to style or lay out the
 //            page for, in the task and the work it queued (a Chromium trace: the style and layout events that carry a
-//            script's stack), at 100 against 10. Every component is held to 1: the hosts of one turn read the cascade
-//            and the layout together after their renders (src/primitives/read-phase.ts), so a hundred instances cost
+//            script's stack, but the pass a frame's callbacks make first, which is that frame's own: `forcedPasses`),
+//            at 100 against 10. Every component is held to 1: the hosts of one turn read the cascade and the layout
+//            together after their renders (src/primitives/read-phase.ts), so a hundred instances cost
 //            the passes ten do. A component that still reads in its own turn has a budget of its own (`forced`): the
-//            growth it was measured at, a finding to bring down to 1.
+//            growth it was measured at, a finding to bring down to 1. Paths the first fixtures do not take (another
+//            fixture, or what is done to the instances once built: `VARIANTS`) are held to 1 the same way.
 //   reads    what building N instances (or N items) reads of the page's layout and style — `getBoundingClientRect`,
 //            `getClientRects`, the offset, client and scroll sizes, `getComputedStyle` — at 100 against 10: the reads
 //            the 90 more cost. A read after a write makes the browser lay the page out again before it answers, so a
@@ -31,6 +35,7 @@ import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
 import { loadSpec, stageMarkup, withoutIconFont } from '../test/harness.js';
+import { motionAtItsOwnSpeed } from '../test/harsh.js';
 import { twoFrames } from '../test/work-count.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -106,16 +111,15 @@ function counters() {
 }
 
 /**
- * A page with every stylesheet of the package, the counters, the production bundle, and an empty `#pane`. The icon set
- * names a family no machine has (`withoutIconFont`): its font is missing on every machine, as on a page that has not
- * loaded it yet. The default's family may be installed locally — a Mac with Material Symbols drew every glyph and took
- * none of the branches a missing face takes, where the Linux runner took them all — and a count must not depend on
- * which machine made it.
+ * A page with every stylesheet of the package (`tanrei.css`, once), the counters, the production bundle, and an empty
+ * `#pane`. The icon set names a family no machine has (`withoutIconFont`): its font is missing on every machine, as on
+ * a page that has not loaded it yet. The default's family may be installed locally — a Mac with Material Symbols drew
+ * every glyph and took none of the branches a missing face takes, where the Linux runner took them all — and a count
+ * must not depend on which machine made it.
  */
 async function budgetPage(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
-  const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>body { margin: 0; }</style><script>(${counters.toString()})()</script>`;
+  const head = `<meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>body { margin: 0; }</style><script>(${counters.toString()})()</script>`;
   await page.setContent(`<!doctype html><html lang="en"><head>${head}</head><body><div id="pane"></div><script type="module">${await production()}</script></body></html>`);
   await page.waitForFunction(() => !!customElements.get('tanrei-chat-composer'));
   await withoutIconFont(page);
@@ -210,23 +214,92 @@ const held = (kind: 'reads' | 'updates' | 'sheets', name: string, count: number,
 };
 
 /**
+ * How many frames the work a build queues is waited for, each to its end. What a build queues runs in its first three
+ * frames: the settling of its hosts (MOT-3) lets them go in the second; the resize observers report in the first; an
+ * intersection observer reports in a task after the first, which a busy page runs after the callbacks of the second, and
+ * what it asks of the read phase (src/primitives/read-phase.ts) is read in the frame after it — the third. The wait
+ * starts in a task after the build's, which may come after its first frame: one frame more.
+ */
+const FRAMES_OF_WORK = 4;
+
+/**
+ * Waits for `FRAMES_OF_WORK` frames, each to its end: a task after its callbacks, when its style, layout, observers and
+ * paint have run. The trace is ended from outside the page once the wait returns, while the page goes on: a wait that
+ * returned from a frame's callbacks cut that frame's own work off where the end happened to arrive (a scroll area's read
+ * phase, which follows the callbacks, was in the trace or not).
+ */
+const framesOfWork = (page: Page) =>
+  page.evaluate(
+    (count) =>
+      new Promise<void>((resolve) => {
+        const frame = (left: number) => requestAnimationFrame(() => setTimeout(() => (left > 1 ? frame(left - 1) : resolve())));
+        frame(count);
+      }),
+    FRAMES_OF_WORK,
+  );
+
+type Frame = { lineNumber: number; columnNumber?: number; functionName: string };
+type TraceEvent = { name: string; ph: string; ts: number; dur?: number; pid: number; tid: number; args?: { beginData?: { stackTrace?: Frame[] } } };
+
+/**
+ * The passes script forced, out of the trace's events: the `UpdateLayoutTree` and `Layout` events that carry a stack (a
+ * pass the frame makes for its own paint has none) — but the first of each kind forced in a frame's animation frame
+ * callbacks. That one is the frame's own pass, made earlier: whatever was there to style or lay out, the frame was about
+ * to style and lay out before its paint, and then has nothing left of it to do. Whether a script's read there finds
+ * anything to do is the engine's order of the tasks between frames, not the instances' work: the hosts' settling
+ * (`void document.documentElement.offsetWidth`, src/primitives/motion.ts) found a scroll area's edge, written by its
+ * intersection observer's task, when that task ran before the next frame, and found nothing when the engine drew the
+ * frame first — two passes counted, or none, at 10 or at 100. A second pass of a kind in the same callbacks is the
+ * script's: something was written after the first.
+ *
+ * The callbacks of one frame run one after another in one task; any event between two of them that is not inside
+ * either (the frame's paint, a task) ends that frame's run. Two frames with nothing traced between their callbacks are
+ * taken for one, with one pass of each kind their own: the count can err toward more passes, never toward fewer.
+ */
+function forcedPasses(events: TraceEvent[]): TraceEvent[] {
+  const timed = events.filter((event) => event.ph === 'X').sort((a, b) => a.ts - b.ts);
+  const forced: TraceEvent[] = [];
+  // Per thread: the end of the last callback, and the kinds of pass its frame has made its own.
+  const threads = new Map<string, { callbackEnd: number; own: Set<string> | null }>();
+  for (const event of timed) {
+    const key = `${event.pid}:${event.tid}`;
+    const thread = threads.get(key) ?? { callbackEnd: Number.NEGATIVE_INFINITY, own: null };
+    threads.set(key, thread);
+    const inCallback = event.ts <= thread.callbackEnd;
+    if (event.name === 'FireAnimationFrame') {
+      // A callback begun after anything else ended the last frame's run of them begins another frame's.
+      thread.own ??= new Set();
+      thread.callbackEnd = event.ts + (event.dur ?? 0);
+      continue;
+    }
+    if (!inCallback) thread.own = null;
+    if ((event.name !== 'Layout' && event.name !== 'UpdateLayoutTree') || !event.args?.beginData?.stackTrace?.length) continue;
+    if (inCallback && thread.own && !thread.own.has(event.name)) {
+      thread.own.add(event.name);
+      continue;
+    }
+    forced.push(event);
+  }
+  return forced;
+}
+
+/**
  * The passes script forced the browser to style or lay out the page for while `act` ran and the work it queued settled
- * (two frames): the trace's `UpdateLayoutTree` and `Layout` events that carry a stack. A pass the frame makes for its
- * own paint has none. Each is named by the four innermost frames of its stack (in the minified bundle: a hint).
+ * (`FRAMES_OF_WORK` frames, each to its end): `forcedPasses`. Each is named by the four innermost frames of its stack
+ * (in the minified bundle: a hint).
  */
 async function forcedDuring(page: Page, act: () => Promise<unknown>): Promise<{ forced: number; at: Record<string, number> }> {
   const cdp = await page.context().newCDPSession(page);
-  type Frame = { lineNumber: number; columnNumber?: number; functionName: string };
-  const events: { name: string; args?: { beginData?: { stackTrace?: Frame[] } } }[] = [];
-  cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as typeof events)));
+  const events: TraceEvent[] = [];
+  cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as TraceEvent[])));
   await cdp.send('Tracing.start', { traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline.stack'] }, transferMode: 'ReportEvents' });
   await act();
-  await twoFrames(page);
+  await framesOfWork(page);
   const complete = new Promise<void>((resolve) => cdp.once('Tracing.tracingComplete', () => resolve()));
   await cdp.send('Tracing.end');
   await complete;
   await cdp.detach();
-  const forced = events.filter((event) => (event.name === 'Layout' || event.name === 'UpdateLayoutTree') && event.args?.beginData?.stackTrace?.length);
+  const forced = forcedPasses(events);
   const at: Record<string, number> = {};
   for (const event of forced) {
     const stack = event.args!.beginData!.stackTrace!.slice(0, 4).map((frame) => `${frame.functionName || '(anonymous)'}:${frame.lineNumber}:${frame.columnNumber ?? 0}`);
@@ -246,7 +319,38 @@ const SPECS = fs
 /** What every component without a budget of its own is held to: 100 instances force at most one pass more than 10. */
 const FORCED_GROWTH = 1;
 
-test.describe('forced passes do not grow with the number of instances (a Chromium trace)', () => {
+/** A spec fixture's markup, by id. */
+const fixtureMarkup = (name: string, id: string) => {
+  const spec = loadSpec(name);
+  return stageMarkup(spec, spec.fixtures.find((fixture) => fixture.id === id)!, 'data-copy');
+};
+
+/**
+ * Paths a first fixture does not take, held to the same growth: building other markup, or what is done to every
+ * instance once they are built (`act`, after `prepare`; only the act is traced). `motion`: the page does not ask for
+ * reduced motion, for a path that moves.
+ */
+const VARIANTS: Record<string, { markup: () => string; motion?: boolean; prepare?: string; act?: string }> = {
+  // CRL-32, CRL-36: the clock and the current dot's fill follow the autoplay interval, which the cascade gives.
+  'carousel, autoplay with its progress fill': { markup: () => fixtureMarkup('carousel', 'autoplay-progress'), motion: true },
+  // CRL-8: an arrangement (a new item width) stops the motion running, and the row comes to rest where it was put.
+  'carousel, arranged while it moves': {
+    markup: () => fixtureMarkup('carousel', 'centered'),
+    motion: true,
+    prepare: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.shadowRoot.querySelector('tanrei-button.next').click()`,
+    act: `for (const carousel of document.querySelectorAll('tanrei-carousel')) carousel.itemWidth = 150`,
+  },
+  // SCA-8, SCA-10: content 1.4px past the box. The scroll extents round it to 1px, within the sentinel's thickness, so
+  // the sizes find that it fits; the bottom sentinel, out of the box, says that it does not — the fit the intersection
+  // observer tells, which asks whether anything inside takes focus.
+  'scroll-area, its fit told by the sentinels': {
+    markup: () => `<tanrei-scroll-area label="Messages" style="inline-size: 280px; block-size: 100px"><div style="block-size: 101.4px"></div></tanrei-scroll-area>`,
+  },
+};
+
+// Harsh mode leaves these pages' motion at its own speed: its rate in Chromium is the DevTools protocol's Animation
+// domain, with which the engine skips some of the passes counted here.
+test.describe('forced passes do not grow with the number of instances (a Chromium trace)', motionAtItsOwnSpeed('the passes counted are the engine’s own work, which the Animation domain changes'), () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the passes are counted from a Chromium trace');
 
   test('every forced budget names a component, and allows more than every other component is held to', () => {
@@ -286,6 +390,43 @@ test.describe('forced passes do not grow with the number of instances (a Chromiu
       console.log(`perf-budget ${line}`);
       test.info().annotations.push({ type: 'cost', description: line });
       expect(growth, [line, ...sites].join('\n')).toBeLessThanOrEqual(entry?.budget ?? FORCED_GROWTH);
+    });
+  }
+
+  for (const [name, variant] of Object.entries(VARIANTS)) {
+    test(`forced: ${name} — 100 instances force no more passes than 10 do, but one`, async ({ page }) => {
+      await budgetPage(page);
+      if (variant.motion) await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const stage = variant.markup();
+      const run = async (n: number) => {
+        await page.evaluate(() => {
+          document.querySelector('#pane')!.innerHTML = '';
+        });
+        await twoFrames(page);
+        const build = () =>
+          page.evaluate((html) => {
+            document.querySelector('#pane')!.innerHTML = html;
+          }, times(n, () => stage));
+        if (!variant.act) return forcedDuring(page, build);
+        await build();
+        await twoFrames(page);
+        await twoFrames(page);
+        if (variant.prepare) await page.evaluate(variant.prepare);
+        return forcedDuring(page, () => page.evaluate(variant.act!));
+      };
+      // The first run compiles what the others run, and loads what they draw with.
+      await run(10);
+      const small = await run(10);
+      const large = await run(100);
+      const growth = large.forced - small.forced;
+      const sites = Object.entries(large.at)
+        .sort((a, b) => b[1] - a[1])
+        .filter(([, count]) => count >= 50)
+        .map(([where, count]) => `${count} × ${where}`);
+      const line = `forced ${name}: ${growth} more at 100 than at 10 (${small.forced} → ${large.forced}; held to ${FORCED_GROWTH})`;
+      console.log(`perf-budget ${line}`);
+      test.info().annotations.push({ type: 'cost', description: line });
+      expect(growth, [line, ...sites].join('\n')).toBeLessThanOrEqual(FORCED_GROWTH);
     });
   }
 });

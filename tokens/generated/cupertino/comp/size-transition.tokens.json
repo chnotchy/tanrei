@@ -1,0 +1,49 @@
+{
+  "tanrei": {
+    "comp": {
+      "size-transition": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product moves the size of its own content when it changes — a reply that grows by a line, a detail that opens, a row that goes — instead of letting what follows jump, and wants every such change to take one tempo, longer for a longer distance, apart from its changes of state and its disclosures.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a size transition reads: how long a change of its size takes for a short distance, how much longer each further distance step makes it, the distance step itself, the longest a change may take, and the curve. It draws nothing: no color, edge, corner or padding.",
+            "rules": [
+              "The time grows with the distance: duration up to distance-step, plus duration-step for each further distance-step begun, never more than duration-max.",
+              "Where motion is reduced a change of size is made at once; no token restyles that.",
+              "Restyle the tempo of every size transition of a product here; an instance's duration is for the one place that needs another."
+            ]
+          }
+        },
+        "motion": {
+          "duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.default}",
+            "$description": "How long a change of size takes over a distance of up to distance-step: the role of a box that changes its size in place."
+          },
+          "duration-step": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short1}",
+            "$description": "How much longer a change takes for each further distance-step it moves, so that a large change does not look hurried beside a small one."
+          },
+          "distance-step": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space800}",
+            "$description": "The distance by which a change's time grows by one duration-step."
+          },
+          "duration-max": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
+            "$description": "The longest a change of size takes, however far it moves: the role of a large change of size, so that a far change does not keep the person waiting."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
+            "$description": "The curve of a change of size: something that changes its size in place."
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,13 +2,14 @@
 title: "组合框"
 description: "用户在里面键入以找到一个或多个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -232,7 +233,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
 
-`density` 决定一个选项占多大空间：`regular`（默认，高 48）或 `compact`（高 32，图标 20，即[菜单](/zh-cn/components/menu/)的紧凑行），后者适用于用鼠标操作、列表很长的工具。文字大小不变，无论密度如何，容器都由 `size` 决定。触摸时选项绝不低于触摸目标。
+选项采用组合框的 `size`。`small` 的组合框打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的组合框打开 medium 选项（高 48）。文字大小不变，选项绝不低于目标。
 
 <ComponentSpecs name="combobox" />
 
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 不要在组合框上写 `supporting-text`、`error-text`、`required` 或 `optional`。它们是字段的，组合框一样都不绘制。
 
 ## 无障碍
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

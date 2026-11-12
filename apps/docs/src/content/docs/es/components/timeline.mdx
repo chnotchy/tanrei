@@ -2,7 +2,7 @@
 title: Línea de tiempo
 description: Eventos dispuestos en orden cronológico, cada uno con un marcador, su momento, un título y un cuerpo con tu contenido, unido al siguiente por una línea fina. Donde los eventos tienen un estado, la forma del marcador y tus palabras dicen cuáles están hechos, cuál está en curso y cuáles quedan por delante. Es una lista para leer, nunca un control.
 translationOf: components/timeline.mdx
-sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
+sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -103,7 +103,6 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 | --- | --- |
 | `label` | `aria-label` (o `aria-labelledby` con el encabezado que precede a la lista) |
 | `size: large` | `data-size="large"` |
-| `density: compact` | `data-density="compact"` |
 | un evento | `<li>` |
 | `time` con `datetime` | `<time class="tanrei-timeline-time" datetime="…">`, que contiene las palabras que escribes tú |
 | un `time` que no es un instante | `<p class="tanrei-timeline-time">` |
@@ -128,13 +127,13 @@ El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien
   </ol>
 </Example>
 
-<Example label="Tus propios glifos, y un registro compacto" column>
+<Example label="Tus propios glifos, y un registro de eventos de una línea" column>
   <ol class="tanrei-timeline" role="list" aria-label="Pedido 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Completado"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Lunes, 09:41</p><p class="tanrei-timeline-title">Pedido realizado</p></li>
     <li data-status="current" data-status-label="En curso"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Martes, 14:05</p><p class="tanrei-timeline-title">En camino</p></li>
     <li data-status="upcoming" data-status-label="Sin empezar"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">Previsto para el jueves</p><p class="tanrei-timeline-title">Entregado</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="Actividad" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="Actividad" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">Capa guardada</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contraste comprobado en seis esquemas</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Color primario cambiado</p></li>
@@ -145,7 +144,7 @@ El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien
 - **Un estado** cambia la forma del marcador y nada más: un anillo con una marca de verificación para el evento hecho, un círculo relleno con un punto para el que está en curso y un anillo vacío para el que todavía queda por delante. El círculo relleno es el único color que aporta una línea de tiempo, aparte del color del momento.
 - **El conector** va de la caja de cada marcador a la siguiente y se detiene antes de tocar ninguna de las dos. El último evento no tiene, y es la misma línea entre eventos de cualquier estado.
 - **El momento** va primero en el evento, en un color discreto. **El título** lo sigue, con el tamaño del cuerpo y un peso de título. **El cuerpo** es tu contenido: dos bloques quedan a 8 uno de otro.
-- **La densidad**: regular pone 16 entre dos eventos, y compact, 8, para un registro largo de eventos de una línea. Solo cambia ese espacio.
+- **El espacio entre dos eventos** es de 16 en el sistema predeterminado, en los dos tamaños. Sigue la [densidad](/es/foundations/size-and-density/) del sistema: un sistema cuya densidad es inferior a 1 dibuja sus eventos más juntos. Una línea de tiempo no tiene densidad propia.
 - **Los tamaños** son los dos de la prosa: medium entre controles, large en una página cuya finalidad es el texto. El marcador y el conector coinciden con los de los pasos, así que en una misma página los dos se leen como una sola familia.
 
 <ComponentSpecs name="timeline" />
@@ -159,7 +158,7 @@ Dentro de `.tanrei-prose` la línea de tiempo no es una isla: los párrafos, las
 - Escribe el texto de un evento en elementos (`<p>`): al texto escrito directamente en un elemento de lista no se le puede dar la separación que va debajo de un momento o de un título.
 - La marca de verificación de un evento hecho es el `check` del conjunto de iconos, así que necesita `icons.css` y la fuente de iconos. Sin ellos, el anillo queda vacío.
 - Fuera de una prosa, un cuerpo de texto largo (listas, citas) se dispone como en cualquier otro lugar de tu página, no como prosa.
-- Un tamaño o una densidad que añade un sistema de diseño se dibuja como el predeterminado hasta que ese sistema incluya una regla para él.
+- Un tamaño que añade un sistema de diseño se dibuja como el predeterminado hasta que ese sistema incluya una regla para él.
 - Sin el script del paquete, ningún elemento se marca como el elemento actual de la lista. El estado se sigue leyendo en palabras.
 
 ## Pautas
@@ -170,7 +169,7 @@ Dentro de `.tanrei-prose` la línea de tiempo no es una isla: los párrafos, las
 - Da a cada evento que tenga un estado sus palabras en `data-status-label`, en el idioma de quien lee.
 - Donde el estado importe a todas las personas que leen, muéstralo también con palabras: un tag en el título o en el cuerpo.
 - Da a un momento relativo («hace 2 horas») su instante exacto en `datetime`.
-- Usa compact para un registro largo de eventos de una línea, y pon un botón después de la lista para mostrar los más antiguos.
+- Para un registro largo de eventos de una línea, muestra los últimos y pon un botón después de la lista para mostrar los más antiguos.
 
 ### Evita
 

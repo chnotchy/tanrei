@@ -69,9 +69,13 @@ test('a status color set apart from its role is held against the surfaces as wel
   }
 });
 
+// An imitation preset is held to fidelity to its original, not to this criterion: an indicator of its original's
+// color that stands under 3:1 is a measurement (its a11y-report.json, held current by presets.test.js), never a
+// structural failure.
 for (const id of shippedSystems(REPO_ROOT).filter((each) => each !== DEFAULT_SYSTEM)) {
-  test(`${id}: every meter indicator stands 3:1 or more from the track and the surfaces`, async () => {
+  test(`${id}: a meter indicator under 3:1 from the track is measured as a criterion, not failed as a structure`, async () => {
     const preset = await buildModel(path.join(REPO_ROOT, 'tokens/generated', id), id);
-    assert.deepEqual(about(checkInvariants(preset)), []);
+    const findings = about(checkInvariants(preset));
+    assert.deepEqual(findings.filter((f) => !isCriterionFinding(f)), []);
   });
 }

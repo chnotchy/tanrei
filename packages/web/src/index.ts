@@ -41,7 +41,7 @@ export {
   type TanreiFieldGroupRequiredMark,
   type TanreiFieldGroupSpacing,
 } from './components/field-group/field-group.js';
-export { TanreiAccordion, type TanreiAccordionDensity, type TanreiAccordionSeparation, type TanreiAccordionVariant } from './components/accordion/accordion.js';
+export { TanreiAccordion, type TanreiAccordionSeparation, type TanreiAccordionSize, type TanreiAccordionVariant } from './components/accordion/accordion.js';
 export { TanreiAppBar, type TanreiAppBarSize, type TanreiAppBarTitleAlignment } from './components/app-bar/app-bar.js';
 export {
   TanreiAppShell,
@@ -144,7 +144,7 @@ export {
 export { TanreiPageHeader, type TanreiPageHeaderActionsPlacement, type TanreiPageHeaderSize } from './components/page-header/page-header.js';
 export { TanreiBreadcrumbs, type TanreiBreadcrumbsOverflow, type TanreiBreadcrumbsUnderline } from './components/breadcrumbs/breadcrumbs.js';
 export { TanreiPagination, type TanreiPaginationChangeDetail, type TanreiPaginationSize, type TanreiPaginationVariant } from './components/pagination/pagination.js';
-export { TanreiTreeView, type TanreiTreeViewChangeDetail, type TanreiTreeViewDensity, type TanreiTreeViewSelection, type TanreiTreeViewToggleDetail } from './components/tree-view/tree-view.js';
+export { TanreiTreeView, type TanreiTreeViewChangeDetail, type TanreiTreeViewSelection, type TanreiTreeViewSize, type TanreiTreeViewToggleDetail } from './components/tree-view/tree-view.js';
 export {
   TanreiPopover,
   type TanreiPopoverCloseDetail,
@@ -157,7 +157,6 @@ export {
 export { TanreiOption, TanreiOptionGroup } from './components/option/option.js';
 export {
   TanreiSelect,
-  type TanreiSelectDensity,
   type TanreiSelectIconSpace,
   type TanreiSelectSeparation,
   type TanreiSelectSize,
@@ -170,7 +169,6 @@ export { TanreiSelectField } from './components/select-field/select-field.js';
 export {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
-  type TanreiComboboxDensity,
   type TanreiComboboxFilter,
   type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
@@ -227,7 +225,7 @@ export {
   type TanreiDateTimePickerPresentation,
   type TanreiDateTimePickerUnit,
 } from './components/date-time-picker/date-time-picker.js';
-export { TanreiDescriptionList, type TanreiDescriptionListDensity, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation } from './components/description-list/description-list.js';
+export { TanreiDescriptionList, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation, type TanreiDescriptionListSize } from './components/description-list/description-list.js';
 export { TanreiDialog, type TanreiDialogClosedBy } from './components/dialog/dialog.js';
 export { TanreiModalLayer, type TanreiModalLayerCloseDetail, type TanreiModalLayerCloseReason, type TanreiModalLayerClosedBy } from './components/modal-layer/modal-layer.js';
 export { TanreiEmptyState, type TanreiEmptyStateAlign, type TanreiEmptyStateSize } from './components/empty-state/empty-state.js';
@@ -277,7 +275,7 @@ export {
 export {
   TanreiList,
   type TanreiListChangeDetail,
-  type TanreiListDensity,
+  type TanreiListSize,
   type TanreiListGap,
   TanreiListItem,
   type TanreiListMoveDetail,
@@ -286,7 +284,7 @@ export {
   type TanreiListItemFrame,
   type TanreiListItemContent,
 } from './components/list/list.js';
-export { TanreiListRow, type TanreiListRowDensity } from './components/list-row/list-row.js';
+export { TanreiListRow, type TanreiListRowSize } from './components/list-row/list-row.js';
 export {
   TanreiMainActionButton,
   type TanreiMainActionButtonIconPosition,
@@ -301,7 +299,6 @@ export {
   type TanreiMenuCloseReason,
   type TanreiMenuContextInput,
   type TanreiMenuContextRequestDetail,
-  type TanreiMenuDensity,
   TanreiMenuGroup,
   type TanreiMenuGroupChangeDetail,
   TanreiMenuItem,
@@ -310,6 +307,7 @@ export {
   TanreiMenuRadioItem,
   TanreiMenuRowBase,
   type TanreiMenuSeparation,
+  type TanreiMenuSize,
   type TanreiMenuTrigger,
   TanreiSubmenu,
   type TanreiSubmenuToggleDetail,
@@ -364,12 +362,12 @@ export {
   TanreiSearch,
   type TanreiSearchBar,
   type TanreiSearchCloseReason,
-  type TanreiSearchDensity,
   type TanreiSearchPresentation,
   TanreiSearchResult,
   TanreiSearchResultGroup,
   TanreiSearchRow,
   type TanreiSearchSelectDetail,
+  type TanreiSearchSize,
   type TanreiSearchIconSpace,
   type TanreiSearchStatus,
   type TanreiSearchSubmitDetail,
@@ -378,6 +376,7 @@ export {
 } from './components/search/search.js';
 export { TanreiScrollArea, type TanreiScrollAreaEdge, type TanreiScrollAreaScrollEdge } from './components/scroll-area/scroll-area.js';
 export { TanreiMarqueeText, type TanreiMarqueeTextLoop, type TanreiMarqueeTextPausedChangeDetail, type TanreiMarqueeTextTrigger } from './components/marquee-text/marquee-text.js';
+export { TanreiSizeTransition, type TanreiSizeTransitionAnchor, type TanreiSizeTransitionAxis, type TanreiSizeTransitionSettleDetail } from './components/size-transition/size-transition.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,
@@ -416,19 +415,19 @@ export { TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsChangeDetail, typ
 export { TanreiTabView, type TanreiTabViewChangeDetail } from './components/tab-view/tab-view.js';
 export {
   TanreiTable,
-  type TanreiTableDensity,
   type TanreiTableSelection,
   type TanreiTableSelectionChangeDetail,
   type TanreiTableSeparation,
+  type TanreiTableSize,
   type TanreiTableSortDetail,
   type TanreiTableSortDirection,
 } from './components/table/table.js';
 export {
   TanreiTableOfContents,
   type TanreiTableOfContentsCurrentChangeDetail,
-  type TanreiTableOfContentsDensity,
   type TanreiTableOfContentsPresentation,
   type TanreiTableOfContentsSelectDetail,
+  type TanreiTableOfContentsSize,
   type TanreiTableOfContentsToggleDetail,
   type TanreiTableOfContentsTracking,
 } from './components/table-of-contents/table-of-contents.js';

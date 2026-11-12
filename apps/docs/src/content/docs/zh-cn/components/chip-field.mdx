@@ -2,13 +2,14 @@
 title: "纸片字段"
 description: "在一个字段里收集一列简短的文本——电子邮件地址、电话号码、关键词——一个接一个地键入。通过你的检查的每段文本都变成一个纸片，可以移除，也可以放回键入部分去修改；这个列表就是字段唯一的值。"
 translationOf: components/chip-field.mdx
-sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
+sourceHash: cc0d8982de4f0f47a03f683e9d3e40e3f98c5d10
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -211,6 +212,8 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 - 不要把键入的文本当作值的一部分来读取。焦点离开时它才成为条目；在字段有焦点时用脚本提交的产品，要读取 `inputValue`。
 
 ## 无障碍
+
+<FocusOrder name="chip-field" fixture="email-entries" />
 
 <ComponentAccessibility name="chip-field" />
 

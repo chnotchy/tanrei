@@ -2,7 +2,7 @@
 title: جدول المحتويات
 description: يسرد عناوين أقسام الصفحة التي تُقرأ روابطَ إليها، ويعلّم العنوان الذي يُقرأ قسمه. وحيث لا متّسع بجانب النص، يسمّي صف واحد القسم الحالي ويفتح القائمة نفسها.
 translationOf: components/table-of-contents.mdx
-sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
+sourceHash: da2c0269333c7c8d80d5b1abac732d7474add022
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -72,7 +72,7 @@ import Example from '../../../../components/visuals/Example.astro';
     import { TableOfContents } from '@tanrei/react';
     import '@tanrei/web/table-of-contents.css';
 
-    <TableOfContents label="في هذه الصفحة" density="compact">
+    <TableOfContents label="في هذه الصفحة" size="small">
       <ul>
         {headings.map((heading) => (
           <li key={heading.id}>
@@ -108,8 +108,8 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ## المواصفات
 
-<Example label="الكثافة compact، وثلاثة مستويات، والعنصر الثالث هو الحالي">
-  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="في هذه الصفحة" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+<Example label="الحجم small، وثلاثة مستويات، والعنصر الثالث هو الحالي">
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="في هذه الصفحة" size="small" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
         <a href="#tokens-demo">الرموز</a>
@@ -155,14 +155,14 @@ import Example from '../../../../components/visuals/Example.astro';
 - أي هيئة تحصل عليها النافذة: اضبط `presentation="compact"` حيث لا متّسع بجانب النص؛
 - عمودًا يُمرَّر حول قائمة طويلة. وعندئذ يُبقي المكوّن صفه الحالي في مجال الرؤية داخل ذلك العمود.
 
-### الكثافة
+### الحجم
 
-| `density` | صف من سطر واحد | يُستخدم لـ |
+| `size` | صف من سطر واحد | يُستخدم لـ |
 | --- | --- | --- |
-| `regular` (الافتراضي) | 44، وهو هدف المؤشر | أكثر الصفحات. |
-| `compact` | 32 | قائمة طويلة من عناوين الأقسام بجانب النص، في منتج يُستعمل بمؤشر. |
+| `medium` (الافتراضي) | 44، أعلى من هدف المؤشر | أكثر الصفحات. |
+| `small` | 36، وهو الحد الأدنى للهدف | قائمة طويلة من عناوين الأقسام بجانب النص، في منتج يُستعمل بمؤشر. |
 
-الصف بالكثافة `compact` أقل ارتفاعًا من هدف المؤشر. وهذا مقبول لأنه يُطلب باسمه وليس الافتراضي أبدًا. وفي اللمس يكون ارتفاع الصف هدف اللمس بالكثافتين. ونمط النص والإزاحة إلى الداخل واحدان فيهما.
+القيمة `size` هي ارتفاع الصف، وليست الهيئة المضغوطة. ولا يكون الصف أقل ارتفاعًا من هدف المؤشر مع المؤشر، ولا من هدف اللمس مع اللمس، في أي من الحجمين: فالنظام الذي يرفع أحد الهدفين يرسم صفوفه small بذلك الارتفاع. والارتفاعان يتبعان [كثافة](/ar/foundations/size-and-density/) النظام. ونمط النص والإزاحة إلى الداخل واحدان في الحجمين. وجدول المحتويات الذي لا يضبط `size` يُرسم بالحجم الذي تضبطه حاوية حوله لما يحتويه، وبالحجم medium إن لم تضبطه حاوية.
 
 ### أي عنصر هو الحالي
 

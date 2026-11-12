@@ -2,13 +2,14 @@
 title: "菜单栏"
 description: "把应用的命令放在一行常驻的、有名称的菜单（文件、编辑、视图……）里，让它们随时可用；每个菜单在自己的标题下方打开，方向键沿这一行移动，并进入各个菜单。"
 translationOf: components/menubar.mdx
-sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
+sourceHash: cdc7e2d44e1ccb83b5e663479be4f3df464f63fd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -311,6 +312,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 不要让菜单栏的菜单与产品的其他菜单样式不同。它们就是菜单，使用菜单的令牌。
 
 ## 无障碍
+
+<FocusOrder name="menubar" fixture="default" />
 
 <ComponentAccessibility name="menubar" />
 

@@ -78,7 +78,7 @@ function facesArrived(): Promise<unknown> | null {
  * ```
  *
  * Enter: in a single-line input it emits `action`; in a multi-line one it begins a new line, or — `enter-key="action"`
- * — emits `action`, with Shift+Enter for a new line. Ctrl+Enter and Command+Enter emit `action` under both. An input
+ * — emits `action`, with Shift+Enter for a new line. Control+Enter and Command+Enter emit `action` under both. An input
  * method's Enter never does, and where the primary pointer is coarse and cannot hover Enter is taken for the return
  * key of an on-screen keyboard and begins a new line. `action` carries the value and does nothing more: the input
  * keeps its value, its selection and its focus. Every `keydown` reaches the page before the input reads it, and one
@@ -108,7 +108,7 @@ function facesArrived(): Promise<unknown> | null {
  * @attr {string} form - The id of the form the input belongs to, where it stands outside it: the platform's own attribute. The `form` property is read-only and returns the form element.
  * @fires input - The person changed the value: the native element's own `input` event, which leaves the element as it is. Read the new value from `event.target.value`. Never when `value` is set.
  * @fires change - The person committed a changed value: focus left the input, or `action` was emitted. Bubbles.
- * @fires {CustomEvent<TanreiEmbeddedTextInputActionDetail>} action - The person asked for the action of whatever holds the input, by Enter as `enter-key` says or by Ctrl+Enter or Command+Enter. `detail.value` is the value. Bubbles; cancelable — a cancelled one keeps a single-line input from submitting its form.
+ * @fires {CustomEvent<TanreiEmbeddedTextInputActionDetail>} action - The person asked for the action of whatever holds the input, by Enter as `enter-key` says or by Control+Enter or Command+Enter. `detail.value` is the value. Bubbles; cancelable — a cancelled one keeps a single-line input from submitting its form.
  * @fires {CustomEvent<TanreiEmbeddedTextInputRowsChangeDetail>} rowschange - The number of lines the input shows is about to change, or it was first drawn: `detail.rows`, and `detail.scrolling` where the text has more lines and scrolls inside. Once per change, before the height moves. Bubbles.
  */
 export class TanreiEmbeddedTextInput extends TanreiElement {
@@ -188,7 +188,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   /** The most lines a multi-line input is tall (`max-rows`); beyond it the text scrolls inside. 0 is no limit; one below `min-rows` is `min-rows`. */
   maxRows = 0;
 
-  /** What Enter does on a hardware keyboard in a multi-line input (`enter-key`). `line-break`: it begins a new line. `action`: it emits `action` and inserts nothing, and Shift+Enter begins a new line. Under both, Ctrl+Enter and Command+Enter emit `action`. A single-line input ignores it: its Enter always emits `action`. A value it does not know behaves as `line-break`. */
+  /** What Enter does on a hardware keyboard in a multi-line input (`enter-key`). `line-break`: it begins a new line. `action`: it emits `action` and inserts nothing, and Shift+Enter begins a new line. Under both, Control+Enter and Command+Enter emit `action`. A single-line input ignores it: its Enter always emits `action`. A value it does not know behaves as `line-break`. */
   enterKey: 'line-break' | 'action' = 'line-break';
 
   /** Exposes the input as invalid. It draws nothing: marking an error is the drawing of the holder's box. */

@@ -2,16 +2,16 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
-import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
-import type { TanreiListRowDensityRegistry } from '../../registry.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, SizeConsumerController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
+import type { TanreiListRowSizeRegistry } from '../../registry.js';
 import type { TanreiListItemFrame } from '../list/list.js';
 import '../tooltip/tooltip.js';
 import type { TanreiTooltip } from '../tooltip/tooltip.js';
-import { AXES, styles } from './list-row.styles.js';
+import { AXES, CORE_SIZES, styles } from './list-row.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiListRowDensity = keyof TanreiListRowDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiListRowSize = keyof TanreiListRowSizeRegistry;
 
 /** Text with its runs of white space made one space, trimmed: what a person hears of it. */
 const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/g, ' ').trim();
@@ -85,7 +85,9 @@ export class TanreiListRow extends TanreiElement {
     leadingIcon: { type: String, attribute: 'leading-icon' },
     trailingText: { type: String, attribute: 'trailing-text' },
     trailingIcon: { type: String, attribute: 'trailing-icon' },
-    density: { type: String, reflect: true, useDefault: true },
+    // LRW-17: the size the product set, or none: a row that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     listItemFrame: { attribute: false },
     leadingFilled: { state: true },
     trailingFilled: { state: true },
@@ -113,15 +115,29 @@ export class TanreiListRow extends TanreiElement {
   trailingIcon = '';
 
   /**
-   * How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). Inside an item of a list the list's
-   * density is drawn in its place (LRW-17). A design system may add values.
+   * How much room the row takes: `medium` (56, 72, 88 in the default system) or `small` (40, 56, 72). While it is not
+   * set the row draws the size its nearest container sets — a list's `size` (LRW-17) — and `medium` where none does;
+   * reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the row's own, whatever a
+   * container sets; removing the attribute gives that back. A design system may add values.
    */
-  density: TanreiListRowDensity = 'regular';
-
-  /** @internal LRW-17: the density the row draws — the one its list tells it inside an item of a list, else its own. */
-  get drawnDensity(): string {
-    return this.listItemFrame?.density ?? String(this.density ?? '');
+  get size(): TanreiListRowSize {
+    return (this.sizes.own ?? 'medium') as TanreiListRowSize;
   }
+
+  set size(value: TanreiListRowSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** LRW-17: the size the product set, and the one the nearest container around the row sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal LRW-17: the size the row draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** LRW-17: carries the size the row draws to its styles, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
 
   /**
    * @internal LST-48: what the list item this row is the direct child of says it is; null while the row stands alone (or
@@ -132,7 +148,7 @@ export class TanreiListRow extends TanreiElement {
   private leadingFilled = false;
   private trailingFilled = false;
 
-  /** LRW-14: densities a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
+  /** LRW-14: sizes a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'list-row', behavior: 'LRW-14', axes: AXES });
 
   /** LRW-4, LRW-6: the glyphs are drawn only while the icon set can draw them, and mirrored where it says they point. */
@@ -289,6 +305,9 @@ export class TanreiListRow extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // LRW-17: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the row's own rules, LRW-14).
+    this.sizes.syncState(this.internals);
     if (changed.has('supportingLines') && !readLines(this.supportingLines).exact) {
       report(this, 'LRW-2', `supportingLines ${String(this.supportingLines)} is neither 1 nor 2; it is read as ${readLines(this.supportingLines).lines}`, { once: false });
     }
@@ -329,7 +348,6 @@ export class TanreiListRow extends TanreiElement {
       <div
         part="container"
         class=${classMap({ row: true, two: lines === 2, three: lines === 3, boxed: !!frame?.boxed, handled: !!frame?.handled, selected: !!frame?.selected, disabled: !!frame?.disabled })}
-        data-density=${this.drawnDensity}
       >
         <div class="parts">
           <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon || keepsRoom })}>

@@ -69,7 +69,7 @@ import type { TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle
 import type { TanreiTextInput } from '../text-input/text-input.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
-import { statesFromNextFrame } from '../../primitives/motion.js';
+import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -118,6 +118,8 @@ interface ResizeMetrics {
   column: number;
   /** container.width, held between the least and the greatest: the width while `width` is null. */
   fallback: number;
+  /** The room the parent gives, where it is less than the width drawn beside the content asks for; null for room enough. */
+  narrowed: number | null;
 }
 
 /** A number, or nothing where it is null or not a number. */
@@ -1876,13 +1878,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** APS-5: until a person's change of width has stopped moving. */
   private personTimer: ReturnType<typeof setTimeout> | undefined;
   /**
-   * NVD-96, NVD-102: the room and the scrollbar change what the handle says and where it stands. One observer watches
-   * every drawer, so that a frame reports all the drawers that changed in one callback: all of them read, then all of
-   * them write. An observer of each drawer's own would have each drawer read after the writes of the one before, and
-   * the browser lay the page out again for each.
+   * NVD-97, NVD-102: the room the parent gives changes the width the rows are laid out at and what the handle says.
+   * One observer watches every drawer, so that a frame reports all the drawers that changed in one callback: all of
+   * them read, then all of them write. An observer of each drawer's own would have each drawer read after the writes
+   * of the one before, and the browser lay the page out again for each.
    */
   private static resizeWatch: ResizeObserver | null = null;
-  /** The drawer each watched element (a drawer, or its scroller) belongs to. */
+  /** The drawer each watched element belongs to. */
   private static readonly resizeWatched = new WeakMap<Element, TanreiNavigationDrawer>();
   /** What this drawer's resize watch observes now. */
   private resizeTargets: Element[] = [];
@@ -1903,10 +1905,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }));
   }
 
-  /** NVD-96, NVD-102: watches the drawer and its scroller while it has a resize handle, and nothing otherwise. */
+  /** NVD-97, NVD-102: watches the drawer while it stands beside the content, and nothing otherwise. */
   private watchResizeTargets() {
-    const scroller = this.resizeShown && this.isConnected ? this.scroller : null;
-    const targets: Element[] = this.resizeShown && this.isConnected ? (scroller ? [this, scroller] : [this]) : [];
+    const targets: Element[] = this.beside && this.isConnected ? [this] : [];
     if (targets.length === this.resizeTargets.length && targets.every((target, i) => target === this.resizeTargets[i])) return;
     const watch = TanreiNavigationDrawer.watchResize();
     for (const target of this.resizeTargets) {
@@ -3295,7 +3296,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * is open, or a responsive drawer's standard presentation shown — in either form.
    */
   private get resizeShown(): boolean {
-    return this.resizable && !this.modal && this.isOpen;
+    return this.resizable && this.beside;
+  }
+
+  /** NVD-97: the drawer stands beside the content — a standard drawer that is open, or a responsive drawer's standard presentation shown. */
+  private get beside(): boolean {
+    return !this.modal && this.isOpen;
   }
 
   /** The lengths a resize is reckoned in, read from the drawer's own probes: the tokens and the widths given, as drawn. */
@@ -3303,9 +3309,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const probe = (name: string) => this.renderRoot?.querySelector(`.resize-probes > .${name}`)?.getBoundingClientRect().width ?? 0;
     const least = probe('least');
     const greatest = Math.max(least, probe('most'));
-    const room = this.room(hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), least, greatest));
+    const intended = hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), least, greatest);
+    const room = this.room(intended);
     const most = room === null ? greatest : Math.max(least, Math.min(greatest, room));
-    return { least, most, column: probe('column'), fallback: hold(probe('fallback'), least, most) };
+    return { least, most, column: probe('column'), fallback: hold(probe('fallback'), least, most), narrowed: room !== null && room < intended - 0.5 ? room : null };
   }
 
   /** NVD-97: the room the parent gave the drawer when it was last seen at rest, expanded; null for room enough. */
@@ -3314,13 +3321,18 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less a touch target,
    * APS-5), or else what the drawer's own `max-inline-size: 100%` left of `intended` the last time the drawer was seen
-   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset.
+   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset. A motion of
+   * the host's own is not rest, whether it runs or stands held at its start until the next frame (statesFromNextFrame):
+   * an opening's slide is held at a width of none in the task that opens the drawer, which read as rest would have the
+   * rows laid out at no room through the slide, and the room coming back at its end draw the host without motion for
+   * the frames after it (data-resizing), a close in them included.
    */
   private room(intended: number): number | null {
     const inset = this.panel ? Number.parseFloat(getComputedStyle(this.panel).paddingInlineStart) || 0 : 0;
     const max = getComputedStyle(this).getPropertyValue('max-inline-size').trim();
     if (max.endsWith('px') && Number.isFinite(Number.parseFloat(max))) return Number.parseFloat(max) - inset;
-    if (this.collapsed || this.resizeDrag || this.getAnimations().some((motion) => motion.playState === 'running')) return this.lastRoom;
+    const moving = this.getAnimations().some((motion) => motion.playState === 'running' || motion.playState === 'paused');
+    if (this.collapsed || this.resizeDrag || moving) return this.lastRoom;
     const drawn = this.getBoundingClientRect().width - inset;
     this.lastRoom = drawn < intended - 0.5 ? drawn : null;
     return this.lastRoom;
@@ -3343,28 +3355,40 @@ export class TanreiNavigationDrawer extends TanreiElement {
     write('--_nvd-max-given', given(this.maxWidth));
   }
 
-  /** NVD-96, NVD-102: what the handle says — the width drawn, its least and its greatest — and where it stands beside a scrollbar. */
+  /**
+   * NVD-97, NVD-102: the width the rows are laid out at, where the parent gives less room than the width; and what the
+   * handle says — the width drawn, its least and its greatest.
+   */
   private syncResize() {
     this.readResize()?.();
   }
 
   /** What syncResize reads, returning what it then writes: the reads of many drawers can be made together, before any write. */
   private readResize(): (() => void) | void {
-    if (!this.resizeShown) return;
+    if (!this.beside) return;
     const metrics = this.resizeMetrics();
+    // NVD-97: where the parent gives less room than the width, the rows are laid out at the room (the host is drawn
+    // there by its `max-inline-size`, and keeps asking for its width, so that it sees the room come back).
+    const narrowed = metrics.narrowed === null ? '' : `${metrics.narrowed}px`;
+    const writeRoom = () => {
+      if (this.style.getPropertyValue('--_nvd-room') === narrowed) return;
+      // As the host, the panel follows the room at once, without the change of form's motion.
+      this.setAttribute('data-resizing', '');
+      this.settleResize();
+      if (narrowed) this.style.setProperty('--_nvd-room', narrowed);
+      else this.style.removeProperty('--_nvd-room');
+    };
+    if (!this.resizeShown) return writeRoom;
     const next = {
       now: Math.round(this.collapsed ? metrics.column : this.expandedWidth(metrics)),
       // NVD-102: from the column's width while the drawer folds to it.
       min: Math.round(this.collapses ? metrics.column : metrics.least),
       max: Math.round(metrics.most),
     };
-    // NVD-96: a scrollbar that takes room at the end edge (not an overlay one) keeps the handle's target beside it.
-    const scroller = this.scroller;
-    const scrollbar = !!scroller && scroller.offsetWidth - scroller.clientWidth > 0;
     return () => {
+      writeRoom();
       const was = this.resizeValues;
       if (next.now !== was.now || next.min !== was.min || next.max !== was.max) this.resizeValues = next;
-      this.toggleAttribute('data-scrollbar', scrollbar);
     };
   }
 
@@ -3556,11 +3580,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.emitWidth(to);
   };
 
-  /** NVD-96, NVD-102: the resize handle on the end edge, after the drawer's content, and the lengths a resize is reckoned in. */
+  /** NVD-96, NVD-102: the resize handle beside the end edge, after the drawer's content, and the lengths the width is reckoned in (NVD-97). */
   private resizeHandle() {
-    if (!this.resizeShown) return nothing;
+    if (!this.beside) return nothing;
+    const probes = html`<div class="resize-probes" aria-hidden="true"><span class="least"></span><span class="most"></span><span class="column"></span><span class="fallback"></span></div>`;
+    if (!this.resizeShown) return probes;
     const { now, min, max } = this.resizeValues;
-    return html`<div class="resize-probes" aria-hidden="true"><span class="least"></span><span class="most"></span><span class="column"></span><span class="fallback"></span></div>
+    return html`${probes}
       <tanrei-handle
         part="resize-handle"
         class="resize"
@@ -3762,6 +3788,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     dialog?.style.removeProperty('--_drag');
     holdPageScroll(this, false);
     const widening = !dialog || dialog.classList.contains('widening');
+    // What focus goes back to (`restoreFocus`, now or once its column has taken the dialog's place): often outside it.
+    const opener = restore ? this.opener : null;
     const left = dialog ? closeModal(dialog, widening ? { instant: !notify, interactive: true, moves: WIDENING } : { instant: !notify }) : null;
     if (widening && !(dialog && isLeaving(dialog))) {
       // Already out of the top layer (no motion to play: reduced motion, or at once): its column takes its place first,
@@ -3775,9 +3803,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
         void left.then((done) => done && this.takeColumn(run));
       }
     }
-    // NVD-22, NVD-40: a collapsible drawer's rows narrowing to its column, and the colors of what focus went back to,
-    // begin in the first frame drawn after this task, as the surface's exit does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // NVD-22, NVD-40: a collapsible drawer's rows narrowing to its column, and the colors of what focus left and went
+    // back to — inside it or outside — begin in the first frame drawn after this task, as the surface's exit does
+    // (statesFromNextFrame).
+    statesFromNextFrame([this, opener]);
     if (notify) this.dispatchEvent(new Event('close'));
   }
 
@@ -3892,9 +3921,23 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.syncOver();
     this.applyOffset();
     this.focusInside(shower);
-    // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus begin in
-    // the first frame drawn after this task.
-    statesFromNextFrame([this]);
+    // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus and of
+    // what focus left (the app shell's menu button, outside it) begin in the first frame drawn after this task.
+    this.heldFromNextFrame(false);
+    statesFromNextFrame([this, this.opener]);
+  }
+
+  /**
+   * NVD-19, NVD-22: a held drawer's slide and its scrim's fade, which a held drawer plays by its own state (no
+   * AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those), begin in the
+   * first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before it, and where
+   * the task took longer than they last drew the drawer in place, or gone, at once. Only those standing at their start:
+   * one under way goes on as it is. `leaving`: its close, which `settleOver` waits for.
+   */
+  private heldFromNextFrame(leaving: boolean) {
+    if (!documentPainted()) return;
+    const begun = [this.panel, this.scrim].flatMap((element) => element?.getAnimations() ?? []).filter((animation) => Number(animation.currentTime ?? 0) === 0);
+    startFromNextFrame(begun, { leaving });
   }
 
   /**
@@ -3914,9 +3957,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const run = ++this.overRun;
     this.syncOver();
     if (notify) this.dispatchEvent(new Event('close'));
+    const opener = restore ? this.opener : null;
     if (restore) this.restoreFocus();
     else this.opener = null;
-    statesFromNextFrame([this]);
+    // NVD-20, NVD-22: its slide, its scrim's fade and the colors of what focus left and went back to (the app shell's
+    // menu button, outside it) begin in the first frame drawn after this task.
+    this.heldFromNextFrame(true);
+    statesFromNextFrame([this, opener]);
     void this.settleOver(() => run === this.overRun && !this.shown).then((done) => {
       if (!done) return;
       this.leavingHeld = false;
@@ -4259,16 +4306,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     // NVD-98: a drag the drawer no longer has a handle for (its presentation changed, it closed) ends as released.
     if (this.resizeDrag && !this.resizeShown) this.finishDrag();
-    // NVD-96, NVD-102: what the handle says, kept as the room, the scrollbar and the widths change.
+    // NVD-97, NVD-102: the width the rows are laid out at and what the handle says, kept as the room and the widths change.
     this.watchResizeTargets();
-    if (this.resizeShown) {
+    if (this.beside) {
       // Read with every other host's of the turn (src/primitives/read-phase.ts), once the drawer is drawn: what the
       // handle says follows what it was given. An update that only drew what was read reads nothing again.
       if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) readTogether(() => this.readResize());
-      if ((changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
+      if (this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }
-    } else this.removeAttribute('data-scrollbar');
+    } else this.style.removeProperty('--_nvd-room');
     // NVD-66: groups become destinations, or stop being ones, at once; nothing is emitted for it.
     if (changed.has('selectableGroups') && changed.get('selectableGroups') !== undefined) this.destinations.sync();
     // NVD-58: turned on, it shows the selection it has.
@@ -4305,13 +4352,21 @@ export class TanreiNavigationDrawer extends TanreiElement {
         else if (this.shown) this.withdraw();
       } else if (changed.has('open') && this.hasUpdated && changed.get('open') !== undefined && !this.responsive) {
         // NVD-28: a standard drawer opened moves focus in; closed with focus inside, it gives it back.
+        // What focus leaves as it opens, or goes back to as it closes: outside it.
+        let back: Element | null = null;
         if (this.open && !was) {
           this.opener = deepActive();
+          back = this.opener;
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {
           this.closingWithFocus = false;
+          back = this.opener;
           this.restoreFocus();
         }
+        // NVD-18, NVD-28: its slide, and the colors of what focus left and went to — inside it, or back where it was
+        // when it opened — begin in the first frame drawn after this task (statesFromNextFrame). WebKit dated them from
+        // the frame drawn before the task, and where the task took longer than they last drew them over at once.
+        statesFromNextFrame([this, back]);
       }
     }
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;

@@ -2,13 +2,14 @@
 title: الزر المقسَّم
 description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
 translationOf: components/segmented-button.mdx
-sourceHash: f5dba2ffe4e9e720932015a4fb412a533c20b3b9
+sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تغيّر تسمية المقطع بتغيّر حالته. التحديد يُعلَن على حدة.
 
 ## إمكانية الوصول
+
+<FocusOrder name="segmented-button" fixture="single" />
 
 <ComponentAccessibility name="segmented-button" />
 
