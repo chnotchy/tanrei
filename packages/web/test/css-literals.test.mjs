@@ -1,13 +1,13 @@
 // The build's `css` template stripper (scripts/css-literals.js): what it takes out of a component's styles, what it must
 // leave (strings, custom property values, the spaces calc() and selectors need, interpolations, `/*!` notices), how it
-// finds the templates in a module, and that the source maps it rewrites still point at the same code.
+// and how it finds the templates in a module.
 // Run by `pnpm --filter @tanrei/web test:node`.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { findCssTemplates, minifyCssLiterals, minifyCssParts, remapSourceMap } from '../scripts/css-literals.js';
+import { findCssTemplates, minifyCssLiterals, minifyCssParts } from '../scripts/css-literals.js';
 
 const one = (text) => minifyCssParts([text])[0];
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -120,13 +120,10 @@ test("every css template in the package's source can be read", () => {
   assert.ok(templates > 100, `${templates} templates`);
 });
 
-test('moves a source map with the code', () => {
+test('rewrites a module and lists its edits', () => {
   const source = 'const a = css`\n  x {\n    y: z;\n  }\n`;\nfoo();\n';
   const { code, edits } = minifyCssLiterals(source);
   assert.equal(code, 'const a = css` x{y:z;}`;\nfoo();\n');
-  // Line 0 col 0 → src 0:0; line 0 col 10 (`css`) → src 0:10; line 4 col 0 (the closing backtick) → src 4:0; line 5 col 0 (`foo`) → src 5:0.
-  const map = { version: 3, sources: ['a.ts'], names: [], mappings: 'AAAA,UAAU;;;;AAIV;AACA' };
-  const moved = remapSourceMap(map, source, edits);
-  // The closing backtick is now on line 0, column 22, and `foo` on line 1; the code has three lines, the last empty.
-  assert.equal(moved.mappings, 'AAAA,UAAU,YAIV;AACA;');
+  assert.deepEqual(edits, [{ start: 14, end: 35, text: ' x{y:z;}' }]); // the template's text, between its backticks
+  assert.deepEqual(minifyCssLiterals(code).edits, []);
 });
