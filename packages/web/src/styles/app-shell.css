@@ -438,6 +438,18 @@
         var(--tanrei-comp-navigation-drawer-container-max-width)
       );
     }
+    /* APS-24, NVD-30: a collapsible one the product gives back folded (`expanded="false"`), or a modal one, which stands
+       folded in the layout, keeps its column's place instead, whatever its width; a responsive one that is not
+       collapsible is hidden by `expanded="false"`, and takes no space. */
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:is([expanded='false'], [variant='modal']):not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+    }
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][density='compact']:is([expanded='false'], [variant='modal']):not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-compact);
+    }
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not(:defined, [collapsible])) {
+      display: none;
+    }
     :where(tanrei-app-shell) > :where([slot='aside']:not(tanrei-side-sheet)) {
       inline-size: var(--tanrei-comp-app-shell-aside-width);
     }
