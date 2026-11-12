@@ -1,6 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
 import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, reducedMotion } from '../styles/motion.js';
-import { type PhaseRead, readTogether } from './read-phase.js';
+import { type PhaseRead, readThenWrite, readTogether } from './read-together.js';
 
 // How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-6):
 //
@@ -332,7 +332,7 @@ export function startFromNextFrame(motions: readonly Animation[], { leaving = fa
 }
 
 /**
- * `startFromNextFrame()` with every other host's reads of the turn (`readTogether`, src/primitives/read-phase.ts): the
+ * `startFromNextFrame()` with every other host's reads of the turn (`readTogether`, src/primitives/read-together.ts): the
  * motions `motions()` gives are listed — asking flushes style — together with the others, and held after every read.
  * Still in the task that started them, before any frame: they begin in the first frame drawn after it, as they would
  * held at once. Ask once the change that starts them has been made.
@@ -494,28 +494,13 @@ function askFrame() {
  * to date, and a motion played on changes it, so every read comes before the first write — one style for them all.
  */
 function runFrame(requests: readonly FrameRequest[]) {
-  const writes: (() => void)[] = [];
-  let failure: { error: unknown } | null = null;
-  for (const request of requests) {
-    if (request.done) continue;
+  const due = requests.filter((request) => !request.done);
+  for (const request of due) {
     request.done = true;
     request.observer?.disconnect();
-    try {
-      const write = request.read();
-      if (write) writes.push(write);
-    } catch (error) {
-      failure ??= { error };
-    }
   }
-  for (const write of writes) {
-    try {
-      write();
-    } catch (error) {
-      failure ??= { error };
-    }
-  }
-  // One surface's failure is not another's: every read and write ran, and the first failure is the frame's.
-  if (failure) throw failure.error;
+  // One surface's failure is not another's: every read and write runs, and the first failure is the frame's.
+  readThenWrite(due.map((request) => request.read));
 }
 
 /**
