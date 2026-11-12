@@ -99,9 +99,11 @@ test.describe('a tree of 5,000 rows', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const manifest = JSON.parse(read('custom-elements.json')) as { modules: { declarations?: { tagName?: string }[] }[] };
     const tags = [...new Set(manifest.modules.flatMap((m) => m.declarations ?? []).map((d) => d.tagName).filter((t): t is string => !!t)), 'tanrei-tree-view'];
-    const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
     const PRODUCT = ':root:has(.product-menu-open) { --product-menu: 1; }';
-    const head = `<meta charset="utf-8">${sheets.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}<style>${PRODUCT} body { margin: 0; } #pane { inline-size: 360px; block-size: 600px; overflow: auto; }</style>`;
+    // Every stylesheet of the package, in the one file a product links for them (`@tanrei/web/tanrei.css`: the base, the
+    // tokens and every other stylesheet), once. Each stylesheet beside it as well would declare every rule twice, which
+    // no product's page does.
+    const head = `<meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>${PRODUCT} body { margin: 0; } #pane { inline-size: 360px; block-size: 600px; overflow: auto; }</style>`;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Performance.enable');
 
