@@ -159,28 +159,28 @@ test.describe('the column, the header and its parts', () => {
     expect(await css(header(page, 'single', 1), 'font')).toBe(await css(header(page, 'all-closed', 1), 'font'));
   });
 
-  test('ACC-2: a header is one row across the item — 56 high with the label 16 from the start and the chevron’s box 16 from the end at regular, 48 with 12 and 12 at compact (a navigation drawer row’s) — its parts container.gap apart, the icon, trailing text and chevron on the label’s first line, and any height beyond its text shared above and below', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'compact', 'all-parts', 'long-label') });
-    for (const [id, height, inset, density] of [
-      ['plain', 56, 16, 'regular'],
-      ['compact', 48, 12, 'compact'],
+  test('ACC-2: a header is one row across the item — 56 high with the label 16 from the start and the chevron’s box 16 from the end at medium, 48 with 12 and 12 at small (a navigation drawer row’s) — its parts container.gap apart, the icon, trailing text and chevron on the label’s first line, and any height beyond its text shared above and below', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'small', 'all-parts', 'long-label') });
+    for (const [id, height, inset, size] of [
+      ['plain', 56, 16, 'medium'],
+      ['small', 48, 12, 'small'],
     ] as const) {
       const row = await edges(header(page, id, 2));
       expect(row.height, id).toBe(height);
-      expect(await resolveToken(page, T(`container-height-${density}`))).toBe(height);
-      expect(await resolveToken(page, T(`container-padding-inline-${density}`))).toBe(inset);
+      expect(await resolveToken(page, T(`container-height-${size}`))).toBe(height);
+      expect(await resolveToken(page, T(`container-padding-inline-${size}`))).toBe(inset);
       near(row.width, (await edges(item(page, id, 2))).width);
       const label = await labelBox(header(page, id, 2));
       near(label.left, row.left + inset);
       const chevron = await chevronBox(header(page, id, 2));
       near(chevron.right, row.right - inset);
-      expect(chevron.size).toBe(await resolveToken(page, T(`chevron-size-${density}`)));
+      expect(chevron.size).toBe(await resolveToken(page, T(`chevron-size-${size}`)));
       // The text is centred in the row: what the height has beyond it is shared.
       near(label.top - row.top, row.bottom - label.bottom, 1);
     }
-    // The compact header is a regular navigation drawer's row: its height, its text style, its chevron.
-    expect(await resolveToken(page, T('container-height-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-container-height-regular'));
-    expect(await resolveToken(page, T('chevron-size-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size-regular'));
+    // The small header is a regular navigation drawer's row: its height, its text style, its chevron.
+    expect(await resolveToken(page, T('container-height-small'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-container-height-regular'));
+    expect(await resolveToken(page, T('chevron-size-small'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size-regular'));
     // Every part, container.gap apart.
     const gap = await resolveToken(page, T('container-gap'));
     const all = header(page, 'all-parts', 1);
@@ -193,7 +193,7 @@ test.describe('the column, the header and its parts', () => {
     const [text, tall, mark] = [await labelBox(long), await edges(long), await chevronBox(long)];
     expect(text.lines).toBeGreaterThan(1);
     // The row is its lines and the padding above the first and below the last.
-    const pad = await resolveToken(page, T('container-padding-block-regular'));
+    const pad = await resolveToken(page, T('container-padding-block-medium'));
     near(tall.height, text.lines * (await px(long, 'line-height')) + 2 * pad);
     near(text.top - tall.top, tall.bottom - text.bottom, 1);
     near((mark.top + mark.bottom) / 2, (text.first!.top + text.first!.bottom) / 2, 1);
@@ -203,26 +203,26 @@ test.describe('the column, the header and its parts', () => {
     void row;
   });
 
-  test('ACC-3: the label is drawn in its density’s text style and its look’s color, wraps and is never cut; a heading in the label slot is drawn as any label and keeps its role and its level (2 and 4); a control in it is still rendered and reported', async ({ page }) => {
+  test('ACC-3: the label is drawn in its size’s text style and its look’s color, wraps and is never cut; a heading in the label slot is drawn as any label and keeps its role and its level (2 and 4); a control in it is still rendered and reported', async ({ page }) => {
     const seen = warnings(page);
     const own = raw(
       'headings',
       {},
       `<details><summary><h2>Level two</h2></summary>A.</details><details><summary><h4>Level four</h4></summary>B.</details><details><summary><span>With <code>code</code> inside</span></summary>C.</details><details id="control"><summary><span>Open <a href="#x">the guide</a></span></summary>D.</details>`,
     );
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('plain', 'compact', 'outlined', 'long-label'), own] });
-    for (const [id, density, variant] of [
-      ['plain', 'regular', 'plain'],
-      ['compact', 'compact', 'plain'],
-      ['outlined', 'regular', 'outlined'],
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('plain', 'small', 'outlined', 'long-label'), own] });
+    for (const [id, size, variant] of [
+      ['plain', 'medium', 'plain'],
+      ['small', 'small', 'plain'],
+      ['outlined', 'medium', 'outlined'],
     ] as const) {
       const summary = header(page, id, 1);
-      expect(await px(summary, 'font-size'), id).toBe(await resolveToken(page, T(`label-typescale-${density}-font-size`)));
-      expect(await css(summary, 'font-weight')).toBe(String(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T(`label-typescale-${density}-font-weight`))) || (await css(summary, 'font-weight')));
+      expect(await px(summary, 'font-size'), id).toBe(await resolveToken(page, T(`label-typescale-${size}-font-size`)));
+      expect(await css(summary, 'font-weight')).toBe(String(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T(`label-typescale-${size}-font-weight`))) || (await css(summary, 'font-weight')));
       expect(await css(summary, 'color')).toBe(await resolveColor(page, T(`${variant}-label-color`)));
     }
     expect(await px(header(page, 'plain', 1), 'font-size')).toBe(16);
-    expect(await px(header(page, 'compact', 1), 'font-size')).toBe(14);
+    expect(await px(header(page, 'small', 1), 'font-size')).toBe(14);
     // It wraps, whole.
     const long = header(page, 'long-label', 1);
     expect((await labelBox(long)).lines).toBeGreaterThan(1);
@@ -256,10 +256,10 @@ test.describe('the column, the header and its parts', () => {
   });
 
   test('ACC-4: the supporting text is under the label in its own text style and color and wraps; the trailing text is one line between the text and the chevron, and is cut with an ellipsis where it would take more than half of the header’s inner width', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('supporting-text', 'trailing-text', 'all-parts-compact', 'long-label') });
-    for (const [id, density] of [
-      ['supporting-text', 'regular'],
-      ['all-parts-compact', 'compact'],
+    await mountFixtures(page, spec, { icons: true, fixtures: some('supporting-text', 'trailing-text', 'all-parts-small', 'long-label') });
+    for (const [id, size] of [
+      ['supporting-text', 'medium'],
+      ['all-parts-small', 'small'],
     ] as const) {
       const summary = header(page, id, 1);
       const supporting = summary.locator('> [data-supporting-text]');
@@ -269,42 +269,42 @@ test.describe('the column, the header and its parts', () => {
       near(under.top, row.top + pad + (await px(summary, 'line-height')));
       expect(under.top).toBeGreaterThan(label.top);
       near(under.left, label.left);
-      expect(await px(supporting, 'font-size')).toBe(await resolveToken(page, T(`supporting-text-typescale-${density}-font-size`)));
+      expect(await px(supporting, 'font-size')).toBe(await resolveToken(page, T(`supporting-text-typescale-${size}-font-size`)));
       expect(await css(supporting, 'color')).toBe(await resolveColor(page, T('plain-supporting-text-color')));
       expect(await css(supporting, 'white-space')).toBe('normal');
       // The header grew to hold it.
-      expect((await edges(summary)).height).toBeGreaterThan(await resolveToken(page, T(`container-height-${density}`)));
+      expect((await edges(summary)).height).toBeGreaterThan(await resolveToken(page, T(`container-height-${size}`)));
     }
     const trailing = header(page, 'trailing-text', 1).locator('> [data-trailing-text]');
-    expect(await px(trailing, 'font-size')).toBe(await resolveToken(page, T('trailing-text-typescale-regular-font-size')));
+    expect(await px(trailing, 'font-size')).toBe(await resolveToken(page, T('trailing-text-typescale-medium-font-size')));
     expect(await css(trailing, 'color')).toBe(await resolveColor(page, T('plain-trailing-text-color')));
     expect(await css(trailing, 'white-space')).toBe('nowrap');
     expect(await trailing.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     // The long one is cut at half of the inner width, and the label keeps the rest.
     const summary = header(page, 'long-label', 2);
     const cut = summary.locator('> [data-trailing-text]');
-    const inner = (await edges(summary)).width - 2 * (await resolveToken(page, T('container-padding-inline-regular')));
+    const inner = (await edges(summary)).width - 2 * (await resolveToken(page, T('container-padding-inline-medium')));
     expect(await cut.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     expect(await css(cut, 'text-overflow')).toBe('ellipsis');
     // Half of what the chevron and the gaps leave: never more than half of the inner width, and the label has as much.
-    const left = inner - (await resolveToken(page, T('chevron-size-regular'))) - 2 * (await resolveToken(page, T('container-gap')));
+    const left = inner - (await resolveToken(page, T('chevron-size-medium'))) - 2 * (await resolveToken(page, T('container-gap')));
     near((await edges(cut)).width, left / 2, 1);
     expect((await edges(cut)).width).toBeLessThanOrEqual(inner / 2);
     expect((await labelBox(summary)).right).toBeLessThanOrEqual((await edges(cut)).left);
   });
 
-  test('ACC-5: an icon is the glyph of that name at the start of the header in the density’s box and the look’s icon color, outlined and hidden from assistive technology; with no icon no room is kept; it is the same glyph open and closed', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('icon', 'all-parts-compact', 'plain') });
-    for (const [id, density] of [
-      ['icon', 'regular'],
-      ['all-parts-compact', 'compact'],
+  test('ACC-5: an icon is the glyph of that name at the start of the header in the size’s box and the look’s icon color, outlined and hidden from assistive technology; with no icon no room is kept; it is the same glyph open and closed', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('icon', 'all-parts-small', 'plain') });
+    for (const [id, step] of [
+      ['icon', 'medium'],
+      ['all-parts-small', 'small'],
     ] as const) {
       const summary = header(page, id, 1);
       const glyph = summary.locator('> .tanrei-icon');
-      const size = await resolveToken(page, T(`icon-size-${density}`));
+      const size = await resolveToken(page, T(`icon-size-${step}`));
       const [box, row] = [await edges(glyph), await edges(summary)];
       expect([box.width, box.height]).toEqual([size, size]);
-      near(box.left, row.left + (await resolveToken(page, T(`container-padding-inline-${density}`))));
+      near(box.left, row.left + (await resolveToken(page, T(`container-padding-inline-${step}`))));
       expect(await css(glyph, 'color')).toBe(await resolveColor(page, T('plain-icon-color')));
       expect(await css(glyph, 'font-variation-settings')).toContain('"FILL" 0');
       await expect(glyph).toHaveAttribute('aria-hidden', 'true');
@@ -318,18 +318,18 @@ test.describe('the column, the header and its parts', () => {
     near((await labelBox(header(page, 'plain', 1))).left, (await edges(header(page, 'plain', 1))).left + 16);
   });
 
-  test('ACC-6: the chevron is expand_more at the end of every header in the density’s box and the look’s chevron color, turned half a turn while the item is open and hidden from assistive technology; nothing else about a header says open, and a disabled item keeps it', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'compact', 'disabled') });
+  test('ACC-6: the chevron is expand_more at the end of every header in the size’s box and the look’s chevron color, turned half a turn while the item is open and hidden from assistive technology; nothing else about a header says open, and a disabled item keeps it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'small', 'disabled') });
     await settled(page);
-    for (const [id, density] of [
-      ['plain', 'regular'],
-      ['compact', 'compact'],
+    for (const [id, size] of [
+      ['plain', 'medium'],
+      ['small', 'small'],
     ] as const) {
       const [open, closed] = [header(page, id, 1), header(page, id, 2)];
       expect(await css(open, 'content', '::after')).toContain('expand_more');
-      expect(await px(open, 'width', '::after')).toBe(await resolveToken(page, T(`chevron-size-${density}`)));
+      expect(await px(open, 'width', '::after')).toBe(await resolveToken(page, T(`chevron-size-${size}`)));
       // The optical size is the box's, written by hand (src/styles/icons.ts): not every engine draws font-optical-sizing: auto.
-      expect(await drawnOpticalSize(open, '::after'), id).toBe(await opticalSize(page, await resolveToken(page, T(`chevron-size-${density}`))));
+      expect(await drawnOpticalSize(open, '::after'), id).toBe(await opticalSize(page, await resolveToken(page, T(`chevron-size-${size}`))));
       expect(await css(open, 'font-optical-sizing', '::after')).toBe('auto');
       expect(await css(open, 'color', '::after')).toBe(await resolveColor(page, T('plain-chevron-color')));
       expect(await css(open, 'rotate', '::after')).toBe('180deg');
@@ -342,8 +342,8 @@ test.describe('the column, the header and its parts', () => {
         });
       expect(await look(open)).toEqual(await look(closed));
     }
-    // A compact chevron is a drawer group's: the same half turn.
-    expect(await resolveToken(page, T('chevron-size-compact'))).toBe(20);
+    // A small chevron is a drawer group's: the same half turn.
+    expect(await resolveToken(page, T('chevron-size-small'))).toBe(20);
     for (const n of [2, 3]) expect(await css(header(page, 'disabled', n), 'content', '::after')).toContain('expand_more');
     expect(await css(header(page, 'disabled', 3), 'rotate', '::after')).toBe('180deg');
   });
@@ -390,20 +390,20 @@ test.describe('open and closed, the looks, the separation', () => {
   });
 
   test('ACC-8: the content is under its header, inset at both ends by the header’s inline padding, with no space above it and content.padding-block-end below; it takes its text style and color from where the accordion stands, and a hover of its open item draws the hovered container under it and changes nothing else', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'compact', 'outlined') });
-    for (const [id, density] of [
-      ['plain', 'regular'],
-      ['compact', 'compact'],
-      ['outlined', 'regular'],
+    await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'small', 'outlined') });
+    for (const [id, size] of [
+      ['plain', 'medium'],
+      ['small', 'small'],
+      ['outlined', 'medium'],
     ] as const) {
       const [details, summary] = [item(page, id, 1), header(page, id, 1)];
       const [content, row, whole] = [await contentBox(details), await edges(summary), await edges(details)];
-      const inset = await resolveToken(page, T(`container-padding-inline-${density}`));
+      const inset = await resolveToken(page, T(`container-padding-inline-${size}`));
       near(content.left, row.left + inset);
       expect(content.right).toBeLessThanOrEqual(row.right - inset + 0.6);
       near(content.left, (await labelBox(summary)).left);
-      // Nothing above it and the density's space below: the item is its header, the content's lines and that space.
-      const lines = (whole.height - row.height - (await resolveToken(page, T(`content-padding-block-end-${density}`)))) / (await px(details, 'line-height'));
+      // Nothing above it and the size's space below: the item is its header, the content's lines and that space.
+      const lines = (whole.height - row.height - (await resolveToken(page, T(`content-padding-block-end-${size}`)))) / (await px(details, 'line-height'));
       near(lines, Math.round(lines), 0.03);
       expect(Math.round(lines)).toBeGreaterThan(0);
       expect(content.top).toBeGreaterThanOrEqual(row.bottom);
@@ -868,7 +868,7 @@ test.describe('opening and closing', () => {
     expect(opened.margins[0]).toBeGreaterThan(4);
     expect(opened.margins[1]).toBeGreaterThan(4);
     near(opened.above, opened.margins[0]!);
-    near(opened.below, opened.margins[1]! + (await resolveToken(page, T('content-padding-block-end-regular'))));
+    near(opened.below, opened.margins[1]! + (await resolveToken(page, T('content-padding-block-end-medium'))));
     expect(open).toBeGreaterThan(closed + opened.margins[0]! + opened.margins[1]!);
     // A jump is a frame a margin away from where the motion is; a frame that comes a frame early or late is
     // (open - closed) / duration × 16 ms away, under a pixel here. Half a margin tells the two apart.
@@ -880,7 +880,7 @@ test.describe('opening and closing', () => {
     near((await boxAtRest(details)).height, closed);
     // Where the space under the content is 0, the last paragraph's margin is still the item's: it does not reach past
     // the item's lower edge, between it and the item after it.
-    await override(page, { [T('content-padding-block-end-regular')]: '0px' });
+    await override(page, { [T('content-padding-block-end-medium')]: '0px' });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await details.locator('> summary').click();
     near((await layout()).below, opened.margins[1]!);
@@ -1252,16 +1252,16 @@ test.describe('states', () => {
     expect(await css(item(page, 'plain', 2), 'outline-style')).toBe('none');
   });
 
-  test('ACC-19: both densities hold the touch target in the default system; under a layer that sets the compact height to 32, the pointer target to 44 and the touch target to 48 a header is 44 high for a fine pointer and 48 for touch, and the whole row is the hit area', async ({ page, browserName }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: some('compact', 'plain') });
+  test('ACC-19: both sizes hold the touch target in the default system; under a layer that sets the small height to 32, the pointer target to 44 and the touch target to 48 a header is 44 high for a fine pointer and 48 for touch, and the whole row is the hit area', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('small', 'plain') });
     expect((await edges(header(page, 'plain', 2))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
-    expect((await edges(header(page, 'compact', 2))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
-    await override(page, { [T('container-height-compact')]: '32px', [T('container-padding-block-compact')]: '4px', '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
+    expect((await edges(header(page, 'small', 2))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
+    await override(page, { [T('container-height-small')]: '32px', [T('container-padding-block-small')]: '4px', '--tanrei-sys-target-pointer': '44px', '--tanrei-sys-target-touch': '48px' });
     expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(44);
-    expect((await edges(header(page, 'compact', 2))).height).toBe(44);
+    expect((await edges(header(page, 'small', 2))).height).toBe(44);
     // The whole row: its first and its last pixels toggle it.
     await watchToggles(page);
-    const row = await edges(header(page, 'compact', 2));
+    const row = await edges(header(page, 'small', 2));
     await page.mouse.click(row.left + 1, row.top + 1);
     expect(await toggles(page)).toEqual(['2:open']);
     await page.mouse.click(row.right - 1, row.bottom - 1);
@@ -1271,7 +1271,7 @@ test.describe('states', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await resolveToken(page, '--tanrei-sys-target-touch')).toBe(48);
-    await expect.poll(async () => (await edges(header(page, 'compact', 2))).height).toBe(48);
+    await expect.poll(async () => (await edges(header(page, 'small', 2))).height).toBe(48);
   });
 
   test('ACC-20: a disabled header is drawn from the disabled tokens with no fill, is exposed as disabled, is not focusable and is not toggled by a press, a key or a script’s click; its item keeps its place and its open, its open content stays usable, and the product may still set open', async ({ page }) => {
@@ -1580,9 +1580,9 @@ test.describe('accessibility', () => {
     expect(await px(header(page, 'all-parts', 1), 'font-size')).toBe(normal * 2);
     expect((await labelBox(header(page, 'long-label', 1))).lines).toBeGreaterThan(3);
     // The glyph boxes keep their token sizes, and the paddings stay.
-    expect(await px(header(page, 'all-parts', 1).locator('> .tanrei-icon'), 'width')).toBe(await resolveToken(page, T('icon-size-regular')));
-    expect(await px(header(page, 'all-parts', 1), 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-regular')));
-    expect(await px(header(page, 'all-parts', 1), 'padding-left')).toBe(await resolveToken(page, T('container-padding-inline-regular')));
+    expect(await px(header(page, 'all-parts', 1).locator('> .tanrei-icon'), 'width')).toBe(await resolveToken(page, T('icon-size-medium')));
+    expect(await px(header(page, 'all-parts', 1), 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-medium')));
+    expect(await px(header(page, 'all-parts', 1), 'padding-left')).toBe(await resolveToken(page, T('container-padding-inline-medium')));
     expect(await css(header(page, 'all-parts', 1), 'height')).not.toBe('56px');
     // WCAG 1.4.12: raised text spacing.
     await page.addStyleTag({ content: '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }' });
@@ -1628,7 +1628,7 @@ test.describe('right to left', () => {
     await settled(page);
     const summary = header(page, 'icon-rtl', 2);
     const [row, icon, label, chevron] = [await edges(summary), await edges(summary.locator('> .tanrei-icon')), await labelBox(summary), await chevronBox(summary)];
-    const inset = await resolveToken(page, T('container-padding-inline-regular'));
+    const inset = await resolveToken(page, T('container-padding-inline-medium'));
     near(icon.right, row.right - inset);
     expect(label.right).toBeLessThanOrEqual(icon.left);
     near(chevron.left, row.left + inset);
@@ -1758,19 +1758,19 @@ test.describe('right to left', () => {
 });
 
 test.describe('nested, missing, unknown, empty', () => {
-  test('ACC-32: an accordion in an item’s content is laid out inside the item’s inset with its own variant, density and exclusive; its headers answer the keys for its own items only; closing and opening the outer item leaves the inner items as their open said; more than three levels are still drawn, and reported', async ({ page }) => {
+  test('ACC-32: an accordion in an item’s content is laid out inside the item’s inset with its own variant, size and exclusive; its headers answer the keys for its own items only; closing and opening the outer item leaves the inner items as their open said; more than three levels are still drawn, and reported', async ({ page }) => {
     const seen = warnings(page);
     const level = (n: number, inner: string) => `<tanrei-accordion id="level${n}"><details open><summary>Level ${n}</summary>${inner}</details></tanrei-accordion>`;
     const own = raw(
       'nest',
       { variant: 'outlined' },
-      `<details id="o1" open><summary>Outer</summary><tanrei-accordion id="inner" density="compact" exclusive><details id="i1" open><summary>Inner one</summary>one</details><details id="i2"><summary>Inner two</summary>two</details></tanrei-accordion></details><details id="o2"><summary>Deep</summary>${level(2, level(3, level(4, 'deepest')))}</details>`,
+      `<details id="o1" open><summary>Outer</summary><tanrei-accordion id="inner" size="small" exclusive><details id="i1" open><summary>Inner one</summary>one</details><details id="i2"><summary>Inner two</summary>two</details></tanrei-accordion></details><details id="o2"><summary>Deep</summary>${level(2, level(3, level(4, 'deepest')))}</details>`,
     );
     await mountFixtures(page, spec, { icons: true, fixtures: [own] });
     const [outer, inner] = [await edges(page.locator('#o1 > summary')), await edges(page.locator('#inner'))];
     near(inner.left, outer.left + 16);
     near(inner.right, outer.right - 16);
-    // Its own density and look.
+    // Its own size and look.
     expect((await edges(page.locator('#i2 > summary'))).height).toBe(48);
     expect(await css(page.locator('#i1'), 'content', '::after')).toBe('none');
     expect(await css(page.locator('#i1 > summary'), 'color')).toBe(await resolveColor(page, T('plain-label-color')));
@@ -1807,8 +1807,8 @@ test.describe('nested, missing, unknown, empty', () => {
     expect(await css(summary, 'visibility', '::after')).toBe('hidden');
     expect(await css(summary.locator('> .tanrei-icon'), 'visibility')).toBe('hidden');
     // The boxes are kept.
-    expect(await px(summary, 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-regular')));
-    expect((await edges(summary.locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-regular')));
+    expect(await px(summary, 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-medium')));
+    expect((await edges(summary.locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-medium')));
     expect((await edges(summary)).height).toBe(56);
     await summary.click();
     expect(await item(page, 'icon', 2).evaluate((el: HTMLDetailsElement) => el.open)).toBe(true);
@@ -1817,23 +1817,94 @@ test.describe('nested, missing, unknown, empty', () => {
     expect(await css(summary, 'visibility', '::after')).toBe('visible');
   });
 
-  test('ACC-34: a variant or a density the active design system does not have is drawn as the default and reported; one a design system adds is drawn from its tokens', async ({ page }) => {
+  test('ACC-34: a variant or a size the active design system does not have is drawn as the default and reported; one a design system adds is drawn from its tokens', async ({ page }) => {
     const seen = warnings(page);
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('plain'), raw('unknown', { variant: 'floating', density: 'roomy' }, THREE), raw('added', { density: 'dense' }, THREE.replaceAll('id="', 'id="x'))] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('plain'), raw('unknown', { variant: 'floating', size: 'roomy' }, THREE), raw('added', { size: 'dense' }, THREE.replaceAll('id="', 'id="x'))] });
     await override(page, { [T('container-height-dense')]: '64px', [T('container-padding-inline-dense')]: '20px' });
-    await host(page, 'added').evaluate((el) => ((el as unknown as { density: string }).density = 'regular'));
+    await host(page, 'added').evaluate((el) => ((el as unknown as { size: string }).size = 'medium'));
     await frame(page);
-    await host(page, 'added').evaluate((el) => ((el as unknown as { density: string }).density = 'dense'));
+    await host(page, 'added').evaluate((el) => ((el as unknown as { size: string }).size = 'dense'));
     await frame(page);
     const reference = await header(page, 'plain', 2).evaluate((el) => [getComputedStyle(el).height, getComputedStyle(el).font, getComputedStyle(el).color, getComputedStyle(el).paddingLeft]);
     expect(await header(page, 'unknown', 2).evaluate((el) => [getComputedStyle(el).height, getComputedStyle(el).font, getComputedStyle(el).color, getComputedStyle(el).paddingLeft])).toEqual(reference);
     expect(await css(item(page, 'unknown', 1), 'content', '::after')).toBe('none');
     expect(seen.filter((text) => text.includes('ACC-34') && text.includes('variant "floating"'))).toHaveLength(1);
-    expect(seen.filter((text) => text.includes('ACC-34') && text.includes('density "roomy"'))).toHaveLength(1);
-    // The added density: its own height and padding, the default's text style where it names none.
+    expect(seen.filter((text) => text.includes('ACC-34') && text.includes('size "roomy"'))).toHaveLength(1);
+    // The added size: its own height and padding, the default's text style where it names none.
     expect((await edges(header(page, 'added', 2))).height).toBe(64);
     expect(await px(header(page, 'added', 2), 'padding-left')).toBe(20);
     expect(await css(header(page, 'added', 2), 'font')).toBe(reference[1]);
+  });
+
+  test('ACC-37: without a size of its own an accordion is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to an accordion in its content; a change, a removal and a move are drawn before the next frame, keeping every item’s open and the focus; at density 0.75, 1 and 1.5 every header is its size’s height', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [raw('anchor', {}, THREE)] });
+    // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
+    // here (it reports content that is not a Button, BGR-10, and still lays it out).
+    await page.evaluate(() => {
+      const items = (id: string) => `<details id="${id}-1" open><summary>One</summary>First.</details><details id="${id}-2"><summary>Two</summary>Second.</details>`;
+      const accordion = (id: string, size = '') => `<tanrei-accordion id="${id}" ${size ? `size="${size}"` : ''}>${items(id)}</tanrei-accordion>`;
+      const stage = document.createElement('div');
+      stage.innerHTML = `
+        <tanrei-button-group id="small" size="small">${accordion('taken')}${accordion('own-medium', 'medium')}</tanrei-button-group>
+        <tanrei-button-group id="unset">${accordion('free')}</tanrei-button-group>
+        <tanrei-button-group id="outer" size="small"><tanrei-button-group id="inner" size="medium">${accordion('nearest')}</tanrei-button-group></tanrei-button-group>
+        <tanrei-accordion id="shell" size="small"><details open><summary>Outer</summary>${accordion('nested')}</details></tanrei-accordion>
+        ${accordion('alone')}`;
+      document.body.append(stage);
+    });
+    const all = ['taken', 'own-medium', 'free', 'nearest', 'nested', 'alone'];
+    /** The height of each accordion's second header, measured in one frame. */
+    const measure = `return Object.fromEntries(ids.map((id) => [id, document.querySelector('#' + id + '-2 > summary').getBoundingClientRect().height]));`;
+    const heights = () => page.evaluate(([code, ids]) => new Function('ids', code)(ids) as Record<string, number>, [measure, all] as const);
+    /** Runs `change` in the page, then measures in the next frame: what is drawn there is drawn "at once". */
+    const afterOneFrame = (change: string, ...ids: string[]) =>
+      page.evaluate(
+        async ([code, read, list]) => {
+          new Function(code)();
+          await new Promise(requestAnimationFrame);
+          return new Function('ids', read)(list) as Record<string, number>;
+        },
+        [change, measure, ids] as const,
+      );
+    const headers = async () => {
+      const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+      return { small: Math.max(pointer, await resolveToken(page, T('container-height-small'))), medium: Math.max(pointer, await resolveToken(page, T('container-height-medium'))) };
+    };
+    // A size it takes, or the default, is not its own: no size attribute is written on an accordion that sets none.
+    expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
+    for (const density of ['0.75', '1', '1.5']) {
+      await rootTokens(page, { '--tanrei-dial-density': density });
+      const size = await headers();
+      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, nested: size.medium, alone: size.medium });
+    }
+    await rootTokens(page, { '--tanrei-dial-density': '' });
+    const size = await headers();
+    expect(size.medium).toBeGreaterThan(size.small);
+    // Every member of the size: the label's text style, the chevron's box and the space under the content are small's.
+    const taken = page.locator('#taken-1 > summary');
+    expect(await px(taken, 'font-size')).toBe(await resolveToken(page, T('label-typescale-small-font-size')));
+    expect(await px(taken, 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-small')));
+    expect(await px(taken, 'padding-left')).toBe(await resolveToken(page, T('container-padding-inline-small')));
+    // A size the accordion lacks is its nearest on the ladder, the larger of two as near.
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'extra-small')", 'taken')).toEqual({ taken: size.small });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'large')", 'taken')).toEqual({ taken: size.medium });
+    // Focus on a header and an item open: kept through every change.
+    await page.locator('#taken-2 > summary').focus();
+    expect(await afterOneFrame("document.getElementById('small').size = 'small'", 'taken', 'own-medium')).toEqual({ taken: size.small, 'own-medium': size.medium });
+    expect(await afterOneFrame("document.getElementById('small').removeAttribute('size')", 'taken')).toEqual({ taken: size.medium });
+    expect(await afterOneFrame("document.getElementById('small').setAttribute('size', 'small')", 'taken')).toEqual({ taken: size.small });
+    expect(await page.evaluate(() => document.activeElement?.parentElement?.id)).toBe('taken-2');
+    expect(await page.locator('#taken-1').getAttribute('open')).toBe('');
+    // Set, given back and set to the default's name on the accordion.
+    expect(await afterOneFrame("document.getElementById('unset').size = 'small'", 'free')).toEqual({ free: size.small });
+    expect(await afterOneFrame("document.getElementById('free').size = 'medium'", 'free')).toEqual({ free: size.medium });
+    expect(await page.locator('#free').getAttribute('size')).toBe('medium');
+    expect(await afterOneFrame("document.getElementById('free').size = null", 'free')).toEqual({ free: size.small });
+    expect(await page.locator('#free').getAttribute('size')).toBeNull();
+    expect(await page.locator('#free').evaluate((el) => (el as HTMLElement & { size: string }).size)).toBe('medium');
+    // Moved out of every container, and into one.
+    expect(await afterOneFrame("document.body.append(document.getElementById('free'))", 'free')).toEqual({ free: size.medium });
+    expect(await afterOneFrame("document.getElementById('unset').append(document.getElementById('alone'))", 'alone')).toEqual({ alone: size.small });
   });
 
   test('ACC-35: an accordion with no items draws nothing and takes no space; an item with no content still renders its header, which opens onto the space under the content alone, and is reported', async ({ page }) => {
@@ -1845,7 +1916,7 @@ test.describe('nested, missing, unknown, empty', () => {
     expect((await edges(hollow.locator('> summary'))).height).toBe(56);
     await hollow.locator('> summary').click();
     await settled(page);
-    near((await edges(hollow)).height, 56 + (await resolveToken(page, T('content-padding-block-end-regular'))));
+    near((await edges(hollow)).height, 56 + (await resolveToken(page, T('content-padding-block-end-medium'))));
     expect(seen.filter((text) => text.includes('ACC-35'))).toHaveLength(1);
     // Items given later are drawn.
     await host(page, 'none').evaluate((el) => (el.innerHTML = '<details><summary>Now</summary>here</details>'));
@@ -1855,7 +1926,7 @@ test.describe('nested, missing, unknown, empty', () => {
 
 test.describe('before the element is defined, and without script', () => {
   test('ACC-1, ACC-7, ACC-21: the stylesheet alone draws the whole look and every state — an item opens, closes and is focusable, hover and focus are drawn, a press is the overlay held for press-hold — and nothing moves when the element is defined', async ({ page }) => {
-    const fixtures = some('plain', 'outlined-gap', 'all-parts-compact', 'disabled', 'icon-rtl');
+    const fixtures = some('plain', 'outlined-gap', 'all-parts-small', 'disabled', 'icon-rtl');
     const markup = await fixturesDocument(spec, { icons: true, fixtures });
     const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
     await page.setContent(markup.replace(bundle, ''));

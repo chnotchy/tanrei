@@ -18,7 +18,7 @@
 //               opens and closes;
 //   to assistive technology   a tree named by `label`, one stop in the focus order, walked with the arrow keys; a row
 //               is a tree item named by the file's name and described by its note; a folder says whether it is open;
-//   density     compact, with guides: a small tree inside a page of text;
+//   size        small, with guides: a small tree inside a page of text;
 //   the edge    the figure's (outlined): the tree view draws no fill and no edge of its own. The figure has the tree's
 //               name; neither is drawn.
 //
@@ -38,7 +38,7 @@ const html = fileTree(await Astro.slots.render('default'));
 <tanrei-figure class="docs-file-tree not-content" label={label}>
   <figure>
     <div data-part="stage">
-      <tanrei-tree-view label={label} density="compact" guides data-tanrei-code="plain" set:html={html} />
+      <tanrei-tree-view label={label} size="small" guides data-tanrei-code="plain" set:html={html} />
     </div>
   </figure>
 </tanrei-figure>

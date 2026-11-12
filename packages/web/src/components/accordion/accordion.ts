@@ -5,6 +5,7 @@ import {
   SEPARATIONS,
   SEPARATION_VALUES,
   SHEET_TOUCH_SLOP,
+  SizeConsumerController,
   type SeparationProp,
   compChoice,
   findInteractive,
@@ -16,14 +17,14 @@ import {
 } from '../../primitives/index.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { debugBuild } from '../../primitives/report.js';
-import type { TanreiAccordionDensityRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
+import type { TanreiAccordionSizeRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core looks (plain, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAccordionVariant = keyof TanreiAccordionVariantRegistry;
-/** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
-export type TanreiAccordionDensity = keyof TanreiAccordionDensityRegistry;
+/** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
+export type TanreiAccordionSize = keyof TanreiAccordionSizeRegistry;
 /** How an item is told from the item next to it (ACC-10): `auto` takes `comp.accordion.separation`. */
 export type TanreiAccordionSeparation = SeparationProp;
 
@@ -42,11 +43,11 @@ const ACCORDION_CSS: string = (() => {
 const TAG = 'tanrei-accordion';
 const PREFIX = '--tanrei-comp-accordion';
 const CORE_VARIANTS: readonly string[] = ['plain', 'outlined'];
-const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
+const CORE_SIZES: readonly string[] = ['small', 'medium'];
 const DEFAULT_VARIANT = 'plain';
-const DEFAULT_DENSITY = 'regular';
-/** The members of the density axis (`dev.tanrei.axes.density.members`) as accordion.css names them. */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const DEFAULT_SIZE = 'medium';
+/** The members of the size axis (`dev.tanrei.axes.size.members`) as accordion.css names them. */
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_acc-height', 'container-height-*'],
   ['--_acc-pad-block', 'container-padding-block-*'],
   ['--_acc-pad-inline', 'container-padding-inline-*'],
@@ -108,10 +109,13 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
   return made;
 }
 
-/** ACC-34: a density a design system added — the default's rules, read from that density's tokens. */
-const densityRules = (density: string) =>
-  `@layer tanrei.components { :where(${TAG}[density='${density}']) { ${DENSITY_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', DEFAULT_DENSITY)}));`,
+/**
+ * ACC-34: a size a design system added — the default's rules, read from that size's tokens — for an accordion that
+ * sets it and for one that takes it from its container (ACC-37: the custom state that carries the size it draws).
+ */
+const sizeRules = (size: string) =>
+  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
+    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
   ).join(' ')} } }`;
 
 /** ACC-34: a variant a design system added — its colors in each state, the default's where it has none. */
@@ -204,7 +208,8 @@ let descriptions = 0;
  * and answered as one target — closed by a press on its content, hovered, pressed and focused as a whole, with the
  * pointer cursor over it (ACC-36; without script only the header is a target), and the debug reports.
  *
- * An accordion in an item's content is content like any other, drawn by its own attributes.
+ * An accordion in an item's content is content like any other, drawn by its own attributes: the outer accordion passes
+ * it no size, and while it sets none it takes the size of the containers around both (ACC-32, ACC-37).
  *
  * @tag tanrei-accordion
  * @slot - The items: native `<details>` elements, each with a `<summary>` first. They are children in the document, not slotted nodes: the element has no shadow root.
@@ -215,7 +220,9 @@ export class TanreiAccordion extends TanreiLightElement {
   static override properties: PropertyDeclarations = {
     // The defaults are not reflected: an accordion that is defined is the accordion that was written.
     variant: { type: String, reflect: true, useDefault: true },
-    density: { type: String, reflect: true, useDefault: true },
+    // ACC-37: the size the product set, or none: an accordion that sets none draws the size its container sets. A
+    // custom accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     separation: { type: String, reflect: true, useDefault: true },
     exclusive: { type: Boolean, reflect: true },
   };
@@ -223,8 +230,33 @@ export class TanreiAccordion extends TanreiLightElement {
   /** How the accordion stands on its surface: plain is rows on the surface, outlined is bounded by one hairline with rounded corners. A design system may add values. */
   variant: TanreiAccordionVariant = 'plain';
 
-  /** How much room a header takes: regular for a page a person reads, compact for a panel among controls. A design system may add values. */
-  density: TanreiAccordionDensity = 'regular';
+  /**
+   * How much room a header takes: `medium` for a page a person reads, `small` for a panel among controls. While it is
+   * not set the accordion draws the size its nearest container sets (ACC-37), and `medium` where none does; reading it
+   * then gives `medium`. Setting it (to any value, `medium` included) makes it the accordion's own; removing the
+   * attribute gives that back. It is not passed to what the items hold. A design system may add values.
+   */
+  get size(): TanreiAccordionSize {
+    return (this.sizes.own ?? DEFAULT_SIZE) as TanreiAccordionSize;
+  }
+
+  set size(value: TanreiAccordionSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** ACC-37: the size the product set, and the one the nearest container around the accordion sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /** @internal ACC-37: the size the accordion draws — its own, else the one its nearest container sets, else `medium`. */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
+
+  /** ACC-37: carries the size the accordion draws to accordion.css, as the custom state `size-<name>`. */
+  private readonly internals = this.attachInternals();
+
+  /** ACC-34: the size last read for a value the core does not have. */
+  private sizeRead = DEFAULT_SIZE;
 
   /** How an item is told from the item next to it: `divider` is one hairline (in the outlined look the items share one edge), `gap` empty space and no line (each item has an edge of its own); `auto` takes `comp.accordion.separation`, the design system's answer. */
   separation: TanreiAccordionSeparation = 'auto';
@@ -314,8 +346,15 @@ export class TanreiAccordion extends TanreiLightElement {
       report(this, 'ACC-10', `separation "${this.separation}" is not a value the accordion defines; it is drawn as "auto"`);
     }
     if (changed.has('variant')) this.readAxis('variant', String(this.variant ?? ''), CORE_VARIANTS, DEFAULT_VARIANT, variantRules, (value) => `${PREFIX}-${value}-label-color`);
-    if (changed.has('density')) this.readAxis('density', String(this.density ?? ''), CORE_DENSITIES, DEFAULT_DENSITY, densityRules, (value) => `${PREFIX}-container-height-${value}`);
+    // ACC-34, ACC-37: the size it draws — its own or its container's — when that changed.
+    if (this.sizes.drawn !== this.sizeRead) this.readAxis('size', (this.sizeRead = this.sizes.drawn), CORE_SIZES, DEFAULT_SIZE, sizeRules, (value) => `${PREFIX}-container-height-${value}`);
     this.read();
+  }
+
+  protected override willUpdate() {
+    // ACC-37: the size it draws, as a custom state accordion.css matches (a name that is no token name is drawn as the
+    // default by the accordion's own rules, ACC-34).
+    this.sizes.syncState(this.internals);
   }
 
   /** The accordion's own items: the `<details>` elements that are its children, in order. */

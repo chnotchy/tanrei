@@ -195,7 +195,7 @@
               "$value": "{tanrei.sys.space.space150}"
             },
             "compact": {
-              "$value": "{tanrei.comp.tree-view.container.padding-inline.compact}"
+              "$value": "{tanrei.comp.tree-view.container.padding-inline.small}"
             }
           },
           "padding-block": {
@@ -214,7 +214,7 @@
               }
             },
             "compact": {
-              "$value": "{tanrei.comp.tree-view.container.padding-block.compact}"
+              "$value": "{tanrei.comp.tree-view.container.padding-block.small}"
             }
           },
           "gap": {
@@ -223,7 +223,7 @@
               "$value": "{tanrei.sys.space.space150}"
             },
             "compact": {
-              "$value": "{tanrei.comp.tree-view.container.gap.compact}"
+              "$value": "{tanrei.comp.tree-view.container.gap.small}"
             }
           }
         },

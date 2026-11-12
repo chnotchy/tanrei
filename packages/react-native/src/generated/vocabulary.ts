@@ -467,19 +467,19 @@ export interface TanreiAccordionVariantTokens {
 export type TanreiAccordionVariants = { readonly [Key in TanreiCoreAccordionVariant]: TanreiAccordionVariantTokens } & { readonly [Key in TanreiAccordionVariant]?: TanreiAccordionVariantTokens };
 
 /**
- * Every value of `comp.accordion`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.accordion`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiAccordionDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiAccordionSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiAccordionDensity = keyof TanreiAccordionDensityRegistry;
-export type TanreiCoreAccordionDensity = "regular" | "compact";
+export type TanreiAccordionSize = keyof TanreiAccordionSizeRegistry;
+export type TanreiCoreAccordionSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.accordion`. */
-export interface TanreiAccordionDensityTokens {
+/** The tokens of one `size` of `comp.accordion`. */
+export interface TanreiAccordionSizeTokens {
   readonly containerHeight: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
@@ -491,11 +491,11 @@ export interface TanreiAccordionDensityTokens {
   readonly contentPaddingBlockEnd: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiAccordionDensitys = { readonly [Key in TanreiCoreAccordionDensity]: TanreiAccordionDensityTokens } & { readonly [Key in TanreiAccordionDensity]?: TanreiAccordionDensityTokens };
+export type TanreiAccordionSizes = { readonly [Key in TanreiCoreAccordionSize]: TanreiAccordionSizeTokens } & { readonly [Key in TanreiAccordionSize]?: TanreiAccordionSizeTokens };
 
 /**
  * `comp.accordion`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `sizes`), keyed by the axis value.
  */
 export interface TanreiAccordionTokens {
   readonly containerGap: number;
@@ -517,7 +517,7 @@ export interface TanreiAccordionTokens {
   readonly pressedOpacity: number;
   readonly separation: number;
   readonly variants: TanreiAccordionVariants;
-  readonly densitys: TanreiAccordionDensitys;
+  readonly sizes: TanreiAccordionSizes;
 }
 
 /**
@@ -5827,19 +5827,19 @@ export interface TanreiTreeViewConditionTokens {
 export type TanreiTreeViewConditions = { readonly [Key in TanreiCoreTreeViewCondition]: TanreiTreeViewConditionTokens } & { readonly [Key in TanreiTreeViewCondition]?: TanreiTreeViewConditionTokens };
 
 /**
- * Every value of `comp.tree-view`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.tree-view`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiTreeViewDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiTreeViewSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiTreeViewDensity = keyof TanreiTreeViewDensityRegistry;
-export type TanreiCoreTreeViewDensity = "regular" | "compact";
+export type TanreiTreeViewSize = keyof TanreiTreeViewSizeRegistry;
+export type TanreiCoreTreeViewSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.tree-view`. */
-export interface TanreiTreeViewDensityTokens {
+/** The tokens of one `size` of `comp.tree-view`. */
+export interface TanreiTreeViewSizeTokens {
   readonly containerHeight: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
@@ -5850,11 +5850,11 @@ export interface TanreiTreeViewDensityTokens {
   readonly chevronSize: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiTreeViewDensitys = { readonly [Key in TanreiCoreTreeViewDensity]: TanreiTreeViewDensityTokens } & { readonly [Key in TanreiTreeViewDensity]?: TanreiTreeViewDensityTokens };
+export type TanreiTreeViewSizes = { readonly [Key in TanreiCoreTreeViewSize]: TanreiTreeViewSizeTokens } & { readonly [Key in TanreiTreeViewSize]?: TanreiTreeViewSizeTokens };
 
 /**
  * `comp.tree-view`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `sizes`), keyed by the axis value.
  */
 export interface TanreiTreeViewTokens {
   readonly containerShape: number;
@@ -5879,7 +5879,7 @@ export interface TanreiTreeViewTokens {
   readonly supportingTextTypescale: TanreiTypescaleRole;
   readonly trailingTextTypescale: TanreiTypescaleRole;
   readonly conditions: TanreiTreeViewConditions;
-  readonly densitys: TanreiTreeViewDensitys;
+  readonly sizes: TanreiTreeViewSizes;
 }
 
 export interface TanreiComponents {
@@ -6012,7 +6012,7 @@ declare module './vocabulary' {
   interface TanreiIconMeasure {}
   interface TanreiBreakpointMeasure {}
   interface TanreiAccordionVariantRegistry {}
-  interface TanreiAccordionDensityRegistry {}
+  interface TanreiAccordionSizeRegistry {}
   interface TanreiAppBarSizeRegistry {}
   interface TanreiAppBarConditionRegistry {}
   interface TanreiAvatarSizeRegistry {}
@@ -6109,5 +6109,5 @@ declare module './vocabulary' {
   interface TanreiTimelineDensityRegistry {}
   interface TanreiToolbarVariantRegistry {}
   interface TanreiTreeViewConditionRegistry {}
-  interface TanreiTreeViewDensityRegistry {}
+  interface TanreiTreeViewSizeRegistry {}
 }

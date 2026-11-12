@@ -970,9 +970,9 @@ export const tonePerState = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 56, containerPaddingBlock: 16, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
-        compact: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
+      sizes: {
+        small: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
+        medium: { containerHeight: 56, containerPaddingBlock: 16, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
       },
     },
     appBar: {
@@ -17131,9 +17131,9 @@ export const tonePerState = {
           },
         },
       },
-      densitys: {
-        regular: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
-        compact: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
+      sizes: {
+        small: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
+        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
       },
     },
   },
