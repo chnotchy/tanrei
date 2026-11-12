@@ -118,6 +118,8 @@ interface ResizeMetrics {
   column: number;
   /** container.width, held between the least and the greatest: the width while `width` is null. */
   fallback: number;
+  /** The room the parent gives, where it is less than the width drawn beside the content asks for; null for room enough. */
+  narrowed: number | null;
 }
 
 /** A number, or nothing where it is null or not a number. */
@@ -1876,13 +1878,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** APS-5: until a person's change of width has stopped moving. */
   private personTimer: ReturnType<typeof setTimeout> | undefined;
   /**
-   * NVD-96, NVD-102: the room and the scrollbar change what the handle says and where it stands. One observer watches
-   * every drawer, so that a frame reports all the drawers that changed in one callback: all of them read, then all of
-   * them write. An observer of each drawer's own would have each drawer read after the writes of the one before, and
-   * the browser lay the page out again for each.
+   * NVD-97, NVD-102: the room the parent gives changes the width the rows are laid out at and what the handle says.
+   * One observer watches every drawer, so that a frame reports all the drawers that changed in one callback: all of
+   * them read, then all of them write. An observer of each drawer's own would have each drawer read after the writes
+   * of the one before, and the browser lay the page out again for each.
    */
   private static resizeWatch: ResizeObserver | null = null;
-  /** The drawer each watched element (a drawer, or its scroller) belongs to. */
+  /** The drawer each watched element belongs to. */
   private static readonly resizeWatched = new WeakMap<Element, TanreiNavigationDrawer>();
   /** What this drawer's resize watch observes now. */
   private resizeTargets: Element[] = [];
@@ -1903,10 +1905,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }));
   }
 
-  /** NVD-96, NVD-102: watches the drawer and its scroller while it has a resize handle, and nothing otherwise. */
+  /** NVD-97, NVD-102: watches the drawer while it stands beside the content, and nothing otherwise. */
   private watchResizeTargets() {
-    const scroller = this.resizeShown && this.isConnected ? this.scroller : null;
-    const targets: Element[] = this.resizeShown && this.isConnected ? (scroller ? [this, scroller] : [this]) : [];
+    const targets: Element[] = this.beside && this.isConnected ? [this] : [];
     if (targets.length === this.resizeTargets.length && targets.every((target, i) => target === this.resizeTargets[i])) return;
     const watch = TanreiNavigationDrawer.watchResize();
     for (const target of this.resizeTargets) {
@@ -3295,7 +3296,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * is open, or a responsive drawer's standard presentation shown — in either form.
    */
   private get resizeShown(): boolean {
-    return this.resizable && !this.modal && this.isOpen;
+    return this.resizable && this.beside;
+  }
+
+  /** NVD-97: the drawer stands beside the content — a standard drawer that is open, or a responsive drawer's standard presentation shown. */
+  private get beside(): boolean {
+    return !this.modal && this.isOpen;
   }
 
   /** The lengths a resize is reckoned in, read from the drawer's own probes: the tokens and the widths given, as drawn. */
@@ -3303,9 +3309,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const probe = (name: string) => this.renderRoot?.querySelector(`.resize-probes > .${name}`)?.getBoundingClientRect().width ?? 0;
     const least = probe('least');
     const greatest = Math.max(least, probe('most'));
-    const room = this.room(hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), least, greatest));
+    const intended = hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), least, greatest);
+    const room = this.room(intended);
     const most = room === null ? greatest : Math.max(least, Math.min(greatest, room));
-    return { least, most, column: probe('column'), fallback: hold(probe('fallback'), least, most) };
+    return { least, most, column: probe('column'), fallback: hold(probe('fallback'), least, most), narrowed: room !== null && room < intended - 0.5 ? room : null };
   }
 
   /** NVD-97: the room the parent gave the drawer when it was last seen at rest, expanded; null for room enough. */
@@ -3343,28 +3350,40 @@ export class TanreiNavigationDrawer extends TanreiElement {
     write('--_nvd-max-given', given(this.maxWidth));
   }
 
-  /** NVD-96, NVD-102: what the handle says — the width drawn, its least and its greatest — and where it stands beside a scrollbar. */
+  /**
+   * NVD-97, NVD-102: the width the rows are laid out at, where the parent gives less room than the width; and what the
+   * handle says — the width drawn, its least and its greatest.
+   */
   private syncResize() {
     this.readResize()?.();
   }
 
   /** What syncResize reads, returning what it then writes: the reads of many drawers can be made together, before any write. */
   private readResize(): (() => void) | void {
-    if (!this.resizeShown) return;
+    if (!this.beside) return;
     const metrics = this.resizeMetrics();
+    // NVD-97: where the parent gives less room than the width, the rows are laid out at the room (the host is drawn
+    // there by its `max-inline-size`, and keeps asking for its width, so that it sees the room come back).
+    const narrowed = metrics.narrowed === null ? '' : `${metrics.narrowed}px`;
+    const writeRoom = () => {
+      if (this.style.getPropertyValue('--_nvd-room') === narrowed) return;
+      // As the host, the panel follows the room at once, without the change of form's motion.
+      this.setAttribute('data-resizing', '');
+      this.settleResize();
+      if (narrowed) this.style.setProperty('--_nvd-room', narrowed);
+      else this.style.removeProperty('--_nvd-room');
+    };
+    if (!this.resizeShown) return writeRoom;
     const next = {
       now: Math.round(this.collapsed ? metrics.column : this.expandedWidth(metrics)),
       // NVD-102: from the column's width while the drawer folds to it.
       min: Math.round(this.collapses ? metrics.column : metrics.least),
       max: Math.round(metrics.most),
     };
-    // NVD-96: a scrollbar that takes room at the end edge (not an overlay one) keeps the handle's target beside it.
-    const scroller = this.scroller;
-    const scrollbar = !!scroller && scroller.offsetWidth - scroller.clientWidth > 0;
     return () => {
+      writeRoom();
       const was = this.resizeValues;
       if (next.now !== was.now || next.min !== was.min || next.max !== was.max) this.resizeValues = next;
-      this.toggleAttribute('data-scrollbar', scrollbar);
     };
   }
 
@@ -3556,11 +3575,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.emitWidth(to);
   };
 
-  /** NVD-96, NVD-102: the resize handle on the end edge, after the drawer's content, and the lengths a resize is reckoned in. */
+  /** NVD-96, NVD-102: the resize handle beside the end edge, after the drawer's content, and the lengths the width is reckoned in (NVD-97). */
   private resizeHandle() {
-    if (!this.resizeShown) return nothing;
+    if (!this.beside) return nothing;
+    const probes = html`<div class="resize-probes" aria-hidden="true"><span class="least"></span><span class="most"></span><span class="column"></span><span class="fallback"></span></div>`;
+    if (!this.resizeShown) return probes;
     const { now, min, max } = this.resizeValues;
-    return html`<div class="resize-probes" aria-hidden="true"><span class="least"></span><span class="most"></span><span class="column"></span><span class="fallback"></span></div>
+    return html`${probes}
       <tanrei-handle
         part="resize-handle"
         class="resize"
@@ -4259,16 +4280,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     // NVD-98: a drag the drawer no longer has a handle for (its presentation changed, it closed) ends as released.
     if (this.resizeDrag && !this.resizeShown) this.finishDrag();
-    // NVD-96, NVD-102: what the handle says, kept as the room, the scrollbar and the widths change.
+    // NVD-97, NVD-102: the width the rows are laid out at and what the handle says, kept as the room and the widths change.
     this.watchResizeTargets();
-    if (this.resizeShown) {
+    if (this.beside) {
       // Read with every other host's of the turn (src/primitives/read-phase.ts), once the drawer is drawn: what the
       // handle says follows what it was given. An update that only drew what was read reads nothing again.
       if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) readTogether(() => this.readResize());
-      if ((changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
+      if (this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }
-    } else this.removeAttribute('data-scrollbar');
+    } else this.style.removeProperty('--_nvd-room');
     // NVD-66: groups become destinations, or stop being ones, at once; nothing is emitted for it.
     if (changed.has('selectableGroups') && changed.get('selectableGroups') !== undefined) this.destinations.sync();
     // NVD-58: turned on, it shows the selection it has.
