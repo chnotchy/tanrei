@@ -66,6 +66,7 @@ El título es el nombre de la pantalla y su encabezado. En la web es `headline`,
       import '@tanrei/web/components/app-bar';
       import '@tanrei/web/components/button';
       import '@tanrei/web/components/search';
+      import '@tanrei/web/app-bar.css'; // el alto que la barra conserva antes de que el elemento esté definido, para que la página de debajo no se mueva
       // Los botones son tuyos: la barra no añade eventos propios.
       document.querySelector('[label="Atrás"]').addEventListener('click', () => history.back());
     </script>
