@@ -8,6 +8,7 @@ import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { packed } from '../../tools/src/pack-contents.js';
 import { leavesNothingBehind, tempDir } from '../../tools/src/test-tmp.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -978,5 +979,16 @@ test('the packaged server (bundle + its own copy of the vocabulary and the regis
     assert.equal((await packaged.client.readResource({ uri: 'tanrei://schema/system' })).contents[0].text, (await server.client.readResource({ uri: 'tanrei://schema/system' })).contents[0].text);
   } finally {
     await packaged.client.close();
+  }
+});
+
+// Here, not in a file of its own: the build above and this one rewrite dist/, and test files run side by side.
+test('the tarball holds the bundle and its vocabulary, and nothing a product should not get', () => {
+  execFileSync(process.execPath, [path.join(pkg, 'scripts/build.js')], { cwd: pkg });
+  const { files, findings } = packed(pkg);
+  assert.deepEqual(findings, []);
+  // The premise: it read a built package.
+  for (const file of ['package.json', 'README.md', 'NOTICE', 'bin/tanrei-mcp.js', 'dist/server.js', 'dist/vocabulary/tanrei.config.json', 'dist/vocabulary/specs/inventory.json']) {
+    assert.ok(files.includes(file), `${file} is packed`);
   }
 });

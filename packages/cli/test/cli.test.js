@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { packed } from '../../tools/src/pack-contents.js';
 import { leavesNothingBehind, tempDir } from '../../tools/src/test-tmp.js';
 
 leavesNothingBehind(after); // whatever tempDir() made is removed, and the file fails if something stays
@@ -338,6 +339,17 @@ test('the packaged CLI (bundle + its own copy of the vocabulary) produces the sa
   assert.equal(audited.status, 1, audited.stderr);
   assert.deepEqual(JSON.parse(audited.stdout).findings.map((f) => [f.line, f.column, f.component]), [[1, 2, 'fab-menu'], [2, 20, 'text-field']]);
   assert.equal(audited.stdout, fromSource.run(['audit', 'page.html', '--format', 'json']).stdout);
+});
+
+// Here, not in a file of its own: the build above and this one rewrite dist/, and test files run side by side.
+test('the tarball holds the bundle and its vocabulary, and nothing a product should not get', () => {
+  execFileSync(process.execPath, [path.join(pkg, 'scripts/build.js')], { cwd: pkg });
+  const { files, findings } = packed(pkg);
+  assert.deepEqual(findings, []);
+  // The premise: it read a built package. (Theme Studio's app, dist/studio/, is there only when it was built first.)
+  for (const file of ['package.json', 'README.md', 'NOTICE', 'bin/tanrei.js', 'dist/cli.js', 'dist/vocabulary/tanrei.config.json', 'dist/vocabulary/packages/tokens-build/generated/component-catalog.json']) {
+    assert.ok(files.includes(file), `${file} is packed`);
+  }
 });
 
 test('build prints the glyph names the components may draw and the axes the system draws icons at, for a product to cut its icon font down to', () => {
