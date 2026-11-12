@@ -221,7 +221,19 @@ export class TanreiSnackbar extends TanreiElement {
    */
   protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.status, .glyph') ?? []);
 
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.layout());
+  /** What the shared resize watch observes for this snackbar: its bar, its text and itself. */
+  private watched: Element[] = [];
+  /** A layout is asked for and not made yet: the turn's later requests are the same read. */
+  private measuring = false;
+
+  /**
+   * One resize watch for every snackbar: a frame reports all the snackbars that changed in one callback, and each lays
+   * itself out with every other's of the turn (`readTogether`), all reads before any write. A watch of each snackbar's
+   * own would have each read after the writes of the one before, and the browser lay the page out again for each.
+   */
+  private static sizes: ResizeObserver | null = null;
+  /** The snackbar each watched element belongs to. */
+  private static readonly bars = new WeakMap<Element, TanreiSnackbar>();
   /** Set once it has emitted how it closed: a snackbar closes once. */
   private settled = false;
   /** SNK-24: the bar's height before `expanded` changed, which it grows or shrinks from. */
@@ -376,25 +388,46 @@ export class TanreiSnackbar extends TanreiElement {
    * - expanded, the text is a focus stop when it scrolls inside the bar (measured as it is drawn).
    */
   private layout() {
+    this.giveButtons();
+    if (this.measuring) return;
+    this.measuring = true;
+    // Read with every other host's of the turn, after the renders (src/primitives/read-phase.ts): a hundred snackbars
+    // built at once lay the page out once, not once each.
+    readTogether(() => {
+      this.measuring = false;
+      return this.readLayout();
+    });
+  }
+
+  /** What `layout` reads, returning what it then writes. */
+  private readLayout(): (() => void) | void {
     const bar = this.renderRoot?.querySelector<HTMLElement>('.bar');
     const text = this.renderRoot?.querySelector<HTMLElement>('.text');
     const title = this.renderRoot?.querySelector<HTMLElement>('.title');
     const message = this.renderRoot?.querySelector<HTMLElement>('.message');
     const action = this.renderRoot?.querySelector<HTMLElement>('.action');
-    if (!bar || !text || !message) return;
-    this.giveButtons();
+    if (!bar || !text || !message || !this.isConnected) return;
     // SNK-24: while the bar grows or shrinks its height is the motion's, not its content's: measured when it ends.
     if (bar.classList.contains('resizing')) return;
-    bar.classList.remove('stacked', 'expanded');
+    // Measured with the text collapsed and the action inline. A bar drawn so already is measured as it is: changing a
+    // class here, even to what it was, would have the next snackbar's read lay the page out again.
+    const toggle = (name: string, on: boolean) => {
+      if (bar.classList.contains(name) !== on) bar.classList.toggle(name, on);
+    };
+    toggle('stacked', false);
+    toggle('expanded', false);
     const stacked = !!action && (lines(title) + lines(message) > 2 || action.scrollWidth > action.clientWidth + 0.5);
-    bar.classList.toggle('stacked', stacked);
+    toggle('stacked', stacked);
     const expandable = cut(title) || cut(message);
-    bar.classList.toggle('stacked', this.stacked);
-    bar.classList.toggle('expanded', this.showsExpanded);
+    toggle('stacked', this.stacked);
+    toggle('expanded', this.showsExpanded);
     const scrolls = this.showsExpanded && text.scrollHeight > text.clientHeight + 0.5;
-    if (stacked !== this.stacked) this.stacked = stacked;
-    if (expandable !== this.expandable) this.expandable = expandable;
-    if (scrolls !== this.scrolls) this.scrolls = scrolls;
+    return () => {
+      if (!this.isConnected) return;
+      if (stacked !== this.stacked) this.stacked = stacked;
+      if (expandable !== this.expandable) this.expandable = expandable;
+      if (scrolls !== this.scrolls) this.scrolls = scrolls;
+    };
   }
 
   /**
@@ -429,16 +462,31 @@ export class TanreiSnackbar extends TanreiElement {
   }
 
   protected override firstUpdated() {
+    if (typeof ResizeObserver === 'undefined' || this.watched.length) return;
+    const sizes = (TanreiSnackbar.sizes ??= new ResizeObserver((entries) => {
+      const changed = new Set<TanreiSnackbar>();
+      for (const entry of entries) {
+        const snackbar = TanreiSnackbar.bars.get(entry.target);
+        if (snackbar) changed.add(snackbar);
+      }
+      for (const snackbar of changed) snackbar.layout();
+    }));
     const bar = this.renderRoot.querySelector('.bar');
     const text = this.renderRoot.querySelector('.text');
-    if (bar) this.resize$?.observe(bar);
-    if (text) this.resize$?.observe(text);
-    this.resize$?.observe(this);
+    this.watched = [bar, text, this].filter((target): target is Element => !!target);
+    for (const target of this.watched) {
+      TanreiSnackbar.bars.set(target, this);
+      sizes.observe(target);
+    }
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.resize$?.disconnect();
+    for (const target of this.watched) {
+      TanreiSnackbar.sizes?.unobserve(target);
+      TanreiSnackbar.bars.delete(target);
+    }
+    this.watched = [];
   }
 
   override connectedCallback() {
@@ -508,7 +556,10 @@ export class TanreiSnackbar extends TanreiElement {
     // SNK-34: a Button drawn in this render was given its variant and tone before it first draws itself (willUpdate).
     if (['message', 'headline', 'action', 'status', 'closable', 'expanded', 'stacked', 'expandable'].some(has)) this.layout();
     if (has('expanded') || has('expandable')) {
-      if (!this.showsExpanded) this.renderRoot.querySelector('.text')?.scrollTo({ top: 0 });
+      // Collapsed, the text starts at its top again. Only text that showed expanded can have been scrolled: asked of a
+      // text that never was, the scroll would have the page laid out for each snackbar.
+      const before = (name: 'expanded' | 'expandable') => (has(name) ? changed.get(name as keyof TanreiSnackbar) === true : this[name]);
+      if (!this.showsExpanded && before('expanded') && before('expandable')) this.renderRoot.querySelector('.text')?.scrollTo({ top: 0 });
       if (this.resizeFrom !== null) this.resize(this.resizeFrom);
       this.resizeFrom = null;
       // SNK-9: the host pauses the timeout while it is expanded.

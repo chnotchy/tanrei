@@ -44,6 +44,7 @@ import {
   onBackdrop,
   openModal,
   overlayDepth,
+  readTogether,
   registerOverlay,
   report,
   returnOverlayFocus,
@@ -329,11 +330,50 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   /** POP-14: the content children, assigned to the default slot. */
   private content: Node[] = [];
   /** POP-15, POP-16: the actions, by run, placed and given the popover's variant. */
-  private readonly placement$ = new ActionPlacement(this, (action) => this.resize$?.observe(action));
+  private readonly placement$ = new ActionPlacement(this, (action) => this.watchSize(action));
   /** POP-30: the actions that were told their place. */
   private placed = new Set<Element>();
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.#onResize());
+  /** What the shared resize watch observes for this popover. */
+  private readonly watched = new Set<Element>();
+  /** A layout of the parts is asked for and not made yet: the turn's later requests are the same one. */
+  private laying = false;
+
+  /**
+   * One resize watch for every popover: a frame reports all the popovers whose parts changed size in one callback, and
+   * each lays its parts out with every other's of the turn (`readTogether`), all reads before any write. A watch of each
+   * popover's own would have each read after the writes of the one before, and the browser lay the page out again for
+   * each.
+   */
+  private static sizes: ResizeObserver | null = null;
+  /**
+   * The popover each watched element belongs to. Not `parts`: a class's static `parts` is the list of the CSS parts it
+   * exports (src/primitives/composed.ts), which the composed elements read.
+   */
+  private static readonly owners = new WeakMap<Element, TanreiPopover>();
+
+  private watchSize(element: Element) {
+    if (typeof ResizeObserver === 'undefined') return;
+    // Observed again, an element is reported again in the next frame, as it was when the popover had a watch of its own.
+    this.watched.add(element);
+    TanreiPopover.owners.set(element, this);
+    (TanreiPopover.sizes ??= new ResizeObserver((entries) => {
+      const changed = new Set<TanreiPopover>();
+      for (const entry of entries) {
+        const popover = TanreiPopover.owners.get(entry.target);
+        if (popover) changed.add(popover);
+      }
+      for (const popover of changed) popover.#onResize();
+    })).observe(element);
+  }
+
+  private unwatchSizes() {
+    for (const element of this.watched) {
+      TanreiPopover.sizes?.unobserve(element);
+      TanreiPopover.owners.delete(element);
+    }
+    this.watched.clear();
+  }
   /** Whether the surface is presented: open, with an anchor and something to show. */
   private presented = false;
   private first = true;
@@ -449,8 +489,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     scroller: () => this.find('.content'),
     shade: () => this.find('.shade'),
     gone: () => this.requestClose('anchor-hidden'),
-    arrange: () => this.arrange(),
-    placed: () => this.syncScroll(),
+    arrange: () => this.readArrangement(),
+    placed: () => this.readScroll(),
     depends: () => getComputedStyle(this).getPropertyValue(ARROW_PROPERTY).trim(),
   });
 
@@ -499,7 +539,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.mutation$.disconnect();
-    this.resize$?.disconnect();
+    this.unwatchSizes();
     this.unregister?.();
     this.unregister = null;
     // The controllers take the surface out of the top layer and stop listening; POP-40: a sheet gives the page back.
@@ -837,17 +877,30 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
    * share, `end` while the row at their own widths fits the inner width, and a column otherwise.
    */
   private arrange() {
+    this.readArrangement()();
+  }
+
+  /**
+   * What `arrange` reads of the cascade, returning what lays the parts out: a placement reads it with its own reads,
+   * and lays them out once the surface's limits are written (src/primitives/anchored.ts).
+   */
+  private readArrangement(): () => void {
     const container = this.container;
-    if (!container) return;
+    if (!container) return () => {};
     const { close, actions: variant, arrangement } = compChoices(this, {
       close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
       actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
       arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
     });
+    return () => this.arrangeAs(container, close, variant, arrangement);
+  }
+
+  private arrangeAs(container: HTMLElement, close: string, variant: string, arrangement: (typeof ARRANGEMENTS)[number]) {
     giveVariant(this.find('tanrei-button.close'), close);
     this.placement$.give(variant);
     if (container.dataset.arrangement !== arrangement) container.dataset.arrangement = arrangement;
     const actions = this.find('.actions');
+    // With actions only: whether they fit a row is measured at the width the limits leave.
     if (actions && this.hasActions && actions.getClientRects().length) {
       // POP-7: the container is at least as wide as its actions in one row at their own widths — whether they are a
       // row or a column, so that the width the decision is made for does not depend on what was decided before.
@@ -868,6 +921,15 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
    * leave no room for it, everything scrolls together and no divider is drawn. At once, without motion.
    */
   private syncScroll() {
+    this.readScroll()?.();
+  }
+
+  /**
+   * What `syncScroll` reads, returning what it writes: a placement reads it with every other surface's of the turn
+   * (src/primitives/anchored.ts). Only a change of whether everything scrolls together is written before the rest is
+   * read, since it lays the parts out anew.
+   */
+  private readScroll(): (() => void) | void {
     const clip = this.find('.clip');
     const content = this.find('.content');
     if (!clip || !content) return;
@@ -877,37 +939,52 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     const room = clip.clientHeight;
     const crowded = this.hasContent && fixed > 0 && fixed + content.scrollHeight > room + 0.5 && fixed >= room - 0.5;
     if (clip.classList.contains('crowded') !== crowded) clip.classList.toggle('crowded', crowded);
-    const stop = (element: HTMLElement, on: boolean) => {
-      if (on && element.getAttribute('tabindex') !== '0') element.setAttribute('tabindex', '0');
-      else if (!on && element.hasAttribute('tabindex')) element.removeAttribute('tabindex');
-    };
     const scrolls = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 0.5;
-    stop(content, !crowded && scrolls(content));
-    stop(clip, crowded && scrolls(clip));
+    const contentStop = !crowded && scrolls(content);
+    const clipStop = crowded && scrolls(clip);
     const ruled = !crowded && (!!header || !!footer) && scrolls(content);
-    if (clip.hasAttribute('data-scrolls') !== ruled) clip.toggleAttribute('data-scrolls', ruled);
-    syncDividerVisibility(this, clip);
     const scrolled = !crowded && !!header && content.scrollTop > 0.5;
     const more = !crowded && !!footer && content.scrollTop + content.clientHeight < content.scrollHeight - 0.5;
-    if (clip.hasAttribute('data-scrolled') !== scrolled) clip.toggleAttribute('data-scrolled', scrolled);
-    if (clip.hasAttribute('data-more') !== more) clip.toggleAttribute('data-more', more);
+    return () => {
+      const stop = (element: HTMLElement, on: boolean) => {
+        if (on && element.getAttribute('tabindex') !== '0') element.setAttribute('tabindex', '0');
+        else if (!on && element.hasAttribute('tabindex')) element.removeAttribute('tabindex');
+      };
+      stop(content, contentStop);
+      stop(clip, clipStop);
+      if (clip.hasAttribute('data-scrolls') !== ruled) clip.toggleAttribute('data-scrolls', ruled);
+      syncDividerVisibility(this, clip);
+      if (clip.hasAttribute('data-scrolled') !== scrolled) clip.toggleAttribute('data-scrolled', scrolled);
+      if (clip.hasAttribute('data-more') !== more) clip.toggleAttribute('data-more', more);
+    };
   }
 
   private readonly onScroll = () => this.syncScroll();
 
   /** A part changed size (its text, the text size, the window): the actions are placed again, and the surface with them. */
   #onResize() {
-    if (!this.presented) return;
-    this.arrange();
-    this.syncScroll();
-    this.anchored.request();
+    if (!this.presented || this.laying) return;
+    this.laying = true;
+    // With every other host's of the turn (src/primitives/read-phase.ts): the cascade read, the parts laid out, then
+    // what scrolls read and written.
+    readTogether(() => {
+      this.laying = false;
+      if (!this.presented) return;
+      const arranging = this.readArrangement();
+      return () => {
+        if (!this.presented) return;
+        arranging();
+        readTogether(() => this.readScroll());
+        this.anchored.request();
+      };
+    });
   }
 
   /** What changes whether the actions fit and whether the content scrolls: the container, the content and the row. */
   private observe() {
     for (const selector of ['.container', '.header', '.content', '.inner', '.actions']) {
       const element = this.find(selector);
-      if (element) this.resize$?.observe(element);
+      if (element) this.watchSize(element);
     }
   }
 
@@ -933,11 +1010,11 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       return;
     }
     const before = deepActive();
-    if (!this.anchored.show(instant)) return;
+    // Placed with every other surface of the turn, after the renders; what scrolls in it is read with the placement.
+    if (!this.anchored.show(instant, { together: true })) return;
     this.presented = true;
     this.presentedAs = 'anchored';
     this.lastReason = null;
-    this.syncScroll();
     if (this.inline) return;
     this.dismiss.start();
     const container = this.container;
@@ -1189,10 +1266,12 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       this.present(opening && !this.first && !mode && !this.byHover);
       if (this.presented) this.observe();
     } else if (!want && this.presented) this.withdraw();
-    else if (this.presented) {
-      // POP-2, POP-33: a prop that decides the place takes effect at once; the parts are laid out for what was drawn.
+    else if (this.presentedAs === 'anchored') {
+      // POP-2, POP-33: a prop that decides the place takes effect at once; the parts are laid out for what was drawn —
+      // with every other surface placed in the turn, after the renders, still before any frame.
+      this.anchored.placeTogether(true);
+    } else if (this.presented) {
       this.arrange();
-      this.anchored.place();
       this.syncScroll();
     }
     // POP-18: the opener says it opens a dialog only where a press opens it.
