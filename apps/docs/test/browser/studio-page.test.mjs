@@ -16,7 +16,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the preview’s five
 // screens, took 64 s in CI.
@@ -50,11 +50,8 @@ async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-U
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto(origin + url);
   await page.waitForSelector('[data-studio][data-pane] [data-rail] [data-row]');
-  await page.evaluate(async () => {
-    await Promise.all([...new Set([...document.querySelectorAll('*')].map((el) => el.localName).filter((name) => name.includes('-')))].map((name) => customElements.whenDefined(name)));
-    await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+  // Every element of the page defined, the fonts in, and two frames since (each wait bounded: launch.mjs).
+  await settlePage(page, { among: '*' });
   return { context, page, problems, close: () => context.close() };
 }
 
@@ -341,10 +338,7 @@ for (const engine of ENGINES) {
           );
         const drawn = async (screen) => {
           await page.waitForSelector(`[data-scope] [data-screen="${screen}"]`);
-          await page.evaluate(async () => {
-            await Promise.all([...new Set([...document.querySelectorAll('[data-scope] *')].map((el) => el.localName).filter((name) => name.includes('-')))].map((name) => customElements.whenDefined(name)));
-            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-          });
+          await settlePage(page, { among: '[data-scope] *', fonts: false });
         };
         const times = {};
         for (const mode of ['light', 'dark', 'both']) {

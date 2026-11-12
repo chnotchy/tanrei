@@ -6,7 +6,7 @@
  * stay in the document: they open and close, keep their place in the tab order, carry the expanded state and are
  * found, read, translated and printed as the page's content before any script runs and without it.
  *
- *   <tanrei-accordion variant="outlined" density="compact" separation="gap" exclusive>
+ *   <tanrei-accordion variant="outlined" size="small" separation="gap" exclusive>
  *     <details open>
  *       <summary>
  *         <span class="tanrei-icon" aria-hidden="true">palette</span>
@@ -26,7 +26,7 @@
  *     </details>
  *   </tanrei-accordion>
  *
- * Attributes of the wrapper: `variant` (plain | outlined), `density` (regular | compact), `separation` (auto |
+ * Attributes of the wrapper: `variant` (plain | outlined), `size` (small | medium), `separation` (auto |
  * divider | gap), `exclusive`. An item is a `<details>` (its own `open`, its own `toggle`, and `name` for one open
  * at a time without script). The label is the summary's text, or ONE element in its place (a heading of the page's
  * outline, or a span around text with inline content). The chevron is drawn by this stylesheet and the icon font
@@ -135,19 +135,21 @@
     --_acc-disabled-trailing: var(--tanrei-comp-accordion-plain-disabled-trailing-text-color);
     --_acc-disabled-icon: var(--tanrei-comp-accordion-plain-disabled-icon-color);
     --_acc-disabled-chevron: var(--tanrei-comp-accordion-plain-disabled-chevron-color);
-    /* ACC-2 to ACC-8: the density's sizes and text styles (ACC-34: any other density is the default's). */
-    --_acc-height: var(--tanrei-comp-accordion-container-height-regular);
-    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-regular);
-    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-regular);
-    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-regular-font);
-    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-regular-letter-spacing);
-    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-regular-font);
-    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-regular-letter-spacing);
-    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-regular-font);
-    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-regular-letter-spacing);
-    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-regular);
-    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-regular);
-    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-regular);
+    /* ACC-2 to ACC-8, ACC-37: the size's heights, paddings and text styles — medium here, small below, set on the
+       accordion or taken from its container by the element (the custom state size-small); ACC-34: any other size is
+       the default's. */
+    --_acc-height: var(--tanrei-comp-accordion-container-height-medium);
+    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-medium);
+    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-medium);
+    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-medium-font);
+    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-medium-letter-spacing);
+    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-medium-font);
+    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-medium-letter-spacing);
+    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-medium-font);
+    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-medium-letter-spacing);
+    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-medium);
+    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-medium);
+    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-medium);
     /* ACC-10: the separation this accordion draws — its attribute's, else comp.accordion.separation's. */
     --_acc-separation: var(--tanrei-comp-accordion-separation);
     --_acc-line-color: var(--tanrei-comp-accordion-divider-color);
@@ -168,19 +170,19 @@
   :where(tanrei-accordion):dir(rtl) {
     --_acc-start: right;
   }
-  :where(tanrei-accordion[density='compact']) {
-    --_acc-height: var(--tanrei-comp-accordion-container-height-compact);
-    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-compact);
-    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-compact);
-    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-compact-font);
-    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-compact-letter-spacing);
-    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-compact-font);
-    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-compact-letter-spacing);
-    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-compact-font);
-    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-compact-letter-spacing);
-    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-compact);
-    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-compact);
-    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-compact);
+  :where(tanrei-accordion[size='small'], tanrei-accordion:state(size-small)) {
+    --_acc-height: var(--tanrei-comp-accordion-container-height-small);
+    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-small);
+    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-small);
+    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-small-font);
+    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-small-letter-spacing);
+    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-small-font);
+    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-small-letter-spacing);
+    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-small-font);
+    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-small-letter-spacing);
+    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-small);
+    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-small);
+    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-small);
   }
   :where(tanrei-accordion[separation='divider']) {
     --_acc-separation: divider;
@@ -337,7 +339,7 @@
     border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
   }
 
-  /* ── The header (ACC-2): one row, at least the density's height and the minimum target (ACC-19) ─────────────── */
+  /* ── The header (ACC-2): one row, at least the size's height and the minimum target (ACC-19) ────────────────── */
   :where(tanrei-accordion) > :where(details) > :where(summary) {
     --_acc-now-container: var(--_acc-container);
     --_acc-now-label: var(--_acc-label);
@@ -476,7 +478,7 @@
     unicode-bidi: plaintext;
     transition: color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
   }
-  /* ACC-5: the icon — a glyph of icons.css in the density's box, on the label's first line, outlined whatever an
+  /* ACC-5: the icon — a glyph of icons.css in the size's box, on the label's first line, outlined whatever an
      ancestor says of a selection. (The glyph's declarations, and its mirroring, are icons.css's: ACC-30.) */
   :where(tanrei-accordion) > :where(details) > :where(summary) > .tanrei-icon.tanrei-icon {
     --_size: var(--_acc-icon-size);
@@ -551,7 +553,7 @@
     --tanrei-icon-visibility: hidden;
   }
 
-  /* ── The content (ACC-8): inset to the header's first part, nothing above it, the density's space under it ──── */
+  /* ── The content (ACC-8): inset to the header's first part, nothing above it, the size's space under it ─────── */
   @supports selector(::details-content) {
     :where(tanrei-accordion) > :where(details)::details-content {
       /* ACC-8, ACC-13: the content's margins stay inside, at rest and at every height of the motion (see the header). */

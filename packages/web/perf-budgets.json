@@ -7,7 +7,7 @@
   },
   "bundles": {
     "accordion": {
-      "budget": 21900,
+      "budget": 23100,
       "measured": 20794,
       "allowedComponents": []
     },
@@ -524,6 +524,11 @@
       "allowedComponents": [
         "button"
       ]
+    },
+    "size-transition": {
+      "budget": 11100,
+      "measured": 10502,
+      "allowedComponents": []
     },
     "skeleton": {
       "budget": 15500,

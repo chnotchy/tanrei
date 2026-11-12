@@ -71,7 +71,7 @@ const rows = [
             ))}
           </div>
           <div data-part="attachment" class="facts">
-            <tanrei-description-list layout="inline" density="compact" separation="gap">
+            <tanrei-description-list layout="inline" size="small" separation="gap">
               <dl>
                 {!isDefault && (<div><dt>{t.extends}</dt><dd><code>{layer.extends}</code></dd></div>)}
                 <div><dt>{t.palettes}</dt>{declared.length ? declared.map((name) => <dd><code>{name}</code></dd>) : <dd>{all.noPalettes}</dd>}</div>

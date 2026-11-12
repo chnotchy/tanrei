@@ -12,6 +12,8 @@
 //   long tree stays short at the drawer's full row height; the groups the reader opened or closed and the place the
 //   list was scrolled to are kept for the session by the script below (NVD-61, 62: the drawer stores nothing). Where
 //   no script runs every group's rows are drawn (styles/frame.css), since nothing could open one.
+// - The drawer is resizable (its default, NVD-96…104): the width the reader gives it and whether they fold it to its
+//   column are kept across visits by the same script, and given back before the drawer is first drawn.
 //
 // The Components group is drawn from the specs (lib/listing.mjs, `sidebarTree`): each component in a group of its
 // category, and one a spec marks to be shown on request (`listing`) marked — with the word at the end
@@ -106,11 +108,63 @@ const cells = (entries: Entry[], top: boolean): string =>
   <div role="listitem" class="docs-listing-row"><ListingSwitch lang={route.lang} /></div>
   <Fragment set:html={cells(drawn, true)} />
 </tanrei-navigation-drawer>
-{/* Kept for the session: which groups are open and how far the list is scrolled. Inline, so that it runs before the
-    first frame whether the elements are upgraded by then or not (properties are taken as the element's own). */}
+{/* Kept across visits, in the origin's localStorage: the width the reader gave the drawer and whether they folded it
+    to its column (the drawer stores neither: it fires `widthchange` and `expandedchange`, and is given them back as
+    `width` and `expanded`). Kept for the session (one tab): which groups are open and how far the list is scrolled.
+    Inline, so that it runs before the first frame whether the elements are upgraded by then or not (attributes and
+    properties are taken as the element's own); the width is written as `--tanrei-navigation-drawer-width` too, which
+    the app shell and the sidebar's stand-in (styles/frame.css) read until the drawer is defined, so nothing moves when
+    it is. Storage that is blocked or throws (a private window) keeps nothing and gives nothing back. */}
 <script is:inline>
   {
     const drawer = document.currentScript.previousElementSibling;
+    const layoutKey = 'tanrei-docs-sidebar-layout';
+    let layout = {};
+    try {
+      const stored = JSON.parse(localStorage.getItem(layoutKey) ?? '{}');
+      if (stored && typeof stored === 'object') layout = stored;
+    } catch {}
+    // A width that is not a positive number of pixels is not given back. One that is is held between the drawer's
+    // least and greatest width as it is drawn now (its `min-width` and `max-width`, else the tokens of the look being
+    // read, which may differ from the look it was given in): measured only when there is a width to hold.
+    if (typeof layout.width === 'number' && Number.isFinite(layout.width) && layout.width > 0) {
+      const given = (name) => {
+        const value = Number(drawer.getAttribute(name));
+        return drawer.hasAttribute(name) && Number.isFinite(value) && value > 0 ? value : null;
+      };
+      const probe = (token) => {
+        const span = document.createElement('span');
+        span.style.cssText = `position:absolute;visibility:hidden;inline-size:var(${token})`;
+        document.body.append(span);
+        const width = span.getBoundingClientRect().width;
+        span.remove();
+        return width;
+      };
+      const least = given('min-width') ?? probe('--tanrei-comp-navigation-drawer-container-min-width');
+      const most = Math.max(least, given('max-width') ?? probe('--tanrei-comp-navigation-drawer-container-max-width'));
+      const width = Math.round(most > 0 ? Math.min(Math.max(layout.width, least), most) : layout.width);
+      drawer.setAttribute('width', String(width));
+      drawer.style.setProperty('--tanrei-navigation-drawer-width', `${width}px`);
+    }
+    if (layout.expanded === false) drawer.setAttribute('expanded', 'false');
+    const keepLayout = (change) => {
+      try {
+        let kept = {};
+        try {
+          const stored = JSON.parse(localStorage.getItem(layoutKey) ?? '{}');
+          if (stored && typeof stored === 'object') kept = stored;
+        } catch {}
+        localStorage.setItem(layoutKey, JSON.stringify({ ...kept, ...change }));
+      } catch {}
+    };
+    drawer.addEventListener('widthchange', (event) => {
+      if (event.target === drawer && Number.isFinite(event.detail?.width)) keepLayout({ width: event.detail.width });
+    });
+    // `expanded` holds the form beside the content; where the drawer is over the content the event says `open`, which
+    // is not kept, and `expanded` is unchanged.
+    drawer.addEventListener('expandedchange', (event) => {
+      if (event.target === drawer && typeof drawer.expanded === 'boolean') keepLayout({ expanded: drawer.expanded });
+    });
     const groups = [...drawer.querySelectorAll('tanrei-navigation-drawer-group')];
     const key = 'tanrei-docs-sidebar:' + groups.map((group) => group.getAttribute('label')).join('|');
     let kept = {};

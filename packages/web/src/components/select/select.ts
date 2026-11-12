@@ -35,9 +35,10 @@ import {
   OptionListController,
   OptionsController,
   anchoredOptionList,
-  optionDensityAxis,
+  OptionSizeController,
+  optionSizeAxis,
 } from '../../primitives/option-list.js';
-import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry, TanreiSelectDensityRegistry } from '../../registry.js';
+import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import '../option/option.js';
 import '../loading-indicator/loading-indicator.js';
@@ -56,8 +57,6 @@ export type TanreiSelectSize = keyof TanreiInputBoxSizeRegistry;
 export type TanreiSelectSeparation = SeparationProp;
 /** Whether an option keeps the leading icon column where it has no icon (SEL-66). A closed set: the menu's values. */
 export type TanreiSelectIconSpace = OptionIconSpace;
-/** How much room an option of the list takes (SEL-70): `regular`, `compact`, or a density a design system added. */
-export type TanreiSelectDensity = keyof TanreiSelectDensityRegistry;
 /** What the product's source of options is doing (SEL-68): the combobox's and the search's values. */
 export type TanreiSelectStatus = 'idle' | 'loading' | 'error';
 /** Why the list closed (SEL-27). The web has no back of its own, so it never sends `back`. */
@@ -206,7 +205,6 @@ export class TanreiSelect extends TanreiElement {
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
-    density: { type: String, reflect: true, useDefault: true },
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
@@ -219,7 +217,7 @@ export class TanreiSelect extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box whose label is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the select does not know by name is laid out as stacked. Reflected. */
   variant: TanreiSelectVariant = 'stacked';
 
-  /** The container's minimum height: `small`, `medium` or `large` (40 / 48 / 56 in the default system). The hit area always meets the minimum target. Reflected. */
+  /** The container's minimum height: `small`, `medium` or `large` (40 / 48 / 56 in the default system). It is also the size of the options of the list (SEL-70): a small select opens small rows, a medium or a large one medium rows. The hit area always meets the minimum target. Reflected. */
   size: TanreiSelectSize = 'medium';
 
   /** The value of the chosen option. The select shows that option's label; while `value` names no option it shows the placeholder. An option whose value is the empty string is a choice like any other. The `value` attribute is the value a form reset returns to. */
@@ -269,14 +267,6 @@ export class TanreiSelect extends TanreiElement {
    */
   iconSpace: TanreiSelectIconSpace = 'auto';
 
-  /**
-   * How much room an option of the list takes (SEL-70): its least height, paddings, the gap between its columns and the
-   * size of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product
-   * used by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an
-   * option is never lower than the touch target (SEL-37). A design system may add values.
-   */
-  density: TanreiSelectDensity = 'regular';
-
   /** What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected. */
   status: TanreiSelectStatus = 'idle';
 
@@ -320,8 +310,9 @@ export class TanreiSelect extends TanreiElement {
 
   /** SEL-60: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'select', behavior: 'SEL-60', axes: AXES });
-  /** SEL-70: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
-  private readonly densities = new OpenAxesController(this, { component: 'select-density', behavior: 'SEL-70', axes: [optionDensityAxis(PREFIX)] });
+  /** SEL-70: the options are drawn at the box's size; a size a design system added to them is drawn from its tokens, one the active system lacks is reported. */
+  private readonly optionSizes = new OpenAxesController(this, { component: 'select-option-size', behavior: 'SEL-70', axes: [optionSizeAxis(PREFIX)] });
+  private readonly optionSize = new OptionSizeController(this, () => this.internals);
   /** SEL-45: where style queries are missing, what parts two groups is read by script, again when the system is switched. */
   private readonly system = new SystemWatchController(this);
   /**

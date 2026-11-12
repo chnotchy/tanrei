@@ -93,7 +93,14 @@
      name — its tag, a class or an attribute — and never as `*` or as a `:not()` alone: an engine keeps one list, for
      the whole page, of what such rules style, and one element without a name in it makes every element that is
      defined have its whole subtree styled again (test/defined.test.mjs holds this). `:where()` around the name keeps the rule's weight what it
-     was. */
+     was.
+
+     The package's own stand-in (`@tanrei/web/app-bar.css`, loaded in prose.css in an earlier layer) holds the block size
+     only: it draws none of what the slots hold, and stacks the title's lines in a column. The header draws its items
+     here, so it lays them out as the defined bar does — in its one row, with no title line before them (the bar is
+     given no `headline`, Header.astro) — and shows the brand and the actions the package's stand-in leaves out: in a
+     column they stood one under the other, and the row was taller than the bar it stands for. The items' `display` has
+     no weight (`:where()`), so each rule of this file that hides one still does. */
   tanrei-app-bar:not(:defined) {
     box-sizing: border-box;
     display: flex;
@@ -102,6 +109,18 @@
     gap: var(--tanrei-comp-app-bar-actions-gap);
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
+  }
+  /* The header's bar alone: an app bar a page shows as an example keeps the package's stand-in. */
+  tanrei-app-bar.docs-app-bar:not(:defined) {
+    flex-direction: row;
+    justify-content: normal;
+    overflow: visible;
+  }
+  tanrei-app-bar.docs-app-bar:not(:defined)::before {
+    content: none;
+  }
+  :where(tanrei-app-bar.docs-app-bar:not(:defined)) > :where(.docs-brand, #docs-mode, #docs-language) {
+    display: block;
   }
   /* The search: the first action, so the actions start from it at the end. The menu button and the brand before it
      are shown and hidden by the rules above; the bar puts actions.gap between them all, and the design system's
@@ -192,7 +211,15 @@
      defined. */
   tanrei-navigation-drawer.docs-sidebar:not(:defined) {
     box-sizing: border-box;
-    grid-template-columns: calc(var(--tanrei-comp-navigation-drawer-container-width) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    /* The width the shell gives it (APS-24): the reader's own, kept from an earlier visit (Sidebar.astro), held between
+       the drawer's least and greatest width, else container.width. */
+    grid-template-columns: calc(
+      clamp(
+        var(--tanrei-comp-navigation-drawer-container-min-width),
+        var(--tanrei-navigation-drawer-width, var(--tanrei-comp-navigation-drawer-container-width)),
+        var(--tanrei-comp-navigation-drawer-container-max-width)
+      ) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline)
+    );
     align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
@@ -327,6 +354,24 @@
     tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
       display: none;
     }
+  }
+  /* A drawer the reader folded to its column in an expanded window, and was given back folded (Sidebar.astro), is drawn
+     as that column once it is defined: until then it stands at the column's width, empty, as in a medium window. */
+  @container style(--tanrei-app-shell-window-class: expanded) {
+    tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+    }
+    tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined)::before,
+    tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
+      display: none;
+    }
+  }
+  tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) {
+    inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+  }
+  tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined)::before,
+  tanrei-app-shell[data-window-class='expanded'] > tanrei-navigation-drawer.docs-sidebar[collapsible][expanded='false']:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
+    display: none;
   }
 
   /* ── "On this page": the list beside the content in an expanded window, the compact form above it in a narrower

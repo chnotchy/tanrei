@@ -16,7 +16,7 @@ const TableOfContentsElement = /* @__PURE__ */ createComponent({
     onSelect: 'select' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsSelectDetail>>>,
   },
 });
-const TableOfContentsAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], presentation: ['presentation', 'list'], density: ['density', 'regular'], open: ['open', false], current: ['current', ''], tracking: ['tracking', 'auto'] } as const;
+const TableOfContentsAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], presentation: ['presentation', 'list'], size: ['size'], open: ['open', false], current: ['current', ''], tracking: ['tracking', 'auto'] } as const;
 /**
  * Lists the headings of the page being read as links to them and marks the one whose section is being read.
  *

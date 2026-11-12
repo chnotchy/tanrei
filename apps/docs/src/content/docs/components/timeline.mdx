@@ -101,7 +101,6 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 | --- | --- |
 | `label` | `aria-label` (or `aria-labelledby` naming the heading before the list) |
 | `size: large` | `data-size="large"` |
-| `density: compact` | `data-density="compact"` |
 | an event | `<li>` |
 | `time` with `datetime` | `<time class="tanrei-timeline-time" datetime="…">` holding the words you write |
 | `time` that is not a moment | `<p class="tanrei-timeline-time">` |
@@ -126,13 +125,13 @@ The time is yours. Write it in your reader's language, calendar and format, and 
   </ol>
 </Example>
 
-<Example label="Your own glyphs, and a compact log" column>
+<Example label="Your own glyphs, and a log of one-line events" column>
   <ol class="tanrei-timeline" role="list" aria-label="Order 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Done"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Monday, 09:41</p><p class="tanrei-timeline-title">Order placed</p></li>
     <li data-status="current" data-status-label="In progress"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Tuesday, 14:05</p><p class="tanrei-timeline-title">On its way</p></li>
     <li data-status="upcoming" data-status-label="Not started"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">Expected Thursday</p><p class="tanrei-timeline-title">Delivered</p></li>
   </ol>
-  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="Activity" style="inline-size: 100%; max-inline-size: 28rem">
+  <ol class="tanrei-timeline" role="list" aria-label="Activity" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">Layer saved</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contrast checked in six schemes</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Primary color changed</p></li>
@@ -143,7 +142,7 @@ The time is yours. Write it in your reader's language, calendar and format, and 
 - **A status** changes the marker's shape and nothing else: a ring holding a check for done, a filled circle holding a dot for the event under way, an empty ring for one still ahead. The filled circle is the only color a timeline brings besides the time's.
 - **The connector** runs from each marker's box to the next and stops short of both. The last event has none, and it is the same line between events of any status.
 - **The time** is first in the event, in a quiet color. **The title** follows at the body's size in a heading weight. **The body** is your content: two blocks are 8 apart.
-- **Density**: regular puts 16 between two events, compact 8, for a long log of one-line events. It changes that space only.
+- **The space between two events** is 16 in the default system, at both sizes. It follows the system's [density](/foundations/size-and-density/): a system whose density is below 1 draws its events closer together. A timeline has no density of its own.
 - **Sizes** are prose's two: medium among controls, large on a page whose purpose is the text. The marker and the connector match the steps', so the two read as one family on a page.
 
 <ComponentSpecs name="timeline" />
@@ -157,7 +156,7 @@ Inside `.tanrei-prose` the timeline is not an island: the paragraphs, lists, lin
 - Write an event's text in elements (`<p>`): text written directly in an item cannot be given the gap under a time or a title.
 - The check of a done event is the icon set's `check`, so it needs `icons.css` and the icon font. Without them the ring is empty.
 - Outside a prose a long-form body (lists, quotations) is laid out as it is anywhere on your page, not as prose.
-- A size or a density that a design system adds is drawn as the default until that system ships a rule for it.
+- A size that a design system adds is drawn as the default until that system ships a rule for it.
 - Without the package's script no item is marked as the list's current item. The status is still read in words.
 
 ## Guidelines
@@ -168,7 +167,7 @@ Inside `.tanrei-prose` the timeline is not an island: the paragraphs, lists, lin
 - Give every event with a status its words in `data-status-label`, in your reader's language.
 - Where the status matters to every reader, show it in words too: a tag in the title or the body.
 - Give a relative time ("2 hours ago") its exact moment in `datetime`.
-- Use compact for a long log of one-line events, and put a Button after the list to show older ones.
+- For a long log of one-line events, show the latest few and put a Button after the list to show older ones.
 
 ### Don't
 

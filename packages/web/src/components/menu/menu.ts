@@ -52,7 +52,7 @@ import {
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import { AXES, groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
-import type { TanreiMenuDensityRegistry } from '../../registry.js';
+import type { TanreiMenuSizeRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 import { PointerMovedController } from '../../primitives/pointer-moved.js';
@@ -107,8 +107,8 @@ export type TanreiMenuSeparation = SeparationProp;
  * another item of its section draws in the column, `always` on every row, `never` only where the row itself draws in it.
  */
 export type TanreiMenuIconSpace = 'auto' | 'always' | 'never';
-/** How much room a row takes (MNU-64): `regular`, `compact`, or a density a design system added. */
-export type TanreiMenuDensity = keyof TanreiMenuDensityRegistry;
+/** How much room a row takes (MNU-64): `small`, `medium`, or a size a design system added. */
+export type TanreiMenuSize = keyof TanreiMenuSizeRegistry;
 const ICON_SPACES: readonly TanreiMenuIconSpace[] = ['auto', 'always', 'never'];
 
 type Condition = 'unselected' | 'selected' | 'current' | 'destructive' | 'expanded';
@@ -1333,7 +1333,7 @@ export class TanreiMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'menu');
   /** MNU-35, MNU-38: where a browser has no style queries, the choices are read when the menu renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);
-  /** MNU-64: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  /** MNU-64: a size a design system added is drawn from its tokens; one the active system lacks is reported. */
   private readonly axes = new OpenAxesController(this, { component: 'menu', behavior: 'MNU-64', axes: AXES });
   /** MNU-8: whether a `pointermove` moved the pointer, or only came to what scrolled under it (WebKit). */
   private readonly pointer = new PointerMovedController(this);
@@ -1348,7 +1348,7 @@ export class TanreiMenu extends TanreiElement {
     trigger: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
-    density: { type: String, reflect: true, useDefault: true },
+    size: { type: String, reflect: true, useDefault: true },
     anchor: { type: String, reflect: true },
     inline: { type: Boolean, reflect: true },
     blocks: { state: true },
@@ -1389,11 +1389,12 @@ export class TanreiMenu extends TanreiElement {
 
   /**
    * How much room a row takes (MNU-64): its least height, paddings, the gap between its columns and the size of its
-   * glyphs, never its text style. `regular` (the default) is for a product used by touch as well as by pointer;
-   * `compact` (the tree view's compact row) for a tool used with a pointer. For touch a row is never lower than the touch
-   * target (MNU-12). It applies to the menu and to every submenu of it. A design system may add values.
+   * glyphs, never its text style. `medium` (the default) is for a product used by touch as well as by pointer;
+   * `small` (the tree view's small row) for a tool used with a pointer. A row is never lower than the target at either
+   * size (MNU-12). It applies to the menu and to every submenu of it. The menu takes no size from a container around it
+   * or from its anchor: its surface stands in the top layer. A design system may add values.
    */
-  density: TanreiMenuDensity = 'regular';
+  size: TanreiMenuSize = 'medium';
 
   /** The id of the anchor element, in the menu's own document or shadow root (as the HTML `anchor` attribute). */
   anchor = '';

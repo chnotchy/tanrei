@@ -38,7 +38,7 @@ Each token is one of three kinds:
 - **fixed** — a literal with a stated reason, exempt from the dials (`corner.full`, an easing curve, a legally mandated footnote size);
 - **alias** — a reference that can be re-pointed (`button.container.gap` → `space100`).
 
-On the web the dials also work live: derived tokens are emitted as `calc()` expressions, so setting `--tanrei-dial-type-base` on any element rescales everything inside it. A test evaluates every derived token in a real browser under several dial settings and requires it to equal the build's result.
+On the web the dials also work live: derived tokens are emitted as `calc()` expressions, so setting `--tanrei-dial-type-base` on the root element rescales the whole page. The derived tokens are declared on the root, so a dial set on an element further down does not change them. A test evaluates every derived token in a real browser under several dial settings and requires it to equal the build's result.
 
 ## A design system is a layer
 

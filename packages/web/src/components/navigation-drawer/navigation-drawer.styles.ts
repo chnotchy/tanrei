@@ -135,12 +135,16 @@ export const drawerStyles = css`
        element writes from \`width\` and a product writes for a page rendered before the element is defined), else
        container.width — held between the least width and the greatest, the least winning (minWidth and maxWidth, which
        the element writes as \`--_nvd-min-given\` and \`--_nvd-max-given\`, else container.min-width and .max-width).
-       Everything inside the drawer is laid out at it (ONE LAYOUT FOR BOTH FORMS); the room the parent gives holds the
-       host narrower still (\`max-inline-size\`, below). */
+       The host asks for it (\`--_nvd-asked\`), and the room the parent gives holds the host narrower still
+       (\`max-inline-size\`, below); where it does, the element writes that room as \`--_nvd-room\`, and the panel and
+       everything inside it are laid out at the room instead (\`--_nvd-w\`, ONE LAYOUT FOR BOTH FORMS) — the host keeps
+       asking for the width, so that the room coming back is seen. */
     --_nvd-least: var(--_nvd-min-given, ${t('container-min-width')});
     --_nvd-most: var(--_nvd-max-given, ${t('container-max-width')});
-    --_nvd-w: max(var(--_nvd-least), min(var(--tanrei-navigation-drawer-width, ${t('container-width')}), var(--_nvd-most)));
+    --_nvd-asked: max(var(--_nvd-least), min(var(--tanrei-navigation-drawer-width, ${t('container-width')}), var(--_nvd-most)));
+    --_nvd-w: min(var(--_nvd-asked), var(--_nvd-room, var(--_nvd-asked)));
     --_form-width: var(--_nvd-w);
+    --_host-form-width: var(--_nvd-asked);
     --_width: calc(var(--_form-width) + var(--_inset-start));
     --_column-width: calc(${d('--_nvd-column')} + var(--_inset-start));
   }
@@ -149,9 +153,11 @@ export const drawerStyles = css`
   }
   :host([collapsed]) {
     --_form-width: ${d('--_nvd-column')};
+    --_host-form-width: ${d('--_nvd-column')};
   }
   /* NVD-97: over the content a drawer keeps container.width, whatever width says. */
   :host([data-as='modal']) {
+    --_nvd-asked: ${t('container-width')};
     --_nvd-w: ${t('container-width')};
   }
   /* NVD-35: while the drawer changes form, every part the form recolors cross-fades over the change's motion, and a
@@ -450,7 +456,7 @@ export const drawerStyles = css`
   :host(:not([data-as='modal'])) {
     position: relative;
     block-size: 100%;
-    inline-size: var(--_width);
+    inline-size: calc(var(--_host-form-width) + var(--_inset-start));
     /* NVD-97: never wider than the room its parent gives it (an app shell's own limit wins over this one). */
     max-inline-size: 100%;
     transition:
@@ -746,10 +752,10 @@ export const drawerStyles = css`
     --_held-hide: ${t('motion-expand-duration')};
   }
 
-  /* NVD-96: the resize handle — a Handle with reach edge on the end edge, the edge's whole height, its box centred on the
-     edge and its target reaching half over the drawer and half over the content (HDL-5's width, sys.target.pointer for
-     a fine pointer and sys.target.touch for a coarse one). Where the items show a scrollbar that takes room, the target
-     lies wholly beside the drawer, over the content, so that the scrollbar is still taken. Over the drawer's parts. */
+  /* NVD-96: the resize handle — a Handle with reach edge beside the end edge, the edge's whole height, its target (HDL-5's
+     width, sys.target.pointer for a fine pointer and sys.target.touch for a coarse one) lying wholly over the content
+     from the end edge, its box at the target's middle: it covers no row's end (NVD-6), no group's chevron (NVD-67) and
+     no scrollbar at the end edge. Over the drawer's parts. */
   :host {
     --_hdl-reach: var(--tanrei-sys-target-pointer);
   }
@@ -762,11 +768,8 @@ export const drawerStyles = css`
     position: absolute;
     z-index: 2;
     inset-block: 0;
-    inset-inline-start: calc(100% - var(--tanrei-comp-handle-container-breadth-medium) / 2);
-    block-size: 100%;
-  }
-  :host([data-scrollbar]) .resize {
     inset-inline-start: calc(100% + var(--_hdl-reach) / 2 - var(--tanrei-comp-handle-container-breadth-medium) / 2);
+    block-size: 100%;
   }
   /* The lengths the element reads to reckon a drag, a key and the handle's values in: never drawn. */
   .resize-probes {

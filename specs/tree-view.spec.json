@@ -127,15 +127,15 @@
       "description": "The values of the selected items while selection is multiple: a list of strings (the platforms take a set). An empty list selects none."
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How much room a row takes, in a table's and an accordion's words: the row's least height, its paddings and its glyphs' size, and never the gap between the icon and the label (iconGap). regular (a 48 row with a 14 label in the default system, a navigation drawer's row) is the tree of a product used by touch as well as by pointer. compact (a 36 row with a 13 label, the minimum target) is for a tool used with a pointer, where hundreds of rows are looked through, and for a small tree inside a page of text. For touch a row is never lower than the touch target in either. A design system may add values.",
-      "axis": "tanrei.comp.tree-view.density"
+      "default": "medium",
+      "description": "How much room a row takes, in a list's and an accordion's words: the row's least height, its paddings, its label's text style and its glyphs' size, and never the gap between the icon and the label (iconGap). medium (a 48 row with a 14 label in the default system, a navigation drawer's row) is the tree of a product used by touch as well as by pointer. small (a 36 row with a 13 label, held at the minimum target) is for a tool used with a pointer, where hundreds of rows are looked through, and for a small tree inside a page of text. Its heights follow the system's density at either size, and a row is never lower than the target at either (TRV-26). While it is not set the tree is drawn at the size its nearest container sets (TRV-73), and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.tree-view.size"
     },
     {
       "name": "chevron",
@@ -186,7 +186,7 @@
       "name": "iconGap",
       "type": "number",
       "default": null,
-      "description": "The room between the icon (or its kept room) and the label, in points. null (auto): comp.tree-view.icon.gap, which no density changes. A number is the product's explicit choice."
+      "description": "The room between the icon (or its kept room) and the label, in points. null (auto): comp.tree-view.icon.gap, which no size changes. A number is the product's explicit choice."
     },
     {
       "name": "highlight",
@@ -439,38 +439,38 @@
     },
     {
       "id": "TRV-2",
-      "text": "THE tree view SHALL draw each item's row as a container at least as high as its density gives (comp.tree-view.container.height.regular for regular and comp.tree-view.container.height.compact for compact) and growing with its text, with corners comp.tree-view.container.shape, padded at its start and end by comp.tree-view.container.padding-inline.regular for regular and comp.tree-view.container.padding-inline.compact for compact and above its first line and below its last by comp.tree-view.container.padding-block.regular for regular and comp.tree-view.container.padding-block.compact for compact. Inside it SHALL lay out, from the start: the chevron's box WHILE chevron is start (TRV-4); the icon, or its kept room (TRV-5, TRV-43); the text, which takes the remaining width and holds the label and the supporting text (TRV-6, TRV-7); the trailing slot's content, where there is any; the trailing text, where the item has one (TRV-7); and the chevron's box WHILE chevron is end (TRV-4). Between the icon (or its room) and the text it SHALL keep iconGap — comp.tree-view.icon.gap while iconGap is null, the same in every density — and between each other two of them comp.tree-view.container.gap.regular for regular and comp.tree-view.container.gap.compact for compact. THE tree view SHALL centre the chevron, the icon, the trailing content and the trailing text on the label's first line and keep them there however tall the text grows, and any height a row has beyond its text SHALL be shared equally above and below it.",
-      "verify": "Under the default system: a regular row of one line is 48 high, its chevron box 20 at 12 from its container's start, its icon 20 at 44, its label at 76 (icon gap 12); in the compact density the chevron box and the icon are 16 and the label begins 8 + 16 + 8 + 16 + 12 = 60 in, the icon gap the same 12. With chevron end the chevron box is the last thing in the row, a gap after the trailing text."
+      "text": "THE tree view SHALL draw each item's row as a container at least as high as its size gives (comp.tree-view.container.height.medium for medium and comp.tree-view.container.height.small for small) and growing with its text, with corners comp.tree-view.container.shape, padded at its start and end by comp.tree-view.container.padding-inline.medium for medium and comp.tree-view.container.padding-inline.small for small and above its first line and below its last by comp.tree-view.container.padding-block.medium for medium and comp.tree-view.container.padding-block.small for small. Inside it SHALL lay out, from the start: the chevron's box WHILE chevron is start (TRV-4); the icon, or its kept room (TRV-5, TRV-43); the text, which takes the remaining width and holds the label and the supporting text (TRV-6, TRV-7); the trailing slot's content, where there is any; the trailing text, where the item has one (TRV-7); and the chevron's box WHILE chevron is end (TRV-4). Between the icon (or its room) and the text it SHALL keep iconGap — comp.tree-view.icon.gap while iconGap is null, the same at every size — and between each other two of them comp.tree-view.container.gap.medium for medium and comp.tree-view.container.gap.small for small. THE tree view SHALL centre the chevron, the icon, the trailing content and the trailing text on the label's first line and keep them there however tall the text grows, and any height a row has beyond its text SHALL be shared equally above and below it.",
+      "verify": "Under the default system: a medium row of one line is 48 high, its chevron box 20 at 12 from its container's start, its icon 20 at 44, its label at 76 (icon gap 12); at the small size the chevron box and the icon are 16 and the label begins 8 + 16 + 8 + 16 + 12 = 60 in, the icon gap the same 12. With chevron end the chevron box is the last thing in the row, a gap after the trailing text."
     },
     {
       "id": "TRV-3",
-      "text": "THE tree view SHALL show an item's depth by where its row's content begins: the content of an item of the first level SHALL begin where the tree's start edge and its padding put it, and the content of every deeper item SHALL begin one step further from that edge than its parent's. WHILE indent is null (auto) the step SHALL be the length from the parent's content start to where the parent's label begins — the chevron's box and a gap WHILE chevron is start and the tree is expandable, plus the icon's box (or its kept room, TRV-43) and iconGap WHERE the parent's row has an icon or keeps its room — so that a child's start stands where its parent's label begins, and comp.tree-view.level.indent.regular for regular and comp.tree-view.level.indent.compact for compact where the parent's row holds nothing before its label; WHILE indent is a number the step SHALL be that number of points, and 0 SHALL set no level in. WHILE highlight is indented the row's container (its fill, its state layer and its focus indicator) SHALL begin where its content's level begins, its padding before the content; WHILE highlight is full every container SHALL begin at the tree's start edge (TRV-51). Every container SHALL end at the tree's end edge. WHILE the steps of an item's levels would begin its label past half of the tree's width THE tree view SHALL begin that row no further in than puts its label at half of the width, so that a deep tree in a narrow window keeps half of its width for names, SHALL still expose the item's true level (TRV-32), and in debug builds SHALL report the depth once.",
+      "text": "THE tree view SHALL show an item's depth by where its row's content begins: the content of an item of the first level SHALL begin where the tree's start edge and its padding put it, and the content of every deeper item SHALL begin one step further from that edge than its parent's. WHILE indent is null (auto) the step SHALL be the length from the parent's content start to where the parent's label begins — the chevron's box and a gap WHILE chevron is start and the tree is expandable, plus the icon's box (or its kept room, TRV-43) and iconGap WHERE the parent's row has an icon or keeps its room — so that a child's start stands where its parent's label begins, and comp.tree-view.level.indent.medium for medium and comp.tree-view.level.indent.small for small where the parent's row holds nothing before its label; WHILE indent is a number the step SHALL be that number of points, and 0 SHALL set no level in. WHILE highlight is indented the row's container (its fill, its state layer and its focus indicator) SHALL begin where its content's level begins, its padding before the content; WHILE highlight is full every container SHALL begin at the tree's start edge (TRV-51). Every container SHALL end at the tree's end edge. WHILE the steps of an item's levels would begin its label past half of the tree's width THE tree view SHALL begin that row no further in than puts its label at half of the width, so that a deep tree in a narrow window keeps half of its width for names, SHALL still expose the item's true level (TRV-32), and in debug builds SHALL report the depth once.",
       "verify": "The fixture basic (no icons, chevron start) under the default system: levels one to three begin their content at 12, 44 and 76 — each child's chevron where its parent's label begins. The fixture icons: 12, 76, 140. The fixture indent-16: 12, 28, 44. The fixture indent-0: every level at 12, and no guide. The fixture deep in a stage 320 wide: no row's label begins past 160."
     },
     {
       "id": "TRV-4",
-      "text": "WHILE the tree is expandable and chevron is start or end THE tree view SHALL keep a box of comp.tree-view.chevron.size.regular for regular and comp.tree-view.chevron.size.compact for compact in every row, at its start WHILE chevron is start and at its very end — after the trailing content and the trailing text — WHILE chevron is end. In the row of a parent — an item that holds items, or whose expandable is true — it SHALL draw in that box, in the chevron color of the item's condition (comp.tree-view.unselected.chevron.color, comp.tree-view.selected.chevron.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max: at the start, the glyph chevron_right as the icon helper draws it WHILE the parent is closed, pointing toward the end of the line, turned a quarter turn to point down WHILE it is open; at the end, the glyph expand_more WHILE closed, turned a half turn WHILE open. In the row of a leaf it SHALL draw nothing in the box and keep the box, so that the labels (at the start) or the trailing texts (at the end) of one level stand in one column. WHILE chevron is none, or the tree is not expandable, THE tree view SHALL keep no chevron's box. The chevron, and the icon of an item that names an open icon (TRV-5), SHALL be the only things about a row that show whether its item is open: the container, the label and the texts SHALL be the same open and closed. THE tree view SHALL keep the chevron from assistive technology, which is given the state in words (TRV-32), and a disabled parent SHALL keep its chevron.",
+      "text": "WHILE the tree is expandable and chevron is start or end THE tree view SHALL keep a box of comp.tree-view.chevron.size.medium for medium and comp.tree-view.chevron.size.small for small in every row, at its start WHILE chevron is start and at its very end — after the trailing content and the trailing text — WHILE chevron is end. In the row of a parent — an item that holds items, or whose expandable is true — it SHALL draw in that box, in the chevron color of the item's condition (comp.tree-view.unselected.chevron.color, comp.tree-view.selected.chevron.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max: at the start, the glyph chevron_right as the icon helper draws it WHILE the parent is closed, pointing toward the end of the line, turned a quarter turn to point down WHILE it is open; at the end, the glyph expand_more WHILE closed, turned a half turn WHILE open. In the row of a leaf it SHALL draw nothing in the box and keep the box, so that the labels (at the start) or the trailing texts (at the end) of one level stand in one column. WHILE chevron is none, or the tree is not expandable, THE tree view SHALL keep no chevron's box. The chevron, and the icon of an item that names an open icon (TRV-5), SHALL be the only things about a row that show whether its item is open: the container, the label and the texts SHALL be the same open and closed. THE tree view SHALL keep the chevron from assistive technology, which is given the state in words (TRV-32), and a disabled parent SHALL keep its chevron.",
       "verify": "The fixture basic: the open parents' chevrons point down, the closed parent's points right, and the leaves' labels begin on the line of the labels of the parents beside them. The fixture chevron-end: every chevron is the last thing of its row, a gap after its trailing text, expand_more closed and turned a half turn open. The fixture chevron-none: no row keeps a chevron's box."
     },
     {
       "id": "TRV-5",
-      "text": "WHILE an item's icon is not empty THE tree view SHALL draw that glyph of the system's icon set after the chevron's box (or first, where there is none), in a box of comp.tree-view.icon.size.regular for regular and comp.tree-view.icon.size.compact for compact, in the icon color of the item's condition (comp.tree-view.unselected.icon.color, comp.tree-view.selected.icon.color), with the family and fill of that condition (sys.icon.family.selected and sys.icon.fill.selected for a selected item, sys.icon.family.unselected and sys.icon.fill.unselected otherwise), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE tree view SHALL draw no glyph and keep its room as TRV-43 says. THE tree view SHALL have no glyph of its own for any kind of item. WHILE an item is a parent, is open and its openIcon is not empty THE tree view SHALL draw the openIcon glyph instead of icon, in the same place, box, color, family and fill, and SHALL draw icon again WHEN the parent closes; the glyph SHALL change at once, WHEN the change of open begins, with no motion of its own. THE tree view SHALL ignore openIcon on a leaf and WHILE icon is empty, and SHALL draw icon alone WHILE openIcon is empty.",
+      "text": "WHILE an item's icon is not empty THE tree view SHALL draw that glyph of the system's icon set after the chevron's box (or first, where there is none), in a box of comp.tree-view.icon.size.medium for medium and comp.tree-view.icon.size.small for small, in the icon color of the item's condition (comp.tree-view.unselected.icon.color, comp.tree-view.selected.icon.color), with the family and fill of that condition (sys.icon.family.selected and sys.icon.fill.selected for a selected item, sys.icon.family.unselected and sys.icon.fill.unselected otherwise), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE tree view SHALL draw no glyph and keep its room as TRV-43 says. THE tree view SHALL have no glyph of its own for any kind of item. WHILE an item is a parent, is open and its openIcon is not empty THE tree view SHALL draw the openIcon glyph instead of icon, in the same place, box, color, family and fill, and SHALL draw icon again WHEN the parent closes; the glyph SHALL change at once, WHEN the change of open begins, with no motion of its own. THE tree view SHALL ignore openIcon on a leaf and WHILE icon is empty, and SHALL draw icon alone WHILE openIcon is empty.",
       "verify": "The fixture chevron-none: the open parents draw folder_open and the closed parent folder; opening the closed parent draws folder_open at once, and closing it draws folder again. The fixture icons, which names no open icon: every parent draws folder open and closed."
     },
     {
       "id": "TRV-6",
-      "text": "THE tree view SHALL draw an item's label in the text style of its density (comp.tree-view.label.typescale.regular for regular and comp.tree-view.label.typescale.compact for compact) and the label color of its condition (comp.tree-view.unselected.label.color, comp.tree-view.selected.label.color). WHILE labelWrap is false the label SHALL be one line, cut at the end of its own direction with an ellipsis where it does not fit, and shown whole in the tooltip of TRV-50 while it is cut; WHILE labelWrap is true it SHALL wrap and SHALL never be cut, and a name with no place to break (a path, an identifier) SHALL break where it must rather than widen the tree. The accessible name SHALL be the whole label either way. WHERE the item's label slot holds content THE tree view SHALL draw that content in the label's place, size and color instead of the label, on one line or wrapping as labelWrap says, and SHALL leave a code span in it its own typeface. The label slot and the trailing slot SHALL hold no control: IF either holds a link, a button or a field THE tree view SHALL still render it and in debug builds report that a row holds no control; a platform that cannot inspect its slot content SHALL state the rule in its README and docs page.",
+      "text": "THE tree view SHALL draw an item's label in the text style of its size (comp.tree-view.label.typescale.medium for medium and comp.tree-view.label.typescale.small for small) and the label color of its condition (comp.tree-view.unselected.label.color, comp.tree-view.selected.label.color). WHILE labelWrap is false the label SHALL be one line, cut at the end of its own direction with an ellipsis where it does not fit, and shown whole in the tooltip of TRV-50 while it is cut; WHILE labelWrap is true it SHALL wrap and SHALL never be cut, and a name with no place to break (a path, an identifier) SHALL break where it must rather than widen the tree. The accessible name SHALL be the whole label either way. WHERE the item's label slot holds content THE tree view SHALL draw that content in the label's place, size and color instead of the label, on one line or wrapping as labelWrap says, and SHALL leave a code span in it its own typeface. The label slot and the trailing slot SHALL hold no control: IF either holds a link, a button or a field THE tree view SHALL still render it and in debug builds report that a row holds no control; a platform that cannot inspect its slot content SHALL state the rule in its README and docs page.",
       "verify": "The fixture long-labels (labelWrap false) in a stage 400 wide: each long label is one line ending in an ellipsis, and its accessible name is the whole label. The fixture long-labels-wrap: the labels wrap and are never cut."
     },
     {
       "id": "TRV-7",
-      "text": "WHILE an item's supportingText is not empty THE tree view SHALL draw it in comp.tree-view.supporting-text.typescale and the supporting-text color of the item's condition (comp.tree-view.unselected.supporting-text.color, comp.tree-view.selected.supporting-text.color): WHILE supportingPosition is below, on a line of its own under the label, starting where the label starts — one line cut with an ellipsis (the whole in the tooltip of TRV-50) WHILE supportingWrap is false, wrapping and never cut WHILE it is true; WHILE supportingPosition is inline, after the label in the same block of text and comp.tree-view.container.gap.regular for regular and comp.tree-view.container.gap.compact for compact after the label's last word, on the label's baseline, sharing the label's line and its cut (TRV-6). WHILE an item's trailingText is not empty THE tree view SHALL draw it on one line, in comp.tree-view.trailing-text.typescale and the trailing-text color of the item's condition (comp.tree-view.unselected.trailing-text.color, comp.tree-view.selected.trailing-text.color), after the trailing slot's content and before an end chevron; it SHALL NOT wrap, and WHILE it would take more than half of the row's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half. THE tree view SHALL give the trailing slot's content no style, and SHALL apply a disabled item's opacity to it with the rest of the row.",
+      "text": "WHILE an item's supportingText is not empty THE tree view SHALL draw it in comp.tree-view.supporting-text.typescale and the supporting-text color of the item's condition (comp.tree-view.unselected.supporting-text.color, comp.tree-view.selected.supporting-text.color): WHILE supportingPosition is below, on a line of its own under the label, starting where the label starts — one line cut with an ellipsis (the whole in the tooltip of TRV-50) WHILE supportingWrap is false, wrapping and never cut WHILE it is true; WHILE supportingPosition is inline, after the label in the same block of text and comp.tree-view.container.gap.medium for medium and comp.tree-view.container.gap.small for small after the label's last word, on the label's baseline, sharing the label's line and its cut (TRV-6). WHILE an item's trailingText is not empty THE tree view SHALL draw it on one line, in comp.tree-view.trailing-text.typescale and the trailing-text color of the item's condition (comp.tree-view.unselected.trailing-text.color, comp.tree-view.selected.trailing-text.color), after the trailing slot's content and before an end chevron; it SHALL NOT wrap, and WHILE it would take more than half of the row's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half. THE tree view SHALL give the trailing slot's content no style, and SHALL apply a disabled item's opacity to it with the rest of the row.",
       "verify": "The fixture supporting-text: each note stands below its label, one line. The fixture supporting-inline: each note follows its label on its line, a gap after it. The fixture trailing-text: the values stand at the row's end on the label's first line."
     },
     {
       "id": "TRV-8",
       "text": "WHILE guides is shown or hover, and the step of a level is not 0 (TRV-3), THE tree view SHALL draw, for each open parent that shows at least one row under it, one line comp.tree-view.guide.width wide in comp.tree-view.guide.color, from the lower edge of the parent's row to the lower edge of the last row shown under it (the rows of its open descendants and a loading row included), centred under the parent's first leading thing: its chevron WHILE chevron is start; else its icon, where it has one; else the start of its label. The line SHALL lie in the indent of the rows it runs beside, SHALL keep its color and its full opacity in every state and condition of the rows beside it (a disabled item's opacity does not reach it), SHALL grow and shrink with the rows it runs beside as they are revealed and hidden (TRV-11), SHALL pass under a pinned row (TRV-53), SHALL be hidden from assistive technology, and SHALL take no space: a tree is laid out the same with and without guides. WHILE guides is hover THE tree view SHALL draw the lines WHILE a pointer is anywhere over the tree or keyboard focus is in it, and not otherwise, fading them in and out over comp.tree-view.motion.state-duration with comp.tree-view.motion.state-easing, at once where motion is reduced. WHILE guides is none THE tree view SHALL draw no line.",
-      "verify": "The fixtures guides and compact-guides: one line under each open parent's chevron, none under a closed parent or a leaf; each fixture measures the same as its form without guides. The fixture chevron-none (guides shown): each line stands under its parent's icon; in the fixture guides-label (chevron none, no icons) under its parent's label start. The fixture indent-0 draws none. Test guides hover: no line until the pointer enters the tree or focus comes into it."
+      "verify": "The fixtures guides and small-guides: one line under each open parent's chevron, none under a closed parent or a leaf; each fixture measures the same as its form without guides. The fixture chevron-none (guides shown): each line stands under its parent's icon; in the fixture guides-label (chevron none, no icons) under its parent's label start. The fixture indent-0 draws none. Test guides hover: no line until the pointer enters the tree or focus comes into it."
     },
     {
       "id": "TRV-9",
@@ -492,7 +492,7 @@
     },
     {
       "id": "TRV-13",
-      "text": "WHILE a parent is open and its loading is true THE tree view SHALL draw one loading row under it, after the rows of any items it already holds and one level further in than its own row: a container of that level and of the tree's density (TRV-2, TRV-3) holding, at the start of its content, a Loading indicator component of the small size named by loadingLabel, which the tree lays out and does not restyle, and after it loadingLabel in comp.tree-view.supporting-text.typescale and comp.tree-view.unselected.supporting-text.color. The loading row is not an item: it SHALL take no focus, answer no pointer and no key, SHALL NOT be counted among its parent's items, and SHALL be shown and hidden by the motion of TRV-11 with the rows beside it. THE tree view SHALL expose the parent as busy WHILE its loading is true, open or closed, and SHALL announce nothing itself when loading begins or ends. THE tree view SHALL fetch nothing: a parent whose expandable is true and that holds no items opens onto no rows, or onto the loading row, and what it holds is the product's to give, which it learns from toggle. WHILE an item may be loading and loadingLabel is empty THE tree view SHALL still draw the indicator, and in debug builds report that it has no name.",
+      "text": "WHILE a parent is open and its loading is true THE tree view SHALL draw one loading row under it, after the rows of any items it already holds and one level further in than its own row: a container of that level and of the tree's size (TRV-2, TRV-3) holding, at the start of its content, a Loading indicator component of the small size named by loadingLabel, which the tree lays out and does not restyle, and after it loadingLabel in comp.tree-view.supporting-text.typescale and comp.tree-view.unselected.supporting-text.color. The loading row is not an item: it SHALL take no focus, answer no pointer and no key, SHALL NOT be counted among its parent's items, and SHALL be shown and hidden by the motion of TRV-11 with the rows beside it. THE tree view SHALL expose the parent as busy WHILE its loading is true, open or closed, and SHALL announce nothing itself when loading begins or ends. THE tree view SHALL fetch nothing: a parent whose expandable is true and that holds no items opens onto no rows, or onto the loading row, and what it holds is the product's to give, which it learns from toggle. WHILE an item may be loading and loadingLabel is empty THE tree view SHALL still draw the indicator, and in debug builds report that it has no name.",
       "verify": "The fixture loading: the open parent \"packages\" shows one loading row at the second level with the small indicator under the place of a child's chevron; the closed parent \"apps\" is expandable, shows a chevron and no row."
     },
     {
@@ -550,8 +550,8 @@
     },
     {
       "id": "TRV-26",
-      "text": "THE tree view SHALL make each row's hit area the tree's whole width, however far its content and its container are set in (TRV-3), and the row's whole height, with no gap between the hit areas of two rows. WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, drawn so, in both densities, because rows that touch cannot extend a hit area over each other; for a fine pointer a row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives, the one place where a row of the tree is lower than the pointer target. In the row of a parent that can be chosen, the chevron's own hit area SHALL be, WHILE chevron is start, the part of the row's hit area from its start edge to the middle of the gap after the chevron's box, and WHILE chevron is end, the part from the middle of the gap before the chevron's box to the row's end edge; WHILE chevron is none, the icon's hit area of TRV-44 is the part from the row's start edge to the middle of the gap after the icon. Each SHALL be at least sys.target.touch wide for touch and sys.target.pointer wide for a fine pointer, reaching over what stands beside the mark where the box gives less.",
-      "verify": "Under the default system: a regular row is 48 high for every input; a compact row is 36 high, the minimum target, for every input, and 48 for touch under a layer that sets sys.target.touch to 48. Test that a press at the tree's start edge beside a row of the third level is a press on that row's chevron, and that with chevron end a press at the row's end edge is."
+      "text": "THE tree view SHALL make each row's hit area the tree's whole width, however far its content and its container are set in (TRV-3), and the row's whole height, with no gap between the hit areas of two rows. WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, and for a fine pointer at least sys.target.pointer high, drawn so, at every size, because rows that touch cannot extend a hit area over each other. In the row of a parent that can be chosen, the chevron's own hit area SHALL be, WHILE chevron is start, the part of the row's hit area from its start edge to the middle of the gap after the chevron's box, and WHILE chevron is end, the part from the middle of the gap before the chevron's box to the row's end edge; WHILE chevron is none, the icon's hit area of TRV-44 is the part from the row's start edge to the middle of the gap after the icon. Each SHALL be at least sys.target.touch wide for touch and sys.target.pointer wide for a fine pointer, reaching over what stands beside the mark where the box gives less.",
+      "verify": "Under the default system: a medium row is 48 high for every input; a small row is 36 high, the minimum target, for every input, and 48 for touch under a layer that sets sys.target.touch to 48, and for a fine pointer under a layer that sets sys.target.pointer to 48. Test that a press at the tree's start edge beside a row of the third level is a press on that row's chevron, and that with chevron end a press at the row's end edge is."
     },
     {
       "id": "TRV-27",
@@ -598,7 +598,7 @@
     {
       "id": "TRV-36",
       "text": "WHERE the layout direction is right-to-left THE tree view SHALL mirror a row and apply its paddings and its indent by logical start and end: the tree's start edge is its right edge, each level begins further to the left, the chevron's box at the start is at the right of its row with the icon, the text, the trailing content, the trailing text and an end chevron after it toward the left, and the guide lines stand under the parents' first leading things. A closed parent's start chevron SHALL point to the left, drawn so by the icon helper, which mirrors the glyph because the icon set marks chevron_right (TRV-38), and an open parent's SHALL point down. The arrow keys of TRV-21 SHALL follow the direction: Left opens and steps in, Right closes and steps out; Up, Down, Home and End SHALL be the same in both directions. A ripple SHALL still grow from the point of contact.",
-      "verify": "The fixtures rtl and rtl-guides-compact: the indent grows from the right edge, closed chevrons point left, open ones down."
+      "verify": "The fixtures rtl and rtl-guides-small: the indent grows from the right edge, closed chevrons point left, open ones down."
     },
     {
       "id": "TRV-37",
@@ -621,7 +621,7 @@
     },
     {
       "id": "TRV-41",
-      "text": "WHEN density names a value that the active design system does not have THE tree view SHALL render with the default density's tokens, and WHEN selection names a value the tree view does not define it SHALL render with none, WHEN chevron names one it SHALL render as start, WHEN guides names one as none, WHEN highlight names one as indented and WHEN iconSpace names one as auto; WHEN indent, iconGap or stickyMax is not a number of zero or more it SHALL render as its default; in debug builds it SHALL report the unknown value. WHEN selection changes while the tree is shown THE tree view SHALL draw the new form at once, keeping every parent's open and its focus, and SHALL emit no change for it."
+      "text": "WHEN the size the tree draws (TRV-73) names a value that the active design system does not have THE tree view SHALL render with the default size's tokens, and a size a design system added SHALL be drawn from that size's tokens, as the core values are; WHEN selection names a value the tree view does not define it SHALL render with none, WHEN chevron names one it SHALL render as start, WHEN guides names one as none, WHEN highlight names one as indented and WHEN iconSpace names one as auto; WHEN indent, iconGap or stickyMax is not a number of zero or more it SHALL render as its default; in debug builds it SHALL report the unknown value. WHEN selection changes while the tree is shown THE tree view SHALL draw the new form at once, keeping every parent's open and its focus, and SHALL emit no change for it."
     },
     {
       "id": "TRV-42",
@@ -629,7 +629,7 @@
     },
     {
       "id": "TRV-43",
-      "text": "THE tree view SHALL keep the room of an icon (comp.tree-view.icon.size.regular for regular and comp.tree-view.icon.size.compact for compact, and iconGap after it) in the row of an item whose icon is empty WHILE iconSpace is always, and WHILE iconSpace is auto and another item of the same level — the items of the same parent, or of the first level — has an icon, so that the labels of a level stand in one column; WHILE iconSpace is never, and WHILE it is auto and no item of the level has an icon, it SHALL keep no such room. The kept room SHALL draw nothing and SHALL count as the icon's for the step of TRV-3 and for the guides of TRV-8 only as room: a guide stands under an icon that is drawn, and under the label's start where the room is empty.",
+      "text": "THE tree view SHALL keep the room of an icon (comp.tree-view.icon.size.medium for medium and comp.tree-view.icon.size.small for small, and iconGap after it) in the row of an item whose icon is empty WHILE iconSpace is always, and WHILE iconSpace is auto and another item of the same level — the items of the same parent, or of the first level — has an icon, so that the labels of a level stand in one column; WHILE iconSpace is never, and WHILE it is auto and no item of the level has an icon, it SHALL keep no such room. The kept room SHALL draw nothing and SHALL count as the icon's for the step of TRV-3 and for the guides of TRV-8 only as room: a guide stands under an icon that is drawn, and under the label's start where the room is empty.",
       "verify": "The fixture icon-space-auto (one level with an icon on some rows, one level with none): in the first the labels stand in one column, in the second the labels begin where an icon would be. The fixture icon-space-never: each label begins after its own icon, or where the icon would be where it has none. Test always on a tree with no icons: every label begins an icon and a gap in."
     },
     {
@@ -654,7 +654,7 @@
     },
     {
       "id": "TRV-48",
-      "text": "WHEN the product asks the tree view for a new item (the platform's method for it, saying whether the new item is a parent or a leaf and, where it likes, the glyph of its icon) THE tree view SHALL commit any field that is open and add a new row of its own at the level of the reference item, directly after the rows the reference item shows, holding an edit field (TRV-46) that is empty and has keyboard focus. The reference item SHALL be the first of these that is shown: the selected item (single: the item value names; multiple: the row that has or last had focus where it is selected, else the first selected item in the order drawn), the row that has or last had focus, and none, in which case the new row is the last row of the first level. The new row SHALL be drawn as a row of its level and of the tree's density: for a parent a closed chevron in the chevron's box where chevron is start or end, for a leaf the box as TRV-4 says, and the glyph the product named in the icon's place. WHEN its field commits with a text that, with white space removed at both ends, is not empty THE tree view SHALL take the new row away and emit create exactly once with that text, whether it is a parent, the item it goes under (none at the first level) and the item it follows (none where it is first); WHEN the product adds an item in the new row's place in answer, before the next frame is drawn, focus SHALL move to that item's row. WHEN the field closes on Escape or commits empty THE tree view SHALL take the new row away, emit nothing, and return focus to the row that had it. The new row is not an item: it SHALL NOT be chosen or opened, the arrow keys SHALL NOT reach it while its field is open, and the tree SHALL change no selection and no parent's open for it. A new item SHALL be asked for whatever editable says.",
+      "text": "WHEN the product asks the tree view for a new item (the platform's method for it, saying whether the new item is a parent or a leaf and, where it likes, the glyph of its icon) THE tree view SHALL commit any field that is open and add a new row of its own at the level of the reference item, directly after the rows the reference item shows, holding an edit field (TRV-46) that is empty and has keyboard focus. The reference item SHALL be the first of these that is shown: the selected item (single: the item value names; multiple: the row that has or last had focus where it is selected, else the first selected item in the order drawn), the row that has or last had focus, and none, in which case the new row is the last row of the first level. The new row SHALL be drawn as a row of its level and of the tree's size: for a parent a closed chevron in the chevron's box where chevron is start or end, for a leaf the box as TRV-4 says, and the glyph the product named in the icon's place. WHEN its field commits with a text that, with white space removed at both ends, is not empty THE tree view SHALL take the new row away and emit create exactly once with that text, whether it is a parent, the item it goes under (none at the first level) and the item it follows (none where it is first); WHEN the product adds an item in the new row's place in answer, before the next frame is drawn, focus SHALL move to that item's row. WHEN the field closes on Escape or commits empty THE tree view SHALL take the new row away, emit nothing, and return focus to the row that had it. The new row is not an item: it SHALL NOT be chosen or opened, the arrow keys SHALL NOT reach it while its field is open, and the tree SHALL change no selection and no parent's open for it. A new item SHALL be asked for whatever editable says.",
       "verify": "Test in the fixture single (value src/components/checkbox.ts): asking for a leaf adds a row after checkbox.ts at its level with an empty focused field; typing a name and Enter emits one create with that label, parent false, the item components and the item checkbox.ts, and takes the row away; a product that adds the item in the handler finds focus on its row. Escape takes the row away and emits nothing. In a tree with no selection and no focus the new row is the last of the first level."
     },
     {
@@ -731,7 +731,7 @@
     },
     {
       "id": "TRV-65",
-      "text": "WHILE a filter is applied THE tree view SHALL draw a status line at the top of the results, where its first row would stand, the rows following it: filterCountText with its place {count} filled by the number of rows that match WHILE a row matches and filterCountHidden is false, and filterEmptyText WHILE no row matches, in place of the rows, all of them hidden, so that the tree shows no row and is no stop in the focus order (TRV-19). It SHALL draw the line in comp.tree-view.filter.status.typescale and comp.tree-view.filter.status.color, inset as a row's content is (comp.tree-view.container.padding-inline.regular for regular and comp.tree-view.container.padding-inline.compact for compact), wrapping and growing with enlarged text, as text of its own direction (TRV-39), taking no focus and no state, and hidden from assistive technology, which TRV-66 tells the same words. WHILE a row matches and filterCountHidden is true it SHALL draw no line. WHILE the words it would draw are empty and the product's words give none THE tree view SHALL draw nothing in their place and in debug builds report it.",
+      "text": "WHILE a filter is applied THE tree view SHALL draw a status line at the top of the results, where its first row would stand, the rows following it: filterCountText with its place {count} filled by the number of rows that match WHILE a row matches and filterCountHidden is false, and filterEmptyText WHILE no row matches, in place of the rows, all of them hidden, so that the tree shows no row and is no stop in the focus order (TRV-19). It SHALL draw the line in comp.tree-view.filter.status.typescale and comp.tree-view.filter.status.color, inset as a row's content is (comp.tree-view.container.padding-inline.medium for medium and comp.tree-view.container.padding-inline.small for small), wrapping and growing with enlarged text, as text of its own direction (TRV-39), taking no focus and no state, and hidden from assistive technology, which TRV-66 tells the same words. WHILE a row matches and filterCountHidden is true it SHALL draw no line. WHILE the words it would draw are empty and the product's words give none THE tree view SHALL draw nothing in their place and in debug builds report it.",
       "verify": "Fixture filter (\"tree ts\"): \"Matches: 1\" stands 8 below the field and src follows it. Fixture filter-count-hidden: no line is drawn. Fixture filter-none (\"zzz\"): no row is drawn, the tree is no Tab stop, and \"No matches\" stands under the field."
     },
     {
@@ -764,6 +764,11 @@
     {
       "id": "TRV-72",
       "text": "WHERE the platform has ARIA attributes (the web), the host carries its tree role (TRV-32) itself — while no filter field stands in it; while one does, its first list carries the role and the label (TRV-54, TRV-71), and the host, which then carries no role, holds the product's name and writes none of its own — so what the product writes on it is not moved, but for a name: WHILE label is not empty THE tree view SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (TRV-32). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE tree view SHALL take it away."
+    },
+    {
+      "id": "TRV-73",
+      "text": "WHILE size is set THE tree view SHALL draw every row at its own size, whatever a container sets. WHILE size is not set and a container around the tree sets a size for what it holds — the nearest such container where several do — THE tree view SHALL draw every row at that size, its heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; WHILE no container around it sets one it SHALL draw medium. A container whose size is not set SHALL pass none. The tree's rows are its own and SHALL all be of one size: an item has no size of its own. WHEN the size it draws changes — its own size set, changed or removed, a container's size set, changed or removed, or the tree moved into or out of such a container — THE tree view SHALL draw every row at the new size at once, without a motion, keeping every parent's open, the selection and focus.",
+      "verify": "A tree without a size in a container whose size is small is drawn as the fixture small is, every row comp.tree-view.container.height.small high, at density 0.75, 1 and 1.5; a tree whose size is medium in that container keeps medium; removing the container's size, or moving the tree out of it, draws its rows at medium before the next frame, with the same parents open and the same row focused."
     }
   ],
   "accessibility": {
@@ -858,7 +863,7 @@
       "The chevron opens and the row chooses (TRV-10). Where an item cannot be chosen — every item of a tree whose selection is none, and an item without a value in any tree — the whole row opens and closes it, so that a tree that is only read has rows as easy to hit as an accordion's. One press never does two things: a person who chooses a folder does not lose their place because it also closed.",
       "Selection does not follow focus (TRV-20): moving through a tree with the arrow keys changes nothing, so that a person can read it without the pane beside it changing at every row. Enter or Space chooses.",
       "The selected state is drawn by the quiet fill, the on-fill color of the label and the glyphs, and the filled form of the icon, as a selected destination of a navigation drawer is; to assistive technology it is the selected state. Under forced colors the row takes the platform's selected colors and an edge (TRV-35). A product that needs each chosen item of a multiple selection to carry a mark of its own puts one in the trailing slot.",
-      "WCAG 2.5.8 (target size): for touch every row is at least the touch target high in both densities (TRV-26). In the default system a compact row is held at the minimum target, which the pointer target aliases; under a system whose pointer target is taller the compact density is lower than it for a fine pointer, by design: it is the density of a tool looked through with a mouse, it stays above the 24 by 24 the criterion asks, and its rows reach across the tree's whole width. A product that cannot accept that uses regular.",
+      "WCAG 2.5.8 (target size): every row is drawn at least the touch target high for touch and the pointer target high for a fine pointer, at every size (TRV-26), because rows that touch cannot reach past each other. In the default system both are the minimum target, at which a small row is held; a system that sets either higher draws its small rows that high.",
       "WCAG 1.4.10 (reflow) and 1.4.4 (resize text): labels wrap and are never cut, rows grow, and the indent never takes more than half of the tree's width (TRV-3), so a deep tree stays readable at 320 wide and at 200 % text. Past that depth the indent no longer shows the level; assistive technology is still told it.",
       "WCAG 1.4.1 (use of color): open and closed are told by the chevron's turn and by the expanded state, never by color. Disabled is told by the faded row and by the disabled state.",
       "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the label is on-surface and the supporting text, trailing text, icon and chevron are on-surface-variant, on the surface the tree stands on; on the selected fill, a layer of that color over the surface, every part is on-secondary-container. Each pair is held to 4.5:1 by the token invariants, the selected text on its fill as it is drawn over each surface role, and the selected fill stands 1.1:1 at least from a hovered row. The guide lines are decorative: the hierarchy is told by the indent and by the structure.",
@@ -1421,10 +1426,10 @@
       ]
     },
     {
-      "id": "compact",
+      "id": "small",
       "props": {
         "label": "Project files",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -1531,10 +1536,10 @@
       ]
     },
     {
-      "id": "compact-guides",
+      "id": "small-guides",
       "props": {
         "label": "Project files",
-        "density": "compact",
+        "size": "small",
         "guides": "shown"
       },
       "items": [
@@ -1831,11 +1836,11 @@
       ]
     },
     {
-      "id": "chevron-none-compact",
+      "id": "chevron-none-small",
       "props": {
         "label": "Project files",
         "chevron": "none",
-        "density": "compact",
+        "size": "small",
         "guides": "shown"
       },
       "items": [
@@ -3159,12 +3164,12 @@
       ]
     },
     {
-      "id": "single-compact",
+      "id": "single-small",
       "props": {
         "label": "Project files",
         "selection": "single",
         "value": "src/index.ts",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -3762,13 +3767,13 @@
       ]
     },
     {
-      "id": "all-parts-compact",
+      "id": "all-parts-small",
       "props": {
         "label": "Project files",
         "selection": "single",
         "value": "src/index.ts",
         "guides": "shown",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -4117,7 +4122,7 @@
       "id": "file-tree",
       "props": {
         "label": "Where the tokens live",
-        "density": "compact",
+        "size": "small",
         "guides": "shown"
       },
       "items": [
@@ -4237,7 +4242,7 @@
         "label": "Every token",
         "selection": "single",
         "value": "sys.color.secondary-container",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -4516,10 +4521,10 @@
       ]
     },
     {
-      "id": "rtl-guides-compact",
+      "id": "rtl-guides-small",
       "props": {
         "label": "ملفات المشروع",
-        "density": "compact",
+        "size": "small",
         "guides": "shown"
       },
       "direction": "rtl",
@@ -4603,7 +4608,7 @@
       "id": "ltr-labels-rtl",
       "props": {
         "label": "ملفات الرموز",
-        "density": "compact",
+        "size": "small",
         "guides": "shown",
         "labelWrap": true,
         "supportingWrap": true
@@ -5527,7 +5532,7 @@
         "selection": "selection",
         "value": "value",
         "values": "values",
-        "density": "density",
+        "size": "size",
         "guides": "guides",
         "loadingLabel": "loading-label",
         "editable": "editable",
@@ -5590,7 +5595,7 @@
         "selection": "selection",
         "value": "selection",
         "values": "selection",
-        "density": "density",
+        "size": "size",
         "guides": "guides",
         "loadingLabel": "loadingLabel",
         "editable": "isEditable",
@@ -5643,7 +5648,7 @@
           "notes": "`TanreiTreeItem(_ title: String, supportingText: String = \"\", trailingText: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>, isExpandable: Bool = false, isLoading: Bool = false) { children }`, tagged with `.tag(value)`; a leaf has an initializer without the binding and the children. Toggling writes the binding, as `TanreiNavigationDrawerGroup` and `TanreiAccordionItem` do. A second initializer takes the label as a `@ViewBuilder` and `trailing:` as another (the slots). `disabled` follows `.disabled(_:)`."
         }
       },
-      "notes": "`TanreiTreeView(_ label: String, selection: Binding<Value?>, density:, showsGuides:, loadingLabel:) { TanreiTreeItem(…) { … } }`, with an initializer taking `Binding<Set<Value>>` for multiple and one without a selection for none, as `TanreiList` spells its three forms; a data-driven initializer takes a collection and a key path to its children, as the platform's outline views do. Built on a lazy stack of rows, not on `List` or `OutlineGroup`, whose rows, disclosure mark and selection are the platform's own look. Not used for the same reason: `DisclosureGroup`. Semantics: no tree trait exists for custom views; each row is one element with the selected trait and a value of expanded or collapsed, in order; on macOS the row also carries its disclosure level through the AppKit accessibility protocol. On iOS the level is not told (TRV-32's fallback), which the README states. Keys (TRV-19 to TRV-23) apply with a hardware keyboard and on macOS; `.focusable()` on the tree with a focused-row state gives the single stop. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
+      "notes": "`TanreiTreeView(_ label: String, selection: Binding<Value?>, size:, showsGuides:, loadingLabel:) { TanreiTreeItem(…) { … } }`, with an initializer taking `Binding<Set<Value>>` for multiple and one without a selection for none, as `TanreiList` spells its three forms; a data-driven initializer takes a collection and a key path to its children, as the platform's outline views do. Built on a lazy stack of rows, not on `List` or `OutlineGroup`, whose rows, disclosure mark and selection are the platform's own look. Not used for the same reason: `DisclosureGroup`. Semantics: no tree trait exists for custom views; each row is one element with the selected trait and a value of expanded or collapsed, in order; on macOS the row also carries its disclosure level through the AppKit accessibility protocol. On iOS the level is not told (TRV-32's fallback), which the README states. Keys (TRV-19 to TRV-23) apply with a hardware keyboard and on macOS; `.focusable()` on the tree with a focused-row state gives the single stop. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     },
     "compose": {
       "status": "planned",
@@ -5653,7 +5658,7 @@
         "selection": "selection",
         "value": "value",
         "values": "values",
-        "density": "density",
+        "size": "size",
         "guides": "guides",
         "loadingLabel": "loadingLabel",
         "editable": "editable",
@@ -5716,7 +5721,7 @@
         "selection": "selection",
         "value": "value",
         "values": "values",
-        "density": "density",
+        "size": "size",
         "guides": "guides",
         "loadingLabel": "loadingLabel",
         "editable": "editable",
@@ -5769,7 +5774,7 @@
           "notes": "`TanreiTreeItem(label:, value: '', supportingText: '', trailingText: '', icon:, expanded: false, onExpansionChanged:, expandable: false, loading: false, enabled: true, labelWidget:, trailing:, children: const [])`, a description of an item and not a widget, as the list's items are; controlled, with the callback name of `TanreiNavigationDrawerGroup`. `labelWidget` and `trailing` are the slots."
         }
       },
-      "notes": "`TanreiTreeView(semanticLabel:, selection:, value:, values:, onChanged:, density:, guides:, loadingLabel:, items: [TanreiTreeItem(…)])`. Not built on the framework's `TreeSliver` or the Material library's `ExpansionTile`, whose rows and marks are their own look; it may read how the framework's tree lays out and reveals rows. Shrink-wrapped by default; a `TanreiTreeView.sliver` form builds rows lazily in the product's scroll view. Semantics: the tree and tree-item roles where the framework has them, with `expanded`, `selected` and `enabled`; otherwise one node per row in order with those flags and no level (TRV-32's fallback), stated in the README. Keys through `Focus` and `Shortcuts` on the tree with one focus node in the traversal order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
+      "notes": "`TanreiTreeView(semanticLabel:, selection:, value:, values:, onChanged:, size:, guides:, loadingLabel:, items: [TanreiTreeItem(…)])`. Not built on the framework's `TreeSliver` or the Material library's `ExpansionTile`, whose rows and marks are their own look; it may read how the framework's tree lays out and reveals rows. Shrink-wrapped by default; a `TanreiTreeView.sliver` form builds rows lazily in the product's scroll view. Semantics: the tree and tree-item roles where the framework has them, with `expanded`, `selected` and `enabled`; otherwise one node per row in order with those flags and no level (TRV-32's fallback), stated in the README. Keys through `Focus` and `Shortcuts` on the tree with one focus node in the traversal order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     },
     "react-native": {
       "status": "planned",
@@ -5779,7 +5784,7 @@
         "selection": "selection",
         "value": "value",
         "values": "values",
-        "density": "density",
+        "size": "size",
         "guides": "guides",
         "loadingLabel": "loadingLabel",
         "editable": "editable",

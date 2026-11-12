@@ -2,8 +2,9 @@
 // field (esbuild, Rollup, Rolldown and Vite, webpack) treats a module the field leaves out as free of side effects, and
 // drops a bare `import './button.js'` of it: the element that module defines is never defined, and a calendar draws
 // without its buttons. So every module that calls `customElements.define`, and every module that bare-imports one, is
-// listed — in `dist/`, which a product bundles, and in `src/`, which this package's own bundle (scripts/build.js) and a
-// build from the sources are made from.
+// listed — in `dist/`, which a product bundles. The sources (`src/`) are not published and not listed: this package's own
+// bundle (scripts/build.js), made from them, reads the same list through scripts/source-side-effects.js, and so does
+// this test.
 //
 // esbuild is the judge: each such module is bundled alone, as a product would import it (`import '<module>'`), and the
 // bundle must keep every definition the module's bare imports reach, with no import ignored. Run after the build
@@ -14,6 +15,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import { sourceSideEffectsPlugin } from '../scripts/source-side-effects.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const DEFINE = /customElements\.define\(/g;
@@ -56,7 +58,7 @@ test('the modules that define an element are found', () => {
   assert.ok(defining.includes(path.join(root, 'src/primitives/field-frame.ts')), 'field-frame.ts bare-imports the tag');
 });
 
-test('the list names the same modules in src/ and in dist/, and none that is gone', () => {
+test('the list names built modules only, each with its source, and none that is gone', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   const list = pkg.sideEffects;
   // Three have no source of their own: the bundle, built from src/index.ts and the component modules, which the list
@@ -65,10 +67,9 @@ test('the list names the same modules in src/ and in dist/, and none that is gon
   const systems = fs.readdirSync(path.join(root, '../../tokens/generated')).filter((id) => fs.existsSync(path.join(root, '../../tokens/generated', id, 'components.json')) && `./${id}` in pkg.exports);
   const written = new Set(['./dist/tanrei.bundle.js', './dist/all.js', ...systems.map((id) => `./dist/${id}.js`)]);
   for (const entry of written) assert.ok(list.includes(entry), `${entry} is listed`);
-  const inDist = list.filter((entry) => entry.startsWith('./dist/') && !written.has(entry)).map((entry) => entry.slice('./dist/'.length).replace(/\.js$/, ''));
-  const inSrc = list.filter((entry) => entry.startsWith('./src/')).map((entry) => entry.slice('./src/'.length).replace(/\.ts$/, ''));
-  assert.deepEqual([...inSrc].sort(), [...inDist].sort(), 'name each module in both halves: "./src/<path>.ts" beside "./dist/<path>.js"');
-  const gone = inSrc.filter((entry) => !entry.includes('*') && !fs.existsSync(path.join(root, 'src', `${entry}.ts`)));
+  // What a product gets: the files under dist/, and style sheets wherever they are. The sources are not published.
+  assert.deepEqual(list.filter((entry) => !entry.startsWith('./dist/') && entry !== '**/*.css'), [], 'name the built module, "./dist/<path>.js"');
+  const gone = list.filter((entry) => entry.startsWith('./dist/') && !written.has(entry) && !entry.includes('*')).filter((entry) => !fs.existsSync(path.join(root, 'src', `${entry.slice('./dist/'.length).replace(/\.js$/, '')}.ts`)));
   assert.deepEqual(gone, []);
 });
 
@@ -88,7 +89,10 @@ test('every module that defines an element, or bare-imports one, is a side effec
     outdir: path.join(root, 'side-effects-out'),
     external: ['lit', 'lit/*', '@lit/*'],
     logLevel: 'silent',
+    // As scripts/build.js makes the bundle from the sources: the list applied to them, and their tsconfig.
+    tsconfig: path.join(root, 'tsconfig.json'),
     plugins: [
+      sourceSideEffectsPlugin(root),
       {
         name: 'import-alone',
         setup(bundler) {

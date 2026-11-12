@@ -2,7 +2,7 @@
 // with the most tokens, the button's, in each engine (`DOCS_ENGINES`), at a phone's width and a desktop's:
 //
 // - it is not laid out until it comes near the view (`content-visibility: auto`), and the room it holds until then is
-//   one line of the Table's compact cell for each of its rows and its header row: drawn, a row of one line is that
+//   one line of the Table's small cell for each of its rows and its header row: drawn, a row of one line is that
 //   tall, and only a value of several parts (a shadow) is broken onto more lines;
 // - its words are found by the browser's find in page while it is away from the view;
 // - once it is near, the Table has read its sizes: where it scrolls it is a focus stop and a region.
@@ -16,7 +16,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the table at 390, in
 // WebKit, took 15 s in CI.
@@ -32,8 +32,8 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
   { width: 1440, height: 900 },
 ];
-/** The tokens table: the compact Table of the Specs tab that holds the room of its rows. */
-const TABLE = 'tanrei-table[density="compact"][style*="--docs-token-rows"]';
+/** The tokens table: the small Table of the Specs tab that holds the room of its rows. */
+const TABLE = 'tanrei-table[size="small"][style*="--docs-token-rows"]';
 
 let host;
 let origin;
@@ -88,14 +88,11 @@ for (const engine of ENGINES) {
         const held = Number(/([\d.]+)px$/.exec(away.held)?.[1]);
         assert.ok(held > 0, `it holds a room before it is drawn (${away.held})`);
 
-        // Drawn: near the view, its elements defined, two frames since.
-        const drawn = await page.evaluate(async (selector) => {
+        // Drawn: near the view, its elements defined, the fonts in, four frames since (each wait bounded: launch.mjs).
+        await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), TABLE);
+        await settlePage(page, { tags: ['tanrei-table', 'tanrei-swatch'], frames: 4 });
+        const drawn = await page.evaluate((selector) => {
           const table = document.querySelector(selector);
-          table.scrollIntoView({ block: 'start' });
-          await customElements.whenDefined('tanrei-table');
-          await customElements.whenDefined('tanrei-swatch');
-          await document.fonts.ready;
-          for (let i = 0; i < 4; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
           const rows = [...table.querySelectorAll(':scope > table > tbody > tr')].map((row) => ({ height: row.getBoundingClientRect().height, value: row.cells[2]?.textContent.trim() ?? '' }));
           return { rows, scrolls: table.scrollWidth - table.clientWidth > 1, tabindex: table.getAttribute('tabindex'), role: table.getAttribute('role') };
         }, TABLE);

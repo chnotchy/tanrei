@@ -1,13 +1,17 @@
-// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…24) is cited by a test title, every
+// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…34) is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('app-bar');
+const dist = (file: string) => fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../dist', file), 'utf8');
 type P = Page;
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const bar = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-app-bar`);
@@ -1289,6 +1293,78 @@ test.describe('overflow', () => {
     await host.click();
     await expect(overflowMenu(page, 'odd')).toHaveAttribute('open', '');
   });
+});
+
+test.describe('before its element is defined', () => {
+  // Every fixture, and the bars a fixture does not show: a large bar that will follow the document (written scrolled, at
+  // the top of a page that has just loaded: drawn expanded), a large bar with no title, and bars with no items.
+  const more = [
+    fixture('large-connected', { size: 'large', title: 'Inbox', subtitle: 'ada@example.com', scrolled: true }, [nav('Menu', 'menu'), SEARCH]),
+    fixture('large-untitled', { size: 'large' }, [BACK, SEARCH]),
+    fixture('large-alone', { size: 'large', title: 'Inbox', subtitle: 'ada@example.com' }),
+    fixture('small-subtitle-alone', { title: 'Quarterly report', subtitle: 'Edited 5 minutes ago' }),
+  ];
+  /** Every stage, every bar and what follows them, as boxes. */
+  const geometry = (page: P) =>
+    page.evaluate(() =>
+      Object.fromEntries(
+        [...document.querySelectorAll('[data-fixture], [data-fixture] tanrei-app-bar, #after')].map((el) => {
+          const r = el.getBoundingClientRect();
+          return [`${el.closest('[data-fixture]')?.getAttribute('data-fixture') ?? 'after'} ${el.localName}`, [r.left, r.top, r.width, r.height].map((n) => Math.round(n * 100) / 100).join(' ')];
+        }),
+      ),
+    );
+
+  for (const system of [undefined, 'cupertino'] as const) {
+    test(`APB-34: with the app bar's stylesheet and no script every bar${system ? ` (${system})` : ''} is as high and as wide as once it is defined — the top row, an item's cell, a large bar's title row with its subtitle, a large bar that will follow the document — the content under it does not move, and Chromium records no layout shift`, async ({ page: first, browserName }) => {
+      // A new window: one that has run the bundle keeps its elements defined, whatever document is written into it.
+      const page = await first.context().newPage();
+      await page.setViewportSize({ width: 480, height: 800 });
+      const markup = await fixturesDocument(spec, { fixtures: [...spec.fixtures, ...more], icons: true, system });
+      const script = markup.lastIndexOf('<script type="module">');
+      // The page as a server sends it: the tokens, the stylesheet, the bars — and no script yet.
+      await page.setContent(`${markup.slice(0, script).replace('</head>', `<style>${dist('app-bar.css')}</style></head>`)}<p id="after">After the bars.</p></body></html>`);
+      await page.evaluate(() => document.fonts.ready);
+      expect(await page.evaluate(() => !!customElements.get('tanrei-app-bar'))).toBe(false);
+      // The bar that follows the document: no scroll-target, written scrolled, the page at its top.
+      await bar(page, 'large-connected').evaluate((el) => el.removeAttribute('scroll-target'));
+      const small = await resolveToken(page, T('container-height-small'));
+      const large = await resolveToken(page, T('container-height-large'));
+      const before = await geometry(page);
+      const height = async (id: string) => (await bounds(bar(page, id))).height;
+      // The heights each will have: a large bar's are larger, and its subtitle makes its title row taller still.
+      expect(await height('small-title-only')).toBe(small);
+      expect(await height('large-alone')).toBeGreaterThanOrEqual(large);
+      expect(await height('large-scrolled')).toBe(await height('small'));
+      expect(await height('large-subtitle')).toBeGreaterThan(await height('large'));
+      // Nothing a slot holds is shown: a glyph is a name until its Button draws it.
+      await expect(bar(page, 'small').locator('> [slot]').first()).toBeHidden();
+      expect(await css(bar(page, 'small'), 'background-color')).toBe(await resolveColor(page, T('flat-container-color')));
+      if (browserName === 'chromium') {
+        await page.evaluate(() => {
+          const w = window as unknown as { __shift: number };
+          w.__shift = 0;
+          new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) w.__shift += (entry as unknown as { value: number }).value;
+          }).observe({ type: 'layout-shift', buffered: false });
+        });
+      }
+      // The elements are defined.
+      await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
+      await page.waitForFunction(() => !!customElements.get('tanrei-app-bar'));
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      // …and they are the elements now: the connected bar is drawn expanded, and none of the stylesheet's rules matches.
+      expect(await page.evaluate(() => document.querySelectorAll('tanrei-app-bar:not(:defined)').length)).toBe(0);
+      await expect(inner(page, 'large-connected', '.expanded')).toBeVisible();
+      expect(await bar(page, 'large-connected').evaluate((el) => el.hasAttribute('scrolled'))).toBe(false);
+      expect(await geometry(page)).toEqual(before);
+      if (browserName === 'chromium') expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBe(0);
+      // The stylesheet is in the components' layer.
+      expect(dist('app-bar.css')).toContain('@layer tanrei.components');
+      await page.close();
+    });
+  }
 });
 
 test.describe('accessibility', () => {

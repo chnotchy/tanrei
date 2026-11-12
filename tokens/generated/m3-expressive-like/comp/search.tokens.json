@@ -38,7 +38,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a search reads: the bar's height, corners, paddings, gap, the gap between its action buttons, glyph size and text style; the view's surface (color, elevation, corners, padding, offset from the bar, margin from the viewport) and the full-screen header's height, padding and divider; per density (regular, compact) a row's least height, paddings, gap and glyph size; a row's corners and text styles; the motion; and for its one condition (standard) the colors of the bar's parts and of a suggestion's parts, the bar's elevation and its edge's width, in each state. Also: the trigger's height, padding, gap, glyph size and text style; the shortcut hint's text style and color; the dialog view's width, its distance from the window's top and its scrim; a result group's title, gap and indent; the status row's text style and its two colors; and how a match in an excerpt is marked (color, added weight, fill).",
+            "usage": "Everything a search reads: the bar's height, corners, paddings, gap, the gap between its action buttons, glyph size and text style; the view's surface (color, elevation, corners, padding, offset from the bar, margin from the viewport) and the full-screen header's height, padding and divider; per size (small, medium) a row's least height, paddings, gap and glyph size; a row's corners and text styles; the motion; and for its one condition (standard) the colors of the bar's parts and of a suggestion's parts, the bar's elevation and its edge's width, in each state. Also: the trigger's height, padding, gap, glyph size and text style; the shortcut hint's text style and color; the dialog view's width, its distance from the window's top and its scrim; a result group's title, gap and indent; the status row's text style and its two colors; and how a match in an excerpt is marked (color, added weight, fill).",
             "rules": [
               "The bar answers focus with its edge: the focused outline, drawn instead of the focus ring; its container stays at rest under focus.",
               "The placeholder is never the accessible name: label is.",
@@ -48,7 +48,7 @@
               "A result's row reads the suggestion tokens: suggestions and results are rows of one list. Only what a result adds has tokens of its own (the mark, the group, the status).",
               "A match is marked by all three of the stronger text color, a raised weight and a quiet fill behind it (result.mark.container.color, the secondary container in the default system), so that it never depends on color alone; its text takes no hue.",
               "The trigger takes the bar's colors, elevation, shape and state tokens; only its geometry and text style are its own.",
-              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style."
+              "small is for a tool used with a pointer, where rows are many and looked through often; a row is never lower than the target at either size. The size never changes a text style."
             ]
           },
           "dev.tanrei.axes": {
@@ -56,11 +56,11 @@
               "default": "standard",
               "from": "states"
             },
-            "density": {
-              "default": "regular",
+            "size": {
+              "default": "medium",
               "values": [
-                "regular",
-                "compact"
+                "small",
+                "medium"
               ],
               "members": [
                 "suggestion.container.height",
@@ -266,7 +266,7 @@
             "height": {
               "$type": "dimension",
               "$description": "A suggestion row's minimum height: the menu item's.",
-              "regular": {
+              "medium": {
                 "$value": {
                   "value": 56,
                   "unit": "px"
@@ -282,7 +282,7 @@
                   }
                 }
               },
-              "compact": {
+              "small": {
                 "$value": {
                   "value": 32,
                   "unit": "px"
@@ -299,16 +299,16 @@
             },
             "padding-inline": {
               "$type": "dimension",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.space.space200}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.tree-view.container.padding-inline.compact}"
+              "small": {
+                "$value": "{tanrei.comp.tree-view.container.padding-inline.small}"
               }
             },
             "padding-block": {
               "$type": "dimension",
-              "regular": {
+              "medium": {
                 "$value": {
                   "value": 8,
                   "unit": "px"
@@ -317,21 +317,21 @@
                   "dev.tanrei.derive": {
                     "fn": "pad",
                     "of": "{tanrei.sys.space.space100}",
-                    "height": "{tanrei.comp.search.suggestion.container.height.regular}"
+                    "height": "{tanrei.comp.search.suggestion.container.height.medium}"
                   }
                 }
               },
-              "compact": {
+              "small": {
                 "$value": {
                   "value": 4,
                   "unit": "px"
                 },
-                "$description": "4 above and below a compact row's line at the small step's height (32), and half of what the row gains above that: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row.",
+                "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the search's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row.",
                 "$extensions": {
                   "dev.tanrei.derive": {
                     "fn": "pad",
                     "of": "{tanrei.sys.space.space50}",
-                    "height": "{tanrei.comp.search.suggestion.container.height.compact}"
+                    "height": "{tanrei.comp.search.suggestion.container.height.small}"
                   }
                 }
               }
@@ -339,11 +339,11 @@
             "gap": {
               "$type": "dimension",
               "$description": "Between a suggestion's leading icon and its text.",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.space.space200}"
               },
-              "compact": {
-                "$value": "{tanrei.comp.tree-view.container.gap.compact}"
+              "small": {
+                "$value": "{tanrei.comp.tree-view.container.gap.small}"
               }
             },
             "shape": {
@@ -379,10 +379,10 @@
           "leading-icon": {
             "size": {
               "$type": "dimension",
-              "regular": {
+              "medium": {
                 "$value": "{tanrei.sys.icon.medium}"
               },
-              "compact": {
+              "small": {
                 "$value": "{tanrei.sys.icon.small}"
               }
             }

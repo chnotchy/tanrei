@@ -474,8 +474,8 @@ export const styles = css`
   .status[data-shown] {
     margin-block-end: var(${P}-list-padding-block);
     margin-inline: var(${P}-list-padding-inline);
-    padding-block: var(${P}-option-padding-block-regular);
-    padding-inline: var(${P}-option-padding-inline-regular);
+    padding-block: var(${P}-option-padding-block-medium);
+    padding-inline: var(${P}-option-padding-inline-medium);
   }
   .list.bare > .status[data-shown] {
     margin-block-start: var(${P}-list-padding-block);

@@ -57,17 +57,6 @@
       "default": "medium",
       "description": "The size of the events' text, in prose's two sizes. Medium sets the body in the interface's own text style, for a timeline among controls: a panel, a card, a record's activity. Large sets it in the style for long reading, for a page whose purpose is the text: a changelog, a plan. A timeline inside a prose is given that prose's size. A design system may add values.",
       "axis": "tanrei.comp.timeline.size"
-    },
-    {
-      "name": "density",
-      "type": "enum",
-      "values": [
-        "regular",
-        "compact"
-      ],
-      "default": "regular",
-      "description": "How far apart the events are. Regular is for events with a body, or few of them. Compact halves the space between events, for a long log of one-line events. It changes that space only. A design system may add values.",
-      "axis": "tanrei.comp.timeline.density"
     }
   ],
   "items": [
@@ -137,8 +126,8 @@
     },
     {
       "id": "TML-2",
-      "text": "THE timeline SHALL separate the end of one event from the beginning of the next by the item gap of its density (comp.timeline.item.gap.regular for regular, comp.timeline.item.gap.compact for compact), and SHALL change nothing else with density. THE timeline SHALL keep the order the product gives: it SHALL NOT sort, reverse, group, number, hide, collapse or page its events, and SHALL NOT read their times to do so.",
-      "verify": "Two events with the times of 2026 and 2025, in that order, are drawn and exposed in that order."
+      "text": "THE timeline SHALL separate the end of one event from the beginning of the next by comp.timeline.item.gap, which follows the system's density, at every size. THE timeline SHALL keep the order the product gives: it SHALL NOT sort, reverse, group, number, hide, collapse or page its events, and SHALL NOT read their times to do so.",
+      "verify": "Under the default system the space between two events is 16 at density 1, 12 at density 0.75 and 24 at density 1.5, at medium and at large. Two events with the times of 2026 and 2025, in that order, are drawn and exposed in that order."
     },
     {
       "id": "TML-3",
@@ -221,7 +210,7 @@
     },
     {
       "id": "TML-21",
-      "text": "WHEN size or density names a value that the active design system does not have THE timeline SHALL render with the default value's tokens, and WHEN an event's status names a value this spec does not have THE timeline SHALL draw that event as for none; in debug builds it SHALL report the unknown value."
+      "text": "WHEN size names a value that the active design system does not have THE timeline SHALL render with the default value's tokens, and WHEN an event's status names a value this spec does not have THE timeline SHALL draw that event as for none; in debug builds it SHALL report the unknown value."
     },
     {
       "id": "TML-22",
@@ -432,47 +421,6 @@
       ]
     },
     {
-      "id": "compact",
-      "props": {
-        "label": "Activity",
-        "density": "compact"
-      },
-      "items": [
-        {
-          "kind": "event",
-          "props": {
-            "time": "10:12",
-            "datetime": "10:12",
-            "title": "Layer saved"
-          }
-        },
-        {
-          "kind": "event",
-          "props": {
-            "time": "10:09",
-            "datetime": "10:09",
-            "title": "Contrast checked in six schemes"
-          }
-        },
-        {
-          "kind": "event",
-          "props": {
-            "time": "10:02",
-            "datetime": "10:02",
-            "title": "Primary color changed"
-          }
-        },
-        {
-          "kind": "event",
-          "props": {
-            "time": "09:58",
-            "datetime": "09:58",
-            "title": "Layer opened"
-          }
-        }
-      ]
-    },
-    {
       "id": "large",
       "props": {
         "label": "Release history",
@@ -500,11 +448,10 @@
       ]
     },
     {
-      "id": "large-plan-compact",
+      "id": "large-plan",
       "props": {
         "label": "Roadmap",
-        "size": "large",
-        "density": "compact"
+        "size": "large"
       },
       "items": [
         {
@@ -700,8 +647,7 @@
       "name": "tanrei-timeline",
       "props": {
         "label": "aria-label",
-        "size": "data-size",
-        "density": "data-density"
+        "size": "data-size"
       },
       "items": {
         "event": {
@@ -717,15 +663,14 @@
           "notes": "An `<li>` of the list. The time is the item's `<time class=\"tanrei-timeline-time\" datetime=\"…\">`, or a `<p>` of that class where it is not a moment. The title is the next child where it is a heading (`h2` to `h6`) or carries `class=\"tanrei-timeline-title\"`: the spec's `title` prop and its title slot are the same element on this platform, told apart by the tag the product chose. Every other child is the body. `data-status` is `done`, `current` or `upcoming`; `data-status-label` carries the words. A glyph is `<span class=\"tanrei-timeline-marker tanrei-icon\" aria-hidden=\"true\">flag</span>` as the item's first child."
         }
       },
-      "notes": "It is the form the steps take. A class on the product's own ordered list, not an element — `<ol class=\"tanrei-timeline\" role=\"list\">` with `<li>` children — styled by one optional stylesheet of the package, `@tanrei/web/timeline.css`, whose selectors are wrapped in `:where()` so one class on the product's side wins. The list stays the document's list: it is an ordered list with `<time>` elements before any script runs and for whatever reads the page as built, a renderer's `<ol>` needs one class and no wrapper, and there is nothing to define, so nothing changes place after the page loads; without the stylesheet it is the browser's numbered list of dated paragraphs. `label` is `aria-label` (or `aria-labelledby` naming the heading before it); `data-size=\"large\"` and `data-density=\"compact\"` are the size and the density. The marker is the item's `::before` — the dot, the ring, the filled circle with its inner dot, and the done event's check as the icon font's `check` ligature — unless the item's first child is a `.tanrei-timeline-marker`, which then is the marker and holds the glyph through the package's `.tanrei-icon` helper; the connector is the item's `::after`, absolutely placed, with `pointer-events: none`. `list-style: none` removes list semantics in one engine's accessibility tree, which is why the contract writes `role=\"list\"` on the `<ol>`. The status in words (TML-12) is generated content of the item's first text part, `content: attr(data-status-label) \", \"`, clipped out of sight and read with the item; the test of TML-12 is run with a screen reader in each engine, and where an engine does not read it the package's script writes a visually hidden `<span>` instead. The same script, where it is loaded, sets `aria-current=\"true\"` on the item while exactly one has `data-status=\"current\"`, and adds the debug reports of TML-15, TML-21 and TML-22; without it no item is exposed as current, and the words still are. A time and a title are `dir=\"auto\"`-like through `unicode-bidi: plaintext` with physical alignment by `:dir()` (TML-20). TML-6 uses `1lh` of the item's first line. Inside a `.tanrei-prose` the list is not an island (it is a class on an `<ol>`), so prose's own rules keep reaching each body, and `timeline.css` takes back from `prose.css` what a timeline draws itself: the list's inset, its markers, the item gap and the measure on the list. Under `forced-colors: active` the markers and the connector are `CanvasText`, and the current marker a `CanvasText` disc with a `Canvas` mark (TML-16). React: `Timeline` and `TimelineEvent` render the same `<ol>` and `<li>`; `TimelineEvent` takes `time`, `dateTime`, `title` (text, rendered as `<p class=\"tanrei-timeline-title\">`) or a heading child, `status`, `statusLabel` and `icon`."
+      "notes": "It is the form the steps take. A class on the product's own ordered list, not an element — `<ol class=\"tanrei-timeline\" role=\"list\">` with `<li>` children — styled by one optional stylesheet of the package, `@tanrei/web/timeline.css`, whose selectors are wrapped in `:where()` so one class on the product's side wins. The list stays the document's list: it is an ordered list with `<time>` elements before any script runs and for whatever reads the page as built, a renderer's `<ol>` needs one class and no wrapper, and there is nothing to define, so nothing changes place after the page loads; without the stylesheet it is the browser's numbered list of dated paragraphs. `label` is `aria-label` (or `aria-labelledby` naming the heading before it); `data-size=\"large\"` is the size. The marker is the item's `::before` — the dot, the ring, the filled circle with its inner dot, and the done event's check as the icon font's `check` ligature — unless the item's first child is a `.tanrei-timeline-marker`, which then is the marker and holds the glyph through the package's `.tanrei-icon` helper; the connector is the item's `::after`, absolutely placed, with `pointer-events: none`. `list-style: none` removes list semantics in one engine's accessibility tree, which is why the contract writes `role=\"list\"` on the `<ol>`. The status in words (TML-12) is generated content of the item's first text part, `content: attr(data-status-label) \", \"`, clipped out of sight and read with the item; the test of TML-12 is run with a screen reader in each engine, and where an engine does not read it the package's script writes a visually hidden `<span>` instead. The same script, where it is loaded, sets `aria-current=\"true\"` on the item while exactly one has `data-status=\"current\"`, and adds the debug reports of TML-15, TML-21 and TML-22; without it no item is exposed as current, and the words still are. A time and a title are `dir=\"auto\"`-like through `unicode-bidi: plaintext` with physical alignment by `:dir()` (TML-20). TML-6 uses `1lh` of the item's first line. Inside a `.tanrei-prose` the list is not an island (it is a class on an `<ol>`), so prose's own rules keep reaching each body, and `timeline.css` takes back from `prose.css` what a timeline draws itself: the list's inset, its markers, the item gap and the measure on the list. Under `forced-colors: active` the markers and the connector are `CanvasText`, and the current marker a `CanvasText` disc with a `Canvas` mark (TML-16). React: `Timeline` and `TimelineEvent` render the same `<ol>` and `<li>`; `TimelineEvent` takes `time`, `dateTime`, `title` (text, rendered as `<p class=\"tanrei-timeline-title\">`) or a heading child, `status`, `statusLabel` and `icon`."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiTimeline",
       "props": {
         "label": "label",
-        "size": "size",
-        "density": "density"
+        "size": "size"
       },
       "items": {
         "event": {
@@ -741,15 +686,14 @@
           "notes": "`TanreiTimelineEvent(title:, time:, date:, status:, statusLabel:, icon:) { body }`; a heading title is the `title:` view builder, marked with the header trait by the product."
         }
       },
-      "notes": "`TanreiTimeline(label:, size:, density:) { TanreiTimelineEvent(…) … }`. A `VStack` of rows, not a `List` (no row chrome, no selection). Each event is one accessibility element that contains its children, whose label begins with the status label; `date` is a `Date` handed to the element's accessibility value where the platform has a use for it."
+      "notes": "`TanreiTimeline(label:, size:) { TanreiTimelineEvent(…) … }`. A `VStack` of rows, not a `List` (no row chrome, no selection). Each event is one accessibility element that contains its children, whose label begins with the status label; `date` is a `Date` handed to the element's accessibility value where the platform has a use for it."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiTimeline",
       "props": {
         "label": "label",
-        "size": "size",
-        "density": "density"
+        "size": "size"
       },
       "items": {
         "event": {
@@ -765,15 +709,14 @@
           "notes": "`TanreiTimelineEvent(title, time, dateTime, status, statusDescription, icon) { body }` inside the timeline's scope."
         }
       },
-      "notes": "`TanreiTimeline(label, size, density) { TanreiTimelineEvent(…) … }`. A `Column` with `collectionInfo` and `collectionItemInfo` semantics, so the events are a list of that many items; the connector is drawn behind the rows with `drawBehind`. No `clickable` and no `focusable` modifier."
+      "notes": "`TanreiTimeline(label, size) { TanreiTimelineEvent(…) … }`. A `Column` with `collectionInfo` and `collectionItemInfo` semantics, so the events are a list of that many items; the connector is drawn behind the rows with `drawBehind`. No `clickable` and no `focusable` modifier."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiTimeline",
       "props": {
         "label": "semanticLabel",
-        "size": "size",
-        "density": "density"
+        "size": "size"
       },
       "items": {
         "event": {
@@ -789,15 +732,14 @@
           "notes": "`TanreiTimelineEvent(title:, time:, dateTime:, status:, statusSemanticLabel:, icon:, child:)`; `titleWidget:` takes a heading of the product's own."
         }
       },
-      "notes": "`TanreiTimeline(semanticLabel:, size:, density:, events: [TanreiTimelineEvent(…), …])`. A `Column`, not a `ListView`: the timeline does not scroll (TML-10). The connector is a `CustomPaint` behind the rows. Each event is a `Semantics(container: true)` whose label begins with the status label."
+      "notes": "`TanreiTimeline(semanticLabel:, size:, events: [TanreiTimelineEvent(…), …])`. A `Column`, not a `ListView`: the timeline does not scroll (TML-10). The connector is a `CustomPaint` behind the rows. Each event is a `Semantics(container: true)` whose label begins with the status label."
     },
     "react-native": {
       "status": "planned",
       "name": "Timeline",
       "props": {
         "label": "accessibilityLabel",
-        "size": "size",
-        "density": "density"
+        "size": "size"
       },
       "items": {
         "event": {

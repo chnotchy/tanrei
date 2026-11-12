@@ -112,15 +112,15 @@
       "description": "The table's accessible name where no caption is drawn, because a heading just above it already says what it is. Not drawn. Ignored where caption is given."
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How close the rows are. Regular (a 46 row in the default system) is for a table a person reads: a few rows, cells that wrap. Compact (a 32 row, smaller text) is for a table a person scans: hundreds of rows, identifiers and values. A design system may add values.",
-      "axis": "tanrei.comp.table.density"
+      "default": "medium",
+      "description": "How close the rows are, in a list's and a tree view's words: a cell's paddings and the text styles of a cell and of a column header. medium (a 46 row in the default system) is for a table a person reads: a few rows, cells that wrap. small (a 32 row, smaller text) is for a table a person scans: hundreds of rows, identifiers and values. Its paddings follow the system's density at either size, and a row that holds a control is never lower than the target at either (TBL-40, TBL-47). While it is not set the table is drawn at the size its nearest container sets (TBL-62), and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.table.size"
     },
     {
       "name": "separation",
@@ -398,12 +398,12 @@
     },
     {
       "id": "TBL-4",
-      "text": "THE table SHALL pad every cell at the top and bottom by comp.table.cell.padding-block.regular and at the start and end by comp.table.cell.padding-inline.regular while density is regular, and by comp.table.cell.padding-block.compact and comp.table.cell.padding-inline.compact while density is compact, the first and the last cell of a row included; SHALL set a cell's text in comp.table.cell.text.typescale.regular or comp.table.cell.text.typescale.compact by density, in comp.table.cell.text.color, with digits in figures of equal width so that the numbers of a column line up; SHALL make a row as tall as its tallest cell and no taller, with no height of its own; and SHALL align the cells of a row to the top, so that the first lines of a row share a baseline.",
-      "verify": "Under the default system a regular row of one-line cells is 46 high (12 + 22 + 12) and a compact one 32 (6 + 20 + 6)."
+      "text": "THE table SHALL pad every cell at the top and bottom by comp.table.cell.padding-block.medium and at the start and end by comp.table.cell.padding-inline.medium at the medium size, and by comp.table.cell.padding-block.small and comp.table.cell.padding-inline.small at the small size, the first and the last cell of a row included; SHALL set a cell's text in comp.table.cell.text.typescale.medium or comp.table.cell.text.typescale.small by size, in comp.table.cell.text.color, with digits in figures of equal width so that the numbers of a column line up; SHALL make a row as tall as its tallest cell and no taller, with no height of its own; and SHALL align the cells of a row to the top, so that the first lines of a row share a baseline.",
+      "verify": "Under the default system a medium row of one-line cells is 46 high (12 + 22 + 12) and a small one 32 (6 + 20 + 6)."
     },
     {
       "id": "TBL-5",
-      "text": "THE table SHALL set a column's header cell in comp.table.header.text.typescale.regular or comp.table.header.text.typescale.compact by density, in comp.table.header.text.color, with the paddings of a cell (TBL-4), and SHALL fill the header row with comp.table.header.container.color; the header cells of a row SHALL align to the bottom, so that the last line of each sits next to the data it names. IF every column's header is empty THE table SHALL draw no header row and no line for it, and the table then relies on its row headers (TBL-6).",
+      "text": "THE table SHALL set a column's header cell in comp.table.header.text.typescale.medium or comp.table.header.text.typescale.small by size, in comp.table.header.text.color, with the paddings of a cell (TBL-4), and SHALL fill the header row with comp.table.header.container.color; the header cells of a row SHALL align to the bottom, so that the last line of each sits next to the data it names. IF every column's header is empty THE table SHALL draw no header row and no line for it, and the table then relies on its row headers (TBL-6).",
       "verify": "The fixture no-header gives two columns with empty headers and rowHeaders true: no header row is drawn and each row's first cell is its header."
     },
     {
@@ -486,7 +486,7 @@
     },
     {
       "id": "TBL-24",
-      "text": "THE table SHALL be exposed to assistive technology as a table with its number of rows and columns, its header cells as column headers, its first cells as row headers while rowHeaders is true, and every cell associated with the header of its column and, where there is one, of its row, so that a person moving cell by cell hears what each value belongs to; a platform that has no table semantics SHALL expose each row as one group in reading order and each cell with its column header before its own content. Keeping a header row or a first column in view, striping, the density and scrolling SHALL change nothing that is exposed.",
+      "text": "THE table SHALL be exposed to assistive technology as a table with its number of rows and columns, its header cells as column headers, its first cells as row headers while rowHeaders is true, and every cell associated with the header of its column and, where there is one, of its row, so that a person moving cell by cell hears what each value belongs to; a platform that has no table semantics SHALL expose each row as one group in reading order and each cell with its column header before its own content. Keeping a header row or a first column in view, striping, the size and scrolling SHALL change nothing that is exposed.",
       "verify": "On the web: the accessibility tree of every fixture has the roles table, row, columnheader, rowheader and cell, also while the table scrolls in its own box and while a column is kept in view."
     },
     {
@@ -520,7 +520,7 @@
     },
     {
       "id": "TBL-31",
-      "text": "WHEN density names a value that the active design system does not have THE table SHALL render with the default value's tokens, and in debug builds report the unknown value."
+      "text": "WHEN the size the table draws (TBL-62) names a value that the active design system does not have THE table SHALL render with the default size's tokens, and in debug builds report the unknown value; a size a design system added SHALL be drawn from that size's tokens, as the core values are."
     },
     {
       "id": "TBL-32",
@@ -559,8 +559,8 @@
     },
     {
       "id": "TBL-40",
-      "text": "THE table SHALL make a sort button's hit area its whole header cell, with no gap to the hit area of the header cell beside it. WHERE input is touch, or the platform cannot tell the input type, a header row that holds a sort button SHALL be at least sys.target.touch high, drawn so, at both densities, because a header cell cannot extend a hit area over the row under it; for a fine pointer it SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives. A header cell narrower than the target SHALL extend its hit area along the row no further than halfway into the paddings between it and the cell beside it.",
-      "verify": "On the web with a coarse pointer emulated, the fixture sortable-compact: the header row is 36 high, the default system's touch target, and 48 under a layer that sets sys.target.touch to 48. With a fine pointer it is 32."
+      "text": "THE table SHALL make a sort button's hit area its whole header cell, with no gap to the hit area of the header cell beside it. WHERE input is touch, or the platform cannot tell the input type, a header row that holds a sort button SHALL be at least sys.target.touch high, and for a fine pointer at least sys.target.pointer high, drawn so, at every size, because a header cell cannot extend a hit area over the row under it. A header cell narrower than the target SHALL extend its hit area along the row no further than halfway into the paddings between it and the cell beside it.",
+      "verify": "On the web, the fixture sortable-small: with a fine pointer the header row is 36 high, the default system's pointer target, where the small size alone gives 32, and 44 under a layer that sets sys.target.pointer to 44; with a coarse pointer emulated it is 36, the default system's touch target, and 48 under a layer that sets sys.target.touch to 48."
     },
     {
       "id": "TBL-41",
@@ -584,7 +584,7 @@
     {
       "id": "TBL-45",
       "text": "WHILE selection is multiple THE table SHALL keep the checkbox for every row in step with the body rows it holds that have a value: checked WHILE each of them is chosen, in its mixed (indeterminate) state WHILE some are and some are not, unchecked WHILE none is, and disabled WHILE there is no such row. WHEN the user activates it while it is unchecked or mixed THE table SHALL choose every such row, and while it is checked SHALL clear every one, and SHALL emit selectionChange exactly once with the values after the change. \"Every row\" is every row the table has been given: it SHALL NOT claim to choose records the product has not given it (the rows of other pages), and a product that offers that says so with a control of its own. WHILE selection is single there is no such checkbox (TBL-60).",
-      "verify": "The fixtures selection (two of four chosen: mixed), selection-all (checked) and selection-compact (none chosen: unchecked); the fixture empty-selection (no rows: disabled)."
+      "verify": "The fixtures selection (two of four chosen: mixed), selection-all (checked) and selection-small (none chosen: unchecked); the fixture empty-selection (no rows: disabled)."
     },
     {
       "id": "TBL-46",
@@ -593,8 +593,8 @@
     },
     {
       "id": "TBL-47",
-      "text": "THE table SHALL make each sort button and each checkbox its own stop in the focus order, and the radio buttons of a table whose selection is single one stop together (TBL-61), in reading order — the scroll region first while the table scrolls (TBL-22), then the header row's controls from the start, then each row's checkbox, or the one radio button that is the stop, followed by whatever in that row's cells takes focus — and SHALL handle no key that moves focus from cell to cell: the arrow keys scroll the region or do what the focused control does with them, which for a radio button is TBL-61. A checkbox's or radio button's hit area SHALL be its whole selection cell, in width and in height; for a pointer the rest of its row answers too (TBL-58). WHERE input is touch, or the platform cannot tell the input type, a row that holds a checkbox or a radio button SHALL be at least sys.target.touch high, drawn so, at both densities, and its selection cell at least sys.target.touch wide; for a fine pointer the row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives.",
-      "verify": "Test the fixture sortable-selection: Tab visits Name, Stock, Price, then each row's checkbox in turn; the arrow keys move focus nowhere."
+      "text": "THE table SHALL make each sort button and each checkbox its own stop in the focus order, and the radio buttons of a table whose selection is single one stop together (TBL-61), in reading order — the scroll region first while the table scrolls (TBL-22), then the header row's controls from the start, then each row's checkbox, or the one radio button that is the stop, followed by whatever in that row's cells takes focus — and SHALL handle no key that moves focus from cell to cell: the arrow keys scroll the region or do what the focused control does with them, which for a radio button is TBL-61. A checkbox's or radio button's hit area SHALL be its whole selection cell, in width and in height; for a pointer the rest of its row answers too (TBL-58). WHERE input is touch, or the platform cannot tell the input type, a row that holds a checkbox or a radio button SHALL be at least sys.target.touch high, drawn so, at every size, and its selection cell at least sys.target.touch wide; for a fine pointer the row SHALL be at least sys.target.pointer high, drawn so, at every size, because rows that touch cannot extend a hit area over each other.",
+      "verify": "Test the fixture sortable-selection: Tab visits Name, Stock, Price, then each row's checkbox in turn; the arrow keys move focus nowhere. The fixture selection-small: with a fine pointer each row that holds a checkbox is 36 high under the default system, its pointer target, where the small size alone gives 32."
     },
     {
       "id": "TBL-48",
@@ -603,12 +603,12 @@
     },
     {
       "id": "TBL-49",
-      "text": "WHILE loading is true THE table SHALL be exposed as busy; SHALL draw the rows it is given as they are — the rows it had, or placeholder rows (TBL-50) — and SHALL NOT draw the empty slot's content, even with no body row; SHALL keep its header row, its sort buttons, its checkboxes, its radio buttons and its status line working as without it; SHALL change no color, no opacity and no size of its own because of it; and SHALL announce nothing itself when loading begins or ends: the product says it in status (TBL-52). THE table SHALL fetch nothing, wait for nothing and time nothing: loading is true for as long as the product says so.",
+      "text": "WHILE loading is true THE table SHALL be exposed as busy; SHALL draw the rows it is given as they are — the rows it had, or placeholder rows (TBL-50) — and SHALL NOT draw the empty slot's content, even with no body row; SHALL keep its header row, its sort buttons, its checkboxes, its radio buttons and its status line working as without it; SHALL change no color, no opacity and no dimension of its own because of it; and SHALL announce nothing itself when loading begins or ends: the product says it in status (TBL-52). THE table SHALL fetch nothing, wait for nothing and time nothing: loading is true for as long as the product says so.",
       "verify": "The fixture loading: the four rows it had, drawn as in the fixture selection, and on the web aria-busy on the table."
     },
     {
       "id": "TBL-50",
-      "text": "WHERE a row's placeholder is true THE table SHALL draw it as a body row — counted for stripes, parted from its neighbours as TBL-9 says, with a cell's paddings — at least as tall as a body row holding one line of text at the table's density, however little its cells hold; SHALL place in each cell what the product gives it there (a Skeleton, by TBL-15) or nothing; SHALL draw no checkbox or radio button in its selection cell and count it neither as a body row for the header checkbox (TBL-45) nor as a row for the empty slot (TBL-48); and SHALL hide the row from assistive technology, so that a person hears that the table is busy and not a row of nothing. IF a row's placeholder is true while loading is false THE table SHALL draw it all the same and in debug builds report it.",
+      "text": "WHERE a row's placeholder is true THE table SHALL draw it as a body row — counted for stripes, parted from its neighbours as TBL-9 says, with a cell's paddings — at least as tall as a body row holding one line of text at the table's size, however little its cells hold; SHALL place in each cell what the product gives it there (a Skeleton, by TBL-15) or nothing; SHALL draw no checkbox or radio button in its selection cell and count it neither as a body row for the header checkbox (TBL-45) nor as a row for the empty slot (TBL-48); and SHALL hide the row from assistive technology, so that a person hears that the table is busy and not a row of nothing. IF a row's placeholder is true while loading is false THE table SHALL draw it all the same and in debug builds report it.",
       "verify": "The fixture loading-placeholders: five rows of empty cells, each 46 high under the default system, no checkbox in any of them, and the header checkbox disabled."
     },
     {
@@ -664,6 +664,11 @@
       "id": "TBL-61",
       "text": "WHILE selection is single THE table SHALL expose each row's radio button as a radio, checked or not, named as TBL-46 says, with its position among the table's radio buttons and their number, and SHALL wrap them in no radio group, give a row no selected state and add no role of a grid: a radio group cannot hold the rows of a table, and the table's name and the column the radio buttons stand in say what they choose. THE radio buttons SHALL be one stop in the focus order — the chosen row's, or, while no row is chosen, the first row's that can be chosen — at the place of that row's control in the reading order of TBL-47, and Tab SHALL leave them rather than move between them (RAD-5). WHILE one of them has keyboard focus, Down Arrow and Right Arrow SHALL move focus to the radio button of the next row that can be chosen and Up Arrow and Left Arrow to the previous one's, wrapping from the last to the first, and choose that row as TBL-60 says, with one selectionChange for each key; in a right-to-left layout Left Arrow and Right Arrow SHALL exchange what they do. THE table SHALL scroll its box so that a radio button that receives keyboard focus is in view beside a header row or a status line kept in view (TBL-36), and WHEN rows are given again focus SHALL stay with the radio button of the row of the same value (TBL-25).",
       "verify": "Test the fixture selection-single: Tab reaches the Kettle row's radio button and the next Tab leaves the table; Down Arrow moves focus to the Scale row's radio button and chooses Scale with one selectionChange, and Down Arrow again wraps to the first row. On the web the accessibility tree has four radios, one checked, each at its position of four, and no radiogroup and no aria-selected."
+    },
+    {
+      "id": "TBL-62",
+      "text": "WHILE size is set THE table SHALL draw every cell — its paddings, its text and its column header's text — at its own size, whatever a container sets. WHILE size is not set and a container around the table sets a size for what it holds — the nearest such container where several do — THE table SHALL draw every cell at that size, its paddings following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; WHILE no container around it sets one it SHALL draw medium. A container whose size is not set SHALL pass none. The table's rows and cells are its own and SHALL all be of one size: a row or a cell has no size of its own. THE table SHALL pass no size to what the product places in it — the content of a cell, the empty slot, the status line's pagination, the checkboxes and radio buttons of its rows — which keeps its own, or the size of the containers around the table. WHEN the size it draws changes — its own size set, changed or removed, a container's size set, changed or removed, or the table moved into or out of such a container — THE table SHALL draw every cell at the new size at once, without a motion, keeping its scroll position, the chosen rows and focus.",
+      "verify": "A table without a size in a container whose size is small is drawn as the fixture small is, every cell padded by comp.table.cell.padding-block.small, at density 0.75, 1 and 1.5; a table whose size is medium in that container keeps medium; removing the container's size, or moving the table out of it, draws its cells at medium before the next frame, with the same rows chosen and the same checkbox focused."
     }
   ],
   "accessibility": {
@@ -693,7 +698,7 @@
     "labeling": "The table is named by its caption, or by label where no caption is drawn (TBL-23). Header cells name their columns and, while rowHeaders is true, first cells name their rows; every cell is associated with both (TBL-24). While the table scrolls in its own box, that box is a region with the same name, so that a person who reaches it by keyboard hears what scrolls. A sortable column's button is named by the column's header, and the header cell carries the order (TBL-41). A row's checkbox or radio button is named by selectLabel, or by the row's header; the header row's checkbox by selectAllLabel (TBL-46). The radio buttons of a table are not wrapped in a radio group: each is exposed with its position among them (TBL-61). The status line is the product's sentence, told politely when it changes (TBL-52).",
     "minimumTarget": true,
     "notes": [
-      "The table, its cells and every row that cannot be chosen take no input (TBL-16). What does — a sortable column's header, the checkboxes, a row that can be chosen (for a pointer), the scroll box — is a control, a larger target for one, or a region: a header's hit area is its whole cell and a checkbox's its whole selection cell, each at least the touch target high for touch at both densities (TBL-40, TBL-47); the compact density is lower than the pointer target, as a compact tree row is. What is pressable inside a cell (a link, a button) meets the minimum target by its own spec.",
+      "The table, its cells and every row that cannot be chosen take no input (TBL-16). What does — a sortable column's header, the checkboxes, a row that can be chosen (for a pointer), the scroll box — is a control, a larger target for one, or a region: a header's hit area is its whole cell and a checkbox's its whole selection cell, each drawn at least the touch target high for touch and the pointer target high for a fine pointer at every size (TBL-40, TBL-47), because rows that touch cannot reach past each other. In the default system both are the minimum target, which a small row that holds a control is held at; a small row that holds none is as low as its text and paddings make it, since nothing in it is pressed. What is pressable inside a cell (a link, a button) meets the minimum target by its own spec.",
       "A table is for data that has rows and columns. Do not use it to place things side by side: assistive technology announces rows, columns and headers for every cell, which is noise around content that is not tabular. Use the layout.",
       "Give every table a name (WCAG 1.3.1, 4.1.2): a caption that everyone sees is best; label is for a table whose heading already names it. A table that scrolls and has no name is a focus stop a person cannot tell from any other, so debug builds report it (TBL-23).",
       "Header cells are structure, not style (WCAG 1.3.1). Every column has a header cell unless the table has no header row at all; rowHeaders is true whenever the first column says what each row is. A table with two levels of column headers, or cells that span columns or rows, is outside this spec: split it.",
@@ -2133,10 +2138,10 @@
       ]
     },
     {
-      "id": "compact",
+      "id": "small",
       "props": {
         "caption": "Button sizes",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -2225,10 +2230,10 @@
       ]
     },
     {
-      "id": "compact-tokens",
+      "id": "small-tokens",
       "props": {
         "label": "Tokens of the table",
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -2343,7 +2348,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-block.regular"
+              "content": "comp.table.cell.padding-block.medium"
             },
             {
               "kind": "cell",
@@ -2364,7 +2369,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-block.compact"
+              "content": "comp.table.cell.padding-block.small"
             },
             {
               "kind": "cell",
@@ -2385,7 +2390,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-inline.regular"
+              "content": "comp.table.cell.padding-inline.medium"
             },
             {
               "kind": "cell",
@@ -2406,7 +2411,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-inline.compact"
+              "content": "comp.table.cell.padding-inline.small"
             },
             {
               "kind": "cell",
@@ -2732,10 +2737,10 @@
       ]
     },
     {
-      "id": "striped-compact-tokens",
+      "id": "striped-small-tokens",
       "props": {
         "label": "Tokens of the table",
-        "density": "compact",
+        "size": "small",
         "striped": true
       },
       "items": [
@@ -2851,7 +2856,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-block.regular"
+              "content": "comp.table.cell.padding-block.medium"
             },
             {
               "kind": "cell",
@@ -2872,7 +2877,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-block.compact"
+              "content": "comp.table.cell.padding-block.small"
             },
             {
               "kind": "cell",
@@ -2893,7 +2898,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-inline.regular"
+              "content": "comp.table.cell.padding-inline.medium"
             },
             {
               "kind": "cell",
@@ -2914,7 +2919,7 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "comp.table.cell.padding-inline.compact"
+              "content": "comp.table.cell.padding-inline.small"
             },
             {
               "kind": "cell",
@@ -4136,7 +4141,7 @@
         "rowHeaders": true,
         "stickyFirstColumn": true,
         "striped": true,
-        "density": "compact"
+        "size": "small"
       },
       "items": [
         {
@@ -4781,17 +4786,17 @@
             {
               "kind": "cell",
               "props": {},
-              "content": "密度"
+              "content": "サイズ"
             },
             {
               "kind": "cell",
               "props": {},
-              "content": "regular"
+              "content": "medium"
             },
             {
               "kind": "cell",
               "props": {},
-              "content": "表の詰まり具合です。数行を読む表には regular、数百行を見渡す表には compact を使います。行の高さは決めず、セルの内容と余白に従います。"
+              "content": "表の詰まり具合です。数行を読む表には medium、数百行を見渡す表には small を使います。行の高さは決めず、セルの内容と余白に従います。"
             }
           ]
         },
@@ -5808,10 +5813,10 @@
       ]
     },
     {
-      "id": "sortable-compact",
+      "id": "sortable-small",
       "props": {
         "label": "Products",
-        "density": "compact",
+        "size": "small",
         "sortedAscendingLabel": "sorted ascending",
         "sortedDescendingLabel": "sorted descending"
       },
@@ -6321,11 +6326,11 @@
       ]
     },
     {
-      "id": "selection-compact",
+      "id": "selection-small",
       "props": {
         "label": "Products",
         "selection": "multiple",
-        "density": "compact",
+        "size": "small",
         "selectAllLabel": "Select all products"
       },
       "items": [
@@ -7924,7 +7929,7 @@
         "selection": "multiple",
         "rowHeaders": true,
         "stickyHeader": true,
-        "density": "compact",
+        "size": "small",
         "status": "1–4 of 132 · 1 selected",
         "selectAllLabel": "Select all products",
         "sortedAscendingLabel": "sorted ascending",
@@ -8368,7 +8373,7 @@
       "props": {
         "caption": "caption",
         "label": "label",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "striped": "striped",
         "rowHeaders": "rowHeaders",
@@ -8424,7 +8429,7 @@
           }
         }
       },
-      "notes": "Form: `<tanrei-table>` is a custom element with **no shadow root**, wrapped around a native `<table>` that stays in the light DOM — `<tanrei-table><table><caption>…</caption><thead>…</thead><tbody>…</tbody><tfoot>…</tfoot></table></tanrei-table>`. The native table is never given another `display`, so its semantics, a crawler's reading, copy and paste as a table and a screen reader's table navigation are the browser's own. The wrapper is the scroll box (`display: block; overflow: auto; max-inline-size: 100%`; the product limits its height with `max-block-size`). Everything drawn comes from one stylesheet, `@tanrei/web/table.css`, whose selectors start at `tanrei-table` and are wrapped in `:where()`; it styles the page without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `density`, `separation`, `striped`, `row-headers`, `sticky-header`, `sticky-first-column`, `label`. `caption` is the native `<caption>`; the `caption` attribute is a convenience that writes one. `label` becomes `aria-label` on the table. Script adds only what CSS cannot: while the wrapper overflows it sets `tabindex=\"0\"`, `role=\"region\"` and `aria-labelledby` (the caption) or `aria-label` (TBL-22), and removes them when it does not; it sets `data-more-start` and `data-more-end` for the lines of TBL-21, writes the positions of the columns whose header names `data-align` or `data-wrap` on the wrapper (`data-columns-end`, `-center`, `-nowrap`; one rule per position places the cells and no cell is written to), gives first cells `role=\"rowheader\"` where `row-headers` is set on a table whose body cells are `<td>` (Markdown), and releases a first column wider than half of the box (TBL-20). Without script the table is fully drawn, scrolls in its box, and keeps its sticky parts; it lacks the two edge lines and, in a browser that does not focus scrollers by itself, the focus stop. Sticky parts are `position: sticky` on the cells (`inset-block-start: 0` on `thead th`, `inset-inline-start: 0` on the first cell of each row) with `border-collapse: separate` and the lines drawn as cell borders, because collapsed borders do not travel with a sticky cell. The caption stays in place sideways with `position: sticky; inset-inline-start: 0` and a width of the wrapper (`100cqi`). `font-variant-numeric: tabular-nums` on cells (TBL-4); `unicode-bidi: plaintext` per cell (TBL-28). Markdown: a renderer emits a bare `<table>`; the product wraps it at build time (a rehype step of a few lines, shown in the README) — Tanrei does not transform content. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16). A cell that spans (`colspan`, `rowspan`) and a second header row keep working as HTML and are drawn with the same cell styles, but no fixture covers them. As built: the wrapper is a grid of one cell, not `display: block`, so that the two \"there is more\" lines are as tall as the table; the attributes the element writes are `data-more-start`, `data-more-end`, `data-more-above`, `data-first-column-released`, `data-columns` and the three positions above, and `data-separation` on the table; the region's `aria-labelledby` or `aria-label` is copied from the table's own name where the product named it natively. **Sorting, selection, empty, loading and status: proposed form, for the platform's agent to settle.** Everything new is the product's own markup inside the same `<table>`, drawn by `table.css` without script (TBL-57). Sorting: the stylesheet makes the control in a `th[aria-sort]` fill the cell (the cell's paddings move onto the control) and draws the mark as a generated glyph from the attribute; the element listens for the control's activation and emits `sort` (cancelable where the control is an anchor) with `detail: { column, index, direction }`; it never writes `aria-sort`. Selection: `selection=\"multiple\"` on the wrapper; the header row's first cell is `<td data-part=\"selection\">` (a cell and not a header cell: a header without text is announced as an empty one) holding the checkbox for every row, which the element keeps checked, `indeterminate` or unchecked and disables with no row to choose, and names from `select-all-label` or the product's words (`setWords({ selectAllLabel })`); the element listens to `change` from the row checkboxes, writes `data-selected`, and emits `selectionchange` with `detail: { values }`. Neither checkbox is moved, wrapped or replaced. `sorted-ascending-label` and `sorted-descending-label` are accepted and not read: `aria-sort` is the browser's. Empty: the product writes `<tbody><tr data-part=\"empty\"><td colspan=\"…\">…</td></tr></tbody>` with its `<tanrei-empty-state>` inside; the stylesheet keeps the cell's content as wide as the box (`100cqi`) and in view sideways, as it does the caption, and the element corrects a `colspan` that is not the number of columns. Loading: the `loading` attribute; the element writes `aria-busy` on the table (a server may write it itself). Status: after the `<table>`, inside the wrapper, `<div data-part=\"status\"><p role=\"status\">…</p> <nav class=\"tanrei-pagination\">…</nav></div>`; it is sticky at the inline start with the box's width, and at the block end, with the sticky fill; the `status` attribute is a convenience that writes the paragraph, as `caption` writes a caption. Coarse pointers get the taller header row and rows by `@media (pointer: coarse)`."
+      "notes": "Form: `<tanrei-table>` is a custom element with **no shadow root**, wrapped around a native `<table>` that stays in the light DOM — `<tanrei-table><table><caption>…</caption><thead>…</thead><tbody>…</tbody><tfoot>…</tfoot></table></tanrei-table>`. The native table is never given another `display`, so its semantics, a crawler's reading, copy and paste as a table and a screen reader's table navigation are the browser's own. The wrapper is the scroll box (`display: block; overflow: auto; max-inline-size: 100%`; the product limits its height with `max-block-size`). Everything drawn comes from one stylesheet, `@tanrei/web/table.css`, whose selectors start at `tanrei-table` and are wrapped in `:where()`; it styles the page without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `size`, `separation`, `striped`, `row-headers`, `sticky-header`, `sticky-first-column`, `label`. A size taken from a container (TBL-62) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute; without script a table is drawn at the size it sets, or at medium. `caption` is the native `<caption>`; the `caption` attribute is a convenience that writes one. `label` becomes `aria-label` on the table. Script adds only what CSS cannot: while the wrapper overflows it sets `tabindex=\"0\"`, `role=\"region\"` and `aria-labelledby` (the caption) or `aria-label` (TBL-22), and removes them when it does not; it sets `data-more-start` and `data-more-end` for the lines of TBL-21, writes the positions of the columns whose header names `data-align` or `data-wrap` on the wrapper (`data-columns-end`, `-center`, `-nowrap`; one rule per position places the cells and no cell is written to), gives first cells `role=\"rowheader\"` where `row-headers` is set on a table whose body cells are `<td>` (Markdown), and releases a first column wider than half of the box (TBL-20). Without script the table is fully drawn, scrolls in its box, and keeps its sticky parts; it lacks the two edge lines and, in a browser that does not focus scrollers by itself, the focus stop. Sticky parts are `position: sticky` on the cells (`inset-block-start: 0` on `thead th`, `inset-inline-start: 0` on the first cell of each row) with `border-collapse: separate` and the lines drawn as cell borders, because collapsed borders do not travel with a sticky cell. The caption stays in place sideways with `position: sticky; inset-inline-start: 0` and a width of the wrapper (`100cqi`). `font-variant-numeric: tabular-nums` on cells (TBL-4); `unicode-bidi: plaintext` per cell (TBL-28). Markdown: a renderer emits a bare `<table>`; the product wraps it at build time (a rehype step of a few lines, shown in the README) — Tanrei does not transform content. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16). A cell that spans (`colspan`, `rowspan`) and a second header row keep working as HTML and are drawn with the same cell styles, but no fixture covers them. As built: the wrapper is a grid of one cell, not `display: block`, so that the two \"there is more\" lines are as tall as the table; the attributes the element writes are `data-more-start`, `data-more-end`, `data-more-above`, `data-first-column-released`, `data-columns` and the three positions above, and `data-separation` on the table; the region's `aria-labelledby` or `aria-label` is copied from the table's own name where the product named it natively. **Sorting, selection, empty, loading and status: proposed form, for the platform's agent to settle.** Everything new is the product's own markup inside the same `<table>`, drawn by `table.css` without script (TBL-57). Sorting: the stylesheet makes the control in a `th[aria-sort]` fill the cell (the cell's paddings move onto the control) and draws the mark as a generated glyph from the attribute; the element listens for the control's activation and emits `sort` (cancelable where the control is an anchor) with `detail: { column, index, direction }`; it never writes `aria-sort`. Selection: `selection=\"multiple\"` on the wrapper; the header row's first cell is `<td data-part=\"selection\">` (a cell and not a header cell: a header without text is announced as an empty one) holding the checkbox for every row, which the element keeps checked, `indeterminate` or unchecked and disables with no row to choose, and names from `select-all-label` or the product's words (`setWords({ selectAllLabel })`); the element listens to `change` from the row checkboxes, writes `data-selected`, and emits `selectionchange` with `detail: { values }`. Neither checkbox is moved, wrapped or replaced. `sorted-ascending-label` and `sorted-descending-label` are accepted and not read: `aria-sort` is the browser's. Empty: the product writes `<tbody><tr data-part=\"empty\"><td colspan=\"…\">…</td></tr></tbody>` with its `<tanrei-empty-state>` inside; the stylesheet keeps the cell's content as wide as the box (`100cqi`) and in view sideways, as it does the caption, and the element corrects a `colspan` that is not the number of columns. Loading: the `loading` attribute; the element writes `aria-busy` on the table (a server may write it itself). Status: after the `<table>`, inside the wrapper, `<div data-part=\"status\"><p role=\"status\">…</p> <nav class=\"tanrei-pagination\">…</nav></div>`; it is sticky at the inline start with the box's width, and at the block end, with the sticky fill; the `status` attribute is a convenience that writes the paragraph, as `caption` writes a caption. Coarse pointers get the taller header row and rows by `@media (pointer: coarse)`."
     },
     "swiftui": {
       "status": "planned",
@@ -8432,7 +8437,7 @@
       "props": {
         "caption": "caption",
         "label": "accessibilityLabel",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "striped": "striped",
         "rowHeaders": "rowHeaders",
@@ -8486,7 +8491,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption:, columns: [TanreiTableColumn], density:, …) { TanreiTableRow { TanreiTableCell(\"…\"); TanreiTableCell { TanreiTag(\"Beta\", size: .small) } } }`. Built on `Grid` and `GridRow` (columns sized from content, which is TBL-2) inside a `ScrollView` whose axes are the ones that overflow; a table of several hundred rows uses a `LazyVStack` of rows with column widths measured once from the header and a sample of rows. The platform's own `Table` is not used: it is a data table of its own look, with selection and sorting, and it collapses to its first column in a compact width. Sticky parts are pinned section headers (`pinnedViews`) for the header row and an overlaid first column whose offset follows the scroll. Accessibility: SwiftUI has no table container for custom views, so TBL-24's fallback applies — each row is an accessibility container in reading order, each cell's label is its column header followed by its content, header cells carry the header trait, and the scroll view is named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header:, value:, isSortable:, sort:)`, `TanreiTable(selection: $values, onSort: { column, index, direction in … })` where `selection` is a binding to the set of chosen values, and rows take `value:`, `selectLabel:`, `isPlaceholder:`. A sortable header is a `Button` whose accessibility value is `sortedAscendingLabel` or `sortedDescendingLabel` (SwiftUI has no sort trait); the row's checkbox is `TanreiCheckbox`. The empty slot and the pagination slot are view builders (`empty:`, `pagination:`); the status text is posted as an announcement when it changes; `isLoading` sets nothing SwiftUI has a trait for, so placeholder rows are hidden and the status says it. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption:, columns: [TanreiTableColumn], size:, …) { TanreiTableRow { TanreiTableCell(\"…\"); TanreiTableCell { TanreiTag(\"Beta\", size: .small) } } }`. Built on `Grid` and `GridRow` (columns sized from content, which is TBL-2) inside a `ScrollView` whose axes are the ones that overflow; a table of several hundred rows uses a `LazyVStack` of rows with column widths measured once from the header and a sample of rows. The platform's own `Table` is not used: it is a data table of its own look, with selection and sorting, and it collapses to its first column in a compact width. Sticky parts are pinned section headers (`pinnedViews`) for the header row and an overlaid first column whose offset follows the scroll. Accessibility: SwiftUI has no table container for custom views, so TBL-24's fallback applies — each row is an accessibility container in reading order, each cell's label is its column header followed by its content, header cells carry the header trait, and the scroll view is named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header:, value:, isSortable:, sort:)`, `TanreiTable(selection: $values, onSort: { column, index, direction in … })` where `selection` is a binding to the set of chosen values, and rows take `value:`, `selectLabel:`, `isPlaceholder:`. A sortable header is a `Button` whose accessibility value is `sortedAscendingLabel` or `sortedDescendingLabel` (SwiftUI has no sort trait); the row's checkbox is `TanreiCheckbox`. The empty slot and the pagination slot are view builders (`empty:`, `pagination:`); the status text is posted as an announcement when it changes; `isLoading` sets nothing SwiftUI has a trait for, so placeholder rows are hidden and the status says it. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
     },
     "compose": {
       "status": "planned",
@@ -8494,7 +8499,7 @@
       "props": {
         "caption": "caption",
         "label": "contentDescription",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "striped": "striped",
         "rowHeaders": "rowHeaders",
@@ -8557,7 +8562,7 @@
       "props": {
         "caption": "caption",
         "label": "semanticLabel",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "striped": "striped",
         "rowHeaders": "rowHeaders",
@@ -8619,7 +8624,7 @@
       "props": {
         "caption": "caption",
         "label": "accessibilityLabel",
-        "density": "density",
+        "size": "size",
         "separation": "separation",
         "striped": "striped",
         "rowHeaders": "rowHeaders",

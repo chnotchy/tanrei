@@ -49,7 +49,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Web getting-started
 // page at 1440, took 9 s in CI.
@@ -154,9 +154,9 @@ async function shiftsAsFacesArrive(url, viewport, { fallbacks }) {
     await page.goto(origin + url, { waitUntil: 'domcontentloaded' });
     if (!fallbacks) await page.evaluate(withoutFallbacks);
     await wait(Math.max(0, DELAY_MS - (Date.now() - asked)));
-    // Settled in the fallbacks: every element defined, two frames drawn, and no text face here yet.
-    const before = await page.evaluate(async () => {
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // Settled in the fallbacks: every element defined, two frames drawn (bounded: launch.mjs), and no text face here yet.
+    await settlePage(page, { fonts: false });
+    const before = await page.evaluate(() => {
       const faces = [...document.fonts];
       return {
         at: performance.now(),
@@ -170,9 +170,8 @@ async function shiftsAsFacesArrive(url, viewport, { fallbacks }) {
     // The files arrive with nothing drawn in them, and are put in the page at one moment (above).
     await page.evaluate(withoutTextFaces);
     release();
-    const arrived = await page.evaluate(async (from) => {
-      await document.fonts.ready;
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await settlePage(page);
+    const arrived = await page.evaluate((from) => {
       const faces = [...document.fonts].filter((face) => /^"?(Inter|Roboto Mono|Noto Sans JP|Noto Sans JP Cut)"?$/.test(face.family));
       const moved = window.__docsLayoutShifts.filter((shift) => shift.at > from);
       const at = performance.now();
@@ -183,9 +182,8 @@ async function shiftsAsFacesArrive(url, viewport, { fallbacks }) {
     assert.equal(arrived.loading, 0, 'a text face was still loading when the stacks were given back');
     assert.ok(arrived.loaded.includes('Inter'), 'Inter never arrived');
     assert.deepEqual(arrived.moved, [], 'the page moved while the text faces were out of its stacks');
-    return await page.evaluate(async (from) => {
-      await document.fonts.ready;
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await settlePage(page);
+    return await page.evaluate((from) => {
       return window.__docsLayoutShifts.filter((shift) => shift.at > from);
     }, arrived.at);
   } finally {

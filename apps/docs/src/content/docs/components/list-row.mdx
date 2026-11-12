@@ -96,11 +96,11 @@ Put the row as the item's direct child. A row wrapped in another element inside 
 
 ## Specs
 
-<Example label="One, two and three lines; a picture and a value; compact">
+<Example label="One, two and three lines; a picture and a value; small">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="Shared" headline="Harbour photos" supporting-text="48 items, edited today" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
-  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" size="small" style="inline-size: 22rem"></tanrei-list-row>
 </Example>
 
 <ComponentSpecs name="list-row" />
@@ -125,9 +125,9 @@ Use a list row for each item of a list of people, places, settings, messages or 
 
 The headline, the overline and the supporting text are cut with an ellipsis where they do not fit, and a tooltip shows the whole of a cut headline and supporting text on hover and on keyboard focus. The trailing text never takes more than half of the row.
 
-### Density
+### Size
 
-`regular` rows are 56, 72 and 88 high for one, two and three lines in the default system, for a product used by touch as well as by pointer. `compact` rows (40, 56 and 72) are for a tool used with a pointer. An action, a link or an option is never lower than the list's own minimum height and the touch target, whatever the density says.
+`medium` rows are 56, 72 and 88 high for one, two and three lines in the default system, for a product used by touch as well as by pointer. `small` rows (40, 56 and 72) are for a tool used with a pointer. A row that sets no `size` takes the size its list sets, so set it once on the list. An action, a link or an option is never lower than the list's own minimum height and the target, whatever the size says.
 
 ### Do
 
@@ -152,7 +152,7 @@ The headline, the overline and the supporting text are cut with an ellipsis wher
 - A cut text is always whole for assistive technology. Its tooltip is hidden from it, opens on hover and on keyboard focus of the item, stays while the pointer is over it, and Escape closes it.
 - In a right-to-left layout the row is mirrored, and each text keeps its own direction.
 - In forced colors the texts and glyphs take the system's text color, and its disabled color in a disabled item.
-- Debug builds report a row without a headline, a `supportingLines` that is neither 1 nor 2, a leading glyph that the leading slot replaces, and an unknown density.
+- Debug builds report a row without a headline, a `supportingLines` that is neither 1 nor 2, a leading glyph that the leading slot replaces, and an unknown size.
 
 ### What you need to do
 

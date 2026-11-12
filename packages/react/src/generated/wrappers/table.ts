@@ -15,7 +15,7 @@ const TableElement = /* @__PURE__ */ createComponent({
     onSelectionChange: 'selectionchange' as EventName<TanreiEvent<TanreiTableElement>>,
   },
 });
-const TableAttributes = { caption: ['caption', ''], label: ['label', ''], density: ['density', 'regular'], separation: ['separation', 'auto'], striped: ['striped', false], rowHeaders: ['row-headers', false], stickyHeader: ['sticky-header', false], stickyFirstColumn: ['sticky-first-column', false], status: ['status', ''], selection: ['selection', 'none'], selectAllLabel: ['select-all-label', ''], loading: ['loading', false], sortedAscendingLabel: ['sorted-ascending-label', ''], sortedDescendingLabel: ['sorted-descending-label', ''] } as const;
+const TableAttributes = { caption: ['caption', ''], label: ['label', ''], size: ['size'], separation: ['separation', 'auto'], striped: ['striped', false], rowHeaders: ['row-headers', false], stickyHeader: ['sticky-header', false], stickyFirstColumn: ['sticky-first-column', false], status: ['status', ''], selection: ['selection', 'none'], selectAllLabel: ['select-all-label', ''], loading: ['loading', false], sortedAscendingLabel: ['sorted-ascending-label', ''], sortedDescendingLabel: ['sorted-descending-label', ''] } as const;
 /**
  * Presents data that has rows and columns, with named columns, optional row headers, a caption and footer rows. A price list, a comparison, a list of settings, a status of many things. It scrolls in its own box when it does not fit. A column's header can ask for the rows in its order (`sort`); the table itself never sorts, filters, fetches or pages: it draws the rows it is given, in the order it is given them.
  *

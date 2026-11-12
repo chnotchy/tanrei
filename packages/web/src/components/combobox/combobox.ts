@@ -39,10 +39,11 @@ import {
   type OptionModel,
   OptionsController,
   anchoredOptionList,
-  optionDensityAxis,
+  OptionSizeController,
+  optionSizeAxis,
   filterOptions,
 } from '../../primitives/option-list.js';
-import type { TanreiComboboxDensityRegistry, TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
+import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import '../loading-indicator/loading-indicator.js';
 import '../option/option.js';
@@ -58,14 +59,12 @@ import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
-/** The container's minimum height: the box's `medium` and `large` (`small` is a size of the box this control does not offer). A design system may add values. */
-export type TanreiComboboxSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The container's minimum height, and the size of the options of the list (CMB-68): the box's `small`, `medium` and `large`. A design system may add values. */
+export type TanreiComboboxSize = keyof TanreiInputBoxSizeRegistry;
 /** How a group of options is told from what is next to it: the design system's answer (auto), a line, or empty space. */
 export type TanreiComboboxSeparation = SeparationProp;
 /** Whether a shown option keeps the leading icon column where it has no icon (CMB-67). A closed set: the menu's values. */
 export type TanreiComboboxIconSpace = OptionIconSpace;
-/** How much room an option of the list takes (CMB-68): `regular`, `compact`, or a density a design system added. */
-export type TanreiComboboxDensity = keyof TanreiComboboxDensityRegistry;
 /** Who decides which options answer the text: the combobox (`contains`), or the product (`none`). */
 export type TanreiComboboxFilter = 'contains' | 'none';
 /** What the product's source of options is doing. */
@@ -254,7 +253,6 @@ export class TanreiCombobox extends TanreiElement {
     emptyText: { type: String, attribute: 'empty-text' },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
-    density: { type: String, reflect: true, useDefault: true },
     removeLabel: { type: String, attribute: 'remove-label' },
     addedText: { type: String, attribute: 'added-text' },
     removedText: { type: String, attribute: 'removed-text' },
@@ -266,7 +264,7 @@ export class TanreiCombobox extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label above it is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the combobox does not know by name is laid out as stacked. Reflected. */
   variant: TanreiComboboxVariant = 'stacked';
 
-  /** The container's minimum height: `medium` or `large` (48 / 56 in the default system), the text input's two sizes. The hit area always meets the minimum target. Reflected. */
+  /** The container's minimum height: `small`, `medium` or `large` (40 / 48 / 56 in the default system). It is also the size of the options of the list (CMB-68): a small combobox opens small rows, a medium or a large one medium rows. The hit area always meets the minimum target. Reflected. */
   size: TanreiComboboxSize = 'medium';
 
   /** Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected. */
@@ -368,14 +366,6 @@ export class TanreiCombobox extends TanreiElement {
    */
   iconSpace: TanreiComboboxIconSpace = 'auto';
 
-  /**
-   * How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the
-   * size of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product
-   * used by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an
-   * option is never lower than the touch target (CMB-34). A design system may add values.
-   */
-  density: TanreiComboboxDensity = 'regular';
-
   /** While selection is multiple, the accessible name of each chosen value's remove action (`remove-label`): the whole name in your language, with the place `{entry}` that the combobox fills with that value's label. This instance's words, else the product's (`setWords({ entryRemoveLabel })`); with neither the action is drawn, works and has no name. */
   removeLabel = '';
 
@@ -428,8 +418,9 @@ export class TanreiCombobox extends TanreiElement {
 
   /** CMB-56: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'combobox', behavior: 'CMB-56', axes: AXES });
-  /** CMB-68: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
-  private readonly densities = new OpenAxesController(this, { component: 'combobox-density', behavior: 'CMB-68', axes: [optionDensityAxis(PREFIX)] });
+  /** CMB-68: the options are drawn at the box's size; a size a design system added to them is drawn from its tokens, one the active system lacks is reported. */
+  private readonly optionSizes = new OpenAxesController(this, { component: 'combobox-option-size', behavior: 'CMB-68', axes: [optionSizeAxis(PREFIX)] });
+  private readonly optionSize = new OptionSizeController(this, () => this.internals);
   /** CMB-44: where style queries are missing the system's separation is read by script, again when the system is switched. */
   private readonly system = new SystemWatchController(this);
   /**

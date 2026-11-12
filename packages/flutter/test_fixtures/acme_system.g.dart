@@ -681,19 +681,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiAccordionDensitys(
-      regular: TanreiAccordionDensityTokens(
-        containerHeight: 56.0,
-        containerPaddingBlock: 16.0,
-        containerPaddingInline: 16.0,
-        labelTypescale: _typescaleHeading5,
-        supportingTextTypescale: _typescaleBody,
-        trailingTextTypescale: _typescaleBody,
-        iconSize: 24.0,
-        chevronSize: 24.0,
-        contentPaddingBlockEnd: 16.0,
-      ),
-      compact: TanreiAccordionDensityTokens(
+    sizes: TanreiAccordionSizes(
+      small: TanreiAccordionSizeTokens(
         containerHeight: 48.0,
         containerPaddingBlock: 12.0,
         containerPaddingInline: 12.0,
@@ -703,6 +692,17 @@ const TanreiSystem acmeSystem = TanreiSystem(
         iconSize: 20.0,
         chevronSize: 20.0,
         contentPaddingBlockEnd: 12.0,
+      ),
+      medium: TanreiAccordionSizeTokens(
+        containerHeight: 56.0,
+        containerPaddingBlock: 16.0,
+        containerPaddingInline: 16.0,
+        labelTypescale: _typescaleHeading5,
+        supportingTextTypescale: _typescaleBody,
+        trailingTextTypescale: _typescaleBody,
+        iconSize: 24.0,
+        chevronSize: 24.0,
+        contentPaddingBlockEnd: 16.0,
       ),
     ),
     hovered: TanreiAccordionStateTokens(
@@ -3646,17 +3646,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiComboboxDensitys(
-      regular: TanreiComboboxDensityTokens(
-        optionHeight: 48.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 24.0,
-        optionMarkSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiComboboxDensityTokens(
+    optionSizes: TanreiComboboxOptionSizes(
+      small: TanreiComboboxOptionSizeTokens(
         optionHeight: 36.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 8.0,
@@ -3664,6 +3655,15 @@ const TanreiSystem acmeSystem = TanreiSystem(
         optionLeadingIconSize: 20.0,
         optionMarkSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiComboboxOptionSizeTokens(
+        optionHeight: 48.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 24.0,
+        optionMarkSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiComboboxStateTokens(
@@ -3849,20 +3849,20 @@ const TanreiSystem acmeSystem = TanreiSystem(
     stackGap: 4.0,
     termColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     valueColor: TanreiPaint.role(TanreiColorRole.onSurface),
-    densitys: TanreiDescriptionListDensitys(
-      regular: TanreiDescriptionListDensityTokens(
-        factGap: 12.0,
-        termGap: 16.0,
-        termTypescale: _typescaleLabel,
-        valueTypescale: _typescaleBody,
-        statValueTypescale: _typescaleHeading1,
-      ),
-      compact: TanreiDescriptionListDensityTokens(
+    sizes: TanreiDescriptionListSizes(
+      small: TanreiDescriptionListSizeTokens(
         factGap: 6.0,
         termGap: 8.0,
         termTypescale: _typescaleLabelSmall,
         valueTypescale: _typescaleBodySmall,
         statValueTypescale: _typescaleHeading3,
+      ),
+      medium: TanreiDescriptionListSizeTokens(
+        factGap: 12.0,
+        termGap: 16.0,
+        termTypescale: _typescaleLabel,
+        valueTypescale: _typescaleBody,
+        statValueTypescale: _typescaleHeading1,
       ),
     ),
   ),
@@ -5437,18 +5437,18 @@ const TanreiSystem acmeSystem = TanreiSystem(
     trailingIconSize: 24.0,
     trailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     trailingTextTypescale: _typescaleBodySmall,
-    densitys: TanreiListRowDensitys(
-      regular: TanreiListRowDensityTokens(
-        containerHeightOneLine: 56.0,
-        containerHeightTwoLine: 72.0,
-        containerHeightThreeLine: 88.0,
-        containerPaddingBlock: 8.0,
-      ),
-      compact: TanreiListRowDensityTokens(
+    sizes: TanreiListRowSizes(
+      small: TanreiListRowSizeTokens(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
         containerPaddingBlock: 4.0,
+      ),
+      medium: TanreiListRowSizeTokens(
+        containerHeightOneLine: 56.0,
+        containerHeightTwoLine: 72.0,
+        containerHeightThreeLine: 88.0,
+        containerPaddingBlock: 8.0,
       ),
     ),
   ),
@@ -5540,14 +5540,14 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiListDensitys(
-      regular: TanreiListDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 8.0,
-      ),
-      compact: TanreiListDensityTokens(
+    sizes: TanreiListSizes(
+      small: TanreiListSizeTokens(
         containerHeight: 36.0,
         containerPaddingBlock: 6.0,
+      ),
+      medium: TanreiListSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingBlock: 8.0,
       ),
     ),
     hovered: TanreiListStateTokens(
@@ -6121,18 +6121,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiMenuDensitys(
-      regular: TanreiMenuDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingInline: 12.0,
-        containerPaddingBlock: 8.0,
-        containerGap: 12.0,
-        leadingIconSize: 24.0,
-        trailingIconSize: 24.0,
-        markSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiMenuDensityTokens(
+    sizes: TanreiMenuSizes(
+      small: TanreiMenuSizeTokens(
         containerHeight: 36.0,
         containerPaddingInline: 8.0,
         containerPaddingBlock: 8.0,
@@ -6141,6 +6131,16 @@ const TanreiSystem acmeSystem = TanreiSystem(
         trailingIconSize: 20.0,
         markSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiMenuSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingInline: 12.0,
+        containerPaddingBlock: 8.0,
+        containerGap: 12.0,
+        leadingIconSize: 24.0,
+        trailingIconSize: 24.0,
+        markSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiMenuStateTokens(
@@ -7728,20 +7728,20 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSearchDensitys(
-      regular: TanreiSearchDensityTokens(
-        suggestionContainerHeight: 56.0,
-        suggestionContainerPaddingInline: 16.0,
-        suggestionContainerPaddingBlock: 8.0,
-        suggestionContainerGap: 16.0,
-        suggestionLeadingIconSize: 24.0,
-      ),
-      compact: TanreiSearchDensityTokens(
+    sizes: TanreiSearchSizes(
+      small: TanreiSearchSizeTokens(
         suggestionContainerHeight: 36.0,
         suggestionContainerPaddingInline: 8.0,
         suggestionContainerPaddingBlock: 6.0,
         suggestionContainerGap: 8.0,
         suggestionLeadingIconSize: 20.0,
+      ),
+      medium: TanreiSearchSizeTokens(
+        suggestionContainerHeight: 56.0,
+        suggestionContainerPaddingInline: 16.0,
+        suggestionContainerPaddingBlock: 8.0,
+        suggestionContainerGap: 16.0,
+        suggestionLeadingIconSize: 24.0,
       ),
     ),
     hovered: TanreiSearchStateTokens(
@@ -8135,17 +8135,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiSelectDensitys(
-      regular: TanreiSelectDensityTokens(
-        optionHeight: 48.0,
-        optionPaddingInline: 12.0,
-        optionPaddingBlock: 8.0,
-        optionGap: 12.0,
-        optionLeadingIconSize: 24.0,
-        optionMarkSize: 24.0,
-        groupTitlePaddingInline: 12.0,
-      ),
-      compact: TanreiSelectDensityTokens(
+    optionSizes: TanreiSelectOptionSizes(
+      small: TanreiSelectOptionSizeTokens(
         optionHeight: 36.0,
         optionPaddingInline: 8.0,
         optionPaddingBlock: 8.0,
@@ -8153,6 +8144,15 @@ const TanreiSystem acmeSystem = TanreiSystem(
         optionLeadingIconSize: 20.0,
         optionMarkSize: 20.0,
         groupTitlePaddingInline: 8.0,
+      ),
+      medium: TanreiSelectOptionSizeTokens(
+        optionHeight: 48.0,
+        optionPaddingInline: 12.0,
+        optionPaddingBlock: 8.0,
+        optionGap: 12.0,
+        optionLeadingIconSize: 24.0,
+        optionMarkSize: 24.0,
+        groupTitlePaddingInline: 12.0,
       ),
     ),
     hovered: TanreiSelectStateTokens(
@@ -8207,6 +8207,13 @@ const TanreiSystem acmeSystem = TanreiSystem(
         outlineColor: TanreiPaint.none(),
       ),
     ),
+  ),
+  sizeTransition: TanreiSizeTransitionTokens(
+    motionDistanceStep: 64.0,
+    motionDuration: 300,
+    motionDurationMax: 400,
+    motionDurationStep: 50,
+    motionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
   ),
   skeleton: TanreiSkeletonTokens(
     containerGap: 8.0,
@@ -9142,14 +9149,14 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTableOfContentsDensitys(
-      regular: TanreiTableOfContentsDensityTokens(
-        rowHeight: 44.0,
-        rowPaddingBlock: 12.0,
-      ),
-      compact: TanreiTableOfContentsDensityTokens(
+    sizes: TanreiTableOfContentsSizes(
+      small: TanreiTableOfContentsSizeTokens(
         rowHeight: 36.0,
         rowPaddingBlock: 8.0,
+      ),
+      medium: TanreiTableOfContentsSizeTokens(
+        rowHeight: 44.0,
+        rowPaddingBlock: 12.0,
       ),
     ),
     hovered: TanreiTableOfContentsStateTokens(
@@ -9254,18 +9261,18 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTableDensitys(
-      regular: TanreiTableDensityTokens(
-        cellPaddingBlock: 12.0,
-        cellPaddingInline: 16.0,
-        cellTextTypescale: _typescaleBody,
-        headerTextTypescale: _typescaleLabel,
-      ),
-      compact: TanreiTableDensityTokens(
+    sizes: TanreiTableSizes(
+      small: TanreiTableSizeTokens(
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
+      ),
+      medium: TanreiTableSizeTokens(
+        cellPaddingBlock: 12.0,
+        cellPaddingInline: 16.0,
+        cellTextTypescale: _typescaleBody,
+        headerTextTypescale: _typescaleLabel,
       ),
     ),
     hovered: TanreiTableStateTokens(
@@ -9846,6 +9853,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
     connectorColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     connectorGap: 4.0,
     connectorThickness: 1.0,
+    itemGap: 16.0,
     markerCurrentContainerColor: TanreiPaint.role(TanreiColorRole.primary),
     markerCurrentIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
     markerDotColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
@@ -9871,14 +9879,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
         timeTypescale: _typescaleBody,
         titleTypescale: _typescaleHeading5,
         bodyTypescale: _typescaleBodyLarge,
-      ),
-    ),
-    densitys: TanreiTimelineDensitys(
-      regular: TanreiTimelineDensityTokens(
-        itemGap: 16.0,
-      ),
-      compact: TanreiTimelineDensityTokens(
-        itemGap: 8.0,
       ),
     ),
   ),
@@ -10081,18 +10081,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiTreeViewDensitys(
-      regular: TanreiTreeViewDensityTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 12.0,
-        containerPaddingInline: 12.0,
-        containerGap: 12.0,
-        levelIndent: 32.0,
-        labelTypescale: _typescaleBody,
-        iconSize: 20.0,
-        chevronSize: 20.0,
-      ),
-      compact: TanreiTreeViewDensityTokens(
+    sizes: TanreiTreeViewSizes(
+      small: TanreiTreeViewSizeTokens(
         containerHeight: 36.0,
         containerPaddingBlock: 8.0,
         containerPaddingInline: 8.0,
@@ -10101,6 +10091,16 @@ const TanreiSystem acmeSystem = TanreiSystem(
         labelTypescale: _typescaleBodySmall,
         iconSize: 16.0,
         chevronSize: 16.0,
+      ),
+      medium: TanreiTreeViewSizeTokens(
+        containerHeight: 48.0,
+        containerPaddingBlock: 12.0,
+        containerPaddingInline: 12.0,
+        containerGap: 12.0,
+        levelIndent: 32.0,
+        labelTypescale: _typescaleBody,
+        iconSize: 20.0,
+        chevronSize: 20.0,
       ),
     ),
     hovered: TanreiTreeViewStateTokens(

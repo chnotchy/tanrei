@@ -19,7 +19,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the row of package
 // managers, in WebKit, took 26 s in CI.
@@ -74,13 +74,14 @@ const BLOCKED_STORAGE = () => {
   });
 };
 
-/** The first set's tabs, which one is selected, and the command of the panel shown, once the Tab view is defined. */
-const state = (page) =>
-  page.evaluate(async (row) => {
-    await customElements.whenDefined('tanrei-tab-view');
-    await customElements.whenDefined('tanrei-code-block');
+/**
+ * The first set's tabs, which one is selected, and the command of the panel shown, once the Tab view is defined and
+ * its update complete (bounded: launch.mjs).
+ */
+const state = async (page) => {
+  await settlePage(page, { tags: ['tanrei-tab-view', 'tanrei-code-block'], update: ROW, fonts: false, frames: 0 });
+  return page.evaluate((row) => {
     const view = document.querySelector(row);
-    await view.updateComplete;
     const tabs = [...view.querySelectorAll('tanrei-tab')];
     const shown = [...view.querySelectorAll('tanrei-tab-panel')].filter((panel) => getComputedStyle(panel).display !== 'none' && !panel.hidden);
     return {
@@ -90,6 +91,7 @@ const state = (page) =>
       shown: shown.map((panel) => [...panel.querySelectorAll('tanrei-code-block [data-line-code]')].map((line) => line.textContent).join('\n')),
     };
   }, ROW);
+};
 
 for (const engine of ENGINES) {
   describe(`the install command in ${engine}`, () => {

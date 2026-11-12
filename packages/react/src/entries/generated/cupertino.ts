@@ -89,6 +89,7 @@ export { SegmentedButton } from '../../generated/wrappers/segmented-button.js';
 export { Select, type SelectMarks } from '../../generated/wrappers/select.js';
 export { SelectField, type SelectFieldMarks } from '../../generated/wrappers/select-field.js';
 export { SideSheet } from '../../generated/wrappers/side-sheet.js';
+export { SizeTransition } from '../../generated/wrappers/size-transition.js';
 export { Skeleton } from '../../generated/wrappers/skeleton.js';
 export { Slider, type SliderMarks } from '../../generated/wrappers/slider.js';
 export { SliderField, type SliderFieldMarks } from '../../generated/wrappers/slider-field.js';

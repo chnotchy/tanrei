@@ -1,0 +1,143 @@
+---
+title: サイズトランジション
+description: 伸びるメッセージ、1 行増えるセクション、1 行減るパネルのように、大きさが変わるコンテンツを包み、自分の大きさをコンテンツの新しい大きさへ 1 つの動きで運びます。後ろにあるものは跳ばずになめらかに動き、固定した辺は動きません。
+translationOf: components/size-transition.mdx
+sourceHash: 4a161106f834541ac40e63e66a5a4b4dbde95807
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import Example from '../../../../components/visuals/Example.astro';
+
+## 概要
+
+<ComponentAvailability name="size-transition" />
+
+<Example label="段落に合わせるブロックと、単語に合わせるインラインのボックス">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">四半期レポートができました。前の版から、費用、人員、次の四半期の計画の 3 つのセクションが加わっています。</p>
+    </tanrei-size-transition>
+    <div><tanrei-size-transition axis="inline"><span>保存しました</span></tanrei-size-transition></div>
+  </div>
+</Example>
+
+中のコンテンツの大きさが変わると、ボックスはいま見えている大きさから新しい大きさへ、1 つの動きで移ります。レイアウトで後ろにあるものも一緒に動き、1 フレームで跳ぶことはありません。自分では何も描きません。背景、枠線、角丸、余白はありません。
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は予定で、まだサイズトランジションを提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-size-transition>
+      <div id="details"></div>
+    </tanrei-size-transition>
+    <p>詳細が変わると、この下のものはすべてなめらかに動きます。</p>
+
+    <!-- 下端に付いた欄。上へ伸び、最後の行は動きません。 -->
+    <tanrei-size-transition anchor="end">
+      <div id="draft"></div>
+    </tanrei-size-transition>
+
+    <script type="module">
+      import '@tanrei/web/components/size-transition';
+      const box = document.querySelector('tanrei-size-transition');
+      box.addEventListener('settle', (event) => console.log(event.detail.height));
+      document.querySelector('#details').textContent = longerText; // 跳ばずに動く
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SizeTransition } from '@tanrei/react';
+
+    <SizeTransition onSettle={(event) => setHeight(event.detail.height)}>
+      {expanded ? <FullDetails /> : <Summary />}
+    </SizeTransition>
+
+    <SizeTransition axis="inline">
+      <span>{saving ? '保存中…' : '保存しました'}</span>
+    </SizeTransition>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<Example label="固定する辺：start（既定）、end、center">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-size-transition>
+      <p style="margin: 0">start：1 行目は動かず、新しい行はその下に現れます。</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="end">
+      <p style="margin: 0">end：最後の行はボックスの下端に付いたままで、新しい行はその上に現れます。</p>
+    </tanrei-size-transition>
+    <tanrei-size-transition anchor="center">
+      <p style="margin: 0">center：両方の辺が変化の半分ずつ動きます。</p>
+    </tanrei-size-transition>
+  </div>
+</Example>
+
+<ComponentSpecs name="size-transition" />
+
+## ガイドライン
+
+### 使う場面
+
+利用者が見ている間に大きさが変わる、プロダクト自身のコンテンツを包みます。2 行目に折り返す返信の下書き、全文に差し替える要約、自前の入力欄の下に現れるエラーの行、長い言葉に変わるステータスのラベルなどです。包まないと、その下のものがすべて 1 フレームで跳び、利用者はどこを読んでいたかを見失います。
+
+Tanrei のコンポーネントは、自分の大きさの変化をすでに動かしています。伸びるテキスト入力、広がるスナックバー、開くアコーディオンなどです。そのためにサイズトランジションで包む必要はありません。
+
+求めに応じてセクションをまるごと開いたり閉じたりするなら、[アコーディオン](/ja/components/accordion/)を使います。開閉はアコーディオンの仕事です。サイズトランジションは何も開閉しません。中にあるものに合わせるだけです。
+
+### 変化にかかる時間
+
+時間は距離に応じて伸びます。既定のシステムでは、64 ピクセルまでの変化は 300 ms です。さらに 64 ピクセル（に満たない分も含む）ごとに 50 ms を足し、長くても 400 ms です。大きな変化が小さな変化の横でせわしなく見えることも、遠い変化で待たされることもありません。`duration` は、プロダクトのほかのサイズトランジションと違うテンポが必要な 1 か所にだけ設定します。`0` にすると、変化はすぐに反映されます。
+
+### 軸と固定する辺の選び方
+
+| 軸 | 用途 |
+| --- | --- |
+| Block（既定） | 高さが変わるコンテンツ。段落、リスト、行が増えるセクションなど。幅はレイアウトに従います。 |
+| Inline | 幅が変わるラベル。ステータスの言葉、件数、ボタンのテキストなど。幅はコンテンツと同じです。 |
+| Both | 幅と高さが一緒に変わる小さなボックス。2 行目に折り返すバッジなど。両方が 1 つの動きで動きます。 |
+
+| 固定する辺 | 用途 |
+| --- | --- |
+| Start（既定） | ほとんどのコンテンツ。1 行目は動かず、新しいものはその後ろに現れます。 |
+| End | キーボードの上のメッセージ入力欄のように、コンテナーの終わりに付いたコンテンツ。最後の行はそのままで、ボックスは先頭の側へ伸びます。 |
+| Center | 空のパネルの中央に置いたお知らせのように、場所の中央にあるもの。 |
+
+### 推奨
+
+- 変わるコンテンツだけを包みます。ページ全体を包むと、すべてが一度に動きます。
+- 中で何かをドラッグしている間のように、コンテンツが毎フレーム変わる間は `disabled` にします。検索結果に置き換わるリストのように、利用者に見せる必要のない変化にも使います。
+- 変化のあとで測ったりスクロールしたりするときは、`settle` を待ちます。最後のフレームのあとに 1 回だけ届きます。
+
+### 非推奨
+
+- フェードで現したり消したりするために使わない。動かすのは大きさだけです。フェードはコンテンツの側で付けます。
+- 自分の大きさをすでに動かす Tanrei のコンポーネントを包まない。
+- 指標の上でレイアウトシフトを消すために頼らない。ブラウザーは、レイアウトの変化で動いた要素をそのまま数えます。消えるのは、利用者に見える跳びです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="size-transition" />
+
+### コンポーネントが担うこと
+
+- 支援技術には自分のものを何も公開しません。ロールも名前も状態もありません。フォーカスも止まりません。中のコンテンツは、ボックスがないかのように読まれ、たどり着けます。
+- 動いている間にボックスが切り取っているコンテンツも、読み上げとフォーカスの順序に残ります。動いている間に Tab で入ればたどり着けます。動きは、既定のシステムでは 400 ms 以内に終わります。
+- 動いている間は何もスクロールしません。ボックスも、中のコンテンツも、ページもです。フォーカス、キャレット、選択範囲もそのままです。
+- 動きを減らす設定のときは、大きさの変化はすべてすぐに反映されます。`settle` は変化ごとに 1 回届きます。
+- ウィンドウの大きさ、文字の大きさ、方向が変わるなど、レイアウトが与える場所が変わったときは、すぐに反映されます。ウィンドウの大きさを変えている利用者に、ボックスが遅れてついてくることはありません。
+- 未知の `axis` や `anchor`、負の値や数でない `duration` は、デバッグビルドで報告されます。
+
+### 利用者がすること
+
+- 重要な変化は自分で知らせます。ライブリージョンか、利用者が目にする通知です。サイズトランジションは大きさを動かすだけで、何も伝えません。
+- コンテンツ自身の名前、ロール、順序を正しく保ちます。サイズトランジションは何も足しません。

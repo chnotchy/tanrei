@@ -11,7 +11,7 @@ const DescriptionListElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const DescriptionListAttributes = { layout: ['layout', 'inline'], columns: ['columns', 1], density: ['density', 'regular'], separation: ['separation', 'auto'] } as const;
+const DescriptionListAttributes = { layout: ['layout', 'inline'], columns: ['columns', 1], size: ['size'], separation: ['separation', 'auto'] } as const;
 /**
  * Presents what is known about one thing as named facts — a quiet term and the value that answers it — with the terms in one column beside their values, above them, or under a large figure. An order, a file, an account, a component; the few numbers a screen opens with. It is laid out by its own width and is never a control.
  *

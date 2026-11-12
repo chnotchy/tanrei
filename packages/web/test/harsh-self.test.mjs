@@ -45,6 +45,8 @@ const EXPECTED = {
   'race: a fade read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
   'race: a fade in a shadow root read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
   'race: a scripted fade read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
+  // …and passes in every run in a test that asks for motion at its own speed.
+  'check: a fade read once, a while after the click that starts it, in a test that asks for motion at its own speed': { plain: 'passed', harsh: 'passed' },
   'sound: a fade waited for until it ends': { plain: 'passed', harsh: 'passed' },
   'sound: a page reads and sets its animations’ playback rates as it knows them': { plain: 'passed', harsh: 'passed' },
   'check: the self-check refuses a motion rate it was not given': { plain: 'skipped', harsh: { chromium: 'passed', firefox: 'skipped', webkit: 'skipped' }, options: 'passed' },
