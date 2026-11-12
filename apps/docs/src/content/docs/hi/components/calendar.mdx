@@ -2,13 +2,14 @@
 title: कैलेंडर
 description: एक महीने को दिनों के ग्रिड के रूप में दिखाता है, पेज में या किसी पिकर के भीतर, व्यक्ति को उसमें से एक तारीख़ या तारीख़ों की एक रेंज चुनने देता है, और एक महीने से दूसरे महीने पर हफ़्तों के एक ही कॉलम के रूप में जाता है जो स्क्रॉल और ड्रैग के साथ चलता है।
 translationOf: components/calendar.mdx
-sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
+sourceHash: 720aee4f08c64f69bd2ee4433f8e475dce9e83e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -212,6 +213,8 @@ SwiftUI, Compose, Flutter या React Native के उदाहरण नह�
 - किसी महीने के सामने आने को चुनाव न मानें। स्क्रॉल और ड्रैग सिर्फ़ यह बदलते हैं कि क्या दिख रहा है, `value` को कभी नहीं, और कुछ एमिट नहीं करते।
 
 ## सुलभता
+
+<FocusOrder name="calendar" fixture="single" />
 
 <ComponentAccessibility name="calendar" />
 

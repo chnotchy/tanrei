@@ -121,7 +121,7 @@ Nothing is done by a gesture alone. Each operation has a control a single press 
 
 | To | By a gesture | By a control | By a key |
 | --- | --- | --- | --- |
-| Enlarge, and return to fit | Two taps or two clicks on a point; a pinch; a trackpad pinch; Ctrl or Command with the wheel | Zoom in, zoom out | `+` or `=`, `−`, `0` |
+| Enlarge, and return to fit | Two taps or two clicks on a point; a pinch; a trackpad pinch; Control or Command with the wheel | Zoom in, zoom out | `+` or `=`, `−`, `0` |
 | Move about an enlarged picture | A drag; the wheel | — | The arrow keys |
 | Go to the next or the previous picture | A sideways drag | Next, previous | Left and Right Arrow at fit; Page Up and Page Down; Home and End for the first and the last picture |
 | Close | A downward drag by touch, at fit | Close | Escape |
@@ -194,7 +194,7 @@ The two variants of its buttons are tokens too: `comp.image-preview.bar.button.v
 - Parts: `container`, `bar`, `count`, `stage`, `image`, `placeholder`, `error`, `caption`; each button under its name — `zoom-out`, `zoom-in`, `close`, `previous`, `next` — and each button's own parts with that name before theirs: `close-container`, `next-icon`.
 - The attributes are the kebab-case of the properties: `max-zoom`, `controls-hidden`, `close-label`, `previous-label`, `next-label`, `zoom-in-label`, `zoom-out-label`, `count-text`, `loading-label`, `error-text`; on an item, `thumbnail-src`.
 - The stage takes pinch and scroll gestures for itself, so the browser's own pinch does not zoom the page while the preview is open. The browser's page zoom by the keyboard still works. A closed preview takes no wheel event and no touch from the page.
-- A trackpad pinch arrives as the wheel with Ctrl, or as the browser's own gesture event where it has one. Going to another picture by a sideways trackpad scroll is not offered.
+- A trackpad pinch arrives as the wheel with Control, or as the browser's own gesture event where it has one. Going to another picture by a sideways trackpad scroll is not offered.
 - The picture fades in and grows a little as the preview opens. Where a browser cannot hold a closed dialog while it fades, the preview is gone at once when it closes; focus and the page are given back at the same moment either way.
 - Android's back closes it with the reason `back`. A browser that does not tell back from Escape reports `escape`.
 

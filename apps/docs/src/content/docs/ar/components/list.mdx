@@ -2,13 +2,14 @@
 title: القائمة (list)
 description: تحمل مجموعة من عناصر المنتج نفسه (صفوفًا، ومربعات، وبطاقات، وملفات) في عمود واحد، أو سطر واحد، أو أسطر تلتف فتصنع شبكة. يقرؤها الناس، ويفتحونها واحدًا بعد آخر، ويختارون منها، أو يسحبونها إلى ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: 081a8ec1fda34270e381e2c9347ef5c6a532a6e1
+sourceHash: 49cb98ac1ef0c2751e9a2a944d48c0f8fb696349
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
@@ -279,6 +280,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 - لا ترسم مقبض سحب أو أزرار تحريك من عندك: ترسم `reorderable` المقبض، وقائمته المنبثقة هي طريقة التحريك التي لا تحتاج إلى سحب.
 
 ## إمكانية الوصول
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

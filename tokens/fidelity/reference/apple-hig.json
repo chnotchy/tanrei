@@ -5,7 +5,7 @@
     "source": "https://developer.apple.com/design/human-interface-guidelines/",
     "version": "read 2026-11-12",
     "license": "Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.",
-    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the default appearances.",
+    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the light and dark appearances, at the default and the increased contrast.",
     "pages": [
       {
         "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
@@ -27,75 +27,111 @@
   "tokens": {
     "apple.color.blue": {
       "light": "#0088ff",
-      "dark": "#0091ff"
+      "dark": "#0091ff",
+      "light-increased-contrast": "#1e6ef4",
+      "dark-increased-contrast": "#5cb8ff"
     },
     "apple.color.brown": {
       "light": "#ac7f5e",
-      "dark": "#b78a66"
+      "dark": "#b78a66",
+      "light-increased-contrast": "#956d51",
+      "dark-increased-contrast": "#dba679"
     },
     "apple.color.cyan": {
       "light": "#00c0e8",
-      "dark": "#3cd3fe"
+      "dark": "#3cd3fe",
+      "light-increased-contrast": "#007eae",
+      "dark-increased-contrast": "#6dd9ff"
     },
     "apple.color.gray": {
       "light": "#8e8e93",
-      "dark": "#8e8e93"
+      "dark": "#8e8e93",
+      "light-increased-contrast": "#6c6c70",
+      "dark-increased-contrast": "#aeaeb2"
     },
     "apple.color.gray-2": {
       "light": "#aeaeb2",
-      "dark": "#636366"
+      "dark": "#636366",
+      "light-increased-contrast": "#8e8e93",
+      "dark-increased-contrast": "#7c7c80"
     },
     "apple.color.gray-3": {
       "light": "#c7c7cc",
-      "dark": "#48484a"
+      "dark": "#48484a",
+      "light-increased-contrast": "#aeaeb2",
+      "dark-increased-contrast": "#545456"
     },
     "apple.color.gray-4": {
       "light": "#d1d1d6",
-      "dark": "#3a3a3c"
+      "dark": "#3a3a3c",
+      "light-increased-contrast": "#bcbcc0",
+      "dark-increased-contrast": "#444446"
     },
     "apple.color.gray-5": {
       "light": "#e5e5ea",
-      "dark": "#2c2c2e"
+      "dark": "#2c2c2e",
+      "light-increased-contrast": "#d8d8dc",
+      "dark-increased-contrast": "#363638"
     },
     "apple.color.gray-6": {
       "light": "#f2f2f7",
-      "dark": "#1c1c1e"
+      "dark": "#1c1c1e",
+      "light-increased-contrast": "#ebebf0",
+      "dark-increased-contrast": "#242426"
     },
     "apple.color.green": {
       "light": "#34c759",
-      "dark": "#30d158"
+      "dark": "#30d158",
+      "light-increased-contrast": "#008932",
+      "dark-increased-contrast": "#4ad968"
     },
     "apple.color.indigo": {
       "light": "#6155f5",
-      "dark": "#6d7cff"
+      "dark": "#6d7cff",
+      "light-increased-contrast": "#564ade",
+      "dark-increased-contrast": "#a7aaff"
     },
     "apple.color.mint": {
       "light": "#00c8b3",
-      "dark": "#00dac3"
+      "dark": "#00dac3",
+      "light-increased-contrast": "#008575",
+      "dark-increased-contrast": "#54dfcb"
     },
     "apple.color.orange": {
       "light": "#ff8d28",
-      "dark": "#ff9230"
+      "dark": "#ff9230",
+      "light-increased-contrast": "#c55300",
+      "dark-increased-contrast": "#ffa056"
     },
     "apple.color.pink": {
       "light": "#ff2d55",
-      "dark": "#ff375f"
+      "dark": "#ff375f",
+      "light-increased-contrast": "#e7124d",
+      "dark-increased-contrast": "#ff8ac4"
     },
     "apple.color.purple": {
       "light": "#cb30e0",
-      "dark": "#db34f2"
+      "dark": "#db34f2",
+      "light-increased-contrast": "#b02fc2",
+      "dark-increased-contrast": "#ea8dff"
     },
     "apple.color.red": {
       "light": "#ff383c",
-      "dark": "#ff4245"
+      "dark": "#ff4245",
+      "light-increased-contrast": "#e9152d",
+      "dark-increased-contrast": "#ff6165"
     },
     "apple.color.teal": {
       "light": "#00c3d0",
-      "dark": "#00d2e0"
+      "dark": "#00d2e0",
+      "light-increased-contrast": "#008198",
+      "dark-increased-contrast": "#3bddec"
     },
     "apple.color.yellow": {
       "light": "#ffcc00",
-      "dark": "#ffd600"
+      "dark": "#ffd600",
+      "light-increased-contrast": "#a16a00",
+      "dark-increased-contrast": "#fedf43"
     },
     "apple.target.ios.default": "44pt",
     "apple.target.ios.minimum": "28pt",

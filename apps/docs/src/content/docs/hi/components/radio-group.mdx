@@ -2,13 +2,14 @@
 title: रेडियो ग्रुप
 description: ऐसा एक सवाल पूछता है जिसका, एक साथ दिखाए गए थोड़े-से विकल्पों में से, ठीक एक जवाब होता है। यह रेडियो बटन का ऐसा सेट है जो चुना हुआ मान रखता है, ऐसे लेबल के नीचे जो बता सकता है कि जवाब ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ।
 translationOf: components/radio-group.mdx
-sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
+sourceHash: a927ce4297ca8cd5f137d1c844c5040d0ddf0683
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -222,6 +223,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - ग्रुप को अक्षम करके सेट को केवल पढ़ने वाला न बनाएँ: अक्षम ग्रुप कुछ भी सबमिट नहीं करता और उस तक पहुँचा नहीं जा सकता। `readOnly` इस्तेमाल करें, जो सेट को फ़ोकस क्रम में रखता है और उसका मान सबमिट करता है।
 
 ## सुलभता
+
+<FocusOrder name="radio-group" fixture="default" />
 
 <ComponentAccessibility name="radio-group" />
 

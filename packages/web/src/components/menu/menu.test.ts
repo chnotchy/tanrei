@@ -15,6 +15,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectFromNextFrame, motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -2034,6 +2035,36 @@ test.describe('submenus', () => {
     });
     await motionEnded(page);
     await expectFromNextFrame(menu(page, 'file'), '(el) => { el.open = false; }', ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color', 'tanrei-button button background-color'], 'the menu closed');
+  });
+
+  test('MNU-1, MNU-4, MNU-5: closed by Tab at the end of a task that outlasts its motions, the menu fades out and its anchor takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // Tab gives focus back to the anchor before the product closes the menu, so closing finds focus already outside it.
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
+    // colors' state motion lasts, the anchor focus went back to would be drawn at its end at once.
+    await mountFixtures(page, spec, { fixtures: [overlay('file', FILE)] });
+    await page.evaluate(() => {
+      document.getElementById('a-file')!.insertAdjacentHTML('afterend', '<tanrei-button id="b-file">File</tanrei-button>');
+      (document.querySelector('[data-fixture="file"] tanrei-menu') as HTMLElement & { anchor: string }).anchor = 'b-file';
+    });
+    await wire(page);
+    // Settled first (MOT-3): focus given to the anchor while it settles starts no motion.
+    await allSettled(page);
+    await tabTo(page, page.locator('#b-file'));
+    await menu(page, 'file').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    expect(await focused(page)).toBe('New');
+    // The person's Tab on the focused item: the product closes the menu in answer to close, in the same task. (A
+    // dispatched key has no default action, so focus stays on the anchor, where the Tab's own move would go on from.)
+    await expectFromNextFrame(
+      menu(page, 'file'),
+      "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, composed: true, cancelable: true })); }",
+      ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color', 'tanrei-button button background-color'],
+      'the menu closed by Tab',
+    );
+    expect(await log(page)).toContain('close:tab');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('b-file');
   });
 
   // The acme fixture system is built once per worker, outside any test's budget: otherwise a test of this group that is

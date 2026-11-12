@@ -2,13 +2,14 @@
 title: टैग ग्रुप
 description: टैग या चिप के सेट को ऐसी पंक्ति में रखता है जो अगली पंक्तियों में जा सकती है, सेट में जो रखा है उसके हिसाब से दूरी देता है, और सेट को नाम वाली एक लिस्ट के रूप में देता है। सदस्य जैसे हैं वैसे ही रहते हैं, और किसी चिप के हटने के बाद फ़ोकस अगली चिप पर जाता है।
 translationOf: components/tag-group.mdx
-sourceHash: f1814e294152182a5dafe030507781c5aa9574e4
+sourceHash: 4ce57c2e65761a4834d18e35ee034e5430051f92
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -247,6 +248,8 @@ small चिप उस घनी जगह के लिए हैं जहा�
 - ग्रुप से सदस्यों का स्टाइल न बदलें। इसकी जगह किसी लेयर में ग्रुप के टोकन बदलें।
 
 ## सुलभता
+
+<FocusOrder name="tag-group" fixture="chips-filters-single" />
 
 <ComponentAccessibility name="tag-group" />
 

@@ -9,6 +9,7 @@ import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -401,6 +402,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تُخفِ عنصر التحكم في التشغيل إلا إذا كان منتجك يقدّم وسيلة أخرى لإيقاف الحركة.
 
 ## إمكانية الوصول
+
+<FocusOrder name="carousel" fixture="navigation" />
 
 <ComponentAccessibility name="carousel" />
 

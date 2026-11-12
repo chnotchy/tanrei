@@ -2,13 +2,14 @@
 title: セレクト
 description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/select.mdx
-sourceHash: a09887b40f04e27a663a8334d9a5e7f6b8f7af0d
+sourceHash: ef7d7bf2e491e0e8690b9f0302d702ff2703e869
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
@@ -294,6 +295,8 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 - 理由を知る手段のないまま、オプションを無効にしない。理由は、そのオプションの補足テキストに書きます。
 
 ## アクセシビリティ
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

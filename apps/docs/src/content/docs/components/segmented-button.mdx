@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -278,6 +279,8 @@ The set has no `disabled` of its own. Disable segments one by one. A disabled se
 - Don't change a segment's label with its state. The selection is announced separately.
 
 ## Accessibility
+
+<FocusOrder name="segmented-button" fixture="single" />
 
 <ComponentAccessibility name="segmented-button" />
 

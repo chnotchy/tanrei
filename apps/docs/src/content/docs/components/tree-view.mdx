@@ -292,10 +292,10 @@ In a scrolling box, the rows of the open parents above what is shown stay pinned
 | Space, Enter, a press | Chooses or unchooses the item, and makes it the anchor. |
 | Shift+Down, Shift+Up | Moves focus and selects from the anchor to the focused row; going back shrinks the range. |
 | Shift+Space, a Shift-press | Selects from the anchor to the row. |
-| Ctrl+Shift+Home, Ctrl+Shift+End | Selects from the focused row to the first or the last row shown. |
-| Ctrl+A | Selects every row shown that can be chosen. |
+| Control+Shift+Home, Control+Shift+End | Selects from the focused row to the first or the last row shown. |
+| Control+A | Selects every row shown that can be chosen. |
 
-On Apple platforms Command takes the place of Ctrl. Each gesture fires one `change`.
+On Apple platforms Command takes the place of Control. Each gesture fires one `change`.
 
 
 ### Renaming and new items
@@ -365,7 +365,7 @@ Everything is drawn before the script loads except the selected fill, which appe
 
 <FocusOrder name="tree-view" fixture="filter" />
 
-<ComponentAccessibility name="tree-view" keyboardMap />
+<ComponentAccessibility name="tree-view" />
 
 ### What the component handles
 
@@ -378,7 +378,7 @@ Everything is drawn before the script loads except the selected fill, which appe
 - Enter and Space do what a press on the row does. Selection never follows focus.
 - With `editable`, F2 opens a text field on the focused row's name. Enter gives the name and Escape gives it up, and focus goes back to the row. While an input method is composing, both keys are the input method's. The field is named by `edit-label`, and a new row is a tree item at its level holding the field.
 - With `chevron="none"` open and closed are told by the glyph and by `aria-expanded`, never by color, and the arrow keys always open and close. With `expandable="false"` no row carries `aria-expanded`; the groups still tell the level.
-- In a multiple selection Shift with the arrows or Space selects a range from the anchor, Ctrl (Command) with Shift and Home or End selects to the first or last row, and Ctrl (Command) with A selects everything shown.
+- In a multiple selection Shift with the arrows or Space selects a range from the anchor, Control (Command) with Shift and Home or End selects to the first or last row, and Control (Command) with A selects everything shown.
 - Pinned parent rows are the rows themselves, so assistive technology meets each once, in its place.
 - Opening, closing and choosing are told by the row's own state. Nothing is announced and focus does not move.
 - A parent that closes around the focused row takes the focus. A focused row that is removed gives focus to the row after it.

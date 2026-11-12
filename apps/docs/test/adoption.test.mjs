@@ -58,9 +58,6 @@ const NATIVE = /<(input|select|textarea|button|details|summary|dialog|fieldset|p
 
 describe('the site’s own components', () => {
   const files = [...under('components', /\.astro$/), ...under('pages', /\.astro$/)];
-  // The keys of a component's keyboard table are a spec's phrases («Tab / Shift+Tab», «Printable characters»), not
-  // chords the Keyboard shortcut can draw.
-  const KEYS_OWED = new Set(['components/ComponentAccessibility.astro']);
 
   test('there are components to read', () => assert.ok(files.length > 40, String(files.length)));
   test('write no native control, disclosure, dialog or meter', () => {
@@ -69,9 +66,10 @@ describe('the site’s own components', () => {
       assert.deepEqual(found, [], `${file} draws ${found.join(', ')} by hand`);
     }
   });
-  test('write a key by hand in one place only, the one this list names', () => {
+  // A component's keyboard table is the keyboard map (visuals/KeyboardMap.astro): its keys are the Keyboard shortcut's.
+  test('write no key by hand', () => {
     const written = files.filter((file) => /<kbd\b/.test(template(read(file))));
-    assert.deepEqual(new Set(written), KEYS_OWED);
+    assert.deepEqual(written, []);
   });
   test('write a native table only inside Tanrei’s Table', () => {
     for (const file of files) {

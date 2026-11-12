@@ -2,13 +2,14 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: c6ecb98b17bef34b234659115320a4b862e3c5ee
+sourceHash: 4a4e0c9ed0fdd67465b80d254f9158df13d09392
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
@@ -564,6 +565,8 @@ export function rehypeTanreiTable() {
 - 不要在表格加载期间把它变淡或禁用。
 
 ## 无障碍
+
+<FocusOrder name="table" fixture="selection" />
 
 <ComponentAccessibility name="table" />
 

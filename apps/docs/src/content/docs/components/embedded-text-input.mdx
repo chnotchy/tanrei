@@ -121,7 +121,7 @@ With `multiline` the input is exactly as tall as its lines, between `minRows` (1
 
 ### Enter
 
-| Input | Enter | Shift+Enter | Ctrl+Enter, Command+Enter |
+| Input | Enter | Shift+Enter | Control+Enter, Command+Enter |
 | --- | --- | --- | --- |
 | One line | `action` | — | `action` |
 | Several lines, `enterKey="line-break"` (the default) | New line | New line | `action` |
@@ -135,7 +135,7 @@ An input method's Enter chooses a candidate or commits the text. It never emits 
 
 ### What the web draws differently
 
-- An on-screen keyboard cannot be told from a hardware one. Where the primary pointer is coarse and cannot hover, Enter is read as the return key and begins a new line. A tablet with a keyboard attached therefore acts with Ctrl+Enter or Command+Enter.
+- An on-screen keyboard cannot be told from a hardware one. Where the primary pointer is coarse and cannot hover, Enter is read as the return key and begins a new line. A tablet with a keyboard attached therefore acts with Control+Enter or Command+Enter.
 - `focusAt(x, y)` places the caret at the nearest character where the browser can say which character stands at a point. Where it cannot, the caret goes to the start of the text for a point above or before it, and to its end otherwise.
 - In a form of its own it is one of the form's controls: it submits its value under `name`. Inside a holder that is a Tanrei component it has no form, and the holder carries the value.
 - Without script, a `<textarea>` or an `<input>` you write as its child is the control. When the element is defined it takes that child's text and hides the child.

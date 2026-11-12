@@ -2,13 +2,14 @@
 title: عنصر الاختيار
 description: "يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة: مشغِّل له مظهر صندوق حقل إدخال النص ومقاساته ويعرض الخيار المختار، وقائمة بالخيارات تُفتح منه ويمكن تقسيمها إلى مجموعات، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. يصلح لشريط أو شريط أدوات أو جدول، أو داخل حقل يركّبه المنتج بنفسه."
 translationOf: components/select.mdx
-sourceHash: a09887b40f04e27a663a8334d9a5e7f6b8f7af0d
+sourceHash: ef7d7bf2e491e0e8690b9f0302d702ff2703e869
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -294,6 +295,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تعطِّل خيارًا من غير سبيل إلى معرفة السبب. قله في نصه المساعد.
 
 ## إمكانية الوصول
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

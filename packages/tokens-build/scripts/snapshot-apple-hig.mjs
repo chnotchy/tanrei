@@ -9,7 +9,8 @@
 //
 // What it takes, and only that: the control sizes of the Accessibility page (iOS and iPadOS, macOS), the iOS and
 // iPadOS text styles at the default Dynamic Type size (Large) with the SF Pro tracking at each style's size, and the
-// system colors and iOS system grays in the default light and dark appearances. Figures only — no text, no images.
+// system colors and iOS system grays in the light and dark appearances, at the default and the increased contrast.
+// Figures only — no text, no images.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -75,14 +76,16 @@ for (const [style, weight, size, leading, emphasized] of rowsOf('typography', ta
   tokens[`${role}-tracking`] = `${tracking.get(Number(size))}pt`;
 }
 
-// Color › System colors, and the iOS system grays: the default light and dark appearances.
+// Color › System colors, and the iOS system grays: the light and dark appearances, default and increased contrast.
 const hex = (alt) => {
   const m = /^R-(\d+),G-(\d+),B-(\d+)$/.exec(alt);
   if (!m) throw new Error(`color: unexpected swatch "${alt}"`);
   return `#${m.slice(1).map((n) => Number(n).toString(16).padStart(2, '0')).join('')}`;
 };
 for (const heading of ['System colors', 'iOS, iPadOS system gray colors']) {
-  for (const [name, , light, dark] of rowsOf('color', table('color', heading))) tokens[`apple.color.${slug(name)}`] = { light: hex(light), dark: hex(dark) };
+  for (const [name, , light, dark, lightIncreased, darkIncreased] of rowsOf('color', table('color', heading))) {
+    tokens[`apple.color.${slug(name)}`] = { light: hex(light), dark: hex(dark), 'light-increased-contrast': hex(lightIncreased), 'dark-increased-contrast': hex(darkIncreased) };
+  }
 }
 
 process.stdout.write(`${JSON.stringify({
@@ -92,7 +95,7 @@ process.stdout.write(`${JSON.stringify({
     source: BASE,
     version: `read ${read}`,
     license: 'Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.',
-    description: 'iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the default appearances.',
+    description: 'iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the light and dark appearances, at the default and the increased contrast.',
     pages: PAGES.map((page) => ({ url: `${BASE}${page}`, data: `${DATA}${page}.json`, changed: docs[page].metadata?.customMetadata?.['alert-date'] ?? null })),
   },
   tokens: Object.fromEntries(Object.entries(tokens).sort(([a], [b]) => (a < b ? -1 : 1))),

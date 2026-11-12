@@ -2,13 +2,14 @@
 title: टूलबार
 description: आपस में जुड़े कंट्रोल के एक सेट को एक Tab स्टॉप के रूप में रखता है, जहाँ उसके कॉन्टेंट को ज़रूरत हो वहीं इनलाइन, निचले किनारे पर डॉक किया हुआ, या कॉन्टेंट के ऊपर तैरता हुआ। ऐरो कुंजियाँ फ़ोकस को इसके कंट्रोल के बीच ले जाती हैं, और जो समाता नहीं वह ओवरफ़्लो मेन्यू में चला जाता है।
 translationOf: components/toolbar.mdx
-sourceHash: 143ac10ad1060e6880626356b277939a462728f1
+sourceHash: 1327d86415c8f6908fb2e64720953a22e06b32d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -428,6 +429,8 @@ Web और React के उदाहरण मौजूदा स्पेक �
 - टूलबार में नेविगेशन के गंतव्य न रखें। उसके आइटम ऐसे कंट्रोल हैं जो कॉन्टेंट पर काम करते हैं।
 
 ## सुलभता
+
+<FocusOrder name="toolbar" fixture="inline-fields" />
 
 <ComponentAccessibility name="toolbar" />
 

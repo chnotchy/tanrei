@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -125,6 +126,8 @@ A rating has no way to take a score back to none, by pointer, by key or by assis
 - Don't use more marks than a person can count at a glance. Ten is the most that stays readable.
 
 ## Accessibility
+
+<FocusOrder name="rating" fixture="value" />
 
 <ComponentAccessibility name="rating" />
 

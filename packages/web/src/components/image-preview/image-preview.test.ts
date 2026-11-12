@@ -10,11 +10,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
@@ -319,6 +320,21 @@ test.describe('the modal layer', () => {
     // controls' state motions last, they were drawn in their end state at once, as no other engine draws them.
     await mount(page, fx({ open: false }));
     await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-image-preview dialog.container opacity', 'tanrei-image-preview div.pages scale'], 'opened');
+  });
+
+  test('IMP-4, IMP-33: closed at the end of a task that outlasts its motions, it fades out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the opener focus went back to would be drawn at its end at once.
+    await mount(page, fx({ open: false }), { lead: '<tanrei-button id="opener">Open</tanrei-button>' });
+    // Settled first (MOT-3): focus given to the opener while it settles starts no motion.
+    await allSettled(page);
+    await tabTo(page, page.locator('#opener'));
+    await set(page, { open: true });
+    await settled(page);
+    await motionEnded(page);
+    expect((await look(page)).focus).toBe('stage');
+    await expectFromNextFrame(host(page), '(el) => { el.open = false; }', ['tanrei-image-preview dialog.container opacity', 'tanrei-button button background-color'], 'closed');
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('opener');
   });
 
   test('IMP-1: open, the container is presented by a native modal dialog above everything, over the whole window and filled with container.color; everything outside is inert, the page does not scroll, and no scrim is drawn', async ({ page }) => {

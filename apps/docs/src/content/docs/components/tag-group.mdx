@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -245,6 +246,8 @@ On the web, while a member you removed fades out, the group puts your element ba
 - Don't restyle the members from the group. Change the group's tokens in a layer instead.
 
 ## Accessibility
+
+<FocusOrder name="tag-group" fixture="chips-filters-single" />
 
 <ComponentAccessibility name="tag-group" />
 
