@@ -125,6 +125,27 @@ test('`@tanrei/web/all` registers every element of the package, and a component�
   assert.ok(fab.has(tag('fab-menu')) && fab.has(tag('fab-menu-item')));
 });
 
+// `themeColorMeta()` takes a system's theme colors: the surface of each scheme, as the design tools' resolved DTCG
+// (design/tokens/) has it. The resolved values themselves are not in the package (every web install would carry them):
+// design/tokens and `tanrei build`'s tokens output hold them.
+test('each system’s theme colors are in dist/systems/ and exported, each scheme’s surface; the resolved values are not shipped', () => {
+  for (const id of systems) {
+    const file = exported(`./systems/${id}.theme-color.json`);
+    assert.equal(file, `./dist/systems/${id}.theme-color.json`);
+    const themeColor = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+    const design = path.join(root, '../../design/tokens', id === DEFAULT_SYSTEM ? '' : id);
+    const schemes = fs.readdirSync(design).filter((name) => name.endsWith('.tokens.json')).map((name) => name.slice(config.namespace.length + 1, -'.tokens.json'.length)).sort();
+    assert.deepEqual(Object.keys(themeColor), schemes, `${id}: every scheme, by name`);
+    for (const scheme of schemes) {
+      const doc = JSON.parse(fs.readFileSync(path.join(design, `${config.namespace}.${scheme}.tokens.json`), 'utf8'));
+      assert.equal(themeColor[scheme], doc[config.namespace].sys.color.surface.$value.hex, `${id} ${scheme}: the theme color is the surface`);
+      assert.ok(!fs.existsSync(path.join(root, 'dist/systems', `${id}.${scheme}.json`)), `${id}.${scheme}.json is not in the package`);
+      assert.equal(exported(`./systems/${id}.${scheme}.json`), undefined, `${id}.${scheme}.json is not exported`);
+    }
+    assert.notEqual(themeColor.light, themeColor.dark, id);
+  }
+});
+
 // What the manifest names is what a product can import: the module it names for an element is the one
 // custom-elements.json says declares it (and defines it when it is evaluated), and the entry it names reaches that module.
 test('each system’s components manifest is in dist/systems/, and the entries and modules it names register what it lists', async () => {

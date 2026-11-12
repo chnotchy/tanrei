@@ -420,7 +420,8 @@ test('build: dry run reports, a real run writes through the CLI’s writer, engi
   try {
     const dry = (await call('/api/build?dry=1', { method: 'POST' })).json();
     assert.equal(dry.id, 'acme');
-    assert.deepEqual(dry.files.map((f) => f.path), [path.join('out/web', 'acme.css')]);
+    // The web target: the system's stylesheet and its theme colors.
+    assert.deepEqual(dry.files.map((f) => f.path), [path.join('out/web', 'acme.css'), path.join('out/web', 'acme.theme-color.json')]);
     assert.deepEqual(written, []);
     const real = (await call('/api/build', { method: 'POST' })).json();
     assert.deepEqual(real.files, [{ target: 'web', path: 'out/web/acme.css', changed: true }]);
