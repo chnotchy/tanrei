@@ -167,10 +167,11 @@ const SELECTED_ROWS = [
 /**
  * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
  * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives, and a selected row
- * and a hovered one are layers over the surface the row stands on. A model read one scheme at a time
- * (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
+ * and a hovered one are layers over the surface the row stands on, and the snackbar's expand and close glyph is held
+ * against a circle blended from its form's colors. A model read one scheme at a time (`invariantModel`) carries their
+ * colors in every scheme, so that it reports what a whole model does.
  */
-export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
+export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', 'snackbar', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
 
 /** WCAG 2.x contrast ratio; a translucent foreground is composited over the background first. */
 export function contrast(fgColor, bgColor) {
