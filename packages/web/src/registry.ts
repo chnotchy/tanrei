@@ -196,14 +196,14 @@ export interface TanreiTreeViewDensityRegistry {
   compact: true;
 }
 
-export interface TanreiListRowDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListRowSizeRegistry {
+  small: true;
+  medium: true;
 }
 
-export interface TanreiListDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiMenuDensityRegistry {

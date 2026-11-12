@@ -2969,30 +2969,30 @@ export interface TanreiLinkTokens {
 }
 
 /**
- * Every value of `comp.list-row`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.list-row`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiListRowDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListRowSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiListRowDensity = keyof TanreiListRowDensityRegistry;
-export type TanreiCoreListRowDensity = "regular" | "compact";
+export type TanreiListRowSize = keyof TanreiListRowSizeRegistry;
+export type TanreiCoreListRowSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.list-row`. */
-export interface TanreiListRowDensityTokens {
+/** The tokens of one `size` of `comp.list-row`. */
+export interface TanreiListRowSizeTokens {
   readonly containerHeightOneLine: number;
   readonly containerHeightTwoLine: number;
   readonly containerHeightThreeLine: number;
   readonly containerPaddingBlock: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiListRowDensitys = { readonly [Key in TanreiCoreListRowDensity]: TanreiListRowDensityTokens } & { readonly [Key in TanreiListRowDensity]?: TanreiListRowDensityTokens };
+export type TanreiListRowSizes = { readonly [Key in TanreiCoreListRowSize]: TanreiListRowSizeTokens } & { readonly [Key in TanreiListRowSize]?: TanreiListRowSizeTokens };
 
 /**
  * `comp.list-row`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`sizes`), keyed by the axis value.
  */
 export interface TanreiListRowTokens {
   readonly containerGap: number;
@@ -3010,7 +3010,7 @@ export interface TanreiListRowTokens {
   readonly trailingIconSize: number;
   readonly trailingTextColor: TanreiPaint;
   readonly trailingTextTypescale: TanreiTypescaleRole;
-  readonly densitys: TanreiListRowDensitys;
+  readonly sizes: TanreiListRowSizes;
 }
 
 /**
@@ -3044,28 +3044,28 @@ export interface TanreiListConditionTokens {
 export type TanreiListConditions = { readonly [Key in TanreiCoreListCondition]: TanreiListConditionTokens } & { readonly [Key in TanreiListCondition]?: TanreiListConditionTokens };
 
 /**
- * Every value of `comp.list`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.list`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiListDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiListSizeRegistry {
+  small: true;
+  medium: true;
 }
-export type TanreiListDensity = keyof TanreiListDensityRegistry;
-export type TanreiCoreListDensity = "regular" | "compact";
+export type TanreiListSize = keyof TanreiListSizeRegistry;
+export type TanreiCoreListSize = "small" | "medium";
 
-/** The tokens of one `density` of `comp.list`. */
-export interface TanreiListDensityTokens {
+/** The tokens of one `size` of `comp.list`. */
+export interface TanreiListSizeTokens {
   readonly containerHeight: number;
   readonly containerPaddingBlock: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiListDensitys = { readonly [Key in TanreiCoreListDensity]: TanreiListDensityTokens } & { readonly [Key in TanreiListDensity]?: TanreiListDensityTokens };
+export type TanreiListSizes = { readonly [Key in TanreiCoreListSize]: TanreiListSizeTokens } & { readonly [Key in TanreiListSize]?: TanreiListSizeTokens };
 
 /**
  * `comp.list`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `sizes`), keyed by the axis value.
  */
 export interface TanreiListTokens {
   readonly containerGap: number;
@@ -3098,7 +3098,7 @@ export interface TanreiListTokens {
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
   readonly conditions: TanreiListConditions;
-  readonly densitys: TanreiListDensitys;
+  readonly sizes: TanreiListSizes;
 }
 
 /**
@@ -6057,9 +6057,9 @@ declare module './vocabulary' {
   interface TanreiKeyboardShortcutVariantRegistry {}
   interface TanreiLinkCardVariantRegistry {}
   interface TanreiLinkVariantRegistry {}
-  interface TanreiListRowDensityRegistry {}
+  interface TanreiListRowSizeRegistry {}
   interface TanreiListConditionRegistry {}
-  interface TanreiListDensityRegistry {}
+  interface TanreiListSizeRegistry {}
   interface TanreiLoadingIndicatorSizeRegistry {}
   interface TanreiMainActionButtonSizeRegistry {}
   interface TanreiMainActionButtonVariantRegistry {}

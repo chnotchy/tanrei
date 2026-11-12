@@ -1389,6 +1389,266 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.list.density",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size, which its List rows take from it: regular is medium and compact is small",
+      "replacedBy": "comp.list.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.density",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size, which it takes from its list where it sets none: regular is medium and compact is small",
+      "replacedBy": "comp.list-row.size",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list.container.height.regular",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: regular is medium",
+      "replacedBy": "comp.list.container.height.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list.container.height.compact",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: compact is small",
+      "replacedBy": "comp.list.container.height.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: regular is medium",
+      "replacedBy": "comp.list.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: compact is small",
+      "replacedBy": "comp.list.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-container-height-regular",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-container-height-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-container-height-compact",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-container-height-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the list's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.one-line.regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "comp.list-row.container.height.one-line.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.one-line.compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "comp.list-row.container.height.one-line.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.two-line.regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "comp.list-row.container.height.two-line.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.two-line.compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "comp.list-row.container.height.two-line.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.three-line.regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "comp.list-row.container.height.three-line.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.height.three-line.compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "comp.list-row.container.height.three-line.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.padding-block.regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "comp.list-row.container.padding-block.medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.list-row.container.padding-block.compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "comp.list-row.container.padding-block.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-one-line-regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-row-container-height-one-line-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-one-line-compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-row-container-height-one-line-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-two-line-regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-row-container-height-two-line-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-two-line-compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-row-container-height-two-line-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-three-line-regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-row-container-height-three-line-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-height-three-line-compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-row-container-height-three-line-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-padding-block-regular",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: regular is medium",
+      "replacedBy": "--tanrei-comp-list-row-container-padding-block-medium",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-list-row-container-padding-block-compact",
+      "since": "2026-11-12",
+      "reason": "the list row's density is its size: compact is small",
+      "replacedBy": "--tanrei-comp-list-row-container-padding-block-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

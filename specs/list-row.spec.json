@@ -98,15 +98,15 @@
       "description": "The name of a glyph of the system's icon set drawn at the row's very end: a chevron that says the row opens something (chevron_right), a status. Decorative, and mirrored in a right-to-left layout where the icon set says the glyph points. Empty: none."
     },
     {
-      "name": "density",
+      "name": "size",
       "type": "enum",
       "values": [
-        "regular",
-        "compact"
+        "small",
+        "medium"
       ],
-      "default": "regular",
-      "description": "How much room the row takes: its least heights and the space above and below its text. regular (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; compact (40, 56 and 72) is for a tool used with a pointer. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. Inside an item of a List, the list's density is drawn in place of this one (LRW-17). A design system may add values.",
-      "axis": "tanrei.comp.list-row.density"
+      "default": "medium",
+      "description": "How much room the row takes: its least heights and the space above and below its text. medium (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; small (40, 56 and 72) is for a tool used with a pointer. Its heights follow the system's density at either size. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. While it is not set the row is drawn at the size its nearest container sets — a List's size (LRW-17) — and at medium where none does. A design system may add values.",
+      "axis": "tanrei.comp.list-row.size"
     }
   ],
   "slots": [
@@ -129,7 +129,7 @@
   "behavior": [
     {
       "id": "LRW-1",
-      "text": "THE list row SHALL be as wide as its layout gives it — and WHERE its layout sizes it to its content (an item of a horizontal list) as wide as its parts on one line — and SHALL lay out from its start edge: the leading part (LRW-4), the text (LRW-2), which takes the width that is left, and the trailing part (LRW-6), comp.list-row.container.gap apart, an absent part taking no room and no gap. WHILE it draws its own paddings (LRW-8) it SHALL keep comp.list-row.container.padding-inline-start before its first part, comp.list-row.container.padding-inline-end after its last, and the padding of its density (comp.list-row.container.padding-block.regular for regular, comp.list-row.container.padding-block.compact for compact) above its first line and below its last. THE list row SHALL draw no fill, no edge, no divider and no state of its own, SHALL take no focus and SHALL emit no event: it is never pressable by itself.",
+      "text": "THE list row SHALL be as wide as its layout gives it — and WHERE its layout sizes it to its content (an item of a horizontal list) as wide as its parts on one line — and SHALL lay out from its start edge: the leading part (LRW-4), the text (LRW-2), which takes the width that is left, and the trailing part (LRW-6), comp.list-row.container.gap apart, an absent part taking no room and no gap. WHILE it draws its own paddings (LRW-8) it SHALL keep comp.list-row.container.padding-inline-start before its first part, comp.list-row.container.padding-inline-end after its last, and the padding of its size (comp.list-row.container.padding-block.medium for medium, comp.list-row.container.padding-block.small for small) above its first line and below its last. THE list row SHALL draw no fill, no edge, no divider and no state of its own, SHALL take no focus and SHALL emit no event: it is never pressable by itself.",
       "verify": "The fixture all-parts in a stage 360 wide: the glyph, the text and the trailing text and glyph stand in that order from the start edge, the gap apart, the paddings at the edges; the row is 360 wide; no background color and no border."
     },
     {
@@ -139,8 +139,8 @@
     },
     {
       "id": "LRW-3",
-      "text": "THE list row SHALL count its lines of text: one line WHILE it has a headline alone; two lines WHILE it has an overline or a supporting text of one line besides the headline; three lines WHILE it has both an overline and a supporting text, or a supporting text WHILE supportingLines is 2. It SHALL be at least the height of that count in its density — comp.list-row.container.height.one-line.regular, comp.list-row.container.height.two-line.regular or comp.list-row.container.height.three-line.regular for regular, comp.list-row.container.height.one-line.compact, comp.list-row.container.height.two-line.compact or comp.list-row.container.height.three-line.compact for compact — growing with its text and never clipping it, and SHALL centre its text in the height it has. WHILE it has one or two lines it SHALL centre the leading and the trailing part on the text; WHILE it has three it SHALL align them with the top of the text, so that a picture beside three lines stays with the headline.",
-      "verify": "The fixtures one-line, two-line and three-line are 56, 72 and 88 tall in the default system, and compact-one-line and compact 40 and 56. In three-line the glyph's top is level with the overline's top; in two-line the glyph is centred on the text."
+      "text": "THE list row SHALL count its lines of text: one line WHILE it has a headline alone; two lines WHILE it has an overline or a supporting text of one line besides the headline; three lines WHILE it has both an overline and a supporting text, or a supporting text WHILE supportingLines is 2. It SHALL be at least the height of that count at its size — comp.list-row.container.height.one-line.medium, comp.list-row.container.height.two-line.medium or comp.list-row.container.height.three-line.medium for medium, comp.list-row.container.height.one-line.small, comp.list-row.container.height.two-line.small or comp.list-row.container.height.three-line.small for small — growing with its text and never clipping it, and SHALL centre its text in the height it has. WHILE it has one or two lines it SHALL centre the leading and the trailing part on the text; WHILE it has three it SHALL align them with the top of the text, so that a picture beside three lines stays with the headline.",
+      "verify": "The fixtures one-line, two-line and three-line are 56, 72 and 88 tall in the default system, and small-one-line and small 40 and 56. In three-line the glyph's top is level with the overline's top; in two-line the glyph is centred on the text."
     },
     {
       "id": "LRW-4",
@@ -159,7 +159,7 @@
     },
     {
       "id": "LRW-8",
-      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block.regular tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away, and THE list row SHALL draw no padding before its first part, the handle and that gap standing in its place.",
+      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice the padding the item draws above and below its content (comp.list.container.padding-block.medium, or comp.list.container.padding-block.small WHILE the list draws small, LST-51) tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away, and THE list row SHALL draw no padding before its first part, the handle and that gap standing in its place.",
       "verify": "In a list of the fixture's rows, an interactive item, a link item and an option that hold the row of two-line are 72 tall, as the row of two-line standing alone is, and the headline starts comp.list.container.padding-inline-start from the item's start edge. In a reorderable list the handle stands before the row's leading glyph."
     },
     {
@@ -189,7 +189,7 @@
     },
     {
       "id": "LRW-14",
-      "text": "WHEN density names a value that the active design system does not have THE list row SHALL render with the default density's tokens and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN headline, overline, supportingText, trailingText, leadingIcon, trailingIcon, supportingLines or density changes while the row is shown THE list row SHALL draw the new form at once, without a motion of its own, and the list item it is in SHALL take the new name and description (LST-49)."
+      "text": "WHEN the size the row draws names a value that the active design system does not have THE list row SHALL render with the default size's tokens and in debug builds report the unknown value; a size a design system added SHALL be drawn from that size's tokens, as the core values are. WHEN headline, overline, supportingText, trailingText, leadingIcon, trailingIcon, supportingLines or size changes while the row is shown THE list row SHALL draw the new form at once, without a motion of its own, and the list item it is in SHALL take the new name and description (LST-49)."
     },
     {
       "id": "LRW-15",
@@ -202,8 +202,8 @@
     },
     {
       "id": "LRW-17",
-      "text": "WHILE the row is the direct child of an item of a List THE list row SHALL draw at the density the list tells it (LST-51) and SHALL NOT read its own density, so that the rows of one list are of one density; standing anywhere else it SHALL draw at its own. WHEN the density the list tells it changes THE list row SHALL draw the new form at once, as LRW-14 says of its own.",
-      "verify": "A row with density regular inside a list with density compact is drawn compact; taken out of the list it is drawn regular."
+      "text": "WHILE size is not set and a container around the row sets a size for what it holds — a List's size (LST-51), the nearest such container where several do — THE list row SHALL be drawn at that size, its heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE list row SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the row moved into or out of such a container — THE list row SHALL draw the new form at once, as LRW-14 says of its own.",
+      "verify": "A row without a size in a list whose size is small is as high as the row of small standing alone, at density 0.75, 1 and 1.5; a row whose size is medium in that list keeps medium; removing the list's size, or taking the row out of the list, draws the first at medium; a row in a list that sets no size is drawn at medium."
     }
   ],
   "accessibility": {
@@ -315,20 +315,20 @@
       }
     },
     {
-      "id": "compact",
+      "id": "small",
       "props": {
         "leadingIcon": "description",
         "headline": "brief.pdf",
         "supportingText": "820 KB",
-        "density": "compact"
+        "size": "small"
       }
     },
     {
-      "id": "compact-one-line",
+      "id": "small-one-line",
       "props": {
         "headline": "brief.pdf",
         "trailingText": "820 KB",
-        "density": "compact"
+        "size": "small"
       }
     },
     {
@@ -355,7 +355,7 @@
         "leadingIcon": "leadingIcon",
         "trailingText": "trailingText",
         "trailingIcon": "trailingIcon",
-        "density": "density"
+        "size": "size"
       },
       "parts": {
         "container": "container",
@@ -381,7 +381,7 @@
         "leadingIcon": "leadingIcon",
         "trailingText": "trailingText",
         "trailingIcon": "trailingIcon",
-        "density": "density"
+        "size": "size"
       },
       "notes": "`TanreiListRow(headline:, overline:, supportingText:, leadingIcon:, trailingText:, trailingIcon:) { leading } trailing: { trailing }` with view builders for the two slots. It reads what its TanreiListItem is from the environment the item sets. The tooltip is the platform's `.help(_:)` on macOS and nothing on iOS, where a cut text is whole in the accessibility label."
     },
@@ -396,7 +396,7 @@
         "leadingIcon": "leadingIcon",
         "trailingText": "trailingText",
         "trailingIcon": "trailingIcon",
-        "density": "density"
+        "size": "size"
       },
       "notes": "`TanreiListRow(headline = \"Wi-Fi\", supportingText = …, leading = { … }, trailing = { … })` with composable lambdas for the two slots. It reads what its TanreiListItem is from a CompositionLocal the item provides."
     },
@@ -411,7 +411,7 @@
         "leadingIcon": "leadingIcon",
         "trailingText": "trailingText",
         "trailingIcon": "trailingIcon",
-        "density": "density"
+        "size": "size"
       },
       "notes": "`TanreiListRow(headline: 'Wi-Fi', supportingText: …, leading: …, trailing: …)` with widgets for the two slots. It reads what its TanreiListItem is from an InheritedWidget the item places above its content."
     },
@@ -426,7 +426,7 @@
         "leadingIcon": "leadingIcon",
         "trailingText": "trailingText",
         "trailingIcon": "trailingIcon",
-        "density": "density"
+        "size": "size"
       },
       "notes": "`<ListRow headline=\"Wi-Fi\" supportingText=\"…\" leading={…} trailing={…} />` with React nodes for the two slots. It reads what its ListItem is from a context the item provides."
     }
