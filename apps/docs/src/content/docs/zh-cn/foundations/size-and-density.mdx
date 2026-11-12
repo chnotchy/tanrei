@@ -1,8 +1,8 @@
 ---
 title: 尺寸与密度
-description: 用一个数决定控件和行占多少空间，一组五级高度供控件的各个尺寸使用，任何可按下的东西都不会画得比最小尺寸更小，按钮组还会把尺寸传给其中的按钮。
+description: 用一个数决定控件和行占多少空间，一组五级高度供控件的各个尺寸使用，任何可按下的东西都不会画得比最小尺寸更小，容器还会把尺寸传给其中的内容。
 translationOf: foundations/size-and-density.mdx
-sourceHash: 29c5978d5918d6c2ba8d84f9b28c961f28142dc1
+sourceHash: 428363747773a9d001f073ec2cf55174f8a544a5
 ---
 
 import DensityHeights from '../../../../components/tokens/DensityHeights.astro';
@@ -19,7 +19,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 跟随密度的高度都会取整到尺寸单位的网格上（`dial.size.unit`，默认 4px），正好居中时向上取整。
 
-没有按组件或按页面局部设置的密度。有几个承载行的组件（菜单等）有一个自己的选项，名为 `density`，取值 `regular` 或 `compact`，用来在两组行令牌之间选择；两组的高度都跟随这个数。
+没有按组件或按页面局部设置的密度。只有[导航抽屉](/zh-cn/components/navigation-drawer/)有一个自己的选项，名为 `density`，取值 `regular` 或 `compact`，用来在两组行令牌之间选择；两组的高度都跟随这个数。
 
 ## 尺寸阶梯
 
@@ -71,6 +71,22 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 - **组件自己的尺寸优先。** 上面的第三个 Button 是 medium。
 - **只有设置了的尺寸才会向下传递。** 没有 `size` 的按钮组不传递任何尺寸，所以其中每个 Button 按自己的默认尺寸 medium 绘制，或按包围该组的容器所设的尺寸绘制；容器嵌套时，由最近的、设置了尺寸的容器决定。
 - **组件没有的尺寸会变成离它最近的尺寸**，按 extra-small、small、medium、large、extra-large 的阶梯顺序计算，两个同样近时取较大的一个。
-- **按钮组不会因为尺寸而改变自己绘制的任何东西。** 它的间距、圆角和分隔线保持其变体的样子，围绕着按实际高度绘制的 Button。
+- **按钮组和工具栏不会因为尺寸而改变自己绘制的任何东西。** 它们的间距、圆角和分隔线保持其变体的样子，围绕着按实际高度绘制的各项。
 
-按按钮组给的尺寸绘制的 Button，和按自己的尺寸绘制时一样，跟随密度和最小目标。改变按钮组的尺寸，或把 Button 移入、移出按钮组，都会立即按新的尺寸绘制。
+按容器给的尺寸绘制的组件，和按自己的尺寸绘制时一样，跟随密度和最小目标。改变容器的尺寸，或把组件移入、移出容器，都会立即按新的尺寸绘制。
+
+### 哪些组件传递尺寸，哪些接收尺寸
+
+有三种容器会把设在自己身上的尺寸传给其中的内容：
+
+- [按钮组](/zh-cn/components/button-group/)传给其中的 Button。
+- [工具栏](/zh-cn/components/toolbar/)传给其中的 Button 和带菜单的按钮，不论它们是否在分组里，也传给溢出按钮。
+- [列表](/zh-cn/components/list/)传给其中的列表行。
+
+下面这些组件在没有设置自己的尺寸时，取上述容器中最近的那个的尺寸；没有容器设置尺寸时按 medium 绘制：[Button](/zh-cn/components/button/)、[带菜单的按钮](/zh-cn/components/button-with-menu/)、[复制按钮](/zh-cn/components/copy-button/)和[列表行](/zh-cn/components/list-row/)；还有按这个尺寸绘制自己所有行或部件的[列表](/zh-cn/components/list/)、[树视图](/zh-cn/components/tree-view/)、[折叠面板](/zh-cn/components/accordion/)、[目录](/zh-cn/components/table-of-contents/)、[描述列表](/zh-cn/components/description-list/)和[表格](/zh-cn/components/table/)。
+
+尺寸只传到这里为止。折叠面板、描述列表和表格不会把尺寸传给你放在其中的内容：表格单元格里的 Button 保持自己的尺寸，或取表格外层容器的尺寸。还有一些组件完全不从容器接收尺寸：
+
+- [菜单](/zh-cn/components/menu/)（包括上下文菜单和[菜单栏](/zh-cn/components/menubar/)中的菜单）、[搜索](/zh-cn/components/search/)的视图，以及[下拉选择框](/zh-cn/components/select/)和[组合框](/zh-cn/components/combobox/)的列表。它们都在页面上方打开，与周围的控件分开，所以把工具栏设为 small，并不会让其中 Button 打开的菜单变小。菜单和搜索在没有设置自己的 `size` 时是 medium；下拉选择框和组合框的选项跟随其输入框的尺寸。
+- 工具栏中的下拉选择框、数字输入框、文本输入框和滑块，各自保持你给它的尺寸。
+- [时间线](/zh-cn/components/timeline/)，它的尺寸指的是文字的大小。
