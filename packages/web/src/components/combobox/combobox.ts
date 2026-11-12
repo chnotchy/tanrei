@@ -273,8 +273,8 @@ export class TanreiCombobox extends TanreiElement {
    * The hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container
    * sets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
    * value, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.
-   * It is also the size of the options of its list (CMB-68): a small box opens small rows, a
-   * medium or a large one medium rows.
+   * The size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small
+   * box opens small rows, a medium or a large one medium rows.
    */
   get size(): TanreiComboboxSize {
     return (this.sizes.own ?? 'medium') as TanreiComboboxSize;

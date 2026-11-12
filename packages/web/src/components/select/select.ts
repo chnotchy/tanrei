@@ -226,8 +226,8 @@ export class TanreiSelect extends TanreiElement {
    * The hit area always meets the minimum target. While it is not set the select draws the size its nearest container
    * sets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
    * value, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.
-   * It is also the size of the options of its list (SEL-70): a small box opens small rows, a
-   * medium or a large one medium rows.
+   * The size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small
+   * box opens small rows, a medium or a large one medium rows.
    */
   get size(): TanreiSelectSize {
     return (this.sizes.own ?? 'medium') as TanreiSelectSize;

@@ -12153,7 +12153,7 @@
                 "text": "TanreiComboboxSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (CMB-68): a small box opens small rows, a\nmedium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "kind": "field",
@@ -12655,7 +12655,7 @@
                 "text": "TanreiComboboxSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (CMB-68): a small box opens small rows, a\nmedium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "name": "value",
@@ -13180,7 +13180,7 @@
               "type": {
                 "text": "TanreiComboboxSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (CMB-68): a small box opens small rows, a\nmedium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
               "attribute": "size"
             },
             {
@@ -13633,7 +13633,7 @@
               "type": {
                 "text": "TanreiComboboxSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (CMB-68): a small box opens small rows, a\nmedium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
               "fieldName": "size"
             },
             {
@@ -41032,7 +41032,7 @@
                 "text": "TanreiSelectSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (SEL-70): a small box opens small rows, a\nmedium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "kind": "field",
@@ -41464,7 +41464,7 @@
                 "text": "TanreiSelectSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (SEL-70): a small box opens small rows, a\nmedium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "name": "value",
@@ -41918,7 +41918,7 @@
               "type": {
                 "text": "TanreiSelectSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (SEL-70): a small box opens small rows, a\nmedium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
               "attribute": "size"
             },
             {
@@ -42238,7 +42238,7 @@
               "type": {
                 "text": "TanreiSelectSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nIt is also the size of the options of its list (SEL-70): a small box opens small rows, a\nmedium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
               "fieldName": "size"
             },
             {

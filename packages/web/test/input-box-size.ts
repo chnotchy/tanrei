@@ -79,3 +79,51 @@ export async function expectBoxTakesContainerSize(
   const results = await new AxeBuilder({ page }).include('#size-stage').analyze();
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([]);
 }
+
+/**
+ * The options of a box that opens a list (SEL-70 with SEL-73, CMB-68 with CMB-83) are drawn at the size the box is
+ * drawn at: a box without a size of its own in a small toolbar opens rows as high as a small box's, one whose size is
+ * medium opens medium rows there, and with the list open a removal of the toolbar's size draws medium rows at once.
+ * The page has a fixture mounted, so that the tags are defined.
+ */
+export async function expectOptionsTakeDrawnSize(page: Page, tag: string): Promise<void> {
+  await page.evaluate((name) => {
+    const stage = document.createElement('div');
+    stage.id = 'options-stage';
+    const options = '<tanrei-option value="a">Alpha</tanrei-option><tanrei-option value="b">Beta</tanrei-option>';
+    const box = (id: string, size = '') => `<${name} id="${id}" ${size ? `size="${size}"` : ''} label="${id}" style="inline-size: 18rem">${options}</${name}>`;
+    stage.innerHTML = `
+      <tanrei-toolbar id="options-small" size="small" label="Small">${box('options-taken')}${box('options-own', 'medium')}</tanrei-toolbar>
+      ${box('options-small-alone', 'small')}${box('options-medium-alone', 'medium')}`;
+    document.body.append(stage);
+  }, tag);
+  /** The height of the first row of the box's list, opened, measured in one frame after `change` ran; the list is left open. */
+  const rowHeight = (id: string, change = '') =>
+    page.evaluate(
+      async ([boxId, code]) => {
+        const box = document.getElementById(boxId as string) as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+        box.open = true;
+        await box.updateComplete;
+        new Function(code as string)();
+        await box.updateComplete;
+        await new Promise(requestAnimationFrame);
+        // Its laid-out height, which the list's entrance (a scale) does not change.
+        return parseFloat(getComputedStyle(box.shadowRoot!.querySelector('.scroll .row')!).blockSize);
+      },
+      [id, change] as const,
+    );
+  const close = (id: string) => page.evaluate(async (boxId) => {
+    const box = document.getElementById(boxId) as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+    box.open = false;
+    await box.updateComplete;
+  }, id);
+  const heights: Record<string, number> = {};
+  for (const id of ['options-small-alone', 'options-medium-alone', 'options-taken', 'options-own']) {
+    heights[id] = await rowHeight(id);
+    await close(id);
+  }
+  expect(heights['options-small-alone'], 'a small row is lower than a medium one').toBeLessThan(heights['options-medium-alone']!);
+  expect({ taken: heights['options-taken'], own: heights['options-own'] }).toEqual({ taken: heights['options-small-alone'], own: heights['options-medium-alone'] });
+  expect(await rowHeight('options-taken', "document.getElementById('options-small').removeAttribute('size')"), 'the toolbar’s size removed, the list open').toBe(heights['options-medium-alone']);
+  await close('options-taken');
+}

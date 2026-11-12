@@ -8,7 +8,8 @@ select and a combobox that set no `size` of their own are now drawn at the size 
 a toolbar's `size` today — and at `medium` where none does, as a Button is. In `<tanrei-toolbar size="small">` a select,
 a number input and a text input stand 36 high under the default system, as tall as the toolbar's small Buttons, where
 they stayed at medium before. A box's own `size`, `medium` included, still wins. The number input's steppers and the
-text and color inputs' picker button follow the size the box draws. A slider in a toolbar still takes nothing: its size
+text and color inputs' picker button follow the size the box draws, and so do the options of a select's and a
+combobox's list: a select that takes a small toolbar's size opens small rows. A slider in a toolbar still takes nothing: its size
 is the weight of its track.
 
 What changed on the elements:
