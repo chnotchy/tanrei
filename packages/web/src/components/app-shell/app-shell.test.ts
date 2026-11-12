@@ -13,7 +13,7 @@ import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, l
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { motionCount, motionEnded } from '../../../test/motions.js';
+import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('app-shell');
@@ -826,6 +826,27 @@ test.describe('the menu button', () => {
     expect(stops.some((stop) => stop.includes('tanrei-navigation-drawer'))).toBe(true);
     expect(back.some((stop) => stop.startsWith('menu'))).toBe(true);
     expect(back.some((stop) => stop === '#notice')).toBe(true);
+  });
+
+  test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
+    // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
+    await mount(page, real(), { width: 400 });
+    // Settled first (MOT-3): focus given to the menu button while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, menu(page));
+    await motionEnded(page);
+    const motions =['tanrei-navigation-drawer nav.drawer translate', 'tanrei-navigation-drawer div.scrim opacity', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button.has-icon background-color'];
+    await expectFromNextFrame(shell(page), '(el) => { el.navigationOpen = true; }', motions, 'opened');
+    expect(await active(page)).toContain('tanrei-navigation-drawer');
+    await motionEnded(page);
+    await expectFromNextFrame(
+      drawer(page),
+      "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
+      motions,
+      'closed by Escape',
+    );
+    expect(await active(page)).toMatch(/^menu/);
   });
 
   for (const width of [400, 800] as const) {

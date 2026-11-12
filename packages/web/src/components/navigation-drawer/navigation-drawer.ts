@@ -69,7 +69,7 @@ import type { TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle
 import type { TanreiTextInput } from '../text-input/text-input.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
-import { statesFromNextFrame } from '../../primitives/motion.js';
+import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -3762,6 +3762,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     dialog?.style.removeProperty('--_drag');
     holdPageScroll(this, false);
     const widening = !dialog || dialog.classList.contains('widening');
+    // What focus goes back to (`restoreFocus`, now or once its column has taken the dialog's place): often outside it.
+    const opener = restore ? this.opener : null;
     const left = dialog ? closeModal(dialog, widening ? { instant: !notify, interactive: true, moves: WIDENING } : { instant: !notify }) : null;
     if (widening && !(dialog && isLeaving(dialog))) {
       // Already out of the top layer (no motion to play: reduced motion, or at once): its column takes its place first,
@@ -3775,9 +3777,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
         void left.then((done) => done && this.takeColumn(run));
       }
     }
-    // NVD-22, NVD-40: a collapsible drawer's rows narrowing to its column, and the colors of what focus went back to,
-    // begin in the first frame drawn after this task, as the surface's exit does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // NVD-22, NVD-40: a collapsible drawer's rows narrowing to its column, and the colors of what focus left and went
+    // back to — inside it or outside — begin in the first frame drawn after this task, as the surface's exit does
+    // (statesFromNextFrame).
+    statesFromNextFrame([this, opener]);
     if (notify) this.dispatchEvent(new Event('close'));
   }
 
@@ -3892,9 +3895,23 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.syncOver();
     this.applyOffset();
     this.focusInside(shower);
-    // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus begin in
-    // the first frame drawn after this task.
-    statesFromNextFrame([this]);
+    // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus and of
+    // what focus left (the app shell's menu button, outside it) begin in the first frame drawn after this task.
+    this.heldFromNextFrame(false);
+    statesFromNextFrame([this, this.opener]);
+  }
+
+  /**
+   * NVD-19, NVD-22: a held drawer's slide and its scrim's fade, which a held drawer plays by its own state (no
+   * AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those), begin in the
+   * first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before it, and where
+   * the task took longer than they last drew the drawer in place, or gone, at once. Only those standing at their start:
+   * one under way goes on as it is. `leaving`: its close, which `settleOver` waits for.
+   */
+  private heldFromNextFrame(leaving: boolean) {
+    if (!documentPainted()) return;
+    const begun = [this.panel, this.scrim].flatMap((element) => element?.getAnimations() ?? []).filter((animation) => Number(animation.currentTime ?? 0) === 0);
+    startFromNextFrame(begun, { leaving });
   }
 
   /**
@@ -3914,9 +3931,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const run = ++this.overRun;
     this.syncOver();
     if (notify) this.dispatchEvent(new Event('close'));
+    const opener = restore ? this.opener : null;
     if (restore) this.restoreFocus();
     else this.opener = null;
-    statesFromNextFrame([this]);
+    // NVD-20, NVD-22: its slide, its scrim's fade and the colors of what focus left and went back to (the app shell's
+    // menu button, outside it) begin in the first frame drawn after this task.
+    this.heldFromNextFrame(true);
+    statesFromNextFrame([this, opener]);
     void this.settleOver(() => run === this.overRun && !this.shown).then((done) => {
       if (!done) return;
       this.leavingHeld = false;
@@ -4305,13 +4326,21 @@ export class TanreiNavigationDrawer extends TanreiElement {
         else if (this.shown) this.withdraw();
       } else if (changed.has('open') && this.hasUpdated && changed.get('open') !== undefined && !this.responsive) {
         // NVD-28: a standard drawer opened moves focus in; closed with focus inside, it gives it back.
+        // What focus leaves as it opens, or goes back to as it closes: outside it.
+        let back: Element | null = null;
         if (this.open && !was) {
           this.opener = deepActive();
+          back = this.opener;
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {
           this.closingWithFocus = false;
+          back = this.opener;
           this.restoreFocus();
         }
+        // NVD-18, NVD-28: its slide, and the colors of what focus left and went to — inside it, or back where it was
+        // when it opened — begin in the first frame drawn after this task (statesFromNextFrame). WebKit dated them from
+        // the frame drawn before the task, and where the task took longer than they last drew them over at once.
+        statesFromNextFrame([this, back]);
       }
     }
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;
