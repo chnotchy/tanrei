@@ -4,12 +4,13 @@
 // - put a gap before and after every input action, in every engine (once a worker, on the client's own classes: a
 //   locator's and a page's actions go through its frame, and the mouse, the keyboard and the touchscreen are their own);
 // - slow every page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
-//   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears);
+//   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears) — its motion
+//   left at its own speed where the test asks (`MOTION_AT_ITS_OWN_SPEED`, test/harsh.ts);
 // - check, once a worker before its first test, that all of this takes effect (`checkHarsh`), and fail the worker's
 //   tests if it does not.
 import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
 import * as real from '../../node_modules/@playwright/test/index.mjs';
-import { HARSH_TIMEOUT, type Harsh, harsh } from '../harsh.js';
+import { HARSH_TIMEOUT, type Harsh, MOTION_AT_ITS_OWN_SPEED, harsh } from '../harsh.js';
 import { slowMotion } from './slow-motion.js';
 
 // The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
@@ -106,6 +107,11 @@ export function gapAround(proto: Record<string, unknown>, names: readonly string
 let elementGapped = false;
 /** Contexts the test made with scripting off (`javaScriptEnabled: false`). */
 const unscripted = new WeakSet<BrowserContext>();
+/**
+ * Whether the running test asked for its pages' motion at its own speed (`MOTION_AT_ITS_OWN_SPEED`): set before any of
+ * its pages is made, by the `motionRate` fixture, for every page it gets or makes. A worker runs one test at a time.
+ */
+let motionAtItsOwnSpeed = false;
 
 async function gapActions(page: Page) {
   gapAround(Object.getPrototypeOf(page.mainFrame()), ACTIONS.frame, 'Frame');
@@ -140,7 +146,7 @@ function slowDown(page: Page): Promise<void> {
         // Firefox and WebKit have no rate to set: on request, the page's animations are slowed in the page
         // (test/harsh/slow-motion.ts), in every document to come and in the one it has. A page with scripting off is left
         // as it is.
-        if (harsh.pageMotion && harsh.motion !== 1 && !unscripted.has(page.context())) {
+        if (harsh.pageMotion && harsh.motion !== 1 && !motionAtItsOwnSpeed && !unscripted.has(page.context())) {
           await page.addInitScript(slowMotion, harsh.motion);
           await page.evaluate(slowMotion, harsh.motion);
         }
@@ -148,7 +154,9 @@ function slowDown(page: Page): Promise<void> {
       }
       const cdp = await page.context().newCDPSession(page);
       if (harsh.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: harsh.cpu });
-      if (harsh.motion !== 1) {
+      // A test that asked for motion at its own speed gets no Animation domain at all: with it on, Chromium's work differs
+      // (test/harsh.ts, `MOTION_AT_ITS_OWN_SPEED`).
+      if (harsh.motion !== 1 && !motionAtItsOwnSpeed) {
         // The rate holds for the page's documents to come too (a `setContent`, a `goto`): the agent keeps it while enabled.
         await cdp.send('Animation.enable');
         await cdp.send('Animation.setPlaybackRate', { playbackRate: harsh.motion });
@@ -307,7 +315,7 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
   }
 }
 
-export const test = base.extend<{ context: BrowserContext }, { browser: Browser; harshChecked: void }>({
+export const test = base.extend<{ context: BrowserContext; motionRate: void }, { browser: Browser; harshChecked: void }>({
   browser: [
     async ({ browser }, use) => {
       const newContext = browser.newContext.bind(browser);
@@ -334,6 +342,16 @@ export const test = base.extend<{ context: BrowserContext }, { browser: Browser;
       await use();
     },
     { scope: 'worker', auto: true, timeout: 60_000 },
+  ],
+  // Before any page of the test is made (an automatic fixture is set up before the others): whether the test asked for
+  // its pages' motion at its own speed.
+  motionRate: [
+    async ({}, use, testInfo) => {
+      motionAtItsOwnSpeed = testInfo.annotations.some(({ type }) => type === MOTION_AT_ITS_OWN_SPEED);
+      await use();
+      motionAtItsOwnSpeed = false;
+    },
+    { auto: true },
   ],
   context: async ({ context }, use) => {
     await use(slowContext(context));

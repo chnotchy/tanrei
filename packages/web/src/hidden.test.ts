@@ -100,8 +100,8 @@ async function drawn(page: Page, subjects: Subject[], where: 'document' | 'shado
 }
 
 /**
- * Drawn still, a known gap: the menu's six elements, the tabs and a tab, and a skeleton's
- * placeholder. They are expected to be drawn — exactly these, in every place — so that the one that is fixed fails
+ * Drawn still with the hidden attribute, a known gap: none — every element and class-form component has no box with
+ * it. A name here would be expected to be drawn — exactly these, in every place — so that the one that is fixed fails
  * here until its name is taken out, and the list cannot outlive its reason. Nothing is added to it.
  */
 const OWED: string[] = [];

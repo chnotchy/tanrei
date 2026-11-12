@@ -88,7 +88,10 @@ function definedForAnother(selector: string): boolean {
 async function rulesWith(page: Page, needle: string): Promise<{ selector: string; where: string[] }[]> {
 const manifest = JSON.parse(read('custom-elements.json')) as { modules: { declarations?: { tagName?: string }[] }[] };
   const tags = [...new Set(manifest.modules.flatMap((m) => m.declarations ?? []).map((d) => d.tagName).filter((t): t is string => !!t))];
-  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css'));
+  // Each stylesheet a page can load, alone. `tanrei.css` is the others in one file (test/stylesheets.test.mjs holds it):
+  // read as well, it would only give each rule again. Read by their own files, a stylesheet a page loads by itself is
+  // read even if it were ever left out of that one.
+  const sheets = fs.readdirSync(path.join(pkg, 'dist')).filter((file) => file.endsWith('.css') && file !== 'tanrei.css');
   expect(tags.length).toBeGreaterThan(40);
   expect(sheets.length).toBeGreaterThan(10);
   // Every stylesheet a page can load, and every element — each adds its styles to its shadow root, or to the document.

@@ -34,6 +34,7 @@ import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
 import { loadSpec, stageMarkup, withoutIconFont } from '../test/harness.js';
+import { motionAtItsOwnSpeed } from '../test/harsh.js';
 import { twoFrames } from '../test/work-count.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -277,7 +278,9 @@ const VARIANTS: Record<string, { markup: () => string; motion?: boolean; prepare
   },
 };
 
-test.describe('forced passes do not grow with the number of instances (a Chromium trace)', () => {
+// Harsh mode leaves these pages' motion at its own speed: its rate in Chromium is the DevTools protocol's Animation
+// domain, with which the engine skips some of the passes counted here.
+test.describe('forced passes do not grow with the number of instances (a Chromium trace)', motionAtItsOwnSpeed('the passes counted are the engine’s own work, which the Animation domain changes'), () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the passes are counted from a Chromium trace');
 
   test('every forced budget names a component, and allows more than every other component is held to', () => {
