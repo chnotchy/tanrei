@@ -2,7 +2,7 @@
 title: Sistemas de diseño y personalización
 description: Un vocabulario, muchos sistemas de diseño. Cambia un dial, declara una paleta, reorienta un token, y todas las plataformas lo siguen en un solo commit.
 translationOf: foundations/design-systems.mdx
-sourceHash: a369e7b893ff42d30fd51a6f7588542767c83a8b
+sourceHash: fcf54d6541a4eeda68ecf3c7d5098ad34e7357e8
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -40,7 +40,7 @@ Cada token es de uno de tres tipos:
 - **fijo**: un literal con un motivo declarado, exento de los diales (`corner.full`, una curva de aceleración, un tamaño de nota al pie impuesto por ley);
 - **alias**: una referencia que se puede reorientar (`button.container.gap` → `space100`).
 
-En la web, los diales también funcionan en vivo: los tokens derivados se emiten como expresiones `calc()`, de modo que definir `--tanrei-dial-type-base` en cualquier elemento reescala todo lo que contiene. Una prueba evalúa cada token derivado en un navegador real con varios ajustes de los diales y exige que sea igual al resultado de la compilación.
+En la web, los diales también funcionan en vivo: los tokens derivados se emiten como expresiones `calc()`, de modo que definir `--tanrei-dial-type-base` en el elemento raíz reescala toda la página. Los tokens derivados se declaran en la raíz, así que un dial definido en un elemento más abajo no los cambia. Una prueba evalúa cada token derivado en un navegador real con varios ajustes de los diales y exige que sea igual al resultado de la compilación.
 
 ## Un sistema de diseño es una capa
 
