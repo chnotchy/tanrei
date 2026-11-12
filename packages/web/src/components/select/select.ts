@@ -446,7 +446,7 @@ export class TanreiSelect extends TanreiElement {
    * And that it is drawn focused for as long as its list is open, whether or not it has focus (SEL-20).
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium';
+    const size = this.sizes.drawnName;
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size, { leading: this.leading !== null, chevron: !this.readOnly }),

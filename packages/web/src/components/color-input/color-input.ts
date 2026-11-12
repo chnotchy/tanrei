@@ -365,7 +365,7 @@ export class TanreiColorInput extends TanreiElement {
    * And an entry error, with its words. No count: a color has one length.
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium';
+    const size = this.sizes.drawnName;
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size),
@@ -383,9 +383,9 @@ export class TanreiColorInput extends TanreiElement {
 
   /** CLI-27: the Button size with the input's size name, or Button's default for a size Button does not have. */
   private get pickerSize(): string {
-    const size = this.drawnSize;
+    const size = this.sizes.drawnName;
     if (BUTTON_SIZES.has(size)) return size;
-    const own = /^[a-z0-9][a-z0-9-]*$/.test(size) && getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
+    const own = getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
     return own ? size : 'medium';
   }
 

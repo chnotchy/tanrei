@@ -845,7 +845,7 @@ export class TanreiTextInput extends TanreiElement {
    * And an entry error, with its words.
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium';
+    const size = this.sizes.drawnName;
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size, { leading: this.hasLeading, trailing: this.hasTrailing || this.ownButtons > 0, lead: this.iconBoxes.lead }),
@@ -2153,9 +2153,9 @@ export class TanreiTextInput extends TanreiElement {
 
   /** TXI-32: the Button size with the field's size name, or Button's default for a size Button does not have. */
   private get pickerSize(): string {
-    const size = this.drawnSize;
+    const size = this.sizes.drawnName;
     if (BUTTON_SIZES.has(size)) return size;
-    const own = /^[a-z0-9][a-z0-9-]*$/.test(size) && getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
+    const own = getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
     return own ? size : 'medium';
   }
 

@@ -93,6 +93,12 @@ const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 /** The selector a consumer's size block is written under: the custom state `size-<name>` its controller carries. */
 export const drawnSizeAt = (size: string) => `:host(:state(size-${size}))`;
 
+/**
+ * An open size axis's `drawn` (`OpenAxis`, axes.ts) for a consumer: the size the host draws (its `drawnSize`, from its
+ * `SizeConsumerController`), carried by the custom state `size-<name>`. One object every consumer's axis shares.
+ */
+export const drawnSizeAxis = { read: (host: HTMLElement) => String((host as HTMLElement & { drawnSize?: unknown }).drawnSize ?? ''), selector: drawnSizeAt };
+
 /** The host of a component that takes a size: its `size` is a custom accessor that hands every write to `setOwn`. */
 type ConsumerHost = ReactiveControllerHost & HTMLElement & { requestUpdate(name?: PropertyKey, oldValue?: unknown): void };
 
@@ -174,6 +180,12 @@ export class SizeConsumerController extends OwnSize implements ReactiveControlle
   get drawn(): string {
     if (this.own !== null) return this.own;
     return this.value ? nearestSize(this.value, this.sizes) : this.fallback;
+  }
+
+  /** The drawn size where it is a token name, else the fallback: the name the host reads its own tokens by (its insets). */
+  get drawnName(): string {
+    const drawn = this.drawn;
+    return STATE_NAME.test(drawn) ? drawn : this.fallback;
   }
 
   /**

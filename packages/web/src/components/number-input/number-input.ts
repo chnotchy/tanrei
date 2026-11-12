@@ -437,7 +437,7 @@ export class TanreiNumberInput extends TanreiElement {
   private get saysToField(): FieldSays {
     return {
       drawsLabel: this.layout !== 'stacked',
-      inset: INSET(/^[a-z0-9][a-z0-9-]*$/.test(this.drawnSize) ? this.drawnSize : 'medium'),
+      inset: INSET(this.sizes.drawnName),
       refusal: this.entryError ? { text: this.invalidText } : null,
     };
   }

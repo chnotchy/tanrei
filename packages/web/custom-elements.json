@@ -2386,7 +2386,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // SPB-37: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // SPB-37: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (SPB-8): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2835,25 +2835,12 @@
           "description": "BTN-12: the widths of an icon-only Button. A closed set: `default` is the height, `wide` a width of its size, and\n`narrow` no width of its own: the glyph's box and an inset of its size on each side."
         },
         {
-          "kind": "function",
-          "name": "drawnAt",
-          "parameters": [
-            {
-              "name": "size",
-              "type": {
-                "text": "string"
-              }
-            }
-          ],
-          "description": "BTN-48: the selector of the size a button draws (`size-<name>`, a custom state the button sets)."
-        },
-        {
           "kind": "variable",
           "name": "AXES",
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // BTN-48: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}`, // BTN-48: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (BTN-7): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2884,14 +2871,6 @@
           "name": "WIDTHS",
           "declaration": {
             "name": "WIDTHS",
-            "module": "src/components/button/button.styles.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "drawnAt",
-          "declaration": {
-            "name": "drawnAt",
             "module": "src/components/button/button.styles.ts"
           }
         },
@@ -11086,7 +11065,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // CLI-47: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnSizeAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${INPUT_BOX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // CLI-47: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${INPUT_BOX}-${value}-container-color` }, ]",
           "description": "The open axes (CLI-41): a size or variant a layer added gets its block on demand, built by the same\nfunctions as the core blocks and falling back to the default's tokens; a value the active system lacks is reported\nin debug builds."
         },
         {
@@ -12980,7 +12959,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // CMB-83: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnSizeAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${optionVariantRules(PREFIX, value, selector, DEFAULT_VARIANT)}`, probe: (value) => `${INPUT_BOX}-${value}-container-color`, }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // CMB-83: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${optionVariantRules(PREFIX, value, selector, DEFAULT_VARIANT)}`, probe: (value) => `${INPUT_BOX}-${value}-container-color`, }, ]",
           "description": "The open axes (CMB-56): a size or variant a layer added gets its block on demand, built by the same\nfunctions as the core blocks and falling back to the default's tokens; a value the active system lacks is reported\nin debug builds."
         },
         {
@@ -22481,7 +22460,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-padding-block-${value}` as const, // LRW-17: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-padding-block-${value}` as const, // LRW-17: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: drawnSizeAxis.read, selector: drawnAt }, }, ]",
           "description": "LRW-14: a size a layer added gets its block on demand, falling back to the default's tokens."
         },
         {
@@ -22784,7 +22763,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` as const, // LST-51: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt }, }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` as const, // LST-51: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, ]",
           "description": "LST-51: a size a layer added gets its block on demand, falling back to the default's tokens."
         },
         {
@@ -31620,7 +31599,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // NMI-49: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnSizeAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${INPUT_BOX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // NMI-49: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${INPUT_BOX}-${value}-container-color` }, ]",
           "description": "The open axes (NMI-43): a size or variant a layer added gets its block on demand, built by the same\nfunctions as the core blocks and falling back to the default's tokens; a value the active system lacks is reported\nin debug builds."
         },
         {
@@ -41730,7 +41709,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // SEL-73: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnSizeAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${optionVariantRules(PREFIX, value, selector, DEFAULT_VARIANT)}`, probe: (value) => `${INPUT_BOX}-${value}-container-color`, }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}`, // SEL-73: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${optionVariantRules(PREFIX, value, selector, DEFAULT_VARIANT)}`, probe: (value) => `${INPUT_BOX}-${value}-container-color`, }, ]",
           "description": "The open axes (SEL-60): a size or variant a layer added gets its block on demand, built by the same\nfunctions as the core blocks and falling back to the default's tokens; a value the active system lacks is reported\nin debug builds."
         },
         {
@@ -51157,7 +51136,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${BOX}-container-height-${value}`, // TXI-73: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnSizeAt }, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${BOX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${BOX}-container-height-${value}`, // TXI-73: the size it draws — its own, else the one its nearest container sets — carried by a custom state. drawn: drawnSizeAxis, }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${BOX}-${value}-container-color` }, ]",
           "description": "The open axes (TXI-9): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
