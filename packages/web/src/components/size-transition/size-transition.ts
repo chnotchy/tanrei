@@ -31,13 +31,14 @@ const RESIZING = 'data-resizing';
 
 // SZT-6: the window was resized in this frame. Its `resize` event is dispatched in the frame's rendering steps, before
 // the resize observers report, and a task queued then runs after them: the flag holds for the reports of that frame.
+// The window is listened to only while a size transition is connected: loading the module adds no listener to a page
+// that draws none (a page's frame, the app shell, listens to the window by media queries alone).
 let windowResized = false;
-if (typeof window !== 'undefined') {
-  window.addEventListener('resize', () => {
-    windowResized = true;
-    setTimeout(() => (windowResized = false));
-  });
-}
+let connected = 0;
+const onWindowResize = () => {
+  windowResized = true;
+  setTimeout(() => (windowResized = false));
+};
 
 /**
  * Wraps content whose size changes — a message that grows, a section that gains a line, a panel that loses a row — and
@@ -133,12 +134,14 @@ export class TanreiSizeTransition extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    if (connected++ === 0) window.addEventListener('resize', onWindowResize);
     // Connected again, its first frame is drawn at rest, as at first (SZT-1).
     this.observe();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    if (--connected === 0) window.removeEventListener('resize', onWindowResize);
     this.resizes?.disconnect();
     this.mutations?.disconnect();
     this.measured = null;

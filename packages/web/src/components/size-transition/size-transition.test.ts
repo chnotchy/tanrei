@@ -3,6 +3,9 @@
 // number written here. A motion is read frame by frame (each frame callback reads the box where the frame draws it),
 // and held to what must hold in every frame — an edge that stays, a size that never jumps back — not to a frame count,
 // which a loaded machine changes.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveToken, tab } from '../../../test/harness.js';
@@ -316,6 +319,28 @@ test.describe('behavior', () => {
     await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     expect(await motionCount(it), 'the text size grew').toBe(0);
     expect(await page.evaluate(() => (window as unknown as { __settles: number[] }).__settles.length)).toBeGreaterThan(0);
+  });
+
+  test('SZT-6: the window is listened to only while a size transition is connected — the module adds no listener to a page that draws none', async ({ page }) => {
+    const bundle = fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../dist/tanrei.bundle.js'), 'utf8');
+    await page.setContent(`<!doctype html><html><body><script>
+      window.__resize = [];
+      const add = EventTarget.prototype.addEventListener;
+      const remove = EventTarget.prototype.removeEventListener;
+      EventTarget.prototype.addEventListener = function (type, ...rest) { if (this === window && type === 'resize') window.__resize.push('add'); return add.call(this, type, ...rest); };
+      EventTarget.prototype.removeEventListener = function (type, ...rest) { if (this === window && type === 'resize') window.__resize.push('remove'); return remove.call(this, type, ...rest); };
+    </script><script type="module">${bundle}</script></body></html>`);
+    await page.waitForFunction(() => !!customElements.get('tanrei-size-transition'));
+    const seen = () => page.evaluate(() => (window as unknown as { __resize: string[] }).__resize.slice());
+    expect(await seen(), 'loaded, none drawn').toEqual([]);
+    await page.evaluate(() => {
+      for (let i = 0; i < 2; i++) document.body.append(Object.assign(document.createElement('tanrei-size-transition'), { textContent: 'Line' }));
+    });
+    expect(await seen(), 'two connected: one listener').toEqual(['add']);
+    await page.evaluate(() => document.querySelector('tanrei-size-transition')!.remove());
+    expect(await seen(), 'one left: still listening').toEqual(['add']);
+    await page.evaluate(() => document.querySelector('tanrei-size-transition')!.remove());
+    expect(await seen(), 'none left').toEqual(['add', 'remove']);
   });
 
   test('SZT-6: a size transition whose content holds one that moves follows it in every frame, so the two move as one', async ({ page }) => {
