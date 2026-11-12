@@ -127,8 +127,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/ci/check-playwright-image.sh
       - run: pnpm --filter @tanrei/web build
-      # Component baselines come from src/components/<name>/, preset baselines from src/systems.test.ts
-      # (`snapshot: <name>/<fixture>`); both are titled `snapshot: …` (playwright.config.ts).
+      # Component baselines come from src/components/<name>/ (a component made of CSS alone, such as the timeline:
+      # src/styles/<name>.test.ts), preset baselines from src/systems.test.ts (`snapshot: <name>/<fixture>`); all
+      # are titled `snapshot: …` (playwright.config.ts).
       - name: Record
         working-directory: packages/web
         env:
@@ -139,7 +140,10 @@ jobs:
           if [ -z "$COMPONENTS" ]; then
             record --grep 'snapshot: '
           else
-            dirs=(); for c in $COMPONENTS; do dirs+=("src/components/$c/"); done
+            dirs=()
+            for c in $COMPONENTS; do
+              if [ -d "src/components/$c" ]; then dirs+=("src/components/$c/"); else dirs+=("src/styles/$c.test.ts"); fi
+            done
             record --grep 'snapshot: ' "${dirs[@]}"
             record --grep "snapshot: ($(echo "$COMPONENTS" | tr ' ' '|'))/" src/systems.test.ts
           fi
