@@ -397,6 +397,8 @@ export class TanreiCarousel extends TanreiElement {
   private reducedMotion = false;
   /** CRL-38: whether the icon set can draw the playback glyphs. */
   private glyphReady = false;
+  /** The glyphs' font has been asked to be read with the turn's reads (`checkGlyphs()`), and not read yet. */
+  private glyphAsked = false;
   /** CRL-43: the row is at, or moving to, its first or its last resting position, and does not loop. */
   private firstDisabled = false;
   private lastDisabled = false;
@@ -468,6 +470,8 @@ export class TanreiCarousel extends TanreiElement {
   /** When the clock last started (`performance.now()`), or null while it is stopped. */
   private runningSince: number | null = null;
   private advanceTimer: ReturnType<typeof setTimeout> | undefined;
+  /** The interval read for the writes running now (`withInterval()`), or null: `interval()` reads it then. */
+  private intervalRead: number | null = null;
   /** The interval the advance's timer was last set for, in ms: a new interval sets it again. */
   private timedInterval = 0;
   /** CRL-36: the animation that draws the current dot's fill across the interval — the browser runs it, no frame is asked for. */
@@ -696,13 +700,17 @@ export class TanreiCarousel extends TanreiElement {
     stage.style.setProperty('--_view', `${view}px`);
     const target = next.offset(next.recentre(position));
     // The second step: the row scrolled once every carousel's track has its length (see `arrange()`).
+    // The autoplay interval is read there too, for what the arrangement then starts or draws (`withInterval()`).
     readTogether(() => {
       if (this.geometry !== next) return;
       const scrolled = this.scrollRow(target);
+      const interval = this.readIntervalFor();
       return () => {
         if (this.geometry !== next) return;
-        if (scrolled) this.placeScrolled(scrolled);
-        this.arranged(next, metrics, wasAnimating);
+        this.withInterval(interval, () => {
+          if (scrolled) this.placeScrolled(scrolled);
+          this.arranged(next, metrics, wasAnimating);
+        });
       };
     });
   }
@@ -718,7 +726,9 @@ export class TanreiCarousel extends TanreiElement {
       this.reported.set('fit', `${d}@${next.inner}`);
       report(this, 'CRL-20', `indicator is set but its ${d} dots do not fit beside the playback control at this width, so they are not drawn; a row of dots is for a short featured row`, { once: false });
     }
-    if (wasAnimating || this.moving) this.atRest();
+    // The offset is the one the row was scrolled to in the read (`placeScrolled()`): read again here, after the writes of
+    // every carousel arranged with it, it had the browser lay the page out once for each.
+    if (wasAnimating || this.moving) this.atRest(this.offset);
     this.syncTabStop();
     this.syncClock();
   }
@@ -995,14 +1005,17 @@ export class TanreiCarousel extends TanreiElement {
    * carousel's own scroll (`scrollend`) when it next updates its rendering, which may be long after the row came to rest,
    * and a row that has been at rest since keeps the time it has counted (CRL-32).
    */
-  private atRest() {
+  private atRest(offset?: number) {
     const geometry = this.geometry;
     const moved = this.moving;
     this.moving = false;
     if (geometry) {
-      const p = geometry.position(this.readOffset());
+      const p = geometry.position(offset ?? this.readOffset());
       const centred = geometry.recentre(p);
-      if (centred !== p) this.setOffset(geometry.offset(centred));
+      if (centred !== p) {
+        this.setOffset(geometry.offset(centred));
+        offset = this.offset;
+      }
       this.progressDot = geometry.nearestResting(centred);
     }
     if (moved) {
@@ -1011,7 +1024,7 @@ export class TanreiCarousel extends TanreiElement {
       this.stopClock();
     }
     this.syncTabStop();
-    this.place(this.readOffset());
+    this.place(offset ?? this.readOffset());
     this.syncClock();
   }
 
@@ -1326,13 +1339,42 @@ export class TanreiCarousel extends TanreiElement {
 
   // ── Autoplay (CRL-32 – CRL-36) ──────────────────────────────────────────────────────────────────
 
-  /** How long the row rests before it advances, in ms: `autoplayInterval`, or comp.carousel.autoplay.interval through a real property. */
+  /**
+   * How long the row rests before it advances, in ms: `autoplayInterval`, or comp.carousel.autoplay.interval through a
+   * real property — as read for the writes running now (`withInterval()`), or read now.
+   */
   private interval(): number {
     const own = positive(this.autoplayInterval);
     if (own !== null) return own;
+    if (this.intervalRead !== null) return this.intervalRead;
     const timing = this.renderRoot?.querySelector('.timing');
     const seconds = timing ? Number.parseFloat(getComputedStyle(timing).transitionDelay) : Number.NaN;
     return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0;
+  }
+
+  /** Whether autoplay can run, so that what it starts or draws reads the interval: never while it is off or motion is reduced (CRL-34). */
+  private get timed(): boolean {
+    return this.autoplay && !this.reducedMotion;
+  }
+
+  /** The interval, read for writes to come (`withInterval()`) where autoplay can use it; null, reading nothing, where it cannot. */
+  private readIntervalFor(): number | null {
+    return this.timed ? this.interval() : null;
+  }
+
+  /**
+   * Runs `write` with the interval read before it (null: none was read): what it starts or draws — the clock, the
+   * progress fill — takes that interval instead of reading the cascade after the writes of every other carousel of the
+   * turn, which had the browser style the page once for each.
+   */
+  private withInterval(interval: number | null, write: () => void) {
+    const was = this.intervalRead;
+    this.intervalRead = interval;
+    try {
+      write();
+    } finally {
+      this.intervalRead = was;
+    }
   }
 
   /** CRL-33: whether a hold is in effect. */
@@ -1471,31 +1513,43 @@ export class TanreiCarousel extends TanreiElement {
   /**
    * CRL-38: the playback glyphs are drawn only once the icon set can draw them — before that the glyph's box stays and
    * shows nothing, never the glyph's name as text. A face that never loads leaves the box empty.
+   *
+   * The glyph's font is read from the cascade with every other host's of the turn (src/primitives/read-phase.ts): read
+   * in this carousel's own update, after the writes of the one updated before it, it had the browser style the page
+   * once for each.
    */
-  private async checkGlyphs() {
-    if (this.glyphReady) return;
-    const icon = this.renderRoot.querySelector<HTMLElement>('.playback .icon');
-    const fonts = typeof document === 'undefined' ? undefined : document.fonts;
-    if (!icon) return;
-    if (!fonts) {
-      this.glyphReady = true;
-      return;
-    }
-    const style = getComputedStyle(icon);
-    const font = `${style.fontSize} ${style.fontFamily}`;
-    const text = `${PAUSE_GLYPH}${PLAY_GLYPH}`;
-    try {
-      if (fonts.check(font, text)) {
-        this.glyphReady = true;
-        return;
+  private checkGlyphs() {
+    if (this.glyphReady || this.glyphAsked) return;
+    this.glyphAsked = true;
+    readTogether(() => {
+      this.glyphAsked = false;
+      if (this.glyphReady) return;
+      const icon = this.renderRoot.querySelector<HTMLElement>('.playback .icon');
+      const fonts = typeof document === 'undefined' ? undefined : document.fonts;
+      if (!icon) return;
+      if (!fonts) return this.glyphsReady;
+      const style = getComputedStyle(icon);
+      const font = `${style.fontSize} ${style.fontFamily}`;
+      const text = `${PAUSE_GLYPH}${PLAY_GLYPH}`;
+      try {
+        if (fonts.check(font, text)) return this.glyphsReady;
+        const loading = fonts.load(font, text);
+        return () => {
+          loading.then((faces) => {
+            if (faces.length || fonts.check(font, text)) this.glyphReady = true;
+          }, this.glyphsReady);
+        };
+      } catch {
+        // A font string the engine cannot parse, or a load that fails (above): nothing to wait for.
+        return this.glyphsReady;
       }
-      const faces = await fonts.load(font, text);
-      if (faces.length || fonts.check(font, text)) this.glyphReady = true;
-    } catch {
-      // A font string the engine cannot parse: nothing to wait for.
-      this.glyphReady = true;
-    }
+    });
   }
+
+  /** CRL-38: the playback glyphs can be drawn. */
+  private readonly glyphsReady = () => {
+    this.glyphReady = true;
+  };
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────────────────────────
 
@@ -1573,13 +1627,24 @@ export class TanreiCarousel extends TanreiElement {
     }
     const geometryChanged = ['heroAlignment', 'itemWidth', 'fixedWidth', 'scaleOthers', 'freeScroll', 'loop', 'indicator'].some((name) => changed.has(name as keyof TanreiCarousel));
     if (this.hasUpdated && geometryChanged) this.arrange();
-    else if (['contentAlignment', 'restingCount', 'indicatorFits', 'autoplayProgress', 'paused', 'reducedMotion'].some((name) => changed.has(name as keyof TanreiCarousel))) {
-      this.place(this.offset);
+    const placed = !(this.hasUpdated && geometryChanged) && ['contentAlignment', 'restingCount', 'indicatorFits', 'autoplayProgress', 'paused', 'reducedMotion'].some((name) => changed.has(name as keyof TanreiCarousel));
+    const clocked = ['autoplay', 'paused', 'autoplayInterval', 'restingCount', 'reducedMotion', 'autoplayProgress'].some((name) => changed.has(name as keyof TanreiCarousel));
+    // What these draw and start follows the autoplay interval, which the cascade gives: read with every other host's of
+    // the turn (src/primitives/read-phase.ts), not in this update, after the writes of the carousel updated before it.
+    if (!this.timed) {
+      if (placed) this.place(this.offset);
+      if (clocked) this.syncClock();
+    } else if (placed || clocked) {
+      readTogether(() => {
+        const interval = this.readIntervalFor();
+        return () =>
+          this.withInterval(interval, () => {
+            if (placed) this.place(this.offset);
+            if (clocked) this.syncClock();
+          });
+      });
     }
-    if (['autoplay', 'paused', 'autoplayInterval', 'restingCount', 'reducedMotion', 'autoplayProgress'].some((name) => changed.has(name as keyof TanreiCarousel))) {
-      this.syncClock();
-    }
-    if (this.playbackDrawn && !this.glyphReady) void this.checkGlyphs();
+    if (this.playbackDrawn && !this.glyphReady) this.checkGlyphs();
   }
 
   protected override render() {
