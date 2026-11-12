@@ -1986,6 +1986,23 @@ test.describe('submenus', () => {
     expect(await focused(page)).toBe('Report.pdf');
   });
 
+  test('MNU-1, MNU-4: closed at the end of a task that outlasts its motions, the menu fades out and its anchor takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
+    // colors' state motion lasts, the item focus left and the anchor focus went back to were drawn at their end at once.
+    await mountFixtures(page, spec, { fixtures: [overlay('file', FILE)] });
+    await page.evaluate(() => {
+      document.getElementById('a-file')!.insertAdjacentHTML('afterend', '<tanrei-button id="b-file">File</tanrei-button>');
+      (document.querySelector('[data-fixture="file"] tanrei-menu') as HTMLElement & { anchor: string }).anchor = 'b-file';
+    });
+    await wire(page);
+    await tabTo(page, page.locator('#b-file'));
+    await menu(page, 'file').evaluate((el: HTMLElement & { open: boolean }) => {
+      el.open = true;
+    });
+    await motionEnded(page);
+    await expectFromNextFrame(menu(page, 'file'), '(el) => { el.open = false; }', ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color', 'tanrei-button button background-color'], 'the menu closed');
+  });
+
   // The acme fixture system is built once per worker, outside any test's budget: otherwise a test of this group that is
   // the first of its worker to ask for it pays the build out of its own 30 s.
   test.beforeAll(async () => {
