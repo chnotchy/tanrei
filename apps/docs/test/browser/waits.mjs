@@ -81,7 +81,7 @@ export async function settleFrame({ selector, scroll, pending, bounds }) {
 /**
  * In the page, for a test that waits on the document rather than on one frame of it: every tag of `tags` defined, and
  * every custom element's tag among the elements `among` matches (a selector, as `*` for the whole document); the
- * update of the element `update` names complete (a Lit element's `updateComplete`); the fonts in, unless `fonts` is
+ * update of every element `update` matches complete (a Lit element's `updateComplete`); the fonts in, unless `fonts` is
  * false; and `frames` frames drawn since (two unless said otherwise; none with 0). Each wait is given its bound in
  * `bounds`, the tags and the update the bound of `defined`. Resolves to nothing when all of that came, or to what did
  * not come in its time. It reads nothing outside itself: Playwright sends its source to the page.
@@ -117,10 +117,11 @@ export async function settleDocument({ tags = [], among, update, fonts = true, f
     return `not defined after ${seconds(bounds.defined)}: ${names.filter((name) => !customElements.get(name)).join(', ')} (of the ${names.length} tags waited for)`;
   }
   if (update) {
-    const element = document.querySelector(update);
-    if (!element) return `no element matches ${update}`;
-    if ((await within(bounds.defined, Promise.resolve(element.updateComplete))) === late) {
-      return `the update of ${update} not complete after ${seconds(bounds.defined)}${element.isUpdatePending ? ' (an update pending)' : ''}`;
+    const elements = [...document.querySelectorAll(update)];
+    if (!elements.length) return `no element matches ${update}`;
+    if ((await within(bounds.defined, Promise.all(elements.map((element) => element.updateComplete)))) === late) {
+      const pending = elements.filter((element) => element.isUpdatePending).map((element) => element.localName);
+      return `the update of ${update} not complete after ${seconds(bounds.defined)}${pending.length ? ` (an update pending: ${pending.join(', ')})` : ''}`;
     }
   }
   if (fonts && (await within(bounds.fonts, document.fonts.ready)) === late) {

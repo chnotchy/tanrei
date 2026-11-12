@@ -152,7 +152,7 @@ export async function settle(page, selector, { scroll, pending } = {}) {
 
 /**
  * `page` settled as a whole (`settleDocument` in waits.mjs: the tags of `tags` and of the elements `among` matches
- * defined, the update of the element `update` names complete, the fonts in unless `fonts` is false, `frames` frames
+ * defined, the update of every element `update` matches complete, the fonts in unless `fonts` is false, `frames` frames
  * drawn), each wait within its bound; one that runs out fails at once, as `settle` does. `settlePage(page, { fonts:
  * false })` is two frames drawn, and no more.
  * @param {import('@playwright/test').Page} page
