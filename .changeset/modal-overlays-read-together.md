@@ -25,3 +25,9 @@ Focus still goes in as each surface opens, after it is placed; of several modal 
 topmost takes it. Nothing drawn, exposed or announced changes. The forced-pass budgets of the dialog, the modal layer,
 the bottom sheet and the date and time picker are lowered to the new counts; the side sheet's and the Button with
 menu's are removed. The read budgets of the closed dialog and side sheet are lowered.
+
+Reading together is a module of its own (`read-together`), apart from the frame's read phase, so that what only reads
+together does not bring the phase's resize observer into its bundle. The byte budgets of two bundles are raised to
+what they measure now: the dialog's (31800 to 32400 bytes gzip; 32310 measured), for the steps its layout and its
+opening are now made in, and the toolbar's (70000 to 70300; 70268 measured), which carries the motions' shared hold
+and frame through its menu.

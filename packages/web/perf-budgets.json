@@ -213,8 +213,8 @@
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 31800,
-      "measured": 30654,
+      "budget": 32400,
+      "measured": 32310,
       "allowedComponents": []
     },
     "divider": {
@@ -630,8 +630,8 @@
       ]
     },
     "toolbar": {
-      "budget": 70000,
-      "measured": 66988,
+      "budget": 70300,
+      "measured": 70268,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
