@@ -99,6 +99,21 @@ describe('settleFrame', () => {
     assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), 'two frames not drawn in 0.06 s (the document visible)');
   });
 
+  test('gives a wait its bound once more when its timer fired late, after the thread was held', async () => {
+    // The thread is held from 20 ms to 220 ms; the second frame is drawn 16 ms after it, behind the bound's late timer.
+    page();
+    let heldUntil = 0;
+    globalThis.requestAnimationFrame = (callback) => {
+      const draw = () => (Date.now() < heldUntil + 16 ? setTimeout(draw, heldUntil + 16 - Date.now()) : callback());
+      return setTimeout(draw, 16);
+    };
+    setTimeout(() => {
+      heldUntil = Date.now() + 200;
+      mock.timers.setTime(heldUntil);
+    }, 20);
+    assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), null);
+  });
+
   test('says when there is no such element', async () => {
     page();
     assert.equal(await onClock(settleFrame({ selector: '#elsewhere', bounds: SHORT })), 'no element matches #elsewhere');
@@ -170,6 +185,36 @@ describe('settleDocument', () => {
   test('says when the frames are not drawn in time', async () => {
     wholePage({ frames: false });
     assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+  });
+
+  test('gives a wait its bound once more when its timer fired late, after the thread was held, and only once', async () => {
+    // The page's thread is held from 20 ms to 220 ms: the frame due at 32 ms is drawn 16 ms after the hold, and the
+    // bound's timer, due at 60 ms, fires at 221 ms, late by far more than a quarter of the bound.
+    wholePage({ frames: false });
+    let heldUntil = 0;
+    globalThis.requestAnimationFrame = (callback) => {
+      const draw = () => (Date.now() < heldUntil + 16 ? setTimeout(draw, heldUntil + 16 - Date.now()) : callback());
+      return setTimeout(draw, 16);
+    };
+    setTimeout(() => {
+      heldUntil = Date.now() + 200;
+      mock.timers.setTime(heldUntil);
+    }, 20);
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), null);
+    // A second hold, past the bound given once more: the wait runs out.
+    wholePage({ frames: false });
+    globalThis.requestAnimationFrame = () => 0;
+    const hold = () => mock.timers.setTime(Date.now() + 200);
+    setTimeout(hold, 20);
+    setTimeout(hold, 250);
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+  });
+
+  test('a timer that fires on time is not given its bound again', async () => {
+    wholePage({ frames: false });
+    const started = Date.now();
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+    assert.ok(Date.now() - started <= 61, `ran out after ${Date.now() - started} ms`);
   });
 
   test('reads nothing outside itself, as the page that runs it has nothing else', () => {

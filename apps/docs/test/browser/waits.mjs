@@ -20,6 +20,8 @@
  *   wait 5 s before it says the page is stalled; this is four times that.
  * - `fonts`: the page's faces, small files served from the same host; the fixture gallery gives them 10 s too.
  * - `frames`: two frames, about 33 ms in a visible page.
+ * A bound whose timer fires well after it was due (the page's thread held) is given once more (`within` below): that
+ * adds at most each bound again, and only after a hold that the wall clock has already counted.
  */
 export const SETTLE = { pending: 10_000, defined: 20_000, fonts: 10_000, frames: 5_000 };
 
@@ -33,10 +35,22 @@ export const SETTLE = { pending: 10_000, defined: 20_000, fonts: 10_000, frames:
  */
 export async function settleFrame({ selector, scroll, pending, bounds }) {
   const late = {};
+  // A bound's timer that fires more than a quarter of the bound after it was due fired after the page's thread had
+  // been held, not after the wait had its time: what the hold delayed (a frame, a chunk's script) may be queued behind
+  // it. The wait is given its bound once more, and only once.
   const within = async (ms, promise) => {
     let timer;
     try {
-      return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(late), ms)))]);
+      return await Promise.race([
+        promise,
+        new Promise((resolve) => {
+          const arm = (again) => {
+            const due = Date.now() + ms;
+            timer = setTimeout(() => (again && Date.now() - due > ms / 4 ? arm(false) : resolve(late)), ms);
+          };
+          arm(true);
+        }),
+      ]);
     } finally {
       clearTimeout(timer);
     }
@@ -76,10 +90,22 @@ export async function settleFrame({ selector, scroll, pending, bounds }) {
  */
 export async function settleDocument({ tags = [], among, update, fonts = true, frames = 2, bounds }) {
   const late = {};
+  // A bound's timer that fires more than a quarter of the bound after it was due fired after the page's thread had
+  // been held, not after the wait had its time: what the hold delayed (a frame, a chunk's script) may be queued behind
+  // it. The wait is given its bound once more, and only once.
   const within = async (ms, promise) => {
     let timer;
     try {
-      return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(late), ms)))]);
+      return await Promise.race([
+        promise,
+        new Promise((resolve) => {
+          const arm = (again) => {
+            const due = Date.now() + ms;
+            timer = setTimeout(() => (again && Date.now() - due > ms / 4 ? arm(false) : resolve(late)), ms);
+          };
+          arm(true);
+        }),
+      ]);
     } finally {
       clearTimeout(timer);
     }
