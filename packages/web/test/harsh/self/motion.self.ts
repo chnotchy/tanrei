@@ -2,7 +2,7 @@
 // its check that the rate takes effect. test/harsh-self.test.mjs says what each test must do with harsh mode off and
 // on, in each engine; a title that starts with "race:" is a test that is wrong on purpose.
 import { expect, test } from '@playwright/test';
-import { harsh } from '../../harsh.js';
+import { harsh, motionAtItsOwnSpeed } from '../../harsh.js';
 import { checkHarsh } from '../playwright-test.js';
 
 /**
@@ -47,6 +47,15 @@ const readAWhileAfter = async (box: Element, wait: number) => {
 };
 
 test('race: a fade read once, a while after the click that starts it', async ({ page }) => {
+  await page.setContent(FADE);
+  await page.locator('#box').click();
+  expect(await page.locator('#box').evaluate(readAWhileAfter, AWHILE)).toBe('0');
+});
+
+// The race above, in a test that asks for its pages' motion at its own speed: harsh mode leaves the fade alone (in
+// Chromium no Animation domain, in Firefox and WebKit no rate set in the page), and the read a while after it lands
+// after its end in every run. The gaps around the click stay.
+test('check: a fade read once, a while after the click that starts it, in a test that asks for motion at its own speed', motionAtItsOwnSpeed('harsh mode’s own check of the annotation'), async ({ page }) => {
   await page.setContent(FADE);
   await page.locator('#box').click();
   expect(await page.locator('#box').evaluate(readAWhileAfter, AWHILE)).toBe('0');
