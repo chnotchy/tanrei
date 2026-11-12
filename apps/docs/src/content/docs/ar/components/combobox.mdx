@@ -2,13 +2,14 @@
 title: مربع التحرير والسرد
 description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة أو أكثر، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: f77856128c3e79f823589f3af443d4f25e6385fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تكتب `supporting-text` أو `error-text` أو `required` أو `optional` على مربع تحرير وسرد. فهي للحقل، ومربع التحرير والسرد لا يرسم أيًّا منها.
 
 ## إمكانية الوصول
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

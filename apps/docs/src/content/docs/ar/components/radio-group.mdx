@@ -2,13 +2,14 @@
 title: مجموعة أزرار الاختيار
 description: "تطرح سؤالًا واحدًا له جواب واحد بالضبط من بين خيارات قليلة معروضة كلها دفعة واحدة: مجموعة من أزرار الاختيار تحمل القيمة المختارة، تحت تسمية تستطيع أن تقول إن الجواب مطلوب أو اختياري، مع وصف وخطأ واحد للمجموعة."
 translationOf: components/radio-group.mdx
-sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
+sourceHash: a927ce4297ca8cd5f137d1c844c5040d0ddf0683
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -222,6 +223,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تجعل المجموعة للقراءة فقط بتعطيلها: المجموعة المعطّلة لا ترسل شيئًا ولا يمكن الوصول إليها. استخدم `readOnly`، فهي تُبقي المجموعة في ترتيب التركيز وترسل قيمتها.
 
 ## إمكانية الوصول
+
+<FocusOrder name="radio-group" fixture="default" />
 
 <ComponentAccessibility name="radio-group" />
 

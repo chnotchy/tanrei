@@ -2,13 +2,14 @@
 title: مجموعة الوسوم
 description: ترتّب مجموعة من الوسوم أو الرقاقات في أسطر تلتفّ، بتباعد يناسب ما تحمله، وتعرضها قائمةً واحدة لها اسم. تبقى الأعضاء على ما هي عليه، وبعد إزالة رقاقة ينتقل التركيز إلى التي تليها.
 translationOf: components/tag-group.mdx
-sourceHash: f1814e294152182a5dafe030507781c5aa9574e4
+sourceHash: 4ce57c2e65761a4834d18e35ee034e5430051f92
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -247,6 +248,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تُعِد تنسيق الأعضاء من المجموعة. غيّر رموز المجموعة في طبقة بدلًا من ذلك.
 
 ## إمكانية الوصول
+
+<FocusOrder name="tag-group" fixture="chips-filters-single" />
 
 <ComponentAccessibility name="tag-group" />
 

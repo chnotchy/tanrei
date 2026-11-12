@@ -2,13 +2,14 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor o varios, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 1bd15511e6e7315ee4dd26b1016b6d35f4264acf
+sourceHash: f77856128c3e79f823589f3af443d4f25e6385fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -280,6 +281,8 @@ El glifo de una opción está en una columna delante de su etiqueta. `iconSpace`
 - No escribas `supporting-text`, `error-text`, `required` ni `optional` en un cuadro combinado. Son de un campo, y un cuadro combinado no dibuja ninguno de ellos.
 
 ## Accesibilidad
+
+<FocusOrder name="combobox" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="combobox" />
 

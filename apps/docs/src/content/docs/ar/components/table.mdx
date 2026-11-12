@@ -2,13 +2,14 @@
 title: الجدول
 description: يعرض بيانات لها صفوف وأعمدة، بأعمدة مسمّاة، ومعه اختياريًّا ترويسات صفوف وشرح وصفوف تذييل. يُمرَّر داخل صندوقه حين لا يتسع له المكان. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، ويمكن اختيار الصفوف؛ أما الجدول نفسه فلا يفرز أبدًا.
 translationOf: components/table.mdx
-sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
+sourceHash: 9986191b4123712a376b0a786fe7c4de07aeed7d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
@@ -564,6 +565,8 @@ export function rehypeTanreiTable() {
 - لا تخفِّت الجدول ولا تعطِّله وهو يُحمَّل.
 
 ## إمكانية الوصول
+
+<FocusOrder name="table" fixture="selection" />
 
 <ComponentAccessibility name="table" />
 

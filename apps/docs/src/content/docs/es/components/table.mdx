@@ -2,13 +2,14 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
+sourceHash: 9986191b4123712a376b0a786fe7c4de07aeed7d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
@@ -564,6 +565,8 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 - No atenúes ni deshabilites una tabla mientras carga.
 
 ## Accesibilidad
+
+<FocusOrder name="table" fixture="selection" />
 
 <ComponentAccessibility name="table" />
 

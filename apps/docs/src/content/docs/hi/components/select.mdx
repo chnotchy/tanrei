@@ -2,13 +2,14 @@
 title: सिलेक्ट
 description: लोगों को किसी बंद लिस्ट में से एक मान चुनने देता है। इसमें एक ट्रिगर होता है, जो टेक्स्ट इनपुट के बॉक्स जैसा दिखता है, उसी की नाप का होता है और चुना हुआ विकल्प दिखाता है, और विकल्पों की एक लिस्ट होती है, जो उसी से खुलती है और जिसे चाहें तो ग्रुप में बाँटा जा सकता है। इसकी अपनी न लेबल की पंक्ति है, न सहायता, न त्रुटि टेक्स्ट। यह बार, टूलबार या टेबल के लिए है, या उस फ़ील्ड के भीतर के लिए जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/select.mdx
-sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
+sourceHash: fa3e399523903e0d76269a447111648f13455d57
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -294,6 +295,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - किसी विकल्प को अक्षम करके यह जानने का रास्ता बंद न करें कि वह अक्षम क्यों है। वजह उसके सहायक टेक्स्ट में लिखें।
 
 ## सुलभता
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

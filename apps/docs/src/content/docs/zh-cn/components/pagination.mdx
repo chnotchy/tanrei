@@ -2,13 +2,14 @@
 title: "分页"
 description: 在同一个列表的各个编号页面之间移动。带有当前页标记的页码、上一页和下一页、按需提供的第一页和最后一页，以及只说明“第几页、共几页”的简短形式。
 translationOf: components/pagination.mdx
-sourceHash: 458a4038d3550060a61fbd6920da965d35815a5d
+sourceHash: c81aaf3b88321f2e789dc7009742f08169abf441
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
@@ -96,6 +97,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - 不要在第一页和最后一页上隐藏上一页和下一页。它们被禁用并保留位置。
 
 ## 无障碍
+
+<FocusOrder name="pagination" fixture="default" />
 
 <ComponentAccessibility name="pagination" />
 

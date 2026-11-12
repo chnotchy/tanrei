@@ -2,13 +2,14 @@
 title: التقويم
 description: يعرض شهرًا واحدًا في صورة شبكة من الأيام، في الصفحة أو داخل منتقٍ، ويتيح للشخص أن يختار منه تاريخًا واحدًا أو مدى واحدًا من التواريخ، وينتقل من شهر إلى شهر في صورة عمود واحد من الأسابيع يتبع التمرير والسحب.
 translationOf: components/calendar.mdx
-sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
+sourceHash: 720aee4f08c64f69bd2ee4433f8e475dce9e83e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -212,6 +213,8 @@ export const words = {
 - لا تعامل دخول شهر إلى العرض على أنه اختيار. التمرير والسحب يغيّران المعروض، لا `value` أبدًا، ولا يُصدران شيئًا.
 
 ## إمكانية الوصول
+
+<FocusOrder name="calendar" fixture="single" />
 
 <ComponentAccessibility name="calendar" />
 

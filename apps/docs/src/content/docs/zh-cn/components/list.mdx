@@ -2,13 +2,14 @@
 title: "列表"
 description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: 3128b07d850629627082a3cef11937bcffc390c4
+sourceHash: fed17178a02af2d65cad76b64031025c9056a53f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
@@ -279,6 +280,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 - 不要自己绘制拖动手柄或移动按钮：`reorderable` 会绘制手柄，它的菜单就是无需拖动的移动方式。
 
 ## 无障碍
+
+<FocusOrder name="list" fixture="reorderable" />
 
 <ComponentAccessibility name="list" />
 

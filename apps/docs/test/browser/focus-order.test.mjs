@@ -49,12 +49,30 @@ after(async () => {
 
 const FRAME = '[data-focus-order-figure]';
 const VIEWPORT = { width: 1440, height: 900 };
-/** The pages that draw the figure, each by the component it shows; one of them right to left. */
+/** The pages that draw the figure, each by the component it shows; two of them right to left. */
 const PAGES = [
   { path: '/components/tabs/', name: 'tabs' },
   { path: '/components/slider/', name: 'slider' },
   { path: '/components/tree-view/', name: 'tree-view' },
+  { path: '/components/accordion/', name: 'accordion' },
+  { path: '/components/calendar/', name: 'calendar' },
+  { path: '/components/carousel/', name: 'carousel' },
+  { path: '/components/chip-field/', name: 'chip-field' },
+  { path: '/components/combobox/', name: 'combobox' },
+  { path: '/components/date-time-picker/', name: 'date-time-picker' },
+  { path: '/components/list/', name: 'list' },
+  { path: '/components/menubar/', name: 'menubar' },
+  { path: '/components/one-time-code-input/', name: 'one-time-code-input' },
+  { path: '/components/pagination/', name: 'pagination' },
+  { path: '/components/radio-group/', name: 'radio-group' },
+  { path: '/components/rating/', name: 'rating' },
+  { path: '/components/segmented-button/', name: 'segmented-button' },
+  { path: '/components/select/', name: 'select' },
+  { path: '/components/table/', name: 'table' },
+  { path: '/components/tag-group/', name: 'tag-group' },
+  { path: '/components/toolbar/', name: 'toolbar' },
   { path: '/ar/components/tree-view/', name: 'tree-view' },
+  { path: '/ar/components/toolbar/', name: 'toolbar' },
 ];
 
 /** The figure near the view, its elements defined, the fonts in, two frames drawn, and its numbers laid. */
@@ -158,6 +176,12 @@ for (const engine of ENGINES) {
         ['en', 'tabs'],
         ['ja', 'menu'],
         ['ar', 'tree-view'],
+        ['en', 'dialog'],
+        ['es', 'combobox'],
+        ['zh-cn', 'select'],
+        ['hi', 'date-time-picker'],
+        ['ja', 'table'],
+        ['ar', 'list'],
       ]) {
         await page.goto(`${origin}${lang === 'en' ? '' : `/${lang}`}/components/${name}/`);
         await settle(page, '.docs-keyboard-map', { scroll: 'center' });

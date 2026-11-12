@@ -2,13 +2,14 @@
 title: الأكورديون
 description: محتوى يُظهره صف ويخفيه في مكانه. العنصر الواحد أداة كشف مفردة، وعدة عناصر مجموعة تُفتح عناصرها كلٌّ بمفرده أو واحدًا في كل مرة.
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: 0871f83edca16334f8ced3b02b7222f733d685e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
@@ -200,6 +201,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - لا تفتح عنصرًا لأن شيئًا فيه غير صالح من دون أن تخبر القارئ: حين يُرفض نموذج، افتح العنصر الذي يحمل أول خطأ، ثم انقل التركيز إلى الحقل.
 
 ## إمكانية الوصول
+
+<FocusOrder name="accordion" fixture="plain" />
 
 <ComponentAccessibility name="accordion" />
 

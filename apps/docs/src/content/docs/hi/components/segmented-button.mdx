@@ -2,13 +2,14 @@
 title: सेगमेंटेड बटन
 description: लोगों को दो से पाँच संबंधित विकल्पों में से एक या कई चुनने देता है, जो एक ही कंट्रोल के जुड़े हुए सेगमेंट के रूप में अगल-बग़ल बने होते हैं।
 translationOf: components/segmented-button.mdx
-sourceHash: f5dba2ffe4e9e720932015a4fb412a533c20b3b9
+sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -280,6 +281,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - सेगमेंट का लेबल उसके स्टेट के साथ न बदलें। चयन अलग से पढ़कर सुनाया जाता है।
 
 ## सुलभता
+
+<FocusOrder name="segmented-button" fixture="single" />
 
 <ComponentAccessibility name="segmented-button" />
 

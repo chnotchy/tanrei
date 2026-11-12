@@ -2,13 +2,14 @@
 title: Barra de menús
 description: Mantiene a mano los comandos de una aplicación en una fila permanente de menús con nombre (Archivo, Editar, Ver…); cada uno abre un menú debajo de su título, y las teclas de flecha recorren la fila y entran en cada menú.
 translationOf: components/menubar.mdx
-sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
+sourceHash: cdc7e2d44e1ccb83b5e663479be4f3df464f63fd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -311,6 +312,8 @@ La barra de un sistema de escritorio, fuera de la ventana, y la barra de una tab
 - No des a los menús de una barra un estilo distinto del de los demás menús del producto. Son menús de Tanrei, y toman los tokens del menú.
 
 ## Accesibilidad
+
+<FocusOrder name="menubar" fixture="default" />
 
 <ComponentAccessibility name="menubar" />
 

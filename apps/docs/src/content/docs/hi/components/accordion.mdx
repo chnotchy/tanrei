@@ -2,13 +2,14 @@
 title: अकॉर्डियन
 description: वह कॉन्टेंट जिसे एक पंक्ति वहीं दिखाती और छिपाती है। अकेला एक आइटम डिस्क्लोज़र है; कई आइटम एक सेट हैं, जिसके आइटम अलग-अलग खुलते हैं या एक समय में एक।
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: 0871f83edca16334f8ced3b02b7222f733d685e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
@@ -200,6 +201,8 @@ Markdown रेंडरर `<details>` को HTML के रूप में �
 - किसी आइटम को पाठक को बताए बिना इसलिए न खोलें कि उसके भीतर कुछ अमान्य है: जब कोई फ़ॉर्म अस्वीकार हो, तो वह आइटम खोलें जिसमें पहली त्रुटि है, फिर फ़ोकस उस फ़ील्ड पर ले जाएँ।
 
 ## सुलभता
+
+<FocusOrder name="accordion" fixture="plain" />
 
 <ComponentAccessibility name="accordion" />
 

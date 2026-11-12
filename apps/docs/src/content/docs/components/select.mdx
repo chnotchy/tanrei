@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -292,6 +293,8 @@ The clear button is a button of its own after the select, not inside it, and the
 - Don't disable an option without a way to learn why. Say it in its supporting text.
 
 ## Accessibility
+
+<FocusOrder name="select" fixture="stacked-clearable" />
 
 <ComponentAccessibility name="select" />
 

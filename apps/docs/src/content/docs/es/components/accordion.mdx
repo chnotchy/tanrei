@@ -2,13 +2,14 @@
 title: Acordeón
 description: Contenido que una fila muestra y oculta sin salir de su lugar. Un solo elemento es un único desplegable; varios forman un conjunto cuyos elementos se abren cada uno por su cuenta o de uno en uno.
 translationOf: components/accordion.mdx
-sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
+sourceHash: 0871f83edca16334f8ced3b02b7222f733d685e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
@@ -200,6 +201,8 @@ En la web, `exclusive` es el atributo `name` de `<details>`, que el elemento per
 - No abras un elemento porque algo de lo que contiene no sea válido sin decírselo a quien lee: cuando se rechaza un formulario, abre el elemento que contiene el primer error y después lleva el foco al campo.
 
 ## Accesibilidad
+
+<FocusOrder name="accordion" fixture="plain" />
 
 <ComponentAccessibility name="accordion" />
 

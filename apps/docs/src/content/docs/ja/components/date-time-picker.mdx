@@ -2,13 +2,14 @@
 title: DateTimePicker
 description: 日付、時刻、日時、またはそれぞれの期間を、カレンダーと時刻のホイールや時計の文字盤から選べるようにします。ダイアログとして、またはフィールドの下に開くサーフェスとして表示します。
 translationOf: components/date-time-picker.mdx
-sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
+sourceHash: 7f0394b12f3f4abdb141a87576cde62cf2aac770
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
@@ -271,6 +272,8 @@ Tanrei は言葉を同梱しません。ピッカーが表示したり読み上�
 - Web の `inline` 属性をプロダクトで使わない。オーバーレイとしての振る舞いなしにサーフェスを描くだけです。
 
 ## アクセシビリティ
+
+<FocusOrder name="date-time-picker" fixture="docked-date" />
 
 <ComponentAccessibility name="date-time-picker" />
 

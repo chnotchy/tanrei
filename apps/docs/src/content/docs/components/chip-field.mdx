@@ -7,6 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
@@ -209,6 +210,8 @@ The chip field has no token of its own. To change one instance, set a member's t
 - Don't read typed text as part of the value. It becomes an entry when focus leaves; a product that submits by script while the field has focus reads `inputValue`.
 
 ## Accessibility
+
+<FocusOrder name="chip-field" fixture="email-entries" />
 
 <ComponentAccessibility name="chip-field" />
 
