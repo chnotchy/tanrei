@@ -11,4 +11,4 @@
 - **The fidelity harness** compares a color in every scheme a map names (`colors.schemes`, Tanrei scheme to the reference's appearance), and the Apple reference records the increased-contrast swatches.
 - **A model read one scheme at a time** (the MCP server) now reports the snackbar's expand and close glyph in every scheme, as a whole model does; it reported the light scheme only.
 
-The cupertino snapshot baselines move with these values: the visual change is the intended result of this token change.
+No snapshot baseline moves: every cupertino snapshot stays within the comparison tolerance of its baseline with these values.
