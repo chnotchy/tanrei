@@ -2051,7 +2051,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private drag: { id: number; x: number; time: number; following: boolean; lastX: number; lastTime: number; velocity: number } | null = null;
   /** The form at the last update; undefined before the first. */
   private wasCollapsed: boolean | undefined = undefined;
-  private formTimer: ReturnType<typeof setTimeout> | undefined;
+  /** NVD-35: the change of form whose motion is current (a later change takes it over). */
+  private formRun = 0;
   /** Counts the closes begun: a close whose motion ends finishes only if no other began since, and the drawer did not open again (NVD-22, NVD-40). */
   private leaveRun = 0;
   /**
@@ -3094,8 +3095,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-54: until the new presentation is drawn, nothing of the drawer's takes time (the styles' `data-instant`). */
   private drawAtOnce() {
     this.setAttribute('data-instant', '');
+    // (A wait for the end of a change of form's motion that is on its way finds none left: drawn at once, it ends.)
     this.removeAttribute('data-form-change');
-    clearTimeout(this.formTimer);
     cancelAnimationFrame(this.instantFrame);
     void this.updateComplete.then(() => {
       this.instantFrame = requestAnimationFrame(() => {
@@ -3116,8 +3117,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     cancelPhaseRead(this.firstFrame);
     cancelAnimationFrame(this.instantFrame);
     cancelPhaseRead(this.pinsRead);
+    // (A change of form's motion on its way is cancelled with it, and the wait for its end ends: endWithMotion.)
     this.removeAttribute('data-instant');
-    clearTimeout(this.formTimer);
     if (this.shown) this.withdraw(false, false);
     // NVD-87: removed, it stops listening; NVD-91: nothing is said after it.
     this.syncShortcut();
@@ -3431,8 +3432,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * APS-5: a person is about to change the width — an app shell around the drawer notes the place being read, and holds
    * it in every frame the width changes while `data-person-resize` says so: for as long as a drag lasts, else until the
-   * change's motion has ended, however late its first frame comes or however slowly it plays (`personRests`) — never by
-   * a page timer, which a motion that starts late or plays slowly outlasts.
+   * change's motion has ended, however late its first frame comes or however slowly it plays (`endWithMotion`).
    */
   private personResizes(lasting = false) {
     // Noted once for a change, however many frames it takes: where it stood before the change began.
@@ -3440,27 +3440,34 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (!this.hasAttribute('data-person-resize') && shell?.localName === 'tanrei-app-shell' && this.getAttribute('slot') === 'navigation') shell.keepReading?.(this);
     this.setAttribute('data-person-resize', '');
     const run = ++this.personRun;
-    if (!lasting) void this.updateComplete.then(() => this.personRests(run));
+    // The hold of this change ends in the frame after the one that drew its last width — the app shell holds the place
+    // in that frame's resize observations, after its callbacks — unless a drag goes on or a later change took it over.
+    // A change that starts no motion of the width (reduced motion, a key's step, a width that stayed) ends its hold two
+    // frames after this update.
+    if (!lasting) this.endWithMotion('data-person-resize', () => run === this.personRun && !this.resizeDrag);
   }
 
   /**
-   * APS-5: the hold of the person's change `run` ends in the frame after the one that drew its last width — the app
-   * shell holds the place in that frame's resize observations, after its callbacks — unless a drag goes on or a later
-   * change took the hold over. A motion of the host's own (the width's, NVD-35, NVD-101: one that the change began in
-   * the first frame after this update is among them, since asking brings style up to date) is waited for to its end or
-   * its cancel, and asked again then: one that took its place runs on. A change that starts no motion of the width
-   * (reduced motion, a key's step, a width that stayed) ends its hold two frames after this update.
+   * APS-5, NVD-35: takes `name` off the host in the frame after the one that drew the last frame of the host's and its
+   * panel's motions (the width's, NVD-35, NVD-40, NVD-101, and what moves with it) — asked two frames after this update,
+   * so that a motion the update began in the first frame after it is among them (asking brings style up to date), and
+   * waited for to its end or its cancel — unless `current` says first that the wait is over. A cancelled motion is asked
+   * about again, since one that took its place runs on — unless a drag goes on, whose move took its place (NVD-98: the
+   * drag follows the press from there). Where none runs, two frames after this update. Never by a page timer, which a
+   * motion that starts late or plays slowly outlasts.
    */
-  private personRests(run: number) {
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        if (run !== this.personRun || this.resizeDrag) return;
-        // (Not one that has finished and holds its end: a product's own `animate()` of the host with a fill.)
-        const moving = this.getAnimations().filter((motion) => motion.playState !== 'finished');
-        if (moving.length) void Promise.allSettled(moving.map((motion) => motion.finished)).then(() => this.personRests(run));
-        else this.removeAttribute('data-person-resize');
-      }),
-    );
+  private endWithMotion(name: string, current: () => boolean) {
+    const ask = () =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (!current()) return;
+          // (Not one that has finished and holds its end: a product's own `animate()` of the host with a fill.)
+          const moving = [...this.getAnimations(), ...(this.panel?.getAnimations() ?? [])].filter((motion) => motion.playState !== 'finished');
+          if (!moving.length) return this.removeAttribute(name);
+          void Promise.all(moving.map((motion) => motion.finished)).then(ask, () => (this.resizeDrag && current() ? this.removeAttribute(name) : ask()));
+        }),
+      );
+    void this.updateComplete.then(ask);
   }
 
   /** NVD-98, HDL-6: while a drag lasts nothing on the page is selected, and no frame takes the pointer as it passes. */
@@ -4354,12 +4361,17 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const instant = this.hasAttribute('data-instant');
     const collapsed = this.collapsed;
     // NVD-35: a change of form takes the change's motion, for as long as it lasts; the collapsed attribute reflects it.
-    // NVD-54: not when the window's width changed the presentation, which is drawn at once.
+    // NVD-54: not when the window's width changed the presentation, which is drawn at once. Where motion is reduced the
+    // change of form is drawn at once, and no motion of it is in force.
     const formChange = this.wasCollapsed !== undefined && collapsed !== this.wasCollapsed && !instant;
     if (formChange) {
       this.focusLost = collapsed && !this.modal && this.focusOnExpandedOnly();
       this.removeAttribute('data-sliding');
-      this.setAttribute('data-form-change', '');
+      // In force until the host's and its panel's motions the change began have ended, however late their first frame
+      // comes or however slowly they play — unless a later change takes it over. A drag's move that takes the place of
+      // the width's motion ends it: from there the drag follows the press without a motion (NVD-98, NVD-99).
+      const run = ++this.formRun;
+      if (this.toggleAttribute('data-form-change', this.expandDuration() > 0)) this.endWithMotion('data-form-change', () => run === this.formRun);
     }
     // Focus leaves the panel before anything else of this update is styled — a part that the change of form recolors
     // would otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back —
@@ -4367,10 +4379,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // focus leaves (Chromium does), the focused cell's recolor starts there, and it takes the change of form's duration
     // and easing, in step with the narrowing, not the state motion's, which ends before it (NVD-35, NVD-40).
     if (focusLeaves) (deepActive() as HTMLElement | null)?.blur();
-    if (formChange) {
-      clearTimeout(this.formTimer);
-      this.formTimer = setTimeout(() => this.removeAttribute('data-form-change'), this.expandDuration());
-    }
     this.wasCollapsed = collapsed;
     this.reflectState();
     // NVD-18: a standard drawer that opens slides in over the enter motion.
