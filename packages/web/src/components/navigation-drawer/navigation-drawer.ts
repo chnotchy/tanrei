@@ -3754,9 +3754,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
     if (!reopening) this.focusInside(shower);
-    // NVD-19, NVD-40: the colors of the cell that took focus, and a collapsible drawer's rows widening from its column,
-    // begin in the first frame drawn after this task, as the surface's slide does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // NVD-19, NVD-40: the colors of the cell that took focus and of what focus left (the menu button, outside it), and a
+    // collapsible drawer's rows widening from its column, begin in the first frame drawn after this task, as the
+    // surface's slide does (statesFromNextFrame).
+    statesFromNextFrame([this, this.opener]);
   }
 
   /**
