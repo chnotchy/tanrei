@@ -12,3 +12,7 @@ over sizes, chevron placements, icon spaces, highlights, product indents, both d
 to hold the deepest level back from the middle. On the restyle page with ten trees (740 tree elements), a change of
 contrast takes WebKit about 7 ms less style recalculation (59 to 52 ms, against 28 for the page without trees), and
 Chromium about 2 ms less.
+
+The byte budget of `@tanrei/web/all` goes from 667400 to 667500 bytes gzip (667406 measured, 52 more than before this
+change): the two step lengths, the counts and the guides' own start are new declarations, which the arithmetic they
+replace on every item does not quite pay for in bytes. The tree view's own bundle stays within its budget.
