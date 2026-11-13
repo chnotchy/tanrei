@@ -15,6 +15,7 @@
   },
   "scripts": {
     "dev:app": "node ../../packages/tools/src/font-faces.js app/fonts.generated.css && vite --config app/vite.config.js",
+    "clean": "node ../tools/src/clean.js dist-app",
     "build:app": "node ../../packages/tools/src/font-faces.js app/fonts.generated.css --check-systems && vite build --config app/vite.config.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "validate": "pnpm typecheck",
