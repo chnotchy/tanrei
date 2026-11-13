@@ -181,18 +181,20 @@ const registered = (page: Page) =>
  * The most a change of contrast may take on a page that has NO registered custom property (`ELEMENTS`: the tokens and
  * the elements), in ms, where the page is not measured against itself (`withinCleanBudget` below) — with the reset on
  * the page or without, the preference set or not. Measured (load 3 to 6, 2,036 elements), the median of 7: Chromium 44
- * without the preference and 35 with it, 47 with the reset; Firefox as on the other page. With registered properties
- * in the document (tokens that register twenty-five) the same page takes Chromium 267 without the preference and 260
- * with the reset. Three to four times the measured value, and far under those.
+ * without the preference and 35 with it, 47 with the reset; WebKit 62 and 50; Firefox as on the other page. With
+ * registered properties in the document (tokens that register twenty-five) the same page takes Chromium 267 without
+ * the preference and 260 with the reset. Three to four times the measured value, and far under those. WebKit's is held
+ * only where the reset is not on the page; on CI's runners the page of 2,000 elements took 124 to 270 there.
  */
-const CLEAN_BUDGET = { chromium: 150, firefox: 400 } as const;
+const CLEAN_BUDGET = { chromium: 150, firefox: 400, webkit: 400 } as const;
 
 /**
  * One registered custom property, as a page's own sheet or another library may bring one: in each engine, one that
  * makes the engine's dear cases dear (`withinCleanBudget` below). Chromium pays for any registered name, inheriting or
  * not; WebKit only for one that inherits (one of syntax `*` that does not costs it nothing, even with the reset on the
- * page: 58 ms and 56, 64 and 71, 121 and 119 on the three pages below). `runs`: the changes of which the median is taken — WebKit's dear page is twenty to thirty times the
- * clean one (3.4 s a change on the page with trees on a fast machine), and three tell it as surely as five.
+ * page: 58 ms and 56, 64 and 71, 121 and 119 on the three pages below). `runs`: the changes of which the median is
+ * taken — WebKit's dear page is twenty to thirty times the clean one (3.3 s a change on the page with trees on a fast
+ * machine), and three tell it as surely as five.
  */
 const REGISTERED = {
   chromium: { rule: `@property --restyle-perf-registered { syntax: '*'; inherits: false; }`, runs: 5 },
@@ -236,18 +238,20 @@ type Case = { starts: boolean; reset: boolean };
  * for an inheriting registered property (registered by `CSS.registerProperty()`, which no `@property` rule shows)
  * takes all of it, and fails: on the fast machine 988 to 993 and 941 to 952, 1,282 to 1,285 and 1,209 to 1,223,
  * 3,339 to 3,345 and 3,269 to 3,275; in the container, in eighteen attempts, between 0.99 and 1.07 of it. A number of
- * ms could not tell the two on CI's runners, where the clean page with trees took 280 to 434 and the page of 2,000
- * elements 124 to 270, against about 50 on the fast machine: a budget of 400 failed about once in nine runs.
+ * ms could not tell the two on CI's runners: the clean page with trees took 280 to 434 there, against 118 on the fast
+ * machine, and the page with trees and the reset failed the 400 it was given before.
  *
- * Elsewhere a registered property costs the page nothing, and no measure of the page's own tells one: in Chromium
+ * Elsewhere a registered property costs the page nothing, so there is nothing relative to compare against: in Chromium
  * where nothing transitions (17 to 23 ms with it and without), and in WebKit where the reset is not on the page (83 and
- * 82 ms for the page with links and prose, 116 and 115 for the page with trees, 49 and 49 for 300 buttons). There
- * Chromium and Firefox hold `CLEAN_BUDGET`, and WebKit only the count of registered properties each test asks first —
- * the guard for what this file exists for; its time is reported, not held.
+ * 82 ms for the page with links and prose, 116 and 115 for the page with trees, 49 and 49 for 300 buttons — WebKit's
+ * split is decided here, by `reset`). There every engine holds `CLEAN_BUDGET`, besides the count of registered
+ * properties each test asks first.
  */
 async function withinCleanBudget(page: Page, browserName: 'chromium' | 'firefox' | 'webkit', ms: number, { starts, reset }: Case) {
-  if (browserName === 'firefox' || !(browserName === 'chromium' ? starts || reset : reset)) {
-    if (browserName !== 'webkit') expect(ms, `the change is drawn within ${CLEAN_BUDGET[browserName]} ms`).toBeLessThan(CLEAN_BUDGET[browserName]);
+  // Dear: what a registered property makes dear in this engine (in WebKit, the reset alone; in Firefox, nothing).
+  const dear = browserName === 'chromium' ? starts || reset : browserName === 'webkit' && reset;
+  if (browserName === 'firefox' || !dear) {
+    expect(ms, `the change is drawn within ${CLEAN_BUDGET[browserName]} ms`).toBeLessThan(CLEAN_BUDGET[browserName]);
     return;
   }
   const probe = REGISTERED[browserName];
