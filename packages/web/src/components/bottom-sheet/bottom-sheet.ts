@@ -26,6 +26,7 @@ import {
   readTogether,
   report,
   returnFocus,
+  sheetFocusTarget,
   syncDividerVisibility,
   watchEscape,
   WordsController,
@@ -701,18 +702,12 @@ export class TanreiBottomSheet extends TanreiElement {
 
   // ---- BSH-2, BSH-3: presenting and focus ----
 
-  /** BSH-3: where focus goes as it opens — the slotted element marked `autofocus`, else the sheet itself. */
-  private focusTarget(): HTMLElement | null {
-    const marked = this.querySelector<HTMLElement>('[autofocus]');
-    return marked && !marked.closest('[inert]') ? marked : this.sheet;
-  }
-
   /** BSH-3: focus to the slotted element marked `autofocus`, else the sheet itself, so its label is read first. */
   private focusInside() {
     // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
     const dialog = this.dialog;
     if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
-    const target = this.focusTarget();
+    const target = sheetFocusTarget(this, this.sheet);
     // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
     if (target && deepActive() !== target) target.focus();
   }
@@ -757,7 +752,7 @@ export class TanreiBottomSheet extends TanreiElement {
     // with every other host's reads of the turn (src/primitives/read-phase.ts): read after the sheet's own
     // `showModal()`, they had the browser style and lay out the page once per sheet. Still in the task. Until focus is
     // in, a surface opened above it in the same turn takes this sheet's target as its opener (BSH-23).
-    modalLayer.owesFocus(dialog, () => this.focusTarget());
+    modalLayer.owesFocus(dialog, () => sheetFocusTarget(this, this.sheet));
     readTogether(() => {
       if (!this.shown) return;
       const covered = this.readCover();
