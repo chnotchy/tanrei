@@ -9,6 +9,7 @@
     "dev": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --icon-glyphs ../../packages/web/src/generated/glyphs.json,src/generated/glyphs.json --full-icons src/styles/icons-full.generated.css --text-cut 'Noto Sans JP:ja' --text-from ../../specs,src/content/docs,!src/content/docs/ja,!src/content/docs/zh-cn,src/content/blog,!src/content/blog/ja,!src/content/blog/zh-cn && node scripts/fixture-documents.mjs && astro dev",
     "validate": "node scripts/i18n-check.mjs && node scripts/fixture-documents.mjs && astro check --minimumFailingSeverity warning",
     "i18n": "node scripts/i18n-check.mjs",
+    "clean": "node ../../packages/tools/src/clean.js dist",
     "build": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --icon-glyphs ../../packages/web/src/generated/glyphs.json,src/generated/glyphs.json --full-icons src/styles/icons-full.generated.css --text-cut 'Noto Sans JP:ja' --text-from ../../specs,src/content/docs,!src/content/docs/ja,!src/content/docs/zh-cn,src/content/blog,!src/content/blog/ja,!src/content/blog/zh-cn --check-systems && node scripts/fixture-documents.mjs && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "test:node": "pnpm fonts && node scripts/fixture-documents.mjs && node ../../packages/tools/src/run-node-tests.js \"test/*.test.mjs\"",
