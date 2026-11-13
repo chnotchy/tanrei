@@ -21,6 +21,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('image-preview');
 type P = Page;
@@ -524,7 +525,7 @@ test.describe('the modal layer', () => {
     });
   });
 
-  test('IMP-6, IMP-4, IMP-2: opened in the same update as a modal picker or a dialog, the two stack in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
+  test('IMP-6, IMP-4, IMP-2: opened in the same update as a modal picker, the two stack in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
     /** Where focus is: a day's date, else the element's id, a preview part's name or its tag, and the overlay it is inside. */
     const where = () =>
       page.evaluate(() => {
@@ -544,13 +545,12 @@ test.describe('the modal layer', () => {
       }, open);
     const PICKER =
       '<tanrei-date-time-picker id="picker" presentation="modal" today="2026-09-24" locale="en-US" value="2026-09-17" label="Select date" confirm-label="OK" cancel-label="Cancel" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" date-label="Date"></tanrei-date-time-picker>';
-    const DIALOG = '<tanrei-dialog id="dialog" headline="Room"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
-    // A modal picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): the
-    // preview, whose update follows, opens above it while it still owes focus. A dialog whose `open` was set first opens
-    // in that read, above the preview, which moved focus in as it opened (IMP-2).
+    // Every modal surface opens in the write that follows the reads of the turn, in the order of the updates: the picker,
+    // whose `open` is set first, opens first and moves focus in once its calendar has drawn (DTM-3); the preview opens
+    // above it while it still owes focus. (Opened with a dialog or a modal layer, in either order: the test of stacked
+    // modal surfaces, below.)
     const cases: [name: string, lead: string, lower: string, upper: string, focusedAbove: string, target: string][] = [
       ['above a picker', PICKER, 'picker', 'preview', 'stage in preview', '2026-09-17 in picker'],
-      ['below a dialog', DIALOG, 'preview', 'dialog', 'd-marked in dialog', 'stage in preview'],
     ];
     for (const [name, lead, lower, upper, focusedAbove, target] of cases) {
       await mount(page, fx({ open: false }), { lead: `<button id="opener">Open</button>${lead}` });
@@ -561,7 +561,7 @@ test.describe('the modal layer', () => {
         first!.open = true;
         second!.open = true;
         await Promise.all([first!.updateComplete, second!.updateComplete]);
-      }, upper === 'dialog' ? ['dialog', 'preview'] : ['picker', 'preview']);
+      }, [lower, upper]);
       await expect.poll(where, name).toBe(focusedAbove);
       // The upper one is what is at a point of the window that only the scrims and the preview's stage cover.
       expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id), name).toBe(upper);
@@ -569,6 +569,20 @@ test.describe('the modal layer', () => {
       expect(await where(), name).toBe(target);
       await setOpenOf(lower, false);
       expect(await where(), name).toBe('opener in null');
+    }
+  });
+
+  test('IMP-6, IMP-2, IMP-4, DLG-15, MDL-8: an image preview and a dialog, or a modal layer, opened in one task stack in the order their open was set, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens, and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    await mount(page, fx({ open: false }));
+    await host(page).evaluate((el) => (el.id = 'preview'));
+    await addStackedSurfaces(page);
+    const ids = ['preview', STACKED_DIALOG, STACKED_LAYER];
+    // The preview gives focus to its stage (IMP-2).
+    const target = (id: string) => (id === 'preview' ? 'div in preview' : `${id}-marked in ${id}`);
+    for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+      for (const order of [['preview', other], [other, 'preview']] as [string, string][]) {
+        await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
+      }
     }
   });
 

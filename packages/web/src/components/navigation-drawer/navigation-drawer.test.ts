@@ -20,6 +20,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -2225,7 +2226,7 @@ test.describe('forms and focus', () => {
     await expect.poll(() => page.evaluate(() => location.hash)).toBe('#sent');
   });
 
-  test('NVD-22, NVD-19: a modal drawer opened in the same update as a modal picker or a dialog stacks with it in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
+  test('NVD-22, NVD-19: a modal drawer opened in the same update as a modal picker, or inserted open in the task that opens a dialog, stacks with it in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
     /** Where focus is: a day's date or a destination's value, else the element's id or tag, and the overlay it is inside. */
     const where = () =>
       page.evaluate(() => {
@@ -2248,18 +2249,18 @@ test.describe('forms and focus', () => {
       '<tanrei-date-time-picker id="picker" presentation="modal" today="2026-09-24" locale="en-US" value="2026-09-17" label="Select date" confirm-label="OK" cancel-label="Cancel" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" date-label="Date"></tanrei-date-time-picker>';
     const DIALOG = '<tanrei-dialog id="dialog" headline="Mail"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
     const ITEMS = '<tanrei-navigation-drawer-item value="inbox" label="Inbox"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="sent" label="Sent"></tanrei-navigation-drawer-item>';
-    // A modal picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): the
-    // drawer, whose update follows, opens above it while it still owes focus. A dialog whose `open` was set first opens
-    // in that read, above the drawer — which has moved focus in as it opened, or, inserted with its items in that task,
-    // moves it once they have drawn (NVD-19). A collapsible drawer reads where focus is before its column gives way to
-    // its dialog (NVD-40).
+    // Every modal surface opens in the write that follows the reads of the turn, in the order of the updates: the picker,
+    // whose `open` is set first, opens first and moves focus in once its calendar has drawn (DTM-3); the drawer opens above
+    // it while it still owes focus. A drawer inserted open with its items in the task that opens a dialog opens above
+    // the dialog, and moves focus in once its items have drawn (NVD-19). A collapsible drawer reads where focus is before
+    // its column gives way to its dialog (NVD-40). (Opened with a dialog or a modal layer in either order: the test of
+    // stacked modal surfaces, below.)
     const MODAL = fixture('m', MAIL, { variant: 'modal', open: false });
     const COLLAPSIBLE = rail('m', MAIL, { variant: 'modal', open: false });
     const cases: [name: string, drawn: Fixture, lead: string, inserted: boolean, upper: string, focusedAbove: string, target: string][] = [
       ['above a picker', MODAL, PICKER, false, 'drawer', 'inbox in drawer', '2026-09-17 in picker'],
       ['collapsible, above a picker', COLLAPSIBLE, PICKER, false, 'drawer', 'inbox in drawer', '2026-09-17 in picker'],
-      ['below a dialog', MODAL, DIALOG, false, 'dialog', 'd-marked in dialog', 'inbox in drawer'],
-      ['below a dialog, inserted with its items', MODAL, DIALOG, true, 'dialog', 'd-marked in dialog', 'inbox in drawer'],
+      ['above a dialog, inserted with its items', MODAL, DIALOG, true, 'drawer', 'inbox in drawer', 'd-marked in dialog'],
     ];
     for (const [name, drawn, lead, inserted, upper, focusedAbove, target] of cases) {
       await page.setViewportSize(drawerWindow('modal'));
@@ -2267,7 +2268,7 @@ test.describe('forms and focus', () => {
       // Inserted with its items, the drawer is another one: the fixture's stays closed.
       if (!inserted) await drawer(page, 'm').evaluate((el) => (el.id = 'drawer'));
       await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', `<button id="opener">Open</button>${m}`), lead);
-      const lower = upper === 'drawer' ? 'picker' : 'drawer';
+      const lower = lead === PICKER ? 'picker' : 'dialog';
       await page.locator('#opener').focus();
       await page.evaluate(
         async ([first, items]) => {
@@ -2278,7 +2279,7 @@ test.describe('forms and focus', () => {
           } else opening('drawer').open = true;
           await Promise.all([opening(first!).updateComplete, opening('drawer').updateComplete]);
         },
-        [lower === 'picker' ? 'picker' : 'dialog', inserted ? ITEMS : ''] as const,
+        [lower, inserted ? ITEMS : ''] as const,
       );
       await expect.poll(where, name).toBe(focusedAbove);
       // The upper one is what is at a point of the window that only the scrims cover.
@@ -2373,6 +2374,55 @@ test.describe('forms and focus', () => {
     });
     await page.keyboard.press('Escape');
     expect(await page.evaluate(() => (window as any).collapsed)).toEqual({ columns: 1, dialogs: 0, focus: 'Menu' });
+  });
+});
+
+test.describe('stacked in one task with other modal surfaces', () => {
+  test('NVD-19, NVD-22, NVD-40, DLG-15, MDL-8: a modal drawer, collapsible or not, and a dialog or a modal layer opened in one task stack in the order their open was set, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens, and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    await page.setViewportSize(drawerWindow('modal'));
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false }), rail('c', MAIL, { variant: 'modal', open: false })]);
+    await drawer(page, 'm').evaluate((el) => (el.id = 'drawer'));
+    await drawer(page, 'c').evaluate((el) => (el.id = 'rail'));
+    await addStackedSurfaces(page);
+    const ids = ['drawer', 'rail', STACKED_DIALOG, STACKED_LAYER];
+    // The drawer gives focus to its selected destination (NVD-19): the cell inside Inbox's item.
+    const target = (id: string) => (id === 'drawer' || id === 'rail' ? new RegExp(` in ${id}$`) : `${id}-marked in ${id}`);
+    for (const surface of ['drawer', 'rail']) {
+      for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+        for (const order of [[surface, other], [other, surface]] as [string, string][]) {
+          await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
+        }
+      }
+    }
+  });
+
+  test('NVD-28: a standard drawer opened under a modal surface — in the task that opens it, or after — gives focus back on its closing to the element that had it before that surface opened, never to one inside the closed surface', async ({ page }) => {
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await drawer(page, 's').evaluate((el) => (el.id = 'drawer'));
+    await addStackedSurfaces(page);
+    const ids = ['drawer', STACKED_DIALOG];
+    for (const sameUpdate of [true, false]) {
+      await page.locator('#opener').focus();
+      // The dialog opens, and the standard drawer opens under it: in the dialog's update, or in a later one of the task.
+      await page.evaluate(async ([dialogId, together]) => {
+        const [dialog, drawn] = [dialogId as string, 'drawer'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        dialog!.open = true;
+        if (!together) await dialog!.updateComplete;
+        drawn!.open = true;
+        await Promise.all([dialog!.updateComplete, drawn!.updateComplete]);
+      }, [STACKED_DIALOG, sameUpdate] as const);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe(`${STACKED_DIALOG}-marked in ${STACKED_DIALOG}`);
+      // In one update the drawer moved focus to its selected destination before the dialog opened above it, and focus
+      // goes back there.
+      await setOpenInOneTask(page, [STACKED_DIALOG], false);
+      if (sameUpdate) await expect.poll(() => focusAmong(page, ids)).toMatch(/ in drawer$/);
+      else await expect.poll(() => focusAmong(page, ids)).toBe('opener in page');
+      // Focus moves into the drawer, which then closes: it goes back to the element that had it before the dialog opened.
+      await cell(page, 's', 2).evaluate((el: HTMLElement) => el.focus());
+      await expect.poll(() => focusAmong(page, ids)).toMatch(/ in drawer$/);
+      await setOpenInOneTask(page, ['drawer'], false);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe('opener in page');
+    }
   });
 });
 

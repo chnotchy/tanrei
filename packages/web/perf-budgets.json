@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 667400,
+      "budget": 668100,
       "measured": 643895
     }
   },
@@ -688,8 +688,8 @@
         "measured": 450
       },
       "image-preview": {
-        "budget": 1132,
-        "measured": 1079
+        "budget": 661,
+        "measured": 630
       },
       "menu": {
         "budget": 94,

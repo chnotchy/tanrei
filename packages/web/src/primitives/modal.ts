@@ -9,6 +9,8 @@
 const open: HTMLDialogElement[] = [];
 /** The open surfaces that have not yet given focus in (`modalLayer.owesFocus`), with where they give it. */
 const owed = new WeakMap<HTMLDialogElement, () => HTMLElement | null>();
+/** Where focus goes back to from each open surface, as it opened (`modalLayer.add`). */
+const openers = new WeakMap<HTMLDialogElement, Element | null>();
 const listeners = new Set<() => void>();
 const notify = () => {
   for (const listener of [...listeners]) listener();
@@ -26,8 +28,9 @@ export const modalLayer = {
     }
     return null;
   },
-  /** `dialog` has just been made modal (`showModal()`): it is now the topmost. */
-  add(dialog: HTMLDialogElement) {
+  /** `dialog` has just been made modal (`showModal()`): it is now the topmost; focus goes back to `opener` from it. */
+  add(dialog: HTMLDialogElement, opener: Element | null) {
+    openers.set(dialog, opener);
     const at = open.indexOf(dialog);
     if (at >= 0) open.splice(at, 1);
     // The surfaces already open are now under this one, and inert: the platform says so of everything outside the
@@ -77,6 +80,21 @@ export const modalLayer = {
     return () => listeners.delete(listener);
   },
 };
+
+/**
+ * Where focus is to go back to when `host` — a region of the page that opens without making anything inert (a standard
+ * navigation drawer or sheet; NVD-28, BSH-3, SSH-3) — opens now and closes later with focus inside: `modalLayer.opener()`
+ * where no surface is open or `host` is inside the topmost. Under surfaces it is not inside, focus is in them, not in its
+ * layer: it goes back to what had it in `host`'s layer before the lowest of them opened — what that one returns focus to
+ * — never to an element of a surface that will have closed. Apart from `modalLayer`, so that only those regions carry it.
+ */
+export function openerFor(host: Element): Element | null {
+  const shown = open.filter((dialog) => dialog.isConnected && dialog.matches(':modal'));
+  let at = shown.length;
+  // Inside a surface: in its shadow host's light DOM (slotted into it), as a standard region in a dialog's content is.
+  while (at && !((shown[at - 1].getRootNode() as ShadowRoot).host ?? shown[at - 1]).contains(host)) at--;
+  return at < shown.length ? (openers.get(shown[at]) ?? null) : modalLayer.opener();
+}
 
 /** The element that has focus, through shadow roots. */
 export function deepActive(): Element | null {

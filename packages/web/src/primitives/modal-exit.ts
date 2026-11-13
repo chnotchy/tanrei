@@ -332,8 +332,12 @@ function show(dialog: HTMLDialogElement, keep: HTMLElement | null) {
   );
 }
 
-/** `showModal()`, `keep` keeping focus (`openModal()`). */
+/**
+ * `showModal()`, `keep` keeping focus (`openModal()`). The layer keeps where focus goes back to from it, asked before it
+ * opens (`modalLayer.opener()`, what its component asked too), for a region of the page that opens under it (`openerFor()`).
+ */
 function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
+  const opener = modalLayer.opener();
   const marked = !!keep && !keep.hasAttribute('autofocus');
   if (marked) keep.setAttribute('autofocus', '');
   try {
@@ -342,7 +346,7 @@ function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
     if (marked) keep.removeAttribute('autofocus');
   }
   if (keep && deepActive() !== keep) keep.focus({ preventScroll: true });
-  modalLayer.add(dialog);
+  modalLayer.add(dialog, opener);
 }
 
 /**

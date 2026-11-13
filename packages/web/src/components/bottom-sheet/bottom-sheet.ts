@@ -23,6 +23,7 @@ import {
   motionReduced,
   onBackdrop,
   openModal,
+  openerFor,
   readTogether,
   report,
   returnFocus,
@@ -232,6 +233,8 @@ export class TanreiBottomSheet extends TanreiElement {
   private opener: Element | null = null;
   /** A modal sheet is presented (in the top layer). */
   private shown = false;
+  /** It is to open with the reads of the turn (`present()`), and has not yet. */
+  private presenting = false;
   private pressedScrim = false;
   private dragged = false;
   private drag: SheetDrag | null = null;
@@ -728,10 +731,29 @@ export class TanreiBottomSheet extends TanreiElement {
    * BSH-1, BSH-2, BSH-3: in the top layer, the page held, focus in. `instant`: in place, without motion (moved in the
    * document, or turned modal while open). Mounted open, it slides in as it opens, unless the document has not been
    * painted yet — `openModal()` and the appearance then draw it open at once (MOT-4).
+   *
+   * BSH-23: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * does (a dialog, a modal layer, a picker, an image preview, a modal drawer): surfaces whose `open` is set in one task
+   * open in the order of their updates, the later on top. Opened in its own update, it went under a dialog set open
+   * before it, which opens in that write. What it reads to open — the keyboard's cover — is read with those reads.
    */
   private present(instant: boolean) {
+    if (!this.dialog || this.shown || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      if (!this.open || !this.modal || this.shown || !this.isConnected) return;
+      const covered = this.readCover();
+      return () => {
+        if (this.open && this.modal && !this.shown && this.isConnected) this.show(instant, covered);
+      };
+    });
+  }
+
+  /** `present()`'s write: the sheet opens with what was read. */
+  private show(instant: boolean, covered: number) {
     const dialog = this.dialog;
-    if (!dialog || this.shown || !this.isConnected) return;
+    if (!dialog) return;
     watchEscape();
     this.cancelSettle();
     this.clearPlacement();
@@ -748,30 +770,23 @@ export class TanreiBottomSheet extends TanreiElement {
     this.appear.enter(instant);
     this.shown = true;
     holdPageScroll(this, true);
-    // The keyboard's cover, then the heights, then focus in — what focus scrolls into view is placed first — each read
-    // with every other host's reads of the turn (src/primitives/read-phase.ts): read after the sheet's own
-    // `showModal()`, they had the browser style and lay out the page once per sheet. Still in the task. Until focus is
-    // in, a surface opened above it in the same turn takes this sheet's target as its opener (BSH-23).
+    this.cover(covered);
+    // The heights, then focus in — what focus scrolls into view is placed first — read with every other host's reads of
+    // the turn (src/primitives/read-phase.ts): read after the sheet's own `showModal()`, they had the browser lay out the
+    // page once per sheet. Still in the task. Until focus is in, a surface opened above it in the same turn takes this
+    // sheet's target as its opener (BSH-23).
     modalLayer.owesFocus(dialog, () => sheetFocusTarget(this, this.sheet));
     readTogether(() => {
       if (!this.shown) return;
-      const covered = this.readCover();
+      const measured = this.readHeights();
       return () => {
         if (!this.shown) return;
-        this.cover(covered);
-        readTogether(() => {
-          if (!this.shown) return;
-          const measured = this.readHeights();
-          return () => {
-            if (!this.shown) return;
-            this.takeHeights(measured);
-            modalLayer.gaveFocus(dialog);
-            this.focusInside();
-            // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first
-            // frame drawn after this task, as its entrance does (statesFromNextFrame).
-            statesFromNextFrame([this]);
-          };
-        });
+        this.takeHeights(measured);
+        modalLayer.gaveFocus(dialog);
+        this.focusInside();
+        // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first frame
+        // drawn after this task, as its entrance does (statesFromNextFrame).
+        statesFromNextFrame([this]);
       };
     });
   }
@@ -864,7 +879,8 @@ export class TanreiBottomSheet extends TanreiElement {
         if (this.open && !was) {
           this.cancelSettle();
           this.clearPlacement();
-          this.opener = deepActive();
+          // BSH-3: under a modal surface it is not inside, focus goes back where it was before that surface opened.
+          this.opener = openerFor(this);
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {
           this.closingWithFocus = false;
