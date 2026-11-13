@@ -786,6 +786,35 @@ test.describe('the primitives of a composed element', () => {
   });
 });
 
+test('forwardedOwnSize(): a composed element whose size is an input box’s and sets none leaves its box without one, and the box draws the size its container sets (TXI-73, NMI-49, CLI-47, SEL-73, CMB-83); a size set on the element, medium included, is the box’s own and reflected on both, and given back from both (W2)', async ({ page }) => {
+  const BOXES = /^(text-input|number-input|color-input|select|combobox)\.size$/;
+  const fields = COMPOSED.filter((spec) => forwardedProps(spec as Resolved).some((prop) => prop.name === 'size' && BOXES.test(prop.from!)));
+  expect(fields.map((spec) => spec.name).sort()).toEqual(['chip-field', 'color-field', 'combobox-field', 'number-field', 'select-field', 'text-field']);
+  const pairs = fields.map((spec) => ({ id: `in-${spec.name}`, tag: spec.platforms.web.name, member: from(forwardedProps(spec as Resolved).find((prop) => prop.name === 'size')!).tag }));
+  await mount(page, `<tanrei-toolbar size="small" label="Tools">${pairs.map(({ id, tag }) => `<${tag} id="${id}" label="Field"></${tag}>`).join('')}</tanrei-toolbar>`, 'tanrei-text-field');
+  /** Each element's size and attribute, its box's attribute, and the size its box is drawn at, after `size` is set to `given` (left alone while undefined). */
+  const read = (given?: string | null) =>
+    page.evaluate(
+      async ([list, value]) => {
+        const out: Record<string, unknown> = {};
+        for (const { id, member } of list as { id: string; member: string }[]) {
+          const element = document.getElementById(id) as HTMLElement & { size: string | null; updateComplete: Promise<unknown> };
+          if (value !== undefined) element.size = value as string | null;
+          await element.updateComplete;
+          const box = element.shadowRoot!.querySelector(member) as HTMLElement & { drawnSize: string; updateComplete: Promise<unknown> };
+          await box.updateComplete;
+          out[id] = { size: element.size, attribute: element.getAttribute('size'), boxAttribute: box.getAttribute('size'), drawn: box.drawnSize };
+        }
+        return out;
+      },
+      [pairs, given] as const,
+    );
+  const each = (state: object) => Object.fromEntries(pairs.map(({ id }) => [id, state]));
+  expect(await read(), 'none set: the box takes the toolbar’s').toEqual(each({ size: 'medium', attribute: null, boxAttribute: null, drawn: 'small' }));
+  expect(await read('medium'), 'medium set: the box’s own').toEqual(each({ size: 'medium', attribute: 'medium', boxAttribute: 'medium', drawn: 'medium' }));
+  expect(await read(null), 'given back').toEqual(each({ size: 'medium', attribute: null, boxAttribute: null, drawn: 'small' }));
+});
+
 // ─── W13, for every composed element ─────────────────────────────────────────────────────────────────────────────
 
 test('the tests of the mechanism run over at least the first composed element, and each has its entry', () => {

@@ -17,6 +17,7 @@ import { decodePng } from '../../../test/png.js';
 import { fileURLToPath } from 'node:url';
 import { buildSync } from 'esbuild';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('text-input');
 type P = Page;
@@ -5077,6 +5078,13 @@ test.describe('the box is the one set every input box is drawn from', () => {
     expect(rest[1]).toBe(rest[0]);
     expect(one, 'the one it is set on, and not its neighbour').toEqual([0, rest[1]]);
     expect(both, 'both, from their parent').toEqual([0, 0]);
+  });
+});
+
+test.describe('the size a container sets', () => {
+  test('TXI-73: without a size of its own a text input draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default — and its picker button follows it; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'outlined-empty') });
+    await expectBoxTakesContainerSize(page, 'tanrei-text-input', T, { attrs: 'type="date" picker picker-label="Choose a date"', inner: { selector: '[part="picker-button"]', sizes: ['small', 'large', 'medium'] } });
   });
 });
 

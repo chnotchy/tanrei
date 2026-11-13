@@ -1,9 +1,12 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
+import { forwardAs } from './forward.js';
 
 // The size cascade (system → container → component). The system decides how much room every height takes, once: its
 // density moves the size steps' tokens, so nothing here reads it. What is set locally is a size, which a container
 // passes down to what it holds: a container that has a size SET provides it (BGR-26, TBR-31), and a component that sets
-// none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21). A container's default
+// none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21, and the input boxes'
+// TXI-73, NMI-49, CLI-47, SEL-73, CMB-83, as Carbon's Layout size and SwiftUI's `.controlSize` reach a text field and a
+// picker as well as a button, so that a box stands as tall as the Buttons beside it). A container's default
 // is never passed, so a container that says nothing leaves what it holds at its own default, or at the size a container
 // around it sets — as SwiftUI's `.controlSize` and Carbon's `Layout` pass only what is set. A component's own size
 // always wins.
@@ -87,31 +90,32 @@ function announce() {
 /** A name a custom state may carry: a token name. */
 const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
+/** The selector a consumer's size block is written under: the custom state `size-<name>` its controller carries. */
+export const drawnSizeAt = (size: string) => `:host(:state(size-${size}))`;
+
+/**
+ * An open size axis's `drawn` (`OpenAxis`, axes.ts) for a consumer: the size the host draws (its `drawnSize`, from its
+ * `SizeConsumerController`), carried by the custom state `size-<name>`. One object every consumer's axis shares.
+ */
+export const drawnSizeAxis = { read: (host: HTMLElement) => String((host as HTMLElement & { drawnSize?: unknown }).drawnSize ?? ''), selector: drawnSizeAt };
+
 /** The host of a component that takes a size: its `size` is a custom accessor that hands every write to `setOwn`. */
 type ConsumerHost = ReactiveControllerHost & HTMLElement & { requestUpdate(name?: PropertyKey, oldValue?: unknown): void };
 
 /**
- * A component that takes the size its nearest providing container sets while it sets none of its own (BTN-48, SPB-37,
- * CPY-21). `value` is that size, or null where no container around it sets one; the host renders again when it changes.
- * `own` is the size the product set on the host, or null while it set none: the host's `size` property is declared with
- * `noAccessor` and without `reflect` (`setOwn` reflects it), and its setter calls `setOwn`, so that a size set to the
- * default's name is set all the same.
+ * The size the product set on a host, or null while it set none. The host's `size` property is declared with
+ * `noAccessor` and without `reflect` (`setOwn` reflects it), its getter reads `own` (the default's name while it is
+ * null), and its setter calls `setOwn`, so that a size set to the default's name is set all the same.
+ *
+ * A composed element that forwards the size of a member that takes one from its containers (a text field's, from its
+ * text input, TXI-73) declares it the same way, with the `OwnSize` that `forwardedOwnSize()` gives it, which forwards
+ * `own` and not what reading `size` gives: the member is then left without a size of its own while the product set
+ * none on the element, and draws the size the containers around the element set.
  */
-export class SizeConsumerController implements ReactiveController {
-  value: string | null = null;
+export class OwnSize {
   own: string | null = null;
-  /** The custom state that carries the drawn size to the host's styles (`size-<name>`), while one does. */
-  private state = '';
 
-  constructor(
-    private readonly host: ConsumerHost,
-    /** The sizes the component has (its core), which a passed size is taken as the nearest of. */
-    private readonly sizes: readonly string[],
-    /** What it is drawn at where neither it nor a container sets a size. */
-    private readonly fallback = 'medium',
-  ) {
-    host.addController(this);
-  }
+  constructor(protected readonly host: ConsumerHost) {}
 
   /** The host's `size` setter: any value makes it the host's own; null or undefined gives it back (and the attribute goes). */
   setOwn(value: unknown) {
@@ -130,11 +134,58 @@ export class SizeConsumerController implements ReactiveController {
     this.host.requestUpdate();
     if (this.host.hasAttribute('size')) this.host.removeAttribute('size');
   }
+}
+
+/**
+ * The own size of a composed element whose `size` is its member's, a member that takes a size from its containers
+ * (TXI-73, NMI-49, CLI-47, SEL-73, CMB-83): `forward()` passes the member `own` — null while the product set none on
+ * the element, though `size` then reads as the default's name — so that the member draws the size its containers set.
+ */
+export function forwardedOwnSize(host: ConsumerHost): OwnSize {
+  const size = new OwnSize(host);
+  forwardAs(host, 'size', () => size.own);
+  return size;
+}
+
+/**
+ * A component that takes the size its nearest providing container sets while it sets none of its own (BTN-48, SPB-37,
+ * CPY-21). `value` is that size, or null where no container around it sets one; the host renders again when it changes.
+ * `own` is the size the product set on the host, or null while it set none (`OwnSize`).
+ */
+export class SizeConsumerController extends OwnSize implements ReactiveController {
+  value: string | null = null;
+  /** The custom state that carries the drawn size to the host's styles (`size-<name>`), while one does. */
+  private state = '';
+  /** The size drawn at the last `syncState`. */
+  private synced: string | null = null;
+  /**
+   * Whether the last `syncState` drew another size than the one before it (true at the first): what the host lays out
+   * by its size — a measure, a fitted height — is laid out again in that update, whether its own size or a container's
+   * changed it.
+   */
+  drawnChanged = false;
+
+  constructor(
+    host: ConsumerHost,
+    /** The sizes the component has (its core), which a passed size is taken as the nearest of. */
+    private readonly sizes: readonly string[],
+    /** What it is drawn at where neither it nor a container sets a size. */
+    private readonly fallback = 'medium',
+  ) {
+    super(host);
+    host.addController(this);
+  }
 
   /** The size the host draws: its own, else the one its nearest container sets (as its nearest size), else the fallback. */
   get drawn(): string {
     if (this.own !== null) return this.own;
     return this.value ? nearestSize(this.value, this.sizes) : this.fallback;
+  }
+
+  /** The drawn size where it is a token name, else the fallback: the name the host reads its own tokens by (its insets). */
+  get drawnName(): string {
+    const drawn = this.drawn;
+    return STATE_NAME.test(drawn) ? drawn : this.fallback;
   }
 
   /**
@@ -143,6 +194,8 @@ export class SizeConsumerController implements ReactiveController {
    */
   syncState(internals: ElementInternals) {
     const drawn = this.drawn;
+    this.drawnChanged = drawn !== this.synced;
+    this.synced = drawn;
     const state = STATE_NAME.test(drawn) ? `size-${drawn}` : '';
     if (state === this.state) return;
     if (this.state) internals.states.delete(this.state);

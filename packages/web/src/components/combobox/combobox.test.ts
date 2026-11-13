@@ -20,6 +20,7 @@ import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, iconFaceArrives, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -3597,6 +3598,18 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
     await page.mouse.click(at[0], at[1] + 1);
     await closedList(page, 'long');
     expect(await read(page, 'long')).toMatchObject({ value: `o${hovered!.position}`, text: hovered!.label });
+  });
+});
+
+test.describe('the size a container sets', () => {
+  test('CMB-83: without a size of its own a combobox draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectBoxTakesContainerSize(page, 'tanrei-combobox', T);
+  });
+
+  test('CMB-68, CMB-83: the options are drawn at the size the box is drawn at — small rows from a combobox without a size in a small toolbar, medium ones from one whose size is medium there —, and a removal of the toolbar’s size with the list open draws medium rows at once', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectOptionsTakeDrawnSize(page, 'tanrei-combobox');
   });
 });
 

@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { DISABLED, type OpenAxis, focusRing, groupItemStyles, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
+import { DISABLED, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemStyles, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -115,9 +115,6 @@ ${['', ...Object.keys(TONE_LAYERS)].map((suffix) => `    --_l${suffix}: var(--_t
     --_o-d: var(--_tone-edge-d);
   }`;
 
-/** BTN-48: the selector of the size a button draws (`size-<name>`, a custom state the button sets). */
-export const drawnAt = (size: string) => `:host(:state(size-${size}))`;
-
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
@@ -139,7 +136,7 @@ export const AXES: readonly OpenAxis[] = [
     rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-height-${value}`,
     // BTN-48: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
-    drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt },
+    drawn: drawnSizeAxis,
   },
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` },
 ];
@@ -173,7 +170,7 @@ const buttonStyles = css`
     vertical-align: middle;
   }
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
-  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, drawnAt(size))).join('\n'))}
+  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, drawnSizeAt(size))).join('\n'))}
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   /* DLG-20: without a variant attribute, the variant a dialog gives its action (src/primitives/group-item.ts). */
