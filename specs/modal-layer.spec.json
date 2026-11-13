@@ -90,7 +90,7 @@
     },
     {
       "id": "MDL-8",
-      "text": "WHEN a modal layer opens while another is open THE modal layer SHALL stack above it with its own scrim, make the first one inert with the rest of the window, and WHEN it closes return focus to the element inside the first one that had it; Escape, the platform's back and a press on the scrim SHALL reach only the topmost layer."
+      "text": "WHEN a modal layer opens while another is open THE modal layer SHALL stack above it with its own scrim, make the first one inert with the rest of the window, and WHEN it closes return focus to the element inside the first one that had it; Escape, the platform's back and a press on the scrim SHALL reach only the topmost layer. WHEN two modal layers open in the same update, one after the other, THE modal layer SHALL stack them in the order they open, as if the later had opened from the earlier: focus SHALL go into the later one only, the later SHALL return focus on closing to the element the earlier moves focus to as it opens (MDL-3), and the earlier, closed after it, SHALL return focus to the element that had it before either opened."
     },
     {
       "id": "MDL-9",
