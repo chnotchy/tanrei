@@ -2078,8 +2078,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-40: the changes of the update that opens a collapsible drawer, made in the write (`shouldUpdate`), and that update. */
   private deferred: Map<PropertyKey, unknown> | null = null;
   private replaying = false;
-  /** A collapsible modal drawer mounted open: shown in its first update (`present`). */
-  private mountedOpen = false;
   /** The menu button whose press is opening the drawer, until that update is drawn (NVD-22). */
   private pressedMenu: HTMLElement | null = null;
   /** NVD-22: the drawer closes from a pointer's press on its menu button, and gives focus back as that press would. */
@@ -3850,12 +3848,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
       return;
     }
     // Kept open across a change of presentation, or a collapsible drawer whose opening update is made in the write
-    // (`shouldUpdate`): at once. So is a collapsible drawer mounted open, in its first update.
-    // TODO: a collapsible modal drawer mounted open opens in its first update, not in the write: a dialog whose `open`
-    // is set before it in that task opens above it. Opened in the write, the drawer gives focus before it has drawn its
-    // header's buttons (they are drawn once it has read them, a slot change later), and focus goes past them.
-    if (this.reopener || this.replaying || this.mountedOpen) {
-      this.mountedOpen = false;
+    // (`shouldUpdate`): at once.
+    if (this.reopener || this.replaying) {
       this.show();
       return;
     }
@@ -4433,6 +4427,15 @@ export class TanreiNavigationDrawer extends TanreiElement {
   // ---- updates ----
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // NVD-19, NVD-38: the header draws what it holds from the first render, read from the drawer's children; its slots
+    // tell it again as they change (`#onHeaderButtons`, …). A modal drawer written open is shown in the write that
+    // follows this update's reads (`present`), before those slots have told it anything: drawn only then, its header
+    // was not there when focus went in, and focus went past its first button.
+    if (!this.hasUpdated) {
+      this.hasButtons = this.headerButtons.length > 0;
+      this.hasTitle = [...this.children].some((child) => child.getAttribute('slot') === 'header');
+      this.hasMain = this.mainActions.length > 0;
+    }
     // NVD-97, NVD-103: the widths the styles read, from the first frame. A width the product sets ends what a press on
     // the edge would give back (NVD-101).
     if (!this.hasUpdated || changed.has('width') || changed.has('minWidth') || changed.has('maxWidth')) {
@@ -4498,7 +4501,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
         this.presented = true;
-        this.mountedOpen = !this.hasUpdated;
         // MOT-4: a drawer that appears open before the document's first paint never showed its column: it is drawn open
         // at its full width, scrim and all, from its first frame, and does not widen from the column
         // (`@starting-style`). One added open after that widens from its column as one that opens does (NVD-40).

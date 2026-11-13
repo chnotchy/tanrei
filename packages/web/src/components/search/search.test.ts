@@ -26,6 +26,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { type Probe, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -1017,6 +1018,25 @@ test.describe('opening and closing', () => {
     await page.waitForTimeout(100);
     expect((await log(page)).filter((e) => e.startsWith('toggle'))).toEqual(['toggle:true:null:true', 'toggle:false:escape:false']);
     expect(await dialog(page, 's').evaluate((el) => (el as HTMLDialogElement).open)).toBe(false);
+  });
+
+  test('SRC-9, SRC-40, DLG-15, MDL-8: a full-screen or dialog view and a dialog, or a modal layer, opened in one task stack in the order they were set open, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens (the bar’s input, under a surface opened before the view, cannot take it), and on the earlier’s closing to the element that had it before either opened, or to the bar’s input', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 700 });
+    for (const presentation of ['full-screen', 'dialog'] as const) {
+      await mountFixtures(page, spec, { reducedMotion: true, icons: true, fixtures: [live('s', { presentation, value: 'inv' })] });
+      await host(page, 's').evaluate((el) => (el.id = 'search'));
+      await addStackedSurfaces(page);
+      const ids = ['search', STACKED_DIALOG, STACKED_LAYER];
+      // The view gives focus to its header's input; closed, it gives it back to the bar's input (SRC-9).
+      const target = (id: string) => (id === 'search' ? 'input in search' : `${id}-marked in ${id}`);
+      for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+        for (const order of [['search', other], [other, 'search']] as [string, string][]) {
+          const name = `${presentation}: ${order.join(', then ')}`;
+          await expectStackedInOrder(page, ids, { name, order, backInFirst: target(order[0]), last: order[0] === 'search' ? 'input in search' : undefined });
+          if (order[0] === 'search') await expect(input(page, 's'), name).toBeFocused();
+        }
+      }
+    }
   });
 
   test('SRC-11: the back button is a medium icon-only text Button showing the icon set’s arrow_back, mirrored in right to left, named by backLabel; empty, it is still drawn and reported', async ({ page }) => {

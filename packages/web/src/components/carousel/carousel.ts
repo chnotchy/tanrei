@@ -1090,10 +1090,14 @@ export class TanreiCarousel extends TanreiElement {
     timing.play();
     const step = () => {
       if (this.scrolling !== timing || overtaken()) return;
-      const progress = timing.effect?.getComputedTiming().progress ?? 1;
-      this.setOffset(from + (to - from) * (progress ?? 1));
+      // The motion's last frame writes `to` itself, not the curve's value there: an engine may call a motion finished
+      // while its progress is a hair under 1 (WebKit, within its timing tolerance: 0.9999999999999999), and the offset
+      // that gives (415.99999999999994 for 416) is cut to the whole pixel below by an engine that keeps whole offsets —
+      // the row would come to rest a pixel short of its resting position, and stay there.
+      const finished = timing.playState === 'finished';
+      this.setOffset(finished ? to : from + (to - from) * (timing.effect?.getComputedTiming().progress ?? 1));
       last = this.readOffset();
-      if (timing.playState === 'finished') {
+      if (finished) {
         finish();
         return;
       }

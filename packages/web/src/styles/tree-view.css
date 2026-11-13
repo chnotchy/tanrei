@@ -85,11 +85,15 @@
  *   goes through all of them (5,000 rows: an arrow key onto an open parent styled its 100 rows again). So a change
  *   of one row styles that row again and no other. What the product writes on the `<li>` (`data-open`,
  *   `data-disabled`, …) is read by a child combinator, and nothing an item says is inherited by the items it holds.
- * - The depth is a length, not a count: a list adds one indent to what its item holds (`--_trv-in`), and an item
- *   hands it on (`--_trv-from`) — two names, because a custom property cannot be computed from itself. Neither is
- *   registered: the value a level holds is the sum as it is written, one `calc()` longer a level, and is computed
- *   where a real property reads it. No list is set in: every `<li>` and every row is as wide as the tree, so the
- *   row is the hit area (TRV-26) and half of the tree's width is the same length everywhere (TRV-3).
+ * - The depth is two counts, not a length: how many items hold a row, of each of the two steps an item may take (its
+ *   row holds an icon's room, or not). An item hands them on (`--_trv-r-on`, `--_trv-m-on`) and its list takes them
+ *   (`--_trv-r`, `--_trv-m`) — two names, because a custom property cannot be computed from itself. Neither is
+ *   registered, so a count is the sum as it is written, one `calc()` longer a level; the two steps are lengths said
+ *   once, on the tree, and each row multiplies them by its level's counts in the properties that place it (AT, at the
+ *   row's rule). (A length handed down instead would carry every level's expression of the size tokens, as the
+ *   cascade substitutes it into every element under it, at each change of any token.) No list is set in: every
+ *   `<li>` and every row is as wide as the tree, so the row is the hit area (TRV-26) and half of the tree's width is
+ *   the same length everywhere (TRV-3).
  * - No custom property is registered (one registered
  *   name in a document makes every element on which a transition starts dear in Chromium). A part whose font is its
  *   own (the chevron, the icon, the trailing text) centres itself on the label's first line by saying `1lh` in its
@@ -138,9 +142,20 @@
     /* TRV-26: for a fine pointer a row is at least the pointer target high, at every size. */
     --_trv-min: max(var(--_trv-height), var(--tanrei-sys-target-pointer));
     --_trv-target: var(--tanrei-sys-target-pointer);
-    /* TRV-3: the first level begins at the tree's start edge: no step before it. */
-    --_trv-from: 0px;
-    --_trv-step: 0px;
+    /* TRV-3, TRV-43: the two steps an item may take its items in by, while indent is auto: what its row holds before
+       its label — the chevron's box and its gap at the start, and the icon (or its kept room) and the icon gap — and,
+       for a row that holds no icon's room, the chevron's box and its gap, or the size's level.indent token where no
+       chevron stands at the start. The product's indent is every item's step. Said once, here, from the tree's own
+       size; a level is a count of each (below). */
+    --_trv-kc: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)));
+    --_trv-ki: calc(var(--_trv-icon-size) + var(--_trv-icon-gap));
+    --_trv-a: var(--_trv-indent-own, calc(var(--_trv-kc) + var(--_trv-ki)));
+    --_trv-b: var(--_trv-indent-own, calc(var(--_trv-kc) + (1 - var(--_trv-cs)) * var(--_trv-indent)));
+    /* TRV-3: the first level begins at the tree's start edge: no item before it. */
+    --_trv-r-on: 0;
+    --_trv-m-on: 0;
+    /* TRV-43: whether a row's start counts its own icon (iconSpace never, set on the items below). */
+    --_trv-never: 0;
     /* TRV-36, TRV-39: start as a side, by the layout direction — not by a text's own. */
     --_trv-start: left;
     /* The space after the chevron's box, and around the icon after it: by side, because a glyph's own box is
@@ -212,8 +227,9 @@
 
   /* ── The lists and the items (TRV-1, TRV-3): no marker, no space; each list one indent further in ───────────── */
   :where(tanrei-tree-view) :where(ul, ol) {
-    /* (The step is its item's: the parent's lead, or the product's number.) */
-    --_trv-in: calc(var(--_trv-from) + var(--_trv-step));
+    /* (The level of its items: how many items hold them, of each step — its item's counts, handed on.) */
+    --_trv-r: var(--_trv-r-on);
+    --_trv-m: var(--_trv-m-on);
     /* TRV-43: whether the rows of this level keep an icon's room where they have no icon. */
     --_trv-reserve: 0;
     display: block;
@@ -226,20 +242,13 @@
     transition: --_trv-disclosure var(--tanrei-comp-tree-view-motion-disclosure-duration) var(--tanrei-comp-tree-view-motion-disclosure-easing);
   }
   :where(tanrei-tree-view) :where(li) {
-    --_trv-from: var(--_trv-in);
-    /* TRV-3, TRV-43: what this item's row holds before its label — the chevron's box and its gap at the start, and
-       the icon (or its kept room) and the icon gap — is the step of the items it holds while indent is auto; a row
-       that holds nothing before its label steps its items in by the size's level.indent token. */
+    /* TRV-3, TRV-43: whether this item's row holds an icon or its kept room — and so which step it takes the items it
+       holds in by — and the counts it hands on: the items that hold its items, of each step. Numbers, each one
+       `calc()` longer a level; the lengths are said by the list. */
     --_trv-has-icon: 0;
     --_trv-room: max(var(--_trv-has-icon), var(--_trv-reserve));
-    --_trv-lead-li: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)) + var(--_trv-room) * (var(--_trv-icon-size) + var(--_trv-icon-gap)));
-    /* TRV-3: where this level's rows begin — never so far in that the label begins past half of the tree's width. (A
-       percentage: of the tree's width wherever it is read, because every box it is read in is as wide as the tree.) */
-    --_trv-at: max(0px, min(var(--_trv-in), 50% - var(--_trv-pad-inline) - var(--_trv-lead-li)));
-    --_trv-step: var(--_trv-indent-own, calc(var(--_trv-lead-li) + (1 - var(--_trv-cs)) * (1 - var(--_trv-room)) * var(--_trv-indent)));
-    /* TRV-8: the middle of the row's first leading thing, from its content's start: the chevron at the start; else
-       the icon; else the label's start. */
-    --_trv-guide-x: calc(var(--_trv-cs) * var(--_trv-chevron-size) / 2 + (1 - var(--_trv-cs)) * (var(--_trv-has-icon) * var(--_trv-icon-size) / 2 + (1 - var(--_trv-has-icon)) * var(--_trv-reserve) * (var(--_trv-icon-size) + var(--_trv-icon-gap))));
+    --_trv-r-on: calc(var(--_trv-r) + var(--_trv-room));
+    --_trv-m-on: calc(var(--_trv-m) + 1 - var(--_trv-room));
     display: block;
     box-sizing: border-box;
     margin: 0;
@@ -248,6 +257,11 @@
   /* (Asked of the item for itself: whether its row holds an icon.) */
   :where(tanrei-tree-view) :where(li:has(> :first-child:not(ul, ol) > .tanrei-icon)) {
     --_trv-has-icon: 1;
+  }
+  /* TRV-3, TRV-43: where a level keeps no icon's room (iconSpace never), a row with an icon begins far enough from half
+     of the tree's width for its icon too (1: the row's start, below, counts its icon). */
+  :where(tanrei-tree-view[icon-space='never']) :where(li) {
+    --_trv-never: 1;
   }
   /* TRV-43: iconSpace — auto keeps the room in a level where any row has an icon; always in every level; never in none.
      (Asked of the list for itself.) */
@@ -297,8 +311,10 @@
     position: absolute;
     z-index: 1;
     inset-block: 0;
-    /* (The list inherits where ITS item's row begins, and the middle of that row's first leading thing.) */
-    inset-inline-start: calc(var(--_trv-at) + var(--_trv-pad-inline) + var(--_trv-guide-x) - var(--tanrei-comp-tree-view-guide-width) / 2);
+    /* Where ITS item's row begins (as that item's list says it, above, from that item's counts: this list's own, less
+       that item), its content's start, and from there the middle of that row's first leading thing — the chevron at
+       the start; else the icon; else the label's start. (The list inherits its item's room and icon.) */
+    inset-inline-start: calc(max(0px, min((var(--_trv-r) - var(--_trv-room)) * var(--_trv-a) + (var(--_trv-m) - 1 + var(--_trv-room)) * var(--_trv-b), 50% - var(--_trv-pad-inline) - var(--_trv-kc) - var(--_trv-room) * var(--_trv-ki))) + var(--_trv-pad-inline) + var(--_trv-cs) * var(--_trv-chevron-size) / 2 + (1 - var(--_trv-cs)) * (var(--_trv-has-icon) * var(--_trv-icon-size) / 2 + (1 - var(--_trv-has-icon)) * var(--_trv-room) * var(--_trv-ki)) - var(--tanrei-comp-tree-view-guide-width) / 2);
     border-inline-start: var(--tanrei-comp-tree-view-guide-width) solid var(--_trv-guide-color);
     pointer-events: none;
   }
@@ -356,21 +372,32 @@
     position: relative;
     isolation: isolate;
     display: grid;
-    /* What stands before the text: the chevron's box and its gap at the start, and the icon's kept room (TRV-43); a
-       row with an icon is as wide there as its icon makes it. */
-    --_trv-lead: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)) + var(--_trv-reserve) * (var(--_trv-icon-size) + var(--_trv-icon-gap)));
-    /* TRV-51: where the container begins — the level's start, or the tree's start edge. */
-    --_trv-box: var(--_trv-at);
-    /* TRV-7: the trailing text takes at most half of the width the chevron and the icon leave, so that the label
+    /* What stands before its text (LEAD below): the chevron's box and its gap at the start, and the icon's kept room
+       (TRV-43); a row with an icon is as wide there as its icon makes it.
+       TRV-7: the trailing text takes at most half of the width the chevron and the icon leave, so that the label
        keeps at least as much as it takes. TRV-4: an end chevron stands in the last column. */
-    grid-template-columns: [lead] minmax(var(--_trv-lead), auto) [text] minmax(0, 1fr) [trailing] auto [value] fit-content(calc((100% - var(--_trv-lead)) / 2)) [end] auto;
+    grid-template-columns: [lead] minmax(calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)), auto) [text] minmax(0, 1fr) [trailing] auto [value] fit-content(calc((100% - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki))) / 2)) [end] auto;
     align-content: center;
     align-items: start;
     box-sizing: border-box;
     min-block-size: var(--_trv-min);
     margin: 0;
     padding-block: var(--_trv-pad-block);
-    padding-inline: calc(var(--_trv-at) + var(--_trv-pad-inline)) var(--_trv-pad-inline);
+    /* TRV-3: where it begins (AT below) — each item that holds it steps it in by its own step — and never so far in
+       that the label begins past half of the tree's width (a percentage: of the tree's width, because every box it is
+       read in is as wide as the tree), its icon too where the level keeps no icon's room (TRV-43). TRV-51: its
+       container begins there, or at the tree's start edge, `--_trv-box`, where that is set.
+
+         AT    max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline)
+               - LEAD - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki)))
+         LEAD  calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki))
+
+       Both are written out in each property that reads them (here, the container, its focus glow, the ripple), never
+       said in a custom property: WebKit compares each inherited custom property that holds a `var()` with the value it
+       had, token by token, on every element and pseudo-element that inherits it, at each change of any token. Said on
+       the list, the two cost a change of contrast about 0.4 ms a tree in WebKit (fifty trees of 21 rows, motion
+       reduced: 133 ms of style, 113 written out), and said on the row instead, Chromium 10 ms more on that page. */
+    padding-inline: calc(max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki))) + var(--_trv-pad-inline)) var(--_trv-pad-inline);
     /* TRV-6: the label's text style and color; it wraps, breaks where it must and is never cut. TRV-39: text of its
        own direction, its lines on the layout's side. */
     font: var(--_trv-label-font);
@@ -428,8 +455,8 @@
     --_trv-icon-family: var(--tanrei-sys-icon-family-selected);
   }
 
-  /* The container (TRV-2, TRV-3): the fill and the corners, from the level's indent to the tree's end edge, under
-     the row's parts. */
+  /* The container (TRV-2, TRV-3): the fill and the corners, from the level's indent (AT, written out: the row's rule
+     says why) to the tree's end edge, under the row's parts. */
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol))::after {
     --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
     --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);
@@ -437,7 +464,7 @@
     position: absolute;
     z-index: -1;
     inset: 0;
-    inset-inline-start: var(--_trv-box);
+    inset-inline-start: var(--_trv-box, max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki))));
     box-sizing: border-box;
     background-color: var(--_trv-now-container);
     pointer-events: none;
@@ -647,9 +674,8 @@
     margin-block-start: calc((1lh - var(--_trv-icon-size)) / 2);
     /* After the chevron's box and its gap where it stands at the start, with the icon gap after itself — on the sides
        the layout gives. */
-    --_trv-c: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)));
-    margin-left: calc(var(--_trv-c) * (1 - var(--_trv-rtl)) + var(--_trv-icon-gap) * var(--_trv-rtl));
-    margin-right: calc(var(--_trv-c) * var(--_trv-rtl) + var(--_trv-icon-gap) * (1 - var(--_trv-rtl)));
+    margin-left: calc(var(--_trv-kc) * (1 - var(--_trv-rtl)) + var(--_trv-icon-gap) * var(--_trv-rtl));
+    margin-right: calc(var(--_trv-kc) * var(--_trv-rtl) + var(--_trv-icon-gap) * (1 - var(--_trv-rtl)));
     color: var(--_trv-now-icon);
     vertical-align: baseline;
   }
@@ -893,7 +919,7 @@
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active]))::after {
       --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
       inset: var(--_trv-glow);
-      inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
+      inset-inline-start: calc(var(--_trv-box, max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki)))) + var(--_trv-glow));
       border: 0;
       border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_trv-glow)));
       /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
@@ -907,7 +933,7 @@
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']:is(:focus-visible, [data-tanrei-filter-active]))::after {
     --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
     inset: var(--_trv-glow);
-    inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
+    inset-inline-start: calc(var(--_trv-box, max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki)))) + var(--_trv-glow));
     border: 0;
     border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_trv-glow)));
     outline-color: transparent;
@@ -948,7 +974,7 @@
     inset: 0;
     --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
     --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);
-    inset-inline-start: var(--_trv-box);
+    inset-inline-start: var(--_trv-box, max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki))));
     background: var(--_trv-pressed-container);
     pointer-events: none;
     clip-path: circle(var(--_r) at var(--_x) var(--_y));
@@ -1096,7 +1122,7 @@
     }
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active]))::after {
       inset: 0;
-      inset-inline-start: var(--_trv-box);
+      inset-inline-start: var(--_trv-box, max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki))));
       border: var(--tanrei-sys-focus-outer-width) solid Highlight;
       outline: var(--tanrei-sys-focus-inner-width) solid Highlight;
       box-shadow: none;
