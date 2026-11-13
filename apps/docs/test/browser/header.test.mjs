@@ -4,7 +4,8 @@
 // window, where the drawer holds it), and four actions: the repository's link, which the bar hides where its row has no
 // room for it (APB-26, APB-30), and the search, the mode's toggle and the language, which it never hides. What the
 // appearance's panel does is test/browser/appearance.test.mjs's; the language's menu links the page in the six languages;
-// the icon-only buttons are named in the page's language; and at a phone's width nothing scrolls sideways.
+// the icon-only buttons are named in the page's language; at a phone's width nothing scrolls sideways; and before the bar
+// is defined the header is as tall as it, under system insets too (Chromium).
 // A production build reports nothing (APB-13 is a debug report), so what the report is about is asked of the bar.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -290,5 +291,89 @@ for (const engine of ENGINES) {
         }
       }
     });
+
+    // Before the bar is defined the header's stand-in (styles/frame.css) is as tall as the bar, with no system inset and
+    // with insets at the top and the sides, which the defined bar lays itself out over (APB-10): its height includes the
+    // top one, and its row stands inside the side ones. The insets move the stand-in's items as they move the bar's.
+    // Only Chromium can be given insets: its DevTools protocol sets them (`Emulation.setSafeAreaInsetsOverride`), and
+    // Playwright's protocols for Firefox and WebKit have no counterpart, so `env(safe-area-inset-*)` is 0 there and
+    // those engines are asked without. A phone held upright has a status bar over the page; a tablet's window as wide as
+    // a desktop's is given side insets as well (a phone on its side has them, and no top one, but it is too narrow for
+    // every item the stand-in draws: the defined bar hides what has no room, APB-26, which a stylesheet cannot do).
+    const INSETS_AT = { [COMPACT.width]: { top: 47 }, [WIDE.width]: { top: 47, left: 47, right: 47 } };
+    /** The header and its items before the bar is defined (every script held until the page is drawn) and once it is. */
+    const beforeAndAfter = async (viewport, insets) => {
+      const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+      try {
+        const page = await context.newPage();
+        if (insets) await (await context.newCDPSession(page)).send('Emulation.setSafeAreaInsetsOverride', { insets });
+        // Every script is held until the page has been parsed and drawn without them (the inline ones still run).
+        let release;
+        const released = new Promise((resolve) => (release = resolve));
+        await page.route(/\.m?js(\?|$)/, async (route) => {
+          await released;
+          await route.continue();
+        });
+        await page.goto(`${origin}${PAGE}`, { waitUntil: 'commit' });
+        await page.waitForFunction(() => document.readyState !== 'loading');
+        // Firefox and WebKit settle the faces only once the document has loaded, which the held scripts keep it from:
+        // the faces are given as long as layout-shift.test.mjs gives them, then two frames.
+        await page.evaluate(() => Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 10_000))]));
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        const measure = () =>
+          page.evaluate(() => {
+            const bar = document.querySelector('tanrei-app-bar.docs-app-bar');
+            const box = (element) => {
+              const { x, y, width, height } = element.getBoundingClientRect();
+              return { x, y, width, height };
+            };
+            const name = (element) => element.id || (element.hasAttribute('data-app-shell-menu') ? 'shell-menu' : element.classList[0]);
+            const drawn = [...bar.querySelectorAll(':scope > [slot]')].filter((element) => element.getBoundingClientRect().width > 0);
+            return {
+              defined: !!customElements.get('tanrei-app-bar'),
+              inset: getComputedStyle(bar).paddingBlockStart,
+              header: box(bar.closest('[slot="header"]')),
+              items: Object.fromEntries(drawn.map((element) => [name(element), box(element)])),
+            };
+          });
+        const standIn = await measure();
+        assert.equal(standIn.defined, false, 'the bar is not defined while the scripts are held');
+        release();
+        // The search is defined by a pointer over its trigger, heard by its module script (components/frame/Search.astro):
+        // a hover before that script has run is heard by nothing, and no other comes. The document is complete once
+        // every module script has run, so the hover waits for it.
+        await page.waitForFunction(() => document.readyState === 'complete');
+        await settled(page);
+        return { standIn, drawn: await measure() };
+      } finally {
+        await context.close();
+      }
+    };
+    const near = (a, b) => Math.abs(a - b) <= 0.5;
+    for (const viewport of [COMPACT, WIDE]) {
+      const INSETS = INSETS_AT[viewport.width];
+      test(`before the bar is defined, at ${viewport.width}: the header is as tall as the bar, with no system inset and with ${JSON.stringify(INSETS)} (Chromium only)`, LIMIT, async () => {
+        const plain = await beforeAndAfter(viewport, null);
+        assert.ok(near(plain.standIn.header.height, plain.drawn.header.height), `the header's height: ${plain.standIn.header.height} before the bar is defined, ${plain.drawn.header.height} once it is`);
+        if (engine !== 'chromium') return;
+        const inset = await beforeAndAfter(viewport, INSETS);
+        assert.equal(inset.standIn.inset, `${INSETS.top}px`, 'the top inset is given to the page');
+        assert.ok(near(inset.drawn.header.height, plain.drawn.header.height + INSETS.top), `the defined bar's height includes the top inset: ${inset.drawn.header.height}, ${plain.drawn.header.height} without it`);
+        assert.ok(near(inset.standIn.header.height, inset.drawn.header.height), `under the insets, the header's height: ${inset.standIn.header.height} before the bar is defined, ${inset.drawn.header.height} once it is`);
+        // Each item the stand-in draws is moved by the insets as the bar moves it: down by the top inset, and in from
+        // the side it stands nearer. Asked of the items drawn in all four (the repository's link is drawn only once the
+        // bar is defined, APB-26, and a row narrowed by the side insets may have no room for it).
+        const loads = [plain.standIn, plain.drawn, inset.standIn, inset.drawn];
+        const items = Object.keys(plain.standIn.items).filter((item) => loads.every((load) => load.items[item]));
+        assert.ok(items.length >= 4, `the stand-in draws the header's items: ${items.join(', ')}`);
+        const moved = (load, from, item) => ({ x: load.items[item].x - from.items[item].x, y: load.items[item].y - from.items[item].y });
+        const off = items.flatMap((item) => {
+          const before = moved(inset.standIn, plain.standIn, item);
+          const after = moved(inset.drawn, plain.drawn, item);
+          return near(before.x, after.x) && near(before.y, after.y) ? [] : [`${item}: moved ${JSON.stringify(before)} before the bar is defined, ${JSON.stringify(after)} once it is`];
+        });
+        assert.deepEqual(off, [], 'the insets move every item of the stand-in as they move the bar\'s');
+      });
+    }
   });
 }
