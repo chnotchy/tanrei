@@ -14,7 +14,8 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
-import { expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -430,51 +431,154 @@ test.describe('the navigation', () => {
     await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
   });
 
-  // With the engine's scroll anchoring and without it (a product may turn it off, and an engine does not anchor every
-  // change): the frame holds the place by itself. One page each: in a second document mounted into the same page after a
-  // drag, Chromium gave the handle no pointer capture (no `gotpointercapture`), and the drag stopped at the handle's edge.
+  // ---- APS-5: the place being read, held while a person changes the drawer's width ----
+  //
+  // Each change is read in every frame as it is painted, never in the task right after the input: an engine's own scroll
+  // anchoring may hold the place only at the next frame (WebKit does), so a read of layout between the input and that
+  // frame finds the text reflowed and not yet held — about 528 px off in the drag below — a state no frame shows. And
+  // each is read without the engine's scroll anchoring too (`overflow-anchor: none`: a product may turn it off, and an
+  // engine does not anchor every change): with it, Chromium and Firefox held the place whether or not the frame did.
+  //
+  // Each test has a page of its own, and drags in the first document mounted into it: in Chromium a document written
+  // into a page whose earlier document the mouse had moved over captures no pointer (see `mountFixtures`), and a drag
+  // there stops at the handle's edge.
+
+  /**
+   * What each frame shows: where the drawer ends, where the main region begins, where the place read stands, and how far
+   * the text before it reaches (from the main content's first line to the place read: what the reflow changes).
+   */
+  const readingProbe = (root: Element) => {
+    const [nav, content, read, first] = ['tanrei-app-shell > tanrei-navigation-drawer', 'tanrei-app-shell > main', '#reading', 'tanrei-app-shell > main > p'].map((selector) => root.querySelector(selector)!.getBoundingClientRect());
+    return { end: nav.right, start: content.left, read: read.top, before: read.top - first.top };
+  };
+  /** The text before the place read reflowed by more than a line: without the frame's hold, the place would have moved. */
+  const reflowed = (seen: Frames, line: number, what: string) => expect(Math.abs((seen.rest.probe.before as number) - (seen.before.probe.before as number)), `the text before the place reflowed, ${what}`).toBeGreaterThan(line);
+  /** The drawer's resize handle, the one stop the keyboard has on its edge (NVD-102). */
+  const separator = (page: P) => drawer(page).locator('tanrei-handle [role="separator"]');
+
+  /**
+   * A frame whose main region holds a long text before the place being read, which reflows as the main region narrows
+   * and widens; with the engine's scroll anchoring (`auto`) or without it (`none`), on the page or on the main region
+   * where the frame's `scroll` is `main`.
+   */
+  async function mountReading(page: P, { anchoring, scroll = 'page', navigation = DRAWER('responsive collapsible max-width="4000"'), props = {} }: { anchoring: 'auto' | 'none'; scroll?: 'page' | 'main'; navigation?: string; props?: Fixture['props'] }) {
+    await mount(page, real({ navigation, props: { ...props, ...(scroll === 'main' ? { scroll } : {}) } }), { width: 1280 });
+    await page.evaluate((value) => document.head.insertAdjacentHTML('beforeend', `<style>html, body, tanrei-app-shell > main { overflow-anchor: ${value}; }</style>`), anchoring);
+    await main(page).evaluate((el) => {
+      const text = 'The quick brown fox jumps over the lazy dog, and the lazy dog lets it, for the fox is quick and the dog is not. '.repeat(6);
+      el.insertAdjacentHTML('afterbegin', `${Array.from({ length: 24 }, () => `<p>${text}</p>`).join('')}<h2 id="reading" style="margin: 0">Reading here</h2><p style="block-size: 2000px">${text}</p>`);
+    });
+  }
+
+  /**
+   * The heading is what is read: scrolled to the top of what is seen — just below the header where the page scrolls, at
+   * the main region's top where it scrolls itself. Where it stands then, and the text's line: the place is held within it.
+   */
+  async function readHere(page: P, scroll: 'page' | 'main' = 'page') {
+    const header = await edges(region(page, 'header'));
+    await page.evaluate(
+      ({ below, own }) => {
+        const at = document.getElementById('reading')!.getBoundingClientRect().top;
+        const scroller = document.querySelector('tanrei-app-shell > main')!;
+        if (own) scroller.scrollTop += at - scroller.getBoundingClientRect().top - 8;
+        else window.scrollTo(0, at + window.scrollY - below);
+      },
+      { below: header.height + 8, own: scroll === 'main' },
+    );
+    const line = Number.parseFloat(await css(page.locator('#reading + p'), 'line-height')) || 24;
+    return { before: (await edges(page.locator('#reading'))).top, line };
+  }
+
+  /**
+   * In every frame of a change and at its rest the main region begins at the drawer's end, with no motion of its own,
+   * and the place read stands where it stood, within a line.
+   */
+  async function expectHeld(page: P, seen: Frames, { before, line }: { before: number; line: number }, what: string) {
+    expect(seen.complete, what).toBe(true);
+    for (const { index, probe: drawn } of [...seen.frames, seen.rest]) {
+      near(drawn.start as number, drawn.end as number);
+      expect(Math.abs((drawn.read as number) - before), `the place read, ${what}, frame ${index}`).toBeLessThanOrEqual(line);
+    }
+    expect(seen.motions.filter((motion) => /^main(\.|::|$)/.test(motion.on)), what).toEqual([]);
+    expect(await motionCount(main(page)), what).toBe(0);
+  }
+
+  /**
+   * Reads `readingProbe` in every frame the page draws from now on, where the frame is painted — after the page's own
+   * resize observers — while a motion plays at its own speed; the returned function stops and answers the frames.
+   *
+   * Not `sampleFrames`, for a change a motion makes: it moves a held motion on inside its own resize observer and reads
+   * at once, so the frame it reads has the drawer's new width and the text reflowed without the shell's observer having
+   * answered it (the place 528 px off in the one frame where the text before it lost a line, in every engine). No engine
+   * paints that: the shell's observer holds the place in the same frame. Here a resize observer on a box that a motion
+   * of its own widens in every frame makes, in each, a new observer of a box inside it, which the engine asks in a later
+   * round of that frame's observations than the page's own observers — whatever order they were made in (an engine may
+   * keep an observer that observes again in a new place in its list: Firefox and WebKit did, the shell's).
+   */
+  async function recordPainted(page: P): Promise<() => Promise<Record<string, number | string | boolean | undefined>[]>> {
+    await page.evaluate((source) => {
+      const probe = (0, eval)(source) as (root: Element) => Record<string, number | string | boolean | undefined>;
+      const root = document.querySelector('.stage')!;
+      const painted: ReturnType<typeof probe>[] = [];
+      const box = document.createElement('div');
+      box.setAttribute('aria-hidden', 'true');
+      box.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: clip; pointer-events: none; contain: strict;';
+      const mover = document.createElement('div');
+      mover.style.cssText = 'inline-size: 0; block-size: 1px;';
+      const mark = document.createElement('div');
+      mark.style.cssText = 'inline-size: 1px; block-size: 1px;';
+      mover.append(mark);
+      box.append(mover);
+      document.documentElement.append(box);
+      const ticking = mover.animate([{ inlineSize: '0px' }, { inlineSize: '1000000px' }], { duration: 1_000_000 });
+      let reader: ResizeObserver | undefined;
+      const clock = new ResizeObserver(() => {
+        reader?.disconnect();
+        reader = new ResizeObserver(() => painted.push(probe(root)));
+        reader.observe(mark);
+      });
+      clock.observe(mover);
+      (window as unknown as { __painted: () => typeof painted }).__painted = () => {
+        clock.disconnect();
+        reader?.disconnect();
+        ticking.cancel();
+        box.remove();
+        return painted;
+      };
+    }, readingProbe.toString());
+    return () => page.evaluate(() => (window as unknown as { __painted: () => Record<string, number | string | boolean | undefined>[] }).__painted());
+  }
+
+  /**
+   * Waits until what reaching the drawer's edge began is at rest, so that what is read next is the change alone. The
+   * pointer on the handle and its press start the handle's state layer and capsule over the state motion; Tab's walk to
+   * it fades each control it passes in and out of its focus color (the header's menu button, the drawer's own, its
+   * items' indicators) and the handle's in. Still running when a change is sampled, one of them can begin and end
+   * between two frames on a machine that draws none for its whole duration, and `sampleFrames` refuses the sampling:
+   * WebKit in CI did, for the drawer's button and an item's indicator after the Tab.
+   */
+  const settleStates = (page: P) => motionEnded(page.locator('.stage'));
+
+  /** A drag on the drawer's edge, held down at its end: each move read in every frame; the drawer follows the press. */
+  async function dragHeld(page: P, held: { before: number; line: number }) {
+    const panel = await edges(drawer(page));
+    const at = { x: panel.right, y: panel.top + 200 };
+    await page.mouse.move(at.x, at.y);
+    await page.mouse.down();
+    await settleStates(page);
+    for (const dx of [20, 60, 120, -40]) {
+      const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(at.x + dx, at.y), { probe: readingProbe, elements: false });
+      await expectHeld(page, seen, held, `dx ${dx}`);
+      // The drawer followed the press: the place is held while the text before it reflows.
+      near(seen.rest.probe.end as number, at.x + dx);
+    }
+    return at;
+  }
+
   for (const anchoring of ['auto', 'none'] as const) {
     test(`APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor ${anchoring}); the drawer is never wider than the window less a touch target; the frame keeps nothing`, async ({ page }) => {
-      // Read in each frame as it is painted, never in the task right after a move: an engine's own scroll anchoring may
-      // hold the place only at the next frame (WebKit does), so a read of layout between the move and that frame finds
-      // the text reflowed and not yet held — about 528 px off here — a state no frame shows.
-      const probe = (root: Element) => {
-        const [nav, content, read] = ['tanrei-app-shell > tanrei-navigation-drawer', 'tanrei-app-shell > main', '#reading'].map((selector) => root.querySelector(selector)!.getBoundingClientRect());
-        return { end: nav.right, start: content.left, read: read.top };
-      };
-      await mount(page, real({ navigation: DRAWER('responsive collapsible max-width="4000"') }), { width: 1280 });
-      await page.evaluate((value) => document.head.insertAdjacentHTML('beforeend', `<style>html, body { overflow-anchor: ${value}; }</style>`), anchoring);
-      // A long text before the place being read, which reflows as the main region narrows and widens.
-      await main(page).evaluate((el) => {
-        const text = 'The quick brown fox jumps over the lazy dog, and the lazy dog lets it, for the fox is quick and the dog is not. '.repeat(6);
-        el.insertAdjacentHTML('afterbegin', `${Array.from({ length: 24 }, () => `<p>${text}</p>`).join('')}<h2 id="reading" style="margin: 0">Reading here</h2><p style="block-size: 2000px">${text}</p>`);
-      });
-      const reading = page.locator('#reading');
-      // The heading is what is read: at the top of what is seen, just below the header.
-      const header = await edges(region(page, 'header'));
-      await page.evaluate((below) => {
-        const at = document.getElementById('reading')!.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo(0, at - below);
-      }, header.height + 8);
-      const line = Number.parseFloat(await css(page.locator('#reading + p'), 'line-height')) || 24;
-      const before = (await edges(reading)).top;
-      const panel = await edges(drawer(page));
-      const at = { x: panel.right, y: panel.top + 200 };
-      await page.mouse.move(at.x, at.y);
-      await page.mouse.down();
-      for (const dx of [20, 60, 120, -40]) {
-        const what = `dx ${dx}`;
-        const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(at.x + dx, at.y), { probe, elements: false });
-        expect(seen.complete, what).toBe(true);
-        // The drawer followed the press: the place is held while the text before it reflows.
-        near(seen.rest.probe.end as number, at.x + dx);
-        for (const { index, probe: drawn } of [...seen.frames, seen.rest]) {
-          near(drawn.start as number, drawn.end as number);
-          expect(Math.abs((drawn.read as number) - before), `the place read, ${what}, frame ${index}`).toBeLessThanOrEqual(line);
-        }
-        expect(seen.motions.filter((motion) => /^main(\.|::|$)/.test(motion.on)), what).toEqual([]);
-        expect(await motionCount(main(page)), what).toBe(0);
-      }
+      await mountReading(page, { anchoring });
+      const at = await dragHeld(page, await readHere(page));
       // As far as it goes: the window less a touch target.
       await page.mouse.move(1270, at.y);
       expect((await edges(drawer(page))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
@@ -484,6 +588,70 @@ test.describe('the navigation', () => {
       expect(await shell(page).evaluate((el) => [...el.attributes].map((a) => a.name).filter((n) => /width/.test(n)))).toEqual([]);
     });
   }
+
+  test('APS-5, APS-30, NVD-96: where the main region scrolls itself (scroll main) the drawer’s resize handle stands beside its end edge; while a person drags it the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in it, the page itself never scrolled (overflow-anchor none)', async ({ page }) => {
+    await mountReading(page, { anchoring: 'none', scroll: 'main' });
+    // The handle is placed from the drawer's own box, which the frame keeps positioned where it is not sticky: placed
+    // from the frame's, it stood past the window's end edge, and no drag could begin.
+    const [panel, handle] = [await edges(drawer(page)), await edges(drawer(page).locator('tanrei-handle'))];
+    expect(handle.left, 'the handle begins at the drawer’s end').toBeGreaterThanOrEqual(panel.right - 0.6);
+    expect(handle.right, 'within a touch target of it').toBeLessThanOrEqual(panel.right + (await resolveToken(page, '--tanrei-sys-target-touch')));
+    expect([handle.top, handle.bottom]).toEqual([panel.top, panel.bottom]);
+    await dragHeld(page, await readHere(page, 'main'));
+    await page.mouse.up();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  });
+
+  test('APS-5, NVD-100: a key’s step on the navigation drawer’s edge changes its width at once, and in the frame it is drawn the main region begins at the drawer’s end, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor none)', async ({ page }) => {
+    // A main region as wide as the room it is given (mainWidth full): a contained one at its greatest width does not reflow.
+    await mountReading(page, { anchoring: 'none', navigation: DRAWER(), props: { mainWidth: 'full' } });
+    // Focus first: a Tab on the way may scroll the page to what it reaches.
+    await tabTo(page, separator(page));
+    await settleStates(page);
+    const held = await readHere(page);
+    // Steps of 100 and more — from 240: End 400, Page Up 300, Home 200, Page Down 300, Shift+→ 400.
+    for (const key of ['End', 'PageUp', 'Home', 'PageDown', 'Shift+ArrowRight']) {
+      const seen = await sampleFrames(page.locator('.stage'), () => page.keyboard.press(key), { probe: readingProbe, elements: false });
+      await expectHeld(page, seen, held, key);
+      reflowed(seen, held.line, key);
+      // At once: the drawer's end is where it rests from the first frame that changed (NVD-100).
+      expect(seen.frames.filter((f) => f.probe.end !== seen.rest.probe.end && f.probe.end !== seen.before.probe.end), key).toEqual([]);
+    }
+  });
+
+  test('APS-5, NVD-101: while the navigation drawer folds to its column at its edge’s Enter, and unfolds at the next, over the change of form’s motion, the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor none)', async ({ page }) => {
+    await mountReading(page, { anchoring: 'none', navigation: DRAWER(), props: { mainWidth: 'full' } });
+    await tabTo(page, separator(page));
+    // The drawer's motions waited for below are then the change of form's alone.
+    await settleStates(page);
+    const held = await readHere(page);
+    const duration = await resolveToken(page, '--tanrei-comp-navigation-drawer-motion-expand-duration', 'duration');
+    // The drawer says a person changes its width for as long as the motion lasts, by a timer of the page's: the page's
+    // clock is held while the motion plays, however long the machine takes to draw it, and run on past the motion and its
+    // timers between the two changes. A motion keeps the document's own timeline.
+    await holdClock(page);
+    for (const [key, collapsed] of [['Enter', true], ['Enter', false]] as const) {
+      const what = collapsed ? 'folding' : 'unfolding';
+      const stop = await recordPainted(page);
+      const from = (await edges(drawer(page))).right;
+      await page.keyboard.press(key);
+      // Until the drawer has moved and no motion of it runs any more.
+      await expect.poll(async () => (await edges(drawer(page))).right !== from && (await motionCount(drawer(page))) === 0, what).toBe(true);
+      const painted = await stop();
+      for (const [index, drawn] of painted.entries()) {
+        near(drawn.start as number, drawn.end as number);
+        expect(Math.abs((drawn.read as number) - held.before), `the place read, ${what}, frame ${index}`).toBeLessThanOrEqual(held.line);
+      }
+      const [first, last] = [painted[0]!, painted.at(-1)!];
+      expect(Math.abs((last.before as number) - (first.before as number)), `the text before the place reflowed, ${what}`).toBeGreaterThan(held.line);
+      // It moved over frames, not at once: frames between where it began and where it ended.
+      expect(painted.filter((drawn) => drawn.end !== first.end && drawn.end !== last.end).length, what).toBeGreaterThanOrEqual(2);
+      expect(await drawer(page).evaluate((el) => el.hasAttribute('collapsed')), what).toBe(collapsed);
+      expect(await motionCount(main(page)), what).toBe(0);
+      await page.clock.runFor(duration + 1000);
+    }
+    await releaseClock(page);
+  });
 });
 
 test.describe('the menu button', () => {
