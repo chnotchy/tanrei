@@ -2312,6 +2312,27 @@ test.describe('stacked in one task with other modal surfaces', () => {
     }
   });
 
+  test('NVD-19, NVD-40, DLG-15, MDL-8: a collapsible modal drawer inserted open — a product that draws a view — in the task that opens a dialog or a modal layer stacks with it in the order they come, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens, and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    await page.setViewportSize(drawerWindow('modal'));
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    await addStackedSurfaces(page);
+    // The spec's modal-collapsible-open, with only a menu button in its header: the header is drawn for that button
+    // from the drawer's first render, which the write that shows it follows.
+    const MOUNTED =
+      '<tanrei-navigation-drawer id="mounted" variant="modal" collapsible open value="inbox" label="Mail">' +
+      '<tanrei-button slot="header-button" variant="text" label="Menu"><span slot="icon">menu_open</span></tanrei-button>' +
+      ['inbox', 'sent', 'drafts'].map((value) => `<tanrei-navigation-drawer-item value="${value}" label="${value}"></tanrei-navigation-drawer-item>`).join('') +
+      '</tanrei-navigation-drawer>';
+    const ids = ['mounted', STACKED_DIALOG, STACKED_LAYER];
+    // The drawer gives focus to its selected destination (NVD-19): the cell inside Inbox's item.
+    const target = (id: string) => (id === 'mounted' ? / in mounted$/ : `${id}-marked in ${id}`);
+    for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+      for (const order of [['mounted', other], [other, 'mounted']] as [string, string][]) {
+        await expectStackedInOrder(page, ids, { name: `${order.join(', then ')} (inserted open)`, order, backInFirst: target(order[0]), inserted: { mounted: MOUNTED } });
+      }
+    }
+  });
+
   test('NVD-28: a standard drawer opened under a modal surface — in the task that opens it, or after — gives focus back on its closing to the element that had it before that surface opened, never to one inside the closed surface', async ({ page }) => {
     await mount(page, [fixture('s', MAIL, { open: false })]);
     await drawer(page, 's').evaluate((el) => (el.id = 'drawer'));
