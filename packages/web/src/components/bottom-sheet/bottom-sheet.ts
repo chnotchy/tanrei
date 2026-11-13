@@ -23,6 +23,7 @@ import {
   motionReduced,
   onBackdrop,
   openModal,
+  openerFor,
   readTogether,
   report,
   returnFocus,
@@ -878,7 +879,8 @@ export class TanreiBottomSheet extends TanreiElement {
         if (this.open && !was) {
           this.cancelSettle();
           this.clearPlacement();
-          this.opener = deepActive();
+          // BSH-3: under a modal surface it is not inside, focus goes back where it was before that surface opened.
+          this.opener = openerFor(this);
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {
           this.closingWithFocus = false;

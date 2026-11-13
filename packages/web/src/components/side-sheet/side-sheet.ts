@@ -26,6 +26,7 @@ import {
   modalSheetKeys,
   onBackdrop,
   openModal,
+  openerFor,
   readTogether,
   report,
   returnFocus,
@@ -756,7 +757,8 @@ export class TanreiSideSheet extends TanreiElement {
         // SSH-3: a standard sheet opened moves focus in; closed with focus inside, it gives it back. Mounted open, it
         // leaves focus where it is (it makes nothing unfocusable).
         if (this.open && !was) {
-          this.opener = deepActive();
+          // SSH-3: under a modal surface it is not inside, focus goes back where it was before that surface opened.
+          this.opener = openerFor(this);
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {
           this.closingWithFocus = false;

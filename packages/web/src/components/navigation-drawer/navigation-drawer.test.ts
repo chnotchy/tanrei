@@ -20,7 +20,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -2309,6 +2309,35 @@ test.describe('stacked in one task with other modal surfaces', () => {
           await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
         }
       }
+    }
+  });
+
+  test('NVD-28: a standard drawer opened under a modal surface — in the task that opens it, or after — gives focus back on its closing to the element that had it before that surface opened, never to one inside the closed surface', async ({ page }) => {
+    await mount(page, [fixture('s', MAIL, { open: false })]);
+    await drawer(page, 's').evaluate((el) => (el.id = 'drawer'));
+    await addStackedSurfaces(page);
+    const ids = ['drawer', STACKED_DIALOG];
+    for (const sameUpdate of [true, false]) {
+      await page.locator('#opener').focus();
+      // The dialog opens, and the standard drawer opens under it: in the dialog's update, or in a later one of the task.
+      await page.evaluate(async ([dialogId, together]) => {
+        const [dialog, drawn] = [dialogId as string, 'drawer'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        dialog!.open = true;
+        if (!together) await dialog!.updateComplete;
+        drawn!.open = true;
+        await Promise.all([dialog!.updateComplete, drawn!.updateComplete]);
+      }, [STACKED_DIALOG, sameUpdate] as const);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe(`${STACKED_DIALOG}-marked in ${STACKED_DIALOG}`);
+      // In one update the drawer moved focus to its selected destination before the dialog opened above it, and focus
+      // goes back there.
+      await setOpenInOneTask(page, [STACKED_DIALOG], false);
+      if (sameUpdate) await expect.poll(() => focusAmong(page, ids)).toMatch(/ in drawer$/);
+      else await expect.poll(() => focusAmong(page, ids)).toBe('opener in page');
+      // Focus moves into the drawer, which then closes: it goes back to the element that had it before the dialog opened.
+      await cell(page, 's', 2).evaluate((el: HTMLElement) => el.focus());
+      await expect.poll(() => focusAmong(page, ids)).toMatch(/ in drawer$/);
+      await setOpenInOneTask(page, ['drawer'], false);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe('opener in page');
     }
   });
 });

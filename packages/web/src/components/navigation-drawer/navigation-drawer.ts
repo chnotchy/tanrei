@@ -46,6 +46,7 @@ import {
   isLeaving,
   modalLayer,
   openModal,
+  openerFor,
   type ModalMoves,
 } from '../../primitives/index.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
@@ -4529,7 +4530,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
         // What focus leaves as it opens, or goes back to as it closes: outside it.
         let back: Element | null = null;
         if (this.open && !was) {
-          this.opener = deepActive();
+          // Under a modal surface it is not inside (one opened in this task, or before), focus is in that surface: it goes
+          // back where it was before that surface opened, never to an element of a surface that will have closed.
+          this.opener = openerFor(this);
           back = this.opener;
           this.focusInside();
         } else if (!this.open && was && this.closingWithFocus) {

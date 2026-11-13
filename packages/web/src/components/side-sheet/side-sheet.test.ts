@@ -14,7 +14,7 @@ import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('side-sheet');
 type P = Page;
@@ -1092,6 +1092,32 @@ test.describe('stacked in one task with other modal surfaces', () => {
       for (const order of [['sheet', other], [other, 'sheet']] as [string, string][]) {
         await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
       }
+    }
+  });
+
+  test('SSH-3, SSH-15: a standard side sheet opened under a modal surface — in the task that opens it, or after — gives focus back on its closing to the element that had it before that surface opened, never to one inside the closed surface', async ({ page }) => {
+    await mount(page, [fx('s', { open: false }, '<button id="inside" autofocus>In the sheet</button>')]);
+    await host(page).evaluate((el) => (el.id = 'sheet'));
+    await addStackedSurfaces(page);
+    const ids = ['sheet', STACKED_DIALOG];
+    for (const sameUpdate of [true, false]) {
+      await page.locator('#opener').focus();
+      // The dialog opens, and the standard sheet opens under it: in the dialog's update, or in a later one of the task.
+      await page.evaluate(async ([dialogId, together]) => {
+        const [dialog, sheet] = [dialogId as string, 'sheet'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        dialog!.open = true;
+        if (!together) await dialog!.updateComplete;
+        sheet!.open = true;
+        await Promise.all([dialog!.updateComplete, sheet!.updateComplete]);
+      }, [STACKED_DIALOG, sameUpdate] as const);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe(`${STACKED_DIALOG}-marked in ${STACKED_DIALOG}`);
+      // In one update the sheet moved focus in before the dialog opened above it, and focus goes back there (SSH-3).
+      await setOpenInOneTask(page, [STACKED_DIALOG], false);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe(sameUpdate ? 'inside in sheet' : 'opener in page');
+      // Focus moves into the sheet, which then closes: it goes back to the element that had it before the dialog opened.
+      await page.locator('#inside').focus();
+      await setOpenInOneTask(page, ['sheet'], false);
+      await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe('opener in page');
     }
   });
 });
