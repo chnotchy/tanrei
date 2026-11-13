@@ -4287,6 +4287,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-53: …and so does the standard presentation of a responsive drawer with no collapsed form, shown again by expanded.
     const hiddenForm = this.responsive && this.decided === 'standard' && !this.collapsible;
     if (hiddenForm && changed.has('expanded') && changed.get('expanded') === false && this.expanded && !instant && !this.moving) this.setAttribute('data-sliding', '');
+    // NVD-18, NVD-97: a width drawn without a motion (a room that changed, a key's step) is drawn so until its style has
+    // settled (data-resizing, settleResize); opened or closed in those frames, the drawer slides by its motion.
+    if (changed.has('open') && changed.get('open') !== undefined && this.hasAttribute('data-resizing')) {
+      this.resizeFrame++;
+      this.removeAttribute('data-resizing');
+    }
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = this.hasFocus();
     // NVD-40: a collapsible modal drawer's dialog widens from its column, placed over it (a held drawer's one panel
     // widens in place: presentHeld).

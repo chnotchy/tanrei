@@ -4682,6 +4682,38 @@ test.describe('resizable', () => {
     expect((await bounds(box(page, 's', 0))).width).toBe(width - 2 * pad);
   });
 
+  test('NVD-18, NVD-97: closed in the frames after its room changed, a standard drawer still slides out — the room is followed at once, the close over the exit motion', async ({ page }) => {
+    // The rows follow a change of room at once (data-resizing, for the frames until their style has settled): a close
+    // made in those frames drew the drawer gone at once, without its slide.
+    await wide(page);
+    await mount(page, [fixture('n', SIDE, { width: 360 })]);
+    await allSettled(page);
+    // The room is followed without a motion, so the only width the host's own transition moves is the close's.
+    await watchTransitions(drawer(page, 'n'));
+    const following = await drawer(page, 'n').evaluate(async (el: HTMLElement) => {
+      const stage = el.closest<HTMLElement>('[data-fixture]')!;
+      const written = new Promise<void>((done) => {
+        const watch = new MutationObserver(() => {
+          if (!el.hasAttribute('data-resizing')) return;
+          watch.disconnect();
+          done();
+        });
+        watch.observe(el, { attributes: true, attributeFilter: ['data-resizing'] });
+      });
+      // The stage's padding at its end is 16: its content box is 280 wide, less than the drawer's 360.
+      stage.style.inlineSize = '296px';
+      await written;
+      await new Promise((frame) => requestAnimationFrame(frame));
+      const still = el.hasAttribute('data-resizing');
+      (el as HTMLElement & { open: boolean }).open = false;
+      return still;
+    });
+    expect(following, 'closed in the next frame, while the room is still followed').toBe(true);
+    await expect.poll(() => transitionsRun(drawer(page, 'n')), 'the width’s transition begins').toContainEqual(expect.objectContaining({ property: 'width', own: true }));
+    await motionEnded(page);
+    expect(await drawnWidth(page, 'n')).toBe(0);
+  });
+
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {
     await wide(page);
     await mount(page, [fixture('d', SIDE, { width: 300 })]);
