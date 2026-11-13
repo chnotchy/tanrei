@@ -197,14 +197,7 @@ function mountGroups(spec: Spec): { ordered: Fixture[]; mountOf: Map<string, str
 const groupsOf = new Map(specs.map((spec) => [spec.name, mountGroups(spec)]));
 
 /** Fixtures whose first frame is not their rest, by `<spec>/<fixture>`, with what they show: a defect, not fixed yet. Only shrinks. */
-const KNOWN: Record<string, string> = Object.fromEntries(
-  // Shown once each modal drawer was read as mounted on a page of its own: mounted with the whole spec, another modal
-  // drawer took the window's one focus from it, or a page's earlier document left its focus drawn without a ring.
-  ['modal', 'modal-collapsible-open', 'responsive-narrow', 'resized-modal'].map((id) => [
-    `navigation-drawer/${id}`,
-    'NVD-19: a modal drawer written open and inserted into a page already drawn leaves focus on its dialog, where mounted with the page it moves it to the selected destination (as mounted, that row draws its focus ring and its focused state layer; once it has appeared, neither)',
-  ]),
-);
+const KNOWN: Record<string, string> = {};
 
 /**
  * The probe: the keys (as test/frames.ts names them) of the surfaces that appear (`data-tanrei-appear`, in every shadow
