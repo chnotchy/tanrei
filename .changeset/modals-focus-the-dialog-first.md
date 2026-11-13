@@ -11,3 +11,7 @@ or of a popover shown as a sheet (in Chromium). Now, while `showModal()` runs, e
 So focus goes to the dialog itself in one move, and from there to where the surface sends it. The opening shows only
 the surface's own motion. Where focus ends, and whether it draws its focus indicator after a key or a pointer opened
 the surface, are unchanged.
+
+The byte budget of `@tanrei/web/all` goes from 668100 to 668200 bytes gzip: it measures 668108, 43 more than before.
+The dialog's goes from 32400 to 32500: it measures 32434. Both grew by the few lines that make the dialog's content
+inert around `showModal()`. Every modal surface shares those lines, and a shorter form measured larger.

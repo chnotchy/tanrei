@@ -213,7 +213,7 @@
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 32400,
+      "budget": 32500,
       "measured": 32310,
       "allowedComponents": []
     },
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 668100,
+      "budget": 668200,
       "measured": 643895
     }
   },
