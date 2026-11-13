@@ -22,8 +22,8 @@
 //         held. The hold ends in a step, where a registered number would leave over the state motion;
 //       · the accordion's clock, whose transition the element hears: an unregistered name that changes in one step
 //         over the disclosure motion (`allow-discrete`) — nothing is drawn from it;
-//       · the tree view's depth as a length: the sum as it is written, one `calc()` longer a level, handed down in
-//         two unregistered names and computed where a real property reads it;
+//       · the tree view's depth: two counts, each the sum as it is written, one `calc()` longer a level, handed down
+//         in unregistered names; each list multiplies the tree's two steps by them once, and a real property computes it;
 //       · a length the tree view's element reads from script (the indent of a level, the least width of a chevron's
 //         hit area): said in a real property that draws nothing on the tree (`object-position`), which computes it.
 //     The press that a stylesheet holds where no script answers it (the table of contents, the breadcrumbs, a table's
