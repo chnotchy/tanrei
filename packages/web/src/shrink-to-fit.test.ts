@@ -5,15 +5,17 @@
 // end, with a resize observer that never comes to rest (a carousel in a cell of a table, say, is a million pixels
 // wide a second after the page loads).
 //
-// So every fixture of every component is put in each of the three boxes, and what is asked is the same of all: two
-// frames later it has the width it will keep, thirty frames on nothing is wider, and no observer ran out of passes in
-// between. A component that sizes its parts from its own measured box needs a width of its own for this case — one that
-// nothing it places inside itself changes (`contain: inline-size` with an intrinsic size, as the carousel's row has).
+// So every fixture of every component is put, once it stands still, in each of the three boxes, and what is asked is
+// the same of all: two frames later it has the width it will keep, thirty frames on nothing is wider, and no observer
+// ran out of passes in between. A component that sizes its parts from its own measured box needs a width of its own
+// for this case — one that nothing it places inside itself changes (`contain: inline-size` with an intrinsic size, as
+// the carousel's row has).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { type Fixture, type Spec, loadSpec, mountFixtures } from '../test/harness.js';
+import { motionEnded } from '../test/motions.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, 'specs/inventory.json'), 'utf8')) as { components: { name: string }[] };
@@ -57,6 +59,12 @@ test.describe('in a box as wide as its content', () => {
   for (const spec of specs) for (const part of parts(spec)) for (const [box, declarations] of Object.entries(BOXES)) {
     test(`${part.name}: in ${box} every fixture has its width within two frames and keeps it`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, ...(part.fixtures ? { fixtures: part.fixtures } : {}) });
+      // Each fixture is stood in the box once it stands still. A component may still be moving from its mount: the
+      // harness loads the text faces after the document's first frame, which a slow machine draws in the fallback face,
+      // and a size transition that follows its content's width (SZT-2) then moves for 300 ms from the fallback's width
+      // to the face's ("Saved": 37.47 → 40.97 px in WebKit on Linux). Read two frames into the box, such a motion's
+      // last frames were taken for the width the box keeps — 72.95 two frames on, 72.97 thirty frames later.
+      await motionEnded(page);
       await page.evaluate(() => {
         (window as any).loops = 0;
         window.addEventListener('error', (event) => {
