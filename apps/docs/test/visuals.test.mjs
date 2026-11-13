@@ -510,6 +510,7 @@ describe('the playground', () => {
       // Each fixture's own props are where it starts.
       for (const [prop, value] of Object.entries(first.props)) if (prop in playground.start) assert.equal(playground.start[prop], value, `${name}.${prop}`);
       assert.ok(playground.room && playground.room.height >= document.sizes[first.id].height, `${name}: holds at least its baseline's room`);
+      assert.deepEqual(playground.box, document.sizes[first.id], `${name}: its stage holds its baseline's box until it is defined`);
     }
     assert.throws(() => playgroundOf('dialog'), /not drawn in the page/, 'a presented fixture is drawn in a window, not in a playground');
   });
