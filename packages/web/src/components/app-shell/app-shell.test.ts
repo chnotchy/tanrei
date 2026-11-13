@@ -438,9 +438,9 @@ test.describe('the navigation', () => {
   // each is read without the engine's scroll anchoring too (`overflow-anchor: none`: a product may turn it off, and an
   // engine does not anchor every change): with it, Chromium and Firefox held the place whether or not the frame did.
   //
-  // Each test has a page of its own, and drags in the first document mounted into it: in Chromium a document written
-  // into a page whose earlier document the mouse had moved over captures no pointer (see `mountFixtures`), and a drag
-  // there stops at the handle's edge.
+  // Each test has a page of its own, and drags in the first document mounted into it. (A drag in a later document is
+  // followed too: in Chromium the harness moves the mouse out of the window before a later mount, without which the new
+  // document captured no pointer and a drag there stopped at the handle's edge — see `mountFixtures`.)
 
   /**
    * What each frame shows: where the drawer ends, where the main region begins, where the place read stands, and how far
