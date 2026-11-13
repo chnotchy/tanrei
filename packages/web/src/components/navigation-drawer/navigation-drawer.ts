@@ -2054,10 +2054,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private formTimer: ReturnType<typeof setTimeout> | undefined;
   /** Counts the closes begun: a close whose motion ends finishes only if no other began since, and the drawer did not open again (NVD-22, NVD-40). */
   private leaveRun = 0;
-  /** Counts the times the drawer was shown: focus owed to one showing moves only if no other began since (NVD-19, `focusAsShown`). */
-  private showRun = 0;
-  /** The showing whose focus is still owed — nothing in the drawer could take it yet — or 0 (NVD-19, `payFocus`). */
-  private focusOwed = 0;
+  /**
+   * The showing whose focus is still owed — nothing in the drawer could take it yet — or null (NVD-19, `payFocus`): a
+   * token each showing makes anew, so focus owed to one moves only if no other began since (`focusAsShown`).
+   */
+  private focusOwed: object | null = null;
   /** How far a collapsible modal drawer's items were scrolled, carried from its column to its dialog and back (NVD-40). */
   private carriedOffset: number | null = null;
   /** Focus was on what the collapsed form does not draw when the drawer collapsed (NVD-36). */
@@ -3695,62 +3696,51 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * (`payFocus`), while focus is still on the panel.
    */
   private focusAsShown(shower: DrawerCell | null, also: Element | null = null) {
-    const run = (this.focusOwed = ++this.showRun);
+    const run = (this.focusOwed = {});
     const undrawn = this.undrawn();
-    if (!undrawn.length) {
-      if (!this.giveFocus(shower)) this.focusOwed = 0;
-      statesFromNextFrame([this, also]);
-      return;
-    }
+    if (!undrawn.length) return this.payFocus(run, also, true, shower);
     // What leaves its rest now (the dialog's states, what focus left) begins in the next frame too.
     statesFromNextFrame([this, also]);
-    void Promise.all(undrawn.map((element) => element.updateComplete)).then(() => this.payFocus(run, also, true));
+    void Promise.all(undrawn).then(() => this.payFocus(run, also, true));
   }
 
-  /** The elements inside the drawer that have not rendered for the first time yet (NVD-19: their cells are not drawn). */
-  private undrawn(): TanreiElement[] {
-    return [...this.querySelectorAll('*')].filter((element) => (element as Partial<TanreiElement>).hasUpdated === false) as TanreiElement[];
+  /** The first renders of the elements inside the drawer that have not rendered yet (NVD-19: their cells are not drawn). */
+  private undrawn(): Promise<boolean>[] {
+    return [...this.querySelectorAll('*')].flatMap((element) => ((element as Partial<TanreiElement>).hasUpdated === false ? [(element as TanreiElement).updateComplete] : []));
   }
 
   /**
-   * NVD-19: the focus owed to the showing `run` (`focusAsShown`), given — the selection read now: the items have told
-   * the drawer what they are only now. `first`: the showing's own focus, given wherever focus is; otherwise only while
-   * focus is still on the panel, where the showing left it (focus the user or the product moved since is theirs).
+   * NVD-19: the focus owed to the showing `run` (`focusAsShown`), given (`focusInside`, `shower` as it takes it, or else
+   * the selection read now: the items have told the drawer what they are only now), and the colors of what takes it
+   * from the first frame drawn after this task. `first`: the showing's own focus, given wherever focus is; otherwise
+   * only while focus is still on the panel, where the showing left it (focus the user or the product moved since is
+   * theirs). Still owed where the panel took it.
+   *
+   * While the document is still parsed and the destination `value` names is not there yet, it may be still to come (a
+   * parser that yields between the drawer's items): focus waits on the panel for it — not given to an element before it
+   * and then taken again — and is given once the document is parsed if it never comes.
    */
-  private payFocus(run: number, also: Element | null, first: boolean) {
-    if (!run || run !== this.focusOwed || run !== this.showRun || !this.shown || !this.isConnected) return;
+  private payFocus(run: object, also: Element | null, first: boolean, shower?: DrawerCell | null) {
+    if (run !== this.focusOwed || !this.shown) return;
     if (!first && deepActive() !== this.panel) {
-      this.focusOwed = 0;
+      this.focusOwed = null;
       return;
     }
-    if (!this.giveFocus()) this.focusOwed = 0;
+    if (document.readyState === 'loading' && this.value && !this.destinations.selected) {
+      if (!this.hasFocus()) this.panel?.focus();
+      document.addEventListener('DOMContentLoaded', this.payOwedFocus, { once: true });
+    } else {
+      this.focusInside(shower);
+      if (deepActive() !== this.panel) this.focusOwed = null;
+    }
     statesFromNextFrame([this, also]);
   }
 
-  /**
-   * NVD-19: gives the showing's focus (`focusInside`, `shown` as it takes it), and says whether it is still owed: the
-   * panel took it. While the document is still parsed and the destination `value` names is not there yet, it may be
-   * still to come (a parser that yields between the drawer's items): focus waits on the panel for it — not given to an
-   * element before it and then taken again — and is given once the document is parsed if it never comes.
-   */
-  private giveFocus(shown?: DrawerCell | null): boolean {
-    if (document.readyState === 'loading' && this.value && !this.destinations.selected) {
-      if (!this.hasFocus()) this.panel?.focus();
-      document.addEventListener('DOMContentLoaded', this.onParsed, { once: true });
-      return true;
-    }
-    this.focusInside(shown);
-    return deepActive() === this.panel;
-  }
-
-  private readonly onParsed = () => this.payOwedFocus();
-
   /** NVD-19: items arrived (`synced`), or the document is parsed, while focus is owed: given once they have drawn. */
-  private payOwedFocus() {
+  private readonly payOwedFocus = () => {
     const run = this.focusOwed;
-    if (!run) return;
-    void Promise.all(this.undrawn().map((element) => element.updateComplete)).then(() => this.payFocus(run, null, false));
-  }
+    if (run) void Promise.all(this.undrawn()).then(() => this.payFocus(run, null, false));
+  };
 
   /**
    * NVD-22, NVD-28: focus back where it was when the drawer opened — or dropped, where that element is gone. Closed by a
