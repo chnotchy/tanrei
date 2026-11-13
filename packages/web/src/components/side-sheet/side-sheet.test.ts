@@ -739,13 +739,10 @@ test.describe('forms, focus and dismissal', () => {
   const dialogMotions = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog'));
   const motionNames = (seen: Frames) => [...new Set(dialogMotions(seen).map((motion) => motion.name))].sort();
   /**
-   * A closed modal sheet whose slide is sampled, frame by frame, through every motion inside its `<dialog>`. It has no
-   * close button: in Chromium the close button's own container starts a background-color transition, twice, and ends
-   * it within the frame the dialog is first drawn in, which no frame shows, so the sampler refuses it. TODO: that
-   * transition is the Button's, not the slide's; give these sheets their close button back once a Button first drawn
-   * inside a dialog that opens starts no transition.
+   * A closed modal sheet, with its close button, whose slide is sampled, frame by frame, through every motion inside its
+   * `<dialog>`: the close button, its first control, takes no focus on the way (SSH-3), so it starts no motion.
    */
-  const sliding = () => fx('s', { variant: 'modal', open: false, closable: false }, TEXT, ACTIONS);
+  const sliding = () => fx('s', { variant: 'modal', open: false }, TEXT, ACTIONS);
 
   test('SSH-2: a modal sheet slides in from its own width beyond the end edge — its first frame held there, whole and unscaled — over the enter motion, and out the same way over the exit motion on the accelerating curve, its scrim fading in step over the same duration; nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
     await mount(page, [sliding()]);
@@ -794,6 +791,31 @@ test.describe('forms, focus and dismissal', () => {
     const closing = await sampleFrames(dialog, () => setOpen(page, false), { probe: sheetProbe });
     expectSlidOnly(closing, 'left');
     expectNoFlicker(closing);
+  });
+
+  test('SSH-2, SSH-3: a modal sheet opens with its own motion only — sampled across the page, with its close button or, without one, its actions first: no control in it takes focus on the way, which would start a motion of its state; focus goes to the sheet in one move', async ({ page }) => {
+    for (const closable of [true, false]) {
+      const label = `closable ${closable}`;
+      await mount(page, [fx('s', { variant: 'modal', open: false, closable }, TEXT, ACTIONS)]);
+      // Every element that takes focus as it opens. Heard in the sheet's shadow root: a focus that moves between two
+      // elements inside it is not heard beyond its host.
+      await host(page).evaluate((el) => {
+        const taken: string[] = ((window as unknown as { taken: string[] }).taken = []);
+        el.shadowRoot!.addEventListener('focusin', (event) => {
+          const target = event.composedPath()[0] as Element;
+          taken.push([target.localName, ...target.classList].join('.'));
+        });
+      });
+      const opening = await sampleFrames(page.locator('body'), () => setOpen(page, true));
+      expect(await page.evaluate(() => (window as unknown as { taken: string[] }).taken), label).toEqual(['dialog.sheet']);
+      expect(await focused(page), label).toBe('dialog');
+      expect(
+        opening.motions.filter((motion) => !motion.on.startsWith('dialog.sheet')).map((motion) => `${motion.name} on ${motion.on}`),
+        `${label}: nothing but the sheet and its scrim moves`,
+      ).toEqual([]);
+      expect(motionNames(opening), label).toEqual(['opacity', 'translate']);
+      expectNoFlicker(opening);
+    }
   });
 
   test('SSH-2: under the unfold appearance (m3-like) the modal sheet still slides from its edge, whole and unscaled, its scrim in step', async ({ page }) => {
