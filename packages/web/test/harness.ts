@@ -2292,8 +2292,30 @@ const STAGING: Record<string, Staging> = {
       await composer.updateComplete;
       const rows = [...(composer.shadowRoot?.querySelectorAll('tanrei-file-item') ?? [])] as (Element & { updateComplete?: Promise<unknown>; preview?: boolean })[];
       await Promise.all(rows.map((row) => row.updateComplete));
-      // A tile's picture is drawn of the file itself, a moment after the tile: it is waited for, for a second at most.
-      const drawn = () => rows.every((row) => !row.preview || [...(row.shadowRoot?.querySelectorAll('img') ?? [])].some((img) => img.complete && img.naturalWidth > 0));
+      // A tile's picture is drawn of the file itself, a moment after the tile — but only once the tile is in or near
+      // what is in view (FIT-7: within half a viewport of it, the File item's own IntersectionObserver). A tile that is
+      // not near is not waited for: it asks for no picture until it comes near, and a wait for it ran its sixty frames
+      // for nothing, which on a loaded machine was over ten seconds (the gallery of the documentation draws a stage
+      // whose top comes within half a window of the view, and its tiles stood below that). Which tiles are near is
+      // asked of an observer with the item's own margin, whose first answer comes in the frame the item's does. The
+      // picture of a near tile is waited for, for sixty frames at most.
+      const pictured = rows.filter((row) => row.preview);
+      const near = !pictured.length
+        ? []
+        : await new Promise<Element[]>((resolve) => {
+            const answers = new Map<Element, boolean>();
+            const observer = new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) if (!answers.has(entry.target)) answers.set(entry.target, entry.isIntersecting);
+                if (answers.size < pictured.length) return;
+                observer.disconnect();
+                resolve(pictured.filter((row) => answers.get(row)));
+              },
+              { rootMargin: '50%' },
+            );
+            for (const row of pictured) observer.observe(row);
+          });
+      const drawn = () => near.every((row) => [...(row.shadowRoot?.querySelectorAll('img') ?? [])].some((img) => img.complete && img.naturalWidth > 0));
       for (let tries = 0; tries < 60 && !drawn(); tries++) await new Promise((resolve) => requestAnimationFrame(resolve));
     },
   },
