@@ -517,9 +517,12 @@
     overflow: auto;
     overscroll-behavior: contain;
   }
-  /* The navigation and an aside beside the main region are as tall as the row, and scroll inside it. */
+  /* The navigation and an aside beside the main region are as tall as the row, and scroll inside it. The navigation is
+     not sticky here, but stays positioned: a navigation drawer places its resize handle beside its end edge from its
+     own box (NVD-96), and a rule of the page outweighs the drawer's own `position` — static, the handle stood at the
+     frame's end edge, out of the window. */
   :where(tanrei-app-shell[scroll='main']) > :where([slot='navigation']) {
-    position: static;
+    position: relative;
     min-block-size: 100%;
     margin-block-end: 0;
   }
