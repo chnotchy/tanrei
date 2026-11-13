@@ -14,7 +14,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the header’s theme on a
 // preset’s stage, took 11 s in CI.
@@ -89,7 +89,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
       // The panel's elements are defined when a reader is about to use it: a pointer over its button.
       await page.hover('#docs-appearance');
-      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
+      await settlePage(page, { tags: ['tanrei-tabs'], update: 'tanrei-tabs.docs-appearance-mode', fonts: false, frames: 0 });
 
       await chooseTheme(page, 'dark');
       assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
@@ -105,7 +105,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       await page.waitForFunction((selector) => document.querySelector(`${selector} .docs-stage-box`)?.dataset.tanreiTheme === 'dark', stage(INLINE), { timeout: 5_000 });
       await chooseTheme(page, 'dark');
       await chooseTheme(page, 'light');
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await settlePage(page, { fonts: false });
       assert.equal((await inline(page, INLINE)).scheme, 'dark', 'the turned stage keeps its own scheme');
       assert.equal((await inline(page, 'small-closed')).scheme, 'light', 'a stage beside it still follows the page');
     } finally {
@@ -120,7 +120,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
       // The panel's elements are defined when a reader is about to use it: a pointer over its button.
       await page.hover('#docs-appearance');
-      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
+      await settlePage(page, { tags: ['tanrei-tabs'], update: 'tanrei-tabs.docs-appearance-mode', fonts: false, frames: 0 });
       // The window is written when it comes near the view.
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
       assert.deepEqual(await windowed(page, WINDOW), { theme: 'light', contrast: null, scheme: 'light' });

@@ -99,6 +99,21 @@ describe('settleFrame', () => {
     assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), 'two frames not drawn in 0.06 s (the document visible)');
   });
 
+  test('gives a wait its bound once more when its timer fired late, after the thread was held', async () => {
+    // The thread is held from 20 ms to 220 ms; the second frame is drawn 16 ms after it, behind the bound's late timer.
+    page();
+    let heldUntil = 0;
+    globalThis.requestAnimationFrame = (callback) => {
+      const draw = () => (Date.now() < heldUntil + 16 ? setTimeout(draw, heldUntil + 16 - Date.now()) : callback());
+      return setTimeout(draw, 16);
+    };
+    setTimeout(() => {
+      heldUntil = Date.now() + 200;
+      mock.timers.setTime(heldUntil);
+    }, 20);
+    assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), null);
+  });
+
   test('says when there is no such element', async () => {
     page();
     assert.equal(await onClock(settleFrame({ selector: '#elsewhere', bounds: SHORT })), 'no element matches #elsewhere');
@@ -117,16 +132,15 @@ describe('settleFrame', () => {
 });
 
 /**
- * A document holding `tags` (what `among` matches), of which `defined` are defined, with one element `#updating`
+ * A document holding `tags` (what `among` matches), of which `defined` are defined, with one element `#updating` (a `tanrei-search`)
  * whose update completes or not, and the fonts and frames of `page` above. Returns how many frames were asked for.
  */
 function wholePage({ tags = ['tanrei-button'], defined = tags, updates = true, frames = true, ...rest } = {}) {
   page({ tags, defined, frames, ...rest });
   let asked = 0;
-  const updating = { updateComplete: updates ? Promise.resolve(true) : NEVER, isUpdatePending: !updates };
+  const updating = { localName: 'tanrei-search', updateComplete: updates ? Promise.resolve(true) : NEVER, isUpdatePending: !updates };
   Object.assign(globalThis.document, {
-    querySelectorAll: (selector) => (selector === '*' ? [{ localName: 'html' }, ...tags.map((localName) => ({ localName }))] : []),
-    querySelector: (selector) => (selector === '#updating' ? updating : null),
+    querySelectorAll: (selector) => (selector === '*' ? [{ localName: 'html' }, ...tags.map((localName) => ({ localName }))] : selector === '#updating' ? [updating] : []),
   });
   const drawn = globalThis.requestAnimationFrame;
   globalThis.requestAnimationFrame = (callback) => ((asked += 1), drawn(callback));
@@ -156,7 +170,7 @@ describe('settleDocument', () => {
 
   test('says when the update does not complete in time, or there is no such element', async () => {
     wholePage({ updates: false });
-    assert.equal(await onClock(settleDocument({ update: '#updating', bounds: SHORT })), 'the update of #updating not complete after 0.06 s (an update pending)');
+    assert.equal(await onClock(settleDocument({ update: '#updating', bounds: SHORT })), 'the update of #updating not complete after 0.06 s (an update pending: tanrei-search)');
     wholePage();
     assert.equal(await onClock(settleDocument({ update: '#elsewhere', bounds: SHORT })), 'no element matches #elsewhere');
   });
@@ -170,6 +184,46 @@ describe('settleDocument', () => {
   test('says when the frames are not drawn in time', async () => {
     wholePage({ frames: false });
     assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+  });
+
+  test('waits for the update of every element the selector matches, and names those still pending', async () => {
+    wholePage();
+    const done = { localName: 'tanrei-tab', updateComplete: Promise.resolve(true), isUpdatePending: false };
+    const held = { localName: 'tanrei-tabs', updateComplete: NEVER, isUpdatePending: true };
+    globalThis.document.querySelectorAll = (selector) => (selector === 'body *' ? [done, held, { localName: 'div' }] : []);
+    assert.equal(await onClock(settleDocument({ update: 'body *', fonts: false, frames: 0, bounds: SHORT })), 'the update of body * not complete after 0.06 s (an update pending: tanrei-tabs)');
+    globalThis.document.querySelectorAll = (selector) => (selector === 'body *' ? [done, { localName: 'div' }] : []);
+    assert.equal(await onClock(settleDocument({ update: 'body *', fonts: false, frames: 0, bounds: SHORT })), null);
+  });
+
+  test('gives a wait its bound once more when its timer fired late, after the thread was held, and only once', async () => {
+    // The page's thread is held from 20 ms to 220 ms: the frame due at 32 ms is drawn 16 ms after the hold, and the
+    // bound's timer, due at 60 ms, fires at 221 ms, late by far more than a quarter of the bound.
+    wholePage({ frames: false });
+    let heldUntil = 0;
+    globalThis.requestAnimationFrame = (callback) => {
+      const draw = () => (Date.now() < heldUntil + 16 ? setTimeout(draw, heldUntil + 16 - Date.now()) : callback());
+      return setTimeout(draw, 16);
+    };
+    setTimeout(() => {
+      heldUntil = Date.now() + 200;
+      mock.timers.setTime(heldUntil);
+    }, 20);
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), null);
+    // A second hold, past the bound given once more: the wait runs out.
+    wholePage({ frames: false });
+    globalThis.requestAnimationFrame = () => 0;
+    const hold = () => mock.timers.setTime(Date.now() + 200);
+    setTimeout(hold, 20);
+    setTimeout(hold, 250);
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+  });
+
+  test('a timer that fires on time is not given its bound again', async () => {
+    wholePage({ frames: false });
+    const started = Date.now();
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+    assert.ok(Date.now() - started <= 61, `ran out after ${Date.now() - started} ms`);
   });
 
   test('reads nothing outside itself, as the page that runs it has nothing else', () => {

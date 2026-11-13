@@ -19,7 +19,7 @@ import path from 'node:path';
 import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the figures of every page,
 // took 122 s in CI.
@@ -65,15 +65,26 @@ test('every figure: each number once, inside and clear; each line its token’s 
     const component = fs.readdirSync(specs).includes(`${name}.spec.json`) ? name : null;
     await page.goto(`${host.origin}/components/${name}/`);
     await page.waitForLoadState('load');
-    const figures = await page.evaluate(async () => {
-      const out = [];
-      for (const frame of document.querySelectorAll('[data-blueprint-figure]')) {
-        frame.scrollIntoView({ block: 'center' });
-        const deadline = Date.now() + 15_000;
+    // Each figure brought into view and given 15 s to be drawn, with two frames drawn on the way (bounded: launch.mjs).
+    const figures = [];
+    const count = await page.locator('[data-blueprint-figure]').count();
+    for (let at = 0; at < count; at += 1) {
+      const deadline = Date.now() + 15_000;
+      const drawn = ({ at, left, scroll }) => {
+        const frame = document.querySelectorAll('[data-blueprint-figure]')[at];
+        if (scroll) frame.scrollIntoView({ block: 'center' });
+        const until = Date.now() + left;
         const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
-        while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        while (!done() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
+        return (async () => {
+          while (!done() && Date.now() < until) await new Promise((resolve) => setTimeout(resolve, 50));
+        })();
+      };
+      await page.evaluate(drawn, { at, left: deadline - Date.now(), scroll: true });
+      await settlePage(page, { fonts: false });
+      await page.evaluate(drawn, { at, left: Math.max(0, deadline - Date.now()), scroll: false });
+      figures.push(await page.evaluate((at) => {
+        const frame = document.querySelectorAll('[data-blueprint-figure]')[at];
+        const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
         // A figure is a picture: nothing of it is modal over the page (a modal fixture is drawn in a window of its own,
         // in the gallery, and stands under no figure). `:modal` is looked for in every shadow tree, where a dialog is.
         const modal = [];
@@ -89,7 +100,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
           const r = element.getBoundingClientRect();
           return { left: r.left - overlay.left, top: r.top - overlay.top, right: r.right - overlay.left, bottom: r.bottom - overlay.top };
         };
-        out.push({
+        return {
           kind: frame.dataset.blueprintFigure,
           drawn: Boolean(done()),
           modal,
@@ -97,10 +108,9 @@ test('every figure: each number once, inside and clear; each line its token’s 
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
           rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
           lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
-        });
-      }
-      return out;
-    });
+        };
+      }, at));
+    }
     assert.ok(figures.length > 0, `${name}: a figure`);
     const anatomy = component ? JSON.parse(fs.readFileSync(path.join(specs, `${component}.spec.json`), 'utf8')).anatomy.map((part) => part.id) : [];
     for (const figure of figures) {

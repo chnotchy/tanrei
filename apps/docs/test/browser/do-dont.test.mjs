@@ -19,7 +19,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the debug reports, in
 // WebKit, took 101 s in CI.
@@ -91,16 +91,14 @@ for (const engine of ENGINES) {
           if (report) reported.add(report[1]);
         });
         await page.goto(`${ALONE}/${id}`);
-        // Every element defined and drawn, and what it reports after its first update written.
+        // Every element defined and drawn, and what it reports after its first update written (each update and frame
+        // bounded: launch.mjs).
         await page.evaluate(async () => {
           const deadline = Date.now() + 10_000;
           const names = () => [...new Set([...document.body.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')))];
           while (names().some((name) => !customElements.get(name)) && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 20));
-          for (let round = 0; round < 3; round++) {
-            await Promise.all([...document.body.querySelectorAll('*')].map((element) => element.updateComplete).filter(Boolean));
-            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-          }
         });
+        for (let round = 0; round < 3; round++) await settlePage(page, { update: 'body *', fonts: false });
         const named = exampleReports(text);
         const missing = named.filter((report) => !reported.has(report));
         const unnamed = [...reported].filter((report) => !named.includes(report));

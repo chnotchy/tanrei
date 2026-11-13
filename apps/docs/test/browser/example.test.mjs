@@ -19,7 +19,7 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch, settle } from './launch.mjs';
+import { engines, launch, settle, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the frames under the
 // reader’s system, in WebKit, took 34 s in CI.
@@ -193,7 +193,7 @@ for (const engine of ENGINES) {
 
     test('what a stage holds is defined when it comes near the view, not with the page', LIMIT, async () => {
       const { context, page } = await open();
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await settlePage(page, { fonts: false });
       const far = await page.evaluate(() => {
         const frames = [...document.querySelectorAll('[data-example]')];
         const last = frames.at(-1);

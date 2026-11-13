@@ -12,7 +12,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Arabic home page at
 // 390, took 9 s in CI.
@@ -54,7 +54,7 @@ async function places(url, width) {
       const page = await context.newPage();
       if (!scripts) await page.route(/\.m?js(\?|$)/, (route) => route.abort());
       await page.goto(origin + url, { waitUntil: 'load' });
-      await page.evaluate(() => document.fonts.ready);
+      await settlePage(page, { frames: 0 });
       if (scripts) await page.waitForFunction(everythingDefined, null, { timeout: 30000 });
       out[scripts ? 'defined' : 'stopped'] = await page.evaluate(() => {
         const top = (selector) => document.querySelector(selector).getBoundingClientRect().top + scrollY;
