@@ -503,6 +503,52 @@ test.describe('the navigation', () => {
     expect(await motionCount(main(page)), what).toBe(0);
   }
 
+  /**
+   * Reads `readingProbe` in every frame the page draws from now on, where the frame is painted — after the page's own
+   * resize observers — while a motion plays at its own speed; the returned function stops and answers the frames.
+   *
+   * Not `sampleFrames`, for a change a motion makes: it moves a held motion on inside its own resize observer and reads
+   * at once, so the frame it reads has the drawer's new width and the text reflowed without the shell's observer having
+   * answered it (the place 528 px off in the one frame where the text before it lost a line, in every engine). No engine
+   * paints that: the shell's observer holds the place in the same frame. Here a resize observer on a box that a motion
+   * of its own widens in every frame makes, in each, a new observer of a box inside it, which the engine asks in a later
+   * round of that frame's observations than the page's own observers — whatever order they were made in (an engine may
+   * keep an observer that observes again in a new place in its list: Firefox and WebKit did, the shell's).
+   */
+  async function recordPainted(page: P): Promise<() => Promise<Record<string, number | string | boolean | undefined>[]>> {
+    await page.evaluate((source) => {
+      const probe = (0, eval)(source) as (root: Element) => Record<string, number | string | boolean | undefined>;
+      const root = document.querySelector('.stage')!;
+      const painted: ReturnType<typeof probe>[] = [];
+      const box = document.createElement('div');
+      box.setAttribute('aria-hidden', 'true');
+      box.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: clip; pointer-events: none; contain: strict;';
+      const mover = document.createElement('div');
+      mover.style.cssText = 'inline-size: 0; block-size: 1px;';
+      const mark = document.createElement('div');
+      mark.style.cssText = 'inline-size: 1px; block-size: 1px;';
+      mover.append(mark);
+      box.append(mover);
+      document.documentElement.append(box);
+      const ticking = mover.animate([{ inlineSize: '0px' }, { inlineSize: '1000000px' }], { duration: 1_000_000 });
+      let reader: ResizeObserver | undefined;
+      const clock = new ResizeObserver(() => {
+        reader?.disconnect();
+        reader = new ResizeObserver(() => painted.push(probe(root)));
+        reader.observe(mark);
+      });
+      clock.observe(mover);
+      (window as unknown as { __painted: () => typeof painted }).__painted = () => {
+        clock.disconnect();
+        reader?.disconnect();
+        ticking.cancel();
+        box.remove();
+        return painted;
+      };
+    }, readingProbe.toString());
+    return () => page.evaluate(() => (window as unknown as { __painted: () => Record<string, number | string | boolean | undefined>[] }).__painted());
+  }
+
   /** A drag on the drawer's edge, held down at its end: each move read in every frame; the drawer follows the press. */
   async function dragHeld(page: P, held: { before: number; line: number }) {
     const panel = await edges(drawer(page));
@@ -566,18 +612,28 @@ test.describe('the navigation', () => {
     await tabTo(page, separator(page));
     const held = await readHere(page);
     const duration = await resolveToken(page, '--tanrei-comp-navigation-drawer-motion-expand-duration', 'duration');
-    // The drawer says a person changes its width for as long as the motion lasts, by a timer of the page's. The frames
-    // are read one frame of motion time apart however long the machine takes to draw them, so the page's clock is held
-    // while they are, and run on past the motion and its timers between the two changes.
+    // The drawer says a person changes its width for as long as the motion lasts, by a timer of the page's: the page's
+    // clock is held while the motion plays, however long the machine takes to draw it, and run on past the motion and its
+    // timers between the two changes. A motion keeps the document's own timeline.
     await holdClock(page);
     for (const [key, collapsed] of [['Enter', true], ['Enter', false]] as const) {
       const what = collapsed ? 'folding' : 'unfolding';
-      const seen = await sampleFrames(page.locator('.stage'), () => page.keyboard.press(key), { probe: readingProbe, elements: false });
-      await expectHeld(page, seen, held, what);
-      reflowed(seen, held.line, what);
-      // It moved over frames, not at once.
-      expectAnimated(seen, 'end');
+      const stop = await recordPainted(page);
+      const from = (await edges(drawer(page))).right;
+      await page.keyboard.press(key);
+      // Until the drawer has moved and no motion of it runs any more.
+      await expect.poll(async () => (await edges(drawer(page))).right !== from && (await motionCount(drawer(page))) === 0, what).toBe(true);
+      const painted = await stop();
+      for (const [index, drawn] of painted.entries()) {
+        near(drawn.start as number, drawn.end as number);
+        expect(Math.abs((drawn.read as number) - held.before), `the place read, ${what}, frame ${index}`).toBeLessThanOrEqual(held.line);
+      }
+      const [first, last] = [painted[0]!, painted.at(-1)!];
+      expect(Math.abs((last.before as number) - (first.before as number)), `the text before the place reflowed, ${what}`).toBeGreaterThan(held.line);
+      // It moved over frames, not at once: frames between where it began and where it ended.
+      expect(painted.filter((drawn) => drawn.end !== first.end && drawn.end !== last.end).length, what).toBeGreaterThanOrEqual(2);
       expect(await drawer(page).evaluate((el) => el.hasAttribute('collapsed')), what).toBe(collapsed);
+      expect(await motionCount(main(page)), what).toBe(0);
       await page.clock.runFor(duration + 1000);
     }
     await releaseClock(page);
