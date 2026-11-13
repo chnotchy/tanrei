@@ -8,7 +8,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
-import { appearingFixture } from '../../../test/first-frame.js';
+import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
@@ -1993,6 +1993,47 @@ test.describe('forms and focus', () => {
     const widening = entrances(await runsAtRest(page)).map((run) => run.name);
     expect(widening.some((name) => name === 'width' || name === 'inline-size'), `modal-collapsible-open mounted after the first paint: ${widening.join(', ')}`).toBe(true);
     await expect(drawer(page, 'modal-collapsible-open-again').locator('dialog')).toHaveJSProperty('open', true);
+  });
+
+  test('NVD-19: a modal drawer written open takes focus to its selected destination (or else its first focusable element) whether it is mounted with the page or inserted into a page already drawn — a product that draws a view in answer to a click — in every engine', async ({ page }) => {
+    // Each written open, as the spec writes it; and without a selection, focus goes to the first focusable element.
+    const unselected = (id: string): Fixture => {
+      const [written] = only(id);
+      const { value: _, ...props } = written!.props;
+      return { ...written!, id: `${id}-unselected`, props };
+    };
+    const cases: [Fixture, string][] = [
+      ...only('modal', 'modal-collapsible-open', 'responsive-narrow', 'resized-modal').map((f): [Fixture, string] => [f, 'inbox']),
+      [unselected('modal'), 'inbox'],
+      [unselected('modal-collapsible-open'), 'header-button:Menu'],
+    ];
+    for (const [written, focused] of cases) {
+      await page.setViewportSize(drawerWindow(written.id.replace(/-unselected$/, '')));
+      // (A document written into a page that drew one before is parsed with its elements defined: the drawer is shown
+      // before its items are there, and they take focus as they arrive.)
+      await mountForAppearing(page, spec, { fixtures: [written] });
+      await expect.poll(() => activeValue(page), `${written.id} mounted with the page`).toBe(focused);
+      // Taken off, the page drawn without it, and the same markup inserted again.
+      await page.evaluate(async (id) => {
+        const holder = document.querySelector('body > main, body > div.stages')!;
+        holder.replaceChildren();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const stages = (window as unknown as { __tanreiStages: DocumentFragment }).__tanreiStages;
+        holder.insertAdjacentHTML('beforeend', stages.querySelector(`[data-fixture="${CSS.escape(id)}"]`)!.outerHTML);
+      }, written.id);
+      await expect(drawer(page, written.id).locator('dialog')).toHaveJSProperty('open', true);
+      await expect.poll(() => activeValue(page), `${written.id} inserted into a page already drawn`).toBe(focused);
+    }
+    // Shown before its items are there — a product that adds them after the drawer — its panel takes focus, and the
+    // selected destination takes it once the items have arrived.
+    await page.setViewportSize(drawerWindow('modal'));
+    await mount(page, [fixture('later', [], { variant: 'modal', value: 'sent' })]);
+    await expect(drawer(page, 'later').locator('dialog')).toHaveJSProperty('open', true);
+    expect(await activeValue(page), 'no item to take focus yet').toBe('dialog');
+    await drawer(page, 'later').evaluate((el: HTMLElement) => {
+      el.insertAdjacentHTML('beforeend', ['inbox', 'sent'].map((value) => `<tanrei-navigation-drawer-item value="${value}" label="${value}"></tanrei-navigation-drawer-item>`).join(''));
+    });
+    await expect.poll(() => activeValue(page), 'items added after the drawer was shown').toBe('sent');
   });
 
   test('NVD-20: the scrim, Escape, back, the menu button and a drag past half its width (or a fling) close a modal drawer: open is false and close fires once', async ({ page }) => {
