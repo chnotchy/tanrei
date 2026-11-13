@@ -120,6 +120,7 @@
 //   system-watch — SystemWatchController: renders its host again when the document's root switches the design system,
 //                 for a choice of kind drawn from script (a calendar's arrows, a picker's actions)
 //   modal       — modalLayer: the modal `<dialog>`s of Tanrei's surfaces open in the window (openModal adds, closeModal deletes), the topmost of which a snackbar is shown in (SNK-38);
+//                 modalLayer.opener(): where focus goes back when a surface opened now closes, a surface of the same turn that owes focus (owesFocus) included;
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
@@ -138,7 +139,7 @@
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
-//                 (Escape or back), keyboardCover() and onBackdrop()
+//                 (Escape or back), keyboardCover(), onBackdrop() and sheetFocusTarget()
 //   separation  — sys.behavior.separation as a component reads it: separationHost() (the attribute over the
 //                 component token, as `--_separation` on the host), whenGap() (the gap form's rules: a style query, and
 //                 `data-separation` where a browser has none), separationOf(), syncSeparation()
@@ -334,6 +335,7 @@ export {
   keyboardCover,
   modalSheetKeys,
   onBackdrop,
+  sheetFocusTarget,
   stoppedBefore,
   watchEscape,
 } from './sheet.js';

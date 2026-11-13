@@ -364,7 +364,7 @@
       "allowedComponents": []
     },
     "modal-layer": {
-      "budget": 16800,
+      "budget": 16900,
       "measured": 15996,
       "allowedComponents": []
     },
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 667200,
+      "budget": 667300,
       "measured": 643895
     }
   },

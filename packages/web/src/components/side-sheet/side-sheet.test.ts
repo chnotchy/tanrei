@@ -1025,6 +1025,59 @@ test.describe('forms, focus and dismissal', () => {
     await page.keyboard.press('Escape');
     expect(await log(page)).toEqual(['close:escape']);
   });
+
+  test('SSH-15, SSH-3: two modal sheets opened in the same task, or a sheet and then a dialog, stack in that order; focus goes into the later one, returns on its closing to where the earlier one moves focus as it opens, and on the earlier one’s closing to the element that had it before either opened', async ({ page }) => {
+    /** Where focus is: the id of the element, else its tag, and the id of the overlay it is inside (through shadow roots). */
+    const where = () =>
+      page.evaluate(() => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        let inside: string | null = null;
+        for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
+          if (at instanceof Element && at.matches('tanrei-side-sheet, tanrei-dialog')) inside = at.id;
+        }
+        return `${active?.id || active?.localName} in ${inside}`;
+      });
+    const MARKED = '<button id="first-a">A</button> <button id="first-marked" autofocus>B</button>';
+    const SECOND = '<button id="second-marked" autofocus>C</button>';
+    const setOpenOf = (id: string, open: boolean) =>
+      page.locator(`#${id}`).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<boolean> }, o) => {
+        el.open = o;
+        await el.updateComplete;
+      }, open);
+    // The earlier one marks an element for focus, or marks none and draws its close button, which `showModal()` focuses
+    // first where the sheet itself is to have it (SSH-3); the later one is another sheet, or a dialog (SSH-15).
+    const cases: [name: string, first: Fixture, later: 'sheet' | 'dialog', target: string][] = [
+      ['marked', fx('first', { open: false, variant: 'modal', headline: 'First', closable: false }, MARKED), 'sheet', 'first-marked in first'],
+      ['unmarked', fx('first', { open: false, variant: 'modal', headline: 'First' }, '<p>First</p>'), 'sheet', 'dialog in first'],
+      ['a dialog above', fx('first', { open: false, variant: 'modal', headline: 'First', closable: false }, MARKED), 'dialog', 'first-marked in first'],
+    ];
+    for (const [name, first, later, target] of cases) {
+      await mount(page, [first, ...(later === 'sheet' ? [fx('second', { open: false, variant: 'modal', headline: 'Second' }, SECOND)] : [])]);
+      for (const id of later === 'sheet' ? ['first', 'second'] : ['first']) await host(page, id).evaluate((el, i) => (el.id = i), id);
+      if (later === 'dialog') {
+        const markup = `<tanrei-dialog id="second" headline="Second">${SECOND}<tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>`;
+        await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', m), markup);
+      }
+      await opener(page);
+      await page.locator('#opener').focus();
+      await page.evaluate(async () => {
+        const [a, b] = ['first', 'second'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        a!.open = true;
+        b!.open = true;
+        await Promise.all([a!.updateComplete, b!.updateComplete]);
+      });
+      await settled(page);
+      expect(await page.locator('#second').locator('dialog').evaluate((el) => el.matches(':modal')), name).toBe(true);
+      // Above the first: a point that only the scrims cover hits the later one's.
+      expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.id, [20, 240]), name).toBe('second');
+      await expect.poll(where, name).toBe('second-marked in second');
+      await setOpenOf('second', false);
+      expect(await where(), name).toBe(target);
+      await setOpenOf('first', false);
+      expect(await where(), name).toBe('opener in null');
+    }
+  });
 });
 
 test.describe('actions and scrolling', () => {
