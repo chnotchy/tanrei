@@ -2292,8 +2292,30 @@ const STAGING: Record<string, Staging> = {
       await composer.updateComplete;
       const rows = [...(composer.shadowRoot?.querySelectorAll('tanrei-file-item') ?? [])] as (Element & { updateComplete?: Promise<unknown>; preview?: boolean })[];
       await Promise.all(rows.map((row) => row.updateComplete));
-      // A tile's picture is drawn of the file itself, a moment after the tile: it is waited for, for a second at most.
-      const drawn = () => rows.every((row) => !row.preview || [...(row.shadowRoot?.querySelectorAll('img') ?? [])].some((img) => img.complete && img.naturalWidth > 0));
+      // A tile's picture is drawn of the file itself, a moment after the tile — but only once the tile is in or near
+      // what is in view (FIT-7: within half a viewport of it, the File item's own IntersectionObserver). A tile that is
+      // not near is not waited for: it asks for no picture until it comes near, and a wait for it ran its sixty frames
+      // for nothing, which on a loaded machine was over ten seconds (the gallery of the documentation draws a stage
+      // whose top comes within half a window of the view, and its tiles stood below that). Which tiles are near is
+      // asked of an observer with the item's own margin, whose first answer comes in the frame the item's does. The
+      // picture of a near tile is waited for, for sixty frames at most.
+      const pictured = rows.filter((row) => row.preview);
+      const near = !pictured.length
+        ? []
+        : await new Promise<Element[]>((resolve) => {
+            const answers = new Map<Element, boolean>();
+            const observer = new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) if (!answers.has(entry.target)) answers.set(entry.target, entry.isIntersecting);
+                if (answers.size < pictured.length) return;
+                observer.disconnect();
+                resolve(pictured.filter((row) => answers.get(row)));
+              },
+              { rootMargin: '50%' },
+            );
+            for (const row of pictured) observer.observe(row);
+          });
+      const drawn = () => near.every((row) => [...(row.shadowRoot?.querySelectorAll('img') ?? [])].some((img) => img.complete && img.naturalWidth > 0));
       for (let tries = 0; tries < 60 && !drawn(); tries++) await new Promise((resolve) => requestAnimationFrame(resolve));
     },
   },
@@ -2645,6 +2667,14 @@ export interface MountOptions {
  * Render every fixture of a spec in the page, and wait until the components and their faces are drawn and the document
  * has been painted as the components count it — so a surface the test opens plays its entrance (MOT-4), however late the
  * machine draws the page's first frames. `beforePaint` returns before that.
+ *
+ * A second mount writes its document into the same window (`page.setContent()`, `document.open()`). In Chromium, once the
+ * mouse has moved over the page's earlier document — a move alone, without a press — no element of the new one captures
+ * the mouse: `setPointerCapture()` throws nothing and takes no effect (`hasPointerCapture()` false, no
+ * `gotpointercapture`), for every later press in that document, and a drag stops where the pointer leaves the element
+ * it began on (a drawer's resize handle: at its edge). Neither a move nor a click in the new document ends it; moving the
+ * mouse out of the window before the mount does, and so does a page of its own. Firefox and WebKit capture there. So a
+ * test that drags in a document after the first has a page of its own: a test of its own, or `page.context().newPage()`.
  */
 export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & MountOptions = {}) {
   await mountDocument(page, spec, given);

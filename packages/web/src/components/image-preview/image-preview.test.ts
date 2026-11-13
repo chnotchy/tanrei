@@ -524,6 +524,54 @@ test.describe('the modal layer', () => {
     });
   });
 
+  test('IMP-6, IMP-4, IMP-2: opened in the same update as a modal picker or a dialog, the two stack in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
+    /** Where focus is: a day's date, else the element's id, a preview part's name or its tag, and the overlay it is inside. */
+    const where = () =>
+      page.evaluate(() => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        let inside: string | null = null;
+        for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
+          if (at instanceof Element && at.matches('tanrei-image-preview, tanrei-date-time-picker, tanrei-dialog')) inside = at.id;
+        }
+        const named = active?.getAttribute('data-date') || active?.id || (active?.classList.contains('stage') ? 'stage' : active?.localName);
+        return `${named} in ${inside}`;
+      });
+    const setOpenOf = (id: string, open: boolean) =>
+      page.locator(`#${id}`).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<boolean> }, o) => {
+        el.open = o;
+        await el.updateComplete;
+      }, open);
+    const PICKER =
+      '<tanrei-date-time-picker id="picker" presentation="modal" today="2026-09-24" locale="en-US" value="2026-09-17" label="Select date" confirm-label="OK" cancel-label="Cancel" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" date-label="Date"></tanrei-date-time-picker>';
+    const DIALOG = '<tanrei-dialog id="dialog" headline="Room"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
+    // A modal picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): the
+    // preview, whose update follows, opens above it while it still owes focus. A dialog whose `open` was set first opens
+    // in that read, above the preview, which moved focus in as it opened (IMP-2).
+    const cases: [name: string, lead: string, lower: string, upper: string, focusedAbove: string, target: string][] = [
+      ['above a picker', PICKER, 'picker', 'preview', 'stage in preview', '2026-09-17 in picker'],
+      ['below a dialog', DIALOG, 'preview', 'dialog', 'd-marked in dialog', 'stage in preview'],
+    ];
+    for (const [name, lead, lower, upper, focusedAbove, target] of cases) {
+      await mount(page, fx({ open: false }), { lead: `<button id="opener">Open</button>${lead}` });
+      await host(page).evaluate((el) => (el.id = 'preview'));
+      await page.locator('#opener').focus();
+      await page.evaluate(async (order) => {
+        const [first, second] = order.map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        first!.open = true;
+        second!.open = true;
+        await Promise.all([first!.updateComplete, second!.updateComplete]);
+      }, upper === 'dialog' ? ['dialog', 'preview'] : ['picker', 'preview']);
+      await expect.poll(where, name).toBe(focusedAbove);
+      // The upper one is what is at a point of the window that only the scrims and the preview's stage cover.
+      expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id), name).toBe(upper);
+      await setOpenOf(upper, false);
+      expect(await where(), name).toBe(target);
+      await setOpenOf(lower, false);
+      expect(await where(), name).toBe('opener in null');
+    }
+  });
+
   test('IMP-7: the container is a modal dialog named by label; without a label it still opens and a debug build says so; it writes and reads no history entry and no address', async ({ page, browserName }) => {
     const seen = warnings(page);
     await mount(page, fx());

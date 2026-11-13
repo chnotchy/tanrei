@@ -23,6 +23,7 @@
   "files": ["src", "lib", "README.md", "NOTICE", "!**/__tests__", "!src/testing"],
   "sideEffects": false,
   "scripts": {
+    "clean": "node ../tools/src/clean.js lib",
     "build": "bob build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p example/tsconfig.typecheck.json --noEmit",

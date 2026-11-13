@@ -71,6 +71,38 @@
         "dist/**"
       ]
     },
+    "@tanrei/studio#build:app": {
+      "dependsOn": [
+        "clean",
+        "^build"
+      ],
+      "outputs": [
+        "dist-app/**"
+      ]
+    },
+    "@tanrei/cli#build": {
+      "dependsOn": [
+        "clean",
+        "generate",
+        "^build",
+        "@tanrei/studio#build:app"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../web/src/generated/glyphs.json"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@tanrei/flutter#build": {
+      "dependsOn": [
+        "clean",
+        "generate",
+        "^build"
+      ],
+      "outputs": []
+    },
     "@tanrei/web#test:node": {
       "dependsOn": [
         "build"

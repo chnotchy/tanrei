@@ -44,6 +44,7 @@ import {
   minuteText,
   cssZoom,
   layoutSize,
+  modalLayer,
   motionReduced,
   naturalHeight,
   numberText,
@@ -2380,8 +2381,12 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.arrange();
       return;
     }
-    this.returnTo = deepActive();
-    this.openedRing = !!this.returnTo && this.returnTo !== document.body && this.returnTo.matches(':focus-visible');
+    // DTM-4: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a dialog, a
+    // sheet, another picker: focus is in it, where its `showModal()` gave it), where that surface gives it: focus returns
+    // there when the picker closes. The ring is the focus's that is there now (DTM-3).
+    const active = deepActive();
+    this.returnTo = modalLayer.opener();
+    this.openedRing = !!active && active !== document.body && active.matches(':focus-visible');
     this.shown = true;
     surface.inert = false;
     this.presenting = true;
@@ -2391,6 +2396,9 @@ export class TanreiDateTimePicker extends TanreiElement {
         // DTM-35: opened modally — or, still leaving, taken back where its exit has got to (MOT-2,
         // src/primitives/modal-exit.ts).
         openModal(surface);
+        // DTM-3: focus goes in once the cover is read, below: until then a surface opened above it in the same turn
+        // takes where it goes as its opener.
+        modalLayer.owesFocus(surface, () => this.initialTarget());
         this.appear.enter();
         holdPageScroll(this, true);
         window.visualViewport?.addEventListener('resize', this.onWindow);
@@ -2441,29 +2449,35 @@ export class TanreiDateTimePicker extends TanreiElement {
     const options = { focusVisible: this.openedRing } as FocusOptions;
     this.presenting = true;
     try {
+      const target = this.initialTarget();
       if (this.hasDate) {
-        const calendar = this.renderRoot.querySelector<TanreiCalendar>('tanrei-calendar');
-        if (calendar) {
-          await calendar.updateComplete;
-          calendar.focus(options);
-        }
-      } else if (this.shownEntry === 'wheels') {
-        // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up.
-        this.nextRing = this.openedRing;
-        focusAgain(this.spin('hour'), options);
+        // DTM-3: the calendar gives focus to its active day once it has drawn it.
+        await (target as TanreiCalendar | null)?.updateComplete;
+        target?.focus(options);
       } else {
-        // DTM-3, DTM-28: the selector's ring is the picker's to draw (data-ring), as the wheels' is.
+        // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up. DTM-28: the selector's
+        // ring is the picker's to draw (data-ring), as the wheels' is.
         this.nextRing = this.openedRing;
-        focusAgain(this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${this.shownUnit}']`), options);
+        focusAgain(target, options);
       }
     } finally {
       this.presenting = false;
       this.nextRing = null;
+      // A surface opened above a modal picker from now on takes where focus is as its opener (DTM-4); a docked picker's
+      // surface was never said to owe focus.
+      modalLayer.gaveFocus(this.surface as HTMLDialogElement);
     }
     // DTM-35: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
     // after the opening task, as its entrance does (statesFromNextFrame). The focus moved in that task: the calendar's
     // update it waited for is a microtask.
     statesFromNextFrame([this]);
+  }
+
+  /** DTM-3: where focus goes as the picker opens: the calendar (its active day), the hour wheel or the selector of `unit`. */
+  private initialTarget(): HTMLElement | null {
+    if (this.hasDate) return this.renderRoot.querySelector<TanreiCalendar>('tanrei-calendar');
+    if (this.shownEntry === 'wheels') return this.spin('hour');
+    return this.renderRoot.querySelector<HTMLElement>(`.selector[data-unit='${this.shownUnit}']`);
   }
 
   /** DTM-4: focus back where it was when the picker opened (the opener, then the anchor, when that is gone). */
