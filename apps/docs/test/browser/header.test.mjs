@@ -5,7 +5,8 @@
 // room for it (APB-26, APB-30), and the search, the mode's toggle and the language, which it never hides. What the
 // appearance's panel does is test/browser/appearance.test.mjs's; the language's menu links the page in the six languages;
 // the icon-only buttons are named in the page's language; at a phone's width nothing scrolls sideways; and before the bar
-// is defined the header is as tall as it, under system insets too (Chromium).
+// is defined the header is as tall as it, under system insets too (Chromium), and draws each item where and as large as
+// the bar draws it.
 // A production build reports nothing (APB-13 is a debug report), so what the report is about is asked of the bar.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -329,11 +330,22 @@ for (const engine of ENGINES) {
             };
             const name = (element) => element.id || (element.hasAttribute('data-app-shell-menu') ? 'shell-menu' : element.classList[0]);
             const drawn = [...bar.querySelectorAll(':scope > [slot]')].filter((element) => element.getBoundingClientRect().width > 0);
+            const defined = !!customElements.get('tanrei-app-bar');
+            // The brand's cell: the stand-in pads the wordmark itself, the defined bar pads its own link around it.
+            const brand = bar.querySelector(':scope > .docs-brand');
+            const cell = (element) => (element === brand && defined ? bar.shadowRoot.querySelector('.brand') : element);
+            // The wordmark itself: its box inside the padding.
+            const image = (element) => {
+              const style = getComputedStyle(element);
+              const side = (name) => Number.parseFloat(style[`padding${name}`]) + Number.parseFloat(style[`border${name}Width`]);
+              const { x, y, width, height } = box(element);
+              return { x: x + side('Left'), y: y + side('Top'), width: width - side('Left') - side('Right'), height: height - side('Top') - side('Bottom') };
+            };
             return {
-              defined: !!customElements.get('tanrei-app-bar'),
+              defined,
               inset: getComputedStyle(bar).paddingBlockStart,
               header: box(bar.closest('[slot="header"]')),
-              items: Object.fromEntries(drawn.map((element) => [name(element), box(element)])),
+              items: Object.fromEntries([...drawn.map((element) => [name(element), box(cell(element))]), ...(drawn.includes(brand) ? [['wordmark', image(brand)]] : [])]),
             };
           });
         const standIn = await measure();
@@ -352,9 +364,20 @@ for (const engine of ENGINES) {
     const near = (a, b) => Math.abs(a - b) <= 0.5;
     for (const viewport of [COMPACT, WIDE]) {
       const INSETS = INSETS_AT[viewport.width];
-      test(`before the bar is defined, at ${viewport.width}: the header is as tall as the bar, with no system inset and with ${JSON.stringify(INSETS)} (Chromium only)`, LIMIT, async () => {
+      test(`before the bar is defined, at ${viewport.width}: the header is as tall as the bar and its items stand where the bar draws them; with ${JSON.stringify(INSETS)} too (Chromium only)`, LIMIT, async () => {
         const plain = await beforeAndAfter(viewport, null);
         assert.ok(near(plain.standIn.header.height, plain.drawn.header.height), `the header's height: ${plain.standIn.header.height} before the bar is defined, ${plain.drawn.header.height} once it is`);
+        // Each item the stand-in draws stands where, and is as large as, the bar draws it: the icon-only Buttons in
+        // their cells, the brand's cell and the wordmark in it, the appearance's button and the search. (The repository's
+        // link is drawn only once the bar is defined, APB-26, in room the stand-in leaves empty.)
+        assert.deepEqual(Object.keys(plain.standIn.items).filter((item) => !plain.drawn.items[item]), [], 'the stand-in draws nothing the bar does not');
+        const shown = Object.keys(plain.standIn.items).filter((item) => plain.drawn.items[item]);
+        assert.ok(shown.length >= (viewport === WIDE ? 7 : 5), `the stand-in draws the header's items: ${shown.join(', ')}`);
+        const misplaced = shown.flatMap((item) => {
+          const [before, after] = [plain.standIn.items[item], plain.drawn.items[item]];
+          return ['x', 'y', 'width', 'height'].every((side) => near(before[side], after[side])) ? [] : [`${item}: ${JSON.stringify(before)} before the bar is defined, ${JSON.stringify(after)} once it is`];
+        });
+        assert.deepEqual(misplaced, [], 'every item of the stand-in is drawn where and as large as the bar draws it');
         if (engine !== 'chromium') return;
         const inset = await beforeAndAfter(viewport, INSETS);
         assert.equal(inset.standIn.inset, `${INSETS.top}px`, 'the top inset is given to the page');
