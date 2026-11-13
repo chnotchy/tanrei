@@ -17,6 +17,7 @@ import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('date-time-picker');
 type P = Page;
@@ -485,7 +486,7 @@ test.describe('presentation, focus and closing', () => {
     }
   });
 
-  test('DTM-4, DTM-3: a modal picker and a dialog, or two modal pickers, opened in the same update stack in the order they open; focus goes into the upper one, returns on its closing to the day the picker under it moves focus to as it opens, and on that picker’s closing to the element that had it before either opened', async ({ page }) => {
+  test('DTM-4, DTM-3: two modal pickers opened in the same update stack in the order they open; focus goes into the upper one, returns on its closing to the day the picker under it moves focus to as it opens, and on that picker’s closing to the element that had it before either opened', async ({ page }) => {
     /** Where focus is: the day's date, else the element's id or tag, and the id of the overlay it is inside. */
     const where = () =>
       page.evaluate(() => {
@@ -493,7 +494,7 @@ test.describe('presentation, focus and closing', () => {
         while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
         let inside: string | null = null;
         for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
-          if (at instanceof Element && at.matches('tanrei-date-time-picker, tanrei-dialog')) inside = at.id;
+          if (at instanceof Element && at.matches('tanrei-date-time-picker')) inside = at.id;
         }
         return `${active?.getAttribute('data-date') || active?.id || active?.localName} in ${inside}`;
       });
@@ -502,35 +503,38 @@ test.describe('presentation, focus and closing', () => {
         el.open = o;
         await el.updateComplete;
       }, open);
-    // The picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): a dialog
-    // whose `open` was set before the picker's opens in that read, above it; a second picker opens as its own update
-    // ends, above the first.
-    const cases: [name: string, upper: 'dialog' | 'picker', focusedAbove: string][] = [
-      ['a dialog', 'dialog', 'd-marked in upper'],
-      ['another picker', 'picker', '2026-09-20 in upper'],
-    ];
-    for (const [name, upper, focusedAbove] of cases) {
-      await mount(page, [modal('m', { value: '2026-09-17' }), ...(upper === 'picker' ? [modal('n', { value: '2026-09-20' })] : [])]);
-      await host(page, 'm').evaluate((el) => (el.id = 'lower'));
-      if (upper === 'picker') await host(page, 'n').evaluate((el) => (el.id = 'upper'));
-      else {
-        const markup = '<tanrei-dialog id="upper" headline="Upper"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
-        await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', m), markup);
+    // A modal picker opens in the write that follows the reads of the turn, in the order of the updates, and moves focus
+    // in once its calendar has drawn (DTM-3): a second picker opens after the first, above it. (A picker opened with a
+    // dialog or a modal layer, in either order: the test of stacked modal surfaces, below.)
+    await mount(page, [modal('m', { value: '2026-09-17' }), modal('n', { value: '2026-09-20' })]);
+    await host(page, 'm').evaluate((el) => (el.id = 'lower'));
+    await host(page, 'n').evaluate((el) => (el.id = 'upper'));
+    await opener(page, 'm').focus();
+    await page.evaluate(async () => {
+      const [first, second] = ['lower', 'upper'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+      first!.open = true;
+      second!.open = true;
+      await Promise.all([first!.updateComplete, second!.updateComplete]);
+    });
+    await expect.poll(where).toBe('2026-09-20 in upper');
+    // Above the picker: a point that only the scrims cover hits the upper one's.
+    expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id)).toBe('upper');
+    await setOpenOf('upper', false);
+    expect(await where()).toBe('2026-09-17 in lower');
+    await setOpenOf('lower', false);
+    expect(await where()).toBe('open-m in null');
+  });
+
+  test('DTM-35, DTM-3, DTM-4, DLG-15, MDL-8: a modal picker and a dialog, or a modal layer, opened in one task stack in the order their open was set, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens, and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    await host(page, 'm').evaluate((el) => (el.id = 'picker'));
+    await addStackedSurfaces(page);
+    const ids = ['picker', STACKED_DIALOG, STACKED_LAYER];
+    const where = (id: string) => (id === 'picker' ? / in picker$/ : `${id}-marked in ${id}`);
+    for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+      for (const order of [['picker', other], [other, 'picker']] as [string, string][]) {
+        await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: where(order[0]) });
       }
-      await opener(page, 'm').focus();
-      await page.evaluate(async (order) => {
-        const [first, second] = order.map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
-        first!.open = true;
-        second!.open = true;
-        await Promise.all([first!.updateComplete, second!.updateComplete]);
-      }, upper === 'dialog' ? ['upper', 'lower'] : ['lower', 'upper']);
-      await expect.poll(where, name).toBe(focusedAbove);
-      // Above the picker: a point that only the scrims cover hits the upper one's.
-      expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id), name).toBe('upper');
-      await setOpenOf('upper', false);
-      expect(await where(), name).toBe('2026-09-17 in lower');
-      await setOpenOf('lower', false);
-      expect(await where(), name).toBe('open-m in null');
     }
   });
 

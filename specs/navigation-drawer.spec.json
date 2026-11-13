@@ -826,7 +826,7 @@
     },
     {
       "id": "NVD-28",
-      "text": "WHEN open changes from false to true WHILE variant is standard THE navigation drawer SHALL move focus to the selected destination or else to its first focusable element, and WHEN open then changes to false while focus is inside it SHALL return focus to the element that had it when the drawer opened, or, WHERE that element is gone, to where the platform puts focus by default; Tab and Shift+Tab SHALL move focus out of an open standard drawer without closing it (a standard drawer is a layout region, not an overlay)."
+      "text": "WHEN open changes from false to true WHILE variant is standard THE navigation drawer SHALL move focus to the selected destination or else to its first focusable element, and WHEN open then changes to false while focus is inside it SHALL return focus to the element that had it when the drawer opened — or, WHERE the drawer opened under a modal surface it is not inside, to the element that had focus before that surface opened — or, WHERE that element is gone, to where the platform puts focus by default; Tab and Shift+Tab SHALL move focus out of an open standard drawer without closing it (a standard drawer is a layout region, not an overlay)."
     },
     {
       "id": "NVD-29",
