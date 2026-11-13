@@ -44,6 +44,7 @@ import {
   documentPainted,
   closeModal,
   isLeaving,
+  modalLayer,
   openModal,
   type ModalMoves,
 } from '../../primitives/index.js';
@@ -3128,14 +3129,17 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   // ---- the cells: what each is told (NVD-3, NVD-23, NVD-31, NVD-33, NVD-47) ----
 
+  /** NVD-47: the cell that shows `selected`: itself, or the row of the closed group that holds it (any group, collapsed). */
+  private showerOf(selected: DrawerCell | null): DrawerCell | null {
+    if (!selected) return null;
+    const groups = groupsOf(selected);
+    if (this.collapsed && groups.length) return groups[0];
+    return (this.expandable ? groups.find((group) => !group.open && !this.filter.opened.has(group)) : undefined) ?? selected;
+  }
+
   private takeSnapshot(): Snapshot {
     const selected = this.destinations.selected;
-    let shower: DrawerCell | null = selected;
-    if (selected) {
-      const groups = groupsOf(selected);
-      if (this.collapsed && groups.length) shower = groups[0];
-      else shower = (this.expandable ? groups.find((group) => !group.open && !this.filter.opened.has(group)) : undefined) ?? selected;
-    }
+    const shower = this.showerOf(selected);
     // The cells of each level, in reading order: a group's are those it holds directly or through anything that is not
     // a group (a section inside it draws only its items, NVD-17); the top level's are those no group holds.
     const places = new Map<Element, Place>();
@@ -3642,6 +3646,15 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
+   * NVD-19, NVD-88: where `focusInside()` gives focus now, without giving it: the filter field it is owed to, the cell that
+   * shows the selection, or else the first focusable element, or else the panel.
+   */
+  private insideTarget(): HTMLElement | null {
+    const panel = this.panel;
+    return (this.filterFocusOwed && this.fieldShown ? this.filterInput : this.openingFocus(this.showerOf(this.destinations.selected))) ?? (panel && tabbables(panel)[0]) ?? panel;
+  }
+
+  /**
    * NVD-19, NVD-28: focus to the selected destination (or the group row that shows it), or else the first focusable
    * element. `shown`: the cell that shows the selection, where the caller has just read it (`takeSnapshot()`); read here
    * otherwise.
@@ -3699,6 +3712,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const run = (this.focusOwed = {});
     const undrawn = this.undrawn();
     if (!undrawn.length) return this.payFocus(run, also, true, shower);
+    // Until focus is in, a surface opened above a modal drawer in the same turn takes where it goes as its opener (MDL-8).
+    const dialog = this.dialog;
+    if (!this.held && dialog) modalLayer.owesFocus(dialog, () => this.insideTarget());
     // What leaves its rest now (the dialog's states, what focus left) begins in the next frame too.
     statesFromNextFrame([this, also]);
     void Promise.all(undrawn).then(() => this.payFocus(run, also, true));
@@ -3722,6 +3738,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
    */
   private payFocus(run: object, also: Element | null, first: boolean, shower?: DrawerCell | null) {
     if (run !== this.focusOwed || !this.shown) return;
+    // A surface opened above a modal drawer from now on takes where focus is as its opener (MDL-8).
+    if (this.dialog) modalLayer.gaveFocus(this.dialog);
     if (!first && deepActive() !== this.panel) {
       this.focusOwed = null;
       return;
@@ -3791,7 +3809,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // Opened again while it still narrows to its column, focus is where its close gave it back. Kept open across a
     // change of presentation (NVD-54), it gives focus back where it would have, and moves none now (`keepFocus`).
     const reopening = this.reopener !== null;
-    this.opener = this.reopener ?? this.pendingOpener ?? deepActive();
+    // NVD-22: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a dialog, a
+    // sheet, a picker: focus is in it, where its `showModal()` gave it), where that surface gives it (MDL-8).
+    this.opener = this.reopener ?? this.pendingOpener ?? modalLayer.opener();
     this.reopener = null;
     this.pendingOpener = null;
     this.pointerReturn = false;
@@ -4370,7 +4390,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       if (!this.presented) {
         this.carriedOffset = this.scroller?.scrollTop ?? null;
         const active = deepActive();
-        this.pendingOpener = (!active || active === document.body) && this.pressedMenu?.isConnected ? this.pressedMenu : active;
+        this.pendingOpener = (!active || active === document.body) && this.pressedMenu?.isConnected ? this.pressedMenu : modalLayer.opener();
         const box = this.getBoundingClientRect();
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
