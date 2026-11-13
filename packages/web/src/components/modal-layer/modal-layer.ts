@@ -201,7 +201,10 @@ export class TanreiModalLayer extends TanreiElement {
   /** `present()`'s write: the layer opens with what was read. */
   private show(dialog: HTMLDialogElement, covered: number) {
     watchEscape();
-    this.opener = deepActive();
+    // MDL-5, MDL-8: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
+    // dialog, a sheet, a picker: focus is in it, where its `showModal()` gave it), where that surface gives it: focus
+    // returns there when this layer closes. The layer gives focus in at once, so it owes none itself.
+    this.opener = modalLayer.opener();
     this.cover(covered);
     openModal(dialog);
     this.shown = true;

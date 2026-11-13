@@ -22,6 +22,7 @@ import {
   giveVariant,
   holdPageScroll,
   isLeaving,
+  modalLayer,
   modalSheetKeys,
   motionReduced,
   openModal,
@@ -1332,7 +1333,10 @@ export class TanreiImagePreview extends TanreiElement {
     this.reportedEmpty = false;
     watchEscape();
     watchInput();
-    this.opener = deepActive();
+    // IMP-4, IMP-6: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
+    // dialog, a sheet, a picker: focus is in it, where its `showModal()` gave it), where that surface gives it: focus
+    // returns there when the preview closes. The preview gives focus in at once (IMP-2), so it owes none itself.
+    this.opener = modalLayer.opener();
     // What a drag that closed it left (IMP-22) is gone when it opens again.
     dialog.classList.remove('clearing', 'returning');
     dialog.style.removeProperty('--_presence');

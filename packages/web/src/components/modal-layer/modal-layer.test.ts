@@ -38,6 +38,17 @@ const focused = (page: P) =>
     if (active.localName === 'dialog') return 'container';
     return active.id || active.localName;
   });
+/** Where focus is: the id of the deepest focused element, else its tag, and the id of the overlay it is inside. */
+const where = (page: P) =>
+  page.evaluate(() => {
+    let active: Element | null = document.activeElement;
+    while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+    let inside: string | null = null;
+    for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
+      if (at instanceof Element && at.matches('tanrei-modal-layer, tanrei-dialog')) inside = at.id;
+    }
+    return `${active?.id || active?.localName} in ${inside}`;
+  });
 
 /** A closed layer fixture with an opener button before it; every close request is logged with its reason. */
 const f = (id: string, props: Fixture['props'] = {}, extra: Partial<Fixture> = {}): Fixture => ({
@@ -306,6 +317,38 @@ test.describe('closing', () => {
     expect(await isOpen(page, 'outer')).toBe(true);
     await expect(page.locator('#inner-opener')).toBeFocused();
     expect(await log(page)).toEqual(['inner:escape']);
+  });
+
+  test('MDL-8, MDL-3, MDL-5: a dialog and then a layer opened in the same update stack in that order; focus goes into the layer, returns on its closing to where the dialog moves focus as it opens, and on the dialog’s closing to the element that had it before either opened', async ({ page }) => {
+    // The dialog marks an element for focus, or marks none: then it gives focus to itself, where `showModal()` gave it
+    // to its first button (DLG-2).
+    const cases: [name: string, content: string, target: string][] = [
+      ['marked', '<button id="d-a">A</button> <button id="d-marked" autofocus>B</button>', 'd-marked in dialog'],
+      ['unmarked', '<button id="d-a">A</button>', 'dialog in dialog'],
+    ];
+    for (const [name, content, target] of cases) {
+      await mount(page, [f('l', {}, { content: '<button id="l-marked" autofocus>C</button>' })]);
+      await host(page, 'l').evaluate((el) => (el.id = 'layer'));
+      const markup = `<tanrei-dialog id="dialog" headline="Dialog">${content}<tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>`;
+      await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', m), markup);
+      await page.locator('#open-l').focus();
+      await page.evaluate(async () => {
+        const [dialog, layer] = ['dialog', 'layer'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        dialog!.open = true;
+        layer!.open = true;
+        await Promise.all([dialog!.updateComplete, layer!.updateComplete]);
+      });
+      // Above the dialog: a point that only the scrims cover hits the layer's.
+      expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id), name).toBe('layer');
+      await expect.poll(() => where(page), name).toBe('l-marked in layer');
+      await close(page, 'l');
+      expect(await where(page), name).toBe(target);
+      await page.locator('#dialog').evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<boolean> }) => {
+        el.open = false;
+        await el.updateComplete;
+      });
+      expect(await where(page), name).toBe('open-l in null');
+    }
   });
 
   test('MDL-9: a popover opened from inside the container is above the layer and operable, and a press in it is not a press on the scrim', async ({ page }) => {
