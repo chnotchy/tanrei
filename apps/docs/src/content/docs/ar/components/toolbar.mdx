@@ -2,7 +2,7 @@
 title: شريط الأدوات
 description: يجمع مجموعة من عناصر التحكم المترابطة في موضع توقف واحد للمفتاح Tab، ضمن المحتوى حيث يحتاج إليه، أو راسيًا على امتداد الحافة السفلية، أو عائمًا فوق المحتوى. تنقل مفاتيح الأسهم بين عناصر التحكم فيه، وما لا تتسع له المساحة ينتقل إلى قائمة الفائض.
 translationOf: components/toolbar.mdx
-sourceHash: 1327d86415c8f6908fb2e64720953a22e06b32d0
+sourceHash: 51943a52b45f323d873e0c738dadf6dcf4d15850
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -299,21 +299,23 @@ import Example from '../../../../components/visuals/Example.astro';
 
 يوزّع شريط الأدوات الراسي عناصره على العرض ولا يقرّب بينها أبدًا أكثر من فجوته (16 في النظام الافتراضي). أما الذي ضمن المحتوى والعائم فيضمّان عناصرهما: لا يتباعد الجاران إلا بالقدر الذي يحتاج إليه كل منهما ليحتفظ بهدف لمس خاص به على امتداد الصف، ولا يتقاربان أبدًا أكثر من الفجوة (4 ضمن المحتوى و0 للعائم في النظام الافتراضي). ففي الشريط العائم تتلامس الأزرار الكبيرة، وتتباعد المتوسطة بمقدار 8، والصغيرة بمقدار 16. وفي الشريط الذي ضمن المحتوى تتباعد المتوسطة والصغيرة بالقدر نفسه، والكبيرة بمقدار الفجوة 4. ولا يوسّع شريط الأدوات عنصرًا ولا يغيّر مظهره ليفعل ذلك، والتباعد واحد للفأرة واللمس.
 
+لترسم العناصر بحجم واحد، اضبط `size` على شريط الأدوات لا على كل عنصر. فيصير حجمَ كل زر Button وكل زر مع قائمة فيه، داخل مجموعة كان أو لا، وحجمَ زر الفائض. والعنصر الذي يضبط حجمًا خاصًّا به يحتفظ به، وشريط الأدوات الذي لا يضبط حجمًا يترك كل عنصر بحجمه الافتراضي medium، أو بالحجم الذي تضبطه حاوية تحيط بالشريط. ولا يرسم الشريط نفسه شيئًا مختلفًا: تبقى فجواته وحشواته وفواصله كما يحدّدها طرازه. أما عنصر الاختيار وحقل إدخال العدد وحقل إدخال النص وشريط التمرير فيحتفظ كلٌّ منها بالحجم الذي تعطيه إياه، وتحتفظ قائمة الخيارات التي يفتحها زر Button بحجمها الخاص. وتشرح صفحة [الحجم والكثافة](/ar/foundations/size-and-density/) كيف ينتقل الحجم من الحاوية إلى ما تحمله.
+
 <Example label="عائم: عناصر صغيرة ومتوسطة وكبيرة، وعناصر ضيقة وعريضة" column>
-  <tanrei-toolbar variant="floating" label="التنسيق، صغير">
-    <tanrei-button variant="text" size="small" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="small" label="التنسيق، صغير">
+    <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="التنسيق، متوسط">
     <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="text" label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="التنسيق، كبير">
-    <tanrei-button variant="text" size="large" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="large" label="التنسيق، كبير">
+    <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="أدوات الرسم">
     <tanrei-button variant="text" width="narrow" label="تراجع"><span slot="icon">undo</span></tanrei-button>

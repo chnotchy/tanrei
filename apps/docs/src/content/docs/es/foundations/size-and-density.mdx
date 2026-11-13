@@ -1,8 +1,8 @@
 ---
 title: Tamaño y densidad
-description: Un número para el espacio que ocupan los controles y las filas, una escala de cinco alturas para los tamaños de los controles, el tamaño mínimo al que se dibuja todo lo que se pulsa y un tamaño que un grupo de botones pasa a sus botones.
+description: Un número para el espacio que ocupan los controles y las filas, una escala de cinco alturas para los tamaños de los controles, el tamaño mínimo al que se dibuja todo lo que se pulsa y un tamaño que un contenedor pasa a lo que contiene.
 translationOf: foundations/size-and-density.mdx
-sourceHash: 29c5978d5918d6c2ba8d84f9b28c961f28142dc1
+sourceHash: 428363747773a9d001f073ec2cf55174f8a544a5
 ---
 
 import DensityHeights from '../../../../components/tokens/DensityHeights.astro';
@@ -19,7 +19,7 @@ La altura de un control o de una fila sale de tres valores. La **densidad** y el
 
 Toda altura que sigue la densidad se redondea a la cuadrícula de la unidad de tamaño (`dial.size.unit`, 4px de forma predeterminada), y un empate se redondea hacia arriba.
 
-No hay una densidad por componente ni por parte de una página. Algunos componentes que contienen filas (un menú y otros) tienen una opción propia llamada `density`, `regular` o `compact`, que elige entre dos conjuntos de tokens de sus filas; las alturas de ambos siguen el número.
+No hay una densidad por componente ni por parte de una página. Un solo componente, el [panel de navegación](/es/components/navigation-drawer/), tiene una opción propia llamada `density`, `regular` o `compact`, que elige entre dos conjuntos de tokens de sus filas; las alturas de ambos siguen el número.
 
 ## La escala de tamaños
 
@@ -71,6 +71,22 @@ El tamaño se fija donde están los componentes. En la web, el `size` de un grup
 - **El tamaño propio de un componente gana.** El tercer Button de arriba es medium.
 - **Solo se pasa un tamaño que se ha fijado.** Un grupo sin `size` no pasa ninguno, así que cada Button del grupo se dibuja con su propio tamaño predeterminado, medium, o con el que fije un contenedor que rodee al grupo; cuando hay contenedores anidados, decide el más cercano que fija un tamaño.
 - **Un tamaño que el componente no tiene se convierte en el más cercano** a lo largo de la escala, extra-small, small, medium, large, extra-large, y entre dos igual de cercanos, el mayor.
-- **El grupo no dibuja nada propio según su tamaño.** Sus espacios, esquinas y divisores siguen siendo los de su variante, alrededor de Buttons de la altura a la que se dibujan.
+- **Un grupo de botones y una barra de herramientas no dibujan nada propio según su tamaño.** Sus espacios, esquinas y divisores siguen siendo los de su variante, alrededor de elementos de la altura a la que se dibujan.
 
-Un Button que se dibuja con el tamaño que le da su grupo sigue la densidad y el mínimo igual que con un tamaño propio. Al cambiar el tamaño del grupo, o al meter un Button en el grupo o sacarlo de él, se dibuja enseguida con su nuevo tamaño.
+Un componente que se dibuja con el tamaño que le da su contenedor sigue la densidad y el mínimo igual que con un tamaño propio. Al cambiar el tamaño del contenedor, o al meter un componente en él o sacarlo, se dibuja enseguida con su nuevo tamaño.
+
+### Qué pasa un tamaño y qué lo recibe
+
+Tres contenedores pasan el tamaño fijado en ellos a lo que contienen:
+
+- Un [grupo de botones](/es/components/button-group/), a sus Buttons.
+- Una [barra de herramientas](/es/components/toolbar/), a sus Buttons y botones con menú, estén o no en un grupo, y a su botón de desbordamiento.
+- Una [lista](/es/components/list/), a sus filas de lista.
+
+Estos componentes toman el tamaño del más cercano de esos contenedores cuando no fijan uno propio, y son medium cuando ningún contenedor lo fija: el [Button](/es/components/button/), el [botón con menú](/es/components/button-with-menu/), el [botón de copiar](/es/components/copy-button/) y la [fila de lista](/es/components/list-row/), y, dibujando con él cada fila o parte que les pertenece, la [lista](/es/components/list/), la [vista de árbol](/es/components/tree-view/), el [acordeón](/es/components/accordion/), la [tabla de contenido](/es/components/table-of-contents/), la [lista de descripciones](/es/components/description-list/) y la [tabla](/es/components/table/).
+
+El tamaño no llega más lejos. El acordeón, la lista de descripciones y la tabla no pasan ninguno a lo que pongas dentro: un Button en una celda de una tabla conserva su propio tamaño, o toma el de los contenedores que rodean la tabla. Y algunos componentes no toman ninguno de un contenedor:
+
+- Un [menú](/es/components/menu/), incluidos un menú contextual y los menús de una [barra de menús](/es/components/menubar/), la vista de una [búsqueda](/es/components/search/) y la lista de un [select](/es/components/select/) o de un [cuadro combinado](/es/components/combobox/). Cada uno se abre sobre la página, aparte de los controles que lo rodean, así que una barra de herramientas small no achica el menú que abre uno de sus Buttons. Un menú y una búsqueda son medium salvo que fijen su propio `size`; las opciones de un select o de un cuadro combinado siguen el tamaño de su caja.
+- Un select, una entrada numérica, una entrada de texto o un control deslizante dentro de una barra de herramientas, que conservan el tamaño que les des.
+- Una [línea de tiempo](/es/components/timeline/), cuyo tamaño es el de su texto.
