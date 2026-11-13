@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { forwardedOwnSize } from '../../primitives/size-cascade.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -169,7 +170,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // Declared as the box's is: a custom accessor, reflected by the own size while it is set.
+    size: { type: String, noAccessor: true },
     value: { type: String },
     inputValue: { type: String, attribute: 'input-value' },
     placeholder: { type: String },
@@ -226,7 +228,17 @@ export class TanreiComboboxField extends ComposedControl<string> {
   variant: TanreiComboboxVariant = 'stacked';
 
   /** @from tanrei-combobox.size */
-  size: TanreiComboboxSize = 'medium';
+  get size(): TanreiComboboxSize {
+    return (this.ownSize.own ?? 'medium') as TanreiComboboxSize;
+  }
+
+  set size(value: TanreiComboboxSize | null | undefined) {
+    this.ownSize.setOwn(value);
+  }
+
+  // Forwarded as the product set it, not as it reads: the box is given no size while the product set none here, and
+  // draws the size its container sets.
+  private readonly ownSize = forwardedOwnSize(this);
 
   /** @from tanrei-combobox.value */
   get value(): string {

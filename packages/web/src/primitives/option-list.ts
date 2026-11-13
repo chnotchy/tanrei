@@ -370,7 +370,7 @@ const OPTION_SIZE_MEMBERS = ['option-height', 'option-padding-block', 'option-pa
 const STATE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
 /**
- * The size the options of a field whose box has `size` are drawn at (SEL-70, CMB-68): the box's size, as its nearest
+ * The size the options of a field whose box is drawn at `size` are drawn at (SEL-70, CMB-68): the box's size, as its nearest
  * along the ladder where the options lack it (a large box opens medium rows); a name off the ladder, one a design system
  * added, as it is, for the open axis to draw or report.
  */
@@ -392,8 +392,8 @@ export function optionSizeRules(prefix: string, size: string, selector: string, 
 }
 
 /**
- * The field's open size axis of its options (`OpenAxesController`): the size its box's `size` gives them, and a size a
- * layer added gets its rules on demand.
+ * The field's open size axis of its options (`OpenAxesController`): the size its box is drawn at gives them theirs, and a
+ * size a layer added gets its rules on demand.
  */
 export function optionSizeAxis(prefix: `--${string}`): OpenAxis {
   return {
@@ -403,27 +403,28 @@ export function optionSizeAxis(prefix: `--${string}`): OpenAxis {
     default: DEFAULT_OPTION_SIZE,
     rules: (value, selector) => optionSizeRules(prefix, value, selector, DEFAULT_OPTION_SIZE),
     probe: (value) => `${prefix}-option-height-${value}` as const,
-    drawn: { read: (host) => optionSizeOf(String((host as HTMLElement & { size?: unknown }).size ?? '')), selector: optionsDrawnAt },
+    drawn: { read: (host) => optionSizeOf(String((host as HTMLElement & { drawnSize?: unknown }).drawnSize ?? '')), selector: optionsDrawnAt },
   };
 }
 
 /**
  * Carries the size a field's options are drawn at (SEL-70, CMB-68) as its custom state `option-size-<name>`, which the
- * options' size rules match: set before every render, from the box's `size`. A name that is no token name carries none
- * and is drawn as the default.
+ * options' size rules match: set before every render, from the size the box is drawn at (`drawnSize`: its own `size`,
+ * else the one its nearest container sets, SEL-73, CMB-83), so that a box a small toolbar draws small opens small rows.
+ * A name that is no token name carries none and is drawn as the default.
  */
 export class OptionSizeController implements ReactiveController {
   private state = '';
 
   constructor(
-    private readonly host: ReactiveControllerHost & HTMLElement & { size: string },
+    private readonly host: ReactiveControllerHost & HTMLElement & { drawnSize: string },
     private readonly internals: () => ElementInternals,
   ) {
     host.addController(this);
   }
 
   hostUpdate() {
-    const drawn = optionSizeOf(String(this.host.size ?? ''));
+    const drawn = optionSizeOf(String(this.host.drawnSize ?? ''));
     const state = STATE_NAME.test(drawn) ? `option-size-${drawn}` : '';
     if (state === this.state) return;
     const { states } = this.internals();

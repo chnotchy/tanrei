@@ -8,6 +8,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   OpenAxesController,
+  SizeConsumerController,
   SEPARATION_VALUES,
   type SeparationProp,
   SystemWatchController,
@@ -44,7 +45,7 @@ import '../option/option.js';
 import '../loading-indicator/loading-indicator.js';
 import '../button/button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
-import { AXES, INSET, PREFIX, styles } from './select.styles.js';
+import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -191,7 +192,9 @@ export class TanreiSelect extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // SEL-73: the size the product set, or none: a select that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     value: { type: String },
     name: { type: String, reflect: true },
     label: { type: String },
@@ -217,8 +220,33 @@ export class TanreiSelect extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box whose label is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the select does not know by name is laid out as stacked. Reflected. */
   variant: TanreiSelectVariant = 'stacked';
 
-  /** The container's minimum height: `small`, `medium` or `large` (40 / 48 / 56 in the default system). It is also the size of the options of the list (SEL-70): a small select opens small rows, a medium or a large one medium rows. The hit area always meets the minimum target. Reflected. */
-  size: TanreiSelectSize = 'medium';
+  /**
+   * The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same
+   * size, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.
+   * The hit area always meets the minimum target. While it is not set the select draws the size its nearest container
+   * sets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
+   * value, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.
+   * The size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small
+   * box opens small rows, a medium or a large one medium rows.
+   */
+  get size(): TanreiSelectSize {
+    return (this.sizes.own ?? 'medium') as TanreiSelectSize;
+  }
+
+  set size(value: TanreiSelectSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** SEL-73: the size the product set, and the one the nearest container around the select sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /**
+   * @internal SEL-73: the size the select draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
 
   /** The value of the chosen option. The select shows that option's label; while `value` names no option it shows the placeholder. An option whose value is the empty string is a choice like any other. The `value` attribute is the value a form reset returns to. */
   value = '';
@@ -418,7 +446,7 @@ export class TanreiSelect extends TanreiElement {
    * And that it is drawn focused for as long as its list is open, whether or not it has focus (SEL-20).
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium';
+    const size = this.sizes.drawnName;
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size, { leading: this.leading !== null, chevron: !this.readOnly }),
@@ -755,6 +783,9 @@ export class TanreiSelect extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues) {
+    // SEL-73: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, SEL-60).
+    this.sizes.syncState(this.internals);
     // The first render already draws the glyphs' room: the light-DOM children are there before the slots say so.
     if (!this.hasUpdated) this.hasLeading = [...this.children].some((child) => child.slot === 'leading-icon');
     if (this.inert_) this.focused = false;
@@ -768,7 +799,7 @@ export class TanreiSelect extends TanreiElement {
   protected override updated(changed: PropertyValues) {
     const container = this.container;
     // SEL-15: the floating label's lines follow its text, its asterisk, the look and the size — its own, or its Field's.
-    if (changed.has('label') || changed.has('labelHidden') || changed.has('variant') || changed.has('size') || this.frameChanged) this.floating.measure();
+    if (changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged || this.frameChanged) this.floating.measure();
     this.frameChanged = false;
 
     // SEL-36: the product's `open`, and what makes the list unusable, show or remove the list without `toggle`.
