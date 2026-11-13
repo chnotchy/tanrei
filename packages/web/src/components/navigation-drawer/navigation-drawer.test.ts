@@ -4906,6 +4906,76 @@ test.describe('resizable', () => {
     }
   });
 
+  test('NVD-97, NVD-102: in a parent narrower than its least width the room wins — the drawer is as wide as the room, its rows within it and nothing past the parent’s end; its handle’s value, least and greatest are the room, and a drag, a key or a press on its edge changes nothing and emits nothing; the width given is kept for when the room comes back', async ({ page }) => {
+    await wide(page);
+    // n: the least width is container.min-width (200), the room 160. m: minWidth 300, the room 280.
+    await mount(page, [fixture('n', SIDE, { width: 360 }), fixture('m', SIDE, { minWidth: 300 })]);
+    const [least, pad] = await Promise.all([px(page, T('container-min-width')), px(page, T('container-padding-inline'))]);
+    expect(least).toBe(200);
+    await listenResize(page);
+    for (const [id, room, back] of [
+      ['n', 160, 360],
+      ['m', 280, 300],
+    ] as const) {
+      const stage = page.locator(`[data-fixture="${id}"]`);
+      // The stage's padding at its end is 16.
+      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await expect.poll(() => drawnWidth(page, id), id).toBe(room);
+      // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer): read
+      // after that frame, the rows laid out at the room, inside the drawer, and nothing reaching past the parent's end.
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+      const p = await bounds(panel(page, id));
+      const host = await bounds(drawer(page, id));
+      expect([p.x, p.width], id).toEqual([host.x, room]);
+      for (const n of [0, 1, 2]) {
+        const row = await bounds(box(page, id, n));
+        expect([row.x, row.width], `${id} row ${n}`).toEqual([p.x + pad, room - 2 * pad]);
+      }
+      const trailing = await bounds(item(page, id, 0).locator('.trailing-text'));
+      expect(trailing.x + trailing.width, id).toBeLessThanOrEqual(p.x + p.width - pad);
+      // (The handle's target reaches over what follows the drawer, as it does at any width: NVD-96.)
+      const parentEnd = await stage.evaluate((el: HTMLElement) => el.getBoundingClientRect().right - Number.parseFloat(getComputedStyle(el).paddingRight));
+      expect(p.x + p.width, `${id}: the drawer ends within its parent`).toBeLessThanOrEqual(parentEnd);
+      // The handle says the width drawn, and that no other can be given here.
+      for (const name of ['aria-valuenow', 'aria-valuemin', 'aria-valuemax']) await expect(separator(page, id), `${id} ${name}`).toHaveAttribute(name, String(room));
+      // A drag outward and inward, every key and a press on the edge: the room stays, and nothing is emitted.
+      expect(await dragEdge(page, id, [40, -20]), id).toEqual([room, room]);
+      await tabTo(page, separator(page, id));
+      for (const key of ['ArrowRight', 'Shift+ArrowLeft', 'Home', 'End', 'Enter']) {
+        await page.keyboard.press(key);
+        expect(await drawnWidth(page, id), `${id} ${key}`).toBe(room);
+      }
+      expect(await resizeLog(page), id).toEqual([]);
+      // The room comes back: the width given (n's 360; m's container.width held at its least, 300).
+      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await expect.poll(() => drawnWidth(page, id), id).toBe(back);
+      await expect(separator(page, id), id).toHaveAttribute('aria-valuenow', String(back));
+      await expect(separator(page, id), id).toHaveAttribute('aria-valuemin', String(id === 'n' ? least : 300));
+    }
+    expect(await drawer(page, 'n').evaluate((el) => (el as unknown as { width: number | null }).width)).toBe(360);
+    expect(await drawer(page, 'm').evaluate((el) => (el as unknown as { width: number | null }).width)).toBe(null);
+    expect(await resizeLog(page)).toEqual([]);
+  });
+
+  test('NVD-97, NVD-99, NVD-102: a collapsible drawer in a parent narrower than its least width is as wide as the room; its handle’s least is its column and its greatest the room, and a key’s step changes nothing', async ({ page }) => {
+    await wide(page);
+    await mount(page, [rail('c', SIDE, { expanded: true })]);
+    const column = await px(page, T('collapsed-container-width-regular'));
+    const room = 160;
+    await listenResize(page);
+    await page.locator('[data-fixture="c"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+    await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
+    await expect(separator(page, 'c')).toHaveAttribute('aria-valuenow', String(room));
+    await expect(separator(page, 'c')).toHaveAttribute('aria-valuemin', String(column));
+    await expect(separator(page, 'c')).toHaveAttribute('aria-valuemax', String(room));
+    await tabTo(page, separator(page, 'c'));
+    for (const key of ['ArrowRight', 'ArrowLeft', 'End']) {
+      await page.keyboard.press(key);
+      expect(await drawnWidth(page, 'c'), key).toBe(room);
+    }
+    expect(await resizeLog(page)).toEqual([]);
+  });
+
   test('NVD-18, NVD-97: a standard drawer that opens lays its rows out at its width from the task that opens it — its slide, held at its start until the next frame, is no narrower room — and slides in to its width', async ({ page }) => {
     // The slide stands at a width of none until the next frame draws it (statesFromNextFrame). Read as the room the
     // parent gives, it had the rows laid out at none through the slide, and the drawer drawn without motion (as a room's
