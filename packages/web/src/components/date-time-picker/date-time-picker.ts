@@ -2449,27 +2449,23 @@ export class TanreiDateTimePicker extends TanreiElement {
     const options = { focusVisible: this.openedRing } as FocusOptions;
     this.presenting = true;
     try {
+      const target = this.initialTarget();
       if (this.hasDate) {
-        const calendar = this.renderRoot.querySelector<TanreiCalendar>('tanrei-calendar');
-        if (calendar) {
-          await calendar.updateComplete;
-          calendar.focus(options);
-        }
-      } else if (this.shownEntry === 'wheels') {
-        // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up.
-        this.nextRing = this.openedRing;
-        focusAgain(this.spin('hour'), options);
+        // DTM-3: the calendar gives focus to its active day once it has drawn it.
+        await (target as TanreiCalendar | null)?.updateComplete;
+        target?.focus(options);
       } else {
-        // DTM-3, DTM-28: the selector's ring is the picker's to draw (data-ring), as the wheels' is.
+        // DTM-3, DTM-43: the hour wheel takes focus; no entry begins and no keyboard comes up. DTM-28: the selector's
+        // ring is the picker's to draw (data-ring), as the wheels' is.
         this.nextRing = this.openedRing;
-        focusAgain(this.initialTarget(), options);
+        focusAgain(target, options);
       }
     } finally {
       this.presenting = false;
       this.nextRing = null;
-      // A surface opened above a modal picker from now on takes where focus is as its opener (DTM-4).
-      const surface = this.surface;
-      if (surface instanceof HTMLDialogElement) modalLayer.gaveFocus(surface);
+      // A surface opened above a modal picker from now on takes where focus is as its opener (DTM-4); a docked picker's
+      // surface was never said to owe focus.
+      modalLayer.gaveFocus(this.surface as HTMLDialogElement);
     }
     // DTM-35: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
     // after the opening task, as its entrance does (statesFromNextFrame). The focus moved in that task: the calendar's

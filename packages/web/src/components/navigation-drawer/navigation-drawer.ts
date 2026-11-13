@@ -3713,8 +3713,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const undrawn = this.undrawn();
     if (!undrawn.length) return this.payFocus(run, also, true, shower);
     // Until focus is in, a surface opened above a modal drawer in the same turn takes where it goes as its opener (MDL-8).
-    const dialog = this.dialog;
-    if (!this.held && dialog) modalLayer.owesFocus(dialog, () => this.insideTarget());
+    // (A held drawer's dialog is never modal, so what it owes there is never asked.)
+    if (this.dialog) modalLayer.owesFocus(this.dialog, () => this.insideTarget());
     // What leaves its rest now (the dialog's states, what focus left) begins in the next frame too.
     statesFromNextFrame([this, also]);
     void Promise.all(undrawn).then(() => this.payFocus(run, also, true));
