@@ -2029,6 +2029,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
       this.syncStructure(items);
       this.viewSelection();
       this.schedulePins();
+      // NVD-19: items that arrived after the drawer was shown take the focus it could not give.
+      this.payOwedFocus();
     },
     // NVD-60: a link is followed, not selected.
     link: (item, event) => item.linkActivation(event),
@@ -2052,6 +2054,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private formTimer: ReturnType<typeof setTimeout> | undefined;
   /** Counts the closes begun: a close whose motion ends finishes only if no other began since, and the drawer did not open again (NVD-22, NVD-40). */
   private leaveRun = 0;
+  /**
+   * The showing whose focus is still owed — nothing in the drawer could take it yet — or null (NVD-19, `payFocus`): a
+   * token each showing makes anew, so focus owed to one moves only if no other began since (`focusAsShown`).
+   */
+  private focusOwed: object | null = null;
   /** How far a collapsible modal drawer's items were scrolled, carried from its column to its dialog and back (NVD-40). */
   private carriedOffset: number | null = null;
   /** Focus was on what the collapsed form does not draw when the drawer collapsed (NVD-36). */
@@ -3675,6 +3682,67 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
+   * NVD-19: focus inside as the drawer is shown (`focusInside`), and the colors of what takes it from the first frame
+   * drawn after this task (statesFromNextFrame, with `also`) — once what is to take it can.
+   *
+   * A drawer inserted open together with its items into a page already drawn is shown by its first update, before
+   * theirs (it connects first, so it updates first): none of them has drawn its cell yet. Focus then moves once they
+   * have — their first updates are microtasks of this same task, so still before the frame the drawer is first drawn
+   * in. (Written in the page's markup, they update before it: the bundle defines them first.)
+   *
+   * Where nothing in it could take focus — its items not there yet (a parser that yields between the drawer and its
+   * items, a product that adds them after it) — its panel takes it, and the focus is owed (`focusOwed`): it moves to
+   * the selected destination, or else the first focusable element, as soon as items arrive and have drawn
+   * (`payFocus`), while focus is still on the panel.
+   */
+  private focusAsShown(shower: DrawerCell | null, also: Element | null = null) {
+    const run = (this.focusOwed = {});
+    const undrawn = this.undrawn();
+    if (!undrawn.length) return this.payFocus(run, also, true, shower);
+    // What leaves its rest now (the dialog's states, what focus left) begins in the next frame too.
+    statesFromNextFrame([this, also]);
+    void Promise.all(undrawn).then(() => this.payFocus(run, also, true));
+  }
+
+  /** The first renders of the elements inside the drawer that have not rendered yet (NVD-19: their cells are not drawn). */
+  private undrawn(): Promise<boolean>[] {
+    return [...this.querySelectorAll('*')].flatMap((element) => ((element as Partial<TanreiElement>).hasUpdated === false ? [(element as TanreiElement).updateComplete] : []));
+  }
+
+  /**
+   * NVD-19: the focus owed to the showing `run` (`focusAsShown`), given (`focusInside`, `shower` as it takes it, or else
+   * the selection read now: the items have told the drawer what they are only now), and the colors of what takes it
+   * from the first frame drawn after this task. `first`: the showing's own focus, given wherever focus is; otherwise
+   * only while focus is still on the panel, where the showing left it (focus the user or the product moved since is
+   * theirs). Still owed where the panel took it.
+   *
+   * While the document is still parsed and the destination `value` names is not there yet, it may be still to come (a
+   * parser that yields between the drawer's items): focus waits on the panel for it — not given to an element before it
+   * and then taken again — and is given once the document is parsed if it never comes.
+   */
+  private payFocus(run: object, also: Element | null, first: boolean, shower?: DrawerCell | null) {
+    if (run !== this.focusOwed || !this.shown) return;
+    if (!first && deepActive() !== this.panel) {
+      this.focusOwed = null;
+      return;
+    }
+    if (document.readyState === 'loading' && this.value && !this.destinations.selected) {
+      if (!this.hasFocus()) this.panel?.focus();
+      document.addEventListener('DOMContentLoaded', this.payOwedFocus, { once: true });
+    } else {
+      this.focusInside(shower);
+      if (deepActive() !== this.panel) this.focusOwed = null;
+    }
+    statesFromNextFrame([this, also]);
+  }
+
+  /** NVD-19: items arrived (`synced`), or the document is parsed, while focus is owed: given once they have drawn. */
+  private readonly payOwedFocus = () => {
+    const run = this.focusOwed;
+    if (run) void Promise.all(this.undrawn()).then(() => this.payFocus(run, null, false));
+  };
+
+  /**
    * NVD-22, NVD-28: focus back where it was when the drawer opened — or dropped, where that element is gone. Closed by a
    * pointer's press on the menu button, which moved no focus (onMouseDown), it is given as that press would have given
    * it: with no focus indicator (`focusVisible: false`; an engine without the option let the press give focus itself).
@@ -3756,10 +3824,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.carryOffset();
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
-    if (!reopening) this.focusInside(shower);
     // NVD-19, NVD-40: the colors of the cell that took focus, and a collapsible drawer's rows widening from its column,
     // begin in the first frame drawn after this task, as the surface's slide does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    if (!reopening) this.focusAsShown(shower);
+    else statesFromNextFrame([this]);
   }
 
   /**
@@ -3923,11 +3991,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.overRun++;
     this.syncOver();
     this.applyOffset();
-    this.focusInside(shower);
     // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus and of
     // what focus left (the app shell's menu button, outside it) begin in the first frame drawn after this task.
     this.heldFromNextFrame(false);
-    statesFromNextFrame([this, this.opener]);
+    this.focusAsShown(shower, this.opener);
   }
 
   /**
