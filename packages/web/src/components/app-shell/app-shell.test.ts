@@ -1107,6 +1107,36 @@ test.describe('the main region, the aside, the footer', () => {
     expect((await edges(main(page))).width).toBe(400);
   });
 
+  // A press 1 inside the main content's start reaches the main region, never the drawer's resize handle.
+  const BAND_CASES = [
+    { name: 'resizable', attributes: 'responsive collapsible', direction: undefined },
+    { name: 'resizable, right to left', attributes: 'responsive collapsible', direction: 'rtl' as const },
+    { name: 'resizable false', attributes: 'responsive collapsible resizable="false"', direction: undefined },
+  ];
+  for (const c of BAND_CASES) {
+    test(`APS-8, NVD-96: at 1280 with mainWidth full, beside a navigation drawer that draws its resize handle the main content starts past the handle’s target — 36 from the drawer’s end edge, where the gutter is 32 — and beside one with resizable false the gutter alone insets it; a press 1 inside the content’s start reaches the main region at the top, the middle and the bottom of the drawer’s height, and the handle still takes the press beside the drawer: ${c.name}`, async ({ page }) => {
+      await mount(page, real({ navigation: DRAWER(c.attributes), aside: '', props: { mainWidth: 'full' }, direction: c.direction }), { width: 1280 });
+      await allSettled(page);
+      const [gutter, reach] = [await resolveToken(page, T('gutter-expanded')), await resolveToken(page, '--tanrei-sys-target-pointer')];
+      expect([gutter, reach]).toEqual([32, 36]);
+      const resizable = !c.attributes.includes('resizable="false"');
+      const rtl = c.direction === 'rtl';
+      await expect(drawer(page).locator('tanrei-handle')).toHaveCount(resizable ? 1 : 0);
+      const [nav, content] = [await edges(drawer(page)), await contentBox(main(page))];
+      // The drawer's end edge, and the main content's start, in the layout's direction.
+      const end = rtl ? nav.left : nav.right;
+      const start = rtl ? content.right : content.left;
+      const inward = rtl ? -1 : 1;
+      expect(Math.abs(start - end), c.name).toBe(resizable ? reach : gutter);
+      const hit = (x: number, y: number) => page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('tanrei-app-shell > *')?.localName ?? null, [x, y] as const);
+      for (const y of [nav.top + 10, nav.top + nav.height / 2, nav.bottom - 10]) {
+        expect(await hit(start + inward, y), `${c.name}, ${Math.round(y)}`).toBe('main');
+        // The handle's target, wholly beside the drawer, takes the press at its far side.
+        expect(await hit(end + inward * (reach - 1), y), `${c.name}, ${Math.round(y)}`).toBe(resizable ? 'tanrei-navigation-drawer' : 'main');
+      }
+    });
+  }
+
   test('APS-9: expanded draws the aside 240 wide at the end edge, inset by aside.padding-inline and by main.padding-block so its first line is level with the main content’s, in view while the page scrolls and scrolling inside that height by itself; medium and compact draw it in the main region’s column with its gutters, width and centring — below the main content, or above it while asideOrder is before — 24 from it, scrolling with it', async ({ page }) => {
     const long = `<aside slot="aside"><div id="tall" style="block-size: 2400px">Aside</div></aside>`;
     await mount(page, real({ aside: long, sections: 6 }), { width: 1280 });
@@ -1898,6 +1928,24 @@ test.describe('before its code runs, text size, forced colors, insets, direction
       const placed = (lines: string[]) => lines.map((line) => (/^\S+ \S+ \S+ 0 /.test(line) ? `${line.split(' ')[0]} no space` : line));
       expect(placed(await geometry(page)), c.name).toEqual(placed(before));
       if (browserName === 'chromium') expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift), c.name).toBe(0);
+      await page.close();
+    });
+  }
+
+  for (const c of [
+    { name: 'resizable', attributes: 'responsive collapsible' },
+    { name: 'resizable false', attributes: 'responsive collapsible resizable="false"' },
+  ]) {
+    test(`APS-24, APS-8: before the element is defined the main content of a full-width main region beside a drawer starts where it will once the drawer is defined — past the resize handle’s target beside a resizable drawer, the gutter beside one with resizable false — and defining it moves nothing: ${c.name}`, async ({ page: first }) => {
+      const page = await withoutScript(first, real({ navigation: DRAWER(c.attributes), aside: '', props: { mainWidth: 'full' } }), 1280);
+      const inset = () => main(page).evaluate((el) => getComputedStyle(el).paddingLeft);
+      const before = await inset();
+      expect(before, c.name).toBe(`${await resolveToken(page, c.name === 'resizable' ? '--tanrei-sys-target-pointer' : T('gutter-expanded'))}px`);
+      await page.addScriptTag({ content: fs.readFileSync(path.join(pkg, 'dist/tanrei.bundle.js'), 'utf8'), type: 'module' });
+      await page.waitForFunction(() => !!customElements.get('tanrei-navigation-drawer') && !!customElements.get('tanrei-app-shell'));
+      await allSettled(page);
+      await frame(page);
+      expect(await inset(), c.name).toBe(before);
       await page.close();
     });
   }

@@ -2983,6 +2983,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.toggleAttribute('data-open', this.isOpen);
     // NVD-19: held below an app shell's header, it is drawn in the frame and not in the top layer.
     this.toggleAttribute('data-held', this.held);
+    // NVD-96: it draws its resize handle beside its end edge — read by an app shell, which starts the main content past
+    // the handle's target (APS-8).
+    this.toggleAttribute('data-resize', this.resizeShown);
     // NVD-39, NVD-68: where the chevrons are drawn moves the icon column's line, which the main action follows.
     this.setAttribute('data-chevron', this.chevronAs);
     const presentation = this.presentation;
