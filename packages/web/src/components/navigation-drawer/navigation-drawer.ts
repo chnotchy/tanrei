@@ -3824,10 +3824,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.carryOffset();
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
-    // NVD-19, NVD-40: the colors of the cell that took focus, and a collapsible drawer's rows widening from its column,
-    // begin in the first frame drawn after this task, as the surface's slide does (statesFromNextFrame).
-    if (!reopening) this.focusAsShown(shower);
-    else statesFromNextFrame([this]);
+    // NVD-19, NVD-40: the colors of the cell that took focus and of what focus left (the menu button, outside it), and a
+    // collapsible drawer's rows widening from its column, begin in the first frame drawn after this task, as the
+    // surface's slide does (statesFromNextFrame).
+    if (!reopening) this.focusAsShown(shower, this.opener);
+    else statesFromNextFrame([this, this.opener]);
   }
 
   /**
@@ -3998,11 +3999,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * NVD-19, NVD-22: a held drawer's slide and its scrim's fade, which a held drawer plays by its own state (no
-   * AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those), begin in the
-   * first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before it, and where
-   * the task took longer than they last drew the drawer in place, or gone, at once. Only those standing at their start:
-   * one under way goes on as it is. `leaving`: its close, which `settleOver` waits for.
+   * NVD-19, NVD-22, NVD-54: a held drawer's slide, its move and its scrim's fade, which a held drawer plays by its own
+   * state (no AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those),
+   * begin in the first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before
+   * it, and where the task took longer than they last drew the drawer in place, or gone, at once. Only those standing
+   * at their start: one under way goes on as it is. `leaving`: its close or its move, which `settleOver` waits for.
    */
   private heldFromNextFrame(leaving: boolean) {
     if (!documentPainted()) return;
@@ -4054,6 +4055,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     void this.updateComplete.then(() => {
       if (run !== this.moveRun) return;
       this.placeHeld();
+      // The panel's and the scrim's move, and the rows' new form, begin in the first frame drawn after this task. The
+      // move is waited for (settleOver), as a close is: it is played even where a page clock holds frame callbacks.
+      this.heldFromNextFrame(true);
       statesFromNextFrame([this]);
       void this.settleOver(() => run === this.moveRun).then((done) => {
         if (!done) return;
@@ -4353,6 +4357,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-53: …and so does the standard presentation of a responsive drawer with no collapsed form, shown again by expanded.
     const hiddenForm = this.responsive && this.decided === 'standard' && !this.collapsible;
     if (hiddenForm && changed.has('expanded') && changed.get('expanded') === false && this.expanded && !instant && !this.moving) this.setAttribute('data-sliding', '');
+    // NVD-18, NVD-97: a width drawn without a motion (a room that changed, a key's step) is drawn so until its style has
+    // settled (data-resizing, settleResize); opened or closed in those frames, the drawer slides by its motion.
+    if (changed.has('open') && changed.get('open') !== undefined && this.hasAttribute('data-resizing')) {
+      this.resizeFrame++;
+      this.removeAttribute('data-resizing');
+    }
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = this.hasFocus();
     // NVD-40: a collapsible modal drawer's dialog widens from its column, placed over it (a held drawer's one panel
     // widens in place: presentHeld).
