@@ -1126,6 +1126,90 @@ test.describe('the collapsed form', () => {
     expect((await bounds(panel(page, 'd'))).width).toBeCloseTo(await px(page, T('container-width')), 1);
   });
 
+  /**
+   * Changes the form of drawer `id` (`expanded` to `to`) and reads, in every frame the page draws until the change's
+   * motion has run and ended and the change is let go: whether a motion of the host runs, whether the change of form's
+   * motion is in force (`data-form-change`), and the recolor motion a cell takes. With `rate` below 1 the host's own
+   * motions play at that much of their speed from the frame they begin in — as where a slowed page or a first frame
+   * drawn late has the motion outlast its duration.
+   */
+  const formFrames = (page: P, id: string, to: boolean, rate = 1) =>
+    drawer(page, id).evaluate(
+      async (el: HTMLElement, { to, rate }) => {
+        if (rate !== 1)
+          el.addEventListener('transitionrun', (event) => {
+            if (event.composedPath()[0] !== el) return;
+            for (const motion of el.getAnimations()) motion.playbackRate = rate;
+          });
+        const cell = el.querySelector('tanrei-navigation-drawer-item')!.shadowRoot!.querySelector('.cell')!;
+        const read = () => ({
+          at: performance.now(),
+          moving: el.getAnimations().some((motion) => motion.playState === 'running'),
+          formChange: el.hasAttribute('data-form-change'),
+          recolor: getComputedStyle(cell).getPropertyValue('--_recolor-duration').trim(),
+        });
+        const drawer = el as HTMLElement & { expanded: boolean; updateComplete: Promise<unknown> };
+        drawer.expanded = to;
+        await drawer.updateComplete;
+        const frames = [read()];
+        // A frame at a time (each a frame the page draws, not a loop of its own), to a bound well past a motion slowed
+        // to a quarter of its speed; where none has begun by the third frame (motion reduced), from there.
+        for (let n = 0; n < 600; n++) {
+          await new Promise((frame) => requestAnimationFrame(frame));
+          const now = read();
+          frames.push(now);
+          if ((n >= 3 || frames.some((f) => f.moving)) && !now.moving && !now.formChange) break;
+        }
+        const ms = (value: string) => {
+          const probe = document.createElement('div');
+          probe.style.transitionDuration = value;
+          document.body.append(probe);
+          const seconds = Number.parseFloat(getComputedStyle(probe).transitionDuration);
+          probe.remove();
+          return Math.round(seconds * 1000);
+        };
+        return frames.map((f) => ({ ...f, recolor: f.recolor ? ms(f.recolor) : null }));
+      },
+      { to, rate },
+    );
+
+  test('NVD-35: where the change of form’s motion plays slower than its duration — a slowed page, a first frame drawn late — the change’s motion stays in force, and every part the form recolors keeps the change’s duration, to the motion’s end, and is let go then', async ({ page }) => {
+    await mount(page, [fixture('d', [MENU, section('Mail', MAIL)], { collapsible: true })], { reducedMotion: false });
+    const [expand, state] = await Promise.all([resolveToken(page, T('motion-expand-duration'), 'duration'), resolveToken(page, T('motion-state-duration'), 'duration')]);
+    expect(expand, 'the change of form’s duration is not the state motion’s, so the two can be told apart').not.toBe(state);
+    for (const to of [false, true]) {
+      const what = to ? 'unfolding' : 'folding';
+      const frames = await formFrames(page, 'd', to, 0.25);
+      const moving = frames.filter((f) => f.moving);
+      expect(moving.length, what).toBeGreaterThanOrEqual(2);
+      // Slowed: it moved past the change's duration and 100 ms.
+      expect(moving.at(-1)!.at - moving[0]!.at, `how long the slowed motion ran, ${what}`).toBeGreaterThan(expand + 100);
+      // In every frame the motion runs, the change of form's motion is in force, and a cell recolors over its duration.
+      expect(
+        moving.filter((f) => !f.formChange || f.recolor !== expand),
+        what,
+      ).toEqual([]);
+      // …and it is let go once the motion has ended: the cell recolors over the state motion again.
+      const last = frames.at(-1)!;
+      expect({ moving: last.moving, formChange: last.formChange, recolor: last.recolor }, what).toEqual({ moving: false, formChange: false, recolor: state });
+      expect(await drawer(page, 'd').evaluate((el) => el.hasAttribute('collapsed')), what).toBe(!to);
+    }
+  });
+
+  test('NVD-35, MOT-6: where motion is reduced a change of form is drawn at once — no motion of it is in force from the update that changes the form, and a cell recolors over the state motion', async ({ page }) => {
+    await mount(page, [fixture('d', [MENU, section('Mail', MAIL)], { collapsible: true })], { reducedMotion: true });
+    const state = await resolveToken(page, T('motion-state-duration'), 'duration');
+    for (const to of [false, true]) {
+      const what = to ? 'unfolding' : 'folding';
+      const frames = await formFrames(page, 'd', to);
+      expect(
+        frames.filter((f) => f.formChange || f.recolor !== state),
+        what,
+      ).toEqual([]);
+      expect(await drawer(page, 'd').evaluate((el) => el.hasAttribute('collapsed')), what).toBe(!to);
+    }
+  });
+
   test('NVD-36: a change of form keeps focus where it is; focus on what the collapsed form does not draw moves to the menu button; that content leaves the focus order and the accessibility tree; a destination’s role, name and state do not change', async ({ page }) => {
     await mount(page, [fixture('d', [MENU, d('home', 'Home', 'home'), grp('Projects', [d('a', 'Alpha'), d('b', 'Beta')], { icon: 'folder', open: true })], { collapsible: true, value: 'home', label: 'Work' })], { reducedMotion: true });
     await drawer(page, 'd').evaluate((el) => el.insertAdjacentHTML('beforeend', '<button slot="header" id="switcher">Account</button>'));
