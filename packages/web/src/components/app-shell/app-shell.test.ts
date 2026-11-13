@@ -549,12 +549,23 @@ test.describe('the navigation', () => {
     return () => page.evaluate(() => (window as unknown as { __painted: () => Record<string, number | string | boolean | undefined>[] }).__painted());
   }
 
+  /**
+   * Waits until what reaching the drawer's edge began is at rest, so that what is read next is the change alone. The
+   * pointer on the handle and its press start the handle's state layer and capsule over the state motion; Tab's walk to
+   * it fades each control it passes in and out of its focus color (the header's menu button, the drawer's own, its
+   * items' indicators) and the handle's in. Still running when a change is sampled, one of them can begin and end
+   * between two frames on a machine that draws none for its whole duration, and `sampleFrames` refuses the sampling:
+   * WebKit in CI did, for the drawer's button and an item's indicator after the Tab.
+   */
+  const settleStates = (page: P) => motionEnded(page.locator('.stage'));
+
   /** A drag on the drawer's edge, held down at its end: each move read in every frame; the drawer follows the press. */
   async function dragHeld(page: P, held: { before: number; line: number }) {
     const panel = await edges(drawer(page));
     const at = { x: panel.right, y: panel.top + 200 };
     await page.mouse.move(at.x, at.y);
     await page.mouse.down();
+    await settleStates(page);
     for (const dx of [20, 60, 120, -40]) {
       const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(at.x + dx, at.y), { probe: readingProbe, elements: false });
       await expectHeld(page, seen, held, `dx ${dx}`);
@@ -596,6 +607,7 @@ test.describe('the navigation', () => {
     await mountReading(page, { anchoring: 'none', navigation: DRAWER(), props: { mainWidth: 'full' } });
     // Focus first: a Tab on the way may scroll the page to what it reaches.
     await tabTo(page, separator(page));
+    await settleStates(page);
     const held = await readHere(page);
     // Steps of 100 and more — from 240: End 400, Page Up 300, Home 200, Page Down 300, Shift+→ 400.
     for (const key of ['End', 'PageUp', 'Home', 'PageDown', 'Shift+ArrowRight']) {
@@ -620,6 +632,8 @@ test.describe('the navigation', () => {
   async function expectFoldHeld(page: P, rate: number) {
     await mountReading(page, { anchoring: 'none', navigation: DRAWER(), props: { mainWidth: 'full' } });
     await tabTo(page, separator(page));
+    // The drawer's motions waited for below are then the change of form's alone.
+    await settleStates(page);
     const held = await readHere(page);
     const duration = await resolveToken(page, '--tanrei-comp-navigation-drawer-motion-expand-duration', 'duration');
     // Slowed from the frame it begins in: the host's own width motion, announced before the next frame's callbacks.
