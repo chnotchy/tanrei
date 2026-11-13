@@ -39,6 +39,7 @@ import {
   keepOverlayFocusAfterPress,
   keyboardCover,
   logicalAncestors,
+  modalLayer,
   modalSheetKeys,
   numericAttribute,
   onBackdrop,
@@ -376,6 +377,14 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   }
   /** Whether the surface is presented: open, with an anchor and something to show. */
   private presented = false;
+  /** POP-40: it is to open as a sheet with the reads of the turn (`presentSheet()`), and has not yet. */
+  private presenting = false;
+  /**
+   * POP-22, POP-40: where focus goes back from the sheet when its opener cannot take it — opened above a modal surface
+   * that holds the opener inert, as one opened in the same task before it does: where focus was as the sheet opened, or
+   * where that surface gives it (`modalLayer.opener()`), as a native `<dialog>` gives focus back as it closes.
+   */
+  private sheetOpener: Element | null = null;
   private first = true;
   /** The reason of the last `close` it fired (POP-22: a press outside may leave focus nowhere). */
   private lastReason: TanreiPopoverCloseReason | null = null;
@@ -1003,10 +1012,12 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private present(moveFocus: boolean, instant = false) {
     if (this.sheet) {
       // MOT-4: before the document's first paint a sheet mounted open is there at once.
-      this.presentSheet(instant || !documentPainted());
-      // POP-40: a sheet takes focus even mounted open, because everything behind it is inert — mounted, with no
-      // indicator of its own (POP-19: only a popover opened from the keyboard shows one).
-      if (this.presented && !this.inline) this.focusIn(!moveFocus);
+      this.presentSheet(instant || !documentPainted(), () => {
+        // POP-40: a sheet takes focus even mounted open, because everything behind it is inert — mounted, with no
+        // indicator of its own (POP-19: only a popover opened from the keyboard shows one).
+        if (!this.inline) this.focusIn(!moveFocus);
+        this.observe();
+      });
       return;
     }
     const before = deepActive();
@@ -1039,9 +1050,14 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if (this.presentedAs === 'sheet') {
       // POP-22, POP-24, POP-41: what was opened from inside closes; it slides out; focus goes back to the opener.
       const opener = this.openerNode;
+      const fallback = this.sheetOpener;
       this.dismiss.closeOwned();
+      // Whether focus is in it (or lost), asked before it closes: closed above another modal surface, it can be moved
+      // into that one by the engine (Firefox gives it to that `<dialog>`), and that is no place the person chose.
+      const active = deepActive();
+      const inside = !active || active === document.body || this.dismiss.owns(active);
       this.withdrawSheet(true);
-      this.giveBack(opener);
+      this.giveBack(opener, { inside, fallback });
       this.lastReason = null;
       // POP-22, POP-41: what closing began — the colors of the element focus left and of the opener it went back to —
       // begins in the first frame drawn after this task, as the sheet's slide does (statesFromNextFrame).
@@ -1065,11 +1081,14 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     statesFromNextFrame([this, this.openerNode]);
   }
 
-  /** POP-22: focus goes back to the opener if it was inside; POP-50: given back, it opens nothing by focus. */
-  private giveBack(opener: HTMLElement | null) {
+  /**
+   * POP-22: focus goes back to the opener if it was inside — a sheet's, as it was before it closed, and to `fallback`
+   * where the opener cannot take it (POP-40) —; POP-50: given back, it opens nothing by focus.
+   */
+  private giveBack(opener: HTMLElement | null, sheet?: { inside: boolean; fallback: Element | null }) {
     this.returning = true;
     try {
-      returnOverlayFocus(opener, (node) => this.dismiss.owns(node));
+      returnOverlayFocus(opener, sheet ? () => sheet.inside : (node) => this.dismiss.owns(node), sheet?.fallback);
     } finally {
       this.returning = false;
     }
@@ -1099,23 +1118,50 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /**
    * POP-39, POP-40, POP-41: as a sheet — a modal `<dialog>` in the top layer over the bottom sheet's scrim, the page inert
-   * and held from scrolling — sliding up, or at once (`instant`, POP-42).
+   * and held from scrolling — sliding up, or at once (`instant`, POP-42); `then` once it is.
+   *
+   * POP-40: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * does (a dialog, a modal layer, a modal sheet, a picker, an image preview, a modal drawer, a search's view): surfaces
+   * whose `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it
+   * went under a dialog set open before it, which opens in that write. What it reads to open — its choices of kind, the
+   * keyboard's cover — is read with those reads.
    */
-  private presentSheet(instant: boolean) {
-    const dialog = this.sheetDialog;
-    if (!dialog || !this.isConnected || !this.anchorNode?.isConnected) return;
+  private presentSheet(instant: boolean, then: () => void) {
+    if (!this.sheetDialog || this.presenting || !this.isConnected || !this.anchorNode?.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      const arranging = this.readArrangement();
+      const cover = keyboardCover();
+      return () => {
+        // Still to open as a sheet: open, with something to show, its anchor in the page.
+        if (!this.open || !this.sheet || this.presented || this.empty || !this.sheetDialog?.isConnected || !this.anchorNode?.isConnected) return;
+        this.showSheet(instant, arranging, cover);
+        then();
+      };
+    });
+  }
+
+  /** `presentSheet()`'s write: the sheet opens with what was read. */
+  private showSheet(instant: boolean, arranging: () => void, cover: number) {
+    const dialog = this.sheetDialog!;
     // POP-40: an Escape the sheet did not see itself still reads as escape, not back.
     watchEscape();
     this.presented = true;
     this.presentedAs = 'sheet';
     this.lastReason = null;
-    this.arrange();
+    // POP-18: the opener says it is open now — the update that asked for the sheet wrote that it was not yet.
+    if (this.stated) this.state(this.stated);
+    arranging();
     dialog.classList.toggle('instant', instant);
+    // POP-22, POP-40: where focus is — or, opened above a surface of the same turn that has not given focus in yet,
+    // where that surface gives it — for an opener that cannot take focus back.
+    this.sheetOpener = modalLayer.opener();
     openModal(dialog);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
-    this.onViewport();
+    this.takeCover(cover);
     this.syncScroll();
     if (instant) {
       // The first style is drawn without a transition; the motions come back for the next change.
@@ -1126,6 +1172,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** POP-40: the modal layer, the page's scroll and the keyboard are given back (the sheet left the page or closed). */
   private releaseSheet() {
+    this.sheetOpener = null;
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     window.visualViewport?.removeEventListener('scroll', this.onViewport);
@@ -1153,35 +1200,41 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     const scrolled = this.heldScroll;
     this.heldFocus = null;
     this.heldScroll = 0;
+    const restore = () => {
+      if (!this.presented) return;
+      const content = this.find('.content');
+      if (content && scrolled) content.scrollTop = scrolled;
+      if (held && held.isConnected && !held.closest('[inert]') && typeof held.focus === 'function') held.focus({ preventScroll: true });
+      else if (held || this.presentedAs === 'sheet') this.focusIn();
+      this.syncScroll();
+    };
     if (this.presentedAs === 'sheet') {
       // The dialog went with the old presentation; the page is given back, and the popover stands beside its anchor.
       this.presented = false;
       this.presentedAs = null;
       this.releaseSheet();
       this.present(false, true);
+      restore();
     } else {
       this.dismiss.stop();
       this.anchored.hide(false);
       this.presented = false;
       this.presentedAs = null;
-      this.presentSheet(true);
+      // As a sheet, in the write that follows the turn's reads (`presentSheet()`), where what it held is given back.
+      this.presentSheet(true, restore);
     }
-    if (!this.presented) return;
-    const content = this.find('.content');
-    if (content && scrolled) content.scrollTop = scrolled;
-    if (held && held.isConnected && !held.closest('[inert]') && typeof held.focus === 'function') held.focus({ preventScroll: true });
-    else if (held || this.presentedAs === 'sheet') this.focusIn();
-    this.syncScroll();
   }
 
   /** POP-39: above the on-screen keyboard (the part of the layout viewport the visual viewport no longer covers). */
-  private readonly onViewport = () => {
+  private readonly onViewport = () => this.takeCover(keyboardCover());
+
+  /** POP-39: the sheet sits on the keyboard's cover, as read. */
+  private takeCover(cover: number) {
     const dialog = this.sheetDialog;
     if (!dialog) return;
-    const cover = keyboardCover();
     dialog.style.setProperty('--_keyboard', `${cover}px`);
     dialog.classList.toggle('keyboard', cover > 0);
-  };
+  }
 
   /** POP-40, POP-23: Escape asks once (unless something inside took it), and Tab stays inside. */
   private readonly onSheetKeyDown = (event: KeyboardEvent) => {
