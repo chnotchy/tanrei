@@ -2430,9 +2430,13 @@ export class TanreiTabs extends TanreiElement {
     this.scrolling = timing;
     timing.play();
     const step = () => {
-      const progress = timing.effect?.getComputedTiming().progress ?? 1;
-      this.setScroll(scroller, from + (to - from) * progress);
-      if (timing.playState === 'finished' || timing.playState === 'idle' || this.scrolling !== timing) return;
+      // The motion's last frame writes `to` itself, not the curve's value there: an engine may call a motion finished
+      // while its progress is a hair under 1 (WebKit, within its timing tolerance: 0.9999999999999999), and the scroll
+      // that gives (415.99999999999994 for 416) is cut to the whole pixel below by an engine that keeps whole offsets —
+      // the tabs would come to rest a pixel short of their position, and stay there.
+      const finished = timing.playState === 'finished';
+      this.setScroll(scroller, finished ? to : from + (to - from) * (timing.effect?.getComputedTiming().progress ?? 1));
+      if (finished || timing.playState === 'idle' || this.scrolling !== timing) return;
       this.scrollFrame = requestAnimationFrame(step);
     };
     this.scrollFrame = requestAnimationFrame(step);
