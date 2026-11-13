@@ -153,11 +153,14 @@
   tanrei-app-bar:not(:defined) > #docs-repository {
     display: none;
   }
-  /* The shell's menu button is shown only where the shell shows it (APS-6): its `display` is the shell's to take away. */
-  @container style(--_aps-menu: shown) {
-    tanrei-app-bar:not(:defined) > [data-app-shell-menu] {
-      display: inline-flex;
-    }
+  /* The shell's menu button, on a page with a sidebar (Header.astro writes it on no other), from the first frame. The
+     shell shows it once its navigation region holds the drawer (APS-6: a navigation drawer shows it in every window),
+     but the drawer comes after the header in the page: a frame drawn before the drawer is parsed would have no menu
+     button, and the brand and the actions after it would move when it came. The page says it has a sidebar on the
+     shell's start tag (PageFrame.astro), so the button is shown from then on, before the bar is defined and after, as
+     the shell shows it once the drawer is there. */
+  tanrei-app-shell[data-docs-sidebar] > [slot='header'] > tanrei-app-bar.docs-app-bar > [data-app-shell-menu] {
+    display: inline-flex;
   }
   /* Every item of the bar: the bar draws what is given a slot, and each of these names its own (Header.astro). */
   tanrei-app-bar:not(:defined) > :where([slot]) {

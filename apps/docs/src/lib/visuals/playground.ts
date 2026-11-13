@@ -104,8 +104,10 @@ export interface Playground {
   stage: string;
   /** The element as a product writes it at `start`: the stage's content. */
   markup: string;
-  /** The room the stage holds before it is defined: its baseline's width, and the tallest of its baselines at each size. */
+  /** The room the canvas holds: its baseline's width, and the tallest of its baselines at each size. */
   room: { width: number; height: number } | null;
+  /** The box the stage itself holds until its element is defined: the fixture's baseline. */
+  box: { width: number; height: number } | null;
   /** The native platforms that ship the component at the current spec (above lagging): each needs a generator of its code. */
   native: string[];
 }
@@ -153,5 +155,5 @@ export function playgroundOf(name: string, fixtureId?: string): Playground {
   const native = Object.entries(statusOf(name)?.platforms ?? {})
     .filter(([platform, status]) => platform !== 'web' && isImplemented(status))
     .map(([platform]) => platform);
-  return { tag, fixture: fixture.id, controls, start, stage: html, markup, room: base ? { width: base.width, height: Math.max(...heights) } : null, native };
+  return { tag, fixture: fixture.id, controls, start, stage: html, markup, room: base ? { width: base.width, height: Math.max(...heights) } : null, box: base ? { width: base.width, height: base.height } : null, native };
 }

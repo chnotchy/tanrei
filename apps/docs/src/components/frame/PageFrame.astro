@@ -9,7 +9,9 @@
 //   the announcement  the page's banner (front matter `banner`), and the notices that a page is shown in English or
 //                     is a draft, each a Callout;
 //   the header        the page's banner landmark around the app bar (Header.astro);
-//   the navigation    the sidebar as a navigation drawer (Sidebar.astro), on pages that have one;
+//   the navigation    the sidebar as a navigation drawer (Sidebar.astro), on pages that have one — which the shell
+//                     says from its start tag (`data-docs-sidebar`): the drawer comes after the header, and a frame
+//                     drawn before it is parsed would otherwise have no menu button (styles/frame.css);
 //   the aside, main   written by TwoColumnContent.astro, which this component's default slot holds.
 //
 // `@tanrei/web/app-shell.css` lays all of it out before any script runs and where none does (styles/frame.css loads
@@ -22,7 +24,7 @@ const banner = route.entry.data.banner;
 const notices = [route.isFallback && Astro.locals.t('i18n.untranslatedContent'), route.entry.data.draft && Astro.locals.t('page.draft')].filter((text): text is string => typeof text === 'string');
 ---
 
-<tanrei-app-shell aside-order="before" aside-label={route.toc ? words.onThisPage : undefined}>
+<tanrei-app-shell aside-order="before" aside-label={route.toc ? words.onThisPage : undefined} data-docs-sidebar={route.hasSidebar ? '' : undefined}>
   <a class="tanrei-link" data-standalone slot="skip-link" href="#main">{words.skipLink}</a>
   {
     (banner || notices.length > 0) && (
