@@ -16,7 +16,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { launch, settle } from './launch.mjs';
+import { launch, settle, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, a preset’s stylesheet,
 // took 13 s in CI.
@@ -105,7 +105,7 @@ describe('the figure frame on the button’s page', () => {
       // No face still loading, and a frame drawn since. Not `document.fonts.ready`: WebKit and Firefox resolve it only
       // once the document has loaded, which waits for the scripts held here.
       await page.waitForFunction(() => [...document.fonts].every((face) => face.status !== 'loading'));
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await settlePage(page, { fonts: false });
       const parsed = await boxes(page);
       release();
       await settled(page);
