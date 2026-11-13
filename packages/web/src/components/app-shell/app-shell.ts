@@ -67,6 +67,8 @@ const OFFSET = '--tanrei-app-shell-scroll-offset';
 const OFFSET_END = '--tanrei-app-shell-scroll-offset-end';
 /** The footer's measured height, for the stylesheet (APS-11). */
 const FOOTER = '--_aps-footer';
+/** A side sheet's measured width in the aside, for the stylesheet: what the navigation leaves it (APS-5, APS-10). */
+const ASIDE = '--_aps-aside';
 
 type Root = Document | ShadowRoot;
 /** A navigation drawer in the navigation region, as much of it as the frame uses. */
@@ -297,6 +299,8 @@ export class TanreiAppShell extends TanreiLightElement {
   private top: Element | null = null;
   private bar: Element | null = null;
   private footer: Element | null = null;
+  /** APS-5, APS-10: a side sheet in the aside, whose width — its own, and changing as it slides — is measured. */
+  private sheet: Element | null = null;
   /** APS-23: what last took focus in the frame, until focus goes elsewhere by a person's doing. */
   private focused: Element | null = null;
   private drawer: Drawer | null = null;
@@ -359,11 +363,12 @@ export class TanreiAppShell extends TanreiLightElement {
     this.syncInert(false);
     this.focused = null;
     this.style.removeProperty(FOOTER);
+    this.style.removeProperty(ASIDE);
     this.unwatch();
     this.listen(null);
     // APS-33: removed, it listens for no chord.
     this.syncChord();
-    this.header = this.bar = this.footer = this.navigation = null;
+    this.header = this.bar = this.footer = this.sheet = this.navigation = null;
     publish(this, OFFSET, null);
     publish(this, OFFSET_END, null);
     for (const [element, names] of this.given) for (const name of names) element.removeAttribute(name);
@@ -584,17 +589,21 @@ export class TanreiAppShell extends TanreiLightElement {
     }
 
     // APS-17: what the frame keeps over the top and the bottom of the page is measured.
+    // APS-5, APS-10: and the width of a side sheet in the aside, which the navigation leaves it.
     const top = header ?? menuSlot;
-    if (header !== this.header || top !== this.top || bar !== this.bar || footer !== this.footer) {
+    const sheet = aside?.localName === 'tanrei-side-sheet' ? aside : null;
+    if (header !== this.header || top !== this.top || bar !== this.bar || footer !== this.footer || sheet !== this.sheet) {
       this.sizes?.disconnect();
       this.header = header;
       this.top = top;
       this.bar = bar;
       this.footer = footer;
-      for (const observed of [top, bar, footer]) if (observed) this.sizes?.observe(observed);
+      this.sheet = sheet;
+      for (const observed of [top, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
       if (!top) publish(this, OFFSET, null);
       if (!bar) publish(this, OFFSET_END, null);
       if (!footer) this.style.removeProperty(FOOTER);
+      if (!sheet) this.style.removeProperty(ASIDE);
     }
 
     // APS-4, APS-7: the navigation, and the drawer whose opening and closing the frame follows.
@@ -637,7 +646,12 @@ export class TanreiAppShell extends TanreiLightElement {
   private resized(entries: ResizeObserverEntry[]) {
     for (const entry of entries) {
       const size = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
-      if (entry.target === this.top) this.measure(size);
+      if (entry.target === this.sheet) {
+        // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
+        const width = entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
+        const value = `${Math.round(width * 100) / 100}px`;
+        if (this.style.getPropertyValue(ASIDE) !== value) this.style.setProperty(ASIDE, value);
+      } else if (entry.target === this.top) this.measure(size);
       else if (entry.target === this.bar) publish(this, OFFSET_END, this.scrolls !== 'main' && size > 0 ? size : null);
       else if (entry.target === this.footer) {
         // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
