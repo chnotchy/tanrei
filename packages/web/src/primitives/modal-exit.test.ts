@@ -582,4 +582,20 @@ test.describe('openModal() keep', () => {
     expect(cell.log).toEqual(browserName === 'chromium' ? ['focusout outside', 'focusin cell'] : ['focusout outside', 'focusin dialog', 'focusout dialog', 'focusin cell']);
     expect(cell).toMatchObject({ after: [], active: 'cell', activeAfter: 'cell', modal: true, autofocus: false });
   });
+
+  test('MDL-3, MOT-3: with nothing to keep, focus goes to the dialog itself in one move — never through its first control, whose state would begin a motion for a focus it holds for no frame — and nothing in it is left inert', async ({ page }) => {
+    await openKeepPage(page);
+    const opened = await page.evaluate(async () => {
+      const w = window as unknown as { focusLog: string[]; keep: { openModal(dialog: HTMLDialogElement, options?: { instant?: boolean }): void } };
+      const root = document.getElementById('host')!.shadowRoot!;
+      const dialog = root.getElementById('dialog') as HTMLDialogElement;
+      document.getElementById('outside')!.focus();
+      w.focusLog.length = 0;
+      w.keep.openModal(dialog, { instant: false });
+      const log = [...w.focusLog];
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { log, after: w.focusLog.slice(log.length), active: (root.activeElement as HTMLElement | null)?.id ?? '', inert: [...dialog.querySelectorAll('*')].filter((el) => (el as HTMLElement).inert).length };
+    });
+    expect(opened).toEqual({ log: ['focusout outside', 'focusin dialog'], after: [], active: 'dialog', inert: 0 });
+  });
 });

@@ -283,6 +283,11 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * the steps nothing to focus, and every engine then takes focus from the kept element. Focus that moves into the dialog
  * from elsewhere is the component's to give, after this: WebKit draws an element that is first styled in the top layer
  * as it is then, so focus given to it before that would be drawn at once.
+ *
+ * Without `keep`, focus goes to the dialog itself as it opens, in one move, and from there where the component gives it
+ * (MDL-3): what is inside the dialog is inert while `showModal()` runs, so that its focusing steps find nothing else.
+ * Left to them, the dialog's first control took focus for no frame (a sheet's close button, a search's back button, a
+ * dialog's first action), and its state began a motion all the same.
  */
 export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [], keep = null }: { instant?: boolean; moves?: ModalMoves; keep?: HTMLElement | null } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;
@@ -340,10 +345,15 @@ function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
   const opener = modalLayer.opener();
   const marked = !!keep && !keep.hasAttribute('autofocus');
   if (marked) keep.setAttribute('autofocus', '');
+  // Nothing to keep: focus goes to the dialog itself (`openModal()`). `autofocus` on the dialog would say so in Firefox
+  // and WebKit, but Chromium does not read it there; with nothing inside it able to take focus, every engine focuses it.
+  const quieted = keep ? [] : [...dialog.children].filter((child): child is HTMLElement => child instanceof HTMLElement && !child.inert);
+  for (const child of quieted) child.inert = true;
   try {
     dialog.showModal();
   } finally {
     if (marked) keep.removeAttribute('autofocus');
+    for (const child of quieted) child.inert = false;
   }
   if (keep && deepActive() !== keep) keep.focus({ preventScroll: true });
   modalLayer.add(dialog, opener);
