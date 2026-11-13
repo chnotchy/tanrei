@@ -35,6 +35,7 @@
     "NOTICE"
   ],
   "scripts": {
+    "clean": "node ../tools/src/clean.js dist",
     "build": "node scripts/build.js",
     "test": "node ../tools/src/run-node-tests.js \"test/*.test.js\""
   },
