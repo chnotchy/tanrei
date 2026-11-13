@@ -68,9 +68,8 @@ export const modalLayer = {
    * gives focus in itself. Focus goes back there when the new one closes, as it would had that one given focus in first.
    */
   opener(): Element | null {
-    const below = this.top;
-    const target = below && owed.get(below);
-    return (target && target()) || deepActive();
+    // No surface open: `get(null)` is undefined, as for any key a WeakMap cannot hold.
+    return owed.get(this.top!)?.() || deepActive();
   },
   /** Calls `listener` whenever a modal surface opens or closes; returns the unsubscribe. */
   subscribe(listener: () => void): () => void {
