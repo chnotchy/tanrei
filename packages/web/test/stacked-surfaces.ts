@@ -37,16 +37,24 @@ export async function addStackedSurfaces(page: Page): Promise<void> {
 
 /**
  * Sets `open` (a search's `expanded`) on each element (by id) to `open`, in that order, in one task, and waits for their
- * updates.
+ * updates. An id `inserted` gives markup for is not there yet: that markup, written open, is inserted at the end of
+ * `main` in its place in the order.
  */
-export const setOpenInOneTask = (page: Page, ids: string[], open: boolean): Promise<void> =>
+export const setOpenInOneTask = (page: Page, ids: string[], open: boolean, inserted: Record<string, string> = {}): Promise<void> =>
   page.evaluate(
-    async ([list, value, opens]) => {
-      const elements = (list as string[]).map((id) => document.getElementById(id) as unknown as Record<string, boolean> & HTMLElement & { updateComplete: Promise<boolean> });
-      for (const element of elements) element[(opens as Record<string, string>)[element.localName] ?? 'open'] = value as boolean;
+    async ([list, value, opens, markup]) => {
+      type Surface = Record<string, boolean> & HTMLElement & { updateComplete: Promise<boolean> };
+      const elements: Surface[] = [];
+      for (const id of list as string[]) {
+        const html = (markup as Record<string, string>)[id];
+        if (html) (document.querySelector('main') ?? document.body).insertAdjacentHTML('beforeend', html);
+        const element = document.getElementById(id) as unknown as Surface;
+        if (!html) element[(opens as Record<string, string>)[element.localName] ?? 'open'] = value as boolean;
+        elements.push(element);
+      }
       await Promise.all(elements.map((element) => element.updateComplete));
     },
-    [ids, open, OPENS] as const,
+    [ids, open, OPENS, inserted] as const,
   );
 
 /**
@@ -89,6 +97,11 @@ export interface StackedCase {
    * unless the earlier gives it back to an element of its own (a search, to its bar's input: SRC-9).
    */
   last?: string;
+  /**
+   * Markup, by id, of a surface inserted open in the task (a product that draws a view) in place of having `open` set; it
+   * is taken off again once the case is checked.
+   */
+  inserted?: Record<string, string>;
   /** A case's name, for the messages. */
   name: string;
 }
@@ -98,9 +111,9 @@ export interface StackedCase {
  * later, focus inside it — that closing the later gives focus back where the earlier gives it (`backInFirst`), and that
  * closing the earlier then gives it back to `#opener`, which had it before either opened (or to `last`).
  */
-export async function expectStackedInOrder(page: Page, ids: string[], { order: [first, later], backInFirst, last = 'opener in page', name }: StackedCase): Promise<void> {
+export async function expectStackedInOrder(page: Page, ids: string[], { order: [first, later], backInFirst, last = 'opener in page', inserted = {}, name }: StackedCase): Promise<void> {
   await page.locator('#opener').focus();
-  await setOpenInOneTask(page, [first, later], true);
+  await setOpenInOneTask(page, [first, later], true, inserted);
   expect(await modalAmong(page, [first, later]), name).toEqual([true, true]);
   // Above the earlier one: a point that the earlier one's scrim or surface covers hits the later one.
   expect(await hitAmong(page, ids), name).toBe(later);
@@ -110,4 +123,5 @@ export async function expectStackedInOrder(page: Page, ids: string[], { order: [
   else await expect.poll(() => focusAmong(page, ids), { message: name }).toMatch(backInFirst);
   await setOpenInOneTask(page, [first], false);
   await expect.poll(() => focusAmong(page, ids), { message: name }).toBe(last);
+  await page.evaluate((list) => list.forEach((id) => document.getElementById(id)?.remove()), Object.keys(inserted));
 }
