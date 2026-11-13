@@ -120,6 +120,7 @@
 //   system-watch — SystemWatchController: renders its host again when the document's root switches the design system,
 //                 for a choice of kind drawn from script (a calendar's arrows, a picker's actions)
 //   modal       — modalLayer: the modal `<dialog>`s of Tanrei's surfaces open in the window (openModal adds, closeModal deletes), the topmost of which a snackbar is shown in (SNK-38);
+//                 modalLayer.opener(): where focus goes back when a surface opened now closes, a surface of the same turn that owes focus (owesFocus) included;
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);

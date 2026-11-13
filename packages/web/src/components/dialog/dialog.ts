@@ -223,8 +223,6 @@ export class TanreiDialog extends TanreiElement {
   private giving = false;
   /** DLG-20: the actions were given the variant as the dialog connected, before its first update read them. */
   private givenEarly = false;
-  /** DLG-2: it has opened and not yet given focus in (that follows its layout). */
-  private owesFocus = false;
   private pressedScrim = false;
   /** What is watched for it with every other dialog's and sheet's parts (src/primitives/resize-watch.ts): its parts, its probes and its actions. */
   private readonly resizes = new ResizeWatch(() => this.layout());
@@ -476,11 +474,10 @@ export class TanreiDialog extends TanreiElement {
 
   /** `present()`'s write: the dialog opens with what was read. */
   private show(dialog: HTMLDialogElement, choices: Choices, covered: number | null) {
-    // DLG-4, DLG-15: where focus is — or, opened above a dialog of the same turn that has not given focus in yet (focus
-    // is in it, where its `showModal()` gave it), where that dialog gives it (DLG-2): focus returns there when this one
-    // closes.
-    const below = stack[stack.length - 1];
-    this.opener = below?.owesFocus ? below.focusTarget() : deepActive();
+    // DLG-4, DLG-15: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
+    // dialog, a sheet: focus is in it, where its `showModal()` gave it), where that surface gives it (DLG-2): focus
+    // returns there when this one closes.
+    this.opener = modalLayer.opener();
     // DLG-5: an Escape the dialog did not see itself still reads as escape, not back.
     watchEscape();
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
@@ -515,10 +512,11 @@ export class TanreiDialog extends TanreiElement {
     stack.push(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
-    // Laid out as it is shown, then focus goes in: what focus scrolls into view is placed first.
-    this.owesFocus = true;
+    // Laid out as it is shown, then focus goes in: what focus scrolls into view is placed first. Until then a surface
+    // opened above it in the same turn takes this one's target as its opener (DLG-15).
+    modalLayer.owesFocus(dialog, () => this.focusTarget());
     this.layout(() => {
-      this.owesFocus = false;
+      modalLayer.gaveFocus(dialog);
       if (!this.shown) return;
       const target = this.focusTarget();
       // `showModal()` has given focus already where it could (src/primitives/modal-exit.ts): focused again, an element
