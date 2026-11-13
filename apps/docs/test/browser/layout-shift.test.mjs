@@ -186,13 +186,15 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
 });
 
 // The sidebar as the reader left it on an earlier visit (components/frame/Sidebar.astro): a width they gave it, or
-// folded to its column, given back before the first frame. Neither may move the page by more than the same budget.
+// folded to its column, given back before the first frame. Neither may move the page by more than the same budget,
+// and the folded one not at all: the column, the header's menu button (shown from the first frame on a page with a
+// sidebar, styles/frame.css) and the playground's stage (Playground.astro) each hold the box they take once drawn.
 const SIDEBAR_KEPT = [
-  { name: 'a width the reader gave the sidebar', kept: { width: 320 } },
-  { name: 'the sidebar folded to its column', kept: { expanded: false } },
+  { name: 'a width the reader gave the sidebar', kept: { width: 320 }, budget: BUDGET },
+  { name: 'the sidebar folded to its column', kept: { expanded: false }, budget: 0 },
 ];
 describe(`with the sidebar as the reader left it, the layout shifts by no more than ${BUDGET} while a page loads`, { concurrency: 2 }, () => {
-  for (const { name, kept } of SIDEBAR_KEPT) {
+  for (const { name, kept, budget } of SIDEBAR_KEPT) {
     test(`/components/button/ at 1440, ${name}`, LIMIT, async (t) => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
       try {
@@ -201,7 +203,7 @@ describe(`with the sidebar as the reader left it, the layout shifts by no more t
         const total = shifts.reduce((sum, { value }) => sum + value, 0);
         t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
         const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
-        assert.ok(total <= BUDGET, `${name}: shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
+        assert.ok(total <= budget, `${name}: shifts by ${total} as it loads (at most ${budget}):\n  ${moved.join('\n  ')}`);
       } finally {
         await context.close();
       }

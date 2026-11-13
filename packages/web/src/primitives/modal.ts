@@ -7,6 +7,8 @@
  * anyone may subscribe to the change.
  */
 const open: HTMLDialogElement[] = [];
+/** The open surfaces that have not yet given focus in (`modalLayer.owesFocus`), with where they give it. */
+const owed = new WeakMap<HTMLDialogElement, () => HTMLElement | null>();
 const listeners = new Set<() => void>();
 const notify = () => {
   for (const listener of [...listeners]) listener();
@@ -42,10 +44,32 @@ export const modalLayer = {
   },
   /** `dialog` is no longer modal (`close()`, or taken out of the document). */
   delete(dialog: HTMLDialogElement) {
+    owed.delete(dialog);
     const at = open.indexOf(dialog);
     if (at < 0) return;
     open.splice(at, 1);
     notify();
+  },
+  /**
+   * `dialog` has just opened, and gives focus in later, to `target()` (a surface that lays itself out first, so that
+   * what focus scrolls into view is placed): until `gaveFocus(dialog)`, or until it is no longer modal.
+   */
+  owesFocus(dialog: HTMLDialogElement, target: () => HTMLElement | null) {
+    owed.set(dialog, target);
+  },
+  /** `dialog` has given focus in, or no longer will. */
+  gaveFocus(dialog: HTMLDialogElement) {
+    owed.delete(dialog);
+  },
+  /**
+   * Where focus is to go back to when a surface opened now closes (MDL-5, MDL-8; DLG-15, BSH-23, SSH-15): asked before
+   * it opens. Where focus is — or, opened above a surface of the same turn that has not given focus in yet, where that
+   * surface gives it: focus is in it then, wherever its `showModal()` put it, and it is under the new one, so it never
+   * gives focus in itself. Focus goes back there when the new one closes, as it would had that one given focus in first.
+   */
+  opener(): Element | null {
+    // No surface open: `get(null)` is undefined, as for any key a WeakMap cannot hold.
+    return owed.get(this.top!)?.() || deepActive();
   },
   /** Calls `listener` whenever a modal surface opens or closes; returns the unsubscribe. */
   subscribe(listener: () => void): () => void {

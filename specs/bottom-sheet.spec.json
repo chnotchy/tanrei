@@ -269,7 +269,7 @@
     },
     {
       "id": "BSH-23",
-      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal bottom sheet THE bottom sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns, as its modal layer does (MDL-8, MDL-9); Escape SHALL dismiss only the topmost overlay."
+      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal bottom sheet THE bottom sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns, as its modal layer does (MDL-8, MDL-9); Escape SHALL dismiss only the topmost overlay. WHEN two modal bottom sheets open in the same update, one after the other, THE bottom sheet SHALL stack them in the order they open, as if the later had opened from the earlier: focus SHALL go into the later one only, the later SHALL return focus on closing to the element the earlier moves focus to as it opens (BSH-3), and the earlier, closed after it, SHALL return focus to the element that had it before either opened."
     },
     {
       "id": "BSH-24",

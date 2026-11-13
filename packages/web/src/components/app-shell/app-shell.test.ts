@@ -966,6 +966,18 @@ test.describe('the menu button', () => {
     expect(await active(page)).toMatch(/^menu/);
   });
 
+  test('NVD-54, APS-23: moved to a new presentation at the end of a task that outlasts its motions, the navigation’s one panel moves from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the move
+    // lasts, the panel was drawn in its new place at once. The window's width is changed by the engine between tasks (a
+    // media query reports in a frame's rendering steps), so the presentation is changed here by `collapsible`, which
+    // decides it in a medium window (APS-4) and moves the panel as a change of the window's class does.
+    await mount(page, real(), { width: 800 });
+    await allSettled(page);
+    await expectFromNextFrame(drawer(page), "(el) => { el.removeAttribute('collapsible'); }", ['tanrei-navigation-drawer nav.drawer translate'], 'the column left for the modal presentation');
+    await motionEnded(page);
+    await expectFromNextFrame(drawer(page), "(el) => { el.setAttribute('collapsible', ''); }", ['tanrei-navigation-drawer nav.drawer translate'], 'the modal presentation left for the column');
+  });
+
   for (const width of [400, 800] as const) {
     test(`APS-4, APS-7, APS-22, APS-32, NVD-19, NVD-23: opened ${width} wide, the drawer and its scrim are drawn below the header — their top edge the header’s bottom edge — and the header stays usable: not inert, not covered, its menu button pressable; the skip link, the main region, the aside and the footer are inert and the page is held; the drawer is the navigation landmark, no dialog and not in the top layer`, async ({ page, browserName }) => {
       await mount(page, real({ sections: 4 }), { width });

@@ -3,8 +3,8 @@ import { trapFocus } from './modal.js';
 /**
  * What the sheets share (the bottom sheet, BSH-5 and BSH-9; the side sheet, SSH-4): the drag's two gesture constants,
  * a drag along one axis that knows its slop and its velocity, a modal sheet's keys, the reason a native close request
- * carries, the on-screen keyboard's cover and a press on a modal sheet's scrim. Each sheet keeps its own geometry and
- * its own close reasons.
+ * carries, the on-screen keyboard's cover, a press on a modal sheet's scrim and where a sheet gives focus as it opens.
+ * Each sheet keeps its own geometry and its own close reasons.
  */
 
 /**
@@ -171,4 +171,13 @@ export function onBackdrop(event: MouseEvent, dialog: HTMLDialogElement | null):
   if (!dialog || event.composedPath()[0] !== dialog) return false;
   const box = dialog.getBoundingClientRect();
   return event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
+}
+
+/**
+ * Where a sheet gives focus as it opens (BSH-3, SSH-3): the element in `host`'s light DOM marked `autofocus`, unless it
+ * is inert, else `sheet` itself, so that its name is read first.
+ */
+export function sheetFocusTarget(host: Element, sheet: HTMLElement | null): HTMLElement | null {
+  const marked = host.querySelector<HTMLElement>('[autofocus]');
+  return marked && !marked.closest('[inert]') ? marked : sheet;
 }

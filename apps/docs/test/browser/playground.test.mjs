@@ -6,8 +6,8 @@
 // - an address opens the playground as it was left, and the reset takes every control and the element back;
 // - a control is named by its prop and is used from the keyboard; on a page that reads right to left its words are the
 //   page's;
-// - nothing moves as the page loads: the stage and the controls take the same room before anything is defined as once
-//   they are, at a phone's width and a desktop's.
+// - nothing moves as the page loads: the stage, the fixture's stage in it and the controls take the same room before
+//   anything is defined as once they are, at a phone's width and a desktop's.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/playground.test.mjs   # in one engine (all three by default)
@@ -179,7 +179,9 @@ for (const engine of ENGINES) {
           page.evaluate((selector) => {
             const frame = document.querySelector(selector);
             const height = (element) => element.getBoundingClientRect().height;
-            return { stage: height(frame.querySelector('[data-example-stage]')), controls: height(frame.querySelector('[data-example-controls]')), header: height(frame.querySelector('header')) };
+            // The fixture's stage in the canvas, which centres it: its box, which must not change when it is drawn.
+            const { width: boxWidth, height: boxHeight } = frame.querySelector('.docs-playground-canvas > .stage').getBoundingClientRect();
+            return { stage: height(frame.querySelector('[data-example-stage]')), controls: height(frame.querySelector('[data-example-controls]')), header: height(frame.querySelector('header')), 'fixture stage’s width': boxWidth, 'fixture stage’s height': boxHeight };
           }, FRAME);
         await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), FRAME);
         await settlePage(page, { fonts: false });
@@ -188,7 +190,7 @@ for (const engine of ENGINES) {
         await settled(page);
         const drawn = await boxes();
         await context.close();
-        for (const part of ['stage', 'controls', 'header']) assert.ok(Math.abs(drawn[part] - parsed[part]) < 0.5, `the ${part} holds ${parsed[part]}px while the script is held and takes ${drawn[part]}px once drawn`);
+        for (const part of ['stage', 'controls', 'header', 'fixture stage’s width', 'fixture stage’s height']) assert.ok(Math.abs(drawn[part] - parsed[part]) < 0.5, `the ${part} holds ${parsed[part]}px while the script is held and takes ${drawn[part]}px once drawn`);
       });
     }
   });

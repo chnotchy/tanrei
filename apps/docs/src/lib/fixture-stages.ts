@@ -427,6 +427,11 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage
  * was closed (Escape, a press outside it, a choice in its menu). A press of the action turns the fixture from what it
  * was when the press began: a press while it is open is also a press outside it, which closes it before the action
  * hears the press, and leaves it closed.
+ *
+ * The fixture is answered as a product answers it: a component that leaves its state to the product (the button with
+ * menu, which never opens or closes itself) asks with `toggle` (`detail.open`, the value asked for) and `close`, and the
+ * attribute is set from them (a press of its trailing half turns it); one that opens and closes itself (the tooltip)
+ * reports the same `toggle` after the fact, and setting the attribute to the value it already has changes nothing.
  */
 function opener(stage: HTMLElement) {
   const toggle = stage.querySelector<HTMLElement & { selected?: boolean }>('[data-stage-open]');
@@ -436,6 +441,15 @@ function opener(stage: HTMLElement) {
   if (!toggle || !presence || !element) return;
   const open = () => element.hasAttribute(presence);
   new MutationObserver(() => toggle.toggleAttribute('selected', open())).observe(element, { attributes: true, attributeFilter: [presence] });
+  // The element's own events only: what its children dispatch (a submenu item's `toggle`, which bubbles) and a native
+  // `toggle` of a popover are not requests of it.
+  element.addEventListener('toggle', (event) => {
+    const asked = event instanceof CustomEvent ? (event.detail as { open?: unknown } | null)?.open : undefined;
+    if (event.target === element && typeof asked === 'boolean') element.toggleAttribute(presence, asked);
+  });
+  element.addEventListener('close', (event) => {
+    if (event.target === element && event instanceof CustomEvent) element.removeAttribute(presence);
+  });
   // Heard before the fixture's own listeners, which it adds when it opens: these are added first.
   let openAtPress: boolean | undefined;
   const pressed = (event: Event) => {

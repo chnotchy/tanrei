@@ -12,9 +12,11 @@
 //   element reads; the code writes only what differs from the spec's default.
 // - **The page's address keeps what is set** (`#play-<component>=…`, lib/visuals/playground-state.ts), so that a link
 //   opens the playground as it was left; the reset in the frame's header takes every control back to where it started.
-// - **Nothing moves as the page loads.** The stage holds the room of the fixture's tallest baseline at any size, and
-//   every control's cell holds the room of the tallest control before any is defined; the controls, like the stage,
-//   are defined when the frame comes near the view.
+// - **Nothing moves as the page loads.** The canvas holds the room of the fixture's tallest baseline at any size, the
+//   stage in it the box of the fixture's baseline until its element is defined (the stage is centred in the canvas:
+//   a stage that grew when its element was drawn moved what it holds), and every control's cell holds the room of
+//   the tallest control before any is defined; the controls, like the stage, are defined when the frame comes near
+//   the view.
 // - **The code is the web's** (in HTML or with the React package's wrappers, the frame's own choice). A native
 //   platform's code is offered once that platform ships the component at the current spec (lib/visuals/playground.ts
 //   `NATIVE_CODE`); until then the caption sends a reader to the spec's name mapping.
@@ -39,7 +41,12 @@ const playground = playgroundOf(name, fixture);
 const missing = playground.native.filter((platform) => !(platform in NATIVE_CODE));
 if (missing.length) throw new Error(`Playground: ${name} ships on ${missing.join(', ')} at the current spec, and the playground has no generator of that platform's code (lib/visuals/playground.ts NATIVE_CODE)`);
 const document = fixtureDocument(name)!;
-const room = playground.room ? `min-inline-size: min(100%, ${playground.room.width}px); min-block-size: ${playground.room.height}px;` : undefined;
+const room = [
+  playground.room && `min-inline-size: min(100%, ${playground.room.width}px); min-block-size: ${playground.room.height}px;`,
+  playground.box && `--docs-playground-stage-inline-size: ${playground.box.width}px; --docs-playground-stage-block-size: ${playground.box.height}px;`,
+]
+  .filter(Boolean)
+  .join(' ') || undefined;
 const scope = { [STAGE_SCOPE]: '' };
 const id = `docs-playground-${name}`;
 // A segmented choice whose segments do not fit beside each other in one cell takes two. Its segments are as wide as
@@ -115,6 +122,14 @@ const reset = `<tanrei-button class="docs-example-action" variant="text" size="s
   }
   .docs-playground-canvas > .stage {
     margin: 0;
+  }
+  /* Until its element is defined the stage holds the box of the fixture's baseline, which it takes once drawn: the
+     canvas centres it, so a stage that grew then would move what it holds. (A fixture with no baseline gives no box:
+     the declarations are then invalid, and the stage takes its own size.) */
+  .docs-playground-canvas > .stage:has(> :not(:defined)) {
+    box-sizing: border-box;
+    inline-size: var(--docs-playground-stage-inline-size);
+    block-size: var(--docs-playground-stage-block-size);
   }
   /* The controls: cells of one size in as many columns as fit, each the prop's name above its control. Every cell
      holds the room of the tallest control (a small text field's box, a small segmented button, a pointer's target)

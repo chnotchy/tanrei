@@ -8,7 +8,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
-import { appearingFixture } from '../../../test/first-frame.js';
+import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
@@ -1853,6 +1853,20 @@ test.describe('forms and focus', () => {
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = false; }', rows, 'the collapsible drawer closed');
   });
 
+  test('NVD-19: opened at the end of a task that outlasts its motions, a modal drawer slides in and the opener outside it takes its unfocused colors from the first frame drawn after that task', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the colors'
+    // state motion lasts, the opener focus left (the menu button) was drawn unfocused at once, before the drawer's first frame.
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<tanrei-button id="menu">Menu</tanrei-button>'));
+    // Settled first (MOT-3): focus given to it while it settles starts no motion, and so would its loss.
+    await allSettled(page);
+    await tabTo(page, page.locator('#menu'));
+    // Its focus motion over first: the opening's blur begins one of its own.
+    await motionEnded(page);
+    await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer opened');
+    expect(await activeValue(page)).toBe('inbox');
+  });
+
   test('NVD-22: closed at the end of a task that outlasts its motions, a modal drawer slides out and the opener outside it takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where closing took longer than the
     // colors' state motion lasts, the opener focus went back to would be drawn at its end at once.
@@ -1993,6 +2007,47 @@ test.describe('forms and focus', () => {
     const widening = entrances(await runsAtRest(page)).map((run) => run.name);
     expect(widening.some((name) => name === 'width' || name === 'inline-size'), `modal-collapsible-open mounted after the first paint: ${widening.join(', ')}`).toBe(true);
     await expect(drawer(page, 'modal-collapsible-open-again').locator('dialog')).toHaveJSProperty('open', true);
+  });
+
+  test('NVD-19: a modal drawer written open takes focus to its selected destination (or else its first focusable element) whether it is mounted with the page or inserted into a page already drawn — a product that draws a view in answer to a click — in every engine', async ({ page }) => {
+    // Each written open, as the spec writes it; and without a selection, focus goes to the first focusable element.
+    const unselected = (id: string): Fixture => {
+      const [written] = only(id);
+      const { value: _, ...props } = written!.props;
+      return { ...written!, id: `${id}-unselected`, props };
+    };
+    const cases: [Fixture, string][] = [
+      ...only('modal', 'modal-collapsible-open', 'responsive-narrow', 'resized-modal').map((f): [Fixture, string] => [f, 'inbox']),
+      [unselected('modal'), 'inbox'],
+      [unselected('modal-collapsible-open'), 'header-button:Menu'],
+    ];
+    for (const [written, focused] of cases) {
+      await page.setViewportSize(drawerWindow(written.id.replace(/-unselected$/, '')));
+      // (A document written into a page that drew one before is parsed with its elements defined: the drawer is shown
+      // before its items are there, and they take focus as they arrive.)
+      await mountForAppearing(page, spec, { fixtures: [written] });
+      await expect.poll(() => activeValue(page), `${written.id} mounted with the page`).toBe(focused);
+      // Taken off, the page drawn without it, and the same markup inserted again.
+      await page.evaluate(async (id) => {
+        const holder = document.querySelector('body > main, body > div.stages')!;
+        holder.replaceChildren();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const stages = (window as unknown as { __tanreiStages: DocumentFragment }).__tanreiStages;
+        holder.insertAdjacentHTML('beforeend', stages.querySelector(`[data-fixture="${CSS.escape(id)}"]`)!.outerHTML);
+      }, written.id);
+      await expect(drawer(page, written.id).locator('dialog')).toHaveJSProperty('open', true);
+      await expect.poll(() => activeValue(page), `${written.id} inserted into a page already drawn`).toBe(focused);
+    }
+    // Shown before its items are there — a product that adds them after the drawer — its panel takes focus, and the
+    // selected destination takes it once the items have arrived.
+    await page.setViewportSize(drawerWindow('modal'));
+    await mount(page, [fixture('later', [], { variant: 'modal', value: 'sent' })]);
+    await expect(drawer(page, 'later').locator('dialog')).toHaveJSProperty('open', true);
+    expect(await activeValue(page), 'no item to take focus yet').toBe('dialog');
+    await drawer(page, 'later').evaluate((el: HTMLElement) => {
+      el.insertAdjacentHTML('beforeend', ['inbox', 'sent'].map((value) => `<tanrei-navigation-drawer-item value="${value}" label="${value}"></tanrei-navigation-drawer-item>`).join(''));
+    });
+    await expect.poll(() => activeValue(page), 'items added after the drawer was shown').toBe('sent');
   });
 
   test('NVD-20: the scrim, Escape, back, the menu button and a drag past half its width (or a fling) close a modal drawer: open is false and close fires once', async ({ page }) => {
@@ -4670,6 +4725,38 @@ test.describe('resizable', () => {
     const width = await drawnWidth(page, 's');
     expect(opened, 'in the task that opens it: its rows at its width, and the drawer at the start of its slide').toEqual({ row: width - 2 * pad, host: 0 });
     expect((await bounds(box(page, 's', 0))).width).toBe(width - 2 * pad);
+  });
+
+  test('NVD-18, NVD-97: closed in the frames after its room changed, a standard drawer still slides out — the room is followed at once, the close over the exit motion', async ({ page }) => {
+    // The rows follow a change of room at once (data-resizing, for the frames until their style has settled): a close
+    // made in those frames drew the drawer gone at once, without its slide.
+    await wide(page);
+    await mount(page, [fixture('n', SIDE, { width: 360 })]);
+    await allSettled(page);
+    // The room is followed without a motion, so the only width the host's own transition moves is the close's.
+    await watchTransitions(drawer(page, 'n'));
+    const following = await drawer(page, 'n').evaluate(async (el: HTMLElement) => {
+      const stage = el.closest<HTMLElement>('[data-fixture]')!;
+      const written = new Promise<void>((done) => {
+        const watch = new MutationObserver(() => {
+          if (!el.hasAttribute('data-resizing')) return;
+          watch.disconnect();
+          done();
+        });
+        watch.observe(el, { attributes: true, attributeFilter: ['data-resizing'] });
+      });
+      // The stage's padding at its end is 16: its content box is 280 wide, less than the drawer's 360.
+      stage.style.inlineSize = '296px';
+      await written;
+      await new Promise((frame) => requestAnimationFrame(frame));
+      const still = el.hasAttribute('data-resizing');
+      (el as HTMLElement & { open: boolean }).open = false;
+      return still;
+    });
+    expect(following, 'closed in the next frame, while the room is still followed').toBe(true);
+    await expect.poll(() => transitionsRun(drawer(page, 'n')), 'the width’s transition begins').toContainEqual(expect.objectContaining({ property: 'width', own: true }));
+    await motionEnded(page);
+    expect(await drawnWidth(page, 'n')).toBe(0);
   });
 
   test('NVD-98: a drag follows the press from the width drawn, in every move and without a motion, held between the least and the greatest; on release the drawer writes width and then emits widthChange once', async ({ page }) => {

@@ -34,8 +34,12 @@
         "custom-elements.json"
       ]
     },
+    "clean": {
+      "cache": false
+    },
     "build": {
       "dependsOn": [
+        "clean",
         "generate",
         "^build"
       ],
@@ -54,6 +58,7 @@
     },
     "@tanrei/web#build": {
       "dependsOn": [
+        "clean",
         "generate",
         "^build"
       ],

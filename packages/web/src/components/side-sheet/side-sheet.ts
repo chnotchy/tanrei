@@ -29,6 +29,7 @@ import {
   readTogether,
   report,
   returnFocus,
+  sheetFocusTarget,
   syncDividerVisibility,
   watchEscape,
   WordsController,
@@ -595,8 +596,7 @@ export class TanreiSideSheet extends TanreiElement {
     // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
     const dialog = this.dialog;
     if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
-    const marked = this.querySelector<HTMLElement>('[autofocus]');
-    const target = marked && !marked.closest('[inert]') ? marked : this.sheet;
+    const target = sheetFocusTarget(this, this.sheet);
     // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
     if (target && deepActive() !== target) target.focus();
   }
@@ -618,7 +618,10 @@ export class TanreiSideSheet extends TanreiElement {
     if (!dialog || this.shown || !this.isConnected) return;
     watchEscape();
     this.place(0);
-    this.opener = deepActive();
+    // SSH-3, SSH-15: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
+    // dialog, a sheet: focus is in it, where its `showModal()` gave it), where that surface gives it: focus returns
+    // there when this one closes.
+    this.opener = modalLayer.opener();
     if (instant) {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
@@ -638,10 +641,13 @@ export class TanreiSideSheet extends TanreiElement {
     else count();
     holdPageScroll(this, true);
     // The keyboard's cover and the layout, read with every other host's reads of the turn, then focus in: what focus
-    // scrolls into view is placed first.
+    // scrolls into view is placed first. Until then a surface opened above it in the same turn takes this sheet's target
+    // as its opener (SSH-15).
+    modalLayer.owesFocus(dialog, () => sheetFocusTarget(this, this.sheet));
     this.viewportTogether();
     this.layout(() => {
       if (!this.shown) return;
+      modalLayer.gaveFocus(dialog);
       this.focusInside();
       // SSH-2: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
       // after this task, as its entrance does (statesFromNextFrame).

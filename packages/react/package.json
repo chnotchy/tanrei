@@ -17,7 +17,8 @@
   "files": ["dist", "README.md", "NOTICE"],
   "scripts": {
     "generate": "node scripts/generate.js",
-    "build": "tsc -p tsconfig.json",
+    "clean": "node scripts/clean.js",
+    "build": "node scripts/clean.js && tsc -p tsconfig.json",
     "test": "tsc -p test/tsconfig.json && node ../tools/src/run-node-tests.js \"test/*.test.mjs\" \"test/browser/*.test.mjs\""
   },
   "dependencies": {

@@ -165,7 +165,14 @@ for (const engine of engines('chromium,firefox,webkit')) {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
-        for (const [pathname, id, tag] of [['/components/tooltip/', 'plain', 'tanrei-tooltip'], ['/components/button-with-menu/', 'filled-open', 'tanrei-button-with-menu']]) {
+        // Each is closed by what closes it in a product: the tooltip closes itself on Escape wherever focus is; the button
+        // with menu never closes itself — a press of its trailing half asks to (`toggle`), and the page closes it from
+        // that, as a product does (its fixture holds no menu item, so its open form presents no menu to dismiss).
+        const OPENERS = [
+          ['/components/tooltip/', 'plain', 'tanrei-tooltip', 'Escape'],
+          ['/components/button-with-menu/', 'filled-open', 'tanrei-button-with-menu', 'trailing'],
+        ];
+        for (const [pathname, id, tag, closing] of OPENERS) {
           await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
           const stage = page.locator(`.docs-stage[data-fixture-id="${id}"]`);
           await stage.scrollIntoViewIfNeeded();
@@ -175,17 +182,30 @@ for (const engine of engines('chromium,firefox,webkit')) {
           await page.waitForFunction((name) => customElements.get(name), tag);
           assert.equal(await element.evaluate((el) => el.hasAttribute('open')), false, `${id} is drawn closed`);
           const toggle = stage.locator('[data-stage-open]');
+          // Each step waits 5 s for the fixture's `open` and the action's `selected` to say `want`, and a step that runs
+          // out names itself and what they say then.
+          const step = async (what, want) => {
+            const handles = [await element.elementHandle(), await toggle.elementHandle()];
+            await page.waitForFunction(([el, action, open]) => el.hasAttribute('open') === open && action.hasAttribute('selected') === open, [...handles, want], { timeout: 5_000 }).catch(async (cause) => {
+              const now = await page.evaluate(([el, action]) => `open ${el.hasAttribute('open')}, the action selected ${action.hasAttribute('selected')}`, handles);
+              throw new Error(`${pathname}${id}: ${what}, and 5 s later the fixture is not ${want ? 'open' : 'closed'} (${now})`, { cause });
+            });
+          };
           await toggle.click();
-          await page.waitForFunction((el) => el.hasAttribute('open'), await element.elementHandle(), { timeout: 5_000 });
-          // Closed by the fixture itself: the action says so.
-          await page.keyboard.press('Escape');
-          await page.waitForFunction((el) => !el.hasAttribute('open'), await element.elementHandle(), { timeout: 5_000 }).catch(() => element.evaluate((el) => el.removeAttribute('open')));
-          await page.waitForFunction((el) => !el.hasAttribute('selected'), await toggle.elementHandle(), { timeout: 5_000 });
+          await step('the action was pressed', true);
+          // Closed by the fixture itself, and the action says so.
+          if (closing === 'Escape') {
+            await page.keyboard.press('Escape');
+            await step('Escape was pressed', false);
+          } else {
+            await element.locator('button#trailing').click();
+            await step('its trailing half was pressed', false);
+          }
           // Opened again, and closed by the action.
           await toggle.click();
-          await page.waitForFunction((el) => el.hasAttribute('open'), await element.elementHandle(), { timeout: 5_000 });
+          await step('the action was pressed again', true);
           await toggle.click();
-          await page.waitForFunction((el) => !el.hasAttribute('open'), await element.elementHandle(), { timeout: 5_000 });
+          await step('the action was pressed while it was open', false);
         }
       } finally {
         await context.close();

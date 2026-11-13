@@ -33,7 +33,8 @@
   /* ── The header: the app bar — the menu button, the site's brand, the design system, then the actions ─────────────
      The brand is the bar's (APB-19, APB-20): Tanrei's wordmark (Header.astro), in an icon button's cell after the menu
      button, comp.app-bar.brand.wordmark.height high, in comp.app-bar.brand.color. Until the bar is defined the image
-     holds the box the bar will give it: the cell's padding around the wordmark's height. */
+     holds the box the bar will give it: the cell's padding around the wordmark's height, in an item's cell
+     (`--_docs-item-cell`, below), as the bar's own brand is. */
   tanrei-app-bar:not(:defined) > .docs-brand {
     box-sizing: content-box;
     flex: none;
@@ -41,15 +42,9 @@
     min-block-size: 0;
     inline-size: auto;
     block-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
-    padding-inline: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
-    padding-block: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
+    padding-inline: calc((var(--_docs-item-cell) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+    padding-block: max(0px, calc((var(--_docs-item-cell) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2));
     color: var(--tanrei-comp-app-bar-brand-color);
-  }
-  @media (pointer: coarse) {
-    tanrei-app-bar:not(:defined) > .docs-brand {
-      padding-inline: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
-      padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
-    }
   }
   /* The appearance's button: in the bar's context in a medium or wider window, first in the drawer's list in a
      compact one, where the bar has no room for it beside the wordmark and the actions (Header.astro). */
@@ -108,6 +103,9 @@
      a device with a notch or a status bar over the page the header is as tall, and its items stand where they will,
      before the bar is defined (test/browser/header.test.mjs). */
   tanrei-app-bar:not(:defined) {
+    /* An item's box: the cell of the minimum target the bar centres each item in (APB-11), or the medium Button each
+       item of the header is (or is as tall as) where that is larger — the bar's own brand cell (APB-19). */
+    --_docs-item-cell: max(var(--tanrei-sys-target-pointer), var(--tanrei-comp-button-container-height-medium));
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -118,6 +116,11 @@
     padding-right: calc(var(--tanrei-comp-app-bar-container-padding-inline) + env(safe-area-inset-right, 0px));
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
+  @media (pointer: coarse) {
+    tanrei-app-bar:not(:defined) {
+      --_docs-item-cell: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-button-container-height-medium));
+    }
+  }
   /* The header's bar alone: an app bar a page shows as an example keeps the package's stand-in. */
   tanrei-app-bar.docs-app-bar:not(:defined) {
     flex-direction: row;
@@ -127,8 +130,12 @@
   tanrei-app-bar.docs-app-bar:not(:defined)::before {
     content: none;
   }
-  :where(tanrei-app-bar.docs-app-bar:not(:defined)) > :where(.docs-brand, #docs-mode, #docs-language) {
+  :where(tanrei-app-bar.docs-app-bar:not(:defined)) > :where(.docs-brand) {
     display: block;
+  }
+  /* The two icon-only Buttons: their glyph in the middle of their box, as the Button draws it. */
+  :where(tanrei-app-bar.docs-app-bar:not(:defined)) > :where(#docs-mode, #docs-language) {
+    display: inline-flex;
   }
   /* The search: the first action, so the actions start from it at the end. The menu button and the brand before it
      are shown and hidden by the rules above; the bar puts actions.gap between them all, and the design system's
@@ -137,7 +144,8 @@
     display: inline-flex;
     margin-inline-start: auto;
   }
-  tanrei-app-bar:not(:defined) > .docs-look {
+  /* With no weight of its own, so that a compact window's rule above, which leaves the button to the drawer, hides it. */
+  :where(tanrei-app-bar:not(:defined)) > .docs-look {
     display: inline-flex;
   }
   /* The repository's link is drawn once the bar is defined, which decides whether the row has room for it (APB-26):
@@ -145,11 +153,14 @@
   tanrei-app-bar:not(:defined) > #docs-repository {
     display: none;
   }
-  /* The shell's menu button is shown only where the shell shows it (APS-6): its `display` is the shell's to take away. */
-  @container style(--_aps-menu: shown) {
-    tanrei-app-bar:not(:defined) > [data-app-shell-menu] {
-      display: inline-flex;
-    }
+  /* The shell's menu button, on a page with a sidebar (Header.astro writes it on no other), from the first frame. The
+     shell shows it once its navigation region holds the drawer (APS-6: a navigation drawer shows it in every window),
+     but the drawer comes after the header in the page: a frame drawn before the drawer is parsed would have no menu
+     button, and the brand and the actions after it would move when it came. The page says it has a sidebar on the
+     shell's start tag (PageFrame.astro), so the button is shown from then on, before the bar is defined and after, as
+     the shell shows it once the drawer is there. */
+  tanrei-app-shell[data-docs-sidebar] > [slot='header'] > tanrei-app-bar.docs-app-bar > [data-app-shell-menu] {
+    display: inline-flex;
   }
   /* Every item of the bar: the bar draws what is given a slot, and each of these names its own (Header.astro). */
   tanrei-app-bar:not(:defined) > :where([slot]) {
@@ -157,14 +168,8 @@
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    min-inline-size: var(--tanrei-sys-target-pointer);
-    min-block-size: var(--tanrei-sys-target-pointer);
-  }
-  @media (pointer: coarse) {
-    tanrei-app-bar:not(:defined) > :where([slot]) {
-      min-inline-size: var(--tanrei-sys-target-touch);
-      min-block-size: var(--tanrei-sys-target-touch);
-    }
+    min-inline-size: var(--_docs-item-cell);
+    min-block-size: var(--_docs-item-cell);
   }
   /* An icon-only Button of the frame until it is defined: its glyph, in the icon set's face, in the Button's box. */
   :is(tanrei-app-bar, tanrei-navigation-drawer) > tanrei-button:not(:defined) > [slot='icon'] {
