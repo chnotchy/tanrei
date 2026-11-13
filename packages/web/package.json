@@ -169,6 +169,7 @@
   ],
   "scripts": {
     "generate": "cem analyze",
+    "clean": "node scripts/clean.js",
     "build": "node scripts/clean.js && tsc -p tsconfig.json && node scripts/build.js && node ../tools/src/cli.js syntax && tsc -p tsconfig.test.json",
     "typecheck:test": "tsc -p tsconfig.test.json",
     "test": "playwright test",
