@@ -95,6 +95,14 @@
         "dist/**"
       ]
     },
+    "@tanrei/flutter#build": {
+      "dependsOn": [
+        "clean",
+        "generate",
+        "^build"
+      ],
+      "outputs": []
+    },
     "@tanrei/web#test:node": {
       "dependsOn": [
         "build"
