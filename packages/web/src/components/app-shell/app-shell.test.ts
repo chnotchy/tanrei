@@ -15,7 +15,6 @@ import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
-import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -505,7 +504,8 @@ test.describe('the navigation', () => {
 
   /**
    * Reads `readingProbe` in every frame the page draws from now on, where the frame is painted — after the page's own
-   * resize observers — while a motion plays at its own speed; the returned function stops and answers the frames.
+   * resize observers — while a motion plays at its own speed; the returned function stops and answers the frames, each
+   * with the page time it was read at (`at`, from `performance.now()`).
    *
    * Not `sampleFrames`, for a change a motion makes: it moves a held motion on inside its own resize observer and reads
    * at once, so the frame it reads has the drawer's new width and the text reflowed without the shell's observer having
@@ -534,7 +534,7 @@ test.describe('the navigation', () => {
       let reader: ResizeObserver | undefined;
       const clock = new ResizeObserver(() => {
         reader?.disconnect();
-        reader = new ResizeObserver(() => painted.push(probe(root)));
+        reader = new ResizeObserver(() => painted.push({ ...probe(root), at: performance.now() }));
         reader.observe(mark);
       });
       clock.observe(mover);
@@ -604,18 +604,32 @@ test.describe('the navigation', () => {
       reflowed(seen, held.line, key);
       // At once: the drawer's end is where it rests from the first frame that changed (NVD-100).
       expect(seen.frames.filter((f) => f.probe.end !== seen.rest.probe.end && f.probe.end !== seen.before.probe.end), key).toEqual([]);
+      // A step starts no motion of the width: the hold ends after the frame that drew it, not with a motion.
+      await expect.poll(() => drawer(page).evaluate((el) => el.hasAttribute('data-person-resize')), key).toBe(false);
     }
   });
 
-  test('APS-5, NVD-101: while the navigation drawer folds to its column at its edge’s Enter, and unfolds at the next, over the change of form’s motion, the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor none)', async ({ page }) => {
+  /**
+   * The drawer folds to its column at its edge's Enter, and unfolds at the next, each read in every frame the page
+   * paints (`recordPainted`) until it has moved and no motion of it runs: the main region begins at the drawer's end and
+   * the place read stands where it stood in every frame, and the hold ends once the motion has. The page clock runs: the
+   * hold lasts as long as the motion, not as long as a timer of the page's. With `rate` below 1 the drawer's width moves
+   * at that much of its speed — as it does where Chromium's harsh mode slows the page's motion, or a machine draws the
+   * motion's first frame late — and the motion is checked to outlast the change of form's duration and 100 ms.
+   */
+  async function expectFoldHeld(page: P, rate: number) {
     await mountReading(page, { anchoring: 'none', navigation: DRAWER(), props: { mainWidth: 'full' } });
     await tabTo(page, separator(page));
     const held = await readHere(page);
     const duration = await resolveToken(page, '--tanrei-comp-navigation-drawer-motion-expand-duration', 'duration');
-    // The drawer says a person changes its width for as long as the motion lasts, by a timer of the page's: the page's
-    // clock is held while the motion plays, however long the machine takes to draw it, and run on past the motion and its
-    // timers between the two changes. A motion keeps the document's own timeline.
-    await holdClock(page);
+    // Slowed from the frame it begins in: the host's own width motion, announced before the next frame's callbacks.
+    if (rate !== 1)
+      await drawer(page).evaluate((el, slowed) => {
+        el.addEventListener('transitionrun', (event) => {
+          if (event.composedPath()[0] !== el) return;
+          for (const motion of el.getAnimations()) motion.playbackRate = slowed;
+        });
+      }, rate);
     for (const [key, collapsed] of [['Enter', true], ['Enter', false]] as const) {
       const what = collapsed ? 'folding' : 'unfolding';
       const stop = await recordPainted(page);
@@ -631,12 +645,23 @@ test.describe('the navigation', () => {
       const [first, last] = [painted[0]!, painted.at(-1)!];
       expect(Math.abs((last.before as number) - (first.before as number)), `the text before the place reflowed, ${what}`).toBeGreaterThan(held.line);
       // It moved over frames, not at once: frames between where it began and where it ended.
-      expect(painted.filter((drawn) => drawn.end !== first.end && drawn.end !== last.end).length, what).toBeGreaterThanOrEqual(2);
+      const moving = painted.filter((drawn) => drawn.end !== first.end && drawn.end !== last.end);
+      expect(moving.length, what).toBeGreaterThanOrEqual(2);
+      // Slowed, it still moved past the change of form's duration and 100 ms from its first frame.
+      if (rate !== 1) expect((moving.at(-1)!.at as number) - (moving[0]!.at as number), `how long the slowed motion was drawn, ${what}`).toBeGreaterThan(duration + 100);
       expect(await drawer(page).evaluate((el) => el.hasAttribute('collapsed')), what).toBe(collapsed);
       expect(await motionCount(main(page)), what).toBe(0);
-      await page.clock.runFor(duration + 1000);
+      // The hold ends after the motion: a change of width that is not a person's is not held.
+      await expect.poll(() => drawer(page).evaluate((el) => el.hasAttribute('data-person-resize')), what).toBe(false);
     }
-    await releaseClock(page);
+  }
+
+  test('APS-5, NVD-101: while the navigation drawer folds to its column at its edge’s Enter, and unfolds at the next, over the change of form’s motion, the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor none)', async ({ page }) => {
+    await expectFoldHeld(page, 1);
+  });
+
+  test('APS-5, NVD-101: where the change of form’s motion plays slower than its duration — a slowed page, a first frame drawn late — the reader stays at the same place in every frame to the motion’s end, and the hold ends with it', async ({ page }) => {
+    await expectFoldHeld(page, 0.25);
   });
 });
 
