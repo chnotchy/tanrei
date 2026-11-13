@@ -7,11 +7,18 @@
 //   pnpm --filter @tanrei/web build && pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import { register } from 'node:module';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { EXTERNAL_WORDS, externalLinks, fenceAttributes, tanreiMarkdown } from '../src/lib/markdown.mjs';
 import { EXTERNAL_WORDS as CONTENT_WORDS, tanreiContent } from '../src/lib/markdown-content.mjs';
 import { TANREI, configure, element, elements, mdxHtml, pageURL, renderers, text } from './site-pipeline.mjs';
+
+// The dictionary (src/lib/i18n.ts) is TypeScript, which Node reads through the shim. It is registered before
+// `configure()`: Astro first imports astro.config.mjs with Node's own loader, and that file imports the dictionary. On a
+// Node that does not strip types, that import fails, Astro falls back to Vite, and Node keeps the failed module under
+// its address — so a shim registered after it is never asked for the dictionary.
+register('./vite-shim.mjs', import.meta.url);
 
 const site = await renderers(await configure());
 const alone = await renderers(await configure({ without: [TANREI] }));
@@ -473,8 +480,6 @@ describe('the content column (MarkdownContent)', () => {
   });
 
   test('every language words the copying anchor, its name holding the heading once, and what is said of the copy', async () => {
-    // The dictionary is TypeScript, which Node reads through the shim the site's other tests register.
-    (await import('node:module')).register('./vite-shim.mjs', import.meta.url);
     const { strings } = await import('../src/lib/i18n.ts');
     const { translations } = await import('../i18n/locales.mjs');
     for (const lang of ['en', ...translations.map(({ lang }) => lang)]) {

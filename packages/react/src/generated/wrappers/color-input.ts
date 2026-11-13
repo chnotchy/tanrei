@@ -24,7 +24,7 @@ const ColorInputElement = /* @__PURE__ */ createComponent({
   },
 });
 const withColorInputMarks = /* @__PURE__ */ withMarks<ColorInputMarks>([], ['form']);
-const ColorInputAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value'], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], error: ['error', false], disabled: ['disabled', false], invalidText: ['invalid-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], form: ['form'] } as const;
+const ColorInputAttributes = { variant: ['variant', 'stacked'], size: ['size'], value: ['value'], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], error: ['error', false], disabled: ['disabled', false], invalidText: ['invalid-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], form: ['form'] } as const;
 /**
  * The box in which people set one color: a text value they can read, type and paste, a sample of it beside the text, a button that asks for a picker and — in the looks that float one — its label inside the box. It looks and measures like a text input. It has no label row, no help and no error text of its own: put it in a `<tanrei-field>`, which names it, describes it and marks it — or use `<tanrei-color-field>`, which is the two together.
  *

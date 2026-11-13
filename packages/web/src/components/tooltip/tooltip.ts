@@ -753,14 +753,21 @@ export class TanreiTooltip extends TanreiElement {
     else surface.showPopover();
     this.shown = true;
     if (!leaving) this.side = null;
-    this.place();
-    if (!this.open) return; // its anchor is out of sight: it closes again, never having been drawn
+    // Following starts with placing's reads, before its writes: it reads where the anchor is, which placing reads too,
+    // so the page is laid out once for both — started after the writes, it laid the page out again.
     this.following.start();
+    this.place();
+    if (!this.open) {
+      // Its anchor is out of sight: it closes again, never having been drawn.
+      this.following.stop();
+      return;
+    }
     document.addEventListener('pointerdown', this.onDocumentPress, true);
     window.addEventListener('keydown', this.onEscape, true);
     // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a tooltip
-    // still leaving goes on from where it is; one that takes over is whole at once (TIP-28).
-    if (!leaving) this.appear.drawAtOnce();
+    // still leaving goes on from where it is; one that takes over is whole at once (TIP-28), drawn so by its entrance —
+    // drawn first where it was placed as well, its style was read once more for nothing.
+    if (!leaving && !whole) this.appear.drawAtOnce();
     surface.classList.add('open');
     this.appear.enter(whole);
   }

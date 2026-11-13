@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, SizeConsumerController, hostAria, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
@@ -8,7 +8,7 @@ import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { browserMissingMessage } from '../../primitives/missing-value.js';
-import { AXES, INSET, styles } from './color-input.styles.js';
+import { AXES, CORE_SIZES, INSET, styles } from './color-input.styles.js';
 import { PICKER_START, given, picked, read, readCommitted } from './color-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -16,8 +16,8 @@ import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box that draws no label (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiColorInputVariant = keyof TanreiInputBoxVariantRegistry;
-/** The container's minimum height: the box's `medium` and `large` (`small` is a size of the box this control does not offer). A design system may add values. */
-export type TanreiColorInputSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
+/** The container's minimum height: the box's `small`, `medium` and `large`. A design system may add values. */
+export type TanreiColorInputSize = keyof TanreiInputBoxSizeRegistry;
 /** `pickerrequest`'s detail: the value the input holds — a color, or the empty string. */
 export interface TanreiColorInputPickerRequestDetail {
   value: string;
@@ -140,7 +140,9 @@ export class TanreiColorInput extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
-    size: { type: String, reflect: true },
+    // CLI-47: the size the product set, or none: a color input that sets none draws the size its container sets. A custom
+    // accessor, so that a size set to the default's name is set all the same; it reflects the own size itself.
+    size: { type: String, noAccessor: true },
     value: { type: String },
     name: { type: String, reflect: true },
     label: { type: String },
@@ -158,8 +160,31 @@ export class TanreiColorInput extends TanreiElement {
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label of the Field that frames it stands above it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the color input does not know by name is laid out as stacked. Reflected. */
   variant: TanreiColorInputVariant = 'stacked';
 
-  /** The container's minimum height: `medium` or `large` (48 / 56 in the default system), the text input's two sizes. The hit area always meets the minimum target. Reflected. */
-  size: TanreiColorInputSize = 'medium';
+  /**
+   * The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same
+   * size, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.
+   * The hit area always meets the minimum target. While it is not set the color input draws the size its nearest container
+   * sets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
+   * value, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back.
+   */
+  get size(): TanreiColorInputSize {
+    return (this.sizes.own ?? 'medium') as TanreiColorInputSize;
+  }
+
+  set size(value: TanreiColorInputSize | null | undefined) {
+    this.sizes.setOwn(value);
+  }
+
+  /** CLI-47: the size the product set, and the one the nearest container around the color input sets, while one does. */
+  private readonly sizes = new SizeConsumerController(this, CORE_SIZES);
+
+  /**
+   * @internal CLI-47: the size the color input draws — its own, else the one its nearest container sets (as its nearest size
+   * where it has none of that name), else `medium`.
+   */
+  get drawnSize(): string {
+    return this.sizes.drawn;
+  }
 
   /** The color the input holds: a number sign and six hexadecimal digits in lowercase (`#0f766e`), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty. A text set in capitals or without its number sign is held in the value's own form; one that is not a color is treated as empty. The `value` attribute is also the value a form reset returns to. */
   // An accessor, not a field: the value is the person's at every moment. The `input` of an edit is
@@ -340,7 +365,7 @@ export class TanreiColorInput extends TanreiElement {
    * And an entry error, with its words. No count: a color has one length.
    */
   private get saysToField(): FieldSays {
-    const size = /^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium';
+    const size = this.sizes.drawnName;
     return {
       drawsLabel: this.layout !== 'stacked',
       inset: INSET(size),
@@ -358,9 +383,10 @@ export class TanreiColorInput extends TanreiElement {
 
   /** CLI-27: the Button size with the input's size name, or Button's default for a size Button does not have. */
   private get pickerSize(): string {
-    if (BUTTON_SIZES.has(this.size)) return this.size;
-    const own = /^[a-z0-9][a-z0-9-]*$/.test(this.size) && getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${this.size}`).trim();
-    return own ? this.size : 'medium';
+    const size = this.sizes.drawnName;
+    if (BUTTON_SIZES.has(size)) return size;
+    const own = getComputedStyle(this).getPropertyValue(`--tanrei-comp-button-container-height-${size}`).trim();
+    return own ? size : 'medium';
   }
 
   /** The form it belongs to, if any. */
@@ -695,6 +721,9 @@ export class TanreiColorInput extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues) {
+    // CLI-47: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
+    // default by the host's own rules, CLI-41).
+    this.sizes.syncState(this.internals);
     if (this.inert_) this.focused = false;
 
     // CLI-21: a value the product set is held in the value's own form, shown in the input and the swatch, ends an entry
@@ -715,7 +744,7 @@ export class TanreiColorInput extends TanreiElement {
     this.nativeInput = this.input;
     this.nativeSeen = this.nativeInput?.value;
     // CLI-15: the label's lines follow its text — its own, or the name its Field gives —, the asterisk, the look, the size and the picker button.
-    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || changed.has('size') || changed.has('picker')) this.floating.measure();
+    if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged || changed.has('picker')) this.floating.measure();
     this.frameChanged = false;
     // CLI-27: the picker button says it opens a dialog, on the native button that carries its semantics.
     const button = this.pickerButton as (HTMLElement & { updateComplete?: Promise<unknown> }) | null;

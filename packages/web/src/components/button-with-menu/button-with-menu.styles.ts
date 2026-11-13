@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
+import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -64,9 +64,6 @@ const destructiveBlock = (variant: string, selector: string, fallback: string | 
 /** The selector of a variant's destructive look: the variant's own, with [destructive]. */
 const destructiveOf = (selector: string) => selector.replace(/\)$/, '[destructive])');
 
-/** SPB-37: the selector of the size a button with menu draws (`size-<name>`, a custom state it sets). */
-const drawnAt = (size: string) => `:host(:state(size-${size}))`;
-
 // The label's text role is used whole.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
@@ -89,7 +86,7 @@ export const AXES: readonly OpenAxis[] = [
     rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-height-${value}`,
     // SPB-37: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
-    drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt },
+    drawn: drawnSizeAxis,
   },
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`,
     probe: (value) => `${PREFIX}-${value}-container-color` },
@@ -131,7 +128,7 @@ export const styles = css`
     isolation: isolate;
   }
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
-  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, drawnAt(size))).join('\n'))}
+  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, drawnSizeAt(size))).join('\n'))}
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   /* SPB-34: a destructive button with menu draws both halves, and the divider, from its variant's destructive parts. The

@@ -575,6 +575,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   private session = false;
   private shown = false;
   private presenting = false;
+  /** DTM-34: the actions' variant as last read (`giveActionsVariant()`); read again in every update that draws them. */
+  private actionsVariant: (typeof BUTTON_VARIANTS)[number] = BUTTON_VARIANTS[0];
   /**
    * DTM-35: a modal picker's appearance, opened and closed (src/primitives/motion.ts): made at once before the first
    * paint (MOT-4), turned round from what it shows (MOT-2). Its `<dialog>` is the surface that appears; a docked or an
@@ -2230,8 +2232,10 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /** DTM-1: above the on-screen keyboard; DTM-9: the layout is decided again when the window changes. */
-  private readonly onWindow = () => {
-    const cover = keyboardCover();
+  private readonly onWindow = () => this.takeCover(keyboardCover());
+
+  /** `onWindow`'s write, from how much of the window the keyboard covers, as read. */
+  private takeCover(cover: number) {
     this.surface?.style.setProperty('--_keyboard', `${cover}px`);
     // DTM-45: the on-screen keyboard dismissed ends a typed entry, keeping what it read.
     if (this.keyboard > 0 && cover === 0) {
@@ -2240,7 +2244,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     }
     this.keyboard = cover;
     this.arrange();
-  };
+  }
 
   /**
    * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says; for auto, horizontal only when the
@@ -2412,8 +2416,18 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.presenting = false;
     }
     window.addEventListener('resize', this.onWindow);
-    this.onWindow();
-    void this.focusInitial();
+    // The keyboard's cover, then focus in, the cover read with every other host's reads of the turn
+    // (src/primitives/read-phase.ts): read after the picker's own `showModal()`, it had the browser lay the page out
+    // once per picker. Still in the task.
+    readTogether(() => {
+      if (!this.shown) return;
+      const cover = keyboardCover();
+      return () => {
+        if (!this.shown) return;
+        this.takeCover(cover);
+        void this.focusInitial();
+      };
+    });
     // The handle is placed at once when the picker opens, and moves over the dial motion from the next frame on (DTM-26).
     requestAnimationFrame(() => requestAnimationFrame(() => (this.instant = this.dragging !== null)));
   }
@@ -2572,6 +2586,15 @@ export class TanreiDateTimePicker extends TanreiElement {
       else if (changed.has('min') || changed.has('max') || changed.has('minuteStep')) this.keepWithin();
     }
     if (this.session) this.syncWheels();
+    // DTM-34: the actions' variant, read with every other host's reads of the turn (src/primitives/read-phase.ts) and
+    // given to the Buttons this render makes before they draw: asked before the render, the read comes before their
+    // updates. Read in the render itself, after the picker before it had written, it styled the page once per picker.
+    if (this.pendingUntilOk) {
+      readTogether(() => {
+        const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
+        return () => this.giveActionsVariant(variant);
+      });
+    }
     // DTM-26: the handle turns along the shorter arc to the value it shows.
     const target = this.targetAngle();
     const current = ((this.angle % 360) + 360) % 360;
@@ -3084,9 +3107,20 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /** DTM-34: Cancel and OK, placed as a full-width Button group places a dismissive and a confirming item. */
+  /**
+   * DTM-34: the variant read for the actions (`willUpdate`), on the Buttons drawn now and on those the next render
+   * draws. The render draws the one read last; the read of its own turn follows it there, before the Buttons draw.
+   */
+  private giveActionsVariant(variant: (typeof BUTTON_VARIANTS)[number]) {
+    this.actionsVariant = variant;
+    for (const button of this.renderRoot?.querySelectorAll('.actions > tanrei-button') ?? []) {
+      if (button.getAttribute('variant') !== variant) button.setAttribute('variant', variant);
+    }
+  }
+
   private renderActions(): TemplateResult | typeof nothing {
     if (!this.pendingUntilOk) return nothing;
-    const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
+    const variant = this.actionsVariant;
     const { cancelLabel, confirmLabel } = this.say;
     // DTM-48: without its word a Button draws the glyph that says the same — close, check — alone: the same variant,
     // size and place, and no name.

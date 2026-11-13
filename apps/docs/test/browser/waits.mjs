@@ -20,6 +20,8 @@
  *   wait 5 s before it says the page is stalled; this is four times that.
  * - `fonts`: the page's faces, small files served from the same host; the fixture gallery gives them 10 s too.
  * - `frames`: two frames, about 33 ms in a visible page.
+ * A bound whose timer fires well after it was due (the page's thread held) is given once more (`within` below): that
+ * adds at most each bound again, and only after a hold that the wall clock has already counted.
  */
 export const SETTLE = { pending: 10_000, defined: 20_000, fonts: 10_000, frames: 5_000 };
 
@@ -33,10 +35,22 @@ export const SETTLE = { pending: 10_000, defined: 20_000, fonts: 10_000, frames:
  */
 export async function settleFrame({ selector, scroll, pending, bounds }) {
   const late = {};
+  // A bound's timer that fires more than a quarter of the bound after it was due fired after the page's thread had
+  // been held, not after the wait had its time: what the hold delayed (a frame, a chunk's script) may be queued behind
+  // it. The wait is given its bound once more, and only once.
   const within = async (ms, promise) => {
     let timer;
     try {
-      return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(late), ms)))]);
+      return await Promise.race([
+        promise,
+        new Promise((resolve) => {
+          const arm = (again) => {
+            const due = Date.now() + ms;
+            timer = setTimeout(() => (again && Date.now() - due > ms / 4 ? arm(false) : resolve(late)), ms);
+          };
+          arm(true);
+        }),
+      ]);
     } finally {
       clearTimeout(timer);
     }
@@ -67,7 +81,7 @@ export async function settleFrame({ selector, scroll, pending, bounds }) {
 /**
  * In the page, for a test that waits on the document rather than on one frame of it: every tag of `tags` defined, and
  * every custom element's tag among the elements `among` matches (a selector, as `*` for the whole document); the
- * update of the element `update` names complete (a Lit element's `updateComplete`); the fonts in, unless `fonts` is
+ * update of every element `update` matches complete (a Lit element's `updateComplete`); the fonts in, unless `fonts` is
  * false; and `frames` frames drawn since (two unless said otherwise; none with 0). Each wait is given its bound in
  * `bounds`, the tags and the update the bound of `defined`. Resolves to nothing when all of that came, or to what did
  * not come in its time. It reads nothing outside itself: Playwright sends its source to the page.
@@ -76,10 +90,22 @@ export async function settleFrame({ selector, scroll, pending, bounds }) {
  */
 export async function settleDocument({ tags = [], among, update, fonts = true, frames = 2, bounds }) {
   const late = {};
+  // A bound's timer that fires more than a quarter of the bound after it was due fired after the page's thread had
+  // been held, not after the wait had its time: what the hold delayed (a frame, a chunk's script) may be queued behind
+  // it. The wait is given its bound once more, and only once.
   const within = async (ms, promise) => {
     let timer;
     try {
-      return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(late), ms)))]);
+      return await Promise.race([
+        promise,
+        new Promise((resolve) => {
+          const arm = (again) => {
+            const due = Date.now() + ms;
+            timer = setTimeout(() => (again && Date.now() - due > ms / 4 ? arm(false) : resolve(late)), ms);
+          };
+          arm(true);
+        }),
+      ]);
     } finally {
       clearTimeout(timer);
     }
@@ -91,10 +117,11 @@ export async function settleDocument({ tags = [], among, update, fonts = true, f
     return `not defined after ${seconds(bounds.defined)}: ${names.filter((name) => !customElements.get(name)).join(', ')} (of the ${names.length} tags waited for)`;
   }
   if (update) {
-    const element = document.querySelector(update);
-    if (!element) return `no element matches ${update}`;
-    if ((await within(bounds.defined, Promise.resolve(element.updateComplete))) === late) {
-      return `the update of ${update} not complete after ${seconds(bounds.defined)}${element.isUpdatePending ? ' (an update pending)' : ''}`;
+    const elements = [...document.querySelectorAll(update)];
+    if (!elements.length) return `no element matches ${update}`;
+    if ((await within(bounds.defined, Promise.all(elements.map((element) => element.updateComplete)))) === late) {
+      const pending = elements.filter((element) => element.isUpdatePending).map((element) => element.localName);
+      return `the update of ${update} not complete after ${seconds(bounds.defined)}${pending.length ? ` (an update pending: ${pending.join(', ')})` : ''}`;
     }
   }
   if (fonts && (await within(bounds.fonts, document.fonts.ready)) === late) {

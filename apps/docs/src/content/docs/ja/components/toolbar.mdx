@@ -2,7 +2,7 @@
 title: ツールバー
 description: 関連するコントロールをひとまとめにし、Tab で止まる位置を 1 か所にします。コンテンツが必要とする場所にインラインで置くか、画面の下端に固定するか、コンテンツの上に浮かせて置きます。コントロールの間は矢印キーで移動し、収まらないものはオーバーフローメニューに入ります。
 translationOf: components/toolbar.mdx
-sourceHash: 1327d86415c8f6908fb2e64720953a22e06b32d0
+sourceHash: 51943a52b45f323d873e0c738dadf6dcf4d15850
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -299,21 +299,23 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ドックのツールバーは、項目を幅いっぱいに広げ、隙間（既定のシステムでは 16）より近づけることはありません。インラインとフローティングのツールバーは項目の間を詰めます。隣り合う 2 つの項目は、それぞれが並びの方向に自分のタッチターゲットを保つのに必要な分だけ離れ、隙間（既定のシステムではインラインで 4、フローティングで 0）より近づくことはありません。フローティングでは large のボタンどうしは接し、medium では 8、small では 16 離れます。インラインでは medium と small は同じだけ離れ、large は隙間の 4 だけ離れます。このためにツールバーが項目の幅を広げたり見た目を変えたりすることはなく、間隔はマウスでもタッチでも同じです。
 
+項目を 1 つのサイズでそろえるときは、項目ごとではなくツールバーに `size` を設定します。そのサイズが、グループの中かどうかにかかわらず中のすべての Button とメニュー付きボタン、そしてオーバーフローボタンのサイズになります。自分のサイズを設定した項目はそのサイズのままで、`size` を設定しないツールバーは、各項目を自分の既定である medium か、ツールバーを囲むコンテナが設定するサイズで描かせます。ツールバー自身の描き方は変わらず、間隔、パディング、区切り線はバリアントのとおりです。セレクト、数値入力、テキスト入力、スライダーは指定したサイズのままで、Button が開くメニューも自分のサイズを保ちます。コンテナから中のものへサイズがどう渡るかは、[サイズと密度](/ja/foundations/size-and-density/)で説明しています。
+
 <Example label="フローティング：small、medium、large の項目と、narrow と wide の項目" column>
-  <tanrei-toolbar variant="floating" label="書式（small）">
-    <tanrei-button variant="text" size="small" label="太字"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="small" label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="small" label="書式（small）">
+    <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="下線"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="書式（medium）">
     <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="text" label="下線"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="書式（large）">
-    <tanrei-button variant="text" size="large" label="太字"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" size="large" label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+  <tanrei-toolbar variant="floating" size="large" label="書式（large）">
+    <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="下線"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-toolbar>
   <tanrei-toolbar variant="floating" label="描画ツール">
     <tanrei-button variant="text" width="narrow" label="元に戻す"><span slot="icon">undo</span></tanrei-button>

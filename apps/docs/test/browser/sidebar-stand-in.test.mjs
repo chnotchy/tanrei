@@ -21,7 +21,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
-import { launch } from './launch.mjs';
+import { launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Japanese Button page
 // at 1000, took 13 s in CI.
@@ -86,8 +86,7 @@ async function measure(width, url, scripts, kept = null) {
     await page.goto(origin + url, { waitUntil: 'load' });
     await network.quiet();
     if (scripts) await page.waitForFunction(() => ['tanrei-navigation-drawer', 'tanrei-switch'].every((name) => customElements.get(name)));
-    await page.evaluate(() => document.fonts.ready);
-    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await settlePage(page);
     if (!scripts) assert.equal(await page.evaluate(() => !!customElements.get('tanrei-navigation-drawer')), false, 'the drawer is not defined while its script is refused');
     return await page.evaluate(boxes);
   } finally {

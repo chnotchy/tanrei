@@ -20,7 +20,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the FAB menu’s page at
 // 1440, took 21 s in CI.
@@ -69,11 +69,12 @@ async function open(context, url) {
  * A component's rows in each list now: how many the index and the sidebar hold, whether each is faint, what the
  * index's row says at its end, and what the sidebar's row says at its end and as its link's description.
  */
-const rows = (page, name) =>
-  page.evaluate(async (href) => {
+const rows = async (page, name) => {
+  // The sidebar's rows updated first (bounded: launch.mjs).
+  await settlePage(page, { update: `.docs-sidebar tanrei-navigation-drawer-item[href="/components/${name}/"]`, fonts: false, frames: 0 });
+  return page.evaluate((href) => {
     const index = [...document.querySelectorAll(`.index tanrei-list-item[href="${href}"]`)];
     const sidebar = [...document.querySelectorAll(`.docs-sidebar tanrei-navigation-drawer-item[href="${href}"]`)];
-    await Promise.all(sidebar.map((item) => item.updateComplete));
     const anchor = sidebar[0]?.shadowRoot?.querySelector('a');
     return {
       index: index.length,
@@ -86,6 +87,7 @@ const rows = (page, name) =>
       },
     };
   }, `/components/${name}/`);
+};
 
 /** A component the look has: in both lists, not faint, nothing said of the look. */
 const whole = () => ({ index: 1, sidebar: 1, faint: { index: false, sidebar: false }, said: { index: '', supporting: '', description: '' } });
@@ -173,12 +175,11 @@ for (const engine of ENGINES) {
             assert.equal(await group.evaluate((element) => element.hasAttribute('data-docs-faint')), true);
             // The words stand under the label, which keeps its room (where the sidebar stands beside the content).
             if (!compact) {
-              const fit = await page.locator('.docs-sidebar tanrei-navigation-drawer-item[href="/components/segmented-button/"]').evaluate(async (item) => {
-                const group = item.closest('tanrei-navigation-drawer-group');
-                group.open = true;
-                await group.updateComplete;
-                await item.updateComplete;
-                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+              const row = 'tanrei-navigation-drawer-item[href="/components/segmented-button/"]';
+              await page.locator(`.docs-sidebar ${row}`).evaluate((item) => (item.closest('tanrei-navigation-drawer-group').open = true));
+              // The group and the row updated, and two frames drawn (bounded: launch.mjs).
+              await settlePage(page, { update: `.docs-sidebar tanrei-navigation-drawer-group:has(> ${row}), .docs-sidebar ${row}`, fonts: false });
+              const fit = await page.locator(`.docs-sidebar ${row}`).evaluate((item) => {
                 const label = item.shadowRoot.querySelector('.label').getBoundingClientRect();
                 const supporting = item.shadowRoot.querySelector('.supporting').getBoundingClientRect();
                 return { label: label.width > 0, below: supporting.top >= label.bottom - 1 };

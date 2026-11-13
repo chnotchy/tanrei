@@ -11,7 +11,7 @@ import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
-import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -459,6 +459,38 @@ test.describe('presentation and focus', () => {
     expect(await isOpen(page, 'outer')).toBe(true);
     await expect(page.locator('#inner-opener')).toBeFocused();
     expect(await log(page)).toEqual(['inner:close']);
+  });
+
+  test('DLG-15, DLG-2: two dialogs opened in the same task stack in the order they open — focus goes into the later one, Escape dismisses only it, and focus returns inside the first', async ({ page }) => {
+    await mount(page, [closed('basic')]);
+    await page.evaluate(() => {
+      const pane = document.createElement('div');
+      pane.innerHTML = ['first', 'second'].map((id) => `<tanrei-dialog id="${id}" headline="${id}"><tanrei-button slot="actions" confirming>OK ${id}</tanrei-button></tanrei-dialog>`).join('');
+      document.body.append(pane);
+    });
+    await page.evaluate(async () => {
+      const [first, second] = ['first', 'second'].map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+      first!.open = true;
+      second!.open = true;
+      await Promise.all([first!.updateComplete, second!.updateComplete]);
+    });
+    const within = (id: string) =>
+      page.evaluate((host) => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        const dialog = document.getElementById(host)!;
+        for (let at: Node | null = active; at; at = at instanceof ShadowRoot ? at.host : at.parentNode) if (at === dialog) return active!.localName;
+        return null;
+      }, id);
+    const top = page.locator('#second').locator('dialog');
+    expect(await top.evaluate((el) => el.matches(':modal'))).toBe(true);
+    // DLG-2: no action is marked, so the dialog itself has focus.
+    expect(await within('second')).toBe('dialog');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => top.evaluate((el) => (el as HTMLDialogElement).open)).toBe(false);
+    expect(await page.locator('#first').locator('dialog').evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
+    // DLG-15: back where the first dialog had given it as it opened (DLG-2).
+    expect(await within('first')).toBe('dialog');
   });
 
   test('DLG-1, DLG-15: under another modal overlay — an image preview opened from it — the dialog is inert to a script too: focus() on what is slotted into it moves no focus, and it takes focus again once the overlay above has closed', async ({ page }) => {
@@ -1139,6 +1171,40 @@ test.describe('actions', () => {
     await expect(action(page, 'basic', 'Discard').locator('button')).toHaveAttribute('data-host-variant', 'filled');
     await expect.poll(() => paint(action(page, 'basic', 'Discard'))).toBe(await resolveColor(page, '--tanrei-comp-button-filled-container-color'));
   });
+
+  for (const written of ['open', 'closed'] as const) {
+    test(`DLG-20: the actions written inside a dialog (${written}) draw its variant from their own first render — never the Button's own default first — and start no transition`, async ({ page }) => {
+      await mount(page, [closed('basic')]);
+      const drawn = await page.evaluate(
+        async ({ open, every }) => {
+          const pane = document.createElement('div');
+          document.body.append(pane);
+          pane.innerHTML = `<tanrei-dialog headline="Discard draft?"${open ? ' open' : ''}><tanrei-button slot="actions" dismissive>Cancel</tanrei-button><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>`;
+          // The actions are upgraded with the dialog, and their shadow roots are there, empty, before any of them has
+          // rendered: what each draws is seen from its first render on.
+          const actions = [...pane.querySelectorAll('tanrei-button')];
+          const records: MutationRecord[] = [];
+          const observer = new MutationObserver((list) => records.push(...list));
+          for (const action of actions) observer.observe(action.shadowRoot!, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-host-variant'] });
+          await new Promise((frame) => requestAnimationFrame(frame));
+          await new Promise((frame) => requestAnimationFrame(frame));
+          records.push(...observer.takeRecords());
+          observer.disconnect();
+          const buttons = actions.map((action) => action.shadowRoot!.querySelector<HTMLElement>('button')!);
+          const result = {
+            variants: buttons.map((button) => button.dataset.hostVariant),
+            drawn: buttons.every((button) => records.some((record) => [...record.addedNodes].some((node) => node === button || node.contains(button)))),
+            changed: records.filter((record) => record.type === 'attributes').length,
+            transitions: buttons.flatMap((button) => ((0, eval)(every) as (root: Element) => Animation[])(button)).length,
+          };
+          pane.remove();
+          return result;
+        },
+        { open: written === 'open', every: EVERY_ANIMATION },
+      );
+      expect(drawn).toEqual({ variants: ['tonal', 'tonal'], drawn: true, changed: 0, transitions: 0 });
+    });
+  }
 
   test('DLG-20, DLG-2, DLG-14, BTN-40: a destructive confirmation — an alertdialog whose Cancel takes the dialog’s variant and initial focus where the product marks it, and whose Delete keeps its filled variant and its destructive, at the end of the row', async ({ page }) => {
     const id = 'destructive-confirmation';

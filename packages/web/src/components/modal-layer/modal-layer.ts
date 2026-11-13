@@ -9,9 +9,11 @@ import {
   focusWithin,
   holdPageScroll,
   keyboardCover,
+  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
+  readTogether,
   report,
   returnFocus,
   watchEscape,
@@ -82,6 +84,8 @@ export class TanreiModalLayer extends TanreiElement {
   private opener: Element | null = null;
   /** The layer is presented (in the top layer). */
   private shown = false;
+  /** It is to open with the reads of the turn (`present()`), and has not yet. */
+  private presenting = false;
   private pressedScrim = false;
 
   private get dialog(): HTMLDialogElement | null {
@@ -151,32 +155,57 @@ export class TanreiModalLayer extends TanreiElement {
   };
 
   /** MDL-11: above the on-screen keyboard (the part of the layout viewport the visual viewport no longer covers). */
-  private readonly onViewport = () => {
-    this.dialog?.style.setProperty('--_keyboard', `${keyboardCover()}px`);
-  };
+  private readonly onViewport = () => this.cover(keyboardCover());
+
+  private cover(covered: number) {
+    this.dialog?.style.setProperty('--_keyboard', `${covered}px`);
+  }
 
   // ---- MDL-1 to MDL-5: presenting and focus ----
 
   /** MDL-3: focus to the slotted element marked `autofocus`, else the container, so its name is read first. */
   private focusInside() {
+    // A layer opened above it in the same turn has focus, and everything under it is inert (MDL-8).
+    const dialog = this.dialog;
+    if (!dialog || modalLayer.top !== dialog) return;
     const marked = this.querySelector<HTMLElement>('[autofocus]');
     if (marked && !marked.closest('[inert]') && typeof marked.focus === 'function') {
-      marked.focus();
+      // `showModal()` has given focus already where it could (src/primitives/modal-exit.ts): focused again, an element
+      // has the page styled for it once more.
+      if (deepActive() !== marked) marked.focus();
       if (focusWithin(this)) return;
     }
-    this.dialog?.focus();
+    if (deepActive() !== dialog) dialog.focus();
   }
 
-  /** MDL-1, MDL-2, MDL-3, MDL-8: in the top layer (above every layer opened before it), the page held, focus in. */
+  /**
+   * MDL-1, MDL-2, MDL-3, MDL-8: in the top layer (above every layer opened before it), the page held, focus in. What it
+   * reads to open — the keyboard — is read with every other host's reads of the turn (src/primitives/read-phase.ts),
+   * and it opens in the write that follows: still in the task, before a script that waits for the update
+   * (`updateComplete`) goes on. Read after its own `showModal()`, it had the browser lay the page out once per layer.
+   */
   private present() {
     const dialog = this.dialog;
-    if (!dialog || this.shown || !this.isConnected) return;
+    if (!dialog || this.shown || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      const covered = keyboardCover();
+      // Closed or taken out of the document since it was asked for, it does not open.
+      return () => {
+        if (this.open && !this.shown && this.isConnected) this.show(dialog, covered);
+      };
+    });
+  }
+
+  /** `present()`'s write: the layer opens with what was read. */
+  private show(dialog: HTMLDialogElement, covered: number) {
     watchEscape();
     this.opener = deepActive();
+    this.cover(covered);
     openModal(dialog);
     this.shown = true;
     holdPageScroll(this, true);
-    this.onViewport();
     this.focusInside();
     // MDL-3: what the open state began inside it — the colors of what took focus — begins in the first frame drawn after
     // this task, as its entrance does (statesFromNextFrame).

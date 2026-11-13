@@ -21,7 +21,8 @@
 //                 `iconGlyph()`'s. markGlyph() is the one rule, observeIcons() the page's bare `.tanrei-icon`
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
 //   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
-//                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest
+//                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest;
+//                 forwardedOwnSize(): a composed element's size, forwarded to such a member as the product set it
 //   report      — `report()`: what a debug build tells the developer (BTN-7, BTN-16…)
 //   words       — the product's words: WordsController (`get(key, this.prop)`: the prop, else the set of the
 //                 element's language, else the document's; `missing()`: recorded, reported once per key and page),
@@ -48,7 +49,10 @@
 //                  one registry of groups for a document, one read of the storage for a key (TAB-36…41, TBV-21).
 //   read-phase  — readInPhase(owner, read): a read of the layout or the cascade made after the frame's layout and before
 //                 its paint, with every other element's, all reads before any write (cancelPhaseRead() withdraws it);
-//                 readTogether(read): the same in the task of the render, once every host of the turn has drawn
+//   read-together — readTogether(read): the same in the task of the render, once every host of the turn has drawn
+//                 (apart from read-phase, so that what reads together only does not bring the phase's observer)
+//   resize-watch — ResizeWatch: one resize observer for every dialog and side sheet, each laying out when a part of its
+//                 own changes size, all of them from one report of the frame
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
@@ -94,7 +98,7 @@
 //   group-item  — the internal channel between a button group and its Buttons and icon buttons: GroupItemController
 //                 (where the item sits), groupItemStyles() (its corners, width and hit area in the group), GROUP_PLACE;
 //                 a toolbar's items are `row` items of it, their hit areas capped at the measured half-gaps (TBR-9);
-//                 a dialog gives its actions their variant through it (HOST_VARIANT, DLG-20), and a host that draws a
+//                 a dialog gives its actions their variant through it (DLG-20; HOST_VARIANT, a popover's), and a host that draws a
 //                 Button on a colored surface of its own gives it a tone (HOST_TONE, giveTone(), BTN-45)
 //   actions     — ActionPlacement and actionBoxStyles(): the actions at the foot of a dialog or a side sheet, placed by
 //                 their flags as a full-width Button group places its items (BGR-13…19) into three hand-assigned slots,
@@ -200,7 +204,7 @@
 export { iconGlyph } from '../styles/icons.js';
 export { cornerRadius, shape } from '../styles/shape.js';
 export { type OpenAxis, OpenAxesController, type OpenAxesOptions } from './axes.js';
-export { SIZE_LADDER, SizeConsumerController, SizeProviderController, nearestSize } from './size-cascade.js';
+export { OwnSize, SIZE_LADDER, SizeConsumerController, SizeProviderController, drawnSizeAt, drawnSizeAxis, forwardedOwnSize, nearestSize } from './size-cascade.js';
 export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedback } from './behavior.js';
 export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
@@ -409,7 +413,8 @@ export {
 export { layoutSize, naturalHeight } from './natural-height.js';
 export { parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
-export { type PhaseRead, cancelPhaseRead, readInPhase, readTogether } from './read-phase.js';
+export { cancelPhaseRead, readInPhase } from './read-phase.js';
+export { type PhaseRead, readTogether } from './read-together.js';
 export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';
 export {

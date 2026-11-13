@@ -1,6 +1,6 @@
 ---
 title: Size and density
-description: One number for how much room controls and rows take, a ladder of five heights for the sizes of controls, the least size anything pressable is drawn at, and a size a button group passes to its buttons.
+description: One number for how much room controls and rows take, a ladder of five heights for the sizes of controls, the least size anything pressable is drawn at, and a size a container passes to what it holds.
 ---
 
 import DensityHeights from '../../../components/tokens/DensityHeights.astro';
@@ -17,7 +17,7 @@ How tall a control or a row is comes from three values. The **density** and the 
 
 Every height that follows the density is rounded to the size unit's grid (`dial.size.unit`, 4px by default), a tie rounding up.
 
-There is no density per component or per part of a page. A few components that hold rows (a menu and others) have a choice of their own named `density`, `regular` or `compact`, which picks between two sets of their row tokens; the heights of both follow the number.
+There is no density per component or per part of a page. One component, the [navigation drawer](/components/navigation-drawer/), has a choice of its own named `density`, `regular` or `compact`, which picks between two sets of its row tokens; the heights of both follow the number.
 
 ## The size ladder
 
@@ -69,6 +69,22 @@ A size is set where the components stand. On the web, a button group's `size`, o
 - **A component's own size wins.** The third Button above is medium.
 - **Only a size that is set is passed down.** A group without a `size` passes none, so each Button in it is drawn at its own default, medium, or at the size a container around the group sets; where containers are nested, the nearest one that sets a size decides.
 - **A size the component does not have becomes its nearest one** along the ladder, extra-small, small, medium, large, extra-large, the larger of two as near.
-- **The group draws nothing of its own by its size.** Its gaps, corners and dividers stay those of its variant, around Buttons of the height they are drawn at.
+- **A button group and a toolbar draw nothing of their own by their size.** Their gaps, corners and dividers stay those of their variant, around items of the height they are drawn at.
 
-A Button drawn at a size its group gives follows the density and the minimum as it does at a size of its own. Changing the group's size, or moving a Button into or out of the group, draws it at its new size at once.
+A component drawn at a size its container gives follows the density and the minimum as it does at a size of its own. Changing the container's size, or moving a component into or out of it, draws it at its new size at once.
+
+### What passes a size, and what takes one
+
+Three containers pass the size set on them to what they hold:
+
+- A [button group](/components/button-group/), to its Buttons.
+- A [toolbar](/components/toolbar/), to its Buttons and buttons with menu, in a group or not, and to its overflow button.
+- A [list](/components/list/), to its list rows.
+
+These components take the size of the nearest of those containers where they set none of their own, and are medium where no container sets one: the [Button](/components/button/), the [button with menu](/components/button-with-menu/), the [copy button](/components/copy-button/) and the [list row](/components/list-row/), and, drawing every row or part they own at it, the [list](/components/list/), the [tree view](/components/tree-view/), the [accordion](/components/accordion/), the [table of contents](/components/table-of-contents/), the [description list](/components/description-list/) and the [table](/components/table/).
+
+The size stops there. The accordion, the description list and the table pass none on to what you place in them: a Button in a table cell keeps its own size, or takes the size of the containers around the table. And some components take none from a container at all:
+
+- A [menu](/components/menu/), including a context menu and the menus of a [menu bar](/components/menubar/), the view of a [search](/components/search/), and the list of a [select](/components/select/) or a [combobox](/components/combobox/). Each opens over the page, apart from the controls around it, so a small toolbar does not shrink the menu a Button in it opens. A menu and a search are medium unless they set their own `size`; the options of a select or a combobox follow the size of its box.
+- A Select, a Number input, a Text input or a Slider in a toolbar, each of which keeps the size you give it.
+- A [timeline](/components/timeline/), whose size is the size of its text.

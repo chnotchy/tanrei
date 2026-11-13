@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
@@ -73,7 +73,15 @@ export function INSET(size: string, { leading, chevron }: { leading: boolean; ch
  * in debug builds.
  */
 export const AXES: readonly OpenAxis[] = [
-  { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${INPUT_BOX}-container-height-${value}` },
+  {
+    name: 'size',
+    core: CORE_SIZES,
+    default: DEFAULT_SIZE,
+    rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
+    probe: (value) => `${INPUT_BOX}-container-height-${value}`,
+    // SEL-73: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
+    drawn: drawnSizeAxis,
+  },
   {
     name: 'variant',
     core: CORE_VARIANTS,
@@ -107,7 +115,7 @@ export const styles = css`
     display: none;
   }
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
-  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}
+  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, drawnSizeAt(size))).join('\n'))}
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   ${unsafeCSS(lookBlock('plain', '.field'))}

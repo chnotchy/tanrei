@@ -18,7 +18,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { launch, settle } from './launch.mjs';
+import { launch, settle, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, every cell’s tokens, took
 // 14 s in CI.
@@ -168,7 +168,7 @@ describe('the state matrix on the button’s page', () => {
       await page.waitForFunction(() => document.readyState !== 'loading');
       // No face still loading (WebKit and Firefox resolve `document.fonts.ready` only once the held scripts have run).
       await page.waitForFunction(() => [...document.fonts].every((face) => face.status !== 'loading'));
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await settlePage(page, { fonts: false });
       const measure = () =>
         page.evaluate((selector) => {
           const table = document.querySelector(selector);

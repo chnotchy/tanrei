@@ -117,8 +117,8 @@ const isItem = (element: Element) => element.localName === BUTTON || element.loc
  * drawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the
  * separation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit
  * into an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow="scroll"`, TBR-8) — and makes them one Tab stop moved
- * through with the arrow keys (TBR-10, TBR-25). A `size` set on it is the size of the Buttons and Buttons with menu in
- * it that set none of their own (TBR-31).
+ * through with the arrow keys (TBR-10, TBR-25). A `size` set on it is the size of the Buttons, Buttons with menu,
+ * Selects, Number inputs and Text inputs in it that set none of their own (TBR-31).
  *
  * Each child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws
  * the space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a
@@ -200,7 +200,9 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
   /**
    * The size of the Buttons and Buttons with menu it holds, as the Button's `size`: set on the toolbar, it is the size of
-   * every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31). Only a size set
+   * every one of them that sets none of its own, in a group or not, and of the overflow button (TBR-31), and the size of
+   * the box of every Select, Number input and Text input that sets none, so that it stands as tall as the Buttons beside
+   * it (a Slider takes none: its size is its track's weight). Only a size set
    * on the toolbar is passed: a toolbar that sets none (`null`, the default) leaves each item at its own default,
    * `medium`, or at the size a container around the toolbar sets. An item's own size always wins. It draws nothing of
    * the toolbar's own: its container size, paddings and gaps stay its variant's. A size a design system added to the

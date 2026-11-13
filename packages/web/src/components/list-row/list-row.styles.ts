@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { iconGlyph } from '../../primitives/index.js';
+import { drawnSizeAxis, iconGlyph } from '../../primitives/index.js';
 
 // Every visual value is a token (tokens/comp/list-row.tokens.json). A row has no state of its own: what changes what it
 // draws is its size, its number of lines (LRW-3) and what the list item it is in tells it (LRW-8, LRW-9).
@@ -37,7 +37,7 @@ export const AXES: readonly OpenAxis[] = [
     rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-padding-block-${value}` as const,
     // LRW-17: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
-    drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt },
+    drawn: { read: drawnSizeAxis.read, selector: drawnAt },
   },
 ];
 

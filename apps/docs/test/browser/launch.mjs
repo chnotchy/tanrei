@@ -17,8 +17,12 @@
 // has the contexts it opened closed, and, if it ran out of time, its failure names what it was still waiting for
 // (below). `test:browser` runs with `--test-force-exit`, so that a file whose browser no longer answers ends once its
 // tests have reported, instead of being held open by its connection to that browser.
+import fs from 'node:fs';
+import path from 'node:path';
 import { afterEach, beforeEach } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import * as playwright from '@playwright/test';
+import { serveDist } from './host.mjs';
 import { SETTLE, describeRequests, settleDocument, settleFrame } from './waits.mjs';
 
 /** How long a browser has to answer what has no limit of Playwright's: a new context or page, closing one, a script. */
@@ -152,7 +156,7 @@ export async function settle(page, selector, { scroll, pending } = {}) {
 
 /**
  * `page` settled as a whole (`settleDocument` in waits.mjs: the tags of `tags` and of the elements `among` matches
- * defined, the update of the element `update` names complete, the fonts in unless `fonts` is false, `frames` frames
+ * defined, the update of every element `update` matches complete, the fonts in unless `fonts` is false, `frames` frames
  * drawn), each wait within its bound; one that runs out fails at once, as `settle` does. `settlePage(page, { fonts:
  * false })` is two frames drawn, and no more.
  * @param {import('@playwright/test').Page} page
@@ -161,6 +165,49 @@ export async function settle(page, selector, { scroll, pending } = {}) {
 export async function settlePage(page, options = {}) {
   const lost = await page.evaluate(settleDocument, { ...options, bounds: SETTLE });
   if (lost) throw new Error(`${page.url()} did not settle: ${lost}. Outstanding: ${outstanding(page)}.`);
+}
+
+/**
+ * The page of the site a new Chromium draws before it is handed to a test (`launch`): the Button's, whose waits the
+ * bounds in waits.mjs were measured on, with its scripts, its elements defined and its fonts in.
+ */
+const FIRST_PAGE = '/components/button/';
+
+/**
+ * A new Chromium draws one page of the built site (served from `dist/` for it alone), its fonts in and two frames
+ * drawn, all of it given ANSWER, before any test has it. A Chromium that has drawn nothing yet builds its raster
+ * pipelines (Skia on Dawn on SwiftShader, compiled on the CPU: the switches below) as the site's first pages are drawn,
+ * and keeps them for every page after, whatever their address. Traced on a laptop under load (fourteen busy loops
+ * beside it, load near 40): the GPU process's main thread spent 5.4 s in seven raster tasks
+ * (`RasterDecoderImpl::DoEndRasterCHROMIUM`, almost none of it their flush) after the first two pages' load, and those
+ * pages drew no frame for 5.7 and 5.9 s while their own timers ran on time, visible and focused; without the load it
+ * took about a second. A test's bounded wait for frames (`settle`, `settlePage`: 5 s) could then be the one to pay it:
+ * the sidebar's stand-in test, whose first two pages wait for frames as soon as they have loaded, failed so once in
+ * four runs of the docs files three at a time (load near 15), and in 3 runs of 3 under the busy loops with a recorder
+ * of frames in its pages (2 runs without the recorder passed); the one-frame test's first `settle` failed so once in
+ * another run of the files three at a time (load near 22). With a page of the site drawn first the stand-in test
+ * passed in 8 runs of 8 under the busy loops; a page of one line of text drawn first did not help (both first pages
+ * went 6 s without a frame): the pipelines are those of what the site draws. The page is not one of a test's, and
+ * nothing of it is kept but what the GPU process built.
+ * @param {import('@playwright/test').Browser} browser a Chromium, before `launch` wraps it
+ */
+async function warmUp(browser) {
+  const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
+  if (!fs.existsSync(path.join(dist, 'index.html'))) return; // the files say themselves that the site is not built
+  const host = await serveDist(dist);
+  const address = `${host.origin}${FIRST_PAGE}`;
+  let context;
+  try {
+    await bounded(`chromium: its first page, ${address}, drawn before the tests`, (async () => {
+      context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      const page = await context.newPage();
+      await page.goto(address, { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready.then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
+    })());
+  } finally {
+    await context?.close();
+    await host.close();
+  }
 }
 
 /** The engines Playwright launches. */
@@ -221,7 +268,8 @@ export function engines(fallback = 'chromium') {
 /**
  * Launch an engine as every browser test launches it. A Chromium that does not raster on the GPU is closed and the
  * launch fails, saying so: the switches above would otherwise stop working without anyone noticing (a new Chromium
- * that reads them otherwise, a GPU it refuses), and the gallery's pages would be left to stop as before.
+ * that reads them otherwise, a GPU it refuses), and the gallery's pages would be left to stop as before. A Chromium
+ * that does raster on the GPU draws a page of the site before it is returned (`warmUp`).
  * @param {string} [engine]
  * @returns {Promise<import('@playwright/test').Browser>}
  */
@@ -236,6 +284,10 @@ export async function launch(engine = 'chromium') {
       await browser.close();
       throw new Error(`Chromium rasters in software (rasterization: ${featureStatus.rasterization}, gpu_compositing: ${featureStatus.gpu_compositing}), where a scrolled page can stop for good: it is launched to raster on SwiftShader's GPU (launch.mjs)`);
     }
+    await warmUp(browser).catch(async (cause) => {
+      await browser.close();
+      throw cause;
+    });
   }
   const newContext = browser.newContext.bind(browser);
   browser.newContext = async (...args) => {

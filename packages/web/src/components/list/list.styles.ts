@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
+import { drawnSizeAt, drawnSizeAxis, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -24,9 +24,6 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   --_lst-padding-block: ${ref('container-padding-block', size, fallback)};
 }`;
 
-/** LST-51: the selector of the size the list draws (`size-<name>`, a custom state the list sets). */
-const drawnAt = (size: string) => `:host(:state(size-${size}))`;
-
 /** LST-51: a size a layer added gets its block on demand, falling back to the default's tokens. */
 export const AXES: readonly OpenAxis[] = [
   {
@@ -36,7 +33,7 @@ export const AXES: readonly OpenAxis[] = [
     rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE),
     probe: (value) => `${PREFIX}-container-height-${value}` as const,
     // LST-51: the size it draws — its own, else the one its nearest container sets — carried by a custom state.
-    drawn: { read: (host) => String((host as HTMLElement & { drawnSize: string }).drawnSize ?? ''), selector: drawnAt },
+    drawn: drawnSizeAxis,
   },
 ];
 
@@ -72,7 +69,7 @@ export const listStyles = css`
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(
     CORE_SIZES.filter((size) => size !== DEFAULT_SIZE)
-      .map((size) => sizeBlock(size, drawnAt(size)))
+      .map((size) => sizeBlock(size, drawnSizeAt(size)))
       .join('\n'),
   )}
   :host([gap='small']) {

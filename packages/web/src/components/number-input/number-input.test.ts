@@ -17,6 +17,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -2424,6 +2425,13 @@ test.describe('the frame around it and the Button it places', () => {
     await focusInput(page, 'filled-value');
     await page.keyboard.press('ArrowUp');
     expect(await read(page, 'filled-value')).toMatchObject({ value: 13, text: '13' });
+  });
+});
+
+test.describe('the size a container sets', () => {
+  test('NMI-49: without a size of its own a number input draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default — and its steppers follow it (NMI-25); its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectBoxTakesContainerSize(page, 'tanrei-number-input', T, { inner: { selector: '[part="stepper"]', sizes: ['small', 'medium', 'medium'] } });
   });
 });
 

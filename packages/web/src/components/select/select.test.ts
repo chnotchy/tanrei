@@ -21,6 +21,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -3342,6 +3343,18 @@ test.describe('the clear button', () => {
     near(m.glyph.x + m.glyph.width / 2 - (m.chevron.x + m.chevron.width), gap + icon / 2, `${id}: after the chevron`);
     expect(m.glyph.x + m.glyph.width).toBeLessThan(value.x);
     expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+  });
+});
+
+test.describe('the size a container sets', () => {
+  test('SEL-73: without a size of its own a select draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectBoxTakesContainerSize(page, 'tanrei-select', T);
+  });
+
+  test('SEL-70, SEL-73: the options are drawn at the size the box is drawn at — small rows from a select without a size in a small toolbar, medium ones from one whose size is medium there —, and a removal of the toolbar’s size with the list open draws medium rows at once', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
+    await expectOptionsTakeDrawnSize(page, 'tanrei-select');
   });
 });
 

@@ -1,5 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
 import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, reducedMotion } from '../styles/motion.js';
+import { type PhaseRead, readThenWrite, readTogether } from './read-together.js';
 
 // How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-6):
 //
@@ -327,17 +328,44 @@ const heldOnce = new WeakSet<Animation>();
  * again it would start over from a later one.
  */
 export function startFromNextFrame(motions: readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
+  holdFromNextFrame(motions, leaving)?.();
+}
+
+/**
+ * `startFromNextFrame()` with every other host's reads of the turn (`readTogether`, src/primitives/read-together.ts): the
+ * motions `motions()` gives are listed — asking flushes style — together with the others, and held after every read.
+ * Still in the task that started them, before any frame: they begin in the first frame drawn after it, as they would
+ * held at once. Ask once the change that starts them has been made.
+ */
+export function startTogetherFromNextFrame(motions: () => readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
+  askFrame();
+  readTogether(() => holdFromNextFrame(motions(), leaving));
+}
+
+/**
+ * `startFromNextFrame()` in two steps: which of `motions` to hold (a read: asking a CSS motion its state brings style up
+ * to date), and the write that holds them. A motion cancelled in between (replaced by a write that came first) has no
+ * time, and is left as it is.
+ */
+function holdFromNextFrame(motions: readonly Animation[], leaving: boolean): (() => void) | void {
   if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
   const started = motions.filter((animation) => animation.playState === 'running' && !heldOnce.has(animation));
   if (!started.length) return;
-  for (const animation of started) {
-    heldOnce.add(animation);
-    animation.pause();
-    animation.currentTime = 0;
-  }
-  nextFrame(() => {
-    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) playFromThisFrame(animation);
-  }, leaving);
+  return () => {
+    const held = started.filter((animation) => !heldOnce.has(animation) && animation.currentTime !== null);
+    if (!held.length) return;
+    for (const animation of held) {
+      heldOnce.add(animation);
+      animation.pause();
+      animation.currentTime = 0;
+    }
+    nextFrame(() => {
+      const due = held.filter((animation) => animation.playState === 'paused' && animation.currentTime === 0);
+      return () => {
+        for (const animation of due) playFromThisFrame(animation);
+      };
+    }, leaving);
+  };
 }
 
 /**
@@ -376,7 +404,8 @@ export function playFromThisFrame(animation: Animation): void {
  * have rendered — still in the task, as they are microtasks: what an item draws differently once the change reaches it.
  * They are played in that frame even where a page clock holds frame callbacks (`leaving`): what a state's motion moves
  * runs on the document's timeline, which no page clock holds, so it must not stand at its start for as long as a clock
- * is held. Call it at the end of the opening (or closing) task, once focus has moved: asking brings style up to date.
+ * is held. Call it at the end of the opening (or closing) task, once focus has moved. The motions are listed with every
+ * other host's reads of the turn (`readTogether`), still in the task: asking brings style up to date, once for them all.
  */
 export function statesFromNextFrame(roots: readonly (Element | null | undefined)[]): void {
   const given = roots.filter((root): root is Element => !!root);
@@ -406,13 +435,16 @@ function treesUnder(roots: readonly Element[]): { trees: (Element | ShadowRoot)[
 /**
  * `statesFromNextFrame()`'s hold: every motion under `roots` that stands at its start, but an appearance's (on an
  * element that carries `APPEARING`), which its controller holds or leaves (`AppearController`: an exit that turns an
- * entrance round is left as it is). Asking brings style up to date.
+ * entrance round is left as it is). Asked with every other host's reads of the turn (`startTogetherFromNextFrame`):
+ * asking brings style up to date.
  */
 function holdStates(roots: readonly Element[]) {
-  const motions = treesUnder(roots).trees.flatMap((tree) => (tree instanceof Element ? tree.getAnimations({ subtree: true }) : tree.getAnimations()));
   const appearing = (animation: Animation) => !!((animation.effect as KeyframeEffect | null)?.target as Element | null)?.hasAttribute(APPEARING);
-  startFromNextFrame(
-    motions.filter((animation) => Number(animation.currentTime ?? 0) === 0 && !appearing(animation)),
+  startTogetherFromNextFrame(
+    () =>
+      treesUnder(roots)
+        .trees.flatMap((tree) => (tree instanceof Element ? tree.getAnimations({ subtree: true }) : tree.getAnimations()))
+        .filter((animation) => Number(animation.currentTime ?? 0) === 0 && !appearing(animation)),
     { leaving: true },
   );
 }
@@ -430,33 +462,71 @@ async function afterUpdates(roots: readonly Element[]): Promise<void> {
   }
 }
 
+/** A request of `nextFrame()`: its read, and the observer that runs it where a page clock holds frame callbacks. */
+interface FrameRequest {
+  read: PhaseRead;
+  done: boolean;
+  observer: ResizeObserver | null;
+}
+
+/** What has asked for the next frame, in the order it asked. */
+let frameRequests: FrameRequest[] = [];
+let frameAsked = false;
+
 /**
- * Runs `then` once, in the next frame the document draws: in its frame callbacks. `unheld` (an exit, which a surface
- * waits for before it leaves the top layer): also where a page clock holds those callbacks (Playwright's `page.clock`,
- * a test's fake timers), at a resize observer's first report of the root, which every drawn frame gives and no clock
- * holds; else the surface would stand at the start of its exit for as long as the clock does, and never leave. The
- * root is observed from a task of its own (a message, which no clock holds either), so that the report is a later
- * frame's even when this is asked for in a frame's callbacks, and so that no observation begins while resize
- * observers report (WebKit reports one begun then as a loop of undelivered notifications). An entrance is played from
- * the frame callbacks alone, as before: nothing waits for it (under a held clock it stands at its start).
+ * The frame callback that runs the requests of the next frame (`nextFrame`), asked for once. A hold made with the
+ * reads of the turn asks for it when it is asked for, not once it has read: its motions are played in that frame before
+ * the callbacks a script asked for after it, as they would be held at once.
  */
-function nextFrame(then: () => void, unheld: boolean) {
-  let done = false;
-  let observer: ResizeObserver | null = null;
-  const run = () => {
-    if (done) return;
-    done = true;
-    observer?.disconnect();
-    then();
-  };
-  requestAnimationFrame(run);
+function askFrame() {
+  if (frameAsked || typeof requestAnimationFrame !== 'function') return;
+  frameAsked = true;
+  requestAnimationFrame(() => {
+    frameAsked = false;
+    const due = frameRequests;
+    frameRequests = [];
+    runFrame(due);
+  });
+}
+
+/**
+ * The reads of `requests` not made yet, then the writes they returned: asking a held motion its state brings style up
+ * to date, and a motion played on changes it, so every read comes before the first write — one style for them all.
+ */
+function runFrame(requests: readonly FrameRequest[]) {
+  const due = requests.filter((request) => !request.done);
+  for (const request of due) {
+    request.done = true;
+    request.observer?.disconnect();
+  }
+  // One surface's failure is not another's: every read and write runs, and the first failure is the frame's.
+  readThenWrite(due.map((request) => request.read));
+}
+
+/**
+ * Runs `read` once, in the next frame the document draws: in its frame callbacks, with every other request of that
+ * frame — all their reads, then the writes they return. `unheld` (an exit, which a surface waits for before it leaves
+ * the top layer): also where a page clock holds those callbacks (Playwright's `page.clock`, a test's fake timers), at a
+ * resize observer's first report of the root, which every drawn frame gives and no clock holds; else the surface would
+ * stand at the start of its exit for as long as the clock does, and never leave. The root is observed from a task of
+ * its own (a message, which no clock holds either), so that the report is a later frame's even when this is asked for
+ * in a frame's callbacks, and so that no observation begins while resize observers report (WebKit reports one begun
+ * then as a loop of undelivered notifications). An entrance is played from the frame callbacks alone, as before:
+ * nothing waits for it (under a held clock it stands at its start). One frame callback serves every request: a
+ * request made in it is the next frame's.
+ */
+function nextFrame(read: PhaseRead, unheld: boolean) {
+  const request: FrameRequest = { read, done: false, observer: null };
+  frameRequests.push(request);
+  askFrame();
   if (!unheld || typeof ResizeObserver !== 'function' || typeof MessageChannel !== 'function') return;
   const soon = new MessageChannel();
   soon.port1.onmessage = () => {
     soon.port1.close();
-    if (done) return;
-    observer = new ResizeObserver(run);
-    observer.observe(document.documentElement);
+    if (request.done) return;
+    // Reported, every request observed by then is run with it.
+    request.observer = new ResizeObserver(() => runFrame(frameRequests.filter((each) => each.observer)));
+    request.observer.observe(document.documentElement);
   };
   soon.port2.postMessage(0);
 }
@@ -524,6 +594,8 @@ export class AppearController implements ReactiveController {
   private quiet: HTMLElement | null = null;
   /** The transitions of the last entrance: an exit turns round from it while any of them has not finished. */
   private entrance: Animation[] = [];
+  /** The motion element of an entrance asked for and not listed yet (`arrive()`). */
+  private arriving: HTMLElement | null = null;
 
   constructor(
     private readonly host: Host & { isUpdatePending?: boolean },
@@ -571,13 +643,37 @@ export class AppearController implements ReactiveController {
     else this.arrive();
   }
 
+  /**
+   * The entrance, made at once or held to begin in the next frame. Held, its transitions are listed with every other
+   * host's reads of the turn (`readTogether`): a hundred surfaces opened in one task style the page once for them, not
+   * once each after the last one's write. An exit asked before that lists them itself (`exit()`).
+   */
   private arrive() {
     const motion = this.options.motion();
     if (!motion || !this.opened) return;
-    motion.setAttribute(APPEARING, '');
-    if (this.instant || !documentPainted() || !motion.isConnected) atOnce(motion);
-    else fromNextFrame(motion);
-    this.entrance = appearing(motion);
+    if (!motion.hasAttribute(APPEARING)) motion.setAttribute(APPEARING, '');
+    if (this.instant || !documentPainted() || !motion.isConnected) {
+      this.arriving = null;
+      // Made at once, it has no entrance: `atOnce` finished every transition and put the transitions back with no value
+      // changed, which starts none. Asking for them again had the page styled once more for nothing.
+      atOnce(motion);
+      this.entrance = [];
+      return;
+    }
+    const run = this.run;
+    this.arriving = motion;
+    askFrame();
+    readTogether(() => {
+      if (run !== this.run || this.arriving !== motion) return;
+      const entrance = appearing(motion);
+      const hold = holdFromNextFrame(entrance, false);
+      return () => {
+        if (run !== this.run || this.arriving !== motion) return;
+        this.arriving = null;
+        this.entrance = entrance;
+        hold?.();
+      };
+    });
   }
 
   /**
@@ -627,6 +723,10 @@ export class AppearController implements ReactiveController {
     // entrance, the exit is not held either: in Firefox an exit held at its start that replaced an entrance still under
     // way was drawn from nothing (a tooltip closed a quarter of the way into an entrance a script had moved there: an
     // opacity of 0.0006 where 0.25 was shown, TIP-29).
+    // An entrance asked in this task and not listed yet (`arrive()`) is listed now: it has begun, and is under way.
+    const arriving = this.arriving;
+    this.arriving = null;
+    if (arriving?.isConnected) this.entrance = appearing(arriving);
     let closing = this.opened && this.entrance.every((animation) => animation.playState === 'finished');
     this.entrance = [];
     this.opened = false;

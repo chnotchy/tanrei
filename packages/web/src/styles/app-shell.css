@@ -98,6 +98,10 @@
     /* APS-8, APS-9, APS-11: the inset of the main region, of a stacked aside and of the footer, from each edge. */
     --_aps-inline-start: max(var(--_aps-gutter), var(--_aps-inset-start));
     --_aps-inline-end: max(var(--_aps-gutter), var(--_aps-inset-end));
+    /* APS-8, NVD-96: the main region's and a stacked aside's start inset is at least the target of the resize handle that
+       a navigation drawer draws beside its end edge, which lies wholly over that inset (below); none without one. */
+    --_aps-band: 0px;
+    --_aps-main-start: max(var(--_aps-inline-start), var(--_aps-band));
     /* APS-18: the separation this frame draws — its attribute's, else comp.app-shell.separation's — and its line. */
     --_aps-separation: var(--tanrei-comp-app-shell-separation);
     --_aps-line: var(--tanrei-comp-app-shell-outline-width);
@@ -233,6 +237,18 @@
   :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation']:not([data-over])) {
     z-index: 1;
   }
+  /* APS-8, NVD-96: while the drawer draws its handle (its `data-resize`), the main content starts past the handle's
+     target — sys.target.pointer, or sys.target.touch for a coarse pointer, the drawer's own condition — so that the
+     target lies over the inset alone and never takes a press meant for the content (WCAG 2.5.8). Asked of the frame,
+     which hands it down as `--_aps-band`. A drawer that is not defined yet: below, in an expanded window (APS-24). */
+  :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][data-resize])) {
+    --_aps-band: var(--tanrei-sys-target-pointer);
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][data-resize])) {
+      --_aps-band: var(--tanrei-sys-target-touch);
+    }
+  }
   /* APS-5: what is not a navigation drawer scrolls inside that height by itself (a drawer does: NVD-61). */
   :where(tanrei-app-shell) > :where([slot='navigation']:not(tanrei-navigation-drawer)) {
     overflow: auto;
@@ -260,7 +276,7 @@
     box-sizing: border-box;
     min-inline-size: 0;
     padding-block: var(--tanrei-comp-app-shell-main-padding-block);
-    padding-inline: max(var(--_aps-inline-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
+    padding-inline: max(var(--_aps-main-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
   }
   /* APS-20: the main region takes focus when the skip link is followed; it is not a control, and draws no ring. */
   :where(tanrei-app-shell) > :where(main:focus, [role='main']:focus) {
@@ -275,7 +291,7 @@
     grid-area: after / main-start / auto / frame-end;
     box-sizing: border-box;
     min-inline-size: 0;
-    margin-inline: max(var(--_aps-inline-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
+    margin-inline: max(var(--_aps-main-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
     margin-block-start: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2 - var(--tanrei-comp-app-shell-main-padding-block));
     border-block-start: var(--_aps-line) solid var(--_aps-line-color);
     padding-block: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2) var(--tanrei-comp-app-shell-main-padding-block);
@@ -449,6 +465,17 @@
     }
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not(:defined, [collapsible])) {
       display: none;
+    }
+    /* APS-8, APS-24: …and a drawer that will draw its resize handle beside the content (NVD-96: resizable unless written
+       "false", shown as responsive or open, not modal, and not hidden by expanded false) has the main content start past
+       the handle's target already, as it will once defined. */
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][expanded='false']:not([collapsible])))) {
+      --_aps-band: var(--tanrei-sys-target-pointer);
+    }
+    @media (pointer: coarse) {
+      :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][expanded='false']:not([collapsible])))) {
+        --_aps-band: var(--tanrei-sys-target-touch);
+      }
     }
     :where(tanrei-app-shell) > :where([slot='aside']:not(tanrei-side-sheet)) {
       inline-size: var(--tanrei-comp-app-shell-aside-width);

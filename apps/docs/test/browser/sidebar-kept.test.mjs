@@ -15,7 +15,8 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { engines, launch } from './launch.mjs';
+import { engines, launch, settlePage } from './launch.mjs';
+import { SETTLE } from './waits.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs).
 const LIMIT = { timeout: 120_000 };
@@ -43,15 +44,22 @@ const DRAWER = 'tanrei-navigation-drawer.docs-sidebar';
 /** Where the width and the fold are kept (Sidebar.astro). */
 const KEY = 'tanrei-docs-sidebar-layout';
 
-/** Waits until the drawer is defined, drawn and at rest. */
-const ready = (page) =>
-  page.evaluate(async () => {
-    await Promise.all(['tanrei-app-shell', 'tanrei-navigation-drawer'].map((tag) => customElements.whenDefined(tag)));
-    const drawer = document.querySelector('tanrei-navigation-drawer.docs-sidebar');
-    await drawer.updateComplete;
-    await Promise.all(drawer.getAnimations({ subtree: true }).map((motion) => motion.finished.catch(() => {})));
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+/** Waits until the drawer is defined, drawn and at rest, each wait bounded (launch.mjs; its motion given `SETTLE.frames`). */
+const ready = async (page) => {
+  await settlePage(page, { tags: ['tanrei-app-shell', 'tanrei-navigation-drawer'], update: DRAWER, fonts: false, frames: 0 });
+  const moving = await page.evaluate(
+    async ([selector, ms]) => {
+      const motions = document.querySelector(selector).getAnimations({ subtree: true });
+      let timer;
+      await Promise.race([Promise.all(motions.map((motion) => motion.finished.catch(() => {}))), new Promise((resolve) => (timer = setTimeout(resolve, ms)))]);
+      clearTimeout(timer);
+      return motions.filter((motion) => motion.playState === 'running').map((motion) => motion.animationName || motion.transitionProperty || 'an animation');
+    },
+    [DRAWER, SETTLE.frames],
+  );
+  if (moving.length) throw new Error(`${page.url()}: the drawer still moves after ${SETTLE.frames / 1000} s (${moving.join(', ')})`);
+  await settlePage(page, { fonts: false });
+};
 
 /** The drawer as it is drawn: its width, whether it is folded, what it was given, and what is kept. */
 const seen = (page) =>
