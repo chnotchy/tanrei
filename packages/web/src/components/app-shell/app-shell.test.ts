@@ -418,6 +418,41 @@ test.describe('the navigation', () => {
     expect([panel.top, panel.height]).toEqual([bar.bottom, 800 - bar.height]);
   });
 
+  test('APS-5, NVD-97, NVD-102: a navigation drawer whose least width is wider than the window less a touch target is drawn at the window less a touch target — its rows inside it, the main region beginning at its end — its handle says that width as its value, least and greatest, its keys change nothing and nothing is emitted; at its least width again where the window has room for it', async ({ page }) => {
+    // minWidth 1300: wider than the room an expanded window of 1280 or of 1100 gives the navigation.
+    await mount(page, real({ navigation: DRAWER('responsive min-width="1300"') }), { width: 1280 });
+    const touch = await resolveToken(page, '--tanrei-sys-target-touch');
+    await page.evaluate(() => {
+      const log: number[] = ((window as unknown as { __widths: number[] }).__widths = []);
+      document.addEventListener('widthchange', (event) => log.push((event as CustomEvent<{ width: number }>).detail.width));
+    });
+    const separator = drawer(page).locator('tanrei-handle [role="separator"]');
+    const rows = drawer(page).locator('tanrei-navigation-drawer-item .row > .container');
+    const expectAtRoom = async (width: number) => {
+      const room = width - touch;
+      const nav = await edges(drawer(page));
+      expect([nav.left, nav.width], `window ${width}`).toEqual([0, room]);
+      near((await edges(main(page))).left, nav.right);
+      for (const row of await rows.all()) expect((await edges(row)).right, `window ${width}`).toBeLessThanOrEqual(nav.right);
+      for (const name of ['aria-valuenow', 'aria-valuemin', 'aria-valuemax']) await expect(separator, `window ${width} ${name}`).toHaveAttribute(name, String(room));
+    };
+    await expectAtRoom(1280);
+    await tabTo(page, separator);
+    for (const key of ['End', 'Home', 'Shift+ArrowLeft', 'ArrowRight', 'Enter']) {
+      await page.keyboard.press(key);
+      await frame(page);
+      expect((await edges(drawer(page))).width, key).toBe(1280 - touch);
+    }
+    await resize(page, 1100);
+    expect(await windowClass(page)).toBe('expanded');
+    await expectAtRoom(1100);
+    // With room for it, the drawer is at its least width again.
+    await resize(page, 1400);
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(1300);
+    await expect(separator).toHaveAttribute('aria-valuenow', '1300');
+    expect(await page.evaluate(() => (window as unknown as { __widths: number[] }).__widths)).toEqual([]);
+  });
+
   test('APS-5, APS-9: a wheel turned on past the end of what the navigation holds, or of the aside beside the main region, and turned again after a pause, leaves the page where it was; the same wheel over the main region scrolls the page', async ({ page }) => {
     const tall = '<nav slot="navigation" aria-label="Documentation" style="inline-size: 200px"><div style="block-size: 3000px">Tokens</div></nav>';
     const long = `<aside slot="aside"><div style="block-size: 2400px">Aside</div></aside>`;
