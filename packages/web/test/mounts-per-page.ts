@@ -54,8 +54,11 @@ function testId(): string | undefined {
   }
 }
 
-/** Counts one mount of a document of fixtures into `page`, and fails the test at a mount past what it may make. */
-export function countMount(page: Page): void {
+/**
+ * Counts one mount of a document of fixtures into `page`, and fails the test at a mount past what it may make. Returns
+ * which mount of the page this is (1 for its first).
+ */
+export function countMount(page: Page): number {
   const count = (mounts.get(page) ?? 0) + 1;
   mounts.set(page, count);
   const id = testId();
@@ -67,7 +70,7 @@ export function countMount(page: Page): void {
         : `mountFixtures: this page's mount ${count} is past the ${allowed} that MOUNTS_OVER_THE_CAP allows this test (test/mounts-per-page.ts). The list only shrinks: split the test instead.`,
     );
   }
-  if (count > 1) return;
+  if (count > 1) return count;
   // The page closes at the end of its test (or when the test closes it): a test on the list that passed with no more
   // mounts than the cap is taken off it.
   page.once('close', () => {
@@ -82,4 +85,5 @@ export function countMount(page: Page): void {
     if (!info || !id || testId() !== id || !(id in MOUNTS_OVER_THE_CAP) || info.errors.length || info.status !== 'passed' || info.expectedStatus !== 'passed') return;
     expect.soft(total, `${id} is in MOUNTS_OVER_THE_CAP (test/mounts-per-page.ts) but mounted ${total} documents into its page, no more than the ${MOUNTS_PER_PAGE} a page may take: take it off the list`).toBeGreaterThan(MOUNTS_PER_PAGE);
   });
+  return count;
 }

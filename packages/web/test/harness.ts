@@ -2711,7 +2711,16 @@ async function mountDocument(page: Page, spec: Spec, given: DocumentOptions & Mo
   const tag = spec.platforms.web.name;
   // Only when asked: a test that emulated reduced motion itself keeps it across mounts.
   if (options.reducedMotion !== undefined) await page.emulateMedia({ reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference' });
-  countMount(page);
+  const mount = countMount(page);
+  // A later mount writes its document into the same window (`document.open()`). In Chromium, once the mouse has moved
+  // over an earlier document of the window — a move alone, without a press — no element of the new one captures the
+  // mouse: `setPointerCapture()` throws nothing and takes no effect (`hasPointerCapture()` false, no
+  // `gotpointercapture`) for every later press there, and a drag stops where the pointer leaves the element it began on
+  // (a drawer's resize handle: at its edge). Neither a move nor a click in the new document ends it; the mouse out of the
+  // window before the document is written does. Firefox and WebKit capture there. So in Chromium the mouse leaves the
+  // window before every mount after the first (src/remount-capture.test.ts), and a test points at the new document
+  // before it presses there.
+  if (mount > 1 && page.context().browser()?.browserType().name() === 'chromium') await page.mouse.move(-1, -1);
   await page.setContent(await fixturesDocument(spec, options));
   // A spec that is a class on the web (prose) defines no element to wait for.
   if (!STAGING[spec.name]?.element) await page.waitForFunction((t) => !!customElements.get(t), tag);
