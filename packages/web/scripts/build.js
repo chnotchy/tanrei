@@ -1,6 +1,10 @@
-// Copies the generated token stylesheets into dist/ (the default system, plus one opt-in sheet per preset), writes the optional
-// stylesheets (icons, text, prose, link, code, table, accordion, table-of-contents, description-list, figure, app-shell, page-header, tree-view, breadcrumbs, shape, callout) and produces a self-contained, callout, empty-state) and produces a self-contained, avatar) and produces a self-contained
-// bundle (Lit included) for <script type="module"> use, demos and the test harness. It runs in `pnpm build` after
+// Writes into dist/, beside the compiler's modules: the generated token stylesheets (the default system's, and each
+// shipped system's under dist/systems/ with its components manifest and theme colors), the page's stylesheets (base,
+// text, prose, link, code, steps, timeline and the other light-DOM sheets, and tanrei.css, which holds them all), the
+// light-DOM stylesheets' text into their elements' modules, an entry per shipped system and `all`, each system's
+// elements' manifest,
+// the self-contained bundle (Lit included) for <script type="module"> use, demos and the test harness, and the files of
+// `@tanrei/web/links/node` — and minifies the `css` templates of the compiler's modules. It runs in `pnpm build` after
 // scripts/clean.js has removed dist/ and the compiler has written its modules there, so nothing it writes needs to
 // clear an earlier build's files first.
 import fs from 'node:fs';
