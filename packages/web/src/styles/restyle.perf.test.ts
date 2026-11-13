@@ -25,9 +25,9 @@
 //     the usual reduced-motion reset on the page, and the components' own state transitions starting (300 buttons:
 //     278 ms in Chromium with a registered property, 44 without; the mixed page with links and prose: 370 ms and 46);
 //   - a page that holds tree views and loads their stylesheet has none either, and is held to the same budget;
-//   - in Chromium, where a registered property is dear, each of those pages is also measured against itself with one
-//     property registered (`withinCleanBudget` below): a number of ms tells a clean page from a dear one on one
-//     machine only;
+//   - in Chromium and WebKit, wherever a registered property makes the page dear, each of those pages is also measured
+//     against itself with one property registered (`withinCleanBudget` below): a number of ms tells a clean page from
+//     a dear one on one machine only;
 //   - the README still tells a page what its own sheet must not do — a product may register a property of its own, or
 //     load another library that does — and the last tests still hold that no rule of the package transitions every
 //     property.
@@ -132,18 +132,14 @@ const CONTRAST = `(run) => document.documentElement.setAttribute('data-tanrei-co
 /** The same change from wherever the page is: to the other contrast. */
 const CONTRAST_TOGGLE = `() => document.documentElement.setAttribute('data-tanrei-contrast', document.documentElement.getAttribute('data-tanrei-contrast') === 'high' ? 'standard' : 'high')`;
 
-/**
- * The most a change of contrast may take on this page (`SHEETS`: it loads the link's and prose's stylesheets, which
- * register nothing), in ms. Measured (load 12 to 16), the median of five changes on three pages: Chromium
- * 46 without the preference — each part that draws a color starts its state transition — and 22 with it; Firefox 69
- * and 33; WebKit 61 and 49. With four names registered by those two stylesheets the same change takes Chromium 370 ms
- * without the preference (a start is one of the dear cases above wherever a property is registered): Chromium's budget
- * is the one of a page with no registered property (`CLEAN_BUDGET` and `withinCleanBudget` below), which that fails. The others: about five
- * times the measured value — room for a busy machine and another engine version, none for the rule this guards
- * against (`UNIVERSAL` below: 1.8 s in WebKit while a registered property inherited, 70 s and 29 s on a page of 9,000).
+/*
+ * A change of contrast on this page (`SHEETS`: it loads the link's and prose's stylesheets, which register nothing) is
+ * held as on the page of the tokens and the elements (`withinCleanBudget` below). Measured (load 12 to 16), the median
+ * of five changes on three pages: Chromium 46 ms without the preference — each part that draws a color starts its
+ * state transition — and 22 with it; Firefox 69 and 33; WebKit 61 and 49. With four names registered by those two
+ * stylesheets the same change takes Chromium 370 ms without the preference (a start is one of the dear cases above
+ * wherever a property is registered), which the page's own measure fails.
  */
-const BUDGET = { chromium: { 'no-preference': 150, reduce: 150 }, firefox: { 'no-preference': 400, reduce: 400 }, webkit: { 'no-preference': 400, reduce: 400 } } as const;
-
 for (const motion of ['no-preference', 'reduce'] as const) {
   test(`a change of contrast on 2,000 elements is drawn within its budget (motion: ${motion})`, async ({ page, browserName }) => {
     test.slow();
@@ -156,8 +152,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     test.info().annotations.push({ type: 'measured', description: `${Math.round(ms)} ms (${browserName}, ${motion})` });
     // Five changes: the page ends on high contrast, and the tokens did change.
     expect(await color(), 'the contrast changed the tokens').not.toBe(standard);
-    if (browserName === 'chromium') await withinCleanBudget(page, browserName, ms, motion === 'no-preference');
-    else expect(ms, `the change is drawn within ${BUDGET[browserName][motion]} ms`).toBeLessThan(BUDGET[browserName][motion]);
+    await withinCleanBudget(page, browserName, ms, { starts: motion === 'no-preference', reset: false });
   });
 }
 
@@ -184,56 +179,90 @@ const registered = (page: Page) =>
 
 /**
  * The most a change of contrast may take on a page that has NO registered custom property (`ELEMENTS`: the tokens and
- * the elements), in ms — with the reset on the page or without, the preference set or not. Measured (load
- * 3 to 6, 2,036 elements), the median of 7: Chromium 44 without the preference and 35 with it, 47 with the reset;
- * WebKit 62, 50 and 52; Firefox as on the other page. With registered properties in the document (tokens
- * that register twenty-five) the same page takes Chromium 267 without the preference and
- * 260 with the reset, and WebKit 546 with the reset. Three to four times the measured value, and far under those.
+ * the elements), in ms, where the page is not measured against itself (`withinCleanBudget` below) — with the reset on
+ * the page or without, the preference set or not. Measured (load 3 to 6, 2,036 elements), the median of 7: Chromium 44
+ * without the preference and 35 with it, 47 with the reset; WebKit 62 and 50; Firefox as on the other page. With
+ * registered properties in the document (tokens that register twenty-five) the same page takes Chromium 267 without
+ * the preference and 260 with the reset. Three to four times the measured value, and far under those. WebKit's is held
+ * only where the reset is not on the page; on CI's runners the page of 2,000 elements took 124 to 270 there.
  */
 const CLEAN_BUDGET = { chromium: 150, firefox: 400, webkit: 400 } as const;
 
-/** One registered custom property, as a page's own sheet or another library may bring one. */
-const REGISTERED = `@property --restyle-perf-registered { syntax: '*'; inherits: false; }`;
 /**
- * The most the change may take in Chromium on a page that is also compared with itself, in ms: what the other engines
- * are given, and about five times the dearest clean page on a fast machine (the page with trees, 70).
+ * One registered custom property, as a page's own sheet or another library may bring one: in each engine, one that
+ * makes the engine's dear cases dear (`withinCleanBudget` below). Chromium pays for any registered name, inheriting or
+ * not; WebKit only for one that inherits (one of syntax `*` that does not costs it nothing, even with the reset on the
+ * page: 58 ms and 56, 64 and 71, 121 and 119 on the three pages below). `runs`: the changes of which the median is
+ * taken — WebKit's dear page is twenty to thirty times the clean one (3.3 s a change on the page with trees on a fast
+ * machine), and three tell it as surely as five.
+ */
+const REGISTERED = {
+  chromium: { rule: `@property --restyle-perf-registered { syntax: '*'; inherits: false; }`, runs: 5 },
+  webkit: { rule: `@property --restyle-perf-registered { syntax: '<length>'; inherits: true; initial-value: 0px; }`, runs: 3 },
+} as const;
+/**
+ * The most the change may take in Chromium on a page that is also compared with itself, in ms: what Firefox is given,
+ * and about five times the dearest clean page on a fast machine (the page with trees, 70).
  */
 const CHROMIUM_CEILING = 400;
 
+/** What the page does when the contrast changes: a part of it starts a transition; the usual reset is on it. */
+type Case = { starts: boolean; reset: boolean };
+
 /**
  * Holds that the change of contrast measured on this page (`ms`) is the one of a page with no registered property.
- * `dear`: a part of the page starts a transition, or the usual reset is on it — the cases a registered property makes
- * dear in Chromium.
  *
- * In Chromium, in those cases, no number of ms serves two machines. Measured as the median of five changes,
- * clean and then with `REGISTERED` added to the same page, on a fast machine (load 6 to 8): the page of the tokens
- * and the elements 35 and 213, with the reset 34 and 304; the page with links and prose 36 and 229, with the reset 38
- * and 301; 300 buttons 36 and 213; the page with trees — a larger page, and twice the time — 70 and 520, with
- * the reset 69 and 446. On the CI's runner (two slow cores, one worker) the clean page with trees took 176 and 166:
- * over the 150 a clean page is given, and not far under the 213 a dear page takes on the fast machine. So the page is
- * its own measure: one property is registered in it, the same change is measured again, and the clean page must have
- * taken less than half of that. It took between a ninth and a sixth of it on the fast machine, and between a seventh
- * and a fifth in the CI's image on the same machine (46 and 226, 90 and 550); a page that already pays for a
- * registered property takes all of it (the page with trees: 533, and 522 after). `CHROMIUM_CEILING` is held besides.
- * (Those numbers are of changes made 50 ms after the one before. Made at rest, as `drawn` makes them now, in the
- * CI-like container: between a seventh and a quarter, 37 and 195 for 300 buttons, 69 and 427 for the page with trees.)
+ * Where a registered property makes the page dear, no number of ms serves two machines, and the page is its own
+ * measure: one property is registered in it (`REGISTERED`), the same change is measured again, and the clean page must
+ * have taken less than half of that. Those cases are, in Chromium, a part of the page that starts a transition or the
+ * usual reset on it; in WebKit, the reset (an element restyled while it transitions every property) alone.
  *
- * Elsewhere the number alone is held: in Firefox and WebKit, whose budgets that runner kept, and in Chromium where
- * nothing transitions — a registered property costs that page nothing (17 to 23 ms with it and without).
+ * Chromium, measured as the median of five changes, clean and then with its `REGISTERED` added to the same page, on a
+ * fast machine (load 6 to 8): the page of the tokens and the elements 35 and 213, with the reset 34 and 304; the page
+ * with links and prose 36 and 229, with the reset 38 and 301; 300 buttons 36 and 213; the page with trees — a larger
+ * page, and twice the time — 70 and 520, with the reset 69 and 446. On the CI's runner (two slow cores, one worker)
+ * the clean page with trees took 176 and 166: over the 150 a clean page is given, and not far under the 213 a dear
+ * page takes on the fast machine. The clean page took between a ninth and a sixth of the dear one on the fast machine,
+ * and between a seventh and a fifth in the CI's image on the same machine (46 and 226, 90 and 550); a page that
+ * already pays for a registered property takes all of it (the page with trees: 533, and 522 after).
+ * `CHROMIUM_CEILING` is held besides. (Those numbers are of changes made 50 ms after the one before. Made at rest, as
+ * `drawn` makes them now, in the CI-like container: between a seventh and a quarter, 37 and 195 for 300 buttons, 69
+ * and 427 for the page with trees.)
+ *
+ * WebKit, measured the same way (the median of three changes with its `REGISTERED`), three times each: on a fast
+ * machine (load 3 to 5), the page of the tokens and the elements with the reset 57 to 62 and 942 to 952; the page
+ * with links and prose with the reset 62 to 69 and 1,208 to 1,223; the page with trees with the reset 118 to 119 and
+ * 3,267 to 3,299 — between a twenty-eighth and a fifteenth. In the CI-like container (4 CPUs, one worker): 126 to 151
+ * and 1,106 to 1,138, 127 to 138 and 1,244 to 1,261, 153 to 201 and 3,190 to 3,236 — between a twentieth and a
+ * seventh; two runs of the file beside each other there, a fifth at most (204 and 1,133). A page that already pays
+ * for an inheriting registered property (registered by `CSS.registerProperty()`, which no `@property` rule shows)
+ * takes all of it, and fails: on the fast machine 988 to 993 and 941 to 952, 1,282 to 1,285 and 1,209 to 1,223,
+ * 3,339 to 3,345 and 3,269 to 3,275; in the container, in eighteen attempts, between 0.99 and 1.07 of it. A number of
+ * ms could not tell the two on CI's runners: the clean page with trees took 280 to 434 there, against 118 on the fast
+ * machine, and the page with trees and the reset failed the 400 it was given before.
+ *
+ * Elsewhere a registered property costs the page nothing, so there is nothing relative to compare against: in Chromium
+ * where nothing transitions (17 to 23 ms with it and without), and in WebKit where the reset is not on the page (83 and
+ * 82 ms for the page with links and prose, 116 and 115 for the page with trees, 49 and 49 for 300 buttons — WebKit's
+ * split is decided here, by `reset`). There every engine holds `CLEAN_BUDGET`, besides the count of registered
+ * properties each test asks first.
  */
-async function withinCleanBudget(page: Page, browserName: 'chromium' | 'firefox' | 'webkit', ms: number, dear: boolean) {
-  if (browserName !== 'chromium' || !dear) {
+async function withinCleanBudget(page: Page, browserName: 'chromium' | 'firefox' | 'webkit', ms: number, { starts, reset }: Case) {
+  // Dear: what a registered property makes dear in this engine (in WebKit, the reset alone; in Firefox, nothing).
+  const dear = browserName === 'chromium' ? starts || reset : browserName === 'webkit' && reset;
+  if (browserName === 'firefox' || !dear) {
     expect(ms, `the change is drawn within ${CLEAN_BUDGET[browserName]} ms`).toBeLessThan(CLEAN_BUDGET[browserName]);
     return;
   }
-  await page.addStyleTag({ content: REGISTERED });
+  const probe = REGISTERED[browserName];
+  await page.addStyleTag({ content: probe.rule });
   expect(await registered(page), 'registered custom properties, once the page registers one').toBe(1);
   // At rest again: adding a stylesheet restyles the document.
   await page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(done, 600)))));
-  const registeredMs = await drawn(page, CONTRAST_TOGGLE);
+  const registeredMs = await drawn(page, CONTRAST_TOGGLE, probe.runs);
   test.info().annotations.push({ type: 'measured', description: `${Math.round(registeredMs)} ms with one registered property on the same page (${browserName})` });
   expect(ms, `the change (${Math.round(ms)} ms) takes less than half of what it takes once the page registers one property (${Math.round(registeredMs)} ms): the page was not paying for one`).toBeLessThan(registeredMs / 2);
-  expect(ms, `the change is drawn within ${CHROMIUM_CEILING} ms`).toBeLessThan(CHROMIUM_CEILING);
+  if (browserName === 'chromium') expect(ms, `the change is drawn within ${CHROMIUM_CEILING} ms`).toBeLessThan(CHROMIUM_CEILING);
 }
 
 for (const [motion, css, what] of [
@@ -257,7 +286,7 @@ for (const [motion, css, what] of [
     const ms = await drawn(page, CONTRAST);
     test.info().annotations.push({ type: 'measured', description: `${Math.round(ms)} ms (${browserName}, ${what})` });
     expect(await color(), 'the contrast changed the tokens').not.toBe(standard);
-    await withinCleanBudget(page, browserName, ms, motion === 'no-preference' || css !== '');
+    await withinCleanBudget(page, browserName, ms, { starts: motion === 'no-preference', reset: css !== '' });
   });
 }
 
@@ -290,7 +319,7 @@ test('a change of contrast on 300 buttons, each starting its own transition, is 
   const runs = await page.evaluate(() => (window as unknown as { transitionRuns: number[] }).transitionRuns);
   expect(runs.length, 'buttons watched').toBe(300);
   expect(Math.min(...runs), 'transitions the least of the buttons started, over the changes measured').toBeGreaterThanOrEqual(CHANGES);
-  await withinCleanBudget(page, browserName, ms, true);
+  await withinCleanBudget(page, browserName, ms, { starts: true, reset: false });
 });
 
 /**
@@ -330,7 +359,7 @@ for (const [motion, css, what] of [
     const ms = await drawn(page, CONTRAST);
     test.info().annotations.push({ type: 'measured', description: `${Math.round(ms)} ms (${browserName}, ${what})` });
     expect(await color(), 'the contrast changed the tokens').not.toBe(standard);
-    await withinCleanBudget(page, browserName, ms, true);
+    await withinCleanBudget(page, browserName, ms, { starts: motion === 'no-preference', reset: css !== '' });
   });
 }
 
@@ -348,7 +377,7 @@ test('with the usual reduced-motion reset on a page that loads the link\'s and p
   expect(await page.evaluate(() => getComputedStyle(document.querySelector('main h2')!).transitionProperty)).toBe('all');
   const ms = await drawn(page, CONTRAST);
   test.info().annotations.push({ type: 'measured', description: `${Math.round(ms)} ms (${browserName})` });
-  await withinCleanBudget(page, browserName, ms, true);
+  await withinCleanBudget(page, browserName, ms, { starts: false, reset: true });
 });
 
 /**
