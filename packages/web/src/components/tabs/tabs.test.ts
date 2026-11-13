@@ -12,6 +12,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
+import { boxAtRest } from '../../../test/at-rest.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('tabs');
@@ -2470,8 +2471,12 @@ test.describe('states, press, corners and focus style', () => {
     await mountFixtures(page, spec, { fixtures: EARLIER, icons: true });
     // Under a target wider than the container (a platform guideline's 44) a tab's corner lies outside its container.
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'ripple', '--tanrei-sys-target-pointer': '44px' });
-    const whole = await bounds(tabAt(page, 'primary-icon-only', 1));
-    await page.mouse.move(whole.x + 1, whole.y + 1);
+    // The new target widens the tabs at once, but the row narrows each container to its circle and moves the tabs by
+    // what the end tabs reach into the track's inset in its resize observer's pass, a frame later: the corner is read
+    // once the tab stands still (read before that pass, the tab lay right of where the press found it, and the point
+    // pressed fell inside the container).
+    const whole = await boxAtRest(tabAt(page, 'primary-icon-only', 1));
+    await page.mouse.move(whole.left + 1, whole.top + 1);
     await page.mouse.down();
     const drawnIn = await tabAt(page, 'primary-icon-only', 1).evaluate((el) => {
       const ripple = el.shadowRoot!.querySelector<HTMLElement>('.ripple')!;
