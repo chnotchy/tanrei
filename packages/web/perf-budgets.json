@@ -274,7 +274,7 @@
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 107200,
+      "budget": 107300,
       "measured": 102466,
       "allowedComponents": [
         "button",
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 664500,
+      "budget": 665900,
       "measured": 643895
     }
   },

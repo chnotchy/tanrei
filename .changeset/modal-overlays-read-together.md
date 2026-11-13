@@ -31,3 +31,9 @@ together does not bring the phase's resize observer into its bundle. The byte bu
 what they measure now: the dialog's (31800 to 32400 bytes gzip; 32310 measured), for the steps its layout and its
 opening are now made in, and the toolbar's (70000 to 70300; 70268 measured), which carries the motions' shared hold
 and frame through its menu.
+
+Two more byte budgets are raised, measured with main merged in. `@tanrei/web/all` goes from 664500 to 665900 bytes gzip
+(665847 measured; 1773 more than before this change): the dialog's and the side sheet's layout in steps that read
+together, and the frame that plays every held motion in one callback. The dialog and the side sheet share one resize
+watch now (95 bytes less). The file upload goes from 107200 to 107300 (107299 measured; 355 more): it holds its menu's
+entrance with the reads of the turn, which brings reading together and the shared frame into its bundle.
