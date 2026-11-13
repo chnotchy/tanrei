@@ -15,6 +15,7 @@ import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -1421,6 +1422,31 @@ test.describe('the main region, the aside, the footer', () => {
     await mount(page, real({ aside: sheet('standard') }), { width: 800 });
     expect([await px(region(page, 'aside'), 'padding-top'), await px(region(page, 'aside'), 'margin-left'), await px(region(page, 'aside'), 'border-top-width')]).toEqual([0, 0, 0]);
     await expect(region(page, 'aside')).toHaveAttribute('variant', 'standard');
+  });
+
+  test('APS-10, SSH-1: a standard side sheet in the aside never makes the page wider than the window or scrolls it sideways — closed, in every frame of its opening (focus moving in), open, and in every frame of its closing — with and without a navigation, in either direction', async ({ page }) => {
+    const sheet = '<tanrei-side-sheet slot="aside" variant="standard" headline="Details" close-label="Close details">Details of the selected thing.</tanrei-side-sheet>';
+    const cases = [
+      { name: 'with a navigation', navigation: DRAWER(), dir: undefined },
+      { name: 'without a navigation', navigation: '', dir: undefined },
+      { name: 'with a navigation, right to left', navigation: DRAWER(), dir: 'rtl' as const },
+      { name: 'without a navigation, right to left', navigation: '', dir: 'rtl' as const },
+    ];
+    for (const { name, navigation, dir } of cases) {
+      await mount(page, real({ aside: sheet, navigation }), { width: 1280, ...(dir ? { dir } : {}) });
+      const aside = region(page, 'aside');
+      const setOpen = (open: boolean) =>
+        aside.evaluate(async (el, o) => {
+          const sheet = el as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+          sheet.open = o;
+          await sheet.updateComplete;
+        }, open);
+      const opening = await sampleFrames(aside, () => setOpen(true), { elements: false, probe: sidewaysProbe });
+      expectNeverSideways(opening, `${name}, opening`);
+      expect((await edges(aside)).width, name).toBe(await resolveToken(page, '--tanrei-comp-side-sheet-container-width'));
+      const closing = await sampleFrames(aside, () => setOpen(false), { elements: false, probe: sidewaysProbe });
+      expectNeverSideways(closing, `${name}, closing`);
+    }
   });
 
   test('APS-11: while scroll is page the footer follows the row across the frame’s whole width and is reached at the end of the page; while scroll is main it stays at the bottom of the frame, above the navigation bar, always in view; its content is inset by the gutter of the class and by footer.padding-block, and nothing is laid out inside it', async ({ page }) => {
