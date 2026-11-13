@@ -39,9 +39,12 @@ describe('the header', () => {
   test('until the bar is defined, the wordmark holds the box the bar gives it, from the bar’s tokens', () => {
     const rule = css.match(/\n  tanrei-app-bar:not\(:defined\) > \.docs-brand \{([^}]*)\}/)?.[1] ?? '';
     assert.match(rule, /block-size: var\(--tanrei-comp-app-bar-brand-wordmark-height\)/);
-    assert.match(rule, /padding-inline: calc\(\(var\(--tanrei-sys-target-pointer\) - var\(--tanrei-comp-app-bar-brand-symbol-size\)\) \/ 2\)/);
-    assert.match(rule, /padding-block: calc\(\(var\(--tanrei-sys-target-pointer\) - var\(--tanrei-comp-app-bar-brand-wordmark-height\)\) \/ 2\)/);
+    assert.match(rule, /padding-inline: calc\(\(var\(--_docs-item-cell\) - var\(--tanrei-comp-app-bar-brand-symbol-size\)\) \/ 2\)/);
+    assert.match(rule, /padding-block: max\(0px, calc\(\(var\(--_docs-item-cell\) - var\(--tanrei-comp-app-bar-brand-wordmark-height\)\) \/ 2\)\)/);
     assert.match(rule, /color: var\(--tanrei-comp-app-bar-brand-color\)/);
+    // The cell is the bar's brand cell: the larger of the target and a medium Button (APB-19), in each pointer's target.
+    assert.match(css, /--_docs-item-cell: max\(var\(--tanrei-sys-target-pointer\), var\(--tanrei-comp-button-container-height-medium\)\);/);
+    assert.match(css, /--_docs-item-cell: max\(var\(--tanrei-sys-target-touch\), var\(--tanrei-comp-button-container-height-medium\)\);/);
   });
 
   test('the wordmark at the bar’s height keeps its capital at the brand’s minimum, 24 px', async () => {
