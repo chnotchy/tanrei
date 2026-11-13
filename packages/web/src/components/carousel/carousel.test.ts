@@ -2463,6 +2463,23 @@ test.describe('behavior', () => {
     await expect.poll(() => indicator(page, 'loop-dots').getAttribute('aria-valuenow')).toBe('6');
   });
 
+  test('CRL-30: a move ends on the resting position itself, whatever the curve gives at its end', async ({ page }) => {
+    // WebKit calls a motion finished while its progress is still a hair under 1 (0.9999999999999999, inside its timing
+    // tolerance) — sometimes, depending on the frame times — and keeps whole scroll offsets: the last write, 132 +
+    // 284 × 0.9999999999999999 = 415.99999999999994, left the row at 415, a pixel short of the third resting position,
+    // for good. A curve whose last value is short of 1 gives every engine that end, every time.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('indicator') });
+    const id = 'indicator';
+    await tabTo(page, indicator(page, id));
+    const s = await step(page, id);
+    await override(page, { [T('motion-scroll-easing')]: 'linear(0 0%, 0.99 100%)' });
+    expect(await css(scroller(page, id), 'animation-timing-function')).toBe('linear(0 0%, 0.99 100%)');
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => offset(page, id)).toBe(s);
+    await page.keyboard.press('End');
+    await expect.poll(() => offset(page, id)).toBe(5 * s);
+  });
+
   test('CRL-31: the indicator is one slider named by label, 1 to D, its value the nearest resting position and its value text that item’s label', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...only('indicator'), fixture('fixed-dots', { heroAlignment: 'start', indicator: true, fluidWidth: false }, 5)] });
     const id = 'indicator';
