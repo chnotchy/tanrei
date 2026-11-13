@@ -194,6 +194,8 @@ export class TanreiSideSheet extends TanreiElement {
   private opener: Element | null = null;
   /** A modal sheet is presented (in the top layer). */
   private shown = false;
+  /** It is to open with the reads of the turn (`present()`), and has not yet. */
+  private presenting = false;
   private pressedScrim = false;
   private dragged = false;
   private drag: SheetDrag | null = null;
@@ -612,10 +614,29 @@ export class TanreiSideSheet extends TanreiElement {
    * SSH-2, SSH-3: in the top layer, the page held, focus in. `instant`: in place, without motion (moved in the
    * document, or turned modal while open). Mounted open, it slides in as it opens, unless the document has not been
    * painted yet — `openModal()` and the appearance then draw it open at once (MOT-4).
+   *
+   * SSH-15: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * does (a dialog, a modal layer, a picker, an image preview, a modal drawer): surfaces whose `open` is set in one task
+   * open in the order of their updates, the later on top. Opened in its own update, it went under a dialog set open
+   * before it, which opens in that write. What it reads to open — the keyboard's cover — is read with those reads.
    */
   private present(instant: boolean) {
+    if (!this.dialog || this.shown || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      if (!this.open || !this.modal || this.shown || !this.isConnected) return;
+      const cover = this.readCover();
+      return () => {
+        if (this.open && this.modal && !this.shown && this.isConnected) this.show(instant, cover);
+      };
+    });
+  }
+
+  /** `present()`'s write: the sheet opens with what was read. */
+  private show(instant: boolean, cover: number) {
     const dialog = this.dialog;
-    if (!dialog || this.shown || !this.isConnected) return;
+    if (!dialog) return;
     watchEscape();
     this.place(0);
     // SSH-3, SSH-15: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
@@ -640,11 +661,11 @@ export class TanreiSideSheet extends TanreiElement {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
     holdPageScroll(this, true);
-    // The keyboard's cover and the layout, read with every other host's reads of the turn, then focus in: what focus
-    // scrolls into view is placed first. Until then a surface opened above it in the same turn takes this sheet's target
-    // as its opener (SSH-15).
+    // The keyboard's cover, as read, then the layout, read with every other host's reads of the turn, then focus in: what
+    // focus scrolls into view is placed first. Until then a surface opened above it in the same turn takes this sheet's
+    // target as its opener (SSH-15).
     modalLayer.owesFocus(dialog, () => sheetFocusTarget(this, this.sheet));
-    this.viewportTogether();
+    this.takeCover(cover);
     this.layout(() => {
       if (!this.shown) return;
       modalLayer.gaveFocus(dialog);

@@ -14,6 +14,7 @@ import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('side-sheet');
 type P = Page;
@@ -1076,6 +1077,21 @@ test.describe('forms, focus and dismissal', () => {
       expect(await where(), name).toBe(target);
       await setOpenOf('first', false);
       expect(await where(), name).toBe('opener in null');
+    }
+  });
+});
+
+test.describe('stacked in one task with other modal surfaces', () => {
+  test('SSH-15, SSH-3, DLG-15, MDL-8: a modal side sheet and a dialog, or a modal layer, opened in one task stack in the order their open was set, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens, and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    await mount(page, [fx('s', { open: false, variant: 'modal', headline: 'Sheet' }, '<button id="sheet-a">A</button> <button id="sheet-marked" autofocus>S</button>', ACTIONS)]);
+    await host(page).evaluate((el) => (el.id = 'sheet'));
+    await addStackedSurfaces(page);
+    const ids = ['sheet', STACKED_DIALOG, STACKED_LAYER];
+    const target = (id: string) => (id === 'sheet' ? 'sheet-marked in sheet' : `${id}-marked in ${id}`);
+    for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+      for (const order of [['sheet', other], [other, 'sheet']] as [string, string][]) {
+        await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
+      }
     }
   });
 });

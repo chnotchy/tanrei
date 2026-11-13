@@ -2068,8 +2068,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private closingWithFocus = false;
   /** NVD-54: where focus goes back to when a drawer kept open across a change of presentation closes. */
   private reopener: Element | null = null;
-  /** Where focus was before a collapsible modal drawer's dialog took its column's place (NVD-22). */
+  /** Where focus was before a collapsible modal drawer's dialog took its column's place (NVD-22), and the topmost surface then. */
   private pendingOpener: Element | null = null;
+  private pendingTop: HTMLDialogElement | null = null;
+  /** The modal drawer is to open with the reads of the turn (`present()`), and has not yet. */
+  private opening = false;
+  /** NVD-40: the changes of the update that opens a collapsible drawer, made in the write (`shouldUpdate`), and that update. */
+  private deferred: Map<PropertyKey, unknown> | null = null;
+  private replaying = false;
+  /** A collapsible modal drawer mounted open: shown in its first update (`present`). */
+  private mountedOpen = false;
   /** The menu button whose press is opening the drawer, until that update is drawn (NVD-22). */
   private pressedMenu: HTMLElement | null = null;
   /** NVD-22: the drawer closes from a pointer's press on its menu button, and gives focus back as that press would. */
@@ -3797,12 +3805,74 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   // ---- the modal drawer (NVD-19, NVD-20, NVD-22, NVD-40) ----
 
-  /** NVD-19: the modal drawer in the top layer; the page held; focus inside. */
+  /**
+   * NVD-19: the modal drawer in the top layer; the page held; focus inside.
+   *
+   * It opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface does
+   * (a dialog, a modal layer, a sheet, a picker, an image preview): surfaces whose `open` is set in one task open in the
+   * order of their updates, the later on top (MDL-8). Opened in its own update, it went under a dialog set open before
+   * it, which opens in that write. A held drawer is drawn in the frame, not in the top layer: it opens in its update. So
+   * does one kept open across a change of presentation (NVD-54): nobody opened it, and focus is put back in it in that
+   * update (`keepFocus`).
+   */
   private present() {
     if (this.held) {
       this.presentHeld();
       return;
     }
+    // Kept open across a change of presentation, or a collapsible drawer whose opening update is made in the write
+    // (`shouldUpdate`): at once. So is a collapsible drawer mounted open, in its first update.
+    // TODO: a collapsible modal drawer mounted open opens in its first update, not in the write: a dialog whose `open`
+    // is set before it in that task opens above it. Opened in the write, the drawer gives focus before it has drawn its
+    // header's buttons (they are drawn once it has read them, a slot change later), and focus goes past them.
+    if (this.reopener || this.replaying || this.mountedOpen) {
+      this.mountedOpen = false;
+      this.show();
+      return;
+    }
+    if (this.shown || this.opening || !this.isConnected) return;
+    this.opening = true;
+    readTogether(() => {
+      this.opening = false;
+      return () => {
+        if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
+      };
+    });
+  }
+
+  /**
+   * NVD-40: a collapsible modal drawer that opens makes the update that opens it in the write that follows the turn's
+   * reads (`present()`), not before: in it its column gives way to its dialog, its form changes and the dialog is shown,
+   * with no style read in between. Its rows are then restyled from the column's look to the dialog's, and widen with it.
+   * Made before the reads, it had its column expanded in place, and the reads of the turn styled the rows so, or inside
+   * the closed dialog: they then had no look to widen from. Every change asked until that write joins that update.
+   */
+  protected override shouldUpdate(changed: PropertyValues<this>): boolean {
+    if (this.replaying) return true;
+    const opens = this.hasUpdated && changed.get('open') === false && this.open && this.modal && this.collapses && !this.held && !this.presented;
+    if (!this.deferred && !opens) return true;
+    if (!this.deferred) readTogether(() => () => this.replay());
+    this.deferred ??= new Map();
+    for (const [key, value] of changed as Map<PropertyKey, unknown>) if (!this.deferred.has(key)) this.deferred.set(key, value);
+    return false;
+  }
+
+  /** The update `shouldUpdate()` deferred, made now with every change it held. */
+  private replay() {
+    const changes = this.deferred;
+    this.deferred = null;
+    if (!changes) return;
+    for (const [key, value] of changes) this.requestUpdate(key, value);
+    this.replaying = true;
+    try {
+      this.performUpdate();
+    } finally {
+      this.replaying = false;
+    }
+  }
+
+  /** `present()`'s write: the modal drawer opens. */
+  private show() {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
     // A collapsible drawer's column was just replaced by its dialog: where focus was is read before that (willUpdate).
@@ -3811,7 +3881,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const reopening = this.reopener !== null;
     // NVD-22: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a dialog, a
     // sheet, a picker: focus is in it, where its `showModal()` gave it), where that surface gives it (MDL-8).
-    this.opener = this.reopener ?? this.pendingOpener ?? modalLayer.opener();
+    // Where focus was before its dialog took its column's place stands — unless a surface opened in this turn's write
+    // before this one: focus is then that surface's to give, and goes back there.
+    this.opener = this.reopener ?? (modalLayer.top === this.pendingTop ? this.pendingOpener : null) ?? modalLayer.opener();
     this.reopener = null;
     this.pendingOpener = null;
     this.pointerReturn = false;
@@ -4391,10 +4463,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
         this.carriedOffset = this.scroller?.scrollTop ?? null;
         const active = deepActive();
         this.pendingOpener = (!active || active === document.body) && this.pressedMenu?.isConnected ? this.pressedMenu : modalLayer.opener();
+        this.pendingTop = modalLayer.top;
         const box = this.getBoundingClientRect();
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
         this.presented = true;
+        this.mountedOpen = !this.hasUpdated;
         // MOT-4: a drawer that appears open before the document's first paint never showed its column: it is drawn open
         // at its full width, scrim and all, from its first frame, and does not widen from the column
         // (`@starting-style`). One added open after that widens from its column as one that opens does (NVD-40).

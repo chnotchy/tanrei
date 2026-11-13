@@ -367,6 +367,8 @@ export class TanreiImagePreview extends TanreiElement {
   private opener: Element | null = null;
   /** Presented: in the top layer. */
   private presented = false;
+  /** It is to open with the reads of the turn (`present()`), and has not yet. */
+  private presenting = false;
   /**
    * IMP-33: the image's appearance, opened and closed (src/primitives/motion.ts): made at once before the first paint
    * (MOT-4), turned round from what it shows (MOT-2). The pages are what appears; the container fades round them.
@@ -1314,10 +1316,35 @@ export class TanreiImagePreview extends TanreiElement {
     for (const control of CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), control === 'previous' || control === 'next' ? navigation : bar);
   }
 
-  /** IMP-1, IMP-2: in the top layer over the whole window, the page held, focus on the stage. */
+  /**
+   * IMP-1, IMP-2: in the top layer over the whole window, the page held, focus on the stage.
+   *
+   * IMP-6: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * does (a dialog, a modal layer, a sheet, a picker, a modal drawer): surfaces whose `open` is set in one task open in
+   * the order of their updates, the later on top. Opened in its own update, it went under a dialog set open before it,
+   * which opens in that write.
+   */
   private present() {
+    if (!this.dialog || this.presented || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      return () => {
+        if (!this.open || this.presented || !this.isConnected) return;
+        this.presentNow();
+        // What the update that opened it draws once it is presented (`drawPresented`), as it does in every later one.
+        if (this.presented) {
+          this.drawPresented();
+          this.reports();
+        }
+      };
+    });
+  }
+
+  /** `present()`'s write: the preview opens. */
+  private presentNow() {
     const dialog = this.dialog;
-    if (!dialog || this.presented || !this.isConnected) return;
+    if (!dialog) return;
     if (!this.images.length) {
       // IMP-43: nothing to show: nothing is presented. A document that is still being read has not given its images yet.
       const say = () => {
@@ -1507,18 +1534,7 @@ export class TanreiImagePreview extends TanreiElement {
     if (changed.size > 0 && [...changed.keys()].every((key) => key === 'drawn')) {
       this.takeZoom();
       this.place();
-    } else readTogether(() => {
-      if (!this.presented) return;
-      const chosen = this.readVariants();
-      const sizes = this.readSizes();
-      return () => {
-        if (!this.presented) return;
-        this.giveChosen(chosen);
-        if (sizes) this.takeSizes(sizes);
-        this.takeZoom();
-        this.place();
-      };
-    });
+    } else this.drawPresented();
     // IMP-7, IMP-8, IMP-9, IMP-10, IMP-27, IMP-31: what a debug build reports.
     this.reports();
     // IMP-28: the new image is said — the count's sentence, then its alt — and focus stays where it is, unless the
@@ -1531,6 +1547,22 @@ export class TanreiImagePreview extends TanreiElement {
       this.focusLeaves = false;
       this.stageElement?.focus({ preventScroll: true });
     }
+  }
+
+  /** The variants and the sizes, read with every other host's reads of the turn, and what is drawn from them (`updated`). */
+  private drawPresented() {
+    readTogether(() => {
+      if (!this.presented) return;
+      const chosen = this.readVariants();
+      const sizes = this.readSizes();
+      return () => {
+        if (!this.presented) return;
+        this.giveChosen(chosen);
+        if (sizes) this.takeSizes(sizes);
+        this.takeZoom();
+        this.place();
+      };
+    });
   }
 
   private reports() {

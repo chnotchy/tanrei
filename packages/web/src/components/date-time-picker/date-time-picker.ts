@@ -575,6 +575,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   private cfg!: Config;
   private session = false;
   private shown = false;
+  /** A modal picker is to open with the reads of the turn (`present()`), and has not yet. */
+  private opening = false;
   private presenting = false;
   /** DTM-34: the actions' variant as last read (`giveActionsVariant()`); read again in every update that draws them. */
   private actionsVariant: (typeof BUTTON_VARIANTS)[number] = BUTTON_VARIANTS[0];
@@ -2381,6 +2383,29 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.arrange();
       return;
     }
+    if (!(surface instanceof HTMLDialogElement)) {
+      this.show(surface, null);
+      return;
+    }
+    // DTM-35: a modal picker opens in the write that follows the turn's reads (src/primitives/read-together.ts), as
+    // every modal surface does (a dialog, a modal layer, a sheet, an image preview, a modal drawer): surfaces whose
+    // `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it went
+    // under a dialog set open before it, which opens in that write. What it reads to open — the keyboard's cover — is
+    // read with those reads.
+    if (this.opening) return;
+    this.opening = true;
+    readTogether(() => {
+      this.opening = false;
+      if (!this.open || this.shown || !this.isConnected || this.surface !== surface) return;
+      const cover = keyboardCover();
+      return () => {
+        if (this.open && !this.shown && this.isConnected && this.surface === surface) this.show(surface, cover);
+      };
+    });
+  }
+
+  /** `present()`'s write for a modal picker, with the keyboard's cover read; a docked picker's at once (`cover` null). */
+  private show(surface: HTMLElement, cover: number | null) {
     // DTM-4: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a dialog, a
     // sheet, another picker: focus is in it, where its `showModal()` gave it), where that surface gives it: focus returns
     // there when the picker closes. The ring is the focus's that is there now (DTM-3).
@@ -2426,16 +2451,20 @@ export class TanreiDateTimePicker extends TanreiElement {
     window.addEventListener('resize', this.onWindow);
     // The keyboard's cover, then focus in, the cover read with every other host's reads of the turn
     // (src/primitives/read-phase.ts): read after the picker's own `showModal()`, it had the browser lay the page out
-    // once per picker. Still in the task.
-    readTogether(() => {
-      if (!this.shown) return;
-      const cover = keyboardCover();
-      return () => {
+    // once per picker. Still in the task. A modal picker read it before it opened.
+    if (cover !== null) {
+      this.takeCover(cover);
+      void this.focusInitial();
+    } else
+      readTogether(() => {
         if (!this.shown) return;
-        this.takeCover(cover);
-        void this.focusInitial();
-      };
-    });
+        const read = keyboardCover();
+        return () => {
+          if (!this.shown) return;
+          this.takeCover(read);
+          void this.focusInitial();
+        };
+      });
     // The handle is placed at once when the picker opens, and moves over the dial motion from the next frame on (DTM-26).
     requestAnimationFrame(() => requestAnimationFrame(() => (this.instant = this.dragging !== null)));
   }
