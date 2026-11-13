@@ -149,16 +149,27 @@ function skipDuringMove(host: HTMLElement, opener: HTMLElement, key: KeyboardEve
 /**
  * POP-22: focus when an overlay closes. Back to `opener` if it was inside the overlay (`inside` says so of the focused
  * element: the overlay, and every overlay opened from inside it) or was lost with it; left where the person put it if
- * they moved it to another element. Where the opener is gone or cannot take focus, focus is dropped from inside (the
- * platform's default for a closed overlay). Call it as the overlay closes, before anything is hidden.
+ * they moved it to another element. Where the opener is gone or cannot take focus, focus goes to `fallback` — a modal
+ * overlay's, where focus was as it opened (POP-40: a sheet opened above a modal surface that holds its opener inert) —
+ * or else is dropped from inside (the platform's default for a closed overlay). Call it as the overlay closes, before
+ * anything is hidden.
  */
-export function returnOverlayFocus(opener: HTMLElement | null, inside: (node: Element) => boolean) {
+export function returnOverlayFocus(opener: HTMLElement | null, inside: (node: Element) => boolean, fallback: Element | null = null) {
   const active = deepActive();
   const lost = !active || active === document.body || active === document.documentElement;
   if (!lost && !inside(active)) return;
-  if (opener && opener.isConnected && typeof opener.focus === 'function' && !opener.closest('[inert]')) {
+  if (takesFocus(opener)) {
     if (!holdsFocus(opener, active)) opener.focus({ preventScroll: true });
-  } else if (!lost) (active as HTMLElement).blur?.();
+    // Blocked by a modal surface (not `[inert]`, yet inert all the same), it took nothing.
+    if (!fallback || holdsFocus(opener, deepActive())) return;
+  }
+  if (takesFocus(fallback)) fallback.focus({ preventScroll: true });
+  else if (!lost) (active as HTMLElement).blur?.();
+}
+
+/** Whether `element` may be given focus: in the page, focusable by script, outside an inert subtree. */
+function takesFocus(element: Element | null): element is HTMLElement {
+  return !!element && element.isConnected && typeof (element as HTMLElement).focus === 'function' && !element.closest('[inert]');
 }
 
 /**

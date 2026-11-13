@@ -18,6 +18,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -2490,6 +2491,21 @@ test.describe('compact window', () => {
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
+  });
+
+  test('POP-40, POP-22, DLG-15, MDL-8: a sheet and a dialog, or a modal layer, opened in one task stack in the order their open was set, either way — the later above, focus in it, given back on its closing to where the earlier gives it as it opens (the sheet’s opener, under a surface opened before it, cannot take it), and on the earlier’s closing to the element that had it before either opened', async ({ page }) => {
+    // The popover's opener is the button that had focus before either opened.
+    await mount(page, `<${TAG} id="popover" anchor="opener" headline="Popover"><button id="popover-a" type="button">A</button> <button id="popover-marked" type="button" autofocus>P</button></${TAG}>`, COMPACT);
+    await addStackedSurfaces(page);
+    const ids = ['popover', STACKED_DIALOG, STACKED_LAYER];
+    const target = (id: string) => `${id}-marked in ${id}`;
+    for (const other of [STACKED_DIALOG, STACKED_LAYER]) {
+      for (const order of [['popover', other], [other, 'popover']] as [string, string][]) {
+        await expectStackedInOrder(page, ids, { name: order.join(', then '), order, backInFirst: target(order[0]) });
+      }
+    }
+    // It was a sheet each time.
+    expect(await host(page, 'popover').evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet'))).toBe(true);
   });
 });
 
