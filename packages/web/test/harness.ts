@@ -2668,13 +2668,10 @@ export interface MountOptions {
  * has been painted as the components count it — so a surface the test opens plays its entrance (MOT-4), however late the
  * machine draws the page's first frames. `beforePaint` returns before that.
  *
- * A second mount writes its document into the same window (`page.setContent()`, `document.open()`). In Chromium, once the
- * mouse has moved over the page's earlier document — a move alone, without a press — no element of the new one captures
- * the mouse: `setPointerCapture()` throws nothing and takes no effect (`hasPointerCapture()` false, no
- * `gotpointercapture`), for every later press in that document, and a drag stops where the pointer leaves the element
- * it began on (a drawer's resize handle: at its edge). Neither a move nor a click in the new document ends it; moving the
- * mouse out of the window before the mount does, and so does a page of its own. Firefox and WebKit capture there. So a
- * test that drags in a document after the first has a page of its own: a test of its own, or `page.context().newPage()`.
+ * A second mount writes its document into the same window (`page.setContent()`, `document.open()`). In Chromium the
+ * mouse is first moved out of the window, so that an element of the new document can capture the mouse and a drag there
+ * is followed past the element it began on, as on a page of its own (why: `mountDocument`). The mouse is then outside
+ * the page: a test points at the new document before it presses there.
  */
 export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & MountOptions = {}) {
   await mountDocument(page, spec, given);
