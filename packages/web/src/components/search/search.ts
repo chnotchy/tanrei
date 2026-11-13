@@ -49,7 +49,9 @@ import {
   delegatesAria,
   closeModal,
   isLeaving,
+  modalLayer,
   openModal,
+  readTogether,
 } from '../../primitives/index.js';
 import '../button/button.js';
 // SRC-37: the shortcut hint is drawn by the keyboard shortcut; SRC-47: the status row's indicator is the loading indicator.
@@ -933,6 +935,15 @@ export class TanreiSearch extends TanreiElement {
 
   private viewShown = false;
   private fullShown = false;
+  /** SRC-9, SRC-40: the modal view is to open with the reads of the turn (`presentFull()`), and has not yet. */
+  private presenting = false;
+  /**
+   * SRC-9, SRC-40: where focus goes back from the modal view when the bar's input (or the trigger) cannot take it —
+   * the view opened above a modal surface that holds the search inert, as one opened in the same task before it does:
+   * where focus was as the view opened, or where that surface gives it (`modalLayer.opener()`), as a native `<dialog>`
+   * gives focus back as it closes.
+   */
+  private fullOpener: Element | null = null;
   /** SRC-23: what the listbox was drawn with in the last render while the view was open, or null. */
   private drawnListing: Listing | null = null;
   /** SRC-23: what the listbox held as the view closed, drawn until the view has left (`letGo`), or null. */
@@ -2213,17 +2224,49 @@ export class TanreiSearch extends TanreiElement {
   }
 
   /** SRC-9: the full-screen view above the on-screen keyboard. */
-  private readonly onViewport = () => {
-    const visual = window.visualViewport;
-    const dialog = this.dialog;
-    if (!visual || !dialog) return;
-    dialog.style.setProperty('--_keyboard', `${Math.max(0, document.documentElement.clientHeight - (visual.offsetTop + visual.height))}px`);
-  };
+  private readonly onViewport = () => this.takeCover(this.readCover());
 
-  /** SRC-9: modal over the whole window, the page held, focus to the header's input with the caret at the end. */
-  private presentFull() {
+  /** SRC-9: how much of the window's bottom the on-screen keyboard covers, or null where the window cannot say. */
+  private readCover(): number | null {
+    const visual = window.visualViewport;
+    return visual ? Math.max(0, document.documentElement.clientHeight - (visual.offsetTop + visual.height)) : null;
+  }
+
+  /** SRC-9: the view sits on the keyboard's cover, as read. */
+  private takeCover(cover: number | null) {
     const dialog = this.dialog;
-    if (!dialog || this.fullShown || !this.isConnected) return;
+    if (cover !== null && dialog) dialog.style.setProperty('--_keyboard', `${cover}px`);
+  }
+
+  /**
+   * SRC-9, SRC-40: modal over the whole window (or hung from its top), the page held, focus to the header's input with
+   * the caret at the end.
+   *
+   * It opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface does (a
+   * dialog, a modal layer, a modal sheet, a picker, an image preview, a modal drawer, a popover's sheet): surfaces whose
+   * `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it went
+   * under a dialog set open before it, which opens in that write. What it reads to open — the keyboard's cover — is read
+   * with those reads.
+   */
+  private presentFull() {
+    if (!this.dialog || this.fullShown || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      const cover = this.readCover();
+      return () => {
+        // Still to open: expanded, modal, not drawn in place, in the page.
+        if (this.expanded && !this.inert_ && this.modal && !this.inline && !this.fullShown && this.dialog?.isConnected) this.showFull(cover);
+      };
+    });
+  }
+
+  /** `presentFull()`'s write: the view opens with what was read. */
+  private showFull(cover: number | null) {
+    const dialog = this.dialog!;
+    // SRC-9, SRC-40: where focus is — or, opened above a surface of the same turn that has not given focus in yet, where
+    // that surface gives it — for a bar's input that cannot take focus back.
+    this.fullOpener = modalLayer.opener();
     // MOT-4: opened before the document's first paint (written `expanded` in the page's markup), the view and its scrim
     // are drawn open at once; opened later, their fade begins in the first frame drawn after this task. Still leaving,
     // it is taken back from where its fade has got to (MOT-2).
@@ -2231,7 +2274,7 @@ export class TanreiSearch extends TanreiElement {
     this.fullShown = true;
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
-    this.onViewport();
+    this.takeCover(cover);
     const input = this.headerInput;
     if (input) {
       input.focus();
@@ -2252,12 +2295,19 @@ export class TanreiSearch extends TanreiElement {
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     const active = deepActive();
     const inside = !!active && (dialog?.contains(active) || focusWithin(this) || active === document.body);
+    const fallback = this.fullOpener as HTMLElement | null;
+    this.fullOpener = null;
     // SRC-23, SRC-41: no longer modal at once — the page is given back and focus moves now, not when the motion ends —
     // and drawn in the top layer, with its scrim, until their fade has played (closeModal), in every engine. What it
     // listed is drawn until then (`letGo`); opened again first, it lists what it holds now.
     if (dialog) void closeModal(dialog, { instant }).then((left) => left && this.letGo());
-    // SRC-9, SRC-40: focus back to the bar's input — which does not reopen it — or to the trigger.
-    if (restoreFocus && inside && !this.inert_) (this.triggered ? this.trigger : this.barInput)?.focus();
+    // SRC-9, SRC-40: focus back to the bar's input — which does not reopen it — or to the trigger; where a modal surface
+    // under the view holds the search inert, it takes nothing, and focus goes back where it was as the view opened.
+    if (restoreFocus && inside && !this.inert_) {
+      const back = this.triggered ? this.trigger : this.barInput;
+      back?.focus();
+      if (back && !focusWithin(back)) fallback?.focus();
+    }
   }
 
   private syncFull() {
