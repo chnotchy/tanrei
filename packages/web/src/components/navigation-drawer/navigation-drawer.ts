@@ -3929,11 +3929,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * NVD-19, NVD-22: a held drawer's slide and its scrim's fade, which a held drawer plays by its own state (no
-   * AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those), begin in the
-   * first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before it, and where
-   * the task took longer than they last drew the drawer in place, or gone, at once. Only those standing at their start:
-   * one under way goes on as it is. `leaving`: its close, which `settleOver` waits for.
+   * NVD-19, NVD-22, NVD-54: a held drawer's slide, its move and its scrim's fade, which a held drawer plays by its own
+   * state (no AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those),
+   * begin in the first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before
+   * it, and where the task took longer than they last drew the drawer in place, or gone, at once. Only those standing
+   * at their start: one under way goes on as it is. `leaving`: its close or its move, which `settleOver` waits for.
    */
   private heldFromNextFrame(leaving: boolean) {
     if (!documentPainted()) return;
@@ -3985,6 +3985,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     void this.updateComplete.then(() => {
       if (run !== this.moveRun) return;
       this.placeHeld();
+      // The panel's and the scrim's move, and the rows' new form, begin in the first frame drawn after this task. The
+      // move is waited for (settleOver), as a close is: it is played even where a page clock holds frame callbacks.
+      this.heldFromNextFrame(true);
       statesFromNextFrame([this]);
       void this.settleOver(() => run === this.moveRun).then((done) => {
         if (!done) return;
