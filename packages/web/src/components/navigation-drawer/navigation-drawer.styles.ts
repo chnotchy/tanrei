@@ -24,7 +24,8 @@ import { reducedMotion } from '../../styles/motion.js';
 // collapsedLabels draws them, the other way.
 //
 // WHAT THE DRAWER IS (NVD-30, NVD-53). The host carries, as state attributes the element writes, what it is drawn as:
-// `data-as` (standard or modal), `data-collapsible`, `data-open` and `collapsed`. For a drawer that is not responsive
+// `data-as` (standard or modal), `data-collapsible`, `data-open`, `collapsed` and `data-resize` (it draws its resize
+// handle, NVD-96, which an app shell reads to start its main content past the handle's target). For a drawer that is not responsive
 // they repeat its props; for a responsive one they are what its presentation stands for (`presentation`: standard,
 // column or modal), whatever `variant` and `open` say. The styles read these, never the props.
 export const CORE_VARIANTS = ['standard', 'modal'] as const;

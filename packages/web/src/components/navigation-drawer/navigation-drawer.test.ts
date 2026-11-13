@@ -4512,10 +4512,14 @@ test.describe('resizable', () => {
       expect(box.y + box.height / 2, id).toBeCloseTo(edge.y + edge.height / 2, 0);
     }
     for (const id of ['closed', 'off', 'column']) await expect(resizer(page, id), id).toHaveCount(0);
+    // The host says whether it draws one (data-resize), for an app shell to start its main content past the target (APS-8).
+    for (const id of ['open', 'folded']) await expect(drawer(page, id), id).toHaveAttribute('data-resize', '');
+    for (const id of ['closed', 'off', 'column']) await expect(drawer(page, id), id).not.toHaveAttribute('data-resize');
     await expect(drawer(page, 'off')).toHaveAttribute('resizable', 'false');
     // Turned on again, it has one.
     await drawer(page, 'off').evaluate((el: any) => (el.resizable = true));
     await expect(resizer(page, 'off')).toHaveCount(1);
+    await expect(drawer(page, 'off')).toHaveAttribute('data-resize', '');
   });
 
   test('NVD-96: a press is taken along the edge’s whole height — 10 from its top and its bottom — wholly over the content, from the end edge; the drawer’s last pixel is its row’s; the line is out of sight at rest and comes into sight with the resize cursor; a drag from the band’s far side resizes', async ({ page }) => {
