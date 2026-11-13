@@ -8,7 +8,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
@@ -1070,6 +1070,50 @@ test.describe('actions and scrolling', () => {
     await expect(divider(page, 'standard')).toBeHidden();
     expect(Number.parseFloat(await css(content(page, 'standard'), 'padding-bottom'))).toBeCloseTo(await px(page, T('container-padding-block')), 1);
   });
+
+  for (const variant of ['standard', 'modal'] as const) {
+    test(`SSH-17, SSH-5: the actions written inside a ${variant} sheet, and its close button, draw the sheet's variants from their own first render — never the Button's own default first — and start no transition`, async ({ page }) => {
+      await mount(page, [fixtureOf('standard')]);
+      const drawn = await page.evaluate(
+        async ({ variant, every }) => {
+          const pane = document.createElement('div');
+          pane.style.display = 'flex';
+          document.body.append(pane);
+          pane.innerHTML = `<tanrei-side-sheet variant="${variant}" open headline="Filters" close-label="Close filters">Body<tanrei-button slot="actions" dismissive>Reset</tanrei-button><tanrei-button slot="actions" confirming>Apply</tanrei-button></tanrei-side-sheet>`;
+          const sheet = pane.firstElementChild!;
+          // The actions are upgraded with the sheet, and their shadow roots are there, empty, before any of them has
+          // rendered; the close button is made by the sheet's first render, before its own (a microtask queued now runs
+          // between the two).
+          const actions = [...sheet.querySelectorAll('tanrei-button')];
+          const records: MutationRecord[] = [];
+          const observer = new MutationObserver((list) => records.push(...list));
+          const watch = (root: ShadowRoot) => observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-host-variant'] });
+          for (const action of actions) watch(action.shadowRoot!);
+          let close: Element | null = null;
+          queueMicrotask(() => {
+            close = sheet.shadowRoot!.querySelector('tanrei-button.close');
+            if (close) watch(close.shadowRoot!);
+          });
+          await new Promise((frame) => requestAnimationFrame(frame));
+          await new Promise((frame) => requestAnimationFrame(frame));
+          records.push(...observer.takeRecords());
+          observer.disconnect();
+          const buttons = [...actions, ...(close ? [close as Element] : [])].map((each) => each.shadowRoot!.querySelector<HTMLElement>('button')!);
+          const result = {
+            variants: buttons.map((button) => button.dataset.hostVariant),
+            drawn: buttons.every((button) => records.some((record) => [...record.addedNodes].some((node) => node === button || node.contains(button)))),
+            changed: records.filter((record) => record.type === 'attributes').length,
+            transitions: buttons.flatMap((button) => ((0, eval)(every) as (root: Element) => Animation[])(button)).length,
+          };
+          pane.remove();
+          return result;
+        },
+        { variant, every: EVERY_ANIMATION },
+      );
+      const close = await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('close-button-variant'));
+      expect(drawn).toEqual({ variants: ['tonal', 'tonal', close], drawn: true, changed: 0, transitions: 0 });
+    });
+  }
 
   test('SSH-17: an action without a variant takes actions.variant (tonal in the default system), from its tokens and states; one with a variant keeps it; the flags, size and tokens are never changed', async ({ page }) => {
     const tonal = await (async () => {

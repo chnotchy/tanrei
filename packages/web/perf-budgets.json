@@ -213,8 +213,8 @@
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 31800,
-      "measured": 30654,
+      "budget": 32400,
+      "measured": 32310,
       "allowedComponents": []
     },
     "divider": {
@@ -274,7 +274,7 @@
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 107200,
+      "budget": 107400,
       "measured": 102466,
       "allowedComponents": [
         "button",
@@ -635,8 +635,8 @@
       ]
     },
     "toolbar": {
-      "budget": 70000,
-      "measured": 66988,
+      "budget": 70300,
+      "measured": 70268,
       "allowedComponents": [
         "button",
         "keyboard-shortcut",
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 664900,
+      "budget": 666900,
       "measured": 643895
     }
   },
@@ -676,20 +676,16 @@
   "runtime": {
     "forced": {
       "bottom-sheet": {
-        "budget": 945,
-        "measured": 900
-      },
-      "button-with-menu": {
-        "budget": 189,
-        "measured": 180
+        "budget": 283,
+        "measured": 270
       },
       "date-time-picker": {
-        "budget": 661,
-        "measured": 630
+        "budget": 283,
+        "measured": 270
       },
       "dialog": {
-        "budget": 2646,
-        "measured": 2520
+        "budget": 472,
+        "measured": 450
       },
       "image-preview": {
         "budget": 1132,
@@ -700,16 +696,12 @@
         "measured": 180
       },
       "modal-layer": {
-        "budget": 756,
-        "measured": 720
+        "budget": 283,
+        "measured": 270
       },
       "popover": {
         "budget": 187,
         "measured": 179
-      },
-      "side-sheet": {
-        "budget": 283,
-        "measured": 270
       },
       "toolbar": {
         "budget": 567,
@@ -734,12 +726,12 @@
         "measured": 0
       },
       "dialog, closed": {
-        "budget": 1134,
-        "measured": 1080
+        "budget": 94,
+        "measured": 90
       },
       "side-sheet, closed": {
-        "budget": 1606,
-        "measured": 1530
+        "budget": 283,
+        "measured": 270
       },
       "popover, closed": {
         "budget": 0,

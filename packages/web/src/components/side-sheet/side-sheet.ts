@@ -7,9 +7,7 @@ import {
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
-  HOST_VARIANT,
   OpenAxesController,
-  type VariantHost,
   assignSlot,
   closeModal,
   compChoice,
@@ -24,9 +22,11 @@ import {
   holdPageScroll,
   isDividerVisibility,
   keyboardCover,
+  modalLayer,
   modalSheetKeys,
   onBackdrop,
   openModal,
+  readTogether,
   report,
   returnFocus,
   syncDividerVisibility,
@@ -36,6 +36,7 @@ import {
 import '../button/button.js';
 import { AXES, styles } from './side-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
@@ -63,6 +64,13 @@ export function sideSheetRelease(distance: number, velocity: number, width: numb
 const PREFIX = '--tanrei-comp-side-sheet';
 /** SSH-11: how the actions sit (tokens/comp/side-sheet.tokens.json, `dev.tanrei.enum`): the first is the fallback. */
 const ARRANGEMENTS = ['fill', 'start'] as const;
+
+/** SSH-10, SSH-19: the content and the header's divider, as read (`readParts()`). */
+interface Parts {
+  content: HTMLElement | null;
+  scrolls: boolean;
+  top: number;
+}
 
 /**
  * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and
@@ -117,7 +125,7 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiSideSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `close` (its close button), or for a modal sheet `scrim`, `escape`, `back` or `drag`. Set `open` to false.
  */
-export class TanreiSideSheet extends TanreiElement implements VariantHost {
+export class TanreiSideSheet extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'side-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -173,7 +181,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   /** SSH-10: the content children, assigned to the default slot. */
   private content: Node[] = [];
   /** SSH-11, SSH-17: the actions, by run, placed and given the sheet's variant. */
-  private readonly placement = new ActionPlacement(this, (action) => this.resize$?.observe(action));
+  private readonly placement = new ActionPlacement(this, (action) => this.resizes.watch(action));
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
   /** SSH-20: how much of the sheet the on-screen keyboard covers, as last applied. */
   private keyboard = 0;
@@ -194,7 +202,12 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private offset = 0;
   /** Whether focus was inside a standard sheet that is closing (read before the render makes it inert). */
   private closingWithFocus = false;
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.layout());
+  /** A layout is asked for with the reads of the turn (`layout()`), and has not been read yet. */
+  private laying = false;
+  /** What is to run once the layout asked for has been drawn: focus going in as a modal sheet opens (SSH-3). */
+  private afterLayout: (() => void)[] = [];
+  /** What is watched for it with every other sheet's and dialog's parts (src/primitives/resize-watch.ts): its parts and its actions. */
+  private readonly resizes = new ResizeWatch(() => this.layout());
 
   private get modal(): boolean {
     return this.variant === 'modal';
@@ -208,15 +221,23 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     return this.renderRoot?.querySelector('dialog') ?? null;
   }
 
-  /** A choice of kind, by name, as the cascade gives it now — never cached, so a system switch is seen; unknown is the first. */
-  private choice<T extends string>(token: string, values: readonly T[]): T {
-    return compChoice(this, `${PREFIX}-${token}`, values);
+  /**
+   * SSH-17: the actions written inside the sheet are given its variant with every other host's reads of the turn
+   * (src/primitives/read-phase.ts). Asked as the sheet connects, the read comes before the first updates of those
+   * actions, which are upgraded after it: they draw the variant from their first render. Read as each action connected
+   * (`HOST_VARIANT`), it had the browser style the page once per action. Given before the sheet has read its children,
+   * it reads its actions for it.
+   */
+  private giveEarly() {
+    readTogether(() => {
+      const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
+      return () => {
+        if (!this.hasUpdated) this.placement.read([...this.children].filter((child) => child.getAttribute('slot') === 'actions'));
+        this.placement.give(variant);
+      };
+    });
   }
 
-  /** @internal SSH-17: the variant it gives one of its actions whose own is not set (src/primitives/group-item.ts). */
-  [HOST_VARIANT](child: Element): string | null {
-    return child.parentElement === this && child.getAttribute('slot') === 'actions' ? this.choice('actions-variant', BUTTON_VARIANTS) : null;
-  }
 
   override connectedCallback() {
     super.connectedCallback();
@@ -229,7 +250,10 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     });
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
-    if (this.hasUpdated) this.readSlots();
+    if (this.hasUpdated) {
+      this.observe();
+      this.readSlots();
+    } else if (this.querySelector(':scope > [slot="actions"]')) this.giveEarly();
     // Moved in the document while open: presented again, in place, without motion.
     if (this.hasUpdated && this.open && this.modal) this.present(true);
   }
@@ -239,7 +263,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     this.mutation$.disconnect();
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     window.visualViewport?.removeEventListener('scroll', this.onViewport);
-    this.resize$?.disconnect();
+    this.resizes.stop();
     this.drag = null;
     this.listenToDrag(false);
     if (this.shown) this.withdraw(false);
@@ -402,7 +426,8 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     );
     this.placement.read(nodes.filter((node) => node instanceof Element && node.getAttribute('slot') === 'actions') as Element[]);
     // SSH-17: the actions are given the sheet's variant as it lays them out — here, or in the update a change of whether
-    // there are any requests (an action asks for it itself as it connects: HOST_VARIANT).
+    // there are any requests. An action that connects asks nothing of the sheet: it is given the variant in the same
+    // turn, while it still settles (MOT-3), so no frame draws it without.
     const filled = this.placement.actions.length > 0;
     if (filled !== this.hasActions) this.hasActions = filled;
     else {
@@ -425,29 +450,89 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
    * scrolls is a Tab stop, so the keyboard can scroll it; SSH-19: the divider below the header. SSH-5, SSH-17: first,
    * the variants the sheet's tokens name, read now with the arrangement in one computed style (a system switch is seen
    * at the next layout): the close button's, and the one every action without its own draws.
+   *
+   * Laid out with every other host's reads of the turn (src/primitives/read-phase.ts), in steps that each read, then
+   * write what follows from it: the choices; the actions at their own widths and the content; the content again where
+   * the actions changed between a row and a column. A step's reads are made with every other host's of that step: read
+   * and written in each sheet's own update, they had the browser style and lay out the page once per sheet. Asked again
+   * before it is read, it is laid out once. `then` runs once it has been drawn. A closed sheet is given its variants and
+   * is not measured: it is drawn nowhere, and is laid out as it opens.
    */
-  private layout() {
-    const sheet = this.sheet;
-    if (!sheet) return;
-    const { close, actions: variant, arrangement } = compChoices(this, {
-      close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
-      actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
-      arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
+  private layout(then?: () => void) {
+    if (then) this.afterLayout.push(then);
+    if (this.laying) return;
+    this.laying = true;
+    readTogether(() => {
+      this.laying = false;
+      const sheet = this.sheet;
+      if (!sheet || !this.isConnected) return this.laidOut();
+      const { close, actions: variant, arrangement } = compChoices(this, {
+        close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+        actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
+        arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
+      });
+      return () => {
+        giveVariant(this.renderRoot.querySelector('tanrei-button.close'), close);
+        this.placement.give(variant);
+        sheet.dataset.arrangement = arrangement;
+        if (!this.open) {
+          this.laidOut()?.();
+          return;
+        }
+        const box = this.renderRoot.querySelector<HTMLElement>('.actions');
+        const actions = box && this.hasActions ? box : null;
+        if (actions) this.placement.startMeasure(actions);
+        readTogether(() => this.placeActions(actions, arrangement));
+      };
     });
-    giveVariant(this.renderRoot.querySelector('tanrei-button.close'), close);
-    this.placement.give(variant);
-    sheet.dataset.arrangement = arrangement;
-    const actions = this.renderRoot.querySelector<HTMLElement>('.actions');
-    if (actions && this.hasActions) {
-      const { changed } = this.placement.measure(actions, arrangement === 'start' ? 'packed' : 'fill');
-      if (changed) this.assign();
-    }
-    const content = this.renderRoot.querySelector<HTMLElement>('.content');
+  }
+
+  /** `layout()`'s second step: the actions measured at their own widths, and the content as it is drawn. */
+  private placeActions(actions: HTMLElement | null, arrangement: (typeof ARRANGEMENTS)[number]): () => void {
+    const measure = actions ? this.placement.readMeasure(actions, arrangement === 'start' ? 'packed' : 'fill') : null;
+    const parts = this.readParts();
+    return () => {
+      const changed = !!actions && !!measure && this.placement.endMeasure(actions, measure).changed;
+      if (!changed) {
+        this.writeParts(parts);
+        this.laidOut()?.();
+        return;
+      }
+      // A row turned into a column, or back: the content has another height now.
+      this.assign();
+      readTogether(() => {
+        const again = this.readParts();
+        return () => {
+          this.writeParts(again);
+          this.laidOut()?.();
+        };
+      });
+    };
+  }
+
+  /** What runs once the layout has been drawn (`layout()`'s `then`), as one write. */
+  private laidOut(): (() => void) | void {
+    if (!this.afterLayout.length) return;
+    const after = this.afterLayout;
+    this.afterLayout = [];
+    return () => {
+      for (const then of after) then();
+    };
+  }
+
+  /** SSH-10, SSH-19: whether the content scrolls, and how far it is scrolled from its top. A read. */
+  private readParts(): Parts {
+    const content = this.renderRoot?.querySelector<HTMLElement>('.content') ?? null;
+    return { content, scrolls: !!content && content.scrollHeight > content.clientHeight + 0.5, top: content?.scrollTop ?? 0 };
+  }
+
+  /** SSH-10: a content that scrolls is a Tab stop; SSH-19: the divider below the header. */
+  private writeParts({ content, scrolls, top }: Parts) {
     if (content) {
-      if (content.scrollHeight > content.clientHeight + 0.5) content.setAttribute('tabindex', '0');
+      if (scrolls) content.setAttribute('tabindex', '0');
       else content.removeAttribute('tabindex');
     }
-    this.syncHeaderDivider();
+    this.writeHeaderDivider(top);
   }
 
   /**
@@ -455,9 +540,14 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
    * scrolled away from its top under scroll (`scrolled`); at once, without motion.
    */
   private syncHeaderDivider() {
+    this.writeHeaderDivider(this.renderRoot?.querySelector<HTMLElement>('.content')?.scrollTop ?? 0);
+  }
+
+  /** `syncHeaderDivider()`'s write, from how far the content is scrolled, as read. */
+  private writeHeaderDivider(top: number) {
     const header = this.renderRoot?.querySelector<HTMLElement>('.header');
     const content = this.renderRoot?.querySelector<HTMLElement>('.content');
-    if (header && content) header.classList.toggle('scrolled', content.scrollTop > 0.5);
+    if (header && content) header.classList.toggle('scrolled', top > 0.5);
     syncDividerVisibility(this, header);
   }
 
@@ -468,9 +558,25 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
    * divider and the actions sit directly above it and the content scrolls in the room left, the focused element scrolled
    * into it; the header stays. At once: the web moves nothing for its keyboard.
    */
-  private readonly onViewport = () => {
+  private readonly onViewport = () => this.takeCover(this.readCover());
+
+  /** `onViewport`'s read: how much of the sheet the on-screen keyboard covers. */
+  private readCover(): number {
     const sheet = this.sheet;
-    const cover = sheet && this.open ? Math.round(this.modal ? keyboardCover() : keyboardCover(sheet.getBoundingClientRect().bottom)) : 0;
+    return sheet && this.open ? Math.round(this.modal ? keyboardCover() : keyboardCover(sheet.getBoundingClientRect().bottom)) : 0;
+  }
+
+  /** `onViewport` with every other host's reads of the turn (src/primitives/read-phase.ts). */
+  private viewportTogether() {
+    readTogether(() => {
+      const cover = this.readCover();
+      return () => this.takeCover(cover);
+    });
+  }
+
+  /** `onViewport`'s write, from the cover as read. */
+  private takeCover(cover: number) {
+    const sheet = this.sheet;
     if (cover === this.keyboard) return;
     this.keyboard = cover;
     if (cover > 0) sheet?.style.setProperty('--_keyboard', `${cover}px`);
@@ -480,15 +586,19 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     const content = this.renderRoot.querySelector('.content');
     const inContent = !!active && this.content.some((node) => node === active || node.contains(active) || (node instanceof Element && focusWithin(node)));
     if (inContent && content) active?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  };
+  }
 
   // ---- SSH-1, SSH-2, SSH-3: presenting and focus ----
 
   /** SSH-3: focus to the slotted element marked `autofocus`, else the sheet itself, so its headline is read first. */
   private focusInside() {
+    // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
+    const dialog = this.dialog;
+    if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
     const marked = this.querySelector<HTMLElement>('[autofocus]');
-    if (marked && !marked.closest('[inert]')) marked.focus();
-    else this.sheet?.focus();
+    const target = marked && !marked.closest('[inert]') ? marked : this.sheet;
+    // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
+    if (target && deepActive() !== target) target.focus();
   }
 
   /** SSH-3: focus back where it was when the sheet opened — or dropped, where that element is gone. */
@@ -527,12 +637,16 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
     holdPageScroll(this, true);
-    this.layout();
-    this.onViewport();
-    this.focusInside();
-    // SSH-2: what the open state began inside it — the colors of what took focus — begins in the first frame drawn after
-    // this task, as its entrance does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // The keyboard's cover and the layout, read with every other host's reads of the turn, then focus in: what focus
+    // scrolls into view is placed first.
+    this.viewportTogether();
+    this.layout(() => {
+      if (!this.shown) return;
+      this.focusInside();
+      // SSH-2: what the open state began inside it — the colors of what took focus — begins in the first frame drawn
+      // after this task, as its entrance does (statesFromNextFrame).
+      statesFromNextFrame([this]);
+    });
   }
 
   /** SSH-2, SSH-3: out of the top layer (sliding from where it is drawn), the page given back, focus back where it was. */
@@ -560,13 +674,16 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = focusWithin(this);
+    // SSH-5: the first layout is asked for before the first render, so that its read comes before the update of the close
+    // button the render makes, and the button draws from the start with the variant it is given.
+    if (!this.hasUpdated) this.layout();
   }
 
   /** What changes whether the actions fit and whether the content scrolls: the content box, the content and the row. */
   private observe() {
     for (const selector of ['.sheet', '.content', '.inner', '.actions']) {
       const element = this.renderRoot.querySelector(selector);
-      if (element) this.resize$?.observe(element);
+      if (element) this.resizes.watch(element);
     }
   }
 
@@ -588,7 +705,8 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     // SSH-23: a divider visibility the sheet does not define is drawn as auto (no rule matches it).
     if (changed.has('dividerVisibility')) {
       if (!isDividerVisibility(this.dividerVisibility)) report(this, 'SSH-23', `divider-visibility "${this.dividerVisibility}" is not a value of the side sheet; it is drawn as "auto"`);
-      this.syncHeaderDivider();
+      // Drawn by the layout, which reads where the content is scrolled with every other host's reads of the turn.
+      this.layout();
     }
 
     const variantChanged = changed.has('variant') && changed.get('variant') !== undefined;
@@ -625,7 +743,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
       this.observe();
       this.layout();
     }
-    if (changed.has('open')) this.onViewport();
+    if (changed.has('open')) this.viewportTogether();
   }
 
   private body() {

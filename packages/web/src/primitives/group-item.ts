@@ -25,10 +25,12 @@ import { neighbourTarget } from './target.js';
 //
 // An item outside a group is told nothing and draws exactly as it always did. None of it is a styling API.
 //
-// A dialog and a side sheet use the same controller for one thing only (DLG-20, SSH-17, SSH-5): the Button variant they
-// give an action whose own variant is not set (`variant`), which the item asks for when it connects (`HOST_VARIANT`)
-// and the host tells it when its choice changes (src/primitives/actions.ts) — and, for the side sheet, the variant of
-// the close button in its shadow root. The item draws it only while it has no `variant` attribute.
+// A dialog, a side sheet and a popover use the same controller for one thing only (DLG-20, SSH-17, SSH-5, POP-16): the
+// Button variant they give an action whose own variant is not set (`variant`), which the host tells it as it reads its
+// children and whenever its choice changes (src/primitives/actions.ts) — and, for the side sheet, the variant of the
+// close button in its shadow root. The item draws it only while it has no `variant` attribute. A host may also answer
+// the item as it connects (`HOST_VARIANT`, the popover); the dialog and the side sheet do not: they read the token with
+// every other host's reads of the turn, and give it in the same turn, while the item still settles (MOT-3).
 //
 // An empty state uses the same channel for one thing only (EMP-6, EMP-11): each Button in its actions is placed as a
 // standard item that is both first and last — its hit area and everything it draws are its own — so that its label may
@@ -106,7 +108,7 @@ export interface PlacingGroup {
   [GROUP_PLACE](child: Element): GroupPlace | null;
   [GROUP_AVAILABILITY]?(child: Element): void;
 }
-/** An element that gives its children a variant (a dialog or a side sheet, to its actions: DLG-20, SSH-17). */
+/** An element that gives its children a variant as they connect (a popover, to its actions: POP-16). */
 export interface VariantHost {
   [HOST_VARIANT](child: Element): string | null;
 }
@@ -159,7 +161,6 @@ export class GroupItemController implements ReactiveController {
   variant: string | null = null;
   /** The tone its host gives it (BTN-45); null outside such a host. */
   tone: Tone | null = null;
-  private observer: ResizeObserver | null = null;
   private observed: HTMLElement | null = null;
 
   constructor(
@@ -282,35 +283,42 @@ export class GroupItemController implements ReactiveController {
   private watch(element: HTMLElement | null) {
     if (element === this.observed) return;
     if (this.observed) {
-      this.observer?.unobserve(this.observed);
+      sizes?.unobserve(this.observed);
       for (const name of ['--_half-block', '--_box-width', '--_box-height']) this.observed.style.removeProperty(name);
     }
     this.observed = element;
     if (!element) return;
-    this.observer ??= new ResizeObserver((entries) => {
-      // Every entry is read before any is written: a write between two reads would have the page styled again for the
-      // second (one style for all the items the observer reports, not one each).
-      const read = entries.map((entry) => {
-        // The cut of the shadows' box at a seam counts from its top left corner (groupItemStyles): the box's used size,
-        // which the container's computed width and height are (it is a border box). Not the observer's own numbers:
-        // on a zoomed page they are cut down to a layout unit of the unzoomed size, which is coarser than the layout.
-        const used = getComputedStyle(entry.target);
-        return {
-          style: (entry.target as HTMLElement).style,
-          block: entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height,
-          width: Number.parseFloat(used.width),
-          height: Number.parseFloat(used.height),
-        };
-      });
-      for (const { style, block, width, height } of read) {
-        style.setProperty('--_half-block', `${block / 2}px`);
-        for (const [name, size] of [['--_box-width', width], ['--_box-height', height]] as const) {
-          if (Number.isFinite(size)) style.setProperty(name, `${size + SLACK}px`);
-          else style.removeProperty(name);
-        }
-      }
-    });
-    this.observer.observe(element);
+    sizes ??= new ResizeObserver(measureSizes);
+    sizes.observe(element);
+  }
+}
+
+/**
+ * The one observer of every item's container (`watch`): a frame reports every container whose size changed in one
+ * callback, which reads them all before it writes any — one style for all the items of the page, not one per item, as
+ * an observer of each item's own gave (each callback read after the one before had written).
+ */
+let sizes: ResizeObserver | null = null;
+
+function measureSizes(entries: ResizeObserverEntry[]) {
+  const read = entries.map((entry) => {
+    // The cut of the shadows' box at a seam counts from its top left corner (groupItemStyles): the box's used size,
+    // which the container's computed width and height are (it is a border box). Not the observer's own numbers:
+    // on a zoomed page they are cut down to a layout unit of the unzoomed size, which is coarser than the layout.
+    const used = getComputedStyle(entry.target);
+    return {
+      style: (entry.target as HTMLElement).style,
+      block: entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height,
+      width: Number.parseFloat(used.width),
+      height: Number.parseFloat(used.height),
+    };
+  });
+  for (const { style, block, width, height } of read) {
+    style.setProperty('--_half-block', `${block / 2}px`);
+    for (const [name, size] of [['--_box-width', width], ['--_box-height', height]] as const) {
+      if (Number.isFinite(size)) style.setProperty(name, `${size + SLACK}px`);
+      else style.removeProperty(name);
+    }
   }
 }
 

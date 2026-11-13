@@ -10,8 +10,6 @@ import {
   CompactWindow,
   type DividerVisibilityProp,
   GlyphMirrorController,
-  HOST_VARIANT,
-  type VariantHost,
   assignSlot,
   closeModal,
   closeRequestReason,
@@ -19,10 +17,12 @@ import {
   compChoices,
   deepActive,
   holdPageScroll,
+  modalLayer,
   isDisabledControl,
   isDividerVisibility,
   keyboardCover,
   openModal,
+  readTogether,
   report,
   syncDividerVisibility,
   trapFocus,
@@ -30,6 +30,7 @@ import {
 } from '../../primitives/index.js';
 import { styles } from './dialog.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
@@ -56,6 +57,23 @@ export interface TanreiDialogDismissDetail {
 
 /** The dialogs open in this window, bottom to top (DLG-15). */
 const stack: TanreiDialog[] = [];
+
+/** What a dialog reads from the cascade and the window to lay out (`readChoices()`). */
+interface Choices {
+  compact: boolean;
+  iconPlacement: (typeof ICON_PLACEMENTS)[number];
+  arrangement: (typeof ARRANGEMENTS)[number];
+  variant: (typeof BUTTON_VARIANTS)[number];
+}
+
+/** DLG-11: the scrolled part and its dividers, as read (`readDividers()`). */
+interface Dividers {
+  middle: HTMLElement;
+  scroll: HTMLElement;
+  scrolls: boolean;
+  above: boolean;
+  below: boolean;
+}
 
 const PREFIX = '--tanrei-comp-dialog';
 /** The choices of kind the dialog reads (tokens/comp/dialog.tokens.json, `dev.tanrei.enum`): the first is the fallback. */
@@ -113,7 +131,7 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * @fires {CustomEvent<TanreiDialogDismissDetail>} cancel - Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back` or `scrim`. Cancelable: `preventDefault()` keeps it open.
  * @fires close - The dialog closed, whatever closed it.
  */
-export class TanreiDialog extends TanreiElement implements VariantHost {
+export class TanreiDialog extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'dialog');
   /**
    * DLG-22: the glyph in the icon slot is marked when the icon set mirrors its name in right-to-left, or the product's
@@ -181,7 +199,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   private icons: Element[] = [];
   private content: Node[] = [];
   // DLG-10: a button that draws (or changes) its label changes whether the row fits.
-  private readonly placement = new ActionPlacement(this, (action) => this.resize$?.observe(action));
+  private readonly placement = new ActionPlacement(this, (action) => this.observe(action));
 
   /** DLG-17: the window, matched against the resolved `compact.window-width`; crossing it re-places at once. */
   private readonly compact = new CompactWindow(() => this.layout());
@@ -195,8 +213,21 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   /** DLG-4: where focus was when it opened. */
   private opener: Element | null = null;
   private shown = false;
+  /** It is to open with the reads of the turn (`present()`), and has not yet. */
+  private presenting = false;
+  /** A layout is asked for with the reads of the turn (`layout()`), and has not been read yet. */
+  private laying = false;
+  /** What is to run once the layout asked for has been drawn: focus going in as it opens (DLG-2). */
+  private afterLayout: (() => void)[] = [];
+  /** DLG-20: the variant is to be given with the reads of the turn (`giveVariant()`). */
+  private giving = false;
+  /** DLG-20: the actions were given the variant as the dialog connected, before its first update read them. */
+  private givenEarly = false;
+  /** DLG-2: it has opened and not yet given focus in (that follows its layout). */
+  private owesFocus = false;
   private pressedScrim = false;
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.layout());
+  /** What is watched for it with every other dialog's and sheet's parts (src/primitives/resize-watch.ts): its parts, its probes and its actions. */
+  private readonly resizes = new ResizeWatch(() => this.layout());
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
 
   private get dialog(): HTMLDialogElement | null {
@@ -207,14 +238,9 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     return this.closedBy !== 'none';
   }
 
-  /** A choice of kind, by name, as the cascade gives it now — never cached, so a system switch is seen; unknown is the first. */
-  private choice<T extends string>(token: string, values: readonly T[]): T {
-    return compChoice(this, `${PREFIX}-${token}`, values);
-  }
-
-  /** @internal DLG-20: the variant it gives one of its actions whose own is not set (src/primitives/group-item.ts). */
-  [HOST_VARIANT](child: Element): string | null {
-    return child.parentElement === this && child.getAttribute('slot') === 'actions' ? this.choice('actions-variant', BUTTON_VARIANTS) : null;
+  /** What changes the layout: a part of the dialog, a probe of its padding, an action (`resizes`). Observed once. */
+  private observe(element: Element, options?: ResizeObserverOptions) {
+    this.resizes.watch(element, options);
   }
 
   override connectedCallback() {
@@ -226,14 +252,17 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
       attributes: true,
       attributeFilter: ['slot', 'confirming', 'dismissive', 'disabled'],
     });
-    if (this.hasUpdated) this.readSlots();
+    if (this.hasUpdated) {
+      this.observeParts();
+      this.readSlots();
+    } else if (this.querySelector(':scope > [slot="actions"]')) this.giveVariant();
     if (this.hasUpdated && this.open) this.present();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.mutation$.disconnect();
-    this.resize$?.disconnect();
+    this.resizes.stop();
     this.compact.stop();
     if (this.shown) this.withdraw(false);
   }
@@ -257,16 +286,38 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
       (node) => (node instanceof Element && !node.hasAttribute('slot')) || (node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()),
     );
     this.placement.read(nodes.filter((node) => slotted(node, 'actions')) as Element[]);
-    this.giveVariant();
+    // Read before the first render, the actions were given the variant as the dialog connected, in this turn.
+    if (this.hasUpdated || !this.givenEarly) this.giveVariant();
+    this.givenEarly = false;
     const filled = { icon: this.icons.length > 0, content: this.content.length > 0, actions: this.placement.actions.length > 0 };
     if (filled.icon === this.filled.icon && filled.content === this.filled.content && filled.actions === this.filled.actions) return false;
     this.filled = filled;
     return true;
   }
 
-  /** DLG-20: every action is told the dialog's variant, which it draws while its own is not set; a former action, none. */
+  /**
+   * DLG-20: every action is told the dialog's variant, which it draws while its own is not set; a former action, none.
+   * The token is read with every other host's reads of the turn (src/primitives/read-phase.ts): read as each action
+   * connected (`HOST_VARIANT`), it had the browser style the page once per action. Asked as the dialog connects, the
+   * read comes before the first updates of the actions written inside it, which are upgraded after it: they draw the
+   * variant from their first render. Given before the dialog has read its children, it reads its actions for it.
+   * An action that connects later asks nothing of the dialog: the dialog reads its children as they change, and gives
+   * it the variant in the same turn, while it still settles (MOT-3), so no frame draws it without.
+   */
   private giveVariant() {
-    this.placement.give(this.choice('actions-variant', BUTTON_VARIANTS));
+    if (this.giving) return;
+    this.giving = true;
+    readTogether(() => {
+      this.giving = false;
+      const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
+      return () => {
+        if (!this.hasUpdated) {
+          this.placement.read([...this.children].filter((child) => child.getAttribute('slot') === 'actions'));
+          this.givenEarly = this.placement.actions.length > 0;
+        }
+        this.placement.give(variant);
+      };
+    });
   }
 
   /** The slots assigned by hand: the icon, the content, and the actions in the order of the orientation (BGR-15). */
@@ -331,10 +382,14 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   private readonly onViewport = () => {
     const dialog = this.dialog;
     if (!dialog || !window.visualViewport) return;
-    const covered = keyboardCover();
+    this.cover(dialog, keyboardCover());
+  };
+
+  /** DLG-7, DLG-17: how much of the window the keyboard covers, as read, on the dialog. */
+  private cover(dialog: HTMLDialogElement, covered: number) {
     dialog.style.setProperty('--_keyboard', `${covered}px`);
     dialog.classList.toggle('keyboard', covered > 0);
-  };
+  }
 
   /**
    * DLG-17: whether it is a sheet now — a compact window (the resolved `compact.window-width`, src/primitives/
@@ -346,14 +401,27 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     return compact && this.compactPresentation !== 'own';
   }
 
-  /** DLG-9, DLG-10, DLG-17: the choices the script reads, on the dialog — the placement, and the fallback where style queries are missing. */
-  private applyChoices(dialog: HTMLDialogElement) {
-    dialog.classList.toggle('compact', this.readCompact());
-    const { iconPlacement, arrangement } = compChoices(this, { iconPlacement: [`${PREFIX}-icon-placement`, ICON_PLACEMENTS], arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS] });
-    dialog.dataset.iconPlacement = iconPlacement;
-    dialog.dataset.arrangement = arrangement;
+  /**
+   * DLG-9, DLG-10, DLG-17, DLG-20: what the dialog reads from the cascade and the window — the placement, the actions'
+   * variant — with one computed style. A read: it writes nothing.
+   */
+  private readChoices(): Choices {
+    const { iconPlacement, arrangement, variant } = compChoices(this, {
+      iconPlacement: [`${PREFIX}-icon-placement`, ICON_PLACEMENTS],
+      arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
+      variant: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
+    });
+    return { compact: this.readCompact(), iconPlacement, arrangement, variant };
+  }
+
+  /** DLG-9, DLG-10, DLG-17, DLG-20: the choices read, on the dialog — and the fallback where style queries are missing. */
+  private applyChoices(dialog: HTMLDialogElement, choices: Choices) {
+    dialog.classList.toggle('compact', choices.compact);
+    dialog.dataset.iconPlacement = choices.iconPlacement;
+    dialog.dataset.arrangement = choices.arrangement;
     // DLG-24: the divider visibility, where style queries are missing.
     syncDividerVisibility(this, dialog);
+    this.placement.give(choices.variant);
   }
 
   /**
@@ -378,16 +446,46 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     }
   }
 
-  /** DLG-1, DLG-2, DLG-15, DLG-17: modal in the top layer, placed, the page held, focus to the marked element or the dialog. */
+  /**
+   * DLG-1, DLG-2, DLG-15, DLG-17: modal in the top layer, placed, the page held, focus to the marked element or the
+   * dialog. What it reads to open — its choices, the window, the keyboard — is read with every other host's reads of the
+   * turn (src/primitives/read-phase.ts), and it opens in the write that follows: still in the task, before a script that
+   * waits for the update (`updateComplete`) goes on. Read in each dialog's own update, after the one before had opened,
+   * it had the browser style and lay out the page several times per dialog.
+   */
   private present() {
     const dialog = this.dialog;
-    if (!dialog || this.shown || !this.isConnected) return;
-    this.opener = deepActive();
+    if (!dialog || this.shown || this.presenting || !this.isConnected) return;
+    this.presenting = true;
+    readTogether(() => {
+      this.presenting = false;
+      if (!this.open || this.shown || !this.isConnected || this.dialog !== dialog) return;
+      const choices = this.readChoices();
+      const covered = window.visualViewport ? keyboardCover() : null;
+      return () => {
+        if (!this.open || this.shown || !this.isConnected) return;
+        this.show(dialog, choices, covered);
+      };
+    });
+  }
+
+  /** DLG-2: where focus goes as it opens — the slotted element marked `autofocus`, or the dialog itself. */
+  private focusTarget(): HTMLElement | null {
+    return this.querySelector<HTMLElement>('[autofocus]') ?? this.dialog;
+  }
+
+  /** `present()`'s write: the dialog opens with what was read. */
+  private show(dialog: HTMLDialogElement, choices: Choices, covered: number | null) {
+    // DLG-4, DLG-15: where focus is — or, opened above a dialog of the same turn that has not given focus in yet (focus
+    // is in it, where its `showModal()` gave it), where that dialog gives it (DLG-2): focus returns there when this one
+    // closes.
+    const below = stack[stack.length - 1];
+    this.opener = below?.owesFocus ? below.focusTarget() : deepActive();
     // DLG-5: an Escape the dialog did not see itself still reads as escape, not back.
     watchEscape();
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
-    this.giveVariant();
-    this.layout();
+    this.applyChoices(dialog, choices);
+    if (covered !== null) this.cover(dialog, covered);
     // DLG-13: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
     openModal(dialog);
     this.appear.enter();
@@ -417,14 +515,20 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     stack.push(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
-    this.onViewport();
-    this.layout();
-    const marked = this.querySelector<HTMLElement>('[autofocus]');
-    if (marked) marked.focus();
-    else dialog.focus();
-    // DLG-2, DLG-13: what the open state began inside it — the colors of what took focus — begins in the first frame
-    // drawn after this task, as its entrance does (statesFromNextFrame).
-    statesFromNextFrame([this]);
+    // Laid out as it is shown, then focus goes in: what focus scrolls into view is placed first.
+    this.owesFocus = true;
+    this.layout(() => {
+      this.owesFocus = false;
+      if (!this.shown) return;
+      const target = this.focusTarget();
+      // `showModal()` has given focus already where it could (src/primitives/modal-exit.ts): focused again, an element
+      // has the page styled for it once more. A surface opened above it in the same turn has focus, and everything
+      // under that surface is inert (DLG-15).
+      if (target && modalLayer.top === dialog && deepActive() !== target) target.focus();
+      // DLG-2, DLG-13: what the open state began inside it — the colors of what took focus — begins in the first frame
+      // drawn after this task, as its entrance does (statesFromNextFrame).
+      statesFromNextFrame([this]);
+    });
   }
 
   /** DLG-4, DLG-13, DLG-18: out of the top layer (fading), focus back where it was, the page given back. */
@@ -459,21 +563,32 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   /**
    * DLG-10, DLG-11, DLG-12, DLG-17: the placement; the actions in a row while they fit and otherwise a column, in the
    * order of each; the dividers follow the scrolled part; with no room left for it, everything scrolls together.
+   *
+   * Laid out with every other host's reads of the turn (src/primitives/read-phase.ts), in steps that each read, then
+   * write what follows from it: the choices; the padding and the actions at their own widths; whether the scrolled part
+   * has room, and its dividers. A step's reads are made with every other host's of that step, so a hundred dialogs laid
+   * out in one turn have the page styled and laid out once per step, not once per step and dialog. Asked again before
+   * it is read, it is laid out once. `then` runs once it has been drawn. A dialog that is not shown is not laid out: it
+   * is drawn nowhere, and is laid out as it opens.
    */
-  private layout() {
-    const dialog = this.dialog;
-    if (!dialog) return;
-    this.applyChoices(dialog);
-    this.syncPadding(dialog);
-    this.placeActions(dialog);
-    dialog.classList.remove('whole');
-    const scroll = this.renderRoot.querySelector<HTMLElement>('.scroll');
-    if (scroll) {
-      const line = Number.parseFloat(getComputedStyle(scroll.firstElementChild ?? scroll).lineHeight) || 0;
-      const cramped = scroll.scrollHeight > scroll.clientHeight + 0.5 && scroll.clientHeight < line;
-      dialog.classList.toggle('whole', cramped);
-    }
-    this.syncDividers();
+  private layout(then?: () => void) {
+    if (!this.shown) return;
+    if (then) this.afterLayout.push(then);
+    if (this.laying) return;
+    this.laying = true;
+    readTogether(() => {
+      this.laying = false;
+      const dialog = this.dialog;
+      if (!dialog || !this.shown) return () => this.laidOut();
+      const choices = this.readChoices();
+      return () => {
+        this.applyChoices(dialog, choices);
+        const box = this.renderRoot.querySelector<HTMLElement>('.actions');
+        if (box) this.placement.startMeasure(box);
+        dialog.classList.remove('whole');
+        readTogether(() => this.placeActions(dialog, box, choices));
+      };
+    });
   }
 
   /**
@@ -481,50 +596,91 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
    * share, `end` while the row fits the inner width. The row is also the widest part the container is sized to (`--_row`),
    * stacked or not: at their own widths for `end`, and for `fill` as it draws them — equal shares, each as wide as the
    * widest action.
-   */
-  private placeActions(dialog: HTMLDialogElement) {
-    const box = this.renderRoot.querySelector<HTMLElement>('.actions');
-    if (!box) return;
-    const { row, changed } = this.placement.measure(box, dialog.dataset.arrangement === 'end' ? 'packed' : 'fill');
-    dialog.style.setProperty('--_row', `${row}px`);
-    if (changed) this.assign();
-  }
-
-  /**
-   * The container's inline padding as drawn, which the scrolling part, its dividers and its focus box reach through to
-   * the container's edges (`--_container-padding-start`, `--_container-padding-end`): measured rather than read from
+   *
+   * And the container's inline padding as drawn, which the scrolling part, its dividers and its focus box reach through
+   * to the container's edges (`--_container-padding-start`, `--_container-padding-end`): measured rather than read from
    * `container.padding`, so a padding the product gives `::part(container)` is followed and nothing overflows it. Two
    * probes inherit the padding of one side each and are observed (`firstUpdated`), so a change of either, even one that
    * leaves every box the same size (padding moved from one side to the other), lays the dialog out again.
    */
-  private syncPadding(dialog: HTMLDialogElement) {
+  private placeActions(dialog: HTMLDialogElement, box: HTMLElement | null, choices: Choices): (() => void) | void {
     const style = getComputedStyle(dialog);
     const rtl = style.direction === 'rtl';
     const sides = { start: rtl ? style.paddingRight : style.paddingLeft, end: rtl ? style.paddingLeft : style.paddingRight };
-    for (const [side, value] of Object.entries(sides)) {
-      const name = `--_container-padding-${side}`;
-      if (dialog.style.getPropertyValue(name) !== value) dialog.style.setProperty(name, value);
-    }
+    const measure = box ? this.placement.readMeasure(box, choices.arrangement === 'end' ? 'packed' : 'fill') : null;
+    return () => {
+      for (const [side, value] of Object.entries(sides)) {
+        const name = `--_container-padding-${side}`;
+        if (dialog.style.getPropertyValue(name) !== value) dialog.style.setProperty(name, value);
+      }
+      if (box && measure) {
+        const { row, changed } = this.placement.endMeasure(box, measure);
+        dialog.style.setProperty('--_row', `${row}px`);
+        if (changed) this.assign();
+      }
+      readTogether(() => this.fitScroll(dialog));
+    };
   }
 
-  private syncDividers() {
+  /** DLG-12: with no room for a line of the scrolled part, everything scrolls together (`whole`); then the dividers. */
+  private fitScroll(dialog: HTMLDialogElement): (() => void) | void {
+    const scroll = this.renderRoot.querySelector<HTMLElement>('.scroll');
+    let cramped = false;
+    if (scroll) {
+      const line = Number.parseFloat(getComputedStyle(scroll.firstElementChild ?? scroll).lineHeight) || 0;
+      cramped = scroll.scrollHeight > scroll.clientHeight + 0.5 && scroll.clientHeight < line;
+    }
+    return () => {
+      dialog.classList.toggle('whole', cramped);
+      readTogether(() => {
+        const read = this.readDividers();
+        return () => {
+          if (read) this.writeDividers(read);
+          this.laidOut();
+        };
+      });
+    };
+  }
+
+  /** What runs once the layout has been drawn (`layout()`'s `then`). */
+  private laidOut() {
+    const after = this.afterLayout;
+    this.afterLayout = [];
+    for (const then of after) then();
+  }
+
+  /** DLG-11, DLG-24: whether the scrolled part scrolls, and where it is. A read. */
+  private readDividers(): Dividers | null {
+    const whole = !!this.dialog?.classList.contains('whole');
     const middle = this.renderRoot?.querySelector<HTMLElement>('.middle');
     const scroll = this.renderRoot?.querySelector<HTMLElement>('.scroll');
-    if (!middle || !scroll) return;
+    if (!middle || !scroll) return null;
+    return {
+      middle,
+      scroll,
+      scrolls: scroll.scrollHeight > scroll.clientHeight + 0.5 && !whole,
+      above: scroll.scrollTop > 0.5,
+      below: scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 0.5,
+    };
+  }
+
+  private writeDividers({ middle, scroll, scrolls, above, below }: Dividers) {
     // A part that scrolls is a Tab stop, so it can be scrolled from the keyboard (WCAG 2.1.1) — unless the whole dialog
     // scrolls instead.
-    const scrolls = scroll.scrollHeight > scroll.clientHeight + 0.5 && !this.dialog?.classList.contains('whole');
     if (scrolls) scroll.setAttribute('tabindex', '0');
     else scroll.removeAttribute('tabindex');
     // DLG-11, DLG-24: whether the part scrolls (always draws both dividers then), and where it is (scroll draws each
     // only while content lies beyond it).
     middle.classList.toggle('scrolls', scrolls);
     middle.classList.toggle('actioned', this.filled.actions);
-    middle.classList.toggle('above', scroll.scrollTop > 0.5);
-    middle.classList.toggle('below', this.filled.actions && scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 0.5);
+    middle.classList.toggle('above', above);
+    middle.classList.toggle('below', this.filled.actions && below);
   }
 
-  private readonly onScroll = () => this.syncDividers();
+  private readonly onScroll = () => {
+    const dividers = this.readDividers();
+    if (dividers) this.writeDividers(dividers);
+  };
 
   /**
    * The children are read before the first render, so that it draws the parts they fill. Read after it (in
@@ -535,20 +691,23 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     if (!this.hasUpdated) this.readChildren();
   }
 
-  protected override firstUpdated() {
+  /** What is observed in the shadow root: the dialog, the probes of its padding, the scrolled part and the actions' box. */
+  private observeParts() {
     const dialog = this.dialog;
-    if (dialog) this.resize$?.observe(dialog);
-    // syncPadding: each probe is as wide as the container's padding at one side, so any change of it is observed.
-    for (const probe of this.renderRoot.querySelectorAll('.inset-probe')) this.resize$?.observe(probe, { box: 'border-box' });
+    if (dialog) this.observe(dialog);
+    // placeActions: each probe is as wide as the container's padding at one side, so any change of it is observed.
+    for (const probe of this.renderRoot.querySelectorAll('.inset-probe')) this.observe(probe, { box: 'border-box' });
+    for (const part of this.renderRoot.querySelectorAll('.scroll, .actions')) this.observe(part);
+  }
+
+  protected override firstUpdated() {
+    this.observeParts();
   }
 
   protected override updated(changed: PropertyValues<this>) {
     const dialog = this.dialog;
     this.assign();
-    const scroll = this.renderRoot.querySelector('.scroll');
-    if (scroll) this.resize$?.observe(scroll);
-    const actions = this.renderRoot.querySelector('.actions');
-    if (actions) this.resize$?.observe(actions);
+    for (const part of this.renderRoot.querySelectorAll('.scroll, .actions')) this.observe(part);
     // DLG-14: a dialog without a headline still opens; a debug build says it has no name.
     if (changed.has('headline') && !this.headline.trim() && !namedByProduct(this)) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
     // DLG-24: a divider visibility the dialog does not define is drawn as auto (no rule matches it).
