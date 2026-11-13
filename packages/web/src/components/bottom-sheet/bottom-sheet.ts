@@ -701,13 +701,18 @@ export class TanreiBottomSheet extends TanreiElement {
 
   // ---- BSH-2, BSH-3: presenting and focus ----
 
+  /** BSH-3: where focus goes as it opens — the slotted element marked `autofocus`, else the sheet itself. */
+  private focusTarget(): HTMLElement | null {
+    const marked = this.querySelector<HTMLElement>('[autofocus]');
+    return marked && !marked.closest('[inert]') ? marked : this.sheet;
+  }
+
   /** BSH-3: focus to the slotted element marked `autofocus`, else the sheet itself, so its label is read first. */
   private focusInside() {
     // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
     const dialog = this.dialog;
     if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
-    const marked = this.querySelector<HTMLElement>('[autofocus]');
-    const target = marked && !marked.closest('[inert]') ? marked : this.sheet;
+    const target = this.focusTarget();
     // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
     if (target && deepActive() !== target) target.focus();
   }
@@ -735,7 +740,10 @@ export class TanreiBottomSheet extends TanreiElement {
     watchEscape();
     this.cancelSettle();
     this.clearPlacement();
-    this.opener = deepActive();
+    // BSH-3, BSH-23: where focus is — or, opened above a surface of the same turn that has not given focus in yet (a
+    // dialog, a sheet: focus is in it, where its `showModal()` gave it), where that surface gives it: focus returns
+    // there when this one closes.
+    this.opener = modalLayer.opener();
     if (instant) {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
@@ -747,7 +755,9 @@ export class TanreiBottomSheet extends TanreiElement {
     holdPageScroll(this, true);
     // The keyboard's cover, then the heights, then focus in — what focus scrolls into view is placed first — each read
     // with every other host's reads of the turn (src/primitives/read-phase.ts): read after the sheet's own
-    // `showModal()`, they had the browser style and lay out the page once per sheet. Still in the task.
+    // `showModal()`, they had the browser style and lay out the page once per sheet. Still in the task. Until focus is
+    // in, a surface opened above it in the same turn takes this sheet's target as its opener (BSH-23).
+    modalLayer.owesFocus(dialog, () => this.focusTarget());
     readTogether(() => {
       if (!this.shown) return;
       const covered = this.readCover();
@@ -760,6 +770,7 @@ export class TanreiBottomSheet extends TanreiElement {
           return () => {
             if (!this.shown) return;
             this.takeHeights(measured);
+            modalLayer.gaveFocus(dialog);
             this.focusInside();
             // BSH-1, BSH-3: what the open state began inside it — the colors of what took focus — begins in the first
             // frame drawn after this task, as its entrance does (statesFromNextFrame).
