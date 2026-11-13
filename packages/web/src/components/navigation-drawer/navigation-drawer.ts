@@ -3346,9 +3346,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private lastRoom: number | null = null;
 
   /**
-   * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less a touch target,
-   * APS-5), or else what the drawer's own `max-inline-size: 100%` left of `intended` the last time the drawer was seen
-   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset. A motion of
+   * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less the main
+   * region's least width and an aside beside it, APS-5), or else what the drawer's own `max-inline-size: 100%` left of
+   * `intended` the last time the drawer was seen expanded and at rest (a parent sized by its content gives it all it
+   * asks for) — less the start inset. A motion of
    * the host's own is not rest, whether it runs or stands held at its start until the next frame (statesFromNextFrame):
    * an opening's slide is held at a width of none in the task that opens the drawer, which read as rest would have the
    * rows laid out at no room through the slide, and the room coming back at its end draw the host without motion for
