@@ -430,41 +430,60 @@ test.describe('the navigation', () => {
     await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
   });
 
-  test('APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content; the drawer is never wider than the window less a touch target; the frame keeps nothing', async ({ page }) => {
-    await mount(page, real({ navigation: DRAWER('responsive collapsible max-width="4000"') }), { width: 1280 });
-    // A long text before the place being read, which reflows as the main region narrows and widens.
-    await main(page).evaluate((el) => {
-      const text = 'The quick brown fox jumps over the lazy dog, and the lazy dog lets it, for the fox is quick and the dog is not. '.repeat(6);
-      el.insertAdjacentHTML('afterbegin', `${Array.from({ length: 24 }, () => `<p>${text}</p>`).join('')}<h2 id="reading" style="margin: 0">Reading here</h2><p style="block-size: 2000px">${text}</p>`);
+  // With the engine's scroll anchoring and without it (a product may turn it off, and an engine does not anchor every
+  // change): the frame holds the place by itself. One page each: in a second document mounted into the same page after a
+  // drag, Chromium gave the handle no pointer capture (no `gotpointercapture`), and the drag stopped at the handle's edge.
+  for (const anchoring of ['auto', 'none'] as const) {
+    test(`APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor ${anchoring}); the drawer is never wider than the window less a touch target; the frame keeps nothing`, async ({ page }) => {
+      // Read in each frame as it is painted, never in the task right after a move: an engine's own scroll anchoring may
+      // hold the place only at the next frame (WebKit does), so a read of layout between the move and that frame finds
+      // the text reflowed and not yet held — about 528 px off here — a state no frame shows.
+      const probe = (root: Element) => {
+        const [nav, content, read] = ['tanrei-app-shell > tanrei-navigation-drawer', 'tanrei-app-shell > main', '#reading'].map((selector) => root.querySelector(selector)!.getBoundingClientRect());
+        return { end: nav.right, start: content.left, read: read.top };
+      };
+      await mount(page, real({ navigation: DRAWER('responsive collapsible max-width="4000"') }), { width: 1280 });
+      await page.evaluate((value) => document.head.insertAdjacentHTML('beforeend', `<style>html, body { overflow-anchor: ${value}; }</style>`), anchoring);
+      // A long text before the place being read, which reflows as the main region narrows and widens.
+      await main(page).evaluate((el) => {
+        const text = 'The quick brown fox jumps over the lazy dog, and the lazy dog lets it, for the fox is quick and the dog is not. '.repeat(6);
+        el.insertAdjacentHTML('afterbegin', `${Array.from({ length: 24 }, () => `<p>${text}</p>`).join('')}<h2 id="reading" style="margin: 0">Reading here</h2><p style="block-size: 2000px">${text}</p>`);
+      });
+      const reading = page.locator('#reading');
+      // The heading is what is read: at the top of what is seen, just below the header.
+      const header = await edges(region(page, 'header'));
+      await page.evaluate((below) => {
+        const at = document.getElementById('reading')!.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo(0, at - below);
+      }, header.height + 8);
+      const line = Number.parseFloat(await css(page.locator('#reading + p'), 'line-height')) || 24;
+      const before = (await edges(reading)).top;
+      const panel = await edges(drawer(page));
+      const at = { x: panel.right, y: panel.top + 200 };
+      await page.mouse.move(at.x, at.y);
+      await page.mouse.down();
+      for (const dx of [20, 60, 120, -40]) {
+        const what = `dx ${dx}`;
+        const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(at.x + dx, at.y), { probe, elements: false });
+        expect(seen.complete, what).toBe(true);
+        // The drawer followed the press: the place is held while the text before it reflows.
+        near(seen.rest.probe.end as number, at.x + dx);
+        for (const { index, probe: drawn } of [...seen.frames, seen.rest]) {
+          near(drawn.start as number, drawn.end as number);
+          expect(Math.abs((drawn.read as number) - before), `the place read, ${what}, frame ${index}`).toBeLessThanOrEqual(line);
+        }
+        expect(seen.motions.filter((motion) => /^main(\.|::|$)/.test(motion.on)), what).toEqual([]);
+        expect(await motionCount(main(page)), what).toBe(0);
+      }
+      // As far as it goes: the window less a touch target.
+      await page.mouse.move(1270, at.y);
+      expect((await edges(drawer(page))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
+      near((await edges(main(page))).left, (await edges(drawer(page))).right);
+      await page.mouse.up();
+      // The frame keeps nothing of it: the drawer holds the width, and nothing is written but the drawer's own property.
+      expect(await shell(page).evaluate((el) => [...el.attributes].map((a) => a.name).filter((n) => /width/.test(n)))).toEqual([]);
     });
-    const reading = page.locator('#reading');
-    // The heading is what is read: at the top of what is seen, just below the header.
-    const header = await edges(region(page, 'header'));
-    await page.evaluate((below) => {
-      const at = document.getElementById('reading')!.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo(0, at - below);
-    }, header.height + 8);
-    const line = Number.parseFloat(await css(page.locator('#reading + p'), 'line-height')) || 24;
-    const before = (await edges(reading)).top;
-    const panel = await edges(drawer(page));
-    const at = { x: panel.right, y: panel.top + 200 };
-    await page.mouse.move(at.x, at.y);
-    await page.mouse.down();
-    for (const dx of [20, 60, 120, -40]) {
-      await page.mouse.move(at.x + dx, at.y);
-      const [nav, content] = [await edges(drawer(page)), await edges(main(page))];
-      near(content.left, nav.right);
-      expect(await motionCount(main(page)), `dx ${dx}`).toBe(0);
-      expect(Math.abs((await edges(reading)).top - before), `the place read, dx ${dx}`).toBeLessThanOrEqual(line);
-    }
-    // As far as it goes: the window less a touch target.
-    await page.mouse.move(1270, at.y);
-    expect((await edges(drawer(page))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
-    near((await edges(main(page))).left, (await edges(drawer(page))).right);
-    await page.mouse.up();
-    // The frame keeps nothing of it: the drawer holds the width, and nothing is written but the drawer's own property.
-    expect(await shell(page).evaluate((el) => [...el.attributes].map((a) => a.name).filter((n) => /width/.test(n)))).toEqual([]);
-  });
+  }
 });
 
 test.describe('the menu button', () => {
