@@ -139,7 +139,7 @@
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
-//                 (Escape or back), keyboardCover() and onBackdrop()
+//                 (Escape or back), keyboardCover(), onBackdrop() and sheetFocusTarget()
 //   separation  — sys.behavior.separation as a component reads it: separationHost() (the attribute over the
 //                 component token, as `--_separation` on the host), whenGap() (the gap form's rules: a style query, and
 //                 `data-separation` where a browser has none), separationOf(), syncSeparation()
@@ -335,6 +335,7 @@ export {
   keyboardCover,
   modalSheetKeys,
   onBackdrop,
+  sheetFocusTarget,
   stoppedBefore,
   watchEscape,
 } from './sheet.js';

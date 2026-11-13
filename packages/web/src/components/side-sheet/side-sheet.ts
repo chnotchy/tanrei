@@ -29,6 +29,7 @@ import {
   readTogether,
   report,
   returnFocus,
+  sheetFocusTarget,
   syncDividerVisibility,
   watchEscape,
   WordsController,
@@ -590,18 +591,12 @@ export class TanreiSideSheet extends TanreiElement {
 
   // ---- SSH-1, SSH-2, SSH-3: presenting and focus ----
 
-  /** SSH-3: where focus goes as it opens — the slotted element marked `autofocus`, else the sheet itself. */
-  private focusTarget(): HTMLElement | null {
-    const marked = this.querySelector<HTMLElement>('[autofocus]');
-    return marked && !marked.closest('[inert]') ? marked : this.sheet;
-  }
-
   /** SSH-3: focus to the slotted element marked `autofocus`, else the sheet itself, so its headline is read first. */
   private focusInside() {
     // A modal surface opened above it in the same turn has focus, and everything under that surface is inert.
     const dialog = this.dialog;
     if (this.modal && this.shown && dialog && modalLayer.top !== dialog) return;
-    const target = this.focusTarget();
+    const target = sheetFocusTarget(this, this.sheet);
     // Focused already (`showModal()` gives focus where it can), an element focused again has the page styled once more.
     if (target && deepActive() !== target) target.focus();
   }
@@ -648,7 +643,7 @@ export class TanreiSideSheet extends TanreiElement {
     // The keyboard's cover and the layout, read with every other host's reads of the turn, then focus in: what focus
     // scrolls into view is placed first. Until then a surface opened above it in the same turn takes this sheet's target
     // as its opener (SSH-15).
-    modalLayer.owesFocus(dialog, () => this.focusTarget());
+    modalLayer.owesFocus(dialog, () => sheetFocusTarget(this, this.sheet));
     this.viewportTogether();
     this.layout(() => {
       if (!this.shown) return;
