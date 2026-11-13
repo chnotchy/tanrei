@@ -485,6 +485,55 @@ test.describe('presentation, focus and closing', () => {
     }
   });
 
+  test('DTM-4, DTM-3: a modal picker and a dialog, or two modal pickers, opened in the same update stack in the order they open; focus goes into the upper one, returns on its closing to the day the picker under it moves focus to as it opens, and on that picker’s closing to the element that had it before either opened', async ({ page }) => {
+    /** Where focus is: the day's date, else the element's id or tag, and the id of the overlay it is inside. */
+    const where = () =>
+      page.evaluate(() => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        let inside: string | null = null;
+        for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
+          if (at instanceof Element && at.matches('tanrei-date-time-picker, tanrei-dialog')) inside = at.id;
+        }
+        return `${active?.getAttribute('data-date') || active?.id || active?.localName} in ${inside}`;
+      });
+    const setOpenOf = (id: string, open: boolean) =>
+      page.locator(`#${id}`).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<boolean> }, o) => {
+        el.open = o;
+        await el.updateComplete;
+      }, open);
+    // The picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): a dialog
+    // whose `open` was set before the picker's opens in that read, above it; a second picker opens as its own update
+    // ends, above the first.
+    const cases: [name: string, upper: 'dialog' | 'picker', focusedAbove: string][] = [
+      ['a dialog', 'dialog', 'd-marked in upper'],
+      ['another picker', 'picker', '2026-09-20 in upper'],
+    ];
+    for (const [name, upper, focusedAbove] of cases) {
+      await mount(page, [modal('m', { value: '2026-09-17' }), ...(upper === 'picker' ? [modal('n', { value: '2026-09-20' })] : [])]);
+      await host(page, 'm').evaluate((el) => (el.id = 'lower'));
+      if (upper === 'picker') await host(page, 'n').evaluate((el) => (el.id = 'upper'));
+      else {
+        const markup = '<tanrei-dialog id="upper" headline="Upper"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
+        await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', m), markup);
+      }
+      await opener(page, 'm').focus();
+      await page.evaluate(async (order) => {
+        const [first, second] = order.map((id) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> });
+        first!.open = true;
+        second!.open = true;
+        await Promise.all([first!.updateComplete, second!.updateComplete]);
+      }, upper === 'dialog' ? ['upper', 'lower'] : ['lower', 'upper']);
+      await expect.poll(where, name).toBe(focusedAbove);
+      // Above the picker: a point that only the scrims cover hits the upper one's.
+      expect(await page.evaluate(() => document.elementFromPoint(4, 4)?.id), name).toBe('upper');
+      await setOpenOf('upper', false);
+      expect(await where(), name).toBe('2026-09-17 in lower');
+      await setOpenOf('lower', false);
+      expect(await where(), name).toBe('open-m in null');
+    }
+  });
+
   test('DTM-5: Escape, the scrim, Cancel and OK close a modal picker with their reason; Tab, a press outside, focus leaving and a completed choice close a docked one; nothing is committed but by confirm and select', async ({ page }) => {
     await mount(page, [modal('m', { value: '2026-09-17' }), docked('d', { value: '2026-09-17' })]);
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="elsewhere">Elsewhere</button>'));

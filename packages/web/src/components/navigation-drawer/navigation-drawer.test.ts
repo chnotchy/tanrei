@@ -2141,6 +2141,71 @@ test.describe('forms and focus', () => {
     await expect.poll(() => page.evaluate(() => location.hash)).toBe('#sent');
   });
 
+  test('NVD-22, NVD-19: a modal drawer opened in the same update as a modal picker or a dialog stacks with it in the order they open; focus goes into the upper one, returns on its closing to where the one under it moves focus as it opens, and on that one’s closing to the element that had it before either opened', async ({ page }) => {
+    /** Where focus is: a day's date or a destination's value, else the element's id or tag, and the overlay it is inside. */
+    const where = () =>
+      page.evaluate(() => {
+        let active: Element | null = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        let inside: string | null = null;
+        let value: string | null = null;
+        for (let at: Node | null = active; at && !inside; at = at instanceof ShadowRoot ? at.host : at.parentNode) {
+          if (at instanceof Element && at.localName === 'tanrei-navigation-drawer-item') value ??= at.getAttribute('value');
+          if (at instanceof Element && at.matches('tanrei-navigation-drawer, tanrei-date-time-picker, tanrei-dialog')) inside = at.id;
+        }
+        return `${active?.getAttribute('data-date') || value || active?.id || active?.localName} in ${inside}`;
+      });
+    const setOpenOf = (id: string, open: boolean) =>
+      page.locator(`#${id}`).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<boolean> }, o) => {
+        el.open = o;
+        await el.updateComplete;
+      }, open);
+    const PICKER =
+      '<tanrei-date-time-picker id="picker" presentation="modal" today="2026-09-24" locale="en-US" value="2026-09-17" label="Select date" confirm-label="OK" cancel-label="Cancel" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" date-label="Date"></tanrei-date-time-picker>';
+    const DIALOG = '<tanrei-dialog id="dialog" headline="Mail"><button id="d-a">A</button> <button id="d-marked" autofocus>B</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>';
+    const ITEMS = '<tanrei-navigation-drawer-item value="inbox" label="Inbox"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="sent" label="Sent"></tanrei-navigation-drawer-item>';
+    // A modal picker opens as its update ends and moves focus in once the read of the update's turn is made (DTM-3): the
+    // drawer, whose update follows, opens above it while it still owes focus. A dialog whose `open` was set first opens
+    // in that read, above the drawer — which has moved focus in as it opened, or, inserted with its items in that task,
+    // moves it once they have drawn (NVD-19). A collapsible drawer reads where focus is before its column gives way to
+    // its dialog (NVD-40).
+    const MODAL = fixture('m', MAIL, { variant: 'modal', open: false });
+    const COLLAPSIBLE = rail('m', MAIL, { variant: 'modal', open: false });
+    const cases: [name: string, drawn: Fixture, lead: string, inserted: boolean, upper: string, focusedAbove: string, target: string][] = [
+      ['above a picker', MODAL, PICKER, false, 'drawer', 'inbox in drawer', '2026-09-17 in picker'],
+      ['collapsible, above a picker', COLLAPSIBLE, PICKER, false, 'drawer', 'inbox in drawer', '2026-09-17 in picker'],
+      ['below a dialog', MODAL, DIALOG, false, 'dialog', 'd-marked in dialog', 'inbox in drawer'],
+      ['below a dialog, inserted with its items', MODAL, DIALOG, true, 'dialog', 'd-marked in dialog', 'inbox in drawer'],
+    ];
+    for (const [name, drawn, lead, inserted, upper, focusedAbove, target] of cases) {
+      await page.setViewportSize(drawerWindow('modal'));
+      await mount(page, [drawn]);
+      // Inserted with its items, the drawer is another one: the fixture's stays closed.
+      if (!inserted) await drawer(page, 'm').evaluate((el) => (el.id = 'drawer'));
+      await page.evaluate((m) => document.querySelector('main')!.insertAdjacentHTML('beforeend', `<button id="opener">Open</button>${m}`), lead);
+      const lower = upper === 'drawer' ? 'picker' : 'drawer';
+      await page.locator('#opener').focus();
+      await page.evaluate(
+        async ([first, items]) => {
+          const opening = (id: string) => document.getElementById(id) as HTMLElement & { open: boolean; updateComplete: Promise<boolean> };
+          opening(first!).open = true;
+          if (items) {
+            document.querySelector('main')!.insertAdjacentHTML('beforeend', `<tanrei-navigation-drawer id="drawer" variant="modal" open label="Mail" value="inbox">${items}</tanrei-navigation-drawer>`);
+          } else opening('drawer').open = true;
+          await Promise.all([opening(first!).updateComplete, opening('drawer').updateComplete]);
+        },
+        [lower === 'picker' ? 'picker' : 'dialog', inserted ? ITEMS : ''] as const,
+      );
+      await expect.poll(where, name).toBe(focusedAbove);
+      // The upper one is what is at a point of the window that only the scrims cover.
+      expect(await page.evaluate(() => document.elementFromPoint(470, 4)?.id), name).toBe(upper);
+      await setOpenOf(upper, false);
+      expect(await where(), name).toBe(target);
+      await setOpenOf(lower, false);
+      expect(await where(), name).toBe('opener in null');
+    }
+  });
+
   test('NVD-22: a closing modal drawer slides out over the exit motion (a collapsible one narrows over motion.expand) and returns focus to where it was as it closes, not when its motion ends, the page behind no longer inert — or drops it when that element is gone', async ({ page }) => {
     await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
     await opener(page);
