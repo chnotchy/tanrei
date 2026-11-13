@@ -1,6 +1,8 @@
 // Copies the generated token stylesheets into dist/ (the default system, plus one opt-in sheet per preset), writes the optional
 // stylesheets (icons, text, prose, link, code, table, accordion, table-of-contents, description-list, figure, app-shell, page-header, tree-view, breadcrumbs, shape, callout) and produces a self-contained, callout, empty-state) and produces a self-contained, avatar) and produces a self-contained
-// bundle (Lit included) for <script type="module"> use, demos and the test harness.
+// bundle (Lit included) for <script type="module"> use, demos and the test harness. It runs in `pnpm build` after
+// scripts/clean.js has removed dist/ and the compiler has written its modules there, so nothing it writes needs to
+// clear an earlier build's files first.
 import fs from 'node:fs';
 import path from 'node:path';
 import { build } from 'esbuild';
@@ -316,7 +318,6 @@ fs.writeFileSync('dist/shape.css', `/* Corner smoothing for a light-DOM box: put
 // stylesheet added to them is in the file.
 fs.copyFileSync('src/styles/base.css', 'dist/base.css');
 fs.writeFileSync('dist/tanrei.css', allStylesheets(JSON.parse(fs.readFileSync('package.json', 'utf8')), (file) => fs.readFileSync(file, 'utf8')));
-fs.rmSync('dist/systems', { recursive: true, force: true });
 fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
 // Each shipped system's components manifest, the default's among them (`@tanrei/web/systems/<id>.components.json`):
 // what the system ships, with the module that registers each component, generated beside the system's tokens.
@@ -339,8 +340,7 @@ for (const { name } of manifests) {
 // of the components system <id> ships.
 const shipped = readManifests();
 for (const [file, text] of Object.entries(entryFiles(shipped))) fs.writeFileSync(`dist/${file}`, text);
-fs.rmSync('dist/custom-elements', { recursive: true, force: true });
-fs.mkdirSync('dist/custom-elements');
+fs.mkdirSync('dist/custom-elements', { recursive: true });
 const elements = JSON.parse(fs.readFileSync('custom-elements.json', 'utf8'));
 for (const [id, manifest] of shipped.manifests) fs.writeFileSync(`dist/custom-elements/${id}.json`, JSON.stringify(systemElements(elements, manifest, shipped.catalog)));
 // A shipped system that moves a width a condition is written from gets that stylesheet written for it, beside its
@@ -395,7 +395,6 @@ for (const file of fs.readdirSync('dist', { recursive: true })) {
 // `@tanrei/web/links/node`, the build-time helper (src/links/node/REQUIREMENTS.md). It runs under Node only
 // and is JavaScript with types written beside it, so the compiler above does not emit it: its files are copied as
 // they are. Nothing the bundle above is made from imports it (LKD-1; src/links/node/test/surface.test.mjs).
-fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
