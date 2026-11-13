@@ -1875,8 +1875,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-98: what a drag changed on the document, given back when it ends. */
   private documentHold: { select: string; webkitSelect: string; frames: [HTMLElement, string][] } | null = null;
   private resizeFrame = 0;
-  /** APS-5: until a person's change of width has stopped moving. */
-  private personTimer: ReturnType<typeof setTimeout> | undefined;
+  /** APS-5: the person's change of width whose hold on the place being read is current (a later change takes it over). */
+  private personRun = 0;
   /**
    * NVD-97, NVD-102: the room the parent gives changes the width the rows are laid out at and what the handle says.
    * One observer watches every drawer, so that a frame reports all the drawers that changed in one callback: all of
@@ -3110,7 +3110,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-98: a drawer taken away ends its drag, and gives the document back.
     this.watchResizeTargets();
     this.finishDrag();
-    clearTimeout(this.personTimer);
+    this.personRun++;
     this.removeAttribute('data-person-resize');
     this.unwatchWidths();
     cancelPhaseRead(this.firstFrame);
@@ -3430,16 +3430,37 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /**
    * APS-5: a person is about to change the width — an app shell around the drawer notes the place being read, and holds
-   * it in every frame the width changes while `data-person-resize` says so: for as long as a drag lasts, else as long as
-   * the change's motion.
+   * it in every frame the width changes while `data-person-resize` says so: for as long as a drag lasts, else until the
+   * change's motion has ended, however late its first frame comes or however slowly it plays (`personRests`) — never by
+   * a page timer, which a motion that starts late or plays slowly outlasts.
    */
   private personResizes(lasting = false) {
     // Noted once for a change, however many frames it takes: where it stood before the change began.
     const shell = this.parentElement as (HTMLElement & { keepReading?: (drawer: Element) => void }) | null;
     if (!this.hasAttribute('data-person-resize') && shell?.localName === 'tanrei-app-shell' && this.getAttribute('slot') === 'navigation') shell.keepReading?.(this);
     this.setAttribute('data-person-resize', '');
-    clearTimeout(this.personTimer);
-    if (!lasting) this.personTimer = setTimeout(() => !this.resizeDrag && this.removeAttribute('data-person-resize'), this.expandDuration() + 100);
+    const run = ++this.personRun;
+    if (!lasting) void this.updateComplete.then(() => this.personRests(run));
+  }
+
+  /**
+   * APS-5: the hold of the person's change `run` ends in the frame after the one that drew its last width — the app
+   * shell holds the place in that frame's resize observations, after its callbacks — unless a drag goes on or a later
+   * change took the hold over. A motion of the host's own (the width's, NVD-35, NVD-101: one that the change began in
+   * the first frame after this update is among them, since asking brings style up to date) is waited for to its end or
+   * its cancel, and asked again then: one that took its place runs on. A change that starts no motion of the width
+   * (reduced motion, a key's step, a width that stayed) ends its hold two frames after this update.
+   */
+  private personRests(run: number) {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (run !== this.personRun || this.resizeDrag) return;
+        // (Not one that has finished and holds its end: a product's own `animate()` of the host with a fill.)
+        const moving = this.getAnimations().filter((motion) => motion.playState !== 'finished');
+        if (moving.length) void Promise.allSettled(moving.map((motion) => motion.finished)).then(() => this.personRests(run));
+        else this.removeAttribute('data-person-resize');
+      }),
+    );
   }
 
   /** NVD-98, HDL-6: while a drag lasts nothing on the page is selected, and no frame takes the pointer as it passes. */
