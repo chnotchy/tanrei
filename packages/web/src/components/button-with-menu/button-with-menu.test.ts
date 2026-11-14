@@ -20,9 +20,11 @@ const leading = (page: P, id: string) => host(page, id).locator('button.leading'
 const trailing = (page: P, id: string) => host(page, id).locator('button.trailing');
 /**
  * Every half has measured its box. The size the cut of its shadows at the seam counts from is written by an observer of
- * sizes (`--_box-width`, `--_box-height`: src/primitives/group-item.ts), in the frame after the box changed — and a box
- * changes when its label's face arrives, which is when a mount returns: a reading or a picture made at once can find
- * the cut some pixels short of the seam, one frame before it is drawn there (as the button group's items were found).
+ * sizes (`--_box-width`, `--_box-height`: src/primitives/group-item.ts) when it reports the box's change, a frame after
+ * any change of the box — never in the task that made it: a reading or a picture made at once can find the cut some
+ * pixels short of the seam, one frame before it is drawn there (as the button group's items were found). A label's
+ * face no longer changes the box after a mount — the harness registers the faces before the first frame, so the first
+ * layout is in them — but whatever else changes the box is still written a frame late, and so it is waited for.
  */
 const measured = (page: P) =>
   page.waitForFunction(() =>
