@@ -170,7 +170,8 @@
 //                 surface, its entrance skipped before the first paint — documentPainted(), MOT-4 — turned round from the
 //                 value shown, exit() resolved by its transitions), AnimatedSize (a box whose size follows its content,
 //                 anchored, clipped, MOT-5), Settle with settleStyles / settleRule() (styles/motion.ts: no transition in
-//                 an element's first frames, MOT-3)
+//                 an element's first frames, MOT-3), holdStillPointer() (no hover transition in what a surface holds
+//                 until the person acts after it opened: a pointer at rest is over it from the first frame)
 //   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
 //                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet;
 //                 TanreiElement keeps a focus() called before its first update until it has drawn (keepFocusUntilRendered(),
@@ -270,10 +271,11 @@ export {
   afterTwoFrames,
   appearStyles,
   documentPainted,
+  holdStillPointer,
   motionReduced,
   watchMotionReduced,
 } from './motion.js';
-export { APPEARING, REDUCED_MOTION_ATTRIBUTE, SETTLING, reducedMotion, settleRule, settleStyles } from '../styles/motion.js';
+export { APPEARING, REDUCED_MOTION_ATTRIBUTE, SETTLING, STILL_POINTER, reducedMotion, settleRule, settleStyles } from '../styles/motion.js';
 export { TanreiElement, TanreiLightElement, focusKept } from './element.js';
 export { DismissController, type DismissOptions, type DismissReason, type OverlayEntry, logicalAncestors, overlayDepth, registerOverlay } from './dismiss.js';
 export { type OverlayTabOptions, focusOverlay, keepOverlayFocusAfterPress, quietFocus, returnOverlayFocus, tabThroughOverlay, watchInput } from './overlay-focus.js';

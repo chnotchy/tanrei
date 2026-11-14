@@ -1,5 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
-import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, reducedMotion } from '../styles/motion.js';
+import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, STILL_POINTER, reducedMotion } from '../styles/motion.js';
+import { flatParent } from './flat-tree.js';
 import { type PhaseRead, readThenWrite, readTogether } from './read-together.js';
 
 // How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-6):
@@ -13,7 +14,9 @@ import { type PhaseRead, readThenWrite, readTogether } from './read-together.js'
 //                       value shown (MOT-2), and `exit()` resolved when the exit has finished — never by a timer
 //   AnimatedSize        a box whose size follows its content as one motion, its content fixed to an edge, nothing
 //                       scrolled on the way (MOT-5)
-//   Settle              no transition while an element draws its first frames (MOT-3; the rule is src/styles/motion.ts)
+//   Settle              no transition while an element draws its first frames (MOT-3; the rule is src/styles/motion.ts),
+//                       nor while a pointer that has not moved since a surface opened hovers what it holds
+//                       (`holdStillPointer()`)
 //
 // Every duration and curve is a token the component names (its own, aliasing a role) or, where it names none, the
 // role's system token. Nothing here parses a duration: a motion's end is its transitions' own `finished`.
@@ -652,6 +655,8 @@ export class AppearController implements ReactiveController {
     const motion = this.options.motion();
     if (!motion || !this.opened) return;
     if (!motion.hasAttribute(APPEARING)) motion.setAttribute(APPEARING, '');
+    // MOT-3: what a pointer at rest is over as it opens is drawn hovered at once, however late the engine hovers it.
+    holdStillPointer(motion);
     if (this.instant || !documentPainted() || !motion.isConnected) {
       this.arriving = null;
       // Made at once, it has no entrance: `atOnce` finished every transition and put the transitions back with no value
@@ -1014,6 +1019,8 @@ export class Settle implements ReactiveController {
     const connection = ++this.connection;
     this.settling = true;
     this.host.setAttribute(SETTLING, '');
+    settlers.add(this.host);
+    if (stillSurfaces.size) markIfHeld(this.host);
     const settled = () => {
       if (connection !== this.connection) return;
       this.settling = false;
@@ -1028,5 +1035,79 @@ export class Settle implements ReactiveController {
     this.connection++;
     this.settling = false;
     this.host.removeAttribute(SETTLING);
+    settlers.delete(this.host);
+    if (stillHosts.delete(this.host)) this.host.removeAttribute(STILL_POINTER);
+  }
+}
+
+// ── A pointer that has not moved since a surface opened (holdStillPointer) ────────────────────────────────────────────
+
+// A surface that opens under a pointer at rest is the first frame of what it holds, and what the pointer is over in it
+// is drawn hovered from then (MOT-3): never faded into hover from a state it was not in when the surface was drawn. The
+// engines do not hover it in that frame. They hit-test the pointer again later, each on its own clock: Chromium in the
+// first frame after the opening one, Firefox in the second, WebKit some eight frames on (a timer of its own), and in a
+// sheet that slides in, WebKit once the slide has ended, the others not at all. So two frames of settling cannot cover
+// it, and no event says when it comes in time (the engines send `pointerover` for some of these hovers — Chromium only
+// after the style that began the transition — and none for others: a full-screen search's back button).
+//
+// It is held where the hover arrives instead, in the style: each element of this package inside the surface (in its
+// flat tree: through slots and shadow roots) carries `data-tanrei-still-pointer`, and `settleStyles` / `settleRule()`
+// start no transition in a marked element while it is `:hover` — so the style that first draws it hovered draws it there
+// at once, whenever the engine gets to it. The marks come off at the person's next act, heard in the capturing phase
+// before anything handles it, by the frame that draws it: a pointer that moves (every engine's later hover is from there,
+// and moves as always), a press, a wheel, a key. An element connected inside the surface before then (a row the view lists as it opens) is marked as it
+// connects. Nothing else changes: a marked element that is not hovered moves as always, and the surface's own entrance
+// (`data-tanrei-appear`) is never held.
+
+/** The elements that settle (each `Settle` host while connected): what a surface that opens may mark. */
+const settlers = new WeakSet<Element>();
+/** The surfaces opened since the person last acted. */
+const stillSurfaces = new Set<Element>();
+/** The elements marked meanwhile. */
+const stillHosts = new Set<HTMLElement>();
+const ACTS = ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const;
+
+const mark = (host: HTMLElement) => {
+  if (stillHosts.has(host)) return;
+  stillHosts.add(host);
+  host.setAttribute(STILL_POINTER, '');
+};
+
+/** An element connected while the person has not acted is marked when a surface opened meanwhile holds it. */
+const markIfHeld = (host: HTMLElement) => {
+  for (let at = flatParent(host); at; at = flatParent(at)) {
+    if (stillSurfaces.has(at)) return mark(host);
+  }
+};
+
+// The marks come off in the next frame callback, before that frame is styled — with the hover the act changes, so it
+// moves — and not in the act's own task: what the act starts there (a drawer that closes on Escape, its focus and its
+// width drawn together in the next frame) is styled with what it writes in that frame, as it would be without them.
+const letGo = () => {
+  for (const act of ACTS) window.removeEventListener(act, letGo, true);
+  const marked = [...stillHosts];
+  stillHosts.clear();
+  stillSurfaces.clear();
+  requestAnimationFrame(() => {
+    for (const host of marked) if (!stillHosts.has(host)) host.removeAttribute(STILL_POINTER);
+  });
+};
+
+/**
+ * MOT-3: `surface` opens. Until the person next acts (moves the pointer, presses, turns a wheel, presses a key), each
+ * element of this package inside it — in its flat tree, slotted content included — starts no transition while it is
+ * hovered: what a pointer at rest is over as the surface opens is drawn hovered at once, whenever the engine hits it.
+ * Call it in the task that opens the surface, before its first frame (`openModal()` and `AppearController` do).
+ */
+export function holdStillPointer(surface: Element): void {
+  if (typeof window === 'undefined') return;
+  if (!stillSurfaces.size) for (const act of ACTS) window.addEventListener(act, letGo, { capture: true, passive: true });
+  stillSurfaces.add(surface);
+  const walk: Element[] = [surface];
+  while (walk.length) {
+    const at = walk.pop()!;
+    if (settlers.has(at)) mark(at as HTMLElement);
+    if (at instanceof HTMLSlotElement) walk.push(...at.assignedElements({ flatten: true }));
+    else walk.push(...(at.shadowRoot ?? at).children);
   }
 }

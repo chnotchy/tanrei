@@ -13,20 +13,40 @@ import { type CSSResult, unsafeCSS } from 'lit';
 //
 // What appears is left alone: the element an `AppearController` moves carries `data-tanrei-appear`, and its entrance is
 // that controller's to play or to skip (MOT-4) — an overlay mounted open after the page's first paint still enters.
+//
+// A surface that opens is the first frame of what it holds, and the pointer resting where it opens is part of the state
+// that frame is given: an element of it that the pointer is over is drawn hovered at once, not faded into hover. The
+// engines hover it a few frames late, each on its own clock (Chromium in the first frame after the opening one, Firefox
+// in the second, WebKit some eight frames on, and in a sheet that slides in, once the slide has ended), so it is not
+// left to the two frames of settling: an element inside a surface that opened carries `data-tanrei-still-pointer` until
+// the person next acts — moves the pointer, presses, turns a wheel or presses a key (`holdStillPointer()`,
+// src/primitives/motion.ts) — and nothing in it starts a transition while it is hovered meanwhile. Every hover change
+// the person's pointer makes afterwards moves as it always does.
 
 /** The host's attribute while it settles. */
 export const SETTLING = 'data-tanrei-settling';
 /** The attribute of the element an `AppearController` moves: settling never turns its transitions off. */
 export const APPEARING = 'data-tanrei-appear';
+/**
+ * The attribute of an element inside a surface that opened, until the person next acts: while it is hovered meanwhile,
+ * it starts no transition (`holdStillPointer()`, src/primitives/motion.ts).
+ */
+export const STILL_POINTER = 'data-tanrei-still-pointer';
 
 const QUIET = 'transition-property: none !important;';
 const withPseudos = (selectors: string[]) => selectors.flatMap((selector) => [selector, `${selector}::before`, `${selector}::after`]).join(',\n');
 
 /**
  * The shadow root's rule: nothing in it, the host and its pseudo-elements included, starts a transition while the host
- * settles — except the element that appears. Compose it last in the component's `styles`.
+ * settles, or while it is hovered under a pointer that has not moved since the surface it is in opened — except the
+ * element that appears. Compose it last in the component's `styles`.
  */
-export const settleStyles: CSSResult = unsafeCSS(`${withPseudos([`:host([${SETTLING}]:not([${APPEARING}]))`, `:host([${SETTLING}]) :not([${APPEARING}])`])} {
+export const settleStyles: CSSResult = unsafeCSS(`${withPseudos([
+  `:host([${SETTLING}]:not([${APPEARING}]))`,
+  `:host([${SETTLING}]) :not([${APPEARING}])`,
+  `:host([${STILL_POINTER}]:hover:not([${APPEARING}]))`,
+  `:host([${STILL_POINTER}]:hover) :not([${APPEARING}])`,
+])} {
   ${QUIET}
 }`);
 
@@ -34,9 +54,12 @@ export const settleStyles: CSSResult = unsafeCSS(`${withPseudos([`:host([${SETTL
  * The same rule for an element that draws in the light DOM (its stylesheet is the document's: a tree view, a table of
  * contents): `host` is a selector of the element (its tag or class), and the rule reaches everything inside it.
  */
-export const settleRule = (host: string): string => `${withPseudos([`:where(${host})[${SETTLING}]:not([${APPEARING}])`, `:where(${host})[${SETTLING}] :not([${APPEARING}])`])} {
+export const settleRule = (host: string): string => {
+  const quiet = `:where(${host}):is([${SETTLING}], [${STILL_POINTER}]:hover)`;
+  return `${withPseudos([`${quiet}:not([${APPEARING}])`, `${quiet} :not([${APPEARING}])`])} {
   ${QUIET}
 }`;
+};
 
 // Reduced motion (MOT-6, docs/architecture/motion.md): motion is reduced where the person asks their system for it
 // (`prefers-reduced-motion: reduce`) or where the product reduces it from inside the app (`data-tanrei-motion="reduce"`
