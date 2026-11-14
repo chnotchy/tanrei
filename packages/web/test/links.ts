@@ -4,6 +4,7 @@
 // only it has (where its mark stands, how focusable its disabled form is, which of its forms refuse a destination).
 import { type Locator, type Page, expect } from '@playwright/test';
 import { missingWords, resolveToken, setWords } from './harness.js';
+import { middlePressAimed } from './middle-press.js';
 
 /** The warnings a page's debug build reports, collected from now on. */
 export function warnings(page: Page): string[] {
@@ -134,6 +135,7 @@ export async function expectLinkActivation(page: Page, host: Locator, { focus }:
   const setHref = (href: string) => host.evaluate((el, value) => ((el as HTMLElement & { href: string }).href = value), href);
   // The element's own focus(): a host that is not itself focusable hands it to its anchor (a list item's row).
   const focusIt = focus ?? (() => host.evaluate((el) => (el as HTMLElement).focus()));
+  const middle = await middlePressAimed(page);
   const clicks = await countClicks(host);
   await page.evaluate(() => {
     document.body.style.minBlockSize = '400vh';
@@ -203,7 +205,7 @@ export async function expectLinkActivation(page: Page, host: Locator, { focus }:
     }
   });
   await container(host).click({ modifiers: ['ControlOrMeta'] });
-  await container(host).click({ button: 'middle' });
+  if (middle) await container(host).click({ button: 'middle' });
   const left = await page.evaluate(() => (window as unknown as { leftToBrowser: { type: string; cancelled: boolean; modified: boolean }[] }).leftToBrowser);
   expect(left.filter((event) => event.modified).length, 'the modified and the middle click reached the page').toBeGreaterThanOrEqual(1);
   expect(left.every((event) => !event.cancelled), 'neither was cancelled by the component').toBe(true);

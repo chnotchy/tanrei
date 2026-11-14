@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, tableNameSuffix, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -2936,6 +2937,7 @@ test.describe('rows that can be chosen', () => {
     // Some forty presses, each followed by the task in which the element decides it: longer than one test is given.
     test.slow();
     await mountFixtures(page, spec, { fixtures: [...some('selection'), raw('press', { label: 'Press', selection: 'multiple', rowHeaders: true, selectAllLabel: 'All' }, PRESSED)] });
+    const middle = await middlePressAimed(page);
     const id = 'press';
     await settled(page, id);
     await settled(page, 'selection');
@@ -3007,8 +3009,10 @@ test.describe('rows that can be chosen', () => {
       await counted(8);
       await page.evaluate(() => getSelection()?.removeAllRanges());
     }
-    await cell(page, id, 'tbody', 2, 3).click({ button: 'middle' });
-    await counted(8);
+    if (middle) {
+      await cell(page, id, 'tbody', 2, 3).click({ button: 'middle' });
+      await counted(8);
+    }
     await cell(page, id, 'tbody', 2, 3).evaluate((el) => (el as HTMLElement).click());
     await counted(8);
     await page.evaluate(() => document.querySelector('[data-fixture="press"] tbody tr:nth-child(2) > td:last-child')!.addEventListener('click', (event) => event.preventDefault(), { once: true }));

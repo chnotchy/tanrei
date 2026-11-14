@@ -14,6 +14,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectFromNextFrame, motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
@@ -4048,6 +4049,7 @@ test.describe('link items', () => {
 
   test('MNU-54: a control-click, a command-click, a shift-click, a middle click and Enter with a modifier key on a link item are left to the browser — none prevented, no close, the menu open at every level and focus on the item; a link item in an open submenu closes both surfaces with one close', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('places', [...PLACES.slice(0, 2), sub('Language', [link('English', '#en'), link('日本語', '#ja')])])] });
+    const middle = await middlePressAimed(page);
     await wire(page);
     await wireLinks(page);
     await anchor(page, 'places').click();
@@ -4058,7 +4060,7 @@ test.describe('link items', () => {
       [() => guides.click({ modifiers: ['Control'] }), 'click'],
       [() => guides.click({ modifiers: ['Meta'] }), 'click'],
       [() => guides.click({ modifiers: ['Shift'] }), 'click'],
-      [() => guides.click({ button: 'middle' }), 'auxclick'],
+      ...(middle ? [[() => guides.click({ button: 'middle' }), 'auxclick'] as const] : []),
     ] as const) {
       await press();
       const all = await log(page);

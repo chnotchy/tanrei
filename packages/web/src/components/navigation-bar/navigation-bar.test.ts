@@ -6,6 +6,7 @@
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
@@ -1561,6 +1562,7 @@ test.describe('links', () => {
 
   test('NVB-30: a control-click, a command-click, a shift-click, a middle click and the context menu on a link destination are the browser’s — the bar prevents none, the same events reach the page as from a plain anchor, and it emits nothing; Space does not activate a link and shows no pressed state', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [{ id: 'links', props: { value: '#search', label: 'Main' }, items: PLACES }] });
+    const middle = await middlePressAimed(page);
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<a id="plain" href="#plain" style="position:fixed;inset-inline-end:8px;inset-block-start:8px">Plain</a>'));
     await wireLinks(page);
     await page.evaluate(() => ((window as any).hold = true));
@@ -1570,7 +1572,7 @@ test.describe('links', () => {
       return all;
     };
     const plain = page.locator('#plain');
-    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Control'] }, { modifiers: ['Meta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }];
+    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Control'] }, { modifiers: ['Meta'] }, { modifiers: ['Shift'] }, ...(middle ? [{ button: 'middle' as const }] : []), { button: 'right' }];
     for (const press of presses) {
       await plain.click(press);
       const there = await said();
@@ -1599,6 +1601,7 @@ test.describe('links', () => {
 
   test('NVB-31, NVB-1: a plain click on a link that is not selected emits one cancelable change with its value and href before the link is followed — not after press-hold — leaves value and the active indicator where they were and navigates; cancelled, it does not navigate; a listener that sets value slides the indicator; the selected link emits reselect; click() and Enter count; a modified click, Enter with a modifier key, a link to a new context and a download emit nothing', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [{ id: 'links', props: { value: '#search', label: 'Main' }, items: [...PLACES, link('Export', '#export', 'download', { download: 'list.txt' })] }] });
+    const middle = await middlePressAimed(page);
     // (The slide a click starts at the end is held two round trips later: long enough to be there.)
     await override(page, { '--tanrei-sys-motion-duration-press-hold': '2000ms', [T('motion-selection-duration')]: '20000ms' });
     await wireLinks(page);
@@ -1641,7 +1644,7 @@ test.describe('links', () => {
     // Opened somewhere else: nothing is emitted, value and the drawn selection stay. (The browser is held back only
     // after the bar has heard the click, so that the test opens no window and saves no file.)
     await page.evaluate(() => ((window as any).hold = true));
-    for (const press of [() => cell(page, 'links', 0).click({ modifiers: ['ControlOrMeta'] }), () => cell(page, 'links', 0).click({ modifiers: ['Shift'] }), () => cell(page, 'links', 0).click({ modifiers: ['Alt'] }), () => cell(page, 'links', 0).click({ button: 'middle' }), () => cell(page, 'links', 3).click(), () => cell(page, 'links', 4).click()]) {
+    for (const press of [() => cell(page, 'links', 0).click({ modifiers: ['ControlOrMeta'] }), () => cell(page, 'links', 0).click({ modifiers: ['Shift'] }), () => cell(page, 'links', 0).click({ modifiers: ['Alt'] }), ...(middle ? [() => cell(page, 'links', 0).click({ button: 'middle' })] : []), () => cell(page, 'links', 3).click(), () => cell(page, 'links', 4).click()]) {
       await press();
       expect((await said()).filter((each) => !/^(click|auxclick):left alone$/.test(each))).toEqual([]);
     }
