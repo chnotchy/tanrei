@@ -48,6 +48,8 @@
  *   --_aps-footer (on the element)           the footer's measured height: where the navigation and the aside stop staying in view (APS-11)
  *   --_aps-aside (on the element)            a side sheet's measured width, as it slides: what an aside beside the main region
  *                                            takes of the window, which the navigation leaves it (APS-5, APS-10)
+ *   --_aps-window (on the element)           the window's width as the page has it: the root's measured content width, less
+ *                                            a scrollbar that takes room in the window — the row's whole room (APS-5)
  *
  * and this stylesheet gives everything the frame holds
  *
@@ -222,10 +224,13 @@
   :where(tanrei-app-shell) > :where([slot='navigation']) {
     grid-area: before / frame-start / footer / main-start;
     /* APS-5: as wide as what it holds draws itself, and never wider than the room the row leaves it: the window less the
-       main region's least width and an aside beside it. A navigation drawer reads this as the room its parent gives it
-       (NVD-97), so a drag, a key and a width the product gives all stop there, and a change of the room is followed in
-       the frame it is drawn — with a side sheet's slide, as it slides. */
-    max-inline-size: calc(100vw - var(--_aps-main-least) - var(--_aps-aside-beside));
+       main region's least width and an aside beside it. The window as the page has it — the root's content width, which
+       the element measures — not 100vw, which counts a scrollbar that takes room in the window (a classic one, or the
+       gutter scrollbar-gutter keeps) as room of the row's; 100vw only until the element has measured it, and without
+       script. A navigation drawer reads this as the room its parent gives it (NVD-97), so a drag, a key and a width the
+       product gives all stop there, and a change of the room is followed in the frame it is drawn — with a side sheet's
+       slide, as it slides. */
+    max-inline-size: calc(var(--_aps-window, 100vw) - var(--_aps-main-least) - var(--_aps-aside-beside));
     /* APS-5: in view while the page scrolls, from below what is kept over the top to the window's bottom edge, and
        never past the row: it adds nothing to the row's height (see HOW IT IS WRITTEN). */
     position: sticky;

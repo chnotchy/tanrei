@@ -9723,11 +9723,16 @@ Good to know:
   element's word (`data-menu`, `data-separation`); without script it shows the button in every class.
 - **A side sheet as the aside** (`<tanrei-side-sheet slot="aside">`) keeps its own width, edge and insets. Switch its
   `variant` from `windowclasschange`.
-- **The navigation's room** (APS-5) is `max-inline-size` on the region: `100vw` less the main region's least width
-  (its start inset, a touch target, its end inset) and, in an expanded window, the aside's width (`aside.width`, or a
-  side sheet's as the element measures it in every frame it slides, `--_aps-aside`). A navigation drawer reads it as
-  the room its parent gives it (NVD-97). `100vw` counts a classic scrollbar's width as the window's; the touch target
-  the main region keeps is wider than such a scrollbar, so it still fits.
+- **The navigation's room** (APS-5) is `max-inline-size` on the region: the window as the page has it — the root
+  element's content width (`--_aps-window`, which the element measures with the resize observer it already runs) —
+  less the main region's least width (its start inset, a touch target, its end inset) and, in an expanded window, the
+  aside's width (`aside.width`, or a side sheet's as the element measures it in every frame it slides, `--_aps-aside`).
+  A navigation drawer reads it as the room its parent gives it (NVD-97). Not `100vw`: that counts a scrollbar that
+  takes room in the window (a classic one, or the gutter `scrollbar-gutter: stable` keeps) as the row's, and the main
+  region got that much less than its least width. The root, not the frame itself: in a box as wide as its content
+  (an inline block, a table cell, a flex item) the frame's width follows the room it gives the navigation, and a room
+  taken from it shrank the frame in every frame. A frame narrower than the root (something beside it) still counts the
+  root's width. Until the element has measured the root, and without script, the room is taken from `100vw`.
 - **System insets** are `env(safe-area-inset-*)`: the main region, a stacked aside and the footer keep their content
   inside the start, end and bottom ones; the header, the drawer and the navigation bar inset themselves.
 - **Print** draws the header, the main region, the aside and the footer in the flow, and neither navigation.
