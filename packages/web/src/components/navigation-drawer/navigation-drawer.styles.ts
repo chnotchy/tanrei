@@ -136,9 +136,9 @@ export const drawerStyles = css`
        element writes from \`width\` and a product writes for a page rendered before the element is defined), else
        container.width — held between the least width and the greatest, the least winning (minWidth and maxWidth, which
        the element writes as \`--_nvd-min-given\` and \`--_nvd-max-given\`, else container.min-width and .max-width).
-       The host asks for it (\`--_nvd-asked\`), and the room the parent gives holds the host narrower still
-       (\`max-inline-size\`, below); where it does, the element writes that room as \`--_nvd-room\`, and the panel and
-       everything inside it are laid out at the room instead (\`--_nvd-w\`, ONE LAYOUT FOR BOTH FORMS) — the host keeps
+       The host asks for it (\`--_nvd-asked\`), and the room the parent gives holds the host narrower still, below
+       the least width too (\`max-inline-size\`, below: the room wins over both); where it does, the element writes
+       that room as \`--_nvd-room\`, and the panel and everything inside it are laid out at the room instead (\`--_nvd-w\`, ONE LAYOUT FOR BOTH FORMS) — the host keeps
        asking for the width, so that the room coming back is seen. */
     --_nvd-least: var(--_nvd-min-given, ${t('container-min-width')});
     --_nvd-most: var(--_nvd-max-given, ${t('container-max-width')});
