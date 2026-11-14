@@ -15,6 +15,7 @@ import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -98,6 +99,20 @@ const resize = async (page: P, width: number, height = 800) => {
   await page.setViewportSize({ width, height });
   await frame(page);
 };
+/**
+ * APS-5: the room the row leaves the navigation in an expanded window `width` wide — the window less the main region's
+ * least width (its start inset: the gutter, or the target of a drawer's resize handle where that is wider; a touch
+ * target; its end inset, the gutter) and less the aside beside it — read from the tokens.
+ */
+async function navigationRoom(page: P, width: number, { aside = true, handle = true }: { aside?: boolean; handle?: boolean } = {}) {
+  const [gutter, reach, touch, asideWidth] = [await resolveToken(page, T('gutter-expanded')), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('aside-width'))];
+  return width - (aside ? asideWidth : 0) - (Math.max(gutter, handle ? reach : 0) + touch + gutter);
+}
+/** WCAG 1.4.10, APS-5: the page is no wider than the window — nothing of the frame is pushed past it, in either direction. */
+async function expectNoSidewaysScroll(page: P, what: string) {
+  const [wide, window] = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
+  expect(wide, `the document's width, ${what}`).toBeLessThanOrEqual(window);
+}
 
 // A frame made of the real components (a fixture can fill a region with text only, so the frame is built here): an app bar with the menu button in a header, a responsive navigation drawer, a main
 // region with headings and links, an aside, a footer and, where asked, a navigation bar.
@@ -378,7 +393,7 @@ test.describe('the navigation', () => {
     await expect.poll(() => seen.filter((m) => m.includes('APS-4') && m.includes('needs a navigation drawer')).length).toBe(1);
   });
 
-  test('APS-5: the navigation is at the start edge of the row, as wide as what it holds draws itself and never wider than the window less a touch target, the main region has the rest, and the frame adds no padding, fill or edge; while the page scrolls it stays in view from below a sticky header — from the top of the window while the header is static — to the window’s bottom edge, and what it holds scrolls inside that height by itself', async ({ page }) => {
+  test('APS-5: the navigation is at the start edge of the row, as wide as what it holds draws itself and never wider than the window less the main region’s least width and an aside beside it, the main region has the rest, and the frame adds no padding, fill or edge; while the page scrolls it stays in view from below a sticky header — from the top of the window while the header is static — to the window’s bottom edge, and what it holds scrolls inside that height by itself', async ({ page }) => {
     const tall = '<nav slot="navigation" aria-label="Documentation" style="inline-size: 200px"><div id="tall" style="block-size: 3000px">Tokens</div></nav>';
     await mount(page, real({ navigation: tall, sections: 6 }), { width: 1280 });
     const navigation = region(page, 'navigation');
@@ -407,15 +422,59 @@ test.describe('the navigation', () => {
     await page.evaluate(() => window.scrollTo(0, 900));
     const underStatic = await edges(region(page, 'navigation'));
     expect([underStatic.top, underStatic.height]).toEqual([0, 800]);
-    // Never wider than the window less a touch target.
+    // Never wider than the window less the main region's least width and the aside beside it — 1280 − 240 − (32 + 36 +
+    // 32) — or, with no aside, the main region's least width alone; the page never scrolls sideways.
     await mount(page, real({ navigation: tall.replace('200px', '2000px') }), { width: 1280 });
-    expect((await edges(region(page, 'navigation'))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
+    expect((await edges(region(page, 'navigation'))).width).toBe(await navigationRoom(page, 1280, { handle: false }));
+    expect(await navigationRoom(page, 1280, { handle: false })).toBe(940);
+    near((await edges(main(page))).right, (await edges(region(page, 'aside'))).left);
+    await expectNoSidewaysScroll(page, 'beside an aside');
+    await mount(page, real({ navigation: tall.replace('200px', '2000px'), aside: '' }), { width: 1280 });
+    expect((await edges(region(page, 'navigation'))).width).toBe(await navigationRoom(page, 1280, { aside: false, handle: false }));
+    await expectNoSidewaysScroll(page, 'with no aside');
     // A navigation drawer in the region is as tall as that height, and scrolls itself (NVD-61).
     await mount(page, real({ sections: 6 }), { width: 1280 });
     await page.evaluate(() => window.scrollTo(0, 900));
     const bar = await edges(region(page, 'header'));
     const panel = await edges(drawer(page));
     expect([panel.top, panel.height]).toEqual([bar.bottom, 800 - bar.height]);
+  });
+
+  test('APS-5, NVD-97, NVD-102: a navigation drawer whose least width is wider than the room the row leaves it is drawn at that room — the window less the main region’s least width and the aside — its rows inside it, the main region beginning at its end and the aside after it, the page no wider than the window; its handle says that width as its value, least and greatest, its keys change nothing and nothing is emitted; at its least width again where the window has room for it', async ({ page }) => {
+    // minWidth 1300: wider than the room an expanded window of 1280 or of 1100 gives the navigation.
+    await mount(page, real({ navigation: DRAWER('responsive min-width="1300"') }), { width: 1280 });
+    await page.evaluate(() => {
+      const log: number[] = ((window as unknown as { __widths: number[] }).__widths = []);
+      document.addEventListener('widthchange', (event) => log.push((event as CustomEvent<{ width: number }>).detail.width));
+    });
+    const separator = drawer(page).locator('tanrei-handle [role="separator"]');
+    const rows = drawer(page).locator('tanrei-navigation-drawer-item .row > .container');
+    const expectAtRoom = async (width: number) => {
+      const room = await navigationRoom(page, width);
+      const nav = await edges(drawer(page));
+      expect([nav.left, nav.width], `window ${width}`).toEqual([0, room]);
+      near((await edges(main(page))).left, nav.right);
+      near((await edges(main(page))).right, (await edges(region(page, 'aside'))).left);
+      expect((await edges(region(page, 'aside'))).right, `window ${width}`).toBe(width);
+      await expectNoSidewaysScroll(page, `window ${width}`);
+      for (const row of await rows.all()) expect((await edges(row)).right, `window ${width}`).toBeLessThanOrEqual(nav.right);
+      for (const name of ['aria-valuenow', 'aria-valuemin', 'aria-valuemax']) await expect(separator, `window ${width} ${name}`).toHaveAttribute(name, String(room));
+    };
+    await expectAtRoom(1280);
+    await tabTo(page, separator);
+    for (const key of ['End', 'Home', 'Shift+ArrowLeft', 'ArrowRight', 'Enter']) {
+      await page.keyboard.press(key);
+      await frame(page);
+      expect((await edges(drawer(page))).width, key).toBe(await navigationRoom(page, 1280));
+    }
+    await resize(page, 1100);
+    expect(await windowClass(page)).toBe('expanded');
+    await expectAtRoom(1100);
+    // With room for it (1700 − 240 − 104 is more than 1300), the drawer is at its least width again.
+    await resize(page, 1700);
+    await expect.poll(async () => (await edges(drawer(page))).width).toBe(1300);
+    await expect(separator).toHaveAttribute('aria-valuenow', '1300');
+    expect(await page.evaluate(() => (window as unknown as { __widths: number[] }).__widths)).toEqual([]);
   });
 
   test('APS-5, APS-9: a wheel turned on past the end of what the navigation holds, or of the aside beside the main region, and turned again after a pause, leaves the page where it was; the same wheel over the main region scrolls the page', async ({ page }) => {
@@ -515,7 +574,7 @@ test.describe('the navigation', () => {
    * round of that frame's observations than the page's own observers — whatever order they were made in (an engine may
    * keep an observer that observes again in a new place in its list: Firefox and WebKit did, the shell's).
    */
-  async function recordPainted(page: P): Promise<() => Promise<Record<string, number | string | boolean | undefined>[]>> {
+  async function recordPainted(page: P, probe: (root: Element) => Record<string, number | string | boolean | undefined> = readingProbe): Promise<() => Promise<Record<string, number | string | boolean | undefined>[]>> {
     await page.evaluate((source) => {
       const probe = (0, eval)(source) as (root: Element) => Record<string, number | string | boolean | undefined>;
       const root = document.querySelector('.stage')!;
@@ -545,7 +604,7 @@ test.describe('the navigation', () => {
         box.remove();
         return painted;
       };
-    }, readingProbe.toString());
+    }, probe.toString());
     return () => page.evaluate(() => (window as unknown as { __painted: () => Record<string, number | string | boolean | undefined>[] }).__painted());
   }
 
@@ -575,14 +634,47 @@ test.describe('the navigation', () => {
     return at;
   }
 
+  /**
+   * WCAG 1.4.10, APS-5: what each frame shows of the row's widths — the drawer's, where the main region and the aside
+   * begin and end, and how wide the document is against the window.
+   */
+  const rowProbe = (root: Element) => {
+    const box = (selector: string) => root.querySelector(selector)?.getBoundingClientRect();
+    const [nav, content, aside] = [box('tanrei-app-shell > tanrei-navigation-drawer')!, box('tanrei-app-shell > main')!, box('tanrei-app-shell > [slot="aside"]')];
+    return {
+      nav: nav.width,
+      navLeft: nav.left,
+      navRight: nav.right,
+      mainLeft: content.left,
+      mainRight: content.right,
+      asideLeft: aside?.left,
+      asideRight: aside?.right,
+      aside: aside?.width,
+      wide: document.documentElement.scrollWidth,
+      window: document.documentElement.clientWidth,
+    };
+  };
+  /** In every frame and at rest: the document no wider than the window, and the drawer no wider than `room`. */
+  const expectInside = (seen: Frames, room: number | null, what: string) => {
+    for (const { index, probe: drawn } of [...seen.frames, seen.rest]) {
+      expect(drawn.wide as number, `the document's width, ${what}, frame ${index}`).toBeLessThanOrEqual(drawn.window as number);
+      if (room !== null) expect(drawn.nav as number, `the drawer's width, ${what}, frame ${index}`).toBeLessThanOrEqual(room + 0.6);
+    }
+  };
+
   for (const anchoring of ['auto', 'none'] as const) {
-    test(`APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor ${anchoring}); the drawer is never wider than the window less a touch target; the frame keeps nothing`, async ({ page }) => {
+    test(`APS-5, APS-30: while a person drags the navigation drawer’s edge the main region begins at the drawer’s end in every frame, with no motion of its own, and the reader stays at the same place in the main content (overflow-anchor ${anchoring}); the drawer is never wider than the window less the main region’s least width and the aside, and the page never wider than the window; the frame keeps nothing`, async ({ page }) => {
       await mountReading(page, { anchoring });
       const at = await dragHeld(page, await readHere(page));
-      // As far as it goes: the window less a touch target.
-      await page.mouse.move(1270, at.y);
-      expect((await edges(drawer(page))).width).toBe(1280 - (await resolveToken(page, '--tanrei-sys-target-touch')));
+      // As far as it goes: the window less the main region's least width and the aside (1280 − 240 − 104), in every
+      // frame of the way there the document no wider than the window.
+      const room = await navigationRoom(page, 1280);
+      const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(1270, at.y), { probe: rowProbe, elements: false });
+      expectInside(seen, room, 'dragged to the window’s end');
+      expect((await edges(drawer(page))).width).toBe(room);
       near((await edges(main(page))).left, (await edges(drawer(page))).right);
+      near((await edges(main(page))).right, (await edges(region(page, 'aside'))).left);
+      await expectNoSidewaysScroll(page, 'at the greatest width');
       await page.mouse.up();
       // The frame keeps nothing of it: the drawer holds the width, and nothing is written but the drawer's own property.
       expect(await shell(page).evaluate((el) => [...el.attributes].map((a) => a.name).filter((n) => /width/.test(n)))).toEqual([]);
@@ -676,6 +768,97 @@ test.describe('the navigation', () => {
 
   test('APS-5, NVD-101: where the change of form’s motion plays slower than its duration — a slowed page, a first frame drawn late — the reader stays at the same place in every frame to the motion’s end, and the hold ends with it', async ({ page }) => {
     await expectFoldHeld(page, 0.25);
+  });
+
+  // ---- APS-5: the navigation leaves the main region its least width and the aside its width (WCAG 1.4.10) ----
+
+  /** Where the row's parts stand at rest: the drawer at the start edge, the main region from its end, the aside at the end edge. */
+  async function expectRow(page: P, { width, rtl, aside, what }: { width: number; rtl: boolean; aside: boolean; what: string }) {
+    const [nav, content] = [await edges(drawer(page)), await edges(main(page))];
+    expect(rtl ? nav.right : nav.left, `the drawer at the start edge, ${what}`).toBe(rtl ? width : 0);
+    near(rtl ? content.right : content.left, rtl ? nav.left : nav.right);
+    if (aside) {
+      const beside = await edges(region(page, 'aside'));
+      near(rtl ? content.left : content.right, rtl ? beside.right : beside.left);
+      expect(rtl ? beside.left : beside.right, `the aside at the end edge, ${what}`).toBe(rtl ? 0 : width);
+    } else near(rtl ? content.left : content.right, rtl ? 0 : width);
+    await expectNoSidewaysScroll(page, what);
+  }
+
+  const ROW_CASES = [
+    { name: 'beside an aside', aside: true, direction: undefined },
+    { name: 'beside an aside, right to left', aside: true, direction: 'rtl' as const },
+    { name: 'with no aside', aside: false, direction: undefined },
+    { name: 'with no aside, right to left', aside: false, direction: 'rtl' as const },
+  ];
+  for (const c of ROW_CASES) {
+    test(`APS-5, NVD-97, NVD-100: a navigation drawer whose least width asks for more than the room is drawn at the room the row leaves it — the window less the main region’s least width and the aside — and End keeps it there; the main region and the aside stand inside the window, which the page is no wider than: ${c.name}`, async ({ page }) => {
+      const rtl = c.direction === 'rtl';
+      await mount(page, real({ navigation: DRAWER('responsive collapsible min-width="1300"'), aside: c.aside ? undefined : '', direction: c.direction }), { width: 1280 });
+      const room = await navigationRoom(page, 1280, { aside: c.aside });
+      expect(room).toBe(c.aside ? 936 : 1176);
+      expect((await edges(drawer(page))).width).toBe(room);
+      await expectRow(page, { width: 1280, rtl, aside: c.aside, what: 'at its least width' });
+      await tabTo(page, separator(page));
+      await expect(separator(page)).toHaveAttribute('aria-valuemax', String(room));
+      await page.keyboard.press('End');
+      await frame(page);
+      expect((await edges(drawer(page))).width).toBe(room);
+      await expectRow(page, { width: 1280, rtl, aside: c.aside, what: 'after End' });
+    });
+
+    test(`APS-5, NVD-98: a drag of the navigation drawer’s edge to the window’s far edge stops at the room the row leaves it — the window less the main region’s least width and the aside — and in every frame of the way the page is no wider than the window: ${c.name}`, async ({ page }) => {
+      const rtl = c.direction === 'rtl';
+      await mount(page, real({ navigation: DRAWER('responsive collapsible max-width="4000"'), aside: c.aside ? undefined : '', direction: c.direction }), { width: 1280 });
+      await allSettled(page);
+      const room = await navigationRoom(page, 1280, { aside: c.aside });
+      const panel = await edges(drawer(page));
+      // Just past the drawer's end edge, where the handle's target lies (a box's right edge is outside it, its left inside).
+      const at = { x: rtl ? panel.left - 1 : panel.right, y: panel.top + 200 };
+      await page.mouse.move(at.x, at.y);
+      await page.mouse.down();
+      await settleStates(page);
+      const seen = await sampleFrames(page.locator('.stage'), () => page.mouse.move(rtl ? 10 : 1270, at.y), { probe: rowProbe, elements: false });
+      expect(seen.complete).toBe(true);
+      expectInside(seen, room, 'dragged to the far edge');
+      expect((await edges(drawer(page))).width).toBe(room);
+      await expect(separator(page)).toHaveAttribute('aria-valuenow', String(room));
+      await expectRow(page, { width: 1280, rtl, aside: c.aside, what: 'held at the far edge' });
+      await page.mouse.up();
+      await expectRow(page, { width: 1280, rtl, aside: c.aside, what: 'released' });
+    });
+  }
+
+  test('APS-5, APS-10: while a standard side sheet in the aside slides in beside a navigation drawer at the room the row leaves it, the drawer narrows with it in every frame painted, and widens with it while it slides out, with no motion of its own; the drawer, the main region and the sheet span the window and no more in every frame', async ({ page }) => {
+    const sheet = '<tanrei-side-sheet slot="aside" variant="standard" headline="Details" close-label="Close details">Details of the selected thing.</tanrei-side-sheet>';
+    await mount(page, real({ navigation: DRAWER('responsive collapsible min-width="1300"'), aside: sheet }), { width: 1280 });
+    await allSettled(page);
+    const least = await navigationRoom(page, 1280, { aside: false });
+    const sheetWidth = await resolveToken(page, '--tanrei-comp-side-sheet-container-width');
+    expect((await edges(drawer(page))).width, 'the sheet closed takes nothing').toBe(least);
+    const aside = region(page, 'aside');
+    // The row is read against its own start, not the document's width: a standard side sheet lays its panel out past
+    // its own end edge while it is closed and while it slides, and that panel alone makes the document wider than the
+    // window (with or without a navigation beside it) — the side sheet's own defect, not the room the row leaves.
+    for (const open of [true, false]) {
+      const what = open ? 'sliding in' : 'sliding out';
+      const stop = await recordPainted(page, rowProbe);
+      await aside.evaluate((el, value) => el.toggleAttribute('open', value), open);
+      const target = open ? least - sheetWidth : least;
+      await expect.poll(async () => (await edges(drawer(page))).width === target && (await motionCount(aside)) === 0, what).toBe(true);
+      const painted = await stop();
+      for (const [index, drawn] of painted.entries()) {
+        // The drawer, the main region's least width and the sheet as it is drawn fill the window: the drawer follows it.
+        near((drawn.nav as number) + (drawn.aside as number), least, 1);
+        near(drawn.mainLeft as number, drawn.navRight as number);
+        near(drawn.mainRight as number, drawn.asideLeft as number);
+        expect((drawn.asideRight as number) - (drawn.navLeft as number), `the row's width, ${what}, frame ${index}`).toBeLessThanOrEqual((drawn.window as number) + 0.6);
+      }
+      // It moved over frames with the sheet, not at once.
+      const widths = new Set(painted.map((drawn) => Math.round(drawn.nav as number)));
+      expect(widths.size, what).toBeGreaterThanOrEqual(3);
+      expect(await motionCount(drawer(page)), what).toBe(0);
+    }
   });
 });
 
@@ -1421,6 +1604,31 @@ test.describe('the main region, the aside, the footer', () => {
     await mount(page, real({ aside: sheet('standard') }), { width: 800 });
     expect([await px(region(page, 'aside'), 'padding-top'), await px(region(page, 'aside'), 'margin-left'), await px(region(page, 'aside'), 'border-top-width')]).toEqual([0, 0, 0]);
     await expect(region(page, 'aside')).toHaveAttribute('variant', 'standard');
+  });
+
+  test('APS-10, SSH-1: a standard side sheet in the aside never makes the page wider than the window or scrolls it sideways — closed, in every frame of its opening (focus moving in), open, and in every frame of its closing — with and without a navigation, in either direction', async ({ page }) => {
+    const sheet = '<tanrei-side-sheet slot="aside" variant="standard" headline="Details" close-label="Close details">Details of the selected thing.</tanrei-side-sheet>';
+    const cases = [
+      { name: 'with a navigation', navigation: DRAWER(), dir: undefined },
+      { name: 'without a navigation', navigation: '', dir: undefined },
+      { name: 'with a navigation, right to left', navigation: DRAWER(), dir: 'rtl' as const },
+      { name: 'without a navigation, right to left', navigation: '', dir: 'rtl' as const },
+    ];
+    for (const { name, navigation, dir } of cases) {
+      await mount(page, real({ aside: sheet, navigation }), { width: 1280, ...(dir ? { dir } : {}) });
+      const aside = region(page, 'aside');
+      const setOpen = (open: boolean) =>
+        aside.evaluate(async (el, o) => {
+          const sheet = el as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+          sheet.open = o;
+          await sheet.updateComplete;
+        }, open);
+      const opening = await sampleFrames(aside, () => setOpen(true), { elements: false, probe: sidewaysProbe });
+      expectNeverSideways(opening, `${name}, opening`);
+      expect((await edges(aside)).width, name).toBe(await resolveToken(page, '--tanrei-comp-side-sheet-container-width'));
+      const closing = await sampleFrames(aside, () => setOpen(false), { elements: false, probe: sidewaysProbe });
+      expectNeverSideways(closing, `${name}, closing`);
+    }
   });
 
   test('APS-11: while scroll is page the footer follows the row across the frame’s whole width and is reached at the end of the page; while scroll is main it stays at the bottom of the frame, above the navigation bar, always in view; its content is inset by the gutter of the class and by footer.padding-block, and nothing is laid out inside it', async ({ page }) => {

@@ -110,6 +110,12 @@
  *   without a part takes no room.
  * - The state rules and the ripple's layer say what `stateRules()` and `rippleStyles()` (src/primitives) say for a
  *   shadow root; they are restated here for an element of the document.
+ * - Where motion is reduced, the ROW says so to its parts: its reduced rule sets `--_trv-still: none`, and its
+ *   `::before`, its `::after` and its texts write their transitions as `var(--_trv-still, <their own>)`. A rule
+ *   written under a style container query (the build writes the reduced block again under the root's
+ *   `--tanrei-motion`, src/styles/motion.ts) costs WebKit at every element it matches whenever the tree is styled
+ *   again, and a pseudo-element about four times an element: those rules took 10 ms of a change of contrast on a
+ *   page of 50 trees, the row's own a tenth of that. The value is a keyword, so nothing inherits a `var()`.
  * - The corner rule (src/styles/shape.ts) is written by the build in place of the `tree-view:shape` mark.
  * - Names that begin `--_trv-` are private.
  */
@@ -468,7 +474,7 @@
     box-sizing: border-box;
     background-color: var(--_trv-now-container);
     pointer-events: none;
-    transition: background-color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
+    transition: var(--_trv-still, background-color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing));
   }
 
   /* ── The chevron (TRV-4): a box at the start of every row; chevron_right in a parent's, turned while it is open ── */
@@ -510,9 +516,11 @@
     opacity: var(--tanrei-icons, 0);
     /* TRV-36, TRV-38: mirrored in a right-to-left layout, as the icon set marks chevron_right. */
     scale: var(--_trv-mirror);
-    transition:
+    transition: var(
+      --_trv-still,
       rotate var(--tanrei-comp-tree-view-motion-disclosure-duration) var(--tanrei-comp-tree-view-motion-disclosure-easing),
-      color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
+      color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing)
+    );
   }
   /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
      arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
@@ -594,7 +602,7 @@
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--_trv-now-supporting);
     unicode-bidi: plaintext;
-    transition: color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
+    transition: var(--_trv-still, color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing));
   }
   :where(tanrei-tree-view[supporting-wrap]:not([supporting-wrap='false'])) :where(li) > :where(:first-child:not(ul, ol)) :where([data-supporting-text]) {
     overflow: visible;
@@ -656,7 +664,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     unicode-bidi: plaintext;
-    transition: color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
+    transition: var(--_trv-still, color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing));
   }
   /* TRV-5: the icon — a glyph of icons.css in the size's box after the chevron's, outlined unless its own item is
      selected, whatever an ancestor says of a selection. (The glyph's declarations, and its mirroring, are icons.css's:
@@ -1041,12 +1049,8 @@
   }
   @media (prefers-reduced-motion: reduce) {
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) {
+      --_trv-still: none;
       transition: --_trv-hold 0s linear var(--tanrei-sys-motion-duration-press-hold);
-    }
-    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol))::before,
-    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol))::after,
-    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) :where([data-supporting-text], [data-trailing-text]) {
-      transition: none;
     }
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where(.ripple) {
       animation: none;

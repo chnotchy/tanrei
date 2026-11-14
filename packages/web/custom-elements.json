@@ -29963,7 +29963,7 @@
                 "text": "number | null"
               },
               "default": "null",
-              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`.",
+              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`. It wins over `maxWidth`; the room its parent gives wins over both (NVD-97).",
               "attribute": "min-width"
             },
             {
@@ -30403,7 +30403,7 @@
                 "text": "number | null"
               },
               "default": "null",
-              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`.",
+              "description": "The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`. It wins over `maxWidth`; the room its parent gives wins over both (NVD-97).",
               "fieldName": "minWidth"
             },
             {

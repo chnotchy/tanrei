@@ -46,6 +46,8 @@
  *   --tanrei-app-shell-scroll-offset         (on the document's root) the header's measured height (APS-17)
  *   --tanrei-app-shell-scroll-offset-end     (on the document's root) the navigation bar's measured height
  *   --_aps-footer (on the element)           the footer's measured height: where the navigation and the aside stop staying in view (APS-11)
+ *   --_aps-aside (on the element)            a side sheet's measured width, as it slides: what an aside beside the main region
+ *                                            takes of the window, which the navigation leaves it (APS-5, APS-10)
  *
  * and this stylesheet gives everything the frame holds
  *
@@ -102,6 +104,11 @@
        a navigation drawer draws beside its end edge, which lies wholly over that inset (below); none without one. */
     --_aps-band: 0px;
     --_aps-main-start: max(var(--_aps-inline-start), var(--_aps-band));
+    /* APS-5: what the navigation leaves of the window — the main region's least width (its start and end insets, and a
+       touch target between them) and the aside where it stands beside the main region (none here: below, in an
+       expanded window) — so that neither is pushed past the window's end and the page never scrolls sideways. */
+    --_aps-main-least: calc(var(--_aps-main-start) + var(--tanrei-sys-target-touch) + var(--_aps-inline-end));
+    --_aps-aside-beside: 0px;
     /* APS-18: the separation this frame draws — its attribute's, else comp.app-shell.separation's — and its line. */
     --_aps-separation: var(--tanrei-comp-app-shell-separation);
     --_aps-line: var(--tanrei-comp-app-shell-outline-width);
@@ -214,8 +221,11 @@
      itself over the content (its own modal presentation, which has no box here), and anything else is not shown. */
   :where(tanrei-app-shell) > :where([slot='navigation']) {
     grid-area: before / frame-start / footer / main-start;
-    /* APS-5: as wide as what it holds draws itself, and never wider than the window less a touch target. */
-    max-inline-size: calc(100vw - var(--tanrei-sys-target-touch));
+    /* APS-5: as wide as what it holds draws itself, and never wider than the room the row leaves it: the window less the
+       main region's least width and an aside beside it. A navigation drawer reads this as the room its parent gives it
+       (NVD-97), so a drag, a key and a width the product gives all stop there, and a change of the room is followed in
+       the frame it is drawn — with a side sheet's slide, as it slides. */
+    max-inline-size: calc(100vw - var(--_aps-main-least) - var(--_aps-aside-beside));
     /* APS-5: in view while the page scrolls, from below what is kept over the top to the window's bottom edge, and
        never past the row: it adds nothing to the row's height (see HOW IT IS WRITTEN). */
     position: sticky;
@@ -479,6 +489,14 @@
     }
     :where(tanrei-app-shell) > :where([slot='aside']:not(tanrei-side-sheet)) {
       inline-size: var(--tanrei-comp-app-shell-aside-width);
+    }
+    /* APS-5: the aside beside the main region is left its width by the navigation: aside.width, or a side sheet's own
+       width as the element measures it (APS-10: none for a modal one, and none before the element has measured it). */
+    :where(tanrei-app-shell):where(:has(> [slot='aside']:not(tanrei-side-sheet, [hidden]))) {
+      --_aps-aside-beside: var(--tanrei-comp-app-shell-aside-width);
+    }
+    :where(tanrei-app-shell):where(:has(> tanrei-side-sheet[slot='aside']:not([hidden]))) {
+      --_aps-aside-beside: var(--_aps-aside, 0px);
     }
     /* APS-9: the aside beside the main region at the end edge, aside.width wide, its first line level with the main
        content's, in view while the page scrolls and scrolling inside that height by itself. APS-18: its line is at

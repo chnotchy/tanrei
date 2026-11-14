@@ -263,13 +263,13 @@
       "name": "minWidth",
       "type": "number",
       "default": null,
-      "description": "The least width a person can give the expanded drawer beside the content. Null takes comp.navigation-drawer.container.min-width. A drawer whose rows need more room (a filter field, long names in a tool) sets more."
+      "description": "The least width a person can give the expanded drawer beside the content. Null takes comp.navigation-drawer.container.min-width. A drawer whose rows need more room (a filter field, long names in a tool) sets more. It wins over maxWidth, but the room the drawer's parent gives it wins over both: in a narrower room the drawer is as wide as the room (NVD-97)."
     },
     {
       "name": "maxWidth",
       "type": "number",
       "default": null,
-      "description": "The greatest width a person can give the expanded drawer beside the content. Null takes comp.navigation-drawer.container.max-width. The room the drawer's parent gives it holds it narrower still (in an app shell, the window less a touch target)."
+      "description": "The greatest width a person can give the expanded drawer beside the content. Null takes comp.navigation-drawer.container.max-width. The room the drawer's parent gives it holds it narrower still (in an app shell, the window less the main region's least width and an aside beside it, APS-5)."
     },
     {
       "name": "resizeLabel",
@@ -1139,7 +1139,7 @@
     },
     {
       "id": "NVD-97",
-      "text": "THE navigation drawer SHALL draw its expanded form beside the content at its width — width WHILE it is not null and comp.navigation-drawer.container.width otherwise — held between its least width (minWidth WHILE it is not null, else comp.navigation-drawer.container.min-width) and its greatest width (the lesser of maxWidth WHILE it is not null, else comp.navigation-drawer.container.max-width, and the room its parent gives it, which an app shell makes the window less sys.target.touch, APS-5); WHERE the least is above the greatest the least SHALL win, as a least size wins over a greatest one in CSS. WHEN the room its parent gives it becomes narrower than its width THE navigation drawer SHALL be as wide as that room at once, lay its rows out at that width as NVD-98 does (a label that no longer fits is cut as NVD-75 says, and no row reaches past the drawer's end edge), and keep its width for when there is room again, and SHALL emit nothing for it. Its collapsed form and the drawer over the content (NVD-19, NVD-40) SHALL keep their own widths (comp.navigation-drawer.collapsed.container.width.regular, comp.navigation-drawer.container.width), whatever width says: the width a person gives is the width of the drawer beside the content. This holds whether or not resizable is true."
+      "text": "THE navigation drawer SHALL draw its expanded form beside the content at its width — width WHILE it is not null and comp.navigation-drawer.container.width otherwise — held between its least width (minWidth WHILE it is not null, else comp.navigation-drawer.container.min-width) and its greatest width (the lesser of maxWidth WHILE it is not null, else comp.navigation-drawer.container.max-width, and the room its parent gives it, which an app shell makes the window less the main region's least width and an aside beside it, APS-5); WHERE minWidth or container.min-width is above maxWidth or container.max-width the least SHALL win, as a least size wins over a greatest one in CSS. WHERE the room its parent gives it is narrower than minWidth or container.min-width THE navigation drawer SHALL take that room as its least width as well as its greatest, so that the room wins over both: the drawer SHALL never reach past its parent, or past the room an app shell's row leaves it (APS-5), and no row, no end edge and no Handle of it SHALL be cut off or need a sideways scroll to be reached (WCAG 1.4.10). WHEN the room its parent gives it becomes narrower than its width THE navigation drawer SHALL be as wide as that room at once, below its least width included, lay its rows out at that width as NVD-98 does (a label that no longer fits is cut as NVD-75 says, and no row reaches past the drawer's end edge), and keep its width for when there is room again, and SHALL emit nothing for it. Its collapsed form and the drawer over the content (NVD-19, NVD-40) SHALL keep their own widths (comp.navigation-drawer.collapsed.container.width.regular, comp.navigation-drawer.container.width), whatever width says: the width a person gives is the width of the drawer beside the content. This holds whether or not resizable is true."
     },
     {
       "id": "NVD-98",

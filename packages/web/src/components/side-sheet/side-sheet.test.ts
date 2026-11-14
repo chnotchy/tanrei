@@ -12,6 +12,8 @@ import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
+import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
+import { decodePng } from '../../../test/png.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
@@ -216,8 +218,14 @@ test.describe('drawing', () => {
     expect([box.x, box.y, box.width, box.height]).toEqual([WINDOW.width - width, 0, width, WINDOW.height]);
     expect((await bounds(filler(page))).width).toBe(WINDOW.width - width);
     await expect(sheet(page)).toHaveCSS('background-color', await resolveColor(page, T('container-color-standard')));
-    expect(await css(sheet(page), 'box-shadow')).toBe(await shadowOf(page, T('container-elevation-standard')));
+    // A standard sheet's elevation is drawn by the box that holds the panel and clips it at the end (SSH-1), in the same
+    // start corners.
+    const holder = host(page).locator('.clip');
+    expect(await css(holder, 'box-shadow')).toBe(await shadowOf(page, T('container-elevation-standard')));
+    expect(await css(sheet(page), 'box-shadow')).toBe('none');
     expect(Number.parseFloat(await css(sheet(page), 'border-top-left-radius'))).toBeCloseTo(await px(page, T('container-shape-standard')), 1);
+    expect(Number.parseFloat(await css(holder, 'border-top-left-radius'))).toBeCloseTo(await px(page, T('container-shape-standard')), 1);
+    expect([await css(holder, 'border-top-right-radius'), await css(holder, 'border-bottom-right-radius')]).toEqual(['0px', '0px']);
     const edgeBox = host(page).locator('.edge');
     expect(Number.parseFloat(await css(edgeBox, 'border-left-width'))).toBeCloseTo(edge, 1);
     await expect(edgeBox).toHaveCSS('border-left-color', await resolveColor(page, T('outline-color-standard')));
@@ -1118,6 +1126,51 @@ test.describe('stacked in one task with other modal surfaces', () => {
       await page.locator('#inside').focus();
       await setOpenInOneTask(page, ['sheet'], false);
       await expect.poll(() => focusAmong(page, ids), String(sameUpdate)).toBe('opener in page');
+    }
+  });
+});
+
+test.describe('the page never scrolls sideways', () => {
+  // A sheet at the end of a page's row: in a left-to-right document, in a right-to-left one, and in a right-to-left
+  // row of a left-to-right document (the row's end, the sheet's, is then the document's start).
+  const DIRECTIONS = [
+    { name: 'left-to-right', dir: undefined, row: undefined },
+    { name: 'right-to-left', dir: 'rtl', row: undefined },
+    { name: 'a right-to-left row in a left-to-right document', dir: undefined, row: 'rtl' },
+  ] as const;
+  for (const variant of ['standard', 'modal'] as const) {
+    test(`${variant === 'standard' ? 'SSH-1' : 'SSH-2'}: a ${variant} sheet at the end of a page never makes it wider than the window or scrolls it sideways — closed, in every frame of its opening (focus moving in), open, and in every frame of its closing — in either direction`, async ({ page }) => {
+      for (const { name, dir, row } of DIRECTIONS) await test.step(name, async () => {
+        // (A modal sheet without its close button, as in the slide's own tests: the subject is the sheet's box.)
+        await mount(page, [fx('s', { variant, open: false, ...(variant === 'modal' ? { closable: false } : {}) }, '<button id="inside">Inside</button>', variant === 'modal' ? [act('Apply', { confirming: true })] : undefined)], dir ? { dir } : {});
+        if (row) await page.locator('[data-fixture="s"]').evaluate((el, d) => el.setAttribute('dir', d), row);
+        await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="opener">Open</button>'));
+        await page.locator('#opener').focus();
+        // Held in every frame: the motion that moves the sheet — the host's width (standard), the dialog's slide (modal).
+        const moving = variant === 'modal' ? host(page).locator('dialog') : host(page);
+        const opening = await sampleFrames(moving, () => setOpen(page, true), { elements: false, probe: sidewaysProbe });
+        expectNeverSideways(opening, `${name}, opening`);
+        expect(await focused(page), name).not.toBe('opener');
+        const closing = await sampleFrames(moving, () => setOpen(page, false), { elements: false, probe: sidewaysProbe });
+        expectNeverSideways(closing, `${name}, closing`);
+      });
+    });
+  }
+
+  test('SSH-1, SSH-7: clipped at its end, a standard sheet whose system raises it still casts its elevation toward the content, in either direction', async ({ page }) => {
+    for (const dir of ['ltr', 'rtl'] as const) {
+      await mount(page, [fx('s', { variant: 'standard' })], { dir });
+      // No shipped system raises a standard sheet: a system that does.
+      await override(page, { [T('container-elevation-standard')]: 'var(--tanrei-sys-elevation-level3)' });
+      const box = await bounds(sheet(page));
+      const y = Math.round(box.y + box.height / 2);
+      // Just past the start edge, toward the content, and far from the sheet: the content's own surface.
+      const near = Math.round(dir === 'ltr' ? box.x - 2 : box.x + box.width + 1);
+      const far = dir === 'ltr' ? 10 : WINDOW.width - 10;
+      const pixels = decodePng(await page.screenshot({ clip: { x: 0, y, width: WINDOW.width, height: 1 } }));
+      const scale = pixels.width / WINDOW.width;
+      expect(pixels.at(Math.round(near * scale), 0), `${dir}: shadow toward the content`).not.toBe(pixels.at(Math.round(far * scale), 0));
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), dir).toBe(0);
     }
   });
 });

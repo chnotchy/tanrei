@@ -112,7 +112,7 @@ const RESIZE_LARGE_STEP = 100;
 
 /** The lengths a resize is reckoned in, in CSS pixels, as the drawer is drawn now (NVD-97, NVD-99). */
 interface ResizeMetrics {
-  /** The least width beside the content. */
+  /** The least width beside the content: minWidth or container.min-width, never above the room the parent gives. */
   least: number;
   /** The greatest: maxWidth or container.max-width, and the room the parent gives, never below the least. */
   most: number;
@@ -1846,7 +1846,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
    */
   width: number | null = null;
 
-  /** The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`. */
+  /** The least width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.min-width`. It wins over `maxWidth`; the room its parent gives wins over both (NVD-97). */
   minWidth: number | null = null;
 
   /** The greatest width a person can give the drawer beside the content, in CSS pixels; null takes `comp.navigation-drawer.container.max-width`. The room its parent gives holds it narrower still. */
@@ -3329,10 +3329,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** The lengths a resize is reckoned in, read from the drawer's own probes: the tokens and the widths given, as drawn. */
   private resizeMetrics(): ResizeMetrics {
     const probe = (name: string) => this.renderRoot?.querySelector(`.resize-probes > .${name}`)?.getBoundingClientRect().width ?? 0;
-    const least = probe('least');
-    const greatest = Math.max(least, probe('most'));
-    const intended = hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), least, greatest);
+    const asked = probe('least');
+    const greatest = Math.max(asked, probe('most'));
+    const intended = hold(this.dragWidth ?? given(this.width) ?? probe('fallback'), asked, greatest);
     const room = this.room(intended);
+    // The least wins over the greatest given (maxWidth, container.max-width); the room wins over both: where it is
+    // narrower than the least, the drawer is drawn at the room, which is then its least and its greatest width alike.
+    const least = room === null ? asked : Math.min(asked, room);
     const most = room === null ? greatest : Math.max(least, Math.min(greatest, room));
     return { least, most, column: probe('column'), fallback: hold(probe('fallback'), least, most), narrowed: room !== null && room < intended - 0.5 ? room : null };
   }
@@ -3341,9 +3344,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private lastRoom: number | null = null;
 
   /**
-   * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less a touch target,
-   * APS-5), or else what the drawer's own `max-inline-size: 100%` left of `intended` the last time the drawer was seen
-   * expanded and at rest (a parent sized by its content gives it all it asks for) — less the start inset. A motion of
+   * NVD-97: the room the parent gives the drawer — an app shell's limit on the host (the window less the main
+   * region's least width and an aside beside it, APS-5), or else what the drawer's own `max-inline-size: 100%` left of
+   * `intended` the last time the drawer was seen expanded and at rest (a parent sized by its content gives it all it
+   * asks for) — less the start inset. A motion of
    * the host's own is not rest, whether it runs or stands held at its start until the next frame (statesFromNextFrame):
    * an opening's slide is held at a width of none in the task that opens the drawer, which read as rest would have the
    * rows laid out at no room through the slide, and the room coming back at its end draw the host without motion for
