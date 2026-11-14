@@ -60,6 +60,8 @@ const INPUT_PARTS = exported(TanreiOneTimeCodeInput);
 export class TanreiOneTimeCodeField extends ComposedControl<string> {
   /** OTF-4: the one control the form meets. Its members stand in its shadow root, outside every form. */
   static formAssociated = true;
+  /** OTF-1: it draws nothing of its own (its members hold their own hover), so it carries no rule for a hover. */
+  protected static override readonly drawsHover = false;
 
   /**
    * Its parts, once: the two members and what each exports.

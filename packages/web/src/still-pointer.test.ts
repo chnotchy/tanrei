@@ -140,14 +140,15 @@ for (const c of CASES) {
 }
 
 // The hold is a rule in each element's shadow root (`stillPointerStyles`), composed by `TanreiElement` for every element
-// that draws anything under a pointer. One whose spec says nothing it draws changes under a pointer has no hover to
-// hold, and carries no rule for a hover at all (`drawsHover`).
+// that draws anything under a pointer. One whose spec says nothing it draws changes under a pointer, or that it draws
+// nothing of its own, has no hover to hold, and carries no rule for a hover at all (`drawsHover`).
 const HOVERLESS: [spec: string, fixture: string, tag: string][] = [
   ['avatar', 'initials', 'tanrei-avatar'],
   ['avatar', 'group', 'tanrei-avatar-group'],
   ['swatch', 'default', 'tanrei-swatch'],
   ['empty-state', 'actions', 'tanrei-empty-state'],
   ['code-block', 'copy', 'tanrei-code-block'],
+  ['one-time-code-field', 'supporting', 'tanrei-one-time-code-field'],
 ];
 
 /** Runs in the page: how many rules of the element's adopted stylesheets name the still-pointer attribute. */
