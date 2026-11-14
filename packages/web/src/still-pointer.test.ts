@@ -7,9 +7,9 @@
 // makes afterwards moves as it always does.
 //
 // Each case opens a surface by script (as a key or a product's code does) with the pointer resting, or pressed and held,
-// where one of its controls then stands, and samples the opening frame by frame (test/frames.ts): every motion is held
-// at its start until a frame moves it on, so a hover transition that began would show as a hovered frame painted short
-// of the hover's colors, on any machine. Then the pointer leaves the control and comes back: that hover moves.
+// where one of its controls then stands, and samples the surface frame by frame as it opens (test/frames.ts): every
+// motion in it is held at its start until a frame moves it on, so a hover transition that began would show as a hovered
+// frame painted short of the hover's colors, on any machine. Then the pointer leaves the control and comes back: that hover moves.
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { sampleFrames } from '../test/frames.js';
 import { type Fixture, type Spec, dialogWindow, fixtureHost, loadSpec, mountFixtures, popoverWindow } from '../test/harness.js';
@@ -27,6 +27,12 @@ interface Case {
   /** The property that opens it. */
   open: string;
   window: { width: number; height: number };
+  /**
+   * What opens, sampled frame by frame: it holds the control and every motion of its opening. What stays outside it is
+   * not sampled — a search's bar, which the full-screen view covers as it opens: its hover leaves it there, under the
+   * view, and Chromium at times begins, replaces and ends that transition between two frames.
+   */
+  surface: (host: Locator) => Locator;
   /** The control the pointer is over once it is open. */
   control: (host: Locator) => Locator;
 }
@@ -49,6 +55,7 @@ const CASES: Case[] = [
     fixture: closed(dialog, 'basic', { open: false }),
     open: 'open',
     window: dialogWindow('basic'),
+    surface: (host) => host,
     control: (host) => host.locator('tanrei-button').last(),
   },
   {
@@ -59,6 +66,7 @@ const CASES: Case[] = [
     fixture: closed(sideSheet, 'modal', { open: false }),
     open: 'open',
     window: { width: 720, height: 480 },
+    surface: (host) => host,
     control: (host) => host.locator('tanrei-button.close'),
   },
   {
@@ -68,6 +76,7 @@ const CASES: Case[] = [
     fixture: closed(search, 'full-screen', { expanded: false, inline: false }),
     open: 'expanded',
     window: { width: 390, height: 700 },
+    surface: (host) => host.locator('dialog.full'),
     control: (host) => host.locator('tanrei-button.back'),
   },
   {
@@ -76,6 +85,7 @@ const CASES: Case[] = [
     fixture: closed(menu, 'actions', { open: false }),
     open: 'open',
     window: popoverWindow,
+    surface: (host) => host,
     control: (host) => host.locator('tanrei-menu-item').first(),
   },
 ];
@@ -117,7 +127,7 @@ for (const c of CASES) {
       await page.mouse.move(x, y);
       if (pointer === 'pressed') await page.mouse.down();
       // Frames enough for the latest of the engines' hovers: WebKit's after the sheet's slide has ended.
-      const seen = await sampleFrames(page, () => setOpen(host, c.open, true), { elements: false, frames: 60, probe: hoverPaint });
+      const seen = await sampleFrames(c.surface(host), () => setOpen(host, c.open, true), { elements: false, frames: 60, probe: hoverPaint });
       // As it rests with the pointer as it is: a menu item under a held button is drawn pressed, so the button is let go
       // only after.
       await motionEnded(page);
