@@ -734,27 +734,31 @@ test.describe('scrolling in its own box', () => {
     for (const id of ['wide-sticky-column', 'wide-sticky-column-striped']) {
       const firsts = [cell(page, id, 'thead', 1, 1), cell(page, id, 'tbody', 1, 1), cell(page, id, 'tbody', 2, 1), table(page, id).locator('tr').last().locator('> *').first()];
       const widths = await Promise.all(firsts.map(async (c) => (await box(c)).width));
-      for (const c of firsts) expect(await px(c, 'border-right-width')).toBe(0);
+      // The line is the kept cell's own `::after` along its inner edge (table.css, HOW IT IS WRITTEN).
+      const line = async (c: Locator, property: string) => pseudo(c, property, '::after');
+      for (const c of firsts) expect(await line(c, 'border-right-width')).toBe('0px');
       await host(page, id).evaluate((el) => (el.scrollLeft = el.scrollWidth));
       await expect(host(page, id)).toHaveAttribute('data-more-start', '');
       const start = (await box(host(page, id))).x;
       for (const [index, c] of firsts.entries()) {
         near((await box(c)).x, start, 0.1);
         expect(await css(c, 'background-color')).toBe(fill);
-        expect(await px(c, 'border-right-width')).toBe(thickness);
-        expect(await css(c, 'border-right-color')).toBe(color);
+        expect(await line(c, 'border-right-width')).toBe(`${thickness}px`);
+        expect(await line(c, 'border-right-color')).toBe(color);
+        // At the cell's inner edge, from its top.
+        expect([await line(c, 'position'), await line(c, 'right'), await line(c, 'top')]).toEqual(['absolute', '0px', '0px']);
         // The line takes nothing from the column.
         near((await box(c)).width, widths[index], 0.1);
       }
       // For the table's whole height: every first cell, and they touch.
-      expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.rows].every((r) => getComputedStyle(r.cells[0]).borderRightWidth !== '0px'))).toBe(true);
+      expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.rows].every((r) => getComputedStyle(r.cells[0], '::after').borderRightWidth !== '0px'))).toBe(true);
       // Over the columns that pass under it.
       expect(await firsts[1].evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.left + r.width - 4, r.top + r.height / 2) === el; })).toBe(true);
       // The start line of the box is this line: the box draws none of its own there (TBL-21).
       expect(await host(page, id).evaluate((el) => getComputedStyle(el, '::before').borderLeftWidth)).toBe('0px');
       await host(page, id).evaluate((el) => (el.scrollLeft = 0));
       await expect(host(page, id)).not.toHaveAttribute('data-more-start', '');
-      expect(await px(firsts[1], 'border-right-width')).toBe(0);
+      expect(await line(firsts[1], 'border-right-width')).toBe('0px');
     }
     // Under the fill its row gives it: a striped row's first cell is the stripe over the opaque fill.
     const striped = cell(page, 'wide-sticky-column-striped', 'tbody', 2, 1);
@@ -783,6 +787,137 @@ test.describe('scrolling in its own box', () => {
     await size(page, 'wide-sticky-column', { width: 480 });
     await expect(host(page, 'wide-sticky-column')).not.toHaveAttribute('data-first-column-released', '');
     near((await box(cell(page, 'wide-sticky-column', 'tbody', 1, 1))).x, (await box(host(page, 'wide-sticky-column'))).x, 0.1);
+  });
+
+  test('TBL-8, TBL-20: the line under a row runs unbroken across a kept first column, at rest and while columns pass under it, after the table moves by a fraction of a pixel from where it was drawn on a half pixel', async ({ page }) => {
+    // A kept cell is a sticky box. Chromium places one on whole pixels by a rounding it does not redo when the table
+    // moves by a fraction of a pixel (content above it settles): a kept cell first drawn on a half pixel stays a pixel
+    // from its row. The line under the row is the row's own (table.css, HOW IT IS WRITTEN), so the cell cannot break it.
+    await mountFixtures(page, spec, { fixtures: some('wide-sticky-column', 'rtl-wide-sticky-column') });
+    const keptLine = await paintedColor(page, `var(${T('divider-color')})`, `var(${T('sticky-container-color')})`);
+    const otherLine = await paintedColor(page, `var(${T('divider-color')})`);
+    for (const id of ['wide-sticky-column', 'rtl-wide-sticky-column']) {
+      const rtl = id.startsWith('rtl');
+      await stage(page, id).evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      const third = table(page, id).locator('> tbody > tr').nth(2);
+      const top = await third.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+      const half = (((0.5 - (top % 1)) % 1) + 1) % 1;
+      for (const scrolled of [false, true]) {
+        const margin = (px: number) => stage(page, id).evaluate((el, m) => ((el as HTMLElement).style.marginBlockStart = `${m}px`), px);
+        await margin(half);
+        // Drawn afresh where the third row's top is on a half pixel…
+        await host(page, id).evaluate((el) => {
+          (el as HTMLElement).style.display = 'none';
+          void (el as HTMLElement).offsetHeight;
+          (el as HTMLElement).style.display = '';
+        });
+        await frame(page);
+        if (scrolled) {
+          await host(page, id).evaluate((el, r) => (el.scrollLeft = r ? -120 : 120), rtl);
+          await expect(host(page, id)).toHaveAttribute('data-more-start', '');
+        } else await expect(host(page, id)).not.toHaveAttribute('data-more-start', '');
+        await frame(page);
+        expect(await third.evaluate((el) => (el.getBoundingClientRect().top + window.scrollY) % 1)).toBeCloseTo(0.5, 3);
+        // …then moved by 3/64 px, as a page moves it when what stands above it settles.
+        await margin(half + 3 / 64);
+        await frame(page);
+        const at = await stage(page, id).evaluate((el, r) => {
+          const s = el.getBoundingClientRect();
+          const t = el.querySelector('table')!;
+          const [first, box] = [(t.tBodies[0].rows[0] as HTMLTableRowElement).cells[0].getBoundingClientRect(), el.querySelector('tanrei-table')!.getBoundingClientRect()];
+          // A scrolling cell wholly in view past the kept one, and a column of pixels inside the padding of each.
+          const other = [...(t.tBodies[0].rows[0] as HTMLTableRowElement).cells].slice(1).map((c) => c.getBoundingClientRect()).find((c) => (r ? c.right <= first.left && c.left >= box.left : c.left >= first.right && c.right <= box.right))!;
+          return { kept: (r ? first.right - 3 : first.left + 3) - s.left, other: (r ? other.right - 3 : other.left + 3) - s.left, from: t.tHead!.getBoundingClientRect().top - s.top, to: t.getBoundingClientRect().bottom - s.top };
+        }, rtl);
+        const shot = decodePng(await stage(page, id).screenshot({ animations: 'disabled', scale: 'device', caret: 'hide' }));
+        const scale = shot.width / (await box(stage(page, id))).width;
+        const runs = (x: number, color: string) => {
+          const found: number[][] = [];
+          for (let y = Math.ceil(at.from * scale); y < Math.floor(at.to * scale); y++) {
+            if (shot.at(Math.round(x * scale), y) !== color) continue;
+            const last = found.at(-1);
+            if (last && last[1] === y - 1) last[1] = y;
+            else found.push([y, y]);
+          }
+          return found;
+        };
+        const [kept, other] = [runs(at.kept, keptLine), runs(at.other, otherLine)];
+        // The header's line and the lines between the rows are there to compare.
+        expect(other.length, `${id}${scrolled ? ', scrolled' : ''}`).toBeGreaterThanOrEqual(3);
+        expect(kept, `${id}${scrolled ? ', scrolled' : ''}: the kept column's lines are the rows' lines`).toEqual(other);
+        await margin(0);
+        await host(page, id).evaluate((el) => (el.scrollLeft = 0));
+      }
+    }
+  });
+
+  test('TBL-8, TBL-10, TBL-19, TBL-20: across a kept first column every line between rows is where the same table draws it with no column kept — under the header, between rows, under the last body row, between footer rows, none with separation gap, a header kept in view, a second header row, a cell that spans rows', async ({ page }) => {
+    // The rows draw these lines in a table whose first column is kept, and the cells in any other (table.css, HOW IT
+    // IS WRITTEN): the two must draw the same lines, in the column kept and in a column that scrolls.
+    const body = (n: number) => Array.from({ length: n }, (_, i) => `<tr><th scope="row">Row ${i + 1}</th><td>${i + 10}</td><td>${i + 20}</td></tr>`).join('');
+    const cases: Record<string, [Fixture['props'], string]> = {
+      totals: [{ ...fixture('totals').props }, ''],
+      gap: [{ ...fixture('totals').props, separation: 'gap' }, ''],
+      striped: [{ ...fixture('totals').props, striped: true }, ''],
+      kept: [{ ...fixture('totals').props, stickyHeader: true }, ''],
+      heads: [{ label: 'Two header rows' }, `<table><thead><tr><th scope="col">Name</th><th scope="col">A</th><th scope="col">B</th></tr><tr><th scope="col">Unit</th><th scope="col">m</th><th scope="col">s</th></tr></thead><tbody>${body(3)}</tbody><tfoot><tr><th scope="row">All</th><td>1</td><td>2</td></tr><tr><th scope="row">Mean</th><td>3</td><td>4</td></tr></tfoot></table>`],
+      spans: [{ label: 'A cell that spans rows' }, `<table><thead><tr><th scope="col">Name</th><th scope="col">A</th><th scope="col">B</th></tr></thead><tbody><tr><th scope="row">Row 1</th><td rowspan="2">10</td><td>20</td></tr><tr><th scope="row">Row 2</th><td>21</td></tr>${body(2)}</tbody></table>`],
+      hidden: [{ label: 'A hidden first row' }, `<table><thead><tr><th scope="col">Name</th><th scope="col">A</th><th scope="col">B</th></tr></thead><tbody><tr hidden><th scope="row">Hidden</th><td>0</td><td>0</td></tr>${body(3)}</tbody></table>`],
+    };
+    const pairs = Object.entries(cases).flatMap(([id, [props, content]]) =>
+      [true, false].map((kept) => {
+        const both = { ...props, stickyFirstColumn: kept };
+        return content ? raw(`${id}-${kept}`, both, content) : { ...fixture('totals'), id: `${id}-${kept}`, props: both };
+      }),
+    );
+    await mountFixtures(page, spec, { fixtures: pairs });
+    const line = await paintedColor(page, `var(${T('divider-color')})`);
+    const top = (which: string) => table(page, which).evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+    for (const id of Object.keys(cases)) {
+      await expect(host(page, `${id}-true`)).toHaveAttribute('sticky-first-column', '');
+      await expect(host(page, `${id}-true`)).not.toHaveAttribute('data-first-column-released', '');
+      // The two tables on the same fraction of a pixel, so that the same lines fall on the same pixels.
+      // (The table not kept stands after the one kept: moving it moves nothing above it.)
+      const shift = (((((await top(`${id}-true`)) - (await top(`${id}-false`))) % 1) + 1) % 1);
+      await stage(page, `${id}-false`).evaluate((el, m) => ((el as HTMLElement).style.marginBlockStart = `${m}px`), shift);
+      await frame(page);
+      const apart = ((((await top(`${id}-true`)) - (await top(`${id}-false`))) % 1) + 1) % 1;
+      expect(Math.min(apart, 1 - apart), id).toBeLessThan(0.001);
+      // The pixels of a column in the first column's padding and of one in the last column's, each counted from the
+      // table's top (whole pixels: the picture starts on a whole pixel above it).
+      const drawn = async (which: string) => {
+        await stage(page, which).evaluate((el) => el.scrollIntoView({ block: 'center' }));
+        await frame(page);
+        const at = await table(page, which).evaluate((el: HTMLTableElement) => {
+          const row = [...el.tBodies[0].rows].find((r) => !r.hidden)!;
+          const t = el.getBoundingClientRect();
+          return { top: t.top, from: Math.floor(t.top) - 4, height: Math.ceil(t.height) + 8, xs: [row.cells[0].getBoundingClientRect().left + 3, row.cells[row.cells.length - 1].getBoundingClientRect().left + 3] };
+        });
+        const shot = decodePng(await page.screenshot({ clip: { x: 0, y: at.from, width: (await box(stage(page, which))).width, height: at.height }, animations: 'disabled', scale: 'device', caret: 'hide' }));
+        const scale = shot.width / (await box(stage(page, which))).width;
+        const origin = Math.round((Math.floor(at.top) - at.from) * scale);
+        // Each column of pixels whole — the lines and the fills under them — and the runs of the divider's color in it.
+        return at.xs.map((x) => {
+          const pixels = Array.from({ length: shot.height - origin }, (_, y) => shot.at(Math.round(x * scale), y + origin));
+          const lines: number[][] = [];
+          for (const [y, color] of pixels.entries()) {
+            if (color !== line) continue;
+            const last = lines.at(-1);
+            if (last && last[1] === y - 1) last[1] = y;
+            else lines.push([y, y]);
+          }
+          return { pixels, lines };
+        });
+      };
+      const [kept, plain] = [await drawn(`${id}-true`), await drawn(`${id}-false`)];
+      for (const column of [0, 1]) {
+        expect(kept[column].lines, `${id}, column ${column + 1}`).toEqual(plain[column].lines);
+        expect(kept[column].pixels, `${id}, column ${column + 1}`).toEqual(plain[column].pixels);
+      }
+      // Lines there are, except where the separation is gap (a striped row's line is over its stripe).
+      if (id === 'gap') expect(plain[1].lines, id).toEqual([]);
+      else if (id !== 'striped') expect(plain[1].lines.length, id).toBeGreaterThanOrEqual(3);
+    }
   });
 
   test('TBL-21: a line of divider.thickness in divider.color along an inline edge of the box, for the table’s whole height, while columns lie beyond it, removed when the scroll reaches that edge — and nothing else says there is more', async ({ page }) => {
@@ -1110,8 +1245,8 @@ test.describe('changes, direction, text size, forced colors', () => {
     await host(page, id).evaluate((el) => (el.scrollLeft = -150));
     await expect(host(page, id)).toHaveAttribute('data-more-start', '');
     near((await edges(first)).right, h.right, 0.1);
-    expect(await px(first, 'border-left-width')).toBe(thickness);
-    expect(await px(first, 'border-right-width')).toBe(0);
+    expect(await pseudo(first, 'border-left-width', '::after')).toBe(`${thickness}px`);
+    expect(await pseudo(first, 'border-right-width', '::after')).toBe('0px');
     expect(await first.evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.left + 4, r.top + r.height / 2) === el; })).toBe(true);
     // Paddings and alignment by the layout: start is the right, and a number column's end the left.
     expect(await css(first, 'text-align')).toBe('right');
@@ -1261,8 +1396,11 @@ test.describe('changes, direction, text size, forced colors', () => {
     // TBL-20's and TBL-21's lines.
     await host(page, 'wide-sticky-column').evaluate((el) => (el.scrollLeft = 100));
     await expect(host(page, 'wide-sticky-column')).toHaveAttribute('data-more-start', '');
-    expect(await css(cell(page, 'wide-sticky-column', 'tbody', 1, 1), 'border-right-color')).toBe(canvasText);
-    expect(await px(cell(page, 'wide-sticky-column', 'tbody', 1, 1), 'border-right-width')).toBe(thickness);
+    expect(await pseudo(cell(page, 'wide-sticky-column', 'tbody', 1, 1), 'border-right-color', '::after')).toBe(canvasText);
+    expect(await pseudo(cell(page, 'wide-sticky-column', 'tbody', 1, 1), 'border-right-width', '::after')).toBe(`${thickness}px`);
+    // The line between two rows of that table is a box of the row under it (table.css, HOW IT IS WRITTEN), in the text color too.
+    expect(await pseudo(table(page, 'wide-sticky-column').locator('> tbody > tr').nth(1), 'border-top-color', '::before')).toBe(canvasText);
+    expect(await pseudo(table(page, 'wide-sticky-column').locator('> tbody > tr').nth(1), 'border-top-width', '::before')).toBe(`${thickness}px`);
     expect(await host(page, 'wide').evaluate((el) => [getComputedStyle(el, '::after').borderRightColor, getComputedStyle(el, '::after').borderRightWidth])).toEqual([canvasText, `${thickness}px`]);
     // TBL-19's line.
     await size(page, 'kept-gap', { height: 200 });
@@ -2583,8 +2721,8 @@ test.describe('rows that can be chosen', () => {
     }
     // The line along the inner edge is the first column's, not the selection column's; both are opaque.
     const thickness = await resolveToken(page, T('divider-thickness'));
-    expect(await px(cell(page, id, 'tbody', 1, 1), 'border-right-width')).toBe(0);
-    expect(await px(cell(page, id, 'tbody', 1, 2), 'border-right-width')).toBe(thickness);
+    expect(await pseudo(cell(page, id, 'tbody', 1, 1), 'border-right-width', '::after')).toMatch(/^(0px|)$/);
+    expect(await pseudo(cell(page, id, 'tbody', 1, 2), 'border-right-width', '::after')).toBe(`${thickness}px`);
     const sticky = await resolveColor(page, T('sticky-container-color'));
     for (const column of [1, 2]) sameColor(await css(cell(page, id, 'tbody', 1, column), 'background-color'), sticky);
     // A chosen row's fill lies over that color in the cells that are kept (TBL-43).
@@ -3377,7 +3515,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     const [select, region] = [await box(cell(page, 'rtl-kept', 'tbody', 1, 1)), await box(cell(page, 'rtl-kept', 'tbody', 1, 2))];
     near(select.x + select.width, kept.x + kept.width, 0.1);
     near(region.x + region.width, select.x, 0.1);
-    expect(await px(cell(page, 'rtl-kept', 'tbody', 1, 2), 'border-left-width')).toBe(await resolveToken(page, T('divider-thickness')));
+    expect(await pseudo(cell(page, 'rtl-kept', 'tbody', 1, 2), 'border-left-width', '::after')).toBe(`${await resolveToken(page, T('divider-thickness'))}px`);
   });
 
   test('TBL-54: in forced colors the fill of a chosen row is gone and its text is the text color: a chosen row and one that is not differ by their checkboxes, and no fixture relies on a background color', async ({ page }) => {

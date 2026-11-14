@@ -98,6 +98,18 @@
  * - Lines are cell borders (`border-collapse: separate`: a collapsed border does not travel with a cell that stays),
  *   and a line never changes a row's height or a column's width: the padding on that side gives up what the line
  *   takes. A line that is not drawn has no width — never a transparent one, which forced colors would paint.
+ * - Except across a table whose first column is kept in view: there the line between two rows is a box of the row
+ *   under it — its `::before`, absolutely positioned where the row stands (no block inset; the table is its containing
+ *   block) and drawn up into the row above — and the cells draw none: their padding takes the line's room. A kept cell
+ *   is a sticky box, and Chromium places a sticky box on whole pixels by a rounding it does not redo when the box
+ *   around the table moves by a fraction of a pixel: a kept cell first drawn on a half pixel stays a pixel from its
+ *   row, and a line it drew would break the row's line there. The row's box is placed as every cell that scrolls is,
+ *   so its line is unbroken. (Not the row positioned with an `::after` at its bottom: a positioned row draws the kept
+ *   cells' text a fraction of a pixel elsewhere.) A table with a cell that spans rows keeps the cells' lines (a row's
+ *   line would cross that cell); so does a header row that is kept in view, whose cells are all sticky and placed
+ *   alike. The kept cell's line along its inner edge (TBL-20) is then its own `::after`, which stops short of the
+ *   row's line instead of crossing it (two strokes of a translucent color would draw the crossing darker).
+ *   `--_table-cell-lines` and `--_table-header-cell-lines` say who draws: 1, the cells; 0, the rows.
  * - The space of `separation: gap` is padding under the row's content; a fill (a stripe, a header's) stops short of it.
  * - The wrapper is a grid of one cell that holds the table and the two "there is more" lines, which are as tall as
  *   the table because they share its cell and stay at the box's edges because they are sticky.
@@ -251,6 +263,11 @@
     --_table-row-text: initial;
     /* TBL-59: what a row that can be chosen lays over that fill under a pointer and a press. */
     --_table-row-state: initial;
+    /* Who draws the line under a row (HOW IT IS WRITTEN): 1, its cells; 0, the rows. Where the rows do, the line under
+       a row is in its cells' padding, and a fill stops short of it (`--_table-line-under`, set on the row). */
+    --_table-cell-lines: 1;
+    --_table-header-cell-lines: var(--_table-cell-lines);
+    --_table-line-under: 0px;
 
     grid-area: 1 / 1;
     /* Under the box's own focus ring (TBL-22): a cell that stays in view is positioned, and would be drawn over it. */
@@ -308,10 +325,10 @@
 
     /* ── A cell (TBL-3, TBL-4, TBL-7, TBL-14, TBL-28) ──────────────────────────────────────────────────────────── */
     & > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) {
-      padding-block: var(--_table-pad-block) calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-row-line));
+      padding-block: var(--_table-pad-block) calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-row-line) * var(--_table-cell-lines));
       padding-inline: var(--_table-pad-inline);
       border: 0 solid var(--_table-line-color);
-      border-block-end-width: var(--_table-row-line);
+      border-block-end-width: calc(var(--_table-row-line) * var(--_table-cell-lines));
       font: var(--_table-cell-font);
       letter-spacing: var(--_table-cell-tracking);
       /* TBL-4: figures of equal width, so the numbers of a column line up (after `font`, which resets it). */
@@ -340,8 +357,8 @@
 
     /* TBL-5: a column's header — a label in a quieter color, on the last line of its cell, over the header's fill. */
     & > :where(thead) > :where(tr) > :where(th, td) {
-      padding-block-end: calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-header-line));
-      border-block-end-width: var(--_table-header-line);
+      padding-block-end: calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-header-line) * var(--_table-header-cell-lines));
+      border-block-end-width: calc(var(--_table-header-line) * var(--_table-header-cell-lines));
       font: var(--_table-header-font);
       letter-spacing: var(--_table-header-tracking);
       font-variant-numeric: tabular-nums;
@@ -349,7 +366,7 @@
       vertical-align: bottom;
       background-image: linear-gradient(var(--tanrei-comp-table-header-container-color), var(--tanrei-comp-table-header-container-color));
       background-repeat: no-repeat;
-      background-size: 100% calc(100% - var(--_table-row-gap));
+      background-size: 100% calc(100% - var(--_table-row-gap) - var(--_table-line-under));
     }
 
     /* TBL-6: a row's header, and TBL-13: a footer row — the cell's style at its emphasized weight. */
@@ -388,7 +405,7 @@
   :where(tanrei-table[striped]) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) > :where(th, td) {
     background-image: linear-gradient(var(--tanrei-comp-table-stripe-container-color), var(--tanrei-comp-table-stripe-container-color));
     background-repeat: no-repeat;
-    background-size: 100% calc(100% - var(--_table-row-gap));
+    background-size: 100% calc(100% - var(--_table-row-gap) - var(--_table-line-under));
   }
 
   /* ── Rows that can be chosen (TBL-42 to TBL-47): a selection column before the first column ──────────────────── */
@@ -506,7 +523,7 @@
   :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
     background-image: linear-gradient(var(--_table-row-state, transparent), var(--_table-row-state, transparent)), linear-gradient(var(--_table-row-fill, transparent), var(--_table-row-fill, transparent));
     background-repeat: no-repeat;
-    background-size: 100% calc(100% - var(--_table-row-gap));
+    background-size: 100% calc(100% - var(--_table-row-gap) - var(--_table-line-under));
     color: var(--_table-row-text, var(--tanrei-comp-table-cell-text-color));
   }
 
@@ -532,6 +549,9 @@
     --_table-sort-pressed-container: var(--tanrei-comp-table-sort-pressed-container-color);
     --_table-sort-pressed-label: var(--tanrei-comp-table-sort-pressed-label-color);
     --_table-sort-pressed-icon: var(--tanrei-comp-table-sort-pressed-icon-color);
+    /* What the container leaves out at the cell's bottom: the space of `separation: gap`, and the header's line where
+       the row draws it inside the cell's padding (HOW IT IS WRITTEN). */
+    --_table-sort-under: calc(var(--_table-row-gap) + var(--_table-header-line) * (1 - var(--_table-header-cell-lines)));
     /* What the control's container is laid over (below). */
     position: relative;
   }
@@ -611,7 +631,7 @@
     position: absolute;
     z-index: -1;
     inset: 0;
-    inset-block-end: var(--_table-row-gap);
+    inset-block-end: var(--_table-sort-under);
     box-sizing: border-box;
     background-color: var(--_table-fill);
     /* The held press (the button says the two names, and this box, which has no text, reads them). */
@@ -704,7 +724,7 @@
     :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible)::before {
       --_table-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
       inset: var(--_table-glow);
-      inset-block-end: calc(var(--_table-glow) + var(--_table-row-gap));
+      inset-block-end: calc(var(--_table-glow) + var(--_table-sort-under));
       border: 0;
       /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
       outline-color: transparent;
@@ -717,7 +737,7 @@
   :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-focus-style='glow']:focus-visible)::before {
     --_table-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
     inset: var(--_table-glow);
-    inset-block-end: calc(var(--_table-glow) + var(--_table-row-gap));
+    inset-block-end: calc(var(--_table-glow) + var(--_table-sort-under));
     border: 0;
     /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
     outline-color: transparent;
@@ -760,7 +780,7 @@
     position: absolute;
     z-index: -1;
     inset: 0;
-    inset-block-end: var(--_table-row-gap);
+    inset-block-end: var(--_table-sort-under);
     background: var(--_table-sort-pressed-container);
     pointer-events: none;
     clip-path: circle(var(--_r) at var(--_x) var(--_y));
@@ -794,7 +814,7 @@
 
   /* ── No rows (TBL-48): one row of one cell under the header row, holding the product's own content ───────────── */
   :where(tanrei-table) > :where(table) > :where(tbody) > :where(tr[data-part='empty']) > :where(th, td) {
-    padding-block: var(--tanrei-comp-table-empty-padding-block) calc(var(--tanrei-comp-table-empty-padding-block) + var(--_table-row-gap) - var(--_table-row-line));
+    padding-block: var(--tanrei-comp-table-empty-padding-block) calc(var(--tanrei-comp-table-empty-padding-block) + var(--_table-row-gap) - var(--_table-row-line) * var(--_table-cell-lines));
     /* No stripe and no fill of the table's through it. */
     background-image: none;
   }
@@ -885,7 +905,7 @@
   :where(tanrei-table[sticky-header]) > :where(table) > :where(thead) > :where(tr) > :where(th, td) {
     position: sticky;
     inset-block-start: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--tanrei-comp-table-sticky-container-color);
   }
   /* TBL-19: the line under a header row that is kept, whatever the separation, while a row is under it. */
@@ -896,13 +916,12 @@
     position: sticky;
     inset-inline-start: 0;
     z-index: 1;
-    padding-inline-end: calc(var(--_table-pad-inline) - var(--_table-column-line));
-    border-inline-end-width: var(--_table-column-line);
     background-color: var(--tanrei-comp-table-sticky-container-color);
   }
-  /* TBL-20: the first header cell stays above both. */
-  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where(:first-child) {
-    z-index: 3;
+  /* TBL-20: the first header cell stays above both — the header row kept in view and the first column. (Without a
+     header row kept in view no row passes under it, and it stays at the first column's level, under the rows' lines.) */
+  :where(tanrei-table[sticky-first-column][sticky-header]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where(:first-child) {
+    z-index: 4;
   }
   /* TBL-42: the first column of a table with a selection column is the one after it, and the two are kept together:
      the selection column at the start edge, without the line, and the first column where the selection column ends —
@@ -910,7 +929,6 @@
      scrolls with the others and the first column is kept at the edge. */
   :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
     padding-inline-end: var(--_table-select-pad, var(--_table-pad-inline));
-    border-inline-end-width: 0;
   }
   :where(tanrei-table[sticky-first-column]:not([data-first-column-released], [data-selection-kept])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
     position: static;
@@ -920,12 +938,72 @@
     position: sticky;
     inset-inline-start: var(--_table-selection-size, 0px);
     z-index: 1;
-    padding-inline-end: calc(var(--_table-pad-inline) - var(--_table-column-line));
-    border-inline-end-width: var(--_table-column-line);
     background-color: var(--tanrei-comp-table-sticky-container-color);
   }
-  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']:first-child + *) {
-    z-index: 3;
+  :where(tanrei-table[sticky-first-column][sticky-header]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']:first-child + *) {
+    z-index: 4;
+  }
+  /* TBL-8, TBL-20: across a table whose first column is kept, the line between two rows is a box of the row under it
+     (its `::before`, absolutely positioned at the row's top in the table), placed as the cells that scroll are and
+     over the kept cells, under a header row kept in view (TBL-19). The cells draw none, unless
+     a cell spans rows (HOW IT IS WRITTEN). What the line above a row is, is asked of the table: the header row's line
+     (where the header row is drawn), the line between two rows, the line under the last body row. */
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) {
+    --_table-cell-lines: 0;
+    --_table-between-rows: var(--_table-row-line);
+    --_table-under-header: 0px;
+    position: relative;
+
+    &:where(:has(> :where(thead, tbody, tfoot) > tr > [rowspan]:not([rowspan='1']))) {
+      --_table-cell-lines: 1;
+    }
+    &:where(:has(> thead > tr > :not(:empty))) {
+      --_table-under-header: calc(var(--_table-header-line) * (1 - var(--_table-header-cell-lines)));
+    }
+    /* The line above each row, and (for the kept cell's line, below) the line under it. */
+    & > :where(thead, tbody, tfoot) > :where(tr) {
+      --_table-line-above: calc(var(--_table-between-rows) * (1 - var(--_table-cell-lines)));
+      --_table-line-under: calc(var(--_table-row-line) * (1 - var(--_table-cell-lines)));
+    }
+    & > :where(thead) > :where(tr) {
+      --_table-line-above: var(--_table-under-header);
+      --_table-line-under: var(--_table-under-header);
+    }
+    & > :where(thead) > :where(tr:nth-child(1 of :not([hidden]))) {
+      --_table-line-above: 0px;
+    }
+    & > :where(tbody:first-of-type) > :where(tr:nth-child(1 of :not([hidden], [data-part='empty']))),
+    & > :where(tbody) > :where(tr[data-part='empty']) {
+      --_table-line-above: var(--_table-under-header);
+    }
+    & > :where(tfoot) > :where(tr:nth-child(1 of :not([hidden]))) {
+      --_table-line-above: calc(var(--_table-last-body-line) * (1 - var(--_table-cell-lines)));
+    }
+    & > :where(thead, tbody, tfoot) > :where(tr)::before,
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where(:first-child:not([data-part='selection']), [data-part='selection']:first-child + *)::after {
+      content: '';
+      position: absolute;
+      border: 0 solid var(--_table-line-color);
+      pointer-events: none;
+    }
+    /* At the row's top: where the row would stand (no inset in the block axis), drawn up into the row above, over
+       the kept cells — the kept header cell too, which is at their level while no header row is kept in view. */
+    & > :where(thead, tbody, tfoot) > :where(tr)::before {
+      z-index: 2;
+      inset-inline: 0;
+      margin-block-start: calc(var(--_table-line-above) * -1);
+      border-block-start-width: var(--_table-line-above);
+    }
+    /* TBL-20: the line along the kept column's inner edge, while a column is under it — drawn by each kept cell in the
+       end of its padding, down to the line under its row: the row's, or its own border's. */
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where(:first-child:not([data-part='selection']), [data-part='selection']:first-child + *)::after {
+      inset-block: 0 var(--_table-line-under);
+      inset-inline-end: 0;
+      border-inline-end-width: var(--_table-column-line);
+    }
+  }
+  :where(tanrei-table[sticky-first-column][sticky-header]:not([data-first-column-released])) > :where(table) {
+    --_table-header-cell-lines: 1;
   }
 
   /* ── Forced colors (TBL-30): every line in the text color; a striped table keeps its row lines, as fills are gone ─ */
@@ -953,7 +1031,7 @@
     }
     :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible)::before {
       inset: 0;
-      inset-block-end: var(--_table-row-gap);
+      inset-block-end: var(--_table-sort-under);
       border: 0;
       outline-color: Highlight;
       box-shadow: none;
