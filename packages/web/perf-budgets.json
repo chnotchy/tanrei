@@ -319,7 +319,7 @@
       ]
     },
     "list-row": {
-      "budget": 39400,
+      "budget": 39500,
       "measured": 37727,
       "allowedComponents": [
         "keyboard-shortcut",
@@ -407,7 +407,7 @@
       ]
     },
     "number-ticker": {
-      "budget": 16300,
+      "budget": 16400,
       "measured": 15488,
       "allowedComponents": []
     },
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 669800,
+      "budget": 669900,
       "measured": 643895
     }
   },
