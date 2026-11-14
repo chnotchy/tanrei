@@ -267,6 +267,7 @@ export {
   type SizeAxis,
   Settle,
   afterFirstPaint,
+  afterTwoFrames,
   appearStyles,
   documentPainted,
   motionReduced,

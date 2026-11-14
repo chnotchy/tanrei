@@ -973,7 +973,12 @@ export class AnimatedSize implements ReactiveController {
 // state may be anywhere in a shadow tree. It is a layout the frame was about to make; letting go then changes only
 // `transition-property`, which lays nothing out.
 let settlingNow: (() => void)[] | null = null;
-const afterTwoFrames = (done: () => void) => {
+/**
+ * MOT-3: calls `done` where settling ends — two frames from now, the document laid out once before — together with
+ * every element that settles in the same frame. For what is first drawn again without being connected again, and so
+ * settles again: the content of a view that opens (the search's), whose transitions stay off until then.
+ */
+export const afterTwoFrames = (done: () => void): void => {
   if (typeof requestAnimationFrame !== 'function') return done();
   if (!settlingNow) {
     const batch: (() => void)[] = [];

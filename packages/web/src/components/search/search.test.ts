@@ -1286,7 +1286,67 @@ test.describe('opening and closing', () => {
       expect(seen.rest.probe).toMatchObject({ drawn: false, listed: 0, combobox: false });
     });
   }
+
+  // SRC-23, MOT-3: a view that opens is the first frame of its rows. The row the search makes current as it opens (the
+  // query row, SRC-57; the first result, SRC-49) is drawn current from that frame: it does not fade into its state.
+  // Opened by pointer or by key, from the field or from a trigger — a modal view opened from a trigger makes its row
+  // current only once its own input has focus, after it is shown. Sampled across the page: the view's entrance (and its
+  // scrim's) is the one motion of the view. The opener the person acted on, under it, leaves its hovered, pressed or
+  // focused state as ever; that is their act, not the view's, so its container is drawn without its transitions here
+  // (as a product may, by its part): a press's motion, begun and replaced within one frame on a busy machine, is one
+  // the frame sampler cannot show. Its focused outline, which no part reaches, may still fade.
+  const VIEW_OWN = /^(dialog\.full|div\.view)(\.|:|$)/;
+  const OPENER = /^span\.outline(\.|$)/;
+  for (const presentation of ['docked', 'full-screen', 'dialog'] as const) {
+    for (const content of ['suggestions', 'results'] as const) {
+      test(`SRC-23, SRC-14, SRC-49, SRC-57, MOT-3: the ${presentation} view with ${content} opens with its own motion only, by pointer and by key — the row it makes current appears current in its first frame, with no transition into that state — and the row an arrow key moves to afterwards still moves`, async ({ page }) => {
+        const items = content === 'suggestions' ? SUGGESTIONS : SITE.items!;
+        const bars = presentation === 'docked' ? (['field'] as const) : (['field', 'button'] as const);
+        for (const form of bars) {
+          for (const by of ['pointer', 'key'] as const) {
+            const label = `${form} by ${by}`;
+            await mountSite(page, [site('s', { presentation, bar: form, value: 'inv', statusText: '' }, items)], { reducedMotion: false });
+            await page.addStyleTag({ content: 'tanrei-search::part(container) { transition: none; }' });
+            const s = host(page, 's');
+            if (by === 'key') await (form === 'field' ? input(page, 's') : trigger(page, 's')).focus();
+            const open = () => (by === 'pointer' ? (form === 'field' ? s.locator('.glyph') : trigger(page, 's')).click() : page.keyboard.press(form === 'field' ? 'ArrowDown' : 'Enter'));
+            const seen = await sampleFrames(page.locator('body'), open, { probe: currentRow, elements: false });
+            const named = (motions: typeof seen.motions) => motions.map((motion) => `${motion.kind} ${motion.name} on ${motion.on}`);
+            expect(named(seen.motions.filter((motion) => VIEW_OWN.test(motion.on))).length, `${label}: the view plays its entrance`).toBeGreaterThan(0);
+            expect(named(seen.motions.filter((motion) => !VIEW_OWN.test(motion.on) && !OPENER.test(motion.on))), `${label}: nothing in the view moves but the view`).toEqual([]);
+            const rest = seen.rest.probe.current;
+            expect(rest, `${label}: a row is current once open`).not.toBe('');
+            expect(
+              seen.frames.filter((frame) => frame.probe.current !== '' && frame.probe.current !== rest).map((frame) => `frame ${frame.index}: ${frame.probe.current}`),
+              `${label}: the current row is drawn in its state (${rest}) in every frame it is drawn in`,
+            ).toEqual([]);
+            if (by === 'key') {
+              // A change the person makes moves as ever: Down Arrow takes the current row on, and the rows' containers fade.
+              const moved = await sampleFrames(page.locator('body'), () => page.keyboard.press('ArrowDown'), { probe: currentRow, elements: false });
+              expect(
+                moved.motions.some((motion) => motion.name === 'background-color' && /^div\.(option|row)(\.|$)/.test(motion.on)),
+                `${label}: Down Arrow moves a row's container (${named(moved.motions).join(', ')})`,
+              ).toBe(true);
+            }
+          }
+        }
+      });
+    }
+  }
 });
+
+/**
+ * SRC-23, MOT-3: the background of the row the search shows current — its active option (the query row or a
+ * suggestion, SRC-14), or a result drawn current or focused in its own shadow root (SRC-49) — or '' where none is drawn.
+ * Self-contained: sent as its source.
+ */
+const currentRow: Probe = (root) => {
+  const search = root.querySelector('[data-fixture="s"] tanrei-search');
+  const option = search?.shadowRoot?.querySelector<HTMLElement>('.option[data-active]');
+  const result = [...(search?.querySelectorAll('*') ?? [])].map((el) => el.shadowRoot?.querySelector<HTMLElement>('.row:is([data-current], [data-focused])')).find((row) => !!row);
+  const row = option ?? result;
+  return { current: row && row.getClientRects().length ? getComputedStyle(row).backgroundColor : '' };
+};
 
 /**
  * SRC-23: the view of the search that is drawn — its docked view in the top layer, or its dialog — and what it draws:

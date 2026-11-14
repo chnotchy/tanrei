@@ -21,6 +21,7 @@ import {
   type TanreiLinkTarget,
   ambientConvention,
   assignSlot,
+  afterTwoFrames,
   atOnce,
   chordsConverter,
   chordsOf,
@@ -60,7 +61,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import '../loading-indicator/loading-indicator.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
-import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import { AXES, FIRST_FRAMES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
 import type { TanreiSearchSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -935,6 +936,9 @@ export class TanreiSearch extends TanreiElement {
 
   private viewShown = false;
   private fullShown = false;
+  /** SRC-23, MOT-3: the view and the results marked as a view opened (`firstFrames()`), and the last opening's number. */
+  private readonly firstFramesMarked = new Set<HTMLElement>();
+  private firstFramesRun = 0;
   /** SRC-9, SRC-40: the modal view is to open with the reads of the turn (`presentFull()`), and has not yet. */
   private presenting = false;
   /**
@@ -2195,6 +2199,7 @@ export class TanreiSearch extends TanreiElement {
     }
     if (wanted && !this.viewShown) {
       view.classList.remove('leaving');
+      this.firstFrames(view);
       if (!view.matches(':popover-open')) view.showPopover();
       this.viewShown = true;
       this.place();
@@ -2239,6 +2244,27 @@ export class TanreiSearch extends TanreiElement {
   }
 
   /**
+   * SRC-23, MOT-3: `view` opens, and is the first frame of what it holds: nothing in it starts a transition until
+   * settling ends, so its rows are drawn in the state the opening gives them. The row the search makes current as it
+   * opens (SRC-14, SRC-57: the query row; SRC-49: the first result) is decided once focus is in the input — in a modal
+   * view, after the view is shown — and a result draws it in its own update: unmarked, it faded into the focused state
+   * after the view was first styled. A row the person makes current later (an arrow key) still moves.
+   */
+  private firstFrames(view: HTMLElement) {
+    const run = ++this.firstFramesRun;
+    const results = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
+    for (const element of [view, ...results]) {
+      element.setAttribute(FIRST_FRAMES, '');
+      this.firstFramesMarked.add(element);
+    }
+    afterTwoFrames(() => {
+      if (run !== this.firstFramesRun) return;
+      for (const element of this.firstFramesMarked) element.removeAttribute(FIRST_FRAMES);
+      this.firstFramesMarked.clear();
+    });
+  }
+
+  /**
    * SRC-9, SRC-40: modal over the whole window (or hung from its top), the page held, focus to the header's input with
    * the caret at the end.
    *
@@ -2267,6 +2293,9 @@ export class TanreiSearch extends TanreiElement {
     // SRC-9, SRC-40: where focus is — or, opened above a surface of the same turn that has not given focus in yet, where
     // that surface gives it — for a bar's input that cannot take focus back.
     this.fullOpener = modalLayer.opener();
+    // SRC-23, MOT-3: what it holds appears in the state this opening gives it — the first row current once focus is in
+    // the header's input, below — with no transition into it.
+    this.firstFrames(dialog);
     // MOT-4: opened before the document's first paint (written `expanded` in the page's markup), the view and its scrim
     // are drawn open at once; opened later, their fade begins in the first frame drawn after this task. Still leaving,
     // it is taken back from where its fade has got to (MOT-2).

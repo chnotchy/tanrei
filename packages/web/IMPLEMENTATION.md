@@ -8237,6 +8237,15 @@ over the open and close motion, at once where motion is reduced: both views open
 are given back — and stays drawn in the top layer, with its scrim, until their fade has played, in every engine. The
 slots are not drawn in the header.
 
+**What a view holds appears in its first state (SRC-23, MOT-3).** Every view (docked, full-screen, dialog) is the first
+frame of its rows, so as it opens the search marks it, and each result and result group it holds (their rows are in
+their own shadow roots), with `data-first-frames`, under which nothing inside starts a transition; the marks come off
+where settling ends (`afterTwoFrames()`, src/primitives/motion.ts). The row the search makes current as it opens (the
+query row, SRC-57; the first result, SRC-49) is decided once focus is in the input — in a modal view after the view is
+shown, and a result draws it in its own update — so unmarked it faded into the focused state after the view was first
+styled. The view's own entrance is on the view and its scrim, which the mark leaves alone, and a row the person makes
+current afterwards (an arrow key) moves as ever.
+
 **Keyboard (SRC-12…15, SRC-57, SRC-55).** Suggestions are queries, and the query as typed is always what Enter takes
 until the person moves. With `query-row="first"` (the default) it is a row of the search's own, first in the listbox and
 active as soon as the view shows suggestions while the input has focus — and again after typing, deleting, pasting, new
