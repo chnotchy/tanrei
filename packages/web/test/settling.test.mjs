@@ -44,7 +44,8 @@ test('there are elements that draw in the light DOM to look at', () => {
 });
 
 const built = fs.existsSync(path.join(pkg, 'dist/tanrei.bundle.js'));
-const settles = (text, name) => text.includes(`:where(tanrei-${name})[data-tanrei-settling]:not([data-tanrei-appear])`) && text.includes(`:where(tanrei-${name})[data-tanrei-settling] :not([data-tanrei-appear])`);
+const quiet = (name) => `:where(tanrei-${name}):is([data-tanrei-settling], [data-tanrei-still-pointer]:hover)`;
+const settles = (text, name) => text.includes(`${quiet(name)}:not([data-tanrei-appear])`) && text.includes(`${quiet(name)} :not([data-tanrei-appear])`);
 
 test('the stylesheet of each element that draws in the light DOM settles it: the page\'s copy, a system\'s copy and the element\'s own', { skip: !built && 'run the build first' }, () => {
   const missing = [];
