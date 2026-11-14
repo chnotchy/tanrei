@@ -29,11 +29,13 @@ const shipped = Object.keys(web.exports)
 // The two the framework's `customCss` loads (astro.config.mjs): the tokens are custom properties in `tanrei.tokens`, and
 // the icon set's class sets the glyph's face, which no rule of Starlight's sets. And the two whose rules prose.css
 // carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same). And
-// two the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
-// color and face; and tanrei.css, which is the base, the tokens and every other one of them in one file.
+// three the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
+// color and face; tanrei.css, which is the base, the tokens and every other one of them in one file; and the cloak,
+// which a page opts into and which would hide every example of the site from a reader whose script does not arrive.
 const ELSEWHERE = {
   'base.css': 'not loaded',
   'tanrei.css': 'not loaded',
+  'cloak.css': 'not loaded',
   'tokens.css': 'customCss',
   'icons.css': 'customCss',
   'steps.css': 'prose.css',

@@ -177,7 +177,23 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 
 `tanrei.css` is every stylesheet of the package in one file — the default system's tokens, these, and `base.css` (the
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not
-in it.
+in it, and neither is the cloak.
+
+## Before the elements are defined
+
+Until its script has run, an element is unknown to the browser: the page shows what is written between its tags,
+unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds a
+control whose height is a token of its own (a button, a text input, a checkbox, tabs…) at that height, and takes an
+element whose surface is in the top layer (a dialog, a popover) out of the page:
+
+```js
+import '@tanrei/web/cloak.css';
+```
+
+Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
+defined — on a page whose script never arrives, its content is never shown. A control's width is not held, so lay out
+controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. The
+stylesheet's comment lists what it does not hold.
 
 ## Browser support
 

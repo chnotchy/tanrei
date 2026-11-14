@@ -1,0 +1,226 @@
+/*
+ * The cloak (opt in): Tanrei's elements before their script defines them. An element draws in its shadow root, so
+ * until its module has run, a page shows only what is written between its tags — a glyph's name, an option's words,
+ * a label that is not yet a button — and moves when the element is defined and takes the room it will have. This
+ * stylesheet hides every Tanrei element that is not defined yet, and gives each control whose height is a token of
+ * its own that height, so that the page's first paint has nothing unstyled in it and what is around a control stays
+ * where it is:
+ *
+ *   import '@tanrei/web/tokens.css';
+ *   import '@tanrei/web/cloak.css';
+ *
+ * Opt in, and in no other stylesheet of the package (not in `tokens.css`, not in `tanrei.css`): an element stays
+ * hidden for as long as it is not defined, so on a page whose script does not arrive — blocked, failed, turned off —
+ * nothing inside the elements is ever shown. A page that must read without script leaves it out, and loads the
+ * stylesheets that draw an element before its script (`callout.css`, `code.css`, `table.css` and the others) instead.
+ *
+ * - Hidden: every element of the package (the build writes their names in place of `tanrei-elements`, from the
+ *   elements' manifest), with `visibility`, so that each keeps the room its content takes and the page is laid out
+ *   as it will be. What is inside a hidden element is not painted and not in the accessibility tree until it is
+ *   defined.
+ * - Out of the page: an element whose surface is in the top layer (a dialog, a popover, a date and time picker, an
+ *   image preview, a modal layer) draws nothing where it stands once it is defined, and takes no room before.
+ * - Held: a control whose height is a token of its own — its container height or container size, by its `size` (the
+ *   default's where it names none) and, for an input box, by its `variant` — is the box it will be: `inline-block`
+ *   where the element is inline, `block` where it is a block, at least that tall. Its width is not held: it is the
+ *   width of the words and glyphs the element draws, so words that follow a control on the same line of text move
+ *   sideways when it is defined. Controls that stand side by side in a row of their own (a flex or grid row with a
+ *   gap, as a toolbar is) move nothing that was painted.
+ *
+ * What it does not hold: a height that depends on what the element draws in its shadow root (a field's label and
+ * supporting text, a list's rows, a composer's attachments, a swatch's label, a multiline input's rows beyond its
+ * first line, a combobox's chips, a docked search's results, vertical tabs and sliders), a size or a variant a design
+ * system added (held at the default's), and a size an element takes from its container rather than its own `size`.
+ * The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`, `avatar.css`,
+ * `menu.css`, `menubar.css`, `callout.css`, `empty-state.css`, `code.css`) are hidden here and held by that
+ * stylesheet. src/fouce.test.ts holds every fixture of every control held here to the height it is drawn at.
+ *
+ * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for the heights an input box chooses
+ * from). Every selector has no specificity (`:where()`) and styles the element it asks about, never its children; an
+ * element that is `hidden` keeps the browser's `display: none`; and nothing matches once an element is defined.
+ */
+@layer tanrei.components {
+  /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
+  :where(tanrei-elements:not(:defined)) {
+    visibility: hidden;
+  }
+
+  /* An element that draws nothing where it stands once it is defined — its surface is in the top layer, open or
+     closed — takes no room before: what is written inside it (a dialog's actions, a popover's content) would
+     otherwise be laid out in the page, and the page would close up over it when the element is defined. */
+  :where(tanrei-date-time-picker, tanrei-dialog, tanrei-image-preview, tanrei-modal-layer, tanrei-popover):where(:not(:defined)) {
+    display: none;
+  }
+
+  /* An inline control: a box on the line, centred on it. */
+  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut, tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: middle;
+  }
+  /* A block control: the width of its place. */
+  :where(tanrei-color-input, tanrei-combobox, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+
+  /* The Button, and the elements drawn as one: the container height of their size. */
+  :where(tanrei-button:not(:defined), tanrei-copy-button:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-container-height-medium);
+  }
+  :where(tanrei-button[size='small']:not(:defined), tanrei-copy-button[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-container-height-small);
+  }
+  :where(tanrei-button[size='large']:not(:defined), tanrei-copy-button[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-container-height-large);
+  }
+  :where(tanrei-button-with-menu:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-with-menu-container-height-medium);
+  }
+  :where(tanrei-button-with-menu[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-with-menu-container-height-small);
+  }
+  :where(tanrei-button-with-menu[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-button-with-menu-container-height-large);
+  }
+  :where(tanrei-main-action-button:not(:defined)) {
+    min-block-size: var(--tanrei-comp-main-action-button-container-height-medium);
+  }
+  :where(tanrei-main-action-button[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-main-action-button-container-height-small);
+  }
+  :where(tanrei-main-action-button[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-main-action-button-container-height-large);
+  }
+  :where(tanrei-segmented-button:not(:defined)) {
+    min-block-size: var(--tanrei-comp-segmented-button-container-height-medium);
+  }
+  :where(tanrei-segmented-button[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-segmented-button-container-height-small);
+  }
+  :where(tanrei-segmented-button[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-segmented-button-container-height-large);
+  }
+
+  /* Chips, tags and keys (a key drawn as a keycap: a plain one is a line of text). */
+  :where(tanrei-chip:not(:defined)) {
+    min-block-size: var(--tanrei-comp-chip-container-height-medium);
+  }
+  :where(tanrei-chip[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-chip-container-height-small);
+  }
+  :where(tanrei-tag:not(:defined)) {
+    min-block-size: var(--tanrei-comp-tag-container-height-medium);
+  }
+  :where(tanrei-tag[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-tag-container-height-small);
+  }
+  :where(tanrei-keyboard-shortcut:not([variant='plain']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-medium);
+  }
+  :where(tanrei-keyboard-shortcut[size='small']:not([variant='plain']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
+  }
+
+  /* Selection controls and indicators: their container size (a switch: its track; a loading indicator that is not
+     contained: its indicator). */
+  :where(tanrei-checkbox:not(:defined)) {
+    min-block-size: var(--tanrei-comp-checkbox-container-size);
+  }
+  :where(tanrei-radio-button:not(:defined)) {
+    min-block-size: var(--tanrei-comp-radio-button-container-size);
+  }
+  :where(tanrei-switch:not(:defined)) {
+    min-block-size: var(--tanrei-comp-switch-track-height);
+  }
+  :where(tanrei-slider:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-slider-container-size);
+  }
+  :where(tanrei-rating:not(:defined)) {
+    min-block-size: var(--tanrei-comp-rating-container-size-medium);
+  }
+  :where(tanrei-rating[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-rating-container-size-small);
+  }
+  :where(tanrei-rating[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-rating-container-size-large);
+  }
+  :where(tanrei-loading-indicator:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-indicator-size-medium);
+  }
+  :where(tanrei-loading-indicator[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-indicator-size-small);
+  }
+  :where(tanrei-loading-indicator[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-indicator-size-large);
+  }
+  :where(tanrei-loading-indicator[contained]:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-container-size-medium);
+  }
+  :where(tanrei-loading-indicator[contained][size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-container-size-small);
+  }
+  :where(tanrei-loading-indicator[contained][size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-loading-indicator-container-size-large);
+  }
+
+  /* Input boxes. A stacked box (the default) is its stacked height; an outlined or a filled box its container height,
+     and a filled box with a label at least the floated label's line and the input's line between the paddings that
+     go with a label. The three heights are worked out for the size, then one of them is taken by the variant. A box
+     that grows when it is defined (a multiline text input's rows, a combobox's chips of several values) is held at
+     its one line. */
+  :where(tanrei-color-input:not(:defined), tanrei-combobox:not(:defined), tanrei-number-input:not(:defined), tanrei-select:not(:defined), tanrei-text-input:not(:defined)) {
+    --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-medium);
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-medium);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size) + var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size));
+    min-block-size: var(--_cloak-stacked);
+  }
+  :where(tanrei-color-input[size='small']:not(:defined), tanrei-combobox[size='small']:not(:defined), tanrei-number-input[size='small']:not(:defined), tanrei-select[size='small']:not(:defined), tanrei-text-input[size='small']:not(:defined)) {
+    --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-small);
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-small);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + var(--tanrei-comp-input-box-label-floated-typescale-small-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size) + var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size));
+  }
+  :where(tanrei-color-input[size='large']:not(:defined), tanrei-combobox[size='large']:not(:defined), tanrei-number-input[size='large']:not(:defined), tanrei-select[size='large']:not(:defined), tanrei-text-input[size='large']:not(:defined)) {
+    --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-large);
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-large);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + var(--tanrei-comp-input-box-label-floated-typescale-large-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size) + var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size));
+  }
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):where([variant='outlined'], [variant='filled']):where(:not(:defined)) {
+    min-block-size: var(--_cloak-box);
+  }
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):where([variant='filled'][label]:not([label=''])):where(:not(:defined)) {
+    min-block-size: max(var(--_cloak-box), var(--_cloak-labelled));
+  }
+  :where(tanrei-one-time-code-input:not(:defined)) {
+    min-block-size: var(--tanrei-comp-one-time-code-input-container-height);
+  }
+  /* A search bar: the bar's height; one drawn as a button or an icon, the trigger's. A docked search that is expanded
+     draws its results under the bar, and is not held. */
+  :where(tanrei-search:is(:not([expanded]), [presentation='dialog'], [presentation='full-screen']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-search-container-height);
+  }
+  :where(tanrei-search:is([bar='button'], [bar='icon']):is(:not([expanded]), [presentation='dialog'], [presentation='full-screen']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-search-trigger-container-height);
+  }
+
+  /* Bars of destinations and pages. Tabs: a horizontal row; a primary row of the default size taller where a tab
+     shows a glyph over its label. */
+  :where(tanrei-tabs:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-tabs-container-height-medium);
+  }
+  :where(tanrei-tabs[size='small']:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-tabs-container-height-small);
+  }
+  :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden]))) {
+    min-block-size: var(--tanrei-comp-tabs-container-height-with-icon);
+  }
+  :where(tanrei-pagination:not(:defined)) {
+    min-block-size: var(--tanrei-comp-pagination-container-height-medium);
+  }
+  :where(tanrei-pagination[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-pagination-container-height-small);
+  }
+  :where(tanrei-navigation-bar:not(:defined)) {
+    min-block-size: var(--tanrei-comp-navigation-bar-container-height);
+  }
+}
