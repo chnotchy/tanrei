@@ -321,6 +321,20 @@ function facesScript(faces: EmbeddedFace[]): string {
 })();</script>`;
 }
 
+/**
+ * The embedded text faces of a document's head: registered by script before the first frame (`facesScript`), and
+ * written again as their @font-face rules in a `noscript`, for the same document read with scripting off.
+ *
+ * A test that compares the fixtures as the stylesheet alone draws them with the scripted page opens the document in a
+ * context with scripting off (`javaScriptEnabled: false`), where the script never runs: without the rules its text was
+ * laid out in a fallback face and wrapped elsewhere than the scripted page's (STP-4, BRC-2, PNL-2). A `noscript` in the
+ * head is read as its elements only when scripting is off, and as raw text when it is on, so each document has its
+ * faces once: the script's, or the rules'.
+ */
+function embeddedFaceMarkup(rules: string): string {
+  return `${facesScript(embeddedFaces(rules))}<noscript><style>${rules}</style></noscript>`;
+}
+
 const registered = new Map<string, Promise<string>>();
 /**
  * @font-face rules for families a PRESET names (m3-like: Roboto, Material Symbols Outlined), embedded, from the
@@ -2614,7 +2628,7 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   const sheet = (href: string | undefined, embed: () => string) => (href ? `<link rel="stylesheet" href="${href}" />` : `<style>${embed()}</style>`);
   const icons = families.length ? sheet(assets?.icons(families), () => iconFaces) : '';
   // A preset's own text faces (Roboto for the m3 presets), registered from their bytes before the body with Inter
-  // (`facesScript`); a page given asset URLs has them in its shared font sheet.
+  // (`embeddedFaceMarkup`); a page given asset URLs has them in its shared font sheet.
   const text = options.system && !assets ? await presetTextFontFaces(systemStyles(options)) : '';
   // A page's frame holds the page's own main region: its stages stand in a `div` (see `Staging.page`).
   const holder = staging.page ? 'div' : 'main';
@@ -2623,7 +2637,7 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   <head>
     <meta charset="utf-8" />
     <title>${spec.name} fixtures</title>
-    ${assets ? sheet(assets.font, fontFace) : facesScript(embeddedFaces(`${fontFace()}\n${text}`))}
+    ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
