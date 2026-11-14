@@ -61,6 +61,8 @@ function characters(text: string): string[] {
 export class TanreiAvatar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   static override styles = styles;
+  /** AVT-7: nothing it draws changes under a pointer, so it carries no rule for a hover. */
+  protected static override readonly drawsHover = false;
 
   static override properties: PropertyDeclarations = {
     src: { type: String },
@@ -293,6 +295,8 @@ export class TanreiAvatarGroup extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   private readonly words = new WordsController(this);
   static override styles = groupStyles;
+  /** AVT-7, AVT-17: neither its members nor its overflow box change under a pointer, so it carries no rule for a hover. */
+  protected static override readonly drawsHover = false;
   /** The group decides which of its children are drawn (AVT-17): the others stay in the document, assigned to no slot. */
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, slotAssignment: 'manual' };
 

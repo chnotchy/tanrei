@@ -65,6 +65,8 @@ const ACTION_PLACE: GroupPlace = { variant: 'standard', first: true, last: true 
 export class TanreiEmptyState extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'empty-state');
   static override styles = styles;
+  /** EMP-7: nothing it draws changes under a pointer (its actions are elements of their own): no rule for a hover. */
+  protected static override readonly drawsHover = false;
 
   static override properties: PropertyDeclarations = {
     headline: { type: String },

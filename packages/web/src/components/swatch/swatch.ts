@@ -50,6 +50,8 @@ function readColor(value: string): { color: string; refused: boolean } {
 export class TanreiSwatch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'swatch');
   static override styles = styles;
+  /** SWC-13: nothing it draws changes under a pointer, so it carries no rule for a hover. */
+  protected static override readonly drawsHover = false;
 
   static override properties: PropertyDeclarations = {
     color: { type: String },

@@ -21,7 +21,8 @@ import { type CSSResult, unsafeCSS } from 'lit';
 // left to the two frames of settling: an element inside a surface that opened carries `data-tanrei-still-pointer` until
 // the person next acts — moves the pointer, presses, turns a wheel or presses a key (`holdStillPointer()`,
 // src/primitives/motion.ts) — and nothing in it starts a transition while it is hovered meanwhile. Every hover change
-// the person's pointer makes afterwards moves as it always does.
+// the person's pointer makes afterwards moves as it always does. An element that draws nothing under a pointer has no
+// hover to hold, and its shadow root carries no rule for one (`TanreiElement.drawsHover`, src/primitives/element.ts).
 
 /** The host's attribute while it settles. */
 export const SETTLING = 'data-tanrei-settling';
@@ -36,19 +37,25 @@ export const STILL_POINTER = 'data-tanrei-still-pointer';
 const QUIET = 'transition-property: none !important;';
 const withPseudos = (selectors: string[]) => selectors.flatMap((selector) => [selector, `${selector}::before`, `${selector}::after`]).join(',\n');
 
-/**
- * The shadow root's rule: nothing in it, the host and its pseudo-elements included, starts a transition while the host
- * settles, or while it is hovered under a pointer that has not moved since the surface it is in opened — except the
- * element that appears. Compose it last in the component's `styles`.
- */
-export const settleStyles: CSSResult = unsafeCSS(`${withPseudos([
-  `:host([${SETTLING}]:not([${APPEARING}]))`,
-  `:host([${SETTLING}]) :not([${APPEARING}])`,
-  `:host([${STILL_POINTER}]:hover:not([${APPEARING}]))`,
-  `:host([${STILL_POINTER}]:hover) :not([${APPEARING}])`,
-])} {
+/** A shadow root in which nothing, the host and its pseudo-elements included, starts a transition while `host` matches. */
+const quietWhile = (host: string): CSSResult =>
+  unsafeCSS(`${withPseudos([`:host(${host}:not([${APPEARING}]))`, `:host(${host}) :not([${APPEARING}])`])} {
   ${QUIET}
 }`);
+
+/**
+ * The shadow root's rule: nothing in it starts a transition while the host settles — except the element that appears.
+ * Composed last in every element's styles (`TanreiElement`).
+ */
+export const settleStyles: CSSResult = quietWhile(`[${SETTLING}]`);
+
+/**
+ * The shadow root's rule for a hover under a pointer that has not moved since the surface the host is in opened: nothing
+ * in it starts a transition while the host is hovered meanwhile — except the element that appears. Composed after
+ * `settleStyles` in the styles of every element that draws anything under a pointer; one that draws nothing there (its
+ * spec says it has no hovered state: an avatar) leaves it out (`TanreiElement.drawsHover`), as it has no hover to hold.
+ */
+export const stillPointerStyles: CSSResult = quietWhile(`[${STILL_POINTER}]:hover`);
 
 /**
  * The same rule for an element that draws in the light DOM (its stylesheet is the document's: a tree view, a table of

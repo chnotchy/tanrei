@@ -16,6 +16,7 @@ import { type Fixture, type Spec, dialogWindow, fixtureHost, loadSpec, mountFixt
 import { boxAtRest } from '../test/at-rest.js';
 import { motionEnded } from '../test/motions.js';
 import { transitionsRun, watchTransitions } from '../test/transitions.js';
+import { STILL_POINTER } from './styles/motion.js';
 
 interface Case {
   /** What opens, and what the pointer is over. */
@@ -137,3 +138,32 @@ for (const c of CASES) {
     });
   }
 }
+
+// The hold is a rule in each element's shadow root (`stillPointerStyles`), composed by `TanreiElement` for every element
+// that draws anything under a pointer. One whose spec says nothing it draws changes under a pointer has no hover to
+// hold, and carries no rule for a hover at all (`drawsHover`).
+const HOVERLESS: [spec: string, fixture: string, tag: string][] = [
+  ['avatar', 'initials', 'tanrei-avatar'],
+  ['avatar', 'group', 'tanrei-avatar-group'],
+  ['swatch', 'default', 'tanrei-swatch'],
+  ['empty-state', 'actions', 'tanrei-empty-state'],
+  ['code-block', 'copy', 'tanrei-code-block'],
+];
+
+/** Runs in the page: how many rules of the element's adopted stylesheets name the still-pointer attribute. */
+const stillRules = (el: Element, attribute: string) =>
+  [...el.shadowRoot!.adoptedStyleSheets].flatMap((sheet) => [...sheet.cssRules]).filter((rule) => rule.cssText.includes(attribute)).length;
+
+test('MOT-3: an element that draws nothing under a pointer carries no rule that holds a hover; one that draws a hover carries it', async ({ page }) => {
+  for (const [name, id, tag] of HOVERLESS) {
+    const spec = loadSpec(name);
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === id) });
+    const element = page.locator(`[data-fixture="${id}"] ${tag}`);
+    await expect(element).toHaveCount(1);
+    expect(await element.evaluate(stillRules, STILL_POINTER), `${tag} (${name}/${id})`).toBe(0);
+  }
+  // An element that draws a hover has it, inside these as anywhere: the code block's Copy button, the empty state's action.
+  const button = loadSpec('button');
+  await mountFixtures(page, button, { fixtures: button.fixtures.filter((f) => f.id === 'filled-medium') });
+  expect(await fixtureHost(page, button, 'filled-medium').evaluate(stillRules, STILL_POINTER)).toBeGreaterThan(0);
+});
