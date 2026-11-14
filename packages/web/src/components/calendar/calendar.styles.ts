@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, conditionStates, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles } from '../../primitives/index.js';
+import { conditionBlock, conditionStates, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, rowTargets } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -97,6 +97,9 @@ export const styles = css`
     align-items: center;
     gap: ${t('navigation-gap')};
   }
+  /* BTN-5: the previous and next buttons reach their targets toward each other no further than the middle of
+     navigation.gap (and as far toward the view toggle and the calendar's end, less than the room there). */
+  ${rowTargets('.arrows > tanrei-button', `${t('navigation-gap')}`)}
   .arrows[data-off] {
     visibility: hidden;
   }

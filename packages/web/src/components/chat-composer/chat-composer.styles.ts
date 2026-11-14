@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { heldFocusGlow } from '../../primitives/focus-ring.js';
+import { rowTargets } from '../../primitives/target.js';
 import { heldRadius, heldShape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -13,6 +14,9 @@ import { reducedMotion } from '../../styles/motion.js';
 // from its own tokens, and the one length the stylesheet cannot know — a line of the typing area's text, which is the
 // member's — is measured by the element and written as rules (`measured()`), never as a property: one constructed
 // stylesheet for each line measured, which every instance that measured that line shares (`measuredSheet()`).
+// The one property written for the members is the cap of their hit areas (`rowTargets()`, src/primitives/target.ts),
+// set on each Button, File picker and slotted control, and on the line and the row that hold them — never on the
+// capsule: the channel by which a row tells what it lays out how far to reach, which nothing else reads.
 const PREFIX = '--tanrei-comp-chat-composer';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
@@ -262,6 +266,19 @@ export const styles = css`
   ::slotted([slot='stop']),
   ::slotted([slot='attach']) {
     flex: none;
+  }
+  /* BTN-5: each Button of a group, or of the row beneath, reaches its target toward the next no further than the middle
+     of actions.gap. They stand in several slots and groups, so every one takes the half gap on both sides; toward the
+     typing area and the capsule's edge that is less than the room there. */
+  ${rowTargets(':is(.group, .row) > :is(tanrei-file-picker, tanrei-button)', `${t('actions-gap')}`)}
+  ${rowTargets('::slotted([slot])', `${t('actions-gap')}`)}
+  /* Stacked, the line and the row beneath stand container.row-gap apart: what each holds reaches toward the other no
+     further than the middle of it (the line's and the row's caps, inherited by every Button in them). */
+  .line:has(+ .row) {
+    --tanrei-target-cap-bottom: calc(${t('container-row-gap')} / 2);
+  }
+  .row {
+    --tanrei-target-cap-top: calc(${t('container-row-gap')} / 2);
   }
   /* CCM-35: the glyph that goes out while the send and the stop button change places, drawn in place over the one that
      comes in (the Button centres both in its icon box) until its fade has ended. */

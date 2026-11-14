@@ -184,7 +184,7 @@
     },
     {
       "id": "SNK-4",
-      "text": "WHERE the visual size of the action is below the minimum target THE snackbar SHALL extend the action's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+      "text": "WHERE the visual size of the action is below the minimum target THE snackbar SHALL extend the action's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. THE snackbar SHALL extend the hit areas of its controls — the action, the expand button and the close button — toward each other no further than the middle of comp.snackbar.controls.gap, so that a press on one control's visible bounds is never another's (BTN-5)."
     },
     {
       "id": "SNK-5",
