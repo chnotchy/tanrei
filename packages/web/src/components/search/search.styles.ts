@@ -13,6 +13,16 @@ const PREFIX = '--tanrei-comp-search';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
 
+/**
+ * SRC-23, MOT-3: a view that opens is the first frame of what it holds, so nothing in it starts a transition until its
+ * first state is drawn — the row the search makes current as it opens (SRC-14, SRC-49, SRC-57) appears current, and
+ * does not fade into it. The search marks the view (`.view`, `.full`) and each result and result group it holds, whose
+ * rows are in their own shadow roots, and takes the marks off where settling ends (`afterTwoFrames`). The view's own
+ * entrance is on the view and its scrim, which the mark leaves alone.
+ */
+export const FIRST_FRAMES = 'data-first-frames';
+const QUIET = 'transition-property: none !important;';
+
 /** The sizes every design system has (SRC-53). A layer may add more; those get their rules on demand. */
 export const CORE_SIZES = ['small', 'medium'] as const;
 const DEFAULT_SIZE = 'medium';
@@ -825,6 +835,13 @@ export const styles = css`
   /* SRC-21: corner smoothing, the shared rule, on the bar, the docked view and the rows. */
   ${shape}
 
+  /* SRC-23, MOT-3: what a view holds is drawn in its first state as the view opens (FIRST_FRAMES). */
+  :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *,
+  :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *::before,
+  :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *::after {
+    ${unsafeCSS(QUIET)}
+  }
+
   /* SRC-18, SRC-23: where motion is reduced, the states change and the view appears and disappears at once. */
   ${reducedMotion(css`
     .bar,
@@ -1004,6 +1021,13 @@ export const rowStyles = css`
 
   /* SRC-21: corner smoothing, the shared rule. */
   ${shape}
+
+  /* SRC-23, MOT-3: drawn in its first state as the search's view opens (FIRST_FRAMES). */
+  :host([${unsafeCSS(FIRST_FRAMES)}]) *,
+  :host([${unsafeCSS(FIRST_FRAMES)}]) *::before,
+  :host([${unsafeCSS(FIRST_FRAMES)}]) *::after {
+    ${unsafeCSS(QUIET)}
+  }
 
   ${reducedMotion(css`
     .row,
