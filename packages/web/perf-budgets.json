@@ -588,7 +588,7 @@
       ]
     },
     "table": {
-      "budget": 27000,
+      "budget": 27100,
       "measured": 25718,
       "allowedComponents": []
     },
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 668700,
+      "budget": 669100,
       "measured": 643895
     }
   },
