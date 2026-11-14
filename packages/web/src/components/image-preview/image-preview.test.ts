@@ -406,6 +406,26 @@ test.describe('the modal layer', () => {
     expect((await look(page)).focus).toBe('stage');
   });
 
+  test('IMP-2: focus goes to the stage in one move as it opens — never to a control first, nor to the dialog and on, with its controls drawn already', async ({ page }) => {
+    await mount(page, fx({ open: false }), { lead: '<button id="opener">Open</button>' });
+    await settled(page);
+    await page.locator('#opener').focus();
+    const taken = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      // Heard in the preview's shadow root: a focus that moves between two elements inside it is not heard beyond its host.
+      const log: string[] = [];
+      el.shadowRoot!.addEventListener('focusin', (event) => {
+        const target = event.composedPath()[0] as Element;
+        log.push([target.localName, ...target.classList].join('.'));
+      });
+      el.open = true;
+      await el.updateComplete;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return log;
+    });
+    expect(taken).toEqual(['div.stage']);
+    expect((await look(page)).focus).toBe('stage');
+  });
+
   for (const dir of ['ltr', 'rtl'] as const) {
     test(`IMP-3: Tab moves through zoom out, zoom in, close, previous, the stage, next and the scrolling caption, in that order in a ${dir} layout, and wraps both ways; focus never leaves the preview`, async ({ page }) => {
       const items = [LANDSCAPE, { ...PORTRAIT, props: { ...PORTRAIT.props, caption: LONG } }, SQUARE];
