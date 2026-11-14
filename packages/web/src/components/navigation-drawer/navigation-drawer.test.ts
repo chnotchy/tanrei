@@ -5321,6 +5321,161 @@ test.describe('resizable', () => {
   });
 });
 
+test.describe('the room over the content and a column’s room', () => {
+  const DIRECTIONS = ['ltr', 'rtl'] as const;
+  /** The modal drawer's dialog. */
+  const dialogOf = (page: P, id: string) => drawer(page, id).locator('dialog');
+  /** The dialog's box in each frame, while it is open (sampleFrames). */
+  const dialogBox = (root: Element) => {
+    const dialog = root.querySelector('tanrei-navigation-drawer')?.shadowRoot?.querySelector('dialog');
+    // Drawn: open, or leaving (closed and still drawn in the top layer while it slides out, MDL-7).
+    if (!dialog || !dialog.getClientRects().length) return {};
+    const box = dialog.getBoundingClientRect();
+    const tenth = (n: number) => Math.round(n * 10) / 10;
+    return { left: tenth(box.left), right: tenth(box.right), width: tenth(box.width) };
+  };
+  /** Where a press lands on the strip of scrim beside the drawer's end edge: the middle of the strip, halfway down. */
+  const stripMiddle = (dir: 'ltr' | 'rtl', window: number, end: number) => (dir === 'rtl' ? end / 2 : window - (window - end) / 2);
+
+  for (const dir of DIRECTIONS) {
+    test(`NVD-97, NVD-19, NVD-20: in a 280 and a 300 wide window (${dir}) a modal drawer is no wider than the window less sys.target.touch — under the default system and under one that sets the touch target to 64 — at the window’s start edge, its rows laid out at its width, and a press on the strip of scrim left beside its end edge closes it`, async ({ page }) => {
+      for (const width of [280, 300]) {
+        for (const given of ['', '64px']) {
+          const what = `${width} wide, ${given || 'the default'} touch target`;
+          await page.setViewportSize({ width, height: 640 });
+          await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })], { dir, reducedMotion: true });
+          if (given) await rootTokens(page, { '--tanrei-sys-target-touch': given });
+          const [touch, full, pad] = await Promise.all([px(page, '--tanrei-sys-target-touch'), px(page, T('container-width')), px(page, T('container-padding-inline'))]);
+          expect(touch, what).toBe(given ? 64 : 36);
+          await wire(page);
+          await setProps(page, 'm', { open: true });
+          await expect(dialogOf(page, 'm'), what).toHaveJSProperty('open', true);
+          // 280 less 36 and 300 less 36 leave container.width (240) whole; 280 less 64 (216) and 300 less 64 (236) do not.
+          const most = Math.min(full, width - touch);
+          await expect.poll(async () => (await bounds(dialogOf(page, 'm'))).width, what).toBe(most);
+          const d = await bounds(dialogOf(page, 'm'));
+          expect(d.x, `${what}: at the window’s start edge`).toBe(dir === 'rtl' ? width - most : 0);
+          const strip = dir === 'rtl' ? d.x : width - (d.x + d.width);
+          expect(strip, `${what}: the strip of scrim`).toBeGreaterThanOrEqual(touch);
+          for (const n of [0, 1, 2, 3]) {
+            const row = await bounds(box(page, 'm', n));
+            expect([row.x, row.width], `${what}: row ${n} inside the drawer`).toEqual([d.x + pad, most - 2 * pad]);
+          }
+          const trailing = await bounds(item(page, 'm', 0).locator('.trailing-text'));
+          if (dir === 'rtl') expect(trailing.x, `${what}: the trailing text inside the row`).toBeGreaterThanOrEqual(d.x + pad);
+          else expect(trailing.x + trailing.width, `${what}: the trailing text inside the row`).toBeLessThanOrEqual(d.x + d.width - pad);
+          // The strip is the scrim: a press on its middle closes the drawer (MDL-6).
+          await page.mouse.click(stripMiddle(dir, width, dir === 'rtl' ? d.x : d.x + d.width), 320);
+          await expect.poll(() => log(page), what).toEqual(['close:false']);
+          await expect(drawer(page, 'm'), what).not.toHaveAttribute('open');
+        }
+      }
+    });
+
+    test(`NVD-97, NVD-19, NVD-22: the cap follows the window (${dir}) — open, the drawer narrows with a window that narrows and widens back to container.width with one that widens, its rows with it — and it slides in from wholly outside the window and out to there at its capped width`, async ({ page }) => {
+      await page.setViewportSize({ width: 300, height: 640 });
+      await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })], { dir });
+      await rootTokens(page, { '--tanrei-sys-target-touch': '64px' });
+      const [full, pad] = await Promise.all([px(page, T('container-width')), px(page, T('container-padding-inline'))]);
+      // The slide in: every frame at the capped width (300 less 64), the first wholly outside the window, the last at its start edge.
+      const opening = await sampleFrames(page.locator('[data-fixture="m"]'), () => setProps(page, 'm', { open: true }), { probe: dialogBox, elements: false });
+      const shown = opening.frames.map((f) => f.probe).filter((p) => p.width !== undefined);
+      expect(shown.length, 'the slide is drawn').toBeGreaterThan(2);
+      for (const p of shown) expect(p.width, 'the slide at the capped width').toBe(236);
+      expect(dir === 'rtl' ? shown[0].left : shown[0].right, 'its first frame wholly outside the window').toBe(dir === 'rtl' ? 300 : 0);
+      expect(opening.rest.probe, 'at rest at the window’s start edge').toEqual(dir === 'rtl' ? { left: 64, right: 300, width: 236 } : { left: 0, right: 236, width: 236 });
+      // The window narrows and widens: the drawer and its rows follow it.
+      for (const [width, most] of [
+        [260, 196],
+        [480, full],
+        [300, 236],
+      ] as const) {
+        await page.setViewportSize({ width, height: 640 });
+        await expect.poll(async () => (await bounds(dialogOf(page, 'm'))).width, `${width} wide`).toBe(most);
+        await expect.poll(async () => (await bounds(box(page, 'm', 0))).width, `${width} wide: the rows`).toBe(most - 2 * pad);
+        const d = await bounds(dialogOf(page, 'm'));
+        expect(d.x, `${width} wide: at the start edge`).toBe(dir === 'rtl' ? width - most : 0);
+      }
+      // The slide out: at the capped width to its last frame, which is wholly outside the window.
+      const closing = await sampleFrames(page.locator('[data-fixture="m"]'), () => setProps(page, 'm', { open: false }), { probe: dialogBox, elements: false });
+      const leaving = closing.frames.map((f) => f.probe).filter((p) => p.width !== undefined);
+      expect(leaving.length, 'the slide out is drawn').toBeGreaterThan(2);
+      for (const p of leaving) expect(p.width, 'the slide out at the capped width').toBe(236);
+      const last = leaving[leaving.length - 1];
+      if (dir === 'rtl') expect(Number(last.left), 'its last frame drawn at the window’s edge').toBeGreaterThanOrEqual(299);
+      else expect(Number(last.right), 'its last frame drawn at the window’s edge').toBeLessThanOrEqual(1);
+    });
+
+    test(`NVD-97, NVD-40, NVD-31: a collapsed drawer in a parent narrower than its column (${dir}) — standard, and a collapsible modal drawer’s column — is the room’s width, laid out from its start edge with every icon in its place and cut at its end edge, where its edge is drawn, nothing past its parent; the column opened there widens from the width it is drawn at to the window less sys.target.touch, and narrows back to it`, async ({ page }) => {
+      await page.setViewportSize({ width: 280, height: 640 });
+      await mount(page, [rail('c', MAIL), rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
+      const column = await px(page, T('collapsed-container-width-regular'));
+      expect(column).toBe(72);
+      // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
+      const room = 56;
+      for (const id of ['c', 'mc']) await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      for (const id of ['c', 'mc']) {
+        await expect.poll(() => drawnWidth(page, id), id).toBe(room);
+        const host = await bounds(drawer(page, id));
+        const p = await bounds(panel(page, id));
+        expect([p.x, p.width], `${id}: the panel is the room`).toEqual([host.x, room]);
+        const parentEnd = await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement, rtl) => {
+          const r = el.getBoundingClientRect();
+          return rtl ? r.left + Number.parseFloat(getComputedStyle(el).paddingLeft) : r.right - Number.parseFloat(getComputedStyle(el).paddingRight);
+        }, dir === 'rtl');
+        if (dir === 'rtl') expect(p.x, `${id}: nothing past its parent`).toBeGreaterThanOrEqual(parentEnd);
+        else expect(p.x + p.width, `${id}: nothing past its parent`).toBeLessThanOrEqual(parentEnd);
+        // The icons keep their line, half the column from the start edge (NVD-31): laid out from the start, not cut there.
+        for (const n of [0, 1]) {
+          const icon = await bounds(item(page, id, n).locator('.icon'));
+          const centre = icon.x + icon.width / 2;
+          expect(centre, `${id}: icon ${n} on its line`).toBeCloseTo(dir === 'rtl' ? host.x + host.width - column / 2 : host.x + column / 2, 0);
+        }
+        // Its edge is drawn at its end edge.
+        const edge = await bounds(drawer(page, id).locator('.edge'));
+        if (dir === 'rtl') expect(edge.x, `${id}: the edge`).toBe(p.x);
+        else expect(edge.x + edge.width, `${id}: the edge`).toBe(p.x + p.width);
+      }
+      // The standard drawer closed and slid in again: once its slide has ended, at the room from its start edge again.
+      await setProps(page, 'c', { open: false });
+      await motionEnded(page);
+      await setProps(page, 'c', { open: true });
+      await motionEnded(page);
+      await expect
+        .poll(async () => {
+          const [h, p] = [await bounds(drawer(page, 'c')), await bounds(panel(page, 'c'))];
+          return [p.x - h.x, p.width];
+        }, 'slid in again')
+        .toEqual([0, room]);
+      // The column opened: it widens from the 56 it is drawn at to the window less the touch target (280 less 64 is 216,
+      // narrower than container.width) and narrows back to 56, from its own start edge.
+      // (Alone in its page: opened, it makes the other drawer inert, whose header button then changes its colors.)
+      await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
+      await page.locator('[data-fixture="mc"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await rootTokens(page, { '--tanrei-sys-target-touch': '64px' });
+      await expect.poll(() => drawnWidth(page, 'mc')).toBe(room);
+      const host = await bounds(drawer(page, 'mc'));
+      // Its menu button widens it (NVD-37), pressed near its start, within the room.
+      const button = await bounds(menu(page, 'mc'));
+      const opening = await sampleFrames(page.locator('[data-fixture="mc"]'), () => page.mouse.click(dir === 'rtl' ? button.x + button.width - 8 : button.x + 8, button.y + button.height / 2), { probe: dialogBox, elements: false });
+      expect(opening.complete).toBe(true);
+      const shown = opening.frames.map((f) => f.probe).filter((p) => p.width !== undefined);
+      expect(shown.length, 'the widening is drawn').toBeGreaterThan(2);
+      expect(Number(shown[0].width), 'its first frame the column as it is drawn').toBeCloseTo(room, 0);
+      expect(opening.rest.probe.width, 'at rest the window less the touch target').toBe(216);
+      for (const p of shown) expect(dir === 'rtl' ? Number(p.right) : Number(p.left), 'from the column’s start edge').toBeCloseTo(dir === 'rtl' ? host.x + host.width : host.x, 0);
+      const strip = dir === 'rtl' ? Number(opening.rest.probe.left) : 280 - Number(opening.rest.probe.right);
+      expect(strip, 'the strip of scrim').toBeGreaterThanOrEqual(64);
+      await expect.poll(() => activeValue(page), 'focus in the drawer').toBe('inbox');
+      const closing = await sampleFrames(page.locator('[data-fixture="mc"]'), () => page.keyboard.press('Escape'), { probe: dialogBox, elements: false });
+      const narrowing = closing.frames.map((f) => f.probe).filter((p) => p.width !== undefined);
+      expect(Number(narrowing[narrowing.length - 1].width), 'its last frame the column as it is drawn').toBeCloseTo(room, 0);
+      await expect.poll(() => dialogOf(page, 'mc').count()).toBe(0);
+      expect((await bounds(panel(page, 'mc'))).width, 'the column again').toBe(room);
+    });
+  }
+});
+
 test.describe('fixtures', () => {
   /** Presented in the top layer: an open modal drawer. A collapsible modal drawer that is closed is its column in the layout. */
   const presented = (f: Fixture) => (f.props.variant === 'modal' || f.id === 'responsive-narrow') && f.props.open === true;

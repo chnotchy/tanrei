@@ -1223,6 +1223,48 @@ test.describe('the menu button', () => {
     expect(back.some((stop) => stop === '#notice')).toBe(true);
   });
 
+  for (const direction of [undefined, 'rtl'] as const) {
+    test(`APS-7, NVD-97, NVD-20: in a 280 and a 300 wide window (${direction ?? 'ltr'}) the navigation open below the header is no wider than the window less sys.target.touch — under the default system and under one that sets the touch target to 64 — its rows inside it, and a press on the strip of scrim beside its end edge closes it; 800 wide its column widens no further than the window less a touch target set to 600`, async ({ page }) => {
+      const panel = () => drawer(page).locator('nav.held');
+      const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
+      for (const width of [280, 300]) {
+        for (const given of ['', '64px']) {
+          const what = `${width} wide, ${given || 'the default'} touch target`;
+          await mount(page, real({ direction }), { width, reducedMotion: true });
+          if (given) await override(page, { '--tanrei-sys-target-touch': given });
+          const [touch, full, pad] = [await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, '--tanrei-comp-navigation-drawer-container-width'), await resolveToken(page, '--tanrei-comp-navigation-drawer-container-padding-inline')];
+          expect(touch, what).toBe(given ? 64 : 36);
+          await menu(page).click();
+          await expect.poll(drawerOpen, what).toBe(true);
+          // 280 and 300 less 36 leave container.width (240) whole; 280 less 64 (216) and 300 less 64 (236) do not.
+          const most = Math.min(full, width - touch);
+          await expect.poll(async () => (await edges(panel())).width, what).toBe(most);
+          const box = await edges(panel());
+          expect(box.left, `${what}: at the window’s start edge`).toBe(direction ? width - most : 0);
+          const strip = direction ? box.left : width - box.right;
+          expect(strip, `${what}: the strip of scrim`).toBeGreaterThanOrEqual(touch);
+          for (const n of [0, 1]) {
+            const row = await edges(drawer(page).locator('tanrei-navigation-drawer-item').nth(n).locator('.row > .container'));
+            expect([row.left, row.width], `${what}: row ${n} inside the drawer`).toEqual([box.left + pad, most - 2 * pad]);
+          }
+          // The strip is the scrim below the header: a press on its middle closes the navigation (NVD-20).
+          await page.mouse.click(direction ? strip / 2 : width - strip / 2, box.top + box.height / 2);
+          await expect.poll(drawerOpen, what).toBe(false);
+          expect(await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen), what).toBe(false);
+        }
+      }
+      // The column presentation: the column widens over the content from the window's start edge, no further than the
+      // window less the touch target (800 less 600).
+      await mount(page, real({ direction }), { width: 800, reducedMotion: true });
+      await override(page, { '--tanrei-sys-target-touch': '600px' });
+      await drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open = true);
+      await expect.poll(drawerOpen).toBe(true);
+      await expect.poll(async () => (await edges(panel())).width).toBe(200);
+      const column = await edges(panel());
+      expect(column.left, 'from the window’s start edge').toBe(direction ? 600 : 0);
+    });
+  }
+
   test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
