@@ -9322,8 +9322,17 @@ Good to know:
   server that knows them may write `data-columns="4"` (the number of columns) and the positions itself: an attribute
   that already says the same is not written again, and its cells are not styled a second time.
 - **`:has()` is asked of the table for itself only** (whether footer rows follow, handed to the last body row as a
-  value), so a table is never an element whose cells a browser restyles because something inside one of them changed
-  — a table of live components costs each of them its own restyle, not the table's.
+  value; whether a cell spans rows, below), so a table is never an element whose cells a browser restyles because
+  something inside one of them changed — a table of live components costs each of them its own restyle, not the table's.
+- **In a table whose first column is kept in view, the rows draw the lines between them** — each row's `::before`,
+  absolutely positioned where the row stands (the `<table>` is positioned, `position: relative`, as their containing
+  block) and drawn up into the row above, over the kept cells — and the cells draw none; the kept column's line along
+  its inner edge is the kept cell's own `::after`. A kept cell is a sticky box, and Chromium places one on whole pixels
+  by a rounding it does not redo when the table moves by a fraction of a pixel (content above it settling after the
+  first frame): a line the kept cell drew broke the row's line there. Its contents can still stand a pixel from the
+  rest of its row in that case. A table with a cell that spans rows, and a header row kept in view, keep the cells'
+  lines. A row's `::before` and a kept cell's `::after` are the table's: leave them unstyled. An absolutely positioned
+  element of yours in a cell of such a table is placed in the table (its containing block), not in the element.
 - **A sort mark stands at the end of its button's box, not of its label's last word**, where a header's label wraps:
   the label is one box beside the mark, so the mark is on the last line and at the far edge of the column.
 - Not drawn: the caption staying in view while rows scroll up and down (it stays sideways only), and a header that
