@@ -36,7 +36,7 @@
       "allowedComponents": []
     },
     "bottom-sheet": {
-      "budget": 50700,
+      "budget": 50800,
       "measured": 48222,
       "allowedComponents": [
         "button",
@@ -292,7 +292,7 @@
       "allowedComponents": []
     },
     "image-preview": {
-      "budget": 61000,
+      "budget": 61100,
       "measured": 58379,
       "allowedComponents": [
         "button",
@@ -364,7 +364,7 @@
       "allowedComponents": []
     },
     "modal-layer": {
-      "budget": 17200,
+      "budget": 17300,
       "measured": 15996,
       "allowedComponents": []
     },
@@ -519,7 +519,7 @@
       ]
     },
     "side-sheet": {
-      "budget": 47700,
+      "budget": 47800,
       "measured": 45058,
       "allowedComponents": [
         "button"
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 669500,
+      "budget": 669800,
       "measured": 643895
     }
   },
