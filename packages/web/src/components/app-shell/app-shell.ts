@@ -69,6 +69,11 @@ const OFFSET_END = '--tanrei-app-shell-scroll-offset-end';
 const FOOTER = '--_aps-footer';
 /** A side sheet's measured width in the aside, for the stylesheet: what the navigation leaves it (APS-5, APS-10). */
 const ASIDE = '--_aps-aside';
+/**
+ * The window's width as the page has it — the root's content width, less a scrollbar that takes room in the window — for
+ * the stylesheet: the row's whole room, which the navigation's is taken from (APS-5).
+ */
+const WINDOW = '--_aps-window';
 
 type Root = Document | ShadowRoot;
 /** A navigation drawer in the navigation region, as much of it as the frame uses. */
@@ -340,6 +345,9 @@ export class TanreiAppShell extends TanreiLightElement {
     super.connectedCallback();
     adoptUnlessDrawn(this, sheet(), '--_aps-breakpoint-medium');
     this.mutations?.observe(this, { childList: true });
+    // APS-5: the window's width as the page has it, of which the navigation is left what the main region and the aside
+    // do not need.
+    this.sizes?.observe(document.documentElement);
     this.addEventListener('click', this.onClick);
     this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('focusin', this.onFocusIn);
@@ -364,6 +372,7 @@ export class TanreiAppShell extends TanreiLightElement {
     this.focused = null;
     this.style.removeProperty(FOOTER);
     this.style.removeProperty(ASIDE);
+    this.style.removeProperty(WINDOW);
     this.unwatch();
     this.listen(null);
     // APS-33: removed, it listens for no chord.
@@ -589,7 +598,8 @@ export class TanreiAppShell extends TanreiLightElement {
     }
 
     // APS-17: what the frame keeps over the top and the bottom of the page is measured.
-    // APS-5, APS-10: and the width of a side sheet in the aside, which the navigation leaves it.
+    // APS-5, APS-10: and the width of a side sheet in the aside, which the navigation leaves it; the window's width is
+    // watched again with them (the observer lets go of everything it watched).
     const top = header ?? menuSlot;
     const sheet = aside?.localName === 'tanrei-side-sheet' ? aside : null;
     if (header !== this.header || top !== this.top || bar !== this.bar || footer !== this.footer || sheet !== this.sheet) {
@@ -599,7 +609,7 @@ export class TanreiAppShell extends TanreiLightElement {
       this.bar = bar;
       this.footer = footer;
       this.sheet = sheet;
-      for (const observed of [top, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
+      for (const observed of [document.documentElement, top, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
       if (!top) publish(this, OFFSET, null);
       if (!bar) publish(this, OFFSET_END, null);
       if (!footer) this.style.removeProperty(FOOTER);
@@ -646,20 +656,25 @@ export class TanreiAppShell extends TanreiLightElement {
   private resized(entries: ResizeObserverEntry[]) {
     for (const entry of entries) {
       const size = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
-      if (entry.target === this.sheet) {
-        // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
-        const width = entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
-        const value = `${Math.round(width * 100) / 100}px`;
-        if (this.style.getPropertyValue(ASIDE) !== value) this.style.setProperty(ASIDE, value);
-      } else if (entry.target === this.top) this.measure(size);
+      // APS-5: the root's content width, not 100vw: a scrollbar that takes room in the window (a classic one, or the
+      // gutter scrollbar-gutter keeps) is no room of the row's. The root, never the frame: the root's width does not
+      // follow what it holds, where a frame in a box as wide as its content would follow the room it gives and shrink
+      // by it in every frame.
+      if (entry.target === document.documentElement) this.length(WINDOW, entry.contentRect.width);
+      // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
+      else if (entry.target === this.sheet) this.length(ASIDE, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+      else if (entry.target === this.top) this.measure(size);
       else if (entry.target === this.bar) publish(this, OFFSET_END, this.scrolls !== 'main' && size > 0 ? size : null);
-      else if (entry.target === this.footer) {
-        // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
-        // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
-        const value = `${Math.round(size * 100) / 100}px`;
-        if (this.style.getPropertyValue(FOOTER) !== value) this.style.setProperty(FOOTER, value);
-      }
+      // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
+      // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
+      else if (entry.target === this.footer) this.length(FOOTER, size);
     }
+  }
+
+  /** A measured length on the element, for the stylesheet: written only when it changes. */
+  private length(name: string, size: number) {
+    const value = `${Math.round(size * 100) / 100}px`;
+    if (this.style.getPropertyValue(name) !== value) this.style.setProperty(name, value);
   }
 
   /**
