@@ -823,8 +823,9 @@ export class TanreiSideSheet extends TanreiElement {
       </dialog>`;
     }
     // SSH-1, SSH-12: a complementary region named by the headline; closed, out of the focus order and the accessibility
-    // tree at once (inert), and hidden once it has slid out.
-    return html`<aside part="container" class="sheet standard" ${delegatedAria(this, { 'aria-label': label })} tabindex="-1" ?inert=${!this.open} data-tanrei-shape>${this.body()}</aside>`;
+    // tree at once (inert), and hidden once it has slid out. It is held by the width's box, which clips what has slid
+    // past the end and draws the elevation (side-sheet.styles.ts).
+    return html`<div class="clip" data-tanrei-shape><aside part="container" class="sheet standard" ${delegatedAria(this, { 'aria-label': label })} tabindex="-1" ?inert=${!this.open} data-tanrei-shape>${this.body()}</aside></div>`;
   }
 }
 

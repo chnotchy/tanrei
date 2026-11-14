@@ -87,7 +87,8 @@ export const styles = css`
     --tanrei-corner-radius: var(--_shape);
     --tanrei-corner-pill: var(--_shape-pill);
   }
-  .sheet[data-tanrei-shape] {
+  /* (And the box that holds a standard sheet's panel, which draws its elevation in the same corners: SSH-1.) */
+  :is(.sheet, .clip)[data-tanrei-shape] {
     border-start-end-radius: 0;
     border-end-end-radius: 0;
   }
@@ -251,8 +252,11 @@ export const styles = css`
   /* SSH-1: a standard sheet is a layout region at the end of the product's row: its width in the layout while open and
      none while closed, sliding in or out at the end edge (the panel is anchored at the width's start, so it leaves past
      the end) while the content beside it resizes. Closed, it is hidden from assistive technology and focus (inert, then
-     visibility, kept until the slide ends). Only the end side is clipped, so an elevation still shows toward the
-     content. */
+     visibility, kept until the slide ends). What has slid past the end is clipped there, by the box that holds the
+     panel (.clip): an overflow clip, so the page never reaches past the width — a clip-path alone only hides it, and the
+     window scrolled sideways to the panel as focus moved into it. That box draws the variant's elevation, which its own
+     clip would cut toward the content; the host's clip-path cuts the shadow at the end side only, so it still shows
+     toward the content. */
   :host(:not([variant='modal'])) {
     position: relative;
     flex: none;
@@ -275,11 +279,22 @@ export const styles = css`
     inline-size: 0;
     visibility: hidden;
   }
+  /* The width's box, holding the panel: clipped at its start and end (the panel starts where it does, so only the end
+     clips anything), never above or below; it draws the elevation in the panel's start corners. */
+  .clip {
+    position: absolute;
+    inset: 0;
+    overflow-x: clip;
+    box-shadow: var(--_elevation);
+    --tanrei-corner-radius: var(--_shape);
+    --tanrei-corner-pill: var(--_shape-pill);
+  }
   .sheet.standard {
     position: absolute;
     inset-block: 0;
     inset-inline-start: 0;
     block-size: 100%;
+    box-shadow: none;
   }
 
   /* SSH-2, SSH-7: a modal sheet is a native modal <dialog> in the top layer at the window's end edge, its full height,
