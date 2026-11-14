@@ -1,8 +1,9 @@
 // <tanrei-app-shell> under a scrollbar that takes room in the window (specs/app-shell.spec.json, APS-5): the room the
 // row leaves the navigation is taken from the window as the page has it — the root element's content width, which the
 // element measures — never from `100vw`, which counts a scrollbar that takes room in the window (a classic one: Windows,
-// most Linux desktops, or the gutter `scrollbar-gutter: stable` keeps) as room of the row's. Every length is read back
-// from the tokens.
+// most Linux desktops, or the gutter `scrollbar-gutter: stable` keeps) as room of the row's. The skip link (APS-19),
+// placed against the window while it is shown, keeps its end offset from the window as the page sees it, never from
+// under the scrollbar. Every length is read back from the tokens.
 //
 // A file of its own because the engines must draw their scrollbars for the whole file (`launchOptions` is a worker's
 // option, which Playwright takes only at the top of a file):
@@ -13,7 +14,7 @@
 //   has no `::-webkit-scrollbar`. A root narrower than the window by a margin of its own takes the same path — the
 //   root's content width is not `100vw` — and runs in every engine, Firefox included.
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveToken } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveToken, tab } from '../../../test/harness.js';
 import { DRAWN_BARS, STYLED_BAR } from '../../../test/page-scroll-hold.js';
 
 // A worker-scoped option: the whole file.
@@ -103,4 +104,38 @@ test('APS-5, WCAG 1.4.10: under a scrollbar that takes room in the window (a cla
 test('APS-5, WCAG 1.4.10: where the root leaves the page less of the window than 100vw (a margin of its own) the navigation is held to the root’s content width less the main region’s least width and the aside, so that the main region keeps its least width and the page never scrolls sideways; the room follows when the margin goes', async ({ page }) => {
   // The same path as a scrollbar's, in every engine: the root's content width is not the window's.
   await expectRoomOfPage(page, 'html { margin-inline-end: 120px }', { scrollbar: false });
+});
+
+/**
+ * APS-19: with keyboard focus, a skip link whose label is longer than the window is drawn skip-link.offset from the
+ * start and the end of the window as the page sees it — the window less a scrollbar that takes room in it — its box
+ * (the container's paddings around the label) wholly inside it, never under the scrollbar; it is placed against the
+ * window, so a margin of the root's takes none of its room.
+ */
+async function expectSkipLinkInside(page: P, css: string) {
+  const label = Array.from({ length: 30 }, () => 'Skip to content').join(' ');
+  await page.setViewportSize(WINDOW);
+  await mountFixtures(page, spec, { icons: true, fixtures: [{ ...ROW, content: `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">${label}</a>${ROW.content}` }] });
+  await frame(page);
+  await page.addStyleTag({ content: css });
+  await frame(page);
+  await tab(page);
+  const link = page.locator('tanrei-app-shell > [slot="skip-link"]');
+  await expect(link).toBeFocused();
+  const [offset, inline] = [await resolveToken(page, T('skip-link-offset')), await resolveToken(page, T('skip-link-container-padding-inline'))];
+  const shown = await page.evaluate(() => document.documentElement.clientWidth);
+  const text = await edges(link);
+  // The label wraps at the room it has: from the start offset and padding to the end padding and offset.
+  near(text.left, offset + inline);
+  near(text.right, shown - offset - inline);
+  await expectNoSidewaysScroll(page, 'the skip link shown');
+}
+
+test('APS-19, WCAG 1.4.10: under a scrollbar that takes room in the window (a classic one) a long skip link with keyboard focus ends skip-link.offset before the scrollbar, its box never under it', async ({ page, browserName }) => {
+  test.skip(browserName === 'firefox', 'headless Firefox draws no scrollbar and has no ::-webkit-scrollbar (see the head of this file); the root with a margin runs there');
+  await expectSkipLinkInside(page, `html { overflow-y: scroll } ${STYLED_BAR}`);
+});
+
+test('APS-19: where the root has a margin of its own a long skip link with keyboard focus still takes the window’s whole width less skip-link.offset at each side: it is placed against the window, not the root', async ({ page }) => {
+  await expectSkipLinkInside(page, 'html { margin-inline-end: 120px }');
 });

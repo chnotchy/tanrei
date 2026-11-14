@@ -391,7 +391,10 @@
     left: calc(var(--_aps-inset-start) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
     inline-size: auto;
     block-size: auto;
-    max-inline-size: calc(100vw - 2 * (var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline)) - var(--_aps-inset-start) - var(--_aps-inset-end));
+    /* APS-19: never wider than the window less the offset and the padding at each side. 100% of what a fixed box is
+       placed in — the window less a scrollbar that takes room in it, whatever the root's own margins — not 100vw, which
+       counts the scrollbar and put the box's end under it. */
+    max-inline-size: calc(100% - 2 * (var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline)) - var(--_aps-inset-start) - var(--_aps-inset-end));
     clip-path: none;
     white-space: normal;
     font: var(--tanrei-comp-app-shell-skip-link-label-typescale-font);
