@@ -12,4 +12,4 @@ no transition while it is hovered meanwhile. Any hover after that moves as befor
 `STILL_POINTER` are exported from the primitives; `openModal()` and `AppearController` call it as a surface opens.
 
 Every component's bundle grows by 120 to about 330 bytes gzip for it (the shared settling code and its rule); the budgets
-of the eleven bundles that went over theirs are raised to the next 100 bytes.
+of the twelve bundles that went over theirs are raised to the next 100 bytes.
