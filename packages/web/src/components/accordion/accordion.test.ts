@@ -23,6 +23,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('accordion');
@@ -990,6 +991,7 @@ test.describe('opening and closing', () => {
     );
     const off = raw('content-disabled', {}, `<details id="d" open><summary aria-disabled="true" tabindex="-1">Disabled</summary><p id="dtext">Disabled content.</p></details>`);
     await mountFixtures(page, spec, { icons: true, fixtures: [own, off], system: 'acme', systemCss: await acmeSystemCss() });
+    const middle = await middlePressAimed(page);
     for (const id of ['link', 'cancelled']) await page.locator(`#${id}`).evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
     const attributes = () => page.locator('#o').evaluate((el) => [...el.querySelectorAll(':scope > :not(summary), :scope > :not(summary) *')].map((node) => [...node.attributes].map((a) => a.name).filter((name) => name !== 'open').join(' ')).join('|'));
     const before = await attributes();
@@ -1071,8 +1073,10 @@ test.describe('opening and closing', () => {
       await unchanged();
       await page.evaluate(() => getSelection()!.removeAllRanges());
     }
-    await page.locator('#last').click({ button: 'middle' });
-    await unchanged();
+    if (middle) {
+      await page.locator('#last').click({ button: 'middle' });
+      await unchanged();
+    }
     await page.locator('#last').click({ button: 'right' });
     await page.keyboard.press('Escape');
     await unchanged();

@@ -14,6 +14,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('breadcrumbs');
@@ -562,6 +563,7 @@ test.describe('one line, and what is folded away', () => {
 
   test('BRC-22, MNU-54: a row of the menu is the browser’s own link to the level — a control-, command- or shift-click, a middle click and Enter with a modifier key are left to the browser on the row’s anchor, whose address is the level’s: none is cancelled, none becomes a click on the product’s anchor, the menu stays open with focus on the row, and the browser opens the level in a new tab; the context menu and a drag of the address are the browser’s too; the row of a level without a destination gives the browser nothing to open', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [own('places', MENU_PLACES)] });
+    const middle = await middlePressAimed(page);
     const sizes = await needs(page, 'places');
     await give(page, 'places', Math.ceil(sizes.widths[0]! + sizes.button + sizes.widths.at(-1)!) + 1);
     const surface = menu(page, 'places').locator('.surface');
@@ -588,7 +590,7 @@ test.describe('one line, and what is folded away', () => {
     for (const [name, press, said] of [
       ['a control- or command-click', () => docs.click({ modifiers: ['ControlOrMeta'] }), `click:Documentation:${mod}:left to the browser:reached the page`],
       ['a shift-click', () => docs.click({ modifiers: ['Shift'] }), 'click:Documentation:shift:left to the browser:reached the page'],
-      ['a middle click', () => docs.click({ button: 'middle' }), 'auxclick:Documentation:middle:left to the browser:reached the page'],
+      ...(middle ? [['a middle click', () => docs.click({ button: 'middle' }), 'auxclick:Documentation:middle:left to the browser:reached the page'] as const] : []),
       ['Enter with the platform’s modifier', () => page.keyboard.press('ControlOrMeta+Enter'), `click:Documentation:${mod}:left to the browser:reached the page`],
       ['Enter with Shift', () => page.keyboard.press('Shift+Enter'), 'click:Documentation:shift:left to the browser:reached the page'],
       ['the context menu', () => docs.click({ button: 'right' }), 'contextmenu:Documentation:plain:left to the browser:reached the page'],
