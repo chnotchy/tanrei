@@ -18,6 +18,7 @@ import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
@@ -3132,6 +3133,7 @@ test.describe('a site’s sidebar', () => {
 
   test('NVD-59: a destination with an href is an anchor with that address, drawn exactly as a button destination and with its hit area; a control-, command-, shift- and middle click and the context menu are the browser’s — the drawer prevents none and does what a plain anchor does; Space does not activate it; its href stands as its value; disabled, it is a link without an address', async ({ page, context, browserName }) => {
     await mount(page, [fixture('k', [d('inbox', 'Inbox', 'inbox'), d('sent', 'Sent', 'send'), link('Drafts', '#drafts', { icon: 'draft' }), link('Trash', '#trash', { icon: 'delete' }), link('Spam', '#spam', { icon: 'report', disabled: true })], { value: 'inbox' })], { reducedMotion: true });
+    const middle = await middlePressAimed(page);
     await page.mouse.move(700, 5);
     await expect(cell(page, 'k', 2)).toHaveJSProperty('localName', 'a');
     await expect(cell(page, 'k', 2)).toHaveAttribute('href', '#drafts');
@@ -3196,7 +3198,7 @@ test.describe('a site’s sidebar', () => {
       return { pages, said, navigated };
     };
     const plain = page.locator('#plain');
-    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Shift'] }, { button: 'middle' }, { button: 'right' }];
+    const presses: NonNullable<Parameters<Locator['click']>[0]>[] = [{ modifiers: ['ControlOrMeta'] }, { modifiers: ['Shift'] }, ...(middle ? [{ button: 'middle' as const }] : []), { button: 'right' }];
     for (const press of presses) {
       const there = await opened(() => plain.click(press));
       const here = await opened(() => cell(page, 'k', 3).click(press), there.pages);
@@ -3214,6 +3216,7 @@ test.describe('a site’s sidebar', () => {
 
   test('NVD-60: a plain click on a link that is not selected emits one cancelable change with its value and href before the link is followed, leaves value to the page and navigates; cancelled, it does not navigate; a modified click, a link to a new context and a download emit nothing and change nothing; click() and Enter count, Enter with a modifier does not', async ({ page, context }) => {
     await mount(page, [fixture('k', [...LINKS, link('Help', '#help', { target: 'new', targetLabel: 'opens in a new tab' }), link('Export', '#export', { download: 'mail.txt' }), d('local', 'Local', '', { href: '#local' })], { value: '#inbox' })], { reducedMotion: true });
+    const middle = await middlePressAimed(page);
     await wireLinks(page);
     const said = async () => {
       const all = await log(page);
@@ -3250,7 +3253,7 @@ test.describe('a site’s sidebar', () => {
     // Opened somewhere else: nothing is fired, value and the drawn selection stay. (The browser is held back only
     // after the drawer has heard the click, so that the test opens no window and saves no file.)
     await page.evaluate(() => ((window as any).hold = true));
-    for (const press of [() => cell(page, 'k', 2).click({ modifiers: ['ControlOrMeta'] }), () => cell(page, 'k', 2).click({ modifiers: ['Shift'] }), () => cell(page, 'k', 2).click({ modifiers: ['Alt'] }), () => cell(page, 'k', 2).click({ button: 'middle' }), () => cell(page, 'k', 4).click(), () => cell(page, 'k', 5).click()]) {
+    for (const press of [() => cell(page, 'k', 2).click({ modifiers: ['ControlOrMeta'] }), () => cell(page, 'k', 2).click({ modifiers: ['Shift'] }), () => cell(page, 'k', 2).click({ modifiers: ['Alt'] }), ...(middle ? [() => cell(page, 'k', 2).click({ button: 'middle' })] : []), () => cell(page, 'k', 4).click(), () => cell(page, 'k', 5).click()]) {
       await press();
       expect((await said()).filter((each) => !/^(click|auxclick):drawer:left alone$/.test(each))).toEqual([]);
     }
