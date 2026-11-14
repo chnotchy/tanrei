@@ -10,6 +10,10 @@ eight frames on, and after a sheet's slide), so every element inside a surface t
 `data-tanrei-still-pointer` until the person next moves the pointer, presses, turns a wheel or presses a key, and starts
 no transition while it is hovered meanwhile. Any hover after that moves as before. `holdStillPointer()` and
 `STILL_POINTER` are exported from the primitives; `openModal()` and `AppearController` call it as a surface opens.
+The rule that holds the hover is its own shadow stylesheet, `stillPointerStyles`, which an element that draws nothing
+under a pointer leaves out: the avatar and its group, the swatch, the empty state and the code block carry no rule for
+a hover at all.
 
-Every component's bundle grows by 120 to about 330 bytes gzip for it (the shared settling code and its rule); the budgets
-of the twelve bundles that went over theirs are raised to the next 100 bytes.
+Every component's bundle grows by 120 to about 330 bytes gzip for it (the shared settling code and its rule), and by 7 to
+51 more for the rule's own stylesheet; the budgets of the thirteen bundles that went over theirs are raised to the next
+100 bytes.
