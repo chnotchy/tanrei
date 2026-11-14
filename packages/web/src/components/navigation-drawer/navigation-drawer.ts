@@ -156,6 +156,8 @@ const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
 const SECTION = 'tanrei-navigation-drawer-section';
 const DRAWER = 'tanrei-navigation-drawer';
+/** NVD-97: the window's measured width less a scroll bar that takes room in it, for the styles (\`windowWatch\`). */
+const WINDOW = '--_nvd-window';
 /** The drawer's cells: its destinations and its groups' rows. */
 const CELLS = `${ITEM}, ${GROUP}`;
 
@@ -2092,6 +2094,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private focusBefore: HTMLElement | null = null;
   private instantFrame = 0;
   private readonly sizes = new ResizeObserver(() => this.measure());
+  /**
+   * NVD-97: the window's width as the page has it, while the drawer is over the content — less a scroll bar that takes
+   * room in it, which \`100vw\` counts (a classic one, or the gutter the page's scroll hold keeps) — for the styles
+   * (\`--_nvd-window\`): the room over the content, at which every part of the drawer and its items lay their rows out, is
+   * reckoned from it, as the panel itself is held to its containing block, the window exactly. Watched on the root
+   * element's box, which changes with the window's width and with a scroll bar that comes, goes or gives its room to the
+   * root's padding while the page's scroll is held, and then read off the root as the window's width less its scroll
+   * bar; never off the drawer, whose width follows it.
+   */
+  private readonly windowWatch = new ResizeObserver(() => {
+    const value = `${document.documentElement.clientWidth}px`;
+    if (this.style.getPropertyValue(WINDOW) !== value) this.style.setProperty(WINDOW, value);
+  });
+  private watchingWindow = false;
   /** NVD-57, NVD-58: the value whose selection was last shown (null: none was selected); undefined before the first. */
   private shownFor: string | null | undefined = undefined;
   /** NVD-58: the groups just opened to show the selection, until the selection has been brought into view. */
@@ -3014,6 +3030,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private reflectState() {
     this.toggleAttribute('collapsed', this.collapsed);
     this.setAttribute('data-as', this.modal ? 'modal' : 'standard');
+    this.watchWindow(this.modal && this.isConnected);
     this.toggleAttribute('data-collapsible', this.collapses);
     this.toggleAttribute('data-open', this.isOpen);
     // NVD-19: held below an app shell's header, it is drawn in the frame and not in the top layer.
@@ -3132,9 +3149,24 @@ export class TanreiNavigationDrawer extends TanreiElement {
     });
   }
 
+  /**
+   * NVD-97: the window's width is watched while the drawer is over the content, and nothing otherwise; until it is first
+   * measured (in the frame after it begins), and without script, the styles take \`100vw\`.
+   */
+  private watchWindow(on: boolean) {
+    if (on === this.watchingWindow) return;
+    this.watchingWindow = on;
+    if (on) this.windowWatch.observe(document.documentElement, { box: 'border-box' });
+    else {
+      this.windowWatch.disconnect();
+      this.style.removeProperty(WINDOW);
+    }
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.sizes.disconnect();
+    this.watchWindow(false);
     // NVD-98: a drawer taken away ends its drag, and gives the document back.
     this.watchResizeTargets();
     this.finishDrag();
@@ -3488,17 +3520,21 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * waited for to its end or its cancel — unless `current` says first that the wait is over. A cancelled motion is asked
    * about again, since one that took its place runs on — unless a drag goes on, whose move took its place (NVD-98: the
    * drag follows the press from there). Where none runs, two frames after this update. Never by a page timer, which a
-   * motion that starts late or plays slowly outlasts.
+   * motion that starts late or plays slowly outlasts. `before` runs in the same task, just before `name` is taken off.
    */
-  private endWithMotion(name: string, current: () => boolean) {
+  private endWithMotion(name: string, current: () => boolean, before?: () => void) {
+    const end = () => {
+      before?.();
+      this.removeAttribute(name);
+    };
     const ask = () =>
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           if (!current()) return;
           // (Not one that has finished and holds its end: a product's own `animate()` of the host with a fill.)
           const moving = [...this.getAnimations(), ...(this.panel?.getAnimations() ?? [])].filter((motion) => motion.playState !== 'finished');
-          if (!moving.length) return this.removeAttribute(name);
-          void Promise.all(moving.map((motion) => motion.finished)).then(ask, () => (this.resizeDrag && current() ? this.removeAttribute(name) : ask()));
+          if (!moving.length) return end();
+          void Promise.all(moving.map((motion) => motion.finished)).then(ask, () => (this.resizeDrag && current() ? end() : ask()));
         }),
       );
     void this.updateComplete.then(ask);
@@ -4492,7 +4528,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
       // comes or however slowly they play — unless a later change takes it over. A drag's move that takes the place of
       // the width's motion ends it: from there the drag follows the press without a motion (NVD-98, NVD-99).
       const run = ++this.formRun;
-      if (this.toggleAttribute('data-form-change', this.expandDuration() > 0)) this.endWithMotion('data-form-change', () => run === this.formRun);
+      // NVD-97: the room is read again as the change ends, while the panel is still held to the host's width: the host
+      // moved through the whole change (its width asked for the form's, though the room held it still), so the room
+      // was not read at rest during it, and a drawer that unfolded in a parent narrower than its column would otherwise
+      // be drawn at the width it asks for from there, anchored at its end edge and cut at its start, where its icons are.
+      if (this.toggleAttribute('data-form-change', this.expandDuration() > 0)) this.endWithMotion('data-form-change', () => run === this.formRun, () => this.syncResize());
     }
     // Focus leaves the panel before anything else of this update is styled — a part that the change of form recolors
     // would otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back —

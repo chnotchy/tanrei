@@ -1265,6 +1265,47 @@ test.describe('the menu button', () => {
     });
   }
 
+  for (const direction of [undefined, 'rtl'] as const) {
+    test(`APS-5, NVD-97, NVD-35: in a window that leaves the navigation less room than its column (${direction ?? 'ltr'}) a collapsed drawer the frame holds beside the content unfolds and folds back at that room — in every frame of the change of form its panel is the room, from its start edge, never the column’s own width for a frame — and the page never scrolls sideways`, async ({ page }) => {
+      // 1280 wide under a touch target set to 1160: the main region's least width (its start inset — the gutter, 32, or the
+      // target of the drawer's resize handle, 36, the wider — the touch target and the gutter) leaves the navigation
+      // 1280 − (36 + 1160 + 32) = 52, less than its column, 72.
+      await mount(page, real({ direction, navigation: DRAWER('collapsible open'), aside: '' }), { width: 1280 });
+      await override(page, { '--tanrei-sys-target-touch': '1160px' });
+      const column = await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular');
+      await drawer(page).evaluate(async (el) => {
+        const d = el as unknown as { expanded: boolean; updateComplete: Promise<unknown> };
+        d.expanded = false;
+        await d.updateComplete;
+      });
+      await motionEnded(page);
+      const room = (await edges(drawer(page))).width;
+      expect([column, room], 'the room is narrower than the column').toEqual([72, 52]);
+      /** The held panel against the drawer's box (its place in the row), to a tenth, and the document's sideways overflow. */
+      const against = (root: Element) => {
+        const host = root.querySelector('tanrei-app-shell > tanrei-navigation-drawer')!;
+        const panel = host.shadowRoot!.querySelector('nav.held')!.getBoundingClientRect();
+        const box = host.getBoundingClientRect();
+        const tenth = (n: number) => Math.round(n * 10) / 10;
+        return { left: tenth(panel.left - box.left), right: tenth(box.right - panel.right), width: tenth(panel.width), sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+      };
+      const at = { left: 0, right: 0, width: room, sideways: 0 };
+      const toggle = (expanded: boolean) =>
+        drawer(page).evaluate(async (el, e) => {
+          const d = el as unknown as { expanded: boolean; updateComplete: Promise<unknown> };
+          d.expanded = e;
+          await d.updateComplete;
+        }, expanded);
+      for (const expanded of [true, false]) {
+        const what = expanded ? 'unfolding' : 'folding';
+        const seen: Frames = await sampleFrames(shell(page), () => toggle(expanded), { probe: against, elements: false });
+        expect(seen.complete, what).toBe(true);
+        expect(seen.frames.length, `${what}: drawn over frames`).toBeGreaterThan(2);
+        for (const f of [...seen.frames, seen.rest]) expect(f.probe, `${what}: frame ${f.index}`).toEqual(at);
+      }
+    });
+  }
+
   test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.

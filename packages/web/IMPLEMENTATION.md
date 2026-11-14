@@ -7804,23 +7804,37 @@ again.
 holds — the drawer is `container.width` but never nearer than `sys.target.touch` to the window's end edge, its start
 inset included, so that a strip of scrim a touch target wide is always left to press, as a modal side sheet leaves one.
 The width its parts are laid out at (`--_nvd-w`, read in the drawer's own shadow root and in its items') is
-`min(container.width, 100vw − where it starts − the start inset − sys.target.touch)`, where it starts being the window's
-start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an app shell
-holds (`--_nvd-from`, measured where it opens, as its place is): `100vw` follows the window in every frame, and is how the
-app shell's own limit reads the window (APS-5). A custom property cannot hold a percentage of the window for parts in other
-boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is also held to
-`100%` of its containing block less the same, which is the window exactly: where the root keeps a classic scroll bar's
-gutter while the page's scroll is held, `100vw` counts that gutter and the window does not, and the strip then stays
-whole while the rows' ends are cut by the gutter's width — only in a window narrower than `container.width`, a touch
-target and the gutter together. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
+`min(container.width, the window − where it starts − the start inset − sys.target.touch)`, where it starts being the
+window's start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an
+app shell holds (`--_nvd-from`, measured where it opens, as its place is). The window is its width as the page has it,
+less a scroll bar that takes room in it (`--_nvd-window`): while the drawer is over the content, a resize observer of the
+root element's border box — which changes with the window's width, and with a scroll bar that comes, goes, or gives its
+room to the root's padding while the page's scroll is held — reads the root's `clientWidth`, the window less its scroll
+bar, and writes it on the host in the frame it changes; until then, and without script, it is `100vw`. Not `100vw`
+itself: that counts a classic scroll bar, or the gutter the scroll hold keeps (Chromium on Linux and Windows), as the
+window's, and the rows were laid out that much wider than the panel and cut at their ends — while the drawer was open
+where the gutter is kept, and through its slide out where the hold pads the root instead (WebKit; Chromium on macOS), since
+the hold gives the bar back as the slide begins — in a window narrower than `container.width`, a touch target and the bar
+together. The root and its `clientWidth`, never the drawer: the drawer's width follows the room, and the root's
+`clientWidth` is the window's whatever margins the root has; a root given a width of its own, which a window's resize does
+not change, is not followed until something else changes its box. A custom property cannot hold a percentage of the window
+for parts in other boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is
+also held to `100%` of its containing block less the same, which is the window exactly, so that the strip stays whole
+whatever the rows are laid out at. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
 the window at any width. In a parent narrower than its column the collapsed form is the room's width: a standard drawer's
-panel, shown and at rest, is held to its host's width (`max-inline-size: 100%`; not while it slides, when the host's width
-is the slide), a collapsible modal drawer's host and column the same, and an app shell's held column `min(its width,
-100%)` while closed (a length against a percentage interpolates, so it widens from the width it is drawn at); each is laid
-out from its start edge and cut at its end edge, where its edge is drawn. The dialog widens from the column as it was
-drawn (`--_column-drawn`, measured with its place). A standard drawer that unfolds from its column in such a parent
-starts its change of form from the column's own width, not the room's (`max-inline-size` is not transitioned): a jump of
-the difference in its first frame, in a parent no wider than a product's own layout makes it.
+panel, shown, is held to its host's width (`max-inline-size: 100%`; not while it slides, when the host's width is the
+slide) at rest and through a change of form both ways (`data-form-change`), a collapsible modal drawer's host and column the
+same, and an app shell's held column `min(its width, 100%)` while closed (a length against a percentage interpolates, so it
+widens from the width it is drawn at); each is laid out from its start edge and cut at its end edge, where its edge is
+drawn. The hold on a standard drawer's panel follows the host's width as the host's own motion draws it, so it unfolds from
+the room and folds back to it with no jump; it is `max-inline-size`, which is not transitioned, and not the panel's
+`inline-size` held to `min(…, 100%)`, because the hold is put on when the slide in ends, and a change of `inline-size` there
+would begin a motion of the panel's own at rest. Through the change of form the host moves (its width asks for the form's,
+though the room holds it still), so the room is not read at rest during it (`room()`); as the change ends, still held, the
+room is read again (`endWithMotion`'s `before`, `syncResize()`), and the expanded drawer is laid out at it before the hold
+comes off — without it, a drawer that unfolded in such a parent was drawn at the width it asks for, anchored at its end edge
+and cut at its start, where its icons are. The dialog widens from the column as it was drawn (`--_column-drawn`, measured
+with its place).
 
 **Groups (NVD-44…48).** A group's row is drawn as a destination's, with the icon set's `expand_more` at
 `item.trailing-icon.size` in place of trailing content, turned half a turn while open. Its items are revealed and hidden
