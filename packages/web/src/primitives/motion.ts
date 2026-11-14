@@ -1053,9 +1053,9 @@ export class Settle implements ReactiveController {
 // It is held where the hover arrives instead, in the style: each element of this package inside the surface (in its
 // flat tree: through slots and shadow roots) carries `data-tanrei-still-pointer`, and `settleStyles` / `settleRule()`
 // start no transition in a marked element while it is `:hover` — so the style that first draws it hovered draws it there
-// at once, whenever the engine gets to it. The marks come off at the person's next act, in the capturing phase before
-// anything handles it: a pointer that moves (every engine's later hover is from there, and moves as always), a press, a
-// wheel, a key. An element connected inside the surface before then (a row the view lists as it opens) is marked as it
+// at once, whenever the engine gets to it. The marks come off at the person's next act, heard in the capturing phase
+// before anything handles it, by the frame that draws it: a pointer that moves (every engine's later hover is from there,
+// and moves as always), a press, a wheel, a key. An element connected inside the surface before then (a row the view lists as it opens) is marked as it
 // connects. Nothing else changes: a marked element that is not hovered moves as always, and the surface's own entrance
 // (`data-tanrei-appear`) is never held.
 
@@ -1080,11 +1080,17 @@ const markIfHeld = (host: HTMLElement) => {
   }
 };
 
+// The marks come off in the next frame callback, before that frame is styled — with the hover the act changes, so it
+// moves — and not in the act's own task: what the act starts there (a drawer that closes on Escape, its focus and its
+// width drawn together in the next frame) is styled with what it writes in that frame, as it would be without them.
 const letGo = () => {
   for (const act of ACTS) window.removeEventListener(act, letGo, true);
-  for (const host of stillHosts) host.removeAttribute(STILL_POINTER);
+  const marked = [...stillHosts];
   stillHosts.clear();
   stillSurfaces.clear();
+  requestAnimationFrame(() => {
+    for (const host of marked) if (!stillHosts.has(host)) host.removeAttribute(STILL_POINTER);
+  });
 };
 
 /**
