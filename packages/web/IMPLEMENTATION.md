@@ -7814,13 +7814,19 @@ gutter while the page's scroll is held, `100vw` counts that gutter and the windo
 whole while the rows' ends are cut by the gutter's width — only in a window narrower than `container.width`, a touch
 target and the gutter together. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
 the window at any width. In a parent narrower than its column the collapsed form is the room's width: a standard drawer's
-panel, shown and at rest, is held to its host's width (`max-inline-size: 100%`; not while it slides, when the host's width
-is the slide), a collapsible modal drawer's host and column the same, and an app shell's held column `min(its width,
-100%)` while closed (a length against a percentage interpolates, so it widens from the width it is drawn at); each is laid
-out from its start edge and cut at its end edge, where its edge is drawn. The dialog widens from the column as it was
-drawn (`--_column-drawn`, measured with its place). A standard drawer that unfolds from its column in such a parent
-starts its change of form from the column's own width, not the room's (`max-inline-size` is not transitioned): a jump of
-the difference in its first frame, in a parent no wider than a product's own layout makes it.
+panel, shown, is held to its host's width (`max-inline-size: 100%`; not while it slides, when the host's width is the
+slide) at rest and through a change of form both ways (`data-form-change`), a collapsible modal drawer's host and column the
+same, and an app shell's held column `min(its width, 100%)` while closed (a length against a percentage interpolates, so it
+widens from the width it is drawn at); each is laid out from its start edge and cut at its end edge, where its edge is
+drawn. The hold on a standard drawer's panel follows the host's width as the host's own motion draws it, so it unfolds from
+the room and folds back to it with no jump; it is `max-inline-size`, which is not transitioned, and not the panel's
+`inline-size` held to `min(…, 100%)`, because the hold is put on when the slide in ends, and a change of `inline-size` there
+would begin a motion of the panel's own at rest. Through the change of form the host moves (its width asks for the form's,
+though the room holds it still), so the room is not read at rest during it (`room()`); as the change ends, still held, the
+room is read again (`endWithMotion`'s `before`, `syncResize()`), and the expanded drawer is laid out at it before the hold
+comes off — without it, a drawer that unfolded in such a parent was drawn at the width it asks for, anchored at its end edge
+and cut at its start, where its icons are. The dialog widens from the column as it was drawn (`--_column-drawn`, measured
+with its place).
 
 **Groups (NVD-44…48).** A group's row is drawn as a destination's, with the icon set's `expand_more` at
 `item.trailing-icon.size` in place of trailing content, turned half a turn while open. Its items are revealed and hidden

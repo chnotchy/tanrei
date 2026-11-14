@@ -3488,17 +3488,21 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * waited for to its end or its cancel — unless `current` says first that the wait is over. A cancelled motion is asked
    * about again, since one that took its place runs on — unless a drag goes on, whose move took its place (NVD-98: the
    * drag follows the press from there). Where none runs, two frames after this update. Never by a page timer, which a
-   * motion that starts late or plays slowly outlasts.
+   * motion that starts late or plays slowly outlasts. `before` runs in the same task, just before `name` is taken off.
    */
-  private endWithMotion(name: string, current: () => boolean) {
+  private endWithMotion(name: string, current: () => boolean, before?: () => void) {
+    const end = () => {
+      before?.();
+      this.removeAttribute(name);
+    };
     const ask = () =>
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           if (!current()) return;
           // (Not one that has finished and holds its end: a product's own `animate()` of the host with a fill.)
           const moving = [...this.getAnimations(), ...(this.panel?.getAnimations() ?? [])].filter((motion) => motion.playState !== 'finished');
-          if (!moving.length) return this.removeAttribute(name);
-          void Promise.all(moving.map((motion) => motion.finished)).then(ask, () => (this.resizeDrag && current() ? this.removeAttribute(name) : ask()));
+          if (!moving.length) return end();
+          void Promise.all(moving.map((motion) => motion.finished)).then(ask, () => (this.resizeDrag && current() ? end() : ask()));
         }),
       );
     void this.updateComplete.then(ask);
@@ -4492,7 +4496,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
       // comes or however slowly they play — unless a later change takes it over. A drag's move that takes the place of
       // the width's motion ends it: from there the drag follows the press without a motion (NVD-98, NVD-99).
       const run = ++this.formRun;
-      if (this.toggleAttribute('data-form-change', this.expandDuration() > 0)) this.endWithMotion('data-form-change', () => run === this.formRun);
+      // NVD-97: the room is read again as the change ends, while the panel is still held to the host's width: the host
+      // moved through the whole change (its width asked for the form's, though the room held it still), so the room
+      // was not read at rest during it, and a drawer that unfolded in a parent narrower than its column would otherwise
+      // be drawn at the width it asks for from there, anchored at its end edge and cut at its start, where its icons are.
+      if (this.toggleAttribute('data-form-change', this.expandDuration() > 0)) this.endWithMotion('data-form-change', () => run === this.formRun, () => this.syncResize());
     }
     // Focus leaves the panel before anything else of this update is styled — a part that the change of form recolors
     // would otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back —

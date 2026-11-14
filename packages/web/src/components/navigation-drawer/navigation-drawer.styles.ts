@@ -506,9 +506,13 @@ export const drawerStyles = css`
   /* NVD-97: the room wins over the column too. Shown and at rest, a collapsed drawer in a parent narrower than its column
      is the host's width (which \`max-inline-size: 100%\` holds there), laid out from its start edge and cut at its end
      edge, where its edge is drawn — not the column anchored at the end and cut at its start, where its icons are. (Not
-     while it slides in or out: the host's width is the slide then.) */
-  :host(:not([data-as='modal'])[collapsed][data-open]:not([data-sliding])) .standard,
-  :host([data-held]:not([data-as='modal'])[collapsed][data-open]:not([data-sliding])) .held {
+     while it slides in or out: the host's width is the slide then.) And so through the change of form both ways
+     (NVD-35), held to the host's width as the host's own motion draws it: \`max-inline-size\` is not transitioned, so a
+     hold taken off as the drawer unfolds would start the panel's width from the column's own, a jump of the difference
+     in its first frame, and the panel's width itself held instead (\`min(…, 100%)\`, which interpolates) would begin a
+     motion of its own at rest when the slide ends. */
+  :host(:not([data-as='modal']):is([collapsed], [data-form-change])[data-open]:not([data-sliding])) .standard,
+  :host([data-held]:not([data-as='modal']):is([collapsed], [data-form-change])[data-open]:not([data-sliding])) .held {
     max-inline-size: 100%;
   }
 
