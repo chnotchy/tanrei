@@ -38591,6 +38591,15 @@
       "declarations": [
         {
           "kind": "variable",
+          "name": "FIRST_FRAMES",
+          "type": {
+            "text": "string"
+          },
+          "default": "'data-first-frames'",
+          "description": "SRC-23, MOT-3: a view that opens is the first frame of what it holds, so nothing in it starts a transition until its\nfirst state is drawn — the row the search makes current as it opens (SRC-14, SRC-49, SRC-57) appears current, and\ndoes not fade into it. The search marks the view (`.view`, `.full`) and each result and result group it holds, whose\nrows are in their own shadow roots, and takes the marks off where settling ends (`afterTwoFrames`). The view's own\nentrance is on the view and its scrim, which the mark leaves alone."
+        },
+        {
+          "kind": "variable",
           "name": "CORE_SIZES",
           "type": {
             "text": "['small', 'medium']"
@@ -38628,6 +38637,14 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "FIRST_FRAMES",
+          "declaration": {
+            "name": "FIRST_FRAMES",
+            "module": "src/components/search/search.styles.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "CORE_SIZES",
