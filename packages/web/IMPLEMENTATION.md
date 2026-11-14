@@ -7205,6 +7205,9 @@ held and a snackbar waiting (`src/primitives/modal.ts`, shared with the dialog, 
 never wider than the window less `sys.target.touch`, so a strip of scrim stays pressable. Focus goes to the slotted
 element marked `autofocus`, else the sheet itself (`tabindex="-1"`, so its headline is read first) — also when it is
 mounted open — stays inside (Tab wraps), and returns on closing to where it was (or is dropped when that element is gone).
+On the way, focus goes to the dialog itself first, in one move, never to the close button: `openModal()` keeps what is
+inside every modal surface's dialog inert while `showModal()` runs, whose focusing steps would otherwise focus the first
+control for no frame and start a motion of its state (Chromium ignores `autofocus` on the dialog itself).
 Opened in the same task above another sheet (or a dialog) that has not given focus in yet, it returns focus to where that
 one would have given it (`modalLayer.opener()`).
 Escape is answered on `keydown` and only by the topmost overlay; a native `cancel` becomes `close` with `escape` when an
@@ -11073,6 +11076,9 @@ props); the eight keys are in `src/generated/words.ts`.
 **The modal layer** is the shared primitive (`primitives/modal.ts`, `sheet.ts`, `overlay-focus.ts`), not a
 `<tanrei-dialog>`: a native `<dialog>` opened with `showModal()` that fills the window (`100dvh`), `::backdrop` clear
 — nothing is left uncovered, so there is no scrim (IMP-1). Focus goes to the stage when it opens (also mounted open),
+in one move: `showModal()` gives it there itself (`openModal()`'s `keep`), neither to the first control nor to the
+dialog and on, a way out of the dialog that brought the style and the layout up to date again for every preview opened
+in the task (the stage's focus ring comes at once, so no motion is lost by focusing it as it is first styled).
 Tab is kept inside in the order zoom out, zoom in, close, previous, the stage, next, the scrolling caption (IMP-3), and
 `holdPageScroll()` holds the page. The `<dialog>` itself carries `tabindex="-1"`: one engine counts a dialog among
 its own tab stops. Opened in the same task above a surface that has not given focus in yet (a picker, a drawer whose
