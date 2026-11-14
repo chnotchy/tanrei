@@ -265,8 +265,8 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * `moves`: what its entrance moves on the dialog itself besides what an appearance moves (`ModalMoves`); a dialog
  * taken back from leaving goes on with what its `closeModal()` named.
  *
- * `keep`: an element inside the dialog that has focus as it opens, and keeps it: it has focus once `showModal()`
- * returns. `showModal()` always runs the dialog focusing steps (HTML): focus goes to the dialog's autofocus delegate,
+ * `keep`: an element inside the dialog that has focus once `showModal()` returns — one that has focus as it opens keeps
+ * it. `showModal()` always runs the dialog focusing steps (HTML): focus goes to the dialog's autofocus delegate,
  * else to its first focusable descendant, else to the dialog itself — and nowhere, the kept element losing focus, where
  * none of them can take it. Left to themselves the engines give focus to something else first, and Chromium brings the
  * style up to date before the component can give it back, so the focused element and the one that took focus for a
@@ -282,12 +282,16 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * standard leaves no way around it: a dialog that cannot take focus (inert, or not rendered while it is shown) leaves
  * the steps nothing to focus, and every engine then takes focus from the kept element. Focus that moves into the dialog
  * from elsewhere is the component's to give, after this: WebKit draws an element that is first styled in the top layer
- * as it is then, so focus given to it before that would be drawn at once.
+ * as it is then, so focus given to it before that would be drawn at once. An element of the dialog's own tree whose
+ * focus draws no motion may be given it here all the same (an image preview's stage, whose focus is an indicator that
+ * comes at once): focus then goes from elsewhere to it in one move, in every engine.
  *
  * Without `keep`, focus goes to the dialog itself as it opens, in one move, and from there where the component gives it
  * (MDL-3): what is inside the dialog is inert while `showModal()` runs, so that its focusing steps find nothing else.
  * Left to them, the dialog's first control took focus for no frame (a sheet's close button, a search's back button, a
- * dialog's first action), and its state began a motion all the same.
+ * dialog's first action), and its state began a motion all the same. A component that then gives focus to an element
+ * inside passes it as `keep` where it can: in Chromium the focus that leaves the dialog for it brings the style and the
+ * layout up to date again, for every instance opened in the task.
  */
 export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [], keep = null }: { instant?: boolean; moves?: ModalMoves; keep?: HTMLElement | null } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;

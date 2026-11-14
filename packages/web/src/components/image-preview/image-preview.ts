@@ -918,7 +918,7 @@ export class TanreiImagePreview extends TanreiElement {
     const dialog = this.dialog;
     if (!this.presented || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.presented) openModal(dialog);
+    if (this.open && this.presented) openModal(dialog, { keep: this.stageElement });
   };
 
   /** IMP-25: focus that reaches a control shows the controls. IMP-26, IMP-27: the focus style of the stage and of the caption, where style queries are missing. */
@@ -1371,9 +1371,12 @@ export class TanreiImagePreview extends TanreiElement {
     this.pagesElement?.style.removeProperty('--_drag-x');
     this.pagesElement?.style.removeProperty('--_drag-y');
     // IMP-33: opened modally — or, still leaving, taken back where the image's exit has got to (MOT-2): the image is
-    // drawn as it was shown while the dialog changes hands (src/primitives/modal-exit.ts).
-    if (isLeaving(dialog)) this.appear.keep(() => openModal(dialog));
-    else openModal(dialog);
+    // drawn as it was shown while the dialog changes hands (src/primitives/modal-exit.ts). IMP-2: `showModal()` gives
+    // focus to the stage itself, in one move — not to a control first, nor to the dialog and from there to the stage,
+    // whose way out of the dialog brings the style and the layout up to date for each instance opened in the task.
+    const stage = this.stageElement;
+    if (isLeaving(dialog)) this.appear.keep(() => openModal(dialog, { keep: stage }));
+    else openModal(dialog, { keep: stage });
     this.appear.enter();
     this.presented = true;
     holdPageScroll(this, true);
@@ -1384,7 +1387,6 @@ export class TanreiImagePreview extends TanreiElement {
     const area = this.renderRoot.querySelector('.fit');
     if (area) this.resize$?.observe(area);
     // IMP-2: focus moves when it opens, not when its motion ends.
-    const stage = this.stageElement;
     if (stage) focusOverlay(this, stage);
     // IMP-2, IMP-33: what the open state began inside it — the colors of what took focus, and its controls' states —
     // begins in the first frame drawn after this task, as its entrance does (statesFromNextFrame).

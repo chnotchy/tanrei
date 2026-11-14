@@ -11071,6 +11071,9 @@ props); the eight keys are in `src/generated/words.ts`.
 **The modal layer** is the shared primitive (`primitives/modal.ts`, `sheet.ts`, `overlay-focus.ts`), not a
 `<tanrei-dialog>`: a native `<dialog>` opened with `showModal()` that fills the window (`100dvh`), `::backdrop` clear
 — nothing is left uncovered, so there is no scrim (IMP-1). Focus goes to the stage when it opens (also mounted open),
+in one move: `showModal()` gives it there itself (`openModal()`'s `keep`), neither to the first control nor to the
+dialog and on, a way out of the dialog that brought the style and the layout up to date again for every preview opened
+in the task (the stage's focus ring comes at once, so no motion is lost by focusing it as it is first styled).
 Tab is kept inside in the order zoom out, zoom in, close, previous, the stage, next, the scrolling caption (IMP-3), and
 `holdPageScroll()` holds the page. The `<dialog>` itself carries `tabindex="-1"`: one engine counts a dialog among
 its own tab stops. Opened in the same task above a surface that has not given focus in yet (a picker, a drawer whose
