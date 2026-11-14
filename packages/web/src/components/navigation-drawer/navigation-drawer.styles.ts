@@ -156,10 +156,23 @@ export const drawerStyles = css`
     --_form-width: ${d('--_nvd-column')};
     --_host-form-width: ${d('--_nvd-column')};
   }
-  /* NVD-97: over the content a drawer keeps container.width, whatever width says. */
+  /* NVD-97: over the content a drawer keeps container.width, whatever width says — but never comes nearer than
+     sys.target.touch to the window's end edge, its start inset included, so that a strip of its scrim a touch target
+     wide is always left to press (NVD-20, WCAG 2.5.8). The room is reckoned from where it starts (\`--_nvd-over-from\`):
+     the window's start edge for a drawer that slides in, the start of its column's box for one that widens from it
+     (NVD-40) and for one an app shell holds, which the element measures where it opens (\`--_nvd-from\`). The window is
+     \`100vw\`, as the app shell's own limit reads it (APS-5), so that the rows, which are laid out at this width in
+     every part of the drawer and in its items' own shadow roots, follow the window in every frame; the panel itself is
+     held to its containing block as well (below), which is the window exactly, so that the strip stays even where
+     \`100vw\` counts a scroll bar's gutter the window does not have. */
   :host([data-as='modal']) {
     --_nvd-asked: ${t('container-width')};
-    --_nvd-w: ${t('container-width')};
+    --_nvd-over-from: 0px;
+    --_nvd-w: max(0px, min(${t('container-width')}, calc(100vw - var(--_nvd-over-from) - var(--_inset-start) - var(--tanrei-sys-target-touch))));
+  }
+  :host([data-as='modal'][data-collapsible]),
+  :host([data-held][data-as='modal']) {
+    --_nvd-over-from: var(--_nvd-from, 0px);
   }
   /* NVD-35: while the drawer changes form, every part the form recolors cross-fades over the change's motion, and a
      group's items move with it (inherited by the cells, groups and sections). */
@@ -490,6 +503,14 @@ export const drawerStyles = css`
     inset-inline-end: 0;
     block-size: 100%;
   }
+  /* NVD-97: the room wins over the column too. Shown and at rest, a collapsed drawer in a parent narrower than its column
+     is the host's width (which \`max-inline-size: 100%\` holds there), laid out from its start edge and cut at its end
+     edge, where its edge is drawn — not the column anchored at the end and cut at its start, where its icons are. (Not
+     while it slides in or out: the host's width is the slide then.) */
+  :host(:not([data-as='modal'])[collapsed][data-open]:not([data-sliding])) .standard,
+  :host([data-held]:not([data-as='modal'])[collapsed][data-open]:not([data-sliding])) .held {
+    max-inline-size: 100%;
+  }
 
   /* NVD-40: a collapsible modal drawer keeps its column in the layout, closed or open (the open drawer widens over the
      content from it without resizing it). */
@@ -497,10 +518,16 @@ export const drawerStyles = css`
     position: relative;
     block-size: 100%;
     inline-size: var(--_column-width);
+    /* NVD-97: the room wins over the column too: in a parent narrower than it, the column is the room's width, laid out
+       from its start edge and cut at its end edge, where its edge is drawn. */
+    max-inline-size: 100%;
   }
   .column {
     block-size: 100%;
     inline-size: var(--_column-width);
+  }
+  .drawer.column {
+    max-inline-size: 100%;
   }
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
@@ -514,7 +541,8 @@ export const drawerStyles = css`
     inset-inline-end: auto;
     block-size: 100%;
     max-block-size: none;
-    max-inline-size: 100%;
+    /* NVD-97: the strip of scrim beside its end edge, measured against the window itself (its containing block). */
+    max-inline-size: max(0px, calc(100% - var(--_nvd-over-from) - var(--tanrei-sys-target-touch)));
     translate: var(--_drag, 0px) 0;
     transition-property: translate;
     transition-duration: ${t('motion-exit-duration')};
@@ -586,13 +614,13 @@ export const drawerStyles = css`
   }
   dialog.drawer.widening:not([open]) {
     translate: 0 0;
-    inline-size: var(--_column-width);
+    inline-size: var(--_column-drawn, var(--_column-width));
   }
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening:not([open])'))}
   @starting-style {
     dialog.drawer.widening[open] {
       translate: 0 0;
-      inline-size: var(--_column-width);
+      inline-size: var(--_column-drawn, var(--_column-width));
     }
     ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening[open]'))}
     ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening[open] .edge'))}
@@ -668,6 +696,11 @@ export const drawerStyles = css`
   :host([data-held][data-as='modal'][data-collapsible][data-open]) .held {
     block-size: var(--_reach, 100%);
   }
+  /* NVD-97: closed, the column is no wider than its box, which the room its parent gives holds narrower (the room wins
+     over the column), and widens from that width and narrows back to it: a length against a percentage interpolates. */
+  :host([data-held][data-as='modal'][data-collapsible]:not([data-open])) .held {
+    inline-size: min(var(--_width), 100%);
+  }
   /* NVD-19: the modal presentation stands at the window's start edge below the header, its own height, and slides in
      from its start edge over the enter motion and out over the exit motion. */
   :host([data-held][data-as='modal']:not([data-collapsible])) .held {
@@ -677,6 +710,8 @@ export const drawerStyles = css`
     inset-block-start: var(--_top);
     inset-inline-start: var(--_start);
     block-size: calc(100dvh - var(--_top));
+    /* NVD-97: the strip of scrim beside its end edge, measured against the window itself (its containing block). */
+    max-inline-size: max(0px, calc(100% - var(--_nvd-over-from) - var(--tanrei-sys-target-touch)));
   }
   :host([data-held][data-as='modal']:not([data-collapsible]):not([data-open])) .held {
     --_held-d: ${t('motion-exit-duration')};

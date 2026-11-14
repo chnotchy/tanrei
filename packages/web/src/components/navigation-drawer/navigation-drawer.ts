@@ -2124,6 +2124,25 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.addEventListener('keydown', this.onHostKeyDown);
   }
 
+  /** NVD-18, NVD-97: the slide in that is current (a later one takes it over). */
+  private slideRun = 0;
+
+  /**
+   * NVD-18, NVD-97: once the host's slide in has ended it is no longer sliding: a collapsed drawer in a parent narrower
+   * than its column is then drawn at the room, from its start edge (the styles hold its panel to the host's width only
+   * while it does not slide, since the host's width is the slide). The slide is waited for as a close is (settleOver),
+   * from the style in which it begins.
+   */
+  private endSlide() {
+    const run = ++this.slideRun;
+    const current = () => run === this.slideRun && this.hasAttribute('data-sliding') && this.isOpen;
+    void this.updateComplete.then(async () => {
+      if (!current()) return;
+      getComputedStyle(this).getPropertyValue('inline-size');
+      if (await this.settleOver(current)) this.removeAttribute('data-sliding');
+    });
+  }
+
   /** The drawer's destinations, in reading order, in sections and groups or not (its items: a group that is a destination is not among them). */
   get items(): TanreiNavigationDrawerItem[] {
     return this.destinations.items.filter((item): item is TanreiNavigationDrawerItem => item instanceof TanreiNavigationDrawerItem);
@@ -4087,6 +4106,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const start = rtl ? document.documentElement.clientWidth - box.right : box.left;
     this.style.setProperty('--_top', `${Math.round(top * 100) / 100}px`);
     this.style.setProperty('--_start', `${Math.round(start * 100) / 100}px`);
+    // NVD-97: where the room over the content is reckoned from, for the strip of scrim it leaves at the window's end.
+    this.style.setProperty('--_nvd-from', `${Math.round(start * 100) / 100}px`);
     this.style.setProperty('--_reach', `${Math.round(Math.max(0, window.innerHeight - box.top) * 100) / 100}px`);
   }
 
@@ -4482,10 +4503,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.wasCollapsed = collapsed;
     this.reflectState();
     // NVD-18: a standard drawer that opens slides in over the enter motion.
-    if (changed.has('open') && changed.get('open') !== undefined && this.open && !this.modal && !instant && !this.responsive) this.setAttribute('data-sliding', '');
+    if (changed.has('open') && changed.get('open') !== undefined && this.open && !this.modal && !instant && !this.responsive) {
+      this.setAttribute('data-sliding', '');
+      this.endSlide();
+    }
     // NVD-53: …and so does the standard presentation of a responsive drawer with no collapsed form, shown again by expanded.
     const hiddenForm = this.responsive && this.decided === 'standard' && !this.collapsible;
-    if (hiddenForm && changed.has('expanded') && changed.get('expanded') === false && this.expanded && !instant && !this.moving) this.setAttribute('data-sliding', '');
+    if (hiddenForm && changed.has('expanded') && changed.get('expanded') === false && this.expanded && !instant && !this.moving) {
+      this.setAttribute('data-sliding', '');
+      this.endSlide();
+    }
     // NVD-18, NVD-97: a width drawn without a motion (a room that changed, a key's step) is drawn so until its style has
     // settled (data-resizing, settleResize); opened or closed in those frames, the drawer slides by its motion.
     if (changed.has('open') && changed.get('open') !== undefined && this.hasAttribute('data-resizing')) {
@@ -4503,7 +4530,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
         this.pendingTop = modalLayer.top;
         const box = this.getBoundingClientRect();
         const rtl = getComputedStyle(this).direction === 'rtl';
-        this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
+        const start = rtl ? document.documentElement.clientWidth - box.right : box.left;
+        // NVD-97: it widens from the column as it is drawn — the room its parent gives may hold it narrower than the
+        // column — and the room over the content is reckoned from the column's start (the host's \`--_nvd-from\`, which
+        // the width its rows are laid out at reads there).
+        this.place = { '--_top': `${box.top}px`, '--_start': `${start}px`, '--_height': `${box.height}px`, '--_column-drawn': `${box.width}px` };
+        this.style.setProperty('--_nvd-from', `${start}px`);
         this.presented = true;
         // MOT-4: a drawer that appears open before the document's first paint never showed its column: it is drawn open
         // at its full width, scrim and all, from its first frame, and does not widen from the column
