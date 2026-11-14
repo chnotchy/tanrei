@@ -12,6 +12,11 @@ So focus goes to the dialog itself in one move, and from there to where the surf
 the surface's own motion. Where focus ends, and whether it draws its focus indicator after a key or a pointer opened
 the surface, are unchanged.
 
+An image preview gives focus to its stage, and `showModal()` now gives it there directly, in one move. Going through
+the dialog first would make Chromium bring the style and the layout up to date again for every preview opened in a
+task. Building a hundred open dialogs now forces 270 style and layout passes more than building ten does, against 450
+before, and the dialog's forced-pass budget follows the count down (from 472 to 283).
+
 The dialog's byte budget goes from 32400 to 32500 bytes gzip: it measures 32434. It grew by the few lines that make the
 dialog's content inert around `showModal()`. Every modal surface shares those lines, and a shorter form measured
 larger. `@tanrei/web/all` measures 668481, within its budget of 668500.
