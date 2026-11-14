@@ -156,6 +156,8 @@ const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
 const SECTION = 'tanrei-navigation-drawer-section';
 const DRAWER = 'tanrei-navigation-drawer';
+/** NVD-97: the window's measured width less a scroll bar that takes room in it, for the styles (\`windowWatch\`). */
+const WINDOW = '--_nvd-window';
 /** The drawer's cells: its destinations and its groups' rows. */
 const CELLS = `${ITEM}, ${GROUP}`;
 
@@ -2092,6 +2094,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private focusBefore: HTMLElement | null = null;
   private instantFrame = 0;
   private readonly sizes = new ResizeObserver(() => this.measure());
+  /**
+   * NVD-97: the window's width as the page has it, while the drawer is over the content — less a scroll bar that takes
+   * room in it, which \`100vw\` counts (a classic one, or the gutter the page's scroll hold keeps) — for the styles
+   * (\`--_nvd-window\`): the room over the content, at which every part of the drawer and its items lay their rows out, is
+   * reckoned from it, as the panel itself is held to its containing block, the window exactly. Watched on the root
+   * element's box, which changes with the window's width and with a scroll bar that comes, goes or gives its room to the
+   * root's padding while the page's scroll is held, and then read off the root as the window's width less its scroll
+   * bar; never off the drawer, whose width follows it.
+   */
+  private readonly windowWatch = new ResizeObserver(() => {
+    const value = `${document.documentElement.clientWidth}px`;
+    if (this.style.getPropertyValue(WINDOW) !== value) this.style.setProperty(WINDOW, value);
+  });
+  private watchingWindow = false;
   /** NVD-57, NVD-58: the value whose selection was last shown (null: none was selected); undefined before the first. */
   private shownFor: string | null | undefined = undefined;
   /** NVD-58: the groups just opened to show the selection, until the selection has been brought into view. */
@@ -3014,6 +3030,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private reflectState() {
     this.toggleAttribute('collapsed', this.collapsed);
     this.setAttribute('data-as', this.modal ? 'modal' : 'standard');
+    this.watchWindow(this.modal && this.isConnected);
     this.toggleAttribute('data-collapsible', this.collapses);
     this.toggleAttribute('data-open', this.isOpen);
     // NVD-19: held below an app shell's header, it is drawn in the frame and not in the top layer.
@@ -3132,9 +3149,24 @@ export class TanreiNavigationDrawer extends TanreiElement {
     });
   }
 
+  /**
+   * NVD-97: the window's width is watched while the drawer is over the content, and nothing otherwise; until it is first
+   * measured (in the frame after it begins), and without script, the styles take \`100vw\`.
+   */
+  private watchWindow(on: boolean) {
+    if (on === this.watchingWindow) return;
+    this.watchingWindow = on;
+    if (on) this.windowWatch.observe(document.documentElement, { box: 'border-box' });
+    else {
+      this.windowWatch.disconnect();
+      this.style.removeProperty(WINDOW);
+    }
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.sizes.disconnect();
+    this.watchWindow(false);
     // NVD-98: a drawer taken away ends its drag, and gives the document back.
     this.watchResizeTargets();
     this.finishDrag();

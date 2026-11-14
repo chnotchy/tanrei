@@ -7804,15 +7804,23 @@ again.
 holds — the drawer is `container.width` but never nearer than `sys.target.touch` to the window's end edge, its start
 inset included, so that a strip of scrim a touch target wide is always left to press, as a modal side sheet leaves one.
 The width its parts are laid out at (`--_nvd-w`, read in the drawer's own shadow root and in its items') is
-`min(container.width, 100vw − where it starts − the start inset − sys.target.touch)`, where it starts being the window's
-start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an app shell
-holds (`--_nvd-from`, measured where it opens, as its place is): `100vw` follows the window in every frame, and is how the
-app shell's own limit reads the window (APS-5). A custom property cannot hold a percentage of the window for parts in other
-boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is also held to
-`100%` of its containing block less the same, which is the window exactly: where the root keeps a classic scroll bar's
-gutter while the page's scroll is held, `100vw` counts that gutter and the window does not, and the strip then stays
-whole while the rows' ends are cut by the gutter's width — only in a window narrower than `container.width`, a touch
-target and the gutter together. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
+`min(container.width, the window − where it starts − the start inset − sys.target.touch)`, where it starts being the
+window's start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an
+app shell holds (`--_nvd-from`, measured where it opens, as its place is). The window is its width as the page has it,
+less a scroll bar that takes room in it (`--_nvd-window`): while the drawer is over the content, a resize observer of the
+root element's border box — which changes with the window's width, and with a scroll bar that comes, goes, or gives its
+room to the root's padding while the page's scroll is held — reads the root's `clientWidth`, the window less its scroll
+bar, and writes it on the host in the frame it changes; until then, and without script, it is `100vw`. Not `100vw`
+itself: that counts a classic scroll bar, or the gutter the scroll hold keeps (Chromium on Linux and Windows), as the
+window's, and the rows were laid out that much wider than the panel and cut at their ends — while the drawer was open
+where the gutter is kept, and through its slide out where the hold pads the root instead (WebKit; Chromium on macOS), since
+the hold gives the bar back as the slide begins — in a window narrower than `container.width`, a touch target and the bar
+together. The root and its `clientWidth`, never the drawer: the drawer's width follows the room, and the root's
+`clientWidth` is the window's whatever margins the root has; a root given a width of its own, which a window's resize does
+not change, is not followed until something else changes its box. A custom property cannot hold a percentage of the window
+for parts in other boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is
+also held to `100%` of its containing block less the same, which is the window exactly, so that the strip stays whole
+whatever the rows are laid out at. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
 the window at any width. In a parent narrower than its column the collapsed form is the room's width: a standard drawer's
 panel, shown, is held to its host's width (`max-inline-size: 100%`; not while it slides, when the host's width is the
 slide) at rest and through a change of form both ways (`data-form-change`), a collapsible modal drawer's host and column the
