@@ -4,13 +4,19 @@
 /** The export that is the one file, and the two it begins with: the page's base, then the tokens. */
 export const ALL = './tanrei.css';
 export const FIRST = ['./base.css', './tokens.css'];
+/**
+ * The stylesheets a page opts into one by one and the one file leaves out: the cloak hides every element until it is
+ * defined, so on a page whose script never arrives it hides their content for good (src/styles/cloak.css).
+ */
+export const OPT_IN = ['./cloak.css'];
 
 /**
  * The stylesheets `tanrei.css` holds, as their exports name them: the base and the tokens, then every other `.css`
- * export in the order the exports list them. Not a preset's (`./systems/*.css`, opt in) and not itself.
+ * export in the order the exports list them. Not a preset's (`./systems/*.css`, opt in), not one of `OPT_IN` and not
+ * itself.
  */
 export function stylesheetExports(pkg) {
-  const css = Object.keys(pkg.exports).filter((name) => name.endsWith('.css') && !name.includes('*') && name !== ALL);
+  const css = Object.keys(pkg.exports).filter((name) => name.endsWith('.css') && !name.includes('*') && name !== ALL && !OPT_IN.includes(name));
   for (const first of FIRST) if (!css.includes(first)) throw new Error(`package.json exports no ${first}`);
   return [...FIRST, ...css.filter((name) => !FIRST.includes(name))];
 }
