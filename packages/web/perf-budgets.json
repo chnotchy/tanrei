@@ -36,7 +36,7 @@
       "allowedComponents": []
     },
     "bottom-sheet": {
-      "budget": 50700,
+      "budget": 50800,
       "measured": 48222,
       "allowedComponents": [
         "button",
@@ -208,12 +208,12 @@
       ]
     },
     "description-list": {
-      "budget": 13100,
+      "budget": 13300,
       "measured": 12396,
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 32500,
+      "budget": 32800,
       "measured": 32310,
       "allowedComponents": []
     },
@@ -238,7 +238,7 @@
       "allowedComponents": []
     },
     "fab-menu": {
-      "budget": 33500,
+      "budget": 33700,
       "measured": 32260,
       "allowedComponents": []
     },
@@ -274,7 +274,7 @@
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 107400,
+      "budget": 107700,
       "measured": 102466,
       "allowedComponents": [
         "button",
@@ -292,7 +292,7 @@
       "allowedComponents": []
     },
     "image-preview": {
-      "budget": 60900,
+      "budget": 61100,
       "measured": 58379,
       "allowedComponents": [
         "button",
@@ -319,7 +319,7 @@
       ]
     },
     "list-row": {
-      "budget": 39300,
+      "budget": 39400,
       "measured": 37727,
       "allowedComponents": [
         "keyboard-shortcut",
@@ -364,7 +364,7 @@
       "allowedComponents": []
     },
     "modal-layer": {
-      "budget": 16900,
+      "budget": 17300,
       "measured": 15996,
       "allowedComponents": []
     },
@@ -519,7 +519,7 @@
       ]
     },
     "side-sheet": {
-      "budget": 47400,
+      "budget": 47800,
       "measured": 45058,
       "allowedComponents": [
         "button"
@@ -593,7 +593,7 @@
       "allowedComponents": []
     },
     "table-of-contents": {
-      "budget": 30400,
+      "budget": 30500,
       "measured": 29244,
       "allowedComponents": []
     },
@@ -635,7 +635,7 @@
       ]
     },
     "toolbar": {
-      "budget": 70300,
+      "budget": 70600,
       "measured": 70268,
       "allowedComponents": [
         "button",
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 669200,
+      "budget": 669800,
       "measured": 643895
     }
   },
@@ -684,8 +684,8 @@
         "measured": 270
       },
       "dialog": {
-        "budget": 283,
-        "measured": 270
+        "budget": 472,
+        "measured": 450
       },
       "image-preview": {
         "budget": 661,

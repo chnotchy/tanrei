@@ -23,6 +23,7 @@ import {
   assignSlot,
   afterTwoFrames,
   atOnce,
+  holdStillPointer,
   chordsConverter,
   chordsOf,
   containedWheel,
@@ -2248,9 +2249,12 @@ export class TanreiSearch extends TanreiElement {
    * settling ends, so its rows are drawn in the state the opening gives them. The row the search makes current as it
    * opens (SRC-14, SRC-57: the query row; SRC-49: the first result) is decided once focus is in the input — in a modal
    * view, after the view is shown — and a result draws it in its own update: unmarked, it faded into the focused state
-   * after the view was first styled. A row the person makes current later (an arrow key) still moves.
+   * after the view was first styled. A row the person makes current later (an arrow key) still moves. What a pointer at
+   * rest is over in it as it opens (a back button, a result) is drawn hovered at once, however late the engine hovers it
+   * (`holdStillPointer()`, until the person acts).
    */
   private firstFrames(view: HTMLElement) {
+    holdStillPointer(view);
     const run = ++this.firstFramesRun;
     const results = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
     for (const element of [view, ...results]) {
