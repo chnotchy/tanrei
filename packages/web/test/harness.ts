@@ -246,6 +246,95 @@ function fontFace() {
   return `@font-face{font-family:"Inter";font-weight:100 900;src:url(data:font/woff2;base64,${data}) format("woff2");}`;
 }
 
+/** A face as the `FontFace` constructor takes it: its family, its file's bytes in base64, and its descriptors. */
+interface EmbeddedFace {
+  family: string;
+  data: string;
+  descriptors: FontFaceDescriptors;
+}
+
+/** The `FontFace` descriptor of each @font-face descriptor the embedded rules write. */
+const FACE_DESCRIPTORS: Record<string, keyof FontFaceDescriptors> = {
+  'font-style': 'style',
+  'font-weight': 'weight',
+  'font-stretch': 'stretch',
+  'font-display': 'display',
+  'unicode-range': 'unicodeRange',
+  'font-feature-settings': 'featureSettings',
+  'ascent-override': 'ascentOverride',
+  'descent-override': 'descentOverride',
+  'line-gap-override': 'lineGapOverride',
+};
+
+/**
+ * The faces of embedded @font-face rules (`fontFace()`, `presetFontFaces()`), each its family, its bytes and its
+ * descriptors. A rule whose source is not one embedded file, or that writes a descriptor `FACE_DESCRIPTORS` does not
+ * know, is refused: a face is never registered as less than its rule says.
+ */
+function embeddedFaces(css: string): EmbeddedFace[] {
+  return [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@font-face\s*\{([^}]*)\}/g)].map(([rule, body]) => {
+    // A data URL holds a `;` (`data:font/woff2;base64,`): the source is taken out before the declarations are split.
+    const sources = [...body.matchAll(/src:\s*url\((["']?)data:[^;,]+;base64,([A-Za-z0-9+/=]+)\1\)(?:\s*format\([^)]*\))?\s*;?/g)];
+    if (sources.length !== 1) throw new Error(`embeddedFaces: a rule without one embedded source: ${rule.slice(0, 120)}`);
+    const declarations = body.replace(sources[0][0], '').split(';').map((d) => d.trim()).filter(Boolean);
+    let family = '';
+    const descriptors: FontFaceDescriptors = {};
+    for (const declaration of declarations) {
+      const [name, ...rest] = declaration.split(':');
+      const property = name.trim();
+      const value = rest.join(':').trim();
+      if (property === 'font-family') family = value.replace(/^["']|["']$/g, '');
+      else if (FACE_DESCRIPTORS[property]) descriptors[FACE_DESCRIPTORS[property]] = value as never;
+      else throw new Error(`embeddedFaces: a descriptor FontFace is not given here: ${declaration}`);
+    }
+    if (!family) throw new Error(`embeddedFaces: a rule without a family: ${rule.slice(0, 120)}`);
+    return { family, data: sources[0][2], descriptors };
+  });
+}
+
+/**
+ * A script that registers `faces` from their bytes, for the head of a document, ahead of everything it draws.
+ *
+ * An @font-face rule's face is fetched when a layout first asks for it, and arrives later — after the document's first
+ * frame on a slow machine (a CI runner, the Linux container), which then lays text out in a fallback face: a component
+ * whose box follows its content (a size transition, SZT-2) moved to the face's width when it came, for 300 ms after the
+ * mount had returned, and a test that measured then read a box in motion. A face made from its bytes by the `FontFace`
+ * constructor is loaded when it is made, in Chromium, Firefox and WebKit alike, so the first layout of the body is in
+ * it, as a product's page whose faces are in the cache: nothing moves when the faces arrive, because they are there.
+ *
+ * A face added by script outlives its document (`page.setContent()` writes the next one into the same window and the
+ * same set of fonts), so the faces of an earlier document of the same families are taken out first: each document has
+ * its own, as it had with its own rules.
+ */
+function facesScript(faces: EmbeddedFace[]): string {
+  if (!faces.length) return '';
+  return `<script>(() => {
+  const faces = ${JSON.stringify(faces)};
+  const families = new Set(faces.map((face) => face.family));
+  for (const face of [...document.fonts]) if (families.has(face.family.replace(/^["']|["']$/g, ''))) document.fonts.delete(face);
+  for (const { family, data, descriptors } of faces) {
+    const text = atob(data);
+    const bytes = new Uint8Array(text.length);
+    for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i);
+    document.fonts.add(new FontFace(family, bytes, descriptors));
+  }
+})();</script>`;
+}
+
+/**
+ * The embedded text faces of a document's head: registered by script before the first frame (`facesScript`), and
+ * written again as their @font-face rules in a `noscript`, for the same document read with scripting off.
+ *
+ * A test that compares the fixtures as the stylesheet alone draws them with the scripted page opens the document in a
+ * context with scripting off (`javaScriptEnabled: false`), where the script never runs: without the rules its text was
+ * laid out in a fallback face and wrapped elsewhere than the scripted page's (STP-4, BRC-2, PNL-2). A `noscript` in the
+ * head is read as its elements only when scripting is off, and as raw text when it is on, so each document has its
+ * faces once: the script's, or the rules'.
+ */
+function embeddedFaceMarkup(rules: string): string {
+  return `${facesScript(embeddedFaces(rules))}<noscript><style>${rules}</style></noscript>`;
+}
+
 const registered = new Map<string, Promise<string>>();
 /**
  * @font-face rules for families a PRESET names (m3-like: Roboto, Material Symbols Outlined), embedded, from the
@@ -2538,8 +2627,8 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   const iconFaces = families.length && !assets ? await presetFontFaces(families) : '';
   const sheet = (href: string | undefined, embed: () => string) => (href ? `<link rel="stylesheet" href="${href}" />` : `<style>${embed()}</style>`);
   const icons = families.length ? sheet(assets?.icons(families), () => iconFaces) : '';
-  // A preset's own text faces (Roboto for the m3 presets), embedded as the icon faces are; a page given asset URLs has
-  // them in its shared font sheet.
+  // A preset's own text faces (Roboto for the m3 presets), registered from their bytes before the body with Inter
+  // (`embeddedFaceMarkup`); a page given asset URLs has them in its shared font sheet.
   const text = options.system && !assets ? await presetTextFontFaces(systemStyles(options)) : '';
   // A page's frame holds the page's own main region: its stages stand in a `div` (see `Staging.page`).
   const holder = staging.page ? 'div' : 'main';
@@ -2548,9 +2637,8 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   <head>
     <meta charset="utf-8" />
     <title>${spec.name} fixtures</title>
-    ${sheet(assets?.font, fontFace)}
+    ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
-    ${text ? `<style>${text}</style>` : ''}
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
