@@ -1382,10 +1382,12 @@ test.describe('seams', () => {
   ];
   const VIEW = { width: 480, height: 2880 };
   /**
-   * Every item under a divider has measured its box. The size its cut counts from is written by an observer of sizes,
-   * in the frame after the box changed — and a box changes when its label's face arrives ("Cut": 56.69 wide in the
-   * fallback, 59.47 in the face), which is when the page says its faces are ready: a reading made at once, one mount
-   * in ten in WebKit, finds the cut 2.78 short of the seam, one frame before it is drawn there.
+   * Every item under a divider has measured its box. The size its cut counts from is written by an observer of sizes
+   * when it reports the box's change, a frame after any change of the box — never in the task that made it: a reading
+   * made at once can find the cut short of the seam, one frame before it is drawn there. A label's face no longer
+   * changes the box after a mount ("Cut" is 56.69 wide in a fallback face, 59.47 in Inter): the harness registers the
+   * faces before the first frame, so the first layout is in them. Any other change of a box is still written a frame
+   * late, and so it is waited for.
    */
   const measured = (page: P) =>
     page.waitForFunction(() =>

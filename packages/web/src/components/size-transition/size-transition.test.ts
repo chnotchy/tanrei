@@ -346,24 +346,36 @@ test.describe('behavior', () => {
   test('SZT-6: a size transition whose content holds one that moves follows it in every frame, so the two move as one', async ({ page }) => {
     await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('nested', {}, `<tanrei-size-transition class="inner"><div>${lines(1)}</div></tanrei-size-transition>`)] });
     const outer = host(page, 'nested');
-    const seen = await outer.evaluate(async (el, frame) => {
-      const drawn = (0, eval)(frame) as () => Promise<void>;
-      const inner = el.querySelector('.inner')!;
-      const pairs: [number, number][] = [];
-      const settles: string[] = [];
-      el.addEventListener('settle', () => settles.push('outer'));
-      inner.addEventListener('settle', () => settles.push('inner'));
-      inner.firstElementChild!.insertAdjacentHTML('beforeend', '<div class="line">Two</div><div class="line">Three</div><div class="line">Four</div>');
-      const start = performance.now();
-      while (performance.now() - start < 1500) {
-        await drawn();
-        pairs.push([el.getBoundingClientRect().height, inner.getBoundingClientRect().height]);
-      }
-      return { pairs, settles };
-    }, FRAME);
+    const seen = await outer.evaluate(
+      async (el, [frame, everySource]) => {
+        const drawn = (0, eval)(frame) as () => Promise<void>;
+        const every = (0, eval)(everySource) as (root: Element) => Animation[];
+        const inner = el.querySelector('.inner')!;
+        const pairs: [number, number][] = [];
+        const settles: string[] = [];
+        (window as unknown as { __nestedSettles: string[] }).__nestedSettles = settles;
+        el.addEventListener('settle', () => settles.push('outer'));
+        inner.addEventListener('settle', () => settles.push('inner'));
+        inner.firstElementChild!.insertAdjacentHTML('beforeend', '<div class="line">Two</div><div class="line">Three</div><div class="line">Four</div>');
+        // Every frame until both have settled, however long the motion takes (a slowed one takes five times as long).
+        // Should one never settle, the read ends once nothing has moved for two frames: a settle follows the motion's
+        // end within its task, so by then it would have come.
+        for (let still = 0; settles.length < 2 && still < 2; ) {
+          await drawn();
+          pairs.push([el.getBoundingClientRect().height, inner.getBoundingClientRect().height]);
+          still = every(el).length > 0 ? 0 : still + 1;
+        }
+        return { pairs, settles: settles.slice() };
+      },
+      [FRAME, EVERY_ANIMATION] as const,
+    );
     for (const [i, [outer, inner]] of seen.pairs.entries()) expect(outer, `frame ${i}`).toBeCloseTo(inner, 0);
     expect(new Set(seen.pairs.map(([, inner]) => Math.round(inner))).size, 'the inner one moved').toBeGreaterThan(2);
     expect(seen.settles).toEqual(['inner', 'outer']);
+    // And neither settles again once both are at rest.
+    await motionEnded(outer);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(await page.evaluate(() => (window as unknown as { __nestedSettles: string[] }).__nestedSettles), 'nothing settles after both have').toEqual(['inner', 'outer']);
   });
 
   test('SZT-7: where motion is reduced every change is made at once, and settles once', async ({ page }) => {
