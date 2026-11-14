@@ -59,11 +59,12 @@ test.describe('in a box as wide as its content', () => {
   for (const spec of specs) for (const part of parts(spec)) for (const [box, declarations] of Object.entries(BOXES)) {
     test(`${part.name}: in ${box} every fixture has its width within two frames and keeps it`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, ...(part.fixtures ? { fixtures: part.fixtures } : {}) });
-      // Each fixture is stood in the box once it stands still. A component may still be moving from its mount: the
-      // harness loads the text faces after the document's first frame, which a slow machine draws in the fallback face,
-      // and a size transition that follows its content's width (SZT-2) then moves for 300 ms from the fallback's width
-      // to the face's ("Saved": 37.47 → 40.97 px in WebKit on Linux). Read two frames into the box, such a motion's
-      // last frames were taken for the width the box keeps — 72.95 two frames on, 72.97 thirty frames later.
+      // Each fixture is stood in the box once it stands still. A component may still be moving from its mount, and a
+      // motion of its size read two frames into the box has its last frames taken for the width the box keeps (a size
+      // transition following its text to a late face's width read 72.95 two frames on, 72.97 thirty frames later, in
+      // WebKit on Linux). The faces no longer arrive late — the harness registers them before the first frame — but a
+      // mount can still return during a motion of size that is the fixture's own: a link card whose picture failed folds
+      // its picture's box away over 400 ms (LKC-13), and its fold was under way at the return in Chromium on Linux.
       await motionEnded(page);
       await page.evaluate(() => {
         (window as any).loops = 0;
