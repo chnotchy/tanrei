@@ -1,6 +1,5 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
 import { BEHAVIOR } from './behavior.js';
-import { neighbourTarget } from './target.js';
 
 // The internal channel between a button group and the Buttons in it (BGR-1…4, BGR-7, BGR-11, BGR-12, BGR-16, BGR-22,
 // BGR-23; BTN-10: "through an internal channel that is not part of its public surface"). Two halves:
@@ -268,15 +267,16 @@ export class GroupItemController implements ReactiveController {
   private reach() {
     const place = this.place?.variant === 'row' ? this.place : null;
     const element = place ? this.container() : null;
-    if (this.reached && this.reached !== element) {
-      this.reached.style.removeProperty('--_cap-start');
-      this.reached.style.removeProperty('--_cap-end');
-    }
+    const sides = ['--tanrei-target-cap-start', '--tanrei-target-cap-end', '--tanrei-target-cap-top', '--tanrei-target-cap-bottom'] as const;
+    if (this.reached && this.reached !== element) for (const name of sides) this.reached.style.removeProperty(name);
     this.reached = element;
     if (!element || !place) return;
-    for (const [side, value] of [['start', place.reachStart], ['end', place.reachEnd]] as const) {
-      if (value == null) element.style.removeProperty(`--_cap-${side}`);
-      else element.style.setProperty(`--_cap-${side}`, `${value}px`);
+    // Along the row's axis: the inline caps in a row, the block caps (above, below) in a vertical toolbar.
+    const [before, after, across] = place.axis === 'block' ? ['--tanrei-target-cap-top', '--tanrei-target-cap-bottom', ['--tanrei-target-cap-start', '--tanrei-target-cap-end']] : ['--tanrei-target-cap-start', '--tanrei-target-cap-end', ['--tanrei-target-cap-top', '--tanrei-target-cap-bottom']];
+    for (const name of across) element.style.removeProperty(name);
+    for (const [name, value] of [[before, place.reachStart], [after, place.reachEnd]] as const) {
+      if (value == null) element.style.removeProperty(name);
+      else element.style.setProperty(name, `${value}px`);
     }
   }
 
@@ -382,10 +382,11 @@ export const groupItemReset = GROUP_ITEM_PROPERTIES.map((property) => `${propert
  *   an outer end of a row `--tanrei-group-outer-start` / `-end` (BGR-23), nothing anywhere else. The component adds
  *   each to its padding on that side (and to a fixed width or a minimum height of its own); outside a connected group
  *   it defines them as 0.
- * - Standard (BGR-4): the hit area (`::before`, `minimumTarget()` then `neighbourTarget()`) still reaches the target,
- *   but toward a neighbour no further than half the gap, so a press between two items goes to the nearer one and never
- *   over a neighbour's visible bounds; the first item's start and the last one's end reach as far as they would alone.
- *   Along the row, or — `block` — along the column.
+ * - Standard (BGR-4): the hit area (`::before`, `neighbourTarget()`, which the item composes
+ *   itself) still reaches the target, but toward a neighbour no further than half the gap, so a press between two items
+ *   goes to the nearer one and never over a neighbour's visible bounds; the first item's start and the last one's end
+ *   reach as far as the group's own place allows (the cap of the row the group stands in, else the whole target). Along
+ *   the row, or — `block` — along the column.
  * - Row (TBR-9, a toolbar's item): the same, with the caps the toolbar measured (`reachStart`, `reachEnd`, set on the
  *   container by the controller), along the inline axis or — in a vertical toolbar — the block axis.
  */
@@ -499,20 +500,25 @@ export function groupItemStyles({ on, rippleInset }: GroupItemStyleOptions): CSS
     ${glow}
   }
 
-  ${neighbourTarget(`${on}.standard:not(.block)`)}
-  ${neighbourTarget(`${on}.standard.block`, { axis: 'block' })}
-  ${on}.standard::before {
-    --_cap-start: ${half};
-    --_cap-end: ${half};
+  ${on}.standard:not(.block)::before {
+    --tanrei-target-cap-start: ${half};
+    --tanrei-target-cap-end: ${half};
   }
-  ${on}.standard.first::before {
-    --_cap-start: initial;
+  ${on}.standard.first:not(.block)::before {
+    --tanrei-target-cap-start: inherit;
   }
-  ${on}.standard.last::before {
-    --_cap-end: initial;
+  ${on}.standard.last:not(.block)::before {
+    --tanrei-target-cap-end: inherit;
   }
-
-  ${neighbourTarget(`${on}.row:not(.block)`)}
-  ${neighbourTarget(`${on}.row.block`, { axis: 'block' })}
+  ${on}.standard.block::before {
+    --tanrei-target-cap-top: ${half};
+    --tanrei-target-cap-bottom: ${half};
+  }
+  ${on}.standard.first.block::before {
+    --tanrei-target-cap-top: inherit;
+  }
+  ${on}.standard.last.block::before {
+    --tanrei-target-cap-bottom: inherit;
+  }
 `);
 }
