@@ -561,6 +561,43 @@ test.describe('layout', () => {
     expect(await visible(7)).toBe(true);
   });
 
+  test('TAB-15: a reveal ends on its scroll position itself, whatever the curve gives at its end', async ({ page }) => {
+    // An engine may call a motion finished while its progress is still a hair under 1 (WebKit, within its timing
+    // tolerance: 0.9999999999999999), and it keeps whole scroll offsets: a last frame that wrote the curve's value there
+    // (415.99999999999994 for 416) would leave the tabs a pixel short of their position, for good. The reveal's effect
+    // has no fill, so in Chromium and Firefox a finished reveal has no progress (it reads as the end) and never shows
+    // it. A curve whose last value is short of 1, on an effect that keeps its last value once finished, gives every
+    // engine a finished reveal whose progress is short of 1, every time.
+    const long = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'].map((v) => t(v, `${v[0].toUpperCase()}${v.slice(1)} tab`));
+    await mountFixtures(page, spec, { fixtures: [fixture('r', long, { value: 'alpha' })] });
+    const scroller = row(page, 'r').locator('.scroller');
+    const [scroll, end] = [() => scroller.evaluate((el) => el.scrollLeft), () => scroller.evaluate((el) => el.scrollWidth - el.clientWidth)];
+    const last = await end();
+    expect(last).toBeGreaterThan(100);
+    await override(page, { [T('motion-indicator-easing')]: 'linear(0 0%, 0.99 100%)' });
+    expect(await scroller.evaluate((el) => getComputedStyle(el).animationTimingFunction)).toBe('linear(0 0%, 0.99 100%)');
+    await tabTo(page, tabAt(page, 'r', 0));
+    // Played to its end, it ends there.
+    await page.keyboard.press('End');
+    await expect.poll(scroll).toBe(last);
+    // Finished with a progress short of 1: a long duration keeps the reveal running until the test reaches it, which
+    // then keeps the effect's last value and finishes it.
+    await override(page, { [T('motion-indicator-duration')]: '60s' });
+    const finishShort = () =>
+      scroller.evaluate((el) => {
+        const reveal = el.getAnimations().find((each) => each.id === 'tanrei-tabs-reveal')!;
+        reveal.effect!.updateTiming({ fill: 'forwards' });
+        reveal.finish();
+        return [reveal.playState, reveal.effect!.getComputedTiming().progress];
+      });
+    await page.keyboard.press('Home');
+    expect(await finishShort()).toEqual(['finished', expect.closeTo(0.99, 5)]);
+    await expect.poll(scroll).toBe(0);
+    await page.keyboard.press('End');
+    expect(await finishShort()).toEqual(['finished', expect.closeTo(0.99, 5)]);
+    await expect.poll(scroll).toBe(last);
+  });
+
   test('TAB-16: the indicator behind the content, centred, as tall as the row less track.padding on every tab; in a row that hugs the content plus its padding, and a circle where the content is not wider than it is tall; in a row that fills the tab; the same rule in both variants; the underline on the row’s bottom edge above the divider, spanning the content or the tab', async ({ page }) => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
     await mountFixtures(page, spec, {
