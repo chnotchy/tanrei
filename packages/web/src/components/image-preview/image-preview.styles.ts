@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph, modalExitStyles } from '../../primitives/index.js';
+import { appearStyles, focusRing, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -249,6 +249,9 @@ export const styles = css`
   .controls tanrei-button {
     flex: none;
   }
+  /* BTN-5: the controls reach their targets toward each other no further than the middle of bar.gap (and as far toward
+     the count and the bar's end, less than the room there). */
+  ${rowTargets('.controls > tanrei-button', `${t('bar-gap')}`)}
   /* IMP-9: the count, in its role and color, wrapping — the bar grows — and never cut. It takes the room the controls
      leave, so they stand at the bar's end with or without it. */
   .count {

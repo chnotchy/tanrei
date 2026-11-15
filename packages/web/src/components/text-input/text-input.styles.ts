@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -766,6 +766,30 @@ export const styles = css`
   }
   .own > tanrei-button {
     flex: none;
+  }
+  /* BTN-5: a button of the input's own, and a control the product put in an icon slot (an icon-only Button), reaches its
+     target toward what stands beside it no further than the middle of the gap between their boxes, where its
+     neighbour's stops: toward the text (or the trailing slot's content) the middle of container.gap, toward the other
+     button the middle of container.action-gap. An own Button is drawn wider than its glyph's box, so what it overflows
+     the box by is given back (100% is the Button's width where the cap is read); an icon slot's box grows to what it
+     holds. Away from the text, at the container's edges, each reaches as the container lets it. */
+  .icon.leading {
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(var(--_gap) / 2);
+  }
+  .icon.trailing {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_gap) / 2);
+  }
+  .icon.trailing:has(+ .own) {
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(var(--_gap) / 2);
+  }
+  .own {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_gap) / 2 - (100% - var(--_icon)) / 2);
+  }
+  .own + .own {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(${unsafeCSS(OWN)}-container-action-gap) / 2 - (100% - var(--_icon)) / 2);
+  }
+  .own:has(+ .own) {
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(var(${unsafeCSS(OWN)}-container-action-gap) / 2 - (100% - var(--_icon)) / 2);
   }
   ::slotted(svg),
   ::slotted(img) {

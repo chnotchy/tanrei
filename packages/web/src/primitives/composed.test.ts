@@ -31,6 +31,7 @@ import { type Fixture, type MadeFileRow, type Spec, avatarPicture, fileUploadTwi
 import { axTree, insideHost } from '../../test/ax-tree.js';
 import { decodePng } from '../../test/png.js';
 import { exported } from './composed.js';
+import { TARGET_CAPS } from './target.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const repo = path.resolve(pkg, '../..');
@@ -932,15 +933,20 @@ for (const written of COMPOSED) {
         expect(got, `${prop.name} reaches ${prop.from}`).toEqual(given);
       }
       // W3: nothing in the element's own tree sets a custom property, and its own sheet writes none and reads none
-      // of a member's: only its own group (`--tanrei-comp-<its name>-…`), where it has one, and the system's.
+      // of a member's: only its own group (`--tanrei-comp-<its name>-…`), where it has one, and the system's. The one
+      // name it may write is a cap of a hit area (`TARGET_CAPS`, BTN-5), which a row sets on what it lays out: no
+      // member's custom property and no token a product sets, but the channel `neighbourTarget()` alone reads.
       const written = await element(page).evaluate(
-        (el, own) => ({
-          inline: [...el.shadowRoot!.querySelectorAll<HTMLElement>('*')].flatMap((child) => [...child.style]).filter((name) => name.startsWith('--')),
-          sheet: [...(el.shadowRoot!.adoptedStyleSheets ?? [])]
-            .flatMap((sheet) => [...sheet.cssRules].map((rule) => rule.cssText))
-            .filter((text) => /(^|[{;\s])--[\w-]+\s*:/.test(text) || [...text.matchAll(/var\(\s*(--[\w-]+)/g)].some(([, name]) => !name!.startsWith(own) && !name!.startsWith('--tanrei-sys-'))),
-        }),
-        `--tanrei-comp-${spec.name}-`,
+        (el, [own, caps]) => {
+          const other = (name: string) => !(caps as readonly string[]).includes(name);
+          return {
+            inline: [...el.shadowRoot!.querySelectorAll<HTMLElement>('*')].flatMap((child) => [...child.style]).filter((name) => name.startsWith('--') && other(name)),
+            sheet: [...(el.shadowRoot!.adoptedStyleSheets ?? [])]
+              .flatMap((sheet) => [...sheet.cssRules].map((rule) => rule.cssText))
+              .filter((text) => [...text.matchAll(/(?:^|[{;\s])(--[\w-]+)\s*:/g)].some(([, name]) => other(name!)) || [...text.matchAll(/var\(\s*(--[\w-]+)/g)].some(([, name]) => !name!.startsWith(own as string) && !name!.startsWith('--tanrei-sys-'))),
+          };
+        },
+        [`--tanrei-comp-${spec.name}-`, Object.values(TARGET_CAPS)] as const,
       );
       expect(written).toEqual({ inline: [], sheet: [] });
       // The members answered the values they do not know (a report each), and the element reported nothing itself.

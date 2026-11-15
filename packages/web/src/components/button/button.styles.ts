@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { DISABLED, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemStyles, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
+import { DISABLED, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -246,7 +246,7 @@ const buttonStyles = css`
      32 in the default system, whose inset is 4 at every size). The width is set, not padded: the inset is a term of
      the width and the container's own inline padding stays 0, so the glyph is centred at every width. Each term is a
      rem token, so the container grows with the root text size and keeps its proportion. BTN-21: the width is read here
-     alone, so a labelled Button ignores it, and the hit area still reaches the target (minimumTarget, below). A
+     alone, so a labelled Button ignores it, and the hit area still reaches the target (neighbourTarget, below). A
      connected group may widen it to the target (BGR-3) and adds its padding at an outer end (BGR-23): the glyph is then
      centred in what is left. */
   :host {
@@ -285,8 +285,10 @@ const buttonStyles = css`
     display: none;
   }
 
-  /* BTN-5: the hit area meets the minimum target without changing the visual size. */
-  ${minimumTarget('button')}
+  /* BTN-5: the hit area meets the minimum target without changing the visual size, and toward a neighbour stops at the
+     middle of the gap between them: at the cap its group gives it (BGR-4, TBR-9), else at the cap of the row it is laid
+     out in (TARGET_CAPS: a snackbar's controls, a field's own buttons, a dialog's actions …), else nowhere short. */
+  ${neighbourTarget('button')}
 
   /* BTN-3, BTN-6, BTN-8, BTN-9: each state paints from that state's tokens; pressed > focused > hovered, disabled over all.
      Pressed is data-pressed="<feedback>" (PressController): overlay paints the pressed tokens on the whole container;

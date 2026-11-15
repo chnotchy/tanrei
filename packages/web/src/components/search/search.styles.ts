@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, modalExitStyles, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, TARGET_CAPS, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, modalExitStyles, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -352,6 +352,11 @@ export const styles = css`
     margin-inline-start: calc(-1 * ${t('container-gap')});
   }
   ${keptSpaces('.trailing', { gap: T('container-button-gap') })}
+  /* BTN-5: the clear button reaches its target toward the input no further than the middle of container.gap, so that a
+     press on the query is never a clear (among the action buttons the space kept above keeps their targets apart). */
+  .clear {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
+  }
 
   ${unsafeCSS(inputStyles)}
 

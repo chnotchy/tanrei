@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
@@ -332,6 +332,14 @@ export const styles = css`
   }
   .clear > tanrei-button {
     flex: none;
+  }
+  /* BTN-5: the clear button reaches its target toward the value no further than the middle of container.gap, and toward
+     the chevron no further than the middle of container.action-gap, so that a press on either is never the clear
+     button's. It is drawn wider than its glyph's box: what it overflows the box by is given back (100% is the Button's
+     width where the cap is read). */
+  .clear {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_gap) / 2 - (100% - var(--_icon)) / 2);
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(var(${P}-container-action-gap) / 2 - (100% - var(--_icon)) / 2);
   }
   /* Over the container only: an outlined select whose floated label wraps keeps room above its container (SEL-15). */
   .field[data-label-wraps] .clear {

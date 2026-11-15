@@ -201,6 +201,19 @@
         margin: 0;
         padding: 0;
       }
+      /* BTN-5: each action reaches its target toward the next no further than the middle of header.gap; the row's two
+         ends reach as far as they would alone. (The internal channel a row sets on the Tanrei elements it lays out,
+         read by their hit areas: src/primitives/target.ts.) */
+      & > :where([data-part='actions']) > :where(*) {
+        --tanrei-target-cap-start: calc(var(--tanrei-comp-figure-header-gap) / 2);
+        --tanrei-target-cap-end: calc(var(--tanrei-comp-figure-header-gap) / 2);
+      }
+      & > :where([data-part='actions']) > :where(:first-child) {
+        --tanrei-target-cap-start: initial;
+      }
+      & > :where([data-part='actions']) > :where(:last-child) {
+        --tanrei-target-cap-end: initial;
+      }
       & > :where([data-part='title']:empty, [data-part='actions']:empty) {
         display: none;
       }

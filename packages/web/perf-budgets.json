@@ -213,7 +213,7 @@
       "allowedComponents": []
     },
     "dialog": {
-      "budget": 32800,
+      "budget": 32900,
       "measured": 32310,
       "allowedComponents": []
     },
@@ -274,7 +274,7 @@
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 107700,
+      "budget": 107800,
       "measured": 102466,
       "allowedComponents": [
         "button",
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 670400,
+      "budget": 671000,
       "measured": 643895
     }
   },

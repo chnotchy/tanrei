@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, keptLength, minimumTarget, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, keptLength, minimumTarget, stateRules } from '../../primitives/index.js';
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -354,6 +354,15 @@ export const styles = css`
   /* NMI-25: the two stand stepper.gap apart, or as much further as each needs to keep the touch target's length along
      the row that the other's does not reach into (src/primitives/kept-length.ts; the element measures the buttons). */
   ${keptLength('.stepper', { gap: `var(${PREFIX}-stepper-gap)` })}
+  /* BTN-5: toward the input's line the first stepper reaches its target no further than the middle of container.gap,
+     so that a press on the number is never a step (declared on the box, where container.gap resolves); between the two
+     the space kept above is what keeps their targets apart. */
+  .steppers {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_gap) / 2);
+  }
+  .stepper + .stepper {
+    ${unsafeCSS(TARGET_CAPS.start)}: initial;
+  }
   /* Until the icon set can draw a glyph nothing stands in its place — never its name — and its box is kept. */
   .stepper-glyph {
     display: inline-block;

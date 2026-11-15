@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
+import { TARGET_CAPS, appearStyles, focusRing, iconGlyph, neighbourTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -470,8 +470,18 @@ export const styles = css`
     vertical-align: top;
   }
 
-  /* SNK-4: the action's hit area meets the minimum target without changing its visual size (a Button keeps its own). */
-  ${minimumTarget('.control')}
+  /* SNK-4: the action's hit area meets the minimum target without changing its visual size (a Button keeps its own),
+     and, as each control's, reaches toward the control beside it no further than the middle of controls.gap. In a
+     stacked bar the action stands on a row of its own, beside no other control. */
+  ${neighbourTarget('.control')}
+  .bar:not(.stacked) .action:has(+ :is(.expand, .close)),
+  .expand:has(+ .close) {
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(${t('controls-gap')} / 2);
+  }
+  .bar:not(.stacked) .action + :is(.expand, .close),
+  .expand + .close {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('controls-gap')} / 2);
+  }
 
   /* SNK-2, SNK-5, SNK-6: each state paints the action from that state's tokens; pressed > focused > hovered. */
   ${stateRules(on, {

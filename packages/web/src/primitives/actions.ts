@@ -2,6 +2,7 @@ import { type CSSResult, unsafeCSS } from 'lit';
 import { cssZoom } from './layout-scale.js';
 import { GROUP_ITEM, type GroupItem } from './group-item.js';
 import { report } from './report.js';
+import { TARGET_CAPS } from './target.js';
 
 // The actions at the foot of a host that places them as a full-width Button group places its items (BGR-12…19): a
 // dialog's (DLG-10, DLG-20) and a side sheet's (SSH-11, SSH-17). The host assigns its children to its slots by hand
@@ -171,7 +172,10 @@ export class ActionPlacement {
  * The actions' box `box` (a flex container of the three slots) as a full-width Button group (BGR-17): a row the actions
  * share equally — each Button's container stretched across its share, its label centred — or, `stacked`, a column of
  * actions as wide as the box; `measuring`, a row at their own widths. `gap` is the host's gap token. A packed
- * arrangement is the host's own rules on top (each action `flex: none`).
+ * arrangement is the host's own rules on top (each action `flex: none`). Each action's hit area reaches toward the
+ * next no further than the middle of the gap (BTN-5, `TARGET_CAPS`): along the row, or down the column when stacked.
+ * The actions stand in three slots, so their order among the host's children is not the row's: every one takes the half
+ * gap on all four sides, which at the box's ends, and across the row, is less than the room there.
  */
 export function actionBoxStyles(box: string, gap: string): CSSResult {
   return unsafeCSS(`
@@ -191,6 +195,11 @@ export function actionBoxStyles(box: string, gap: string): CSSResult {
   ${box}.stacked ::slotted(*),
   ${box}.measuring ::slotted(*) {
     flex: none;
+  }
+  ${box} ::slotted(*) {
+    ${Object.values(TARGET_CAPS)
+      .map((cap) => `${cap}: calc(var(${gap}) / 2);`)
+      .join('\n    ')}
   }`);
 }
 
