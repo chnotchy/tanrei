@@ -36,6 +36,17 @@
 // dialog's entrance and exit and its scrim's fade: `openModal()` and `closeModal()`, src/primitives/modal-exit.ts; a
 // box whose size follows its content: `AnimatedSize`, src/primitives/motion.ts).
 //
+// A motion that began before the sampler was installed is not the change's, and its events are not taken for one the
+// frames missed. WebKit ends a transition that turned back (a state layer's focus that Tab passed through on its way to
+// the next control) as soon as it begins, before any frame shows it, and sends its `transitionrun` and `transitionend`
+// a frame or two later — by then a sampler installed right after the Tab listens, and would hear a motion begin and end
+// that it never held. So the sampler listens first and starts only after the frames those events
+// come in: at least `EARLIER_FRAMES`, until a frame brings none (at most `EARLIER_FRAMES_MOST`). Every motion begun by
+// then is earlier: one that ended is not counted (each run or start heard then is answered by one end or cancel, which
+// is then not taken for a missed motion), and one that still runs is held where it is, as at install. The act begins
+// only once the sampler has started, so whatever begins after is the change's, and a motion of the change that begins
+// and ends between two frames still fails the sampling, on the very element and property an earlier one ran on.
+//
 // Held motions stand still while the test acts: an act of several inputs (a key, then another) is one moment, however
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
 // `performance.now()`, a smooth scroll — and a timer is the page's own: hold the page clock for it (test/page-clock.ts;
@@ -179,17 +190,24 @@ interface InPage {
 }
 
 /**
- * The in-page sampler (sent to the page as its source: it uses nothing outside itself). Installed before the act; the
- * act is the test's; `go()` then samples and resolves with what was seen.
+ * The in-page sampler (sent to the page as its source: it uses nothing outside itself). Installed before the act, and
+ * resolved once it has started (after the frames that bring the events of earlier motions); the act is the test's;
+ * `go()` then samples and resolves with what was seen.
  */
-function install(root: Element, o: InPage): void {
+function install(root: Element, o: InPage): Promise<void> {
   interface Hold {
     /** The time last given to it, and the motion time it was given at. */
     set: number;
     at: number;
     endless: boolean;
   }
-  type Phase = 'act' | 'motion' | 'settle' | 'frozen' | 'done';
+  /** `installing`: listening to the events of earlier motions, before anything is held or read. */
+  type Phase = 'installing' | 'act' | 'motion' | 'settle' | 'frozen' | 'done';
+  // The frames the sampler waits through before it starts, listening: at least this many (WebKit sends an earlier
+  // motion's run in the next frame and its end in the one after), and then until a frame brings no event of a motion —
+  // but no more than the most, for a page that never stops beginning motions (it is not at rest).
+  const EARLIER_FRAMES = 2;
+  const EARLIER_FRAMES_MOST = 10;
   const w = window as unknown as { __tanreiFrames?: Sampler };
   w.__tanreiFrames?.release();
   const every = (0, eval)(o.every) as (root: Element) => Animation[];
@@ -213,7 +231,11 @@ function install(root: Element, o: InPage): void {
   const held = new Map<Animation, Hold>();
   const motions: HeldMotion[] = [];
   const frames: Frame[] = [];
-  let phase: Phase = 'act';
+  let phase: Phase = 'installing';
+  let waited = 0;
+  let heard = false;
+  let started!: () => void;
+  const ready = new Promise<void>((r) => (started = r));
   let index = -1;
   let time = 0;
   let previousTime = 0;
@@ -257,6 +279,8 @@ function install(root: Element, o: InPage): void {
   const named = (pseudo: string, name: string) => `${pseudo}|${name}`;
   const heldNames = new WeakMap<Element, Set<string>>();
   const begun = new WeakMap<Element, Set<string>>();
+  // The runs and starts heard while installing whose end or cancel has not come yet: those ends are an earlier motion's.
+  const earlier = new WeakMap<Element, Map<string, number>>();
   const missed: string[] = [];
   const listened = new WeakSet<Node>();
   const stopped = new AbortController();
@@ -264,11 +288,19 @@ function install(root: Element, o: InPage): void {
     const t = event.composedPath()[0] as Element;
     const e = event as TransitionEvent & AnimationEvent;
     const id = named(e.pseudoElement ?? '', event.type.startsWith('transition') ? e.propertyName : e.animationName);
-    if (event.type === 'transitionrun' || event.type === 'animationstart') {
+    const begins = event.type === 'transitionrun' || event.type === 'animationstart';
+    const left = earlier.get(t)?.get(id) ?? 0;
+    if (phase === 'installing') {
+      heard = true;
+      const counts = earlier.get(t) ?? new Map<string, number>();
+      counts.set(id, begins ? left + 1 : Math.max(left - 1, 0));
+      earlier.set(t, counts);
+    } else if (!begins && left > 0) earlier.get(t)!.set(id, left - 1);
+    else if (begins) {
       const ids = begun.get(t) ?? new Set<string>();
       ids.add(id);
       begun.set(t, ids);
-    } else if (begun.get(t)?.has(id) && !heldNames.get(t)?.has(id) && !box.contains(t)) {
+    } else if ((event.type === 'transitionend' || event.type === 'animationend') && begun.get(t)?.has(id) && !heldNames.get(t)?.has(id) && !box.contains(t)) {
       const what = `${event.type === 'transitionend' ? 'transition' : 'animation'} ${id} on ${[t.localName, ...t.classList].join('.')}`;
       if (!missed.includes(what)) missed.push(what);
     }
@@ -282,7 +314,7 @@ function install(root: Element, o: InPage): void {
   let asked = false;
   soon.port1.onmessage = () => {
     asked = false;
-    if (phase === 'done') return;
+    if (phase === 'done' || phase === 'installing') return;
     try {
       listen();
       catchNew(false, true);
@@ -291,7 +323,7 @@ function install(root: Element, o: InPage): void {
     }
   };
   const ask = () => {
-    if (asked || phase === 'done') return;
+    if (asked || phase === 'done' || phase === 'installing') return;
     asked = true;
     soon.port2.postMessage(0);
   };
@@ -316,7 +348,7 @@ function install(root: Element, o: InPage): void {
       if (listened.has(node)) continue;
       listened.add(node);
       changes.observe(node, { attributes: true, childList: true, characterData: true, subtree: true });
-      for (const type of ['transitionrun', 'transitionend', 'animationstart', 'animationend']) node.addEventListener(type, onEvent, { capture: true, signal: stopped.signal });
+      for (const type of ['transitionrun', 'transitionend', 'transitioncancel', 'animationstart', 'animationend', 'animationcancel']) node.addEventListener(type, onEvent, { capture: true, signal: stopped.signal });
     }
   };
 
@@ -466,6 +498,8 @@ function install(root: Element, o: InPage): void {
     for (const a of held.keys()) if (a.playState === 'paused') a.play();
     held.clear();
     if (!keep && w.__tanreiFrames === sampler) delete w.__tanreiFrames;
+    // Released while installing (a failure, or a sampler installed over it): the test is not left waiting.
+    started();
   };
   const fail = (failure: string) => {
     release(true);
@@ -476,6 +510,12 @@ function install(root: Element, o: InPage): void {
     framed = true;
     if (phase === 'done') return;
     try {
+      if (phase === 'installing') {
+        waited++;
+        if ((waited >= EARLIER_FRAMES && !heard) || waited >= EARLIER_FRAMES_MOST) start();
+        heard = false;
+        return;
+      }
       if (phase === 'motion') {
         index++;
         previousTime = time;
@@ -533,19 +573,26 @@ function install(root: Element, o: InPage): void {
     release,
   };
   w.__tanreiFrames = sampler;
-  // What already moves is held where it is; the root as it stands is what a first frame is told apart from.
-  listen();
-  catchNew(true);
-  if (o.restOnly) {
-    // Nothing to tell a first frame apart from: the root is read first in the frame that finishes its motions. (On a
-    // page of thousands of elements one reading takes a few hundred milliseconds in Firefox, and a frame of them is
-    // megabytes to send to the test.)
-    phase = 'settle';
-  } else {
-    before = { ...take(), index: -1 };
-    lastKept = lastSeen = serial(before);
+  // Started in a frame once the events of earlier motions have come (`installing`): what already moves is held where
+  // it is; the root as it stands is what a first frame is told apart from.
+  function start() {
+    listen();
+    catchNew(true);
+    if (o.restOnly) {
+      // Nothing to tell a first frame apart from: the root is read first in the frame that finishes its motions. (On a
+      // page of thousands of elements one reading takes a few hundred milliseconds in Firefox, and a frame of them is
+      // megabytes to send to the test.)
+      phase = 'settle';
+    } else {
+      phase = 'act';
+      before = { ...take(), index: -1 };
+      lastKept = lastSeen = serial(before);
+    }
+    started();
   }
+  listen();
   clock.observe(mover);
+  return ready;
 }
 
 const rootOf = (target: Locator | Page): Locator => ('keyboard' in target ? target.locator(':root') : target);
@@ -585,7 +632,9 @@ function seenWhole(seen: Exclude<Answer, { failure: string }>): Frames {
 /**
  * Samples the frames of a change: installs the sampler on `root` (a container the change happens in, or the page),
  * runs `act` (the change: an input, an element inserted), and reads frame by frame, one frame of motion time each,
- * until every motion has ended and the root has come to rest (or for `frames` frames). Begin with the root at rest.
+ * until every motion has ended and the root has come to rest (or for `frames` frames). Begin with the root at rest: the
+ * act waits until the frames that bring the events of motions begun before it have passed (one that ended is no motion
+ * of the change's; one that still runs is held where it is).
  */
 export const sampleFrames = (root: Locator | Page, act: () => Promise<unknown>, options: SampleOptions = {}): Promise<Frames> => run(root, act, options, false).then(seenWhole);
 
