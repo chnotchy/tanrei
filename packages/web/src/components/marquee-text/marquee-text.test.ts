@@ -72,7 +72,12 @@ const run = (locator: Locator) =>
     };
   });
 
-/** Seeks every motion of the line to `ms` of its run (from the run's start, its delay included) and holds it there. */
+/**
+ * Seeks every motion of the line to `ms` of its run (from the run's start, its delay included) and holds it there —
+ * until the line decides again: a run the line did not hold itself, it plays on from where it stands whenever
+ * something has it decide (a pointer entering, a focus). A read that must see the very moment sought, not a moment
+ * just after it, is taken in the same task (`mask(line, ms)`).
+ */
 const seek = (locator: Locator, ms: number) =>
   locator.evaluate((el, t) => {
     const root = el.shadowRoot!;
@@ -82,12 +87,25 @@ const seek = (locator: Locator, ms: number) =>
     }
   }, ms);
 
-/** The mask's look on the viewport now: size and position, as computed. */
-const mask = (locator: Locator) =>
-  locator.evaluate((el) => {
-    const style = getComputedStyle(el.shadowRoot!.querySelector('.viewport')!);
+/**
+ * The mask's look on the viewport: size and position, as computed. With `at`, at that moment of the run: sought and
+ * read in one task, so that nothing the line hears between them plays the run on. Chromium sends a line the pointer
+ * rests on its `pointerenter` again (the whole chain of boundary events, from the root down) at a moment of its own;
+ * the line decides again and plays on the run a seek held, and a read in a later task found it a few hundredths of a
+ * millisecond into the fade's ramp — 15.999 px of a 16 px fade.
+ */
+const mask = (locator: Locator, at?: number) =>
+  locator.evaluate((el, t) => {
+    const root = el.shadowRoot!;
+    if (t !== null) {
+      for (const animation of [...root.querySelector('.track')!.getAnimations(), ...root.querySelector('.viewport')!.getAnimations()]) {
+        animation.pause();
+        animation.currentTime = t;
+      }
+    }
+    const style = getComputedStyle(root.querySelector('.viewport')!);
     return { size: style.maskSize, position: style.maskPosition };
-  });
+  }, at ?? null);
 
 const easingOf = (page: P, name: string) =>
   page.evaluate((n) => {
@@ -310,12 +328,10 @@ test.describe('behavior', () => {
       expect(s.ellipsis, id).toBe('clip');
       expect(s.mask, id).toContain('gradient');
       // At the start only the end edge fades: the mask is widened past the left (start) edge by the fade.
-      await seek(line, 0);
-      expect(await mask(line), `${id} at the start`).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: `${-fade}px 0px` });
+      expect(await mask(line, 0), `${id} at the start`).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: `${-fade}px 0px` });
       const passes = (await run(line))!;
       // Mid-pass, both edges fade: the mask is the line's own box.
-      await seek(line, passes.duration * passes.frames[1]!.offset! * 0.5);
-      expect((await mask(line)).size, `${id} mid-pass`).toBe('100% 100%');
+      expect((await mask(line, passes.duration * passes.frames[1]!.offset! * 0.5)).size, `${id} mid-pass`).toBe('100% 100%');
       await away(page);
       await motionEnded(line);
       await expect.poll(() => state(line)).toMatchObject({ playing: false, ellipsis: 'ellipsis', mask: 'none' });
@@ -328,8 +344,7 @@ test.describe('behavior', () => {
     const passes = (await run(line))!;
     // Mid-way through the rest at its end (frames 1 and 2): at the rest's first moment exactly, the time a seek gives
     // back may round to just before it, into the ramp that leads to it.
-    await seek(line, (passes.duration * (passes.frames[1]!.offset! + passes.frames[2]!.offset!)) / 2);
-    expect(await mask(line)).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: '0px 0px' });
+    expect(await mask(line, (passes.duration * (passes.frames[1]!.offset! + passes.frames[2]!.offset!)) / 2)).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: '0px 0px' });
   });
 
   test('MRQ-6: a line that plays, its motion not drawn (a screenshot cancels an endless animation), looks as it rests at its start: the end edge of its direction fades', async ({ page }) => {
