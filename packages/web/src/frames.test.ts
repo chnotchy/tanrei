@@ -100,6 +100,52 @@ test.describe('sampleFrames', () => {
     // …and the sampler is gone from the page.
     expect(await page.evaluate(() => '__tanreiFrames' in window)).toBe(false);
   });
+
+  // A motion that began and ended before the sampler was put on the page sends its events in the frames after: WebKit
+  // ends a transition that turned back (a focus state Tab passed through) as soon as it begins, and sends its
+  // `transitionrun` and `transitionend` a frame or two later. Here one is begun and finished in the very task that
+  // installs the sampler (a mutation observer of the page's root element is told when the sampler adds its frame clock
+  // there), so in every engine its events come once the sampler listens. It is on an element of its own: a motion the
+  // sampler holds hides any missed one of the same element and property.
+  const FLASH = '<div id="flash" style="inline-size: 10px; block-size: 10px; background-color: rgb(200, 200, 200); transition: background-color 200ms linear"></div>';
+  const BEGUN_BEFORE = `(() => {
+    const flash = document.querySelector('#flash');
+    window.heard = [];
+    for (const type of ['transitionrun', 'transitionend']) flash.addEventListener(type, () => window.heard.push(type + (window.__tanreiFrames ? ' while sampled' : '')));
+    new MutationObserver((records, observer) => {
+      observer.disconnect();
+      flash.style.backgroundColor = 'rgb(0, 0, 255)';
+      void getComputedStyle(flash).backgroundColor;
+      for (const animation of flash.getAnimations()) animation.finish();
+    }).observe(document.documentElement, { childList: true });
+  })()`;
+
+  test('a motion that began and ended before the sampler was installed, whose events come after, is no motion of the change', async ({ page }) => {
+    await stage(page, BAR + FLASH);
+    await page.evaluate(BEGUN_BEFORE);
+    const seen = await sampleFrames(page.locator('#stage'), () => widen(page), { probe: barWidth });
+    expect(await page.evaluate(() => (window as unknown as { heard: string[] }).heard), 'the earlier motion’s events came while the sampler listened').toEqual(['transitionrun while sampled', 'transitionend while sampled']);
+    // The change's own motion is sampled whole.
+    expect(seen.frames[0]).toMatchObject({ index: 0, time: 0, probe: { width: 100 } });
+    for (const [time, width] of widths(seen)) expect(width, `the width ${time} ms in`).toBeCloseTo(100 + 100 * Math.min(Number(time) / 300, 1), 1);
+    expect(seen.rest.probe.width).toBe(200);
+    expect(seen.complete).toBe(true);
+    expect(seen.motions).toEqual([expect.objectContaining({ kind: 'transition', name: expect.stringMatching(/^(inline-size|width)$/), endless: false })]);
+  });
+
+  test('…and a motion the change begins and ends between two frames still fails the sampling, on that same element and property', async ({ page }) => {
+    await stage(page, BAR + FLASH);
+    await page.evaluate(BEGUN_BEFORE);
+    const sampled = sampleFrames(page.locator('#stage'), async () => {
+      await page.locator('#flash').evaluate((el: HTMLElement) => {
+        el.style.backgroundColor = 'rgb(200, 200, 200)';
+        void getComputedStyle(el).backgroundColor;
+        for (const animation of el.getAnimations()) animation.finish();
+      });
+      await twoFrames(page);
+    });
+    await expect(sampled).rejects.toThrow(/sampleFrames: a motion began and ended between two frames read here[^]*transition \|background-color on div/);
+  });
 });
 
 // An element whose mark turns blue: in its first update (right), from a resize observer under a transition (the first
