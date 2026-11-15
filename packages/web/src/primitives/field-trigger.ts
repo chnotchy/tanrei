@@ -1,6 +1,7 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, type TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { labelLines } from './label-lines.js';
 import { productText } from '../styles/product-text.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../styles/type.js';
 
 // The box of an input control that is not a text input (a select's trigger, SEL-1 … SEL-22; a combobox's container,
 // CMB-1 … CMB-15; a number input's and a color input's): the container of its variant and size. What such controls
@@ -60,7 +61,7 @@ const ref = (name: (key: string) => string, key: string, fallback: string | null
 export interface TriggerTokens {
   /** Per variant, both looks' parts in every state, as private custom properties (`--_error-l-f` = the error look's label, focused). */
   variantBlock: (variant: string, selector: string, fallback?: string | null) => string;
-  /** The members of the size axis for one size (`--_height`, `--_pad`, `--_input-font` …). */
+  /** The members of the size axis for one size (`--_height`, `--_pad`, `--_input-font-size` …). */
   sizeBlock: (size: string, selector: string, fallback?: string | null) => string;
   /** Which look the trigger paints: the error look exactly while `error` is true (`data-error` on the root). */
   lookBlock: (look: keyof typeof TRIGGER_LOOKS, selector: string) => string;
@@ -87,7 +88,7 @@ export function triggerTokens(parts: Readonly<Record<string, string>>, members: 
     `${selector} {\n${Object.entries(members)
       .flatMap(([key, member]) =>
         TYPESCALES.has(member)
-          ? ['font', 'letter-spacing', 'line-height', 'font-size'].map((field) => `  --_${key}-${field}: ${ref((v) => `${P}-${member}-${v}-${field}`, size, fallback)};`)
+          ? [...TYPE_LONGHANDS, 'letter-spacing'].map((field) => `  --_${key}-${field}: ${ref((v) => `${P}-${member}-${v}-${field}`, size, fallback)};`)
           : [`  --_${key}: ${ref((v) => `${P}-${member}-${v}`, size, fallback)};`],
       )
       .join('\n')}\n}`;
@@ -159,7 +160,7 @@ export function floatingLabelStyles(): CSSResult {
     inset-inline-start: var(--_text-start);
     max-inline-size: calc(100% - var(--_text-start) - var(--_text-end));
     overflow-wrap: break-word;
-    font: var(--_label-font);
+    ${typefaceFrom('--_label')}
     letter-spacing: var(--_label-letter-spacing);
   }
   .floating {
@@ -177,7 +178,7 @@ export function floatingLabelStyles(): CSSResult {
       var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-state-easing);
   }
   ${FLOATED} .floating {
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   /* Outlined: centred on the outline's top edge, starting at padding-inline — over a leading icon, not at the value. */
@@ -219,7 +220,7 @@ export function floatingLabelStyles(): CSSResult {
   .measure-floated {
     inset-inline-start: var(--_pad);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   ${FILLED} .measure-floated {
@@ -318,7 +319,7 @@ export function triggerEdgeStyles(): CSSResult {
     visibility: hidden;
     white-space: nowrap;
     padding-inline: var(${P}-outline-notch-padding);
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   /* A wrapped floated label opens the gap by the width of its widest line. */

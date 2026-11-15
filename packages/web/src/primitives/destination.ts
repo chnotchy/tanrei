@@ -15,6 +15,7 @@ import { markConditionChange, conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
 import { TanreiElement } from './element.js';
 import { reducedMotion } from '../styles/motion.js';
+import { typefaceOf } from '../styles/type.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -450,7 +451,7 @@ export function destinationStyles(
     min-inline-size: 0;
     overflow: hidden;
     text-align: center;
-    font: ${t('item-label-typescale-font')};
+    ${typefaceOf(t, 'item-label-typescale')}
     letter-spacing: ${t('item-label-typescale-letter-spacing')};
     color: var(--_l);
     transition: color ${recolor};

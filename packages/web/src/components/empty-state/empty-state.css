@@ -27,7 +27,9 @@
     box-sizing: border-box;
     padding-block: var(--tanrei-comp-empty-state-container-padding-block-medium);
     padding-inline: var(--tanrei-comp-empty-state-container-padding-inline);
-    font: var(--tanrei-comp-empty-state-description-typescale-medium-font);
+    font:
+      var(--tanrei-comp-empty-state-description-typescale-medium-font-weight) var(--tanrei-comp-empty-state-description-typescale-medium-font-size)/var(--tanrei-comp-empty-state-description-typescale-medium-line-height)
+      var(--tanrei-comp-empty-state-description-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-empty-state-description-typescale-medium-letter-spacing);
     color: var(--tanrei-comp-empty-state-description-color);
     text-align: center;
@@ -35,7 +37,9 @@
   }
   :where(tanrei-empty-state[size='large']:not(:defined)) {
     padding-block: var(--tanrei-comp-empty-state-container-padding-block-large);
-    font: var(--tanrei-comp-empty-state-description-typescale-large-font);
+    font:
+      var(--tanrei-comp-empty-state-description-typescale-large-font-weight) var(--tanrei-comp-empty-state-description-typescale-large-font-size)/var(--tanrei-comp-empty-state-description-typescale-large-line-height)
+      var(--tanrei-comp-empty-state-description-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-empty-state-description-typescale-large-letter-spacing);
   }
   :where(tanrei-empty-state[align='start']:not(:defined)) {
@@ -59,12 +63,16 @@
     display: block;
     margin: 0;
     margin-block-end: var(--tanrei-comp-empty-state-title-gap);
-    font: var(--tanrei-comp-empty-state-title-typescale-medium-font);
+    font:
+      var(--tanrei-comp-empty-state-title-typescale-medium-font-weight) var(--tanrei-comp-empty-state-title-typescale-medium-font-size)/var(--tanrei-comp-empty-state-title-typescale-medium-line-height)
+      var(--tanrei-comp-empty-state-title-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing);
     color: var(--tanrei-comp-empty-state-title-color);
   }
   :where(tanrei-empty-state[size='large']:not(:defined)) > :where([slot='title']) {
-    font: var(--tanrei-comp-empty-state-title-typescale-large-font);
+    font:
+      var(--tanrei-comp-empty-state-title-typescale-large-font-weight) var(--tanrei-comp-empty-state-title-typescale-large-font-size)/var(--tanrei-comp-empty-state-title-typescale-large-line-height)
+      var(--tanrei-comp-empty-state-title-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing);
   }
   /* EMP-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */

@@ -3,6 +3,7 @@ import { appearStyles, focusRing, iconGlyph, modalExitStyles, rowTargets } from 
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/image-preview.tokens.json). The preview draws no state of its own
 // (IMP-42): its five controls are Tanrei Buttons with their own tokens, which it places, names and gives a variant
@@ -177,7 +178,7 @@ export const styles = css`
   .error-text {
     max-inline-size: 100%;
     margin: 0;
-    font: ${t('error-text-typescale-font')};
+    ${typefaceOf(t, 'error-text-typescale')}
     letter-spacing: ${t('error-text-typescale-letter-spacing')};
     color: ${t('error-text-color')};
     text-align: center;
@@ -260,7 +261,7 @@ export const styles = css`
     min-inline-size: 0;
     margin: 0;
     padding-inline: ${t('count-padding-inline')};
-    font: ${t('count-typescale-font')};
+    ${typefaceOf(t, 'count-typescale')}
     letter-spacing: ${t('count-typescale-letter-spacing')};
     color: ${t('count-color')};
     overflow-wrap: break-word;
@@ -316,7 +317,7 @@ export const styles = css`
   .caption-text {
     max-inline-size: ${t('caption-max-width')};
     margin: 0 auto;
-    font: ${t('caption-typescale-font')};
+    ${typefaceOf(t, 'caption-typescale')}
     letter-spacing: ${t('caption-typescale-letter-spacing')};
     color: ${t('caption-color')};
     overflow-wrap: break-word;

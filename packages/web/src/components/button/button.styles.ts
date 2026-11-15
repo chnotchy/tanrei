@@ -3,6 +3,7 @@ import { DISABLED, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupIt
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token. For each state the component reads that state's tokens — it never
 // computes how a state looks. Whether hover is a state-layer mix, an explicit color, a dim, or
@@ -119,7 +120,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       member === 'label-typescale'
-        ? [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
+        ? [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
         : [`  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -214,7 +215,7 @@ const buttonStyles = css`
     --_min-height: 0px;
     ${unsafeCSS(cornerRadius('--tanrei-comp-button-container-shape'))}
     ${unsafeCSS(paint(''))}
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     white-space: nowrap;
     -webkit-user-select: none;

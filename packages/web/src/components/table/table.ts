@@ -21,6 +21,7 @@ import type { TanreiTableSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { readInPhase } from '../../primitives/read-phase.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTableSize = keyof TanreiTableSizeRegistry;
@@ -61,10 +62,10 @@ const DEFAULT_SIZE = 'medium';
 const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_table-pad-block', 'cell-padding-block-*'],
   ['--_table-pad-inline', 'cell-padding-inline-*'],
-  ['--_table-cell-font', 'cell-text-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_table-cell-${longhand}`, `cell-text-typescale-*-${longhand}`] as const),
   ['--_table-cell-tracking', 'cell-text-typescale-*-letter-spacing'],
   ['--_table-cell-emphasized', 'cell-text-typescale-*-font-weight-emphasized'],
-  ['--_table-header-font', 'header-text-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_table-header-${longhand}`, `header-text-typescale-*-${longhand}`] as const),
   ['--_table-header-tracking', 'header-text-typescale-*-letter-spacing'],
 ];
 /** The height of a line of a header's label at a size a design system added: its two tokens, multiplied (table.css). */

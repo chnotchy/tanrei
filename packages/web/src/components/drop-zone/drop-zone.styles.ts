@@ -3,6 +3,7 @@ import { productText } from '../../styles/product-text.js';
 import { iconGlyph } from '../../styles/icons.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/drop-zone.tokens.json). At rest nothing here is drawn (DRZ-1): the slot
 // passes the product's content through, and the overlay is laid out but hidden, so that its glyph is measured before a
@@ -110,7 +111,7 @@ export const styles = css`
   }
   /* DRZ-4, DRZ-18: the message, centred, on as many lines as it needs and never cut. */
   .label {
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     color: ${t('label-color')};
     max-inline-size: 100%;

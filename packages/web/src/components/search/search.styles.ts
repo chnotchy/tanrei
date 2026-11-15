@@ -4,6 +4,7 @@ import { SCRIM_FILTER, TARGET_CAPS, conditionBlock, focusGlow, focusRing, iconGl
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/search.tokens.json). The search has one condition, `standard`, whose state
 // tokens color the bar's parts and a suggestion row's parts; the outline width and the opacity are the component's per
@@ -139,7 +140,7 @@ const inputStyles = `
     padding: 0;
     border: 0;
     background: none;
-    font: ${T('input-typescale-font')};
+    ${typefaceOf(T, 'input-typescale')}
     letter-spacing: ${T('input-typescale-letter-spacing')};
     line-height: ${T('input-typescale-line-height')};
     color: var(--_n);
@@ -369,7 +370,7 @@ export const styles = css`
      it is a press on the bar or the trigger: it takes none itself. */
   .hint {
     flex: none;
-    font: ${t('shortcut-typescale-font')};
+    ${typefaceOf(t, 'shortcut-typescale')}
     letter-spacing: ${t('shortcut-typescale-letter-spacing')};
     color: ${t('shortcut-color')};
     pointer-events: none;
@@ -443,7 +444,7 @@ export const styles = css`
     flex: 1 1 auto;
     min-inline-size: 0;
     overflow: hidden;
-    font: ${t('trigger-label-typescale-font')};
+    ${typefaceOf(t, 'trigger-label-typescale')}
     letter-spacing: ${t('trigger-label-typescale-letter-spacing')};
     color: var(--_h);
     text-overflow: ellipsis;
@@ -692,7 +693,7 @@ export const styles = css`
     display: flex;
     flex: none;
     align-items: center;
-    font: ${t('status-typescale-font')};
+    ${typefaceOf(t, 'status-typescale')}
     letter-spacing: ${t('status-typescale-letter-spacing')};
     color: ${t('status-color')};
   }
@@ -806,14 +807,14 @@ export const styles = css`
   }
   /* SRC-16: both texts wrap and grow the row rather than being cut. */
   .headline {
-    font: ${t('suggestion-headline-typescale-font')};
+    ${typefaceOf(t, 'suggestion-headline-typescale')}
     letter-spacing: ${t('suggestion-headline-typescale-letter-spacing')};
     color: var(--_sh);
     overflow-wrap: anywhere;
     transition: color ${unsafeCSS(MOTION)};
   }
   .supporting {
-    font: ${t('suggestion-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'suggestion-supporting-text-typescale')}
     letter-spacing: ${t('suggestion-supporting-text-typescale-letter-spacing')};
     color: var(--_ss);
     overflow-wrap: anywhere;
@@ -830,7 +831,7 @@ export const styles = css`
   .content {
     padding-inline: ${R('suggestion-container-padding-inline')};
     color: ${t('standard-suggestion-headline-color')};
-    font: var(--tanrei-sys-typescale-body-font);
+    ${typefaceFrom('--tanrei-sys-typescale-body')}
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
   }
   .content[hidden] {
@@ -991,7 +992,7 @@ export const rowStyles = css`
     min-inline-size: 0;
   }
   .headline {
-    font: ${t('suggestion-headline-typescale-font')};
+    ${typefaceOf(t, 'suggestion-headline-typescale')}
     letter-spacing: ${t('suggestion-headline-typescale-letter-spacing')};
     color: var(--_sh);
     overflow-wrap: anywhere;
@@ -1000,7 +1001,7 @@ export const rowStyles = css`
   /* SRC-43: the excerpt — one continuous text that wraps as one, in the supporting text's style and color. */
   .excerpt {
     display: block;
-    font: ${t('suggestion-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'suggestion-supporting-text-typescale')}
     letter-spacing: ${t('suggestion-supporting-text-typescale-letter-spacing')};
     color: var(--_ss);
     overflow-wrap: anywhere;
@@ -1070,7 +1071,7 @@ export const groupStyles = css`
   .title {
     padding-block: ${R('suggestion-container-padding-block')};
     padding-inline: ${R('suggestion-container-padding-inline')};
-    font: ${t('group-title-typescale-font')};
+    ${typefaceOf(t, 'group-title-typescale')}
     letter-spacing: ${t('group-title-typescale-letter-spacing')};
     color: ${t('group-title-color')};
     overflow-wrap: anywhere;

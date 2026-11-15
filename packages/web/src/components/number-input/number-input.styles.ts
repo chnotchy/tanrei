@@ -4,6 +4,7 @@ import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json; NMI-47), and for where the steppers
 // stand and how a hold repeats the number input's own (tokens/comp/number-input.tokens.json). The number input is two things, and draws no
@@ -194,7 +195,7 @@ export const styles = css`
     min-inline-size: min-content;
     align-items: center;
     padding-block: var(--_pad-block);
-    font: var(--_input-font);
+    ${typefaceFrom('--_input')}
     font-variant-numeric: tabular-nums;
     letter-spacing: var(--_input-letter-spacing);
     line-height: var(--_input-line-height);

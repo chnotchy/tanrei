@@ -4,6 +4,7 @@ import { iconGlyph } from '../../styles/icons.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/stepper.tokens.json). A step has four conditions — incomplete, current,
 // complete and error — which are its state variants: each colors the container, the marker's fill, ring and content,
@@ -102,7 +103,7 @@ export const stepperStyles = css`
   }
   .position {
     margin-block-start: ${t('position-gap')};
-    font: ${t('position-typescale-font')};
+    ${typefaceOf(t, 'position-typescale')}
     letter-spacing: ${t('position-typescale-letter-spacing')};
     color: ${t('position-color')};
     overflow-wrap: anywhere;
@@ -112,7 +113,7 @@ export const stepperStyles = css`
     display: flex;
     align-items: flex-start;
     gap: ${t('marker-gap')};
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     color: ${t('current-label-color')};
   }
@@ -216,7 +217,7 @@ export const stepStyles = css`
     ${unsafeCSS(cornerRadius('--_shape'))}
     background: var(--_c);
     color: var(--_l);
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     text-align: start;
     -webkit-user-select: none;
@@ -286,7 +287,7 @@ export const stepStyles = css`
     background: var(--_m);
     border: ${t('marker-outline-width')} solid var(--_o);
     color: var(--_k);
-    font: ${t('marker-label-typescale-font')};
+    ${typefaceOf(t, 'marker-label-typescale')}
     letter-spacing: ${t('marker-label-typescale-letter-spacing')};
     transition-property: background-color, border-color, color;
     transition-duration: ${t('motion-state-duration')};
@@ -325,7 +326,7 @@ export const stepStyles = css`
     overflow-wrap: anywhere;
   }
   .description {
-    font: ${t('description-typescale-font')};
+    ${typefaceOf(t, 'description-typescale')}
     letter-spacing: ${t('description-typescale-letter-spacing')};
     color: var(--_d);
     overflow-wrap: anywhere;

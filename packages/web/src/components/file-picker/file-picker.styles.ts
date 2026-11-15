@@ -3,6 +3,7 @@ import { iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typeface } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/file-picker.tokens.json). One thing answers a pointer: the drop area
 // (hovered and pressed; never focused — keyboard focus is on the trigger, FPK-15). It paints from that state's tokens;
@@ -10,8 +11,8 @@ import { reducedMotion } from '../../styles/motion.js';
 export const PREFIX = '--tanrei-comp-file-picker';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
-/** A text role, used whole: the font shorthand and its letter spacing. */
-const role = (part: string) => unsafeCSS(`font: ${T(`${part}-typescale-font`)};\n    letter-spacing: ${T(`${part}-typescale-letter-spacing`)};`);
+/** A text role, used whole: the `font` shorthand composed from its longhands (styles/type.ts) and its letter spacing. */
+const role = (part: string) => unsafeCSS(`${typeface((longhand) => T(`${part}-typescale-${longhand}`))}\n    letter-spacing: ${T(`${part}-typescale-letter-spacing`)};`);
 
 /** Where each state of the drop area is read (FPK-15): on the area itself, a box with no role. */
 const area = (state: string) => `.area${state}`;

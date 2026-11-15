@@ -20,6 +20,7 @@ import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionSizeRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 /** The core looks (plain, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAccordionVariant = keyof TanreiAccordionVariantRegistry;
@@ -51,11 +52,11 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_acc-height', 'container-height-*'],
   ['--_acc-pad-block', 'container-padding-block-*'],
   ['--_acc-pad-inline', 'container-padding-inline-*'],
-  ['--_acc-label-font', 'label-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_acc-label-${longhand}`, `label-typescale-*-${longhand}`] as const),
   ['--_acc-label-tracking', 'label-typescale-*-letter-spacing'],
-  ['--_acc-supporting-font', 'supporting-text-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_acc-supporting-${longhand}`, `supporting-text-typescale-*-${longhand}`] as const),
   ['--_acc-supporting-tracking', 'supporting-text-typescale-*-letter-spacing'],
-  ['--_acc-trailing-font', 'trailing-text-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_acc-trailing-${longhand}`, `trailing-text-typescale-*-${longhand}`] as const),
   ['--_acc-trailing-tracking', 'trailing-text-typescale-*-letter-spacing'],
   ['--_acc-icon-size', 'icon-size-*'],
   ['--_acc-chevron-size', 'chevron-size-*'],

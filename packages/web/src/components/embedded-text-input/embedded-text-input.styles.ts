@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // The embedded text input draws the typing alone (ETI-1): the text, its placeholder, the caret and the selection, from
 // `comp.embedded-text-input` (tokens/comp/embedded-text-input.tokens.json). It has no container, fill, edge, corner,
@@ -81,7 +82,7 @@ export const styles = css`
     box-shadow: none;
     background: none;
     resize: none;
-    font: ${t('input-typescale-font')};
+    ${typefaceOf(t, 'input-typescale')}
     letter-spacing: ${t('input-typescale-letter-spacing')};
     line-height: var(--_line);
     color: ${t('standard-input-color')};
@@ -181,7 +182,7 @@ export const styles = css`
     overflow: hidden;
     visibility: hidden;
     pointer-events: none;
-    font: ${t('input-typescale-font')};
+    ${typefaceOf(t, 'input-typescale')}
     letter-spacing: ${t('input-typescale-letter-spacing')};
     line-height: var(--_line);
     white-space: pre-wrap;

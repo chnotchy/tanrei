@@ -6,6 +6,7 @@ import { FormDisabledController } from './form-disabled.js';
 import type { Point } from './ripple.js';
 import { type StateSelector, stateRules } from './states.js';
 import { reducedMotion } from '../styles/motion.js';
+import { typefaceFrom } from '../styles/type.js';
 
 /**
  * Selection controls (checkbox, radio button, switch): a form-associated element whose semantics
@@ -142,7 +143,7 @@ export function selectionLabel(prefix: string, block: string): CSSResult {
      line height on the control too. A line shorter than the control is padded down to its middle; a taller one moves
      the control down to the line's middle. */
   .root {
-    font: var(${prefix}-label-typescale-font);
+    ${typefaceFrom(`${prefix}-label-typescale`)}
     letter-spacing: var(${prefix}-label-typescale-letter-spacing);
   }
   .root:has(.label) .control {

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/avatar.tokens.json). An avatar has no state (AVT-7): what changes what it
 // draws is its size and its shape, each read from that value's own tokens, and whether it stands in a group.
@@ -25,8 +26,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   const role = (member: string) => ref((v) => `${PREFIX}-label-typescale-${v}-${member}`, size, fallback);
   return `${selector} {
   --_side: ${ref((v) => `${PREFIX}-container-size-${v}`, size, fallback)};
-  --_font: ${role('font')};
-  --_font-size: ${role('font-size')};
+  ${TYPE_LONGHANDS.map((longhand) => `--_${longhand}: ${role(longhand)};`).join('\n  ')}
   --_tracking: ${role('letter-spacing')};
   --_icon: ${ref((v) => `${PREFIX}-icon-size-${v}`, size, fallback)};
   --_overlap: ${ref((v) => `${PREFIX}-group-overlap-${v}`, size, fallback)};
@@ -98,7 +98,7 @@ const box = css`
      glyph's box of the same size, so that two letters still stand inside the avatar. */
   .label {
     flex: none;
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     font-size: min(var(--_font-size), var(--_icon));
     letter-spacing: var(--_tracking);
     color: ${t('label-color')};

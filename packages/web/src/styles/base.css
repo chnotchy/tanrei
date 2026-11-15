@@ -14,9 +14,9 @@
  * - The page follows the scheme the tokens follow. `color-scheme` is not written here: the tokens already put
  *   `light dark` on the root and a forced theme on `[data-tanrei-theme]`, and a rule in this layer, which a page
  *   loads after them, would win over the forced theme on `<html>`.
- * - The body face is the body role's `font` whole, on `<body>`, not on `<html>`: the root's font size is what `rem`
- *   means, and the system's sizes are written in `rem` (the type dial's base is `1rem`), so a face on the root would
- *   shrink every size the tokens give. Its letter-spacing is not set, because it would be inherited by text of every
+ * - The body face is the body role whole — `font` composed from its longhands (src/styles/type.ts) — on `<body>`,
+ *   not on `<html>`: the root's font size is what `rem` means, and the system's sizes are written in `rem` (the type
+ *   dial's base is `1rem`), so a face on the root would shrink every size the tokens give. Its letter-spacing is not set, because it would be inherited by text of every
  *   script (a joined script takes none): a role's tracking is set where the role is used (`text.css`).
  */
 @layer tanrei.base {
@@ -26,6 +26,8 @@
   }
   body {
     margin: 0;
-    font: var(--tanrei-sys-typescale-body-font);
+    font:
+      var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height)
+      var(--tanrei-sys-typescale-body-font-family);
   }
 }

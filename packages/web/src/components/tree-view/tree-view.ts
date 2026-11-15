@@ -36,6 +36,7 @@ import type { TanreiTextInput } from '../text-input/text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
@@ -126,10 +127,8 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_trv-pad-inline', 'container-padding-inline-*'],
   ['--_trv-gap', 'container-gap-*'],
   ['--_trv-indent', 'level-indent-*'],
-  ['--_trv-label-font', 'label-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_trv-label-${longhand}`, `label-typescale-*-${longhand}`] as const),
   ['--_trv-label-tracking', 'label-typescale-*-letter-spacing'],
-  ['--_trv-label-size', 'label-typescale-*-font-size'],
-  ['--_trv-label-line', 'label-typescale-*-line-height'],
   ['--_trv-icon-size', 'icon-size-*'],
   ['--_trv-chevron-size', 'chevron-size-*'],
 ];

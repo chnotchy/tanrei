@@ -3,6 +3,7 @@ import { type OpenAxis, focusRing } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { CORE_SIZES, CORE_VARIANTS, DEFAULT_SIZE, DEFAULT_VARIANT, layoutBlock, sizeBlock, variantBlock } from './code-block.light.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/code-block.tokens.json). The block is not pressed (COD-26): there is no
 // state rule, no state layer and no ripple here. What it draws in its shadow root is the frame — the container, the
@@ -60,7 +61,7 @@ export const styles = css`
     box-sizing: border-box;
     ${unsafeCSS(cornerRadius(`${PREFIX}-container-shape`))}
     background: var(--_code-block-container);
-    font: var(--_code-block-font);
+    ${typefaceFrom('--_code-block')}
     letter-spacing: var(--_code-block-tracking);
   }
   /* COD-9: at least as tall as the copy button and its inset above and below. */
@@ -100,7 +101,7 @@ export const styles = css`
     flex: 0 1 auto;
     min-inline-size: 0;
     overflow: hidden;
-    font: ${T('title-typescale-font')};
+    ${typefaceOf(T, 'title-typescale')}
     letter-spacing: ${T('title-typescale-letter-spacing')};
     color: ${T('title-color')};
     text-overflow: ellipsis;
@@ -115,7 +116,7 @@ export const styles = css`
   /* The language: at the end, before the copy button, never cut. */
   .language {
     flex: none;
-    font: ${T('language-typescale-font')};
+    ${typefaceOf(T, 'language-typescale')}
     letter-spacing: ${T('language-typescale-letter-spacing')};
     color: ${T('language-color')};
     white-space: nowrap;

@@ -2,6 +2,7 @@ import { css } from 'lit';
 import { FRAME_PARTS, frameColors, frameStyles } from '../../primitives/field-frame.js';
 import { productText } from '../../styles/product-text.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/field.tokens.json). The field draws a frame and nothing else (FLD-1): no
 // container, edge, fill or elevation, no padding, and nothing of its control. For each state the frame reads that
@@ -83,7 +84,7 @@ export const styles = css`
   .error-text {
     min-inline-size: 0;
     overflow-wrap: break-word;
-    font: var(--tanrei-comp-field-supporting-text-typescale-font);
+    ${typefaceFrom('--tanrei-comp-field-supporting-text-typescale')}
     letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
     color: var(--_frame-error-text);
     transition:
@@ -102,7 +103,7 @@ export const styles = css`
     flex: none;
     align-self: flex-start;
     margin-inline-start: auto;
-    font: var(--tanrei-comp-field-supporting-text-typescale-font);
+    ${typefaceFrom('--tanrei-comp-field-supporting-text-typescale')}
     letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
     color: var(--_frame-counter);
     white-space: nowrap;
@@ -154,7 +155,7 @@ export const styles = css`
     flex: 0 1 auto;
     min-inline-size: 0;
     overflow-wrap: anywhere;
-    font: var(--tanrei-comp-field-value-text-typescale-font);
+    ${typefaceFrom('--tanrei-comp-field-value-text-typescale')}
     letter-spacing: var(--tanrei-comp-field-value-text-typescale-letter-spacing);
     color: var(--_frame-value-text);
     cursor: default;

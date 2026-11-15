@@ -3,6 +3,7 @@ import { appearStyles, arrowStyles, whenChosen } from '../../primitives/index.js
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/tooltip.tokens.json). Plain and rich are two structures drawn by code, not a
 // token axis (a system restyles both by value); the tooltip has no interaction states. Each form has two looks (TIP-26):
@@ -46,7 +47,7 @@ const form = (variant: 'plain' | 'rich') => `
     max-inline-size: min(var(${PREFIX}-${variant}-container-max-width), calc(100vw - 2 * var(${PREFIX}-window-margin)));${cornerRadius(`${PREFIX}-${variant}-container-shape` as `--${string}`)}
   }
   :host([variant='${variant}']) .text {
-    font: var(${PREFIX}-${variant}-supporting-text-typescale-font);
+    ${typefaceFrom(`${PREFIX}-${variant}-supporting-text-typescale`)}
     letter-spacing: var(${PREFIX}-${variant}-supporting-text-typescale-letter-spacing);
   }`;
 
@@ -146,7 +147,7 @@ export const styles = css`
     gap: ${t('rich-container-gap')};
   }
   .title {
-    font: ${t('rich-title-typescale-font')};
+    ${typefaceOf(t, 'rich-title-typescale')}
     letter-spacing: ${t('rich-title-typescale-letter-spacing')};
     color: var(--_title);
   }
@@ -168,7 +169,7 @@ export const styles = css`
     align-content: center;
   }
   .shortcut {
-    font: ${t('plain-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'plain-supporting-text-typescale')}
     letter-spacing: ${t('plain-supporting-text-typescale-letter-spacing')};
     color: var(--_keys);
     white-space: nowrap;

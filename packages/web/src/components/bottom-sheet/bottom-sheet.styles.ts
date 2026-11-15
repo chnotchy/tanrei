@@ -4,6 +4,7 @@ import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/bottom-sheet.tokens.json). Both forms read the same container tokens: the
 // scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is a
@@ -273,7 +274,7 @@ export const styles = css`
     flex: 1 1 auto;
     min-inline-size: 0;
     margin: 0;
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
     letter-spacing: ${t('headline-typescale-letter-spacing')};
     color: ${t('headline-color')};
     overflow-wrap: break-word;
@@ -328,7 +329,7 @@ export const styles = css`
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    font: var(--tanrei-sys-typescale-body-font);
+    ${typefaceFrom('--tanrei-sys-typescale-body')}
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     overflow-wrap: break-word;
     touch-action: pan-x;

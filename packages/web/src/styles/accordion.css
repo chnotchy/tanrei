@@ -141,11 +141,20 @@
     --_acc-height: var(--tanrei-comp-accordion-container-height-medium);
     --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-medium);
     --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-medium);
-    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-medium-font);
+    --_acc-label-font-family: var(--tanrei-comp-accordion-label-typescale-medium-font-family);
+    --_acc-label-font-size: var(--tanrei-comp-accordion-label-typescale-medium-font-size);
+    --_acc-label-font-weight: var(--tanrei-comp-accordion-label-typescale-medium-font-weight);
+    --_acc-label-line-height: var(--tanrei-comp-accordion-label-typescale-medium-line-height);
     --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-medium-letter-spacing);
-    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-medium-font);
+    --_acc-supporting-font-family: var(--tanrei-comp-accordion-supporting-text-typescale-medium-font-family);
+    --_acc-supporting-font-size: var(--tanrei-comp-accordion-supporting-text-typescale-medium-font-size);
+    --_acc-supporting-font-weight: var(--tanrei-comp-accordion-supporting-text-typescale-medium-font-weight);
+    --_acc-supporting-line-height: var(--tanrei-comp-accordion-supporting-text-typescale-medium-line-height);
     --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-medium-letter-spacing);
-    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-medium-font);
+    --_acc-trailing-font-family: var(--tanrei-comp-accordion-trailing-text-typescale-medium-font-family);
+    --_acc-trailing-font-size: var(--tanrei-comp-accordion-trailing-text-typescale-medium-font-size);
+    --_acc-trailing-font-weight: var(--tanrei-comp-accordion-trailing-text-typescale-medium-font-weight);
+    --_acc-trailing-line-height: var(--tanrei-comp-accordion-trailing-text-typescale-medium-line-height);
     --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-medium-letter-spacing);
     --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-medium);
     --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-medium);
@@ -174,11 +183,20 @@
     --_acc-height: var(--tanrei-comp-accordion-container-height-small);
     --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-small);
     --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-small);
-    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-small-font);
+    --_acc-label-font-family: var(--tanrei-comp-accordion-label-typescale-small-font-family);
+    --_acc-label-font-size: var(--tanrei-comp-accordion-label-typescale-small-font-size);
+    --_acc-label-font-weight: var(--tanrei-comp-accordion-label-typescale-small-font-weight);
+    --_acc-label-line-height: var(--tanrei-comp-accordion-label-typescale-small-line-height);
     --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-small-letter-spacing);
-    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-small-font);
+    --_acc-supporting-font-family: var(--tanrei-comp-accordion-supporting-text-typescale-small-font-family);
+    --_acc-supporting-font-size: var(--tanrei-comp-accordion-supporting-text-typescale-small-font-size);
+    --_acc-supporting-font-weight: var(--tanrei-comp-accordion-supporting-text-typescale-small-font-weight);
+    --_acc-supporting-line-height: var(--tanrei-comp-accordion-supporting-text-typescale-small-line-height);
     --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-small-letter-spacing);
-    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-small-font);
+    --_acc-trailing-font-family: var(--tanrei-comp-accordion-trailing-text-typescale-small-font-family);
+    --_acc-trailing-font-size: var(--tanrei-comp-accordion-trailing-text-typescale-small-font-size);
+    --_acc-trailing-font-weight: var(--tanrei-comp-accordion-trailing-text-typescale-small-font-weight);
+    --_acc-trailing-line-height: var(--tanrei-comp-accordion-trailing-text-typescale-small-line-height);
     --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-small-letter-spacing);
     --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-small);
     --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-small);
@@ -364,7 +382,9 @@
     padding-inline: var(--_acc-pad-inline);
     list-style: none;
     /* ACC-3: the label's text style and color; it wraps and is never cut. */
-    font: var(--_acc-label-font);
+    font:
+      var(--_acc-label-font-weight) var(--_acc-label-font-size)/var(--_acc-label-line-height)
+      var(--_acc-label-font-family);
     letter-spacing: var(--_acc-label-tracking);
     color: var(--_acc-now-label);
     text-align: var(--_acc-start);
@@ -453,7 +473,9 @@
     grid-column: text;
     grid-row: 2;
     min-inline-size: 0;
-    font: var(--_acc-supporting-font);
+    font:
+      var(--_acc-supporting-font-weight) var(--_acc-supporting-font-size)/var(--_acc-supporting-line-height)
+      var(--_acc-supporting-font-family);
     letter-spacing: var(--_acc-supporting-tracking);
     color: var(--_acc-now-supporting);
     text-align: var(--_acc-start);
@@ -466,7 +488,9 @@
     grid-row: 1;
     min-inline-size: 0;
     overflow: hidden;
-    font: var(--_acc-trailing-font);
+    font:
+      var(--_acc-trailing-font-weight) var(--_acc-trailing-font-size)/var(--_acc-trailing-line-height)
+      var(--_acc-trailing-font-family);
     /* One line, as tall as the label's (the summary's `1lh`, which the unit means here): its text stands in the
        middle of the label's first line, as a line of its own height moved down by half the difference did. */
     line-height: 1lh;
