@@ -57,6 +57,14 @@ The packed file holds what a release publishes, so everything below works the sa
 
    The base gives the page itself the surface color, your own text the on-surface color and the body face, and takes the browser's margin off the body. Without it the page keeps the browser's defaults.
 
+   Until your script has defined the elements, the browser shows what is written between their tags, unstyled, and the page moves when they are defined. To hide them until then and keep each control at its height, add one line:
+
+   ```js
+   import '@tanrei/web/cloak.css';
+   ```
+
+   It is not in `tanrei.css`: an element stays hidden for as long as it is not defined, so on a page whose script never arrives, its content is never shown. Leave it out where a page must read without script.
+
 2. Register the components of your design system, or only the elements you use.
 
    ```js

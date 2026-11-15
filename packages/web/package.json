@@ -147,6 +147,7 @@
     "./menu.css": "./dist/menu.css",
     "./menubar.css": "./dist/menubar.css",
     "./app-bar.css": "./dist/app-bar.css",
+    "./cloak.css": "./dist/cloak.css",
     "./systems/*.css": "./dist/systems/*.css",
     "./systems/*.components.json": "./dist/systems/*.components.json",
     "./systems/*.theme-color.json": "./dist/systems/*.theme-color.json",

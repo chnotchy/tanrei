@@ -59,6 +59,14 @@ El archivo empaquetado contiene lo mismo que publica un lanzamiento, así que to
 
    La base da a la página la superficie del sistema, a tu propio texto el color on-surface y la fuente de cuerpo, y quita el margen que el navegador pone al body. Sin ella, la página conserva los valores predeterminados del navegador.
 
+   Hasta que tu script define los elementos, el navegador muestra sin estilo lo que está escrito entre sus etiquetas, y la página se desplaza cuando se definen. Para ocultarlos hasta entonces y mantener cada control a su altura, añade una línea:
+
+   ```js
+   import '@tanrei/web/cloak.css';
+   ```
+
+   No está en `tanrei.css`: un elemento sigue oculto mientras no esté definido, así que en una página cuyo script nunca llega, su contenido no se muestra nunca. No lo cargues donde una página deba poder leerse sin script.
+
 2. Registra los componentes de tu sistema de diseño, o solo los elementos que uses.
 
    ```js
