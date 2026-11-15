@@ -10,7 +10,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
-import { type Fixture, type FixtureItem, avatarPicture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1353,7 +1353,7 @@ test.describe('behavior', () => {
     // The known values are not reported.
     expect(seen.filter((w) => w.includes('AVT-22') && /"(small|medium|large|circle|square)" is not/.test(w))).toEqual([]);
     // A size and a shape a design system adds: its tokens, and no report.
-    const layer = `<style>:root { ${T('container-size-huge')}: 96px; ${T('icon-size-huge')}: 48px; ${T('group-overlap-huge')}: 24px; ${T('label-typescale-huge-font')}: 500 32px/1.25 Inter; ${T('label-typescale-huge-font-size')}: 32px; ${T('label-typescale-huge-letter-spacing')}: 0em; ${T('container-shape-hexagon')}: 12px; ${T('container-shape-hexagon-pill')}: 0; }</style>`;
+    const layer = `<style>:root { ${T('container-size-huge')}: 96px; ${T('icon-size-huge')}: 48px; ${T('group-overlap-huge')}: 24px; ${declarations(typeRole(T('label-typescale-huge'), '500 32px/1.25 Inter'))} ${T('label-typescale-huge-letter-spacing')}: 0em; ${T('container-shape-hexagon')}: 12px; ${T('container-shape-hexagon-pill')}: 0; }</style>`;
     await page.evaluate(() => console.warn('— the layer is mounted —'));
     await mountHtml(page, {
       layer,
@@ -1372,7 +1372,7 @@ test.describe('behavior', () => {
 
   test('AVT-22: a size a design system adds is not reported as unknown on an avatar that stands in no slot — a member its group does not draw, a child no slot takes: it has no style to ask — and a size no system has is reported there once the avatar is drawn', async ({ page }) => {
     const seen = warnings(page);
-    const layer = `<style>:root { ${T('container-size-huge')}: 96px; ${T('icon-size-huge')}: 48px; ${T('group-overlap-huge')}: 24px; ${T('label-typescale-huge-font')}: 500 32px/1.25 Inter; ${T('label-typescale-huge-font-size')}: 32px; ${T('label-typescale-huge-letter-spacing')}: 0em; }</style>`;
+    const layer = `<style>:root { ${T('container-size-huge')}: 96px; ${T('icon-size-huge')}: 48px; ${T('group-overlap-huge')}: 24px; ${declarations(typeRole(T('label-typescale-huge'), '500 32px/1.25 Inter'))} ${T('label-typescale-huge-letter-spacing')}: 0em; }</style>`;
     await mountHtml(page, {
       layer,
       // The third member is not drawn (max 2: one member and the count), and the product itself wrote the layer's size on it.

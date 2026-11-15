@@ -2964,6 +2964,40 @@ export function writeRootTokens(vars: Record<string, string>): void {
   for (; own > 0; own--) root.setProperty(`--root-write-${(counter.tanreiRootWrites = (counter.tanreiRootWrites ?? 0) + 1)}`, '1');
 }
 export const rootTokens = (page: Page, vars: Record<string, string>): Promise<void> => page.evaluate(writeRootTokens, vars);
+/** The longhands of a type role that a component composes its `font` from (src/styles/type.ts). */
+const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'font-family'] as const;
+
+/**
+ * A type role's tokens for a font written as the `font` shorthand's `[weight] size/line-height [family]`: the longhands a
+ * component reads where it draws its text. `typeRole(T('label-typescale'), '500 2rem/1.5 Inter')` gives
+ * `<base>-font-weight: 500`, `<base>-font-size: 2rem`, `<base>-line-height: 1.5` and `<base>-font-family: Inter`; a weight
+ * or a family left out leaves that longhand as it is, and `''` gives the four empty, which `rootTokens` takes off.
+ *
+ * Never the composite `<base>-font`: it is resolved on the root, where it is declared, so no component reads it, and a
+ * test that set it would change nothing and still pass (test/type-longhands.test.mjs refuses one).
+ */
+export function typeRole(base: string, font: string): Record<string, string> {
+  if (font === '') return Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, '']));
+  const parts = /^(?:(\d+)\s+)?(\S+)\/(\S+)(?:\s+(.+))?$/.exec(font.trim());
+  if (!parts) throw new Error(`typeRole: "${font}" is not "[weight] size/line-height [family]"`);
+  const [, weight, size, line, family] = parts;
+  return {
+    ...(weight ? { [`${base}-font-weight`]: weight } : {}),
+    [`${base}-font-size`]: size,
+    [`${base}-line-height`]: line,
+    ...(family ? { [`${base}-font-family`]: family } : {}),
+  };
+}
+
+/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline')`. */
+export const typeRoleOf = (base: string, from: string): Record<string, string> => Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, `var(${from}-${longhand})`]));
+
+/** Declarations for a stylesheet or a `style` attribute: `{ '--a': 'b' }` gives `--a: b;`. */
+export const declarations = (vars: Record<string, string>): string =>
+  Object.entries(vars)
+    .map(([name, value]) => `${name}: ${value};`)
+    .join(' ');
+
 export const rootTokensInPage = (page: Page): Promise<void> =>
   page.evaluate((source) => {
     (window as unknown as { rootTokens: unknown }).rootTokens = new Function(`return (${source})`)();

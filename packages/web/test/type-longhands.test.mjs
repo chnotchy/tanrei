@@ -24,11 +24,12 @@ export const ALLOWED = {
   'src/primitives/glyph-pending.ts: normal ${EM}px/1 var(${FAMILY})': "a hidden probe that measures the icon font's glyphs, at a size of its own; no text is drawn with it",
 };
 
-function files(dir) {
+/** The sources under `dir` (`.ts` and `.css`), or with `tests` the browser tests among them (`.test.ts`). */
+function files(dir, tests = false) {
   return fs.readdirSync(path.join(pkg, dir), { withFileTypes: true }).flatMap((entry) => {
     const rel = path.join(dir, entry.name);
-    if (entry.isDirectory()) return entry.name === 'generated' ? [] : files(rel);
-    return /\.(ts|css)$/.test(entry.name) && !entry.name.endsWith('.test.ts') ? [rel] : [];
+    if (entry.isDirectory()) return entry.name === 'generated' ? [] : files(rel, tests);
+    return /\.(ts|css)$/.test(entry.name) && entry.name.endsWith('.test.ts') === tests ? [rel] : [];
   });
 }
 
@@ -79,6 +80,26 @@ test('every font declaration is inherit, or the shorthand composed from a role�
     [],
     'an ALLOWED entry no source has any more: take it off',
   );
+});
+
+/** The browser tests and their helpers. */
+const TESTS = [...files('src', true), ...files('test').filter((file) => file.endsWith('.ts'))].map((file) => ({ file, text: code(fs.readFileSync(path.join(pkg, file), 'utf8')) }));
+
+/** A role's composite being set: a declaration (`…-font: 500 …`) or an object key (`[T('label-typescale-font')]: …`, `'--…-font': …`, `fonts[…-font`] = …`). */
+const SETS_COMPOSITE = /(?:[\w}*][-_]|--_)font(?![\w-])\s*['"`]?\)?[\]}]?\s*(?::|=(?!=))/g;
+
+test('no test sets a type role’s composite', () => {
+  // No component reads it (the checks above), so a test that set it to make a component's text larger or of another
+  // family would change nothing, and could still pass. Set the longhands: `typeRole()` in test/harness.ts.
+  const found = TESTS.flatMap(({ file, text }) => [...text.matchAll(SETS_COMPOSITE)].map((m) => `${file}: …${text.slice(Math.max(0, m.index - 40), m.index + m[0].length + 12).replace(/\s+/g, ' ')}`));
+  assert.deepEqual(found, [], 'set the role’s longhands (typeRole() in test/harness.ts), never `<role>-font`');
+  assert.ok(TESTS.length > 100, `only ${TESTS.length} test files were read`);
+  for (const set of ["{ [T('label-typescale-font')]: '500 2rem/1.5 Inter' }", "{ '--tanrei-comp-x-label-typescale-font': '' }", '`:root { ${T(\'label-typescale-huge-font\')}: 500 30px/1.25 Inter; }`', 'fonts[T(`${name}-typescale-font`)] = x']) {
+    assert.equal(code(set).match(SETS_COMPOSITE)?.length, 1, set);
+  }
+  for (const read of ["probe.style.font = 'var(--tanrei-sys-typescale-body-font)';", "lineOf(page, T('title-typescale-font'))", "[T('headline-typescale-font'), T('x')]", 'a == b-font === c']) {
+    assert.equal(code(read).match(SETS_COMPOSITE), null, read);
+  }
 });
 
 test('the checks see the declarations: the composed ones are found and counted', () => {

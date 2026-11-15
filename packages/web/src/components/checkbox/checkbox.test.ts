@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { RATIOS, atRatio, endMotion, holdMotionAt, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
@@ -1263,7 +1263,7 @@ test.describe('accessibility', () => {
     expect(await labelOf(page, 'error-unselected').evaluate((el) => el.scrollWidth <= el.clientWidth && getComputedStyle(el).textOverflow !== 'ellipsis')).toBe(true);
     // A line taller than the control: the control moves down to the middle of the label's first line.
     await page.evaluate(() => { for (const el of document.querySelectorAll<HTMLElement>('.stage')) el.style.inlineSize = ''; });
-    await override(page, { [T('label-typescale-font')]: '400 40px/1.5 Inter' });
+    await override(page, typeRole(T('label-typescale'), '400 40px/1.5 Inter'));
     const [tall, first] = [await bounds(container(page, 'unselected')), await labelOf(page, 'unselected').evaluate((el) => {
       const range = document.createRange();
       range.selectNodeContents(el);
@@ -1271,7 +1271,7 @@ test.describe('accessibility', () => {
       return rect.y + rect.height / 2;
     })];
     expect(Math.abs(tall.y + tall.height / 2 - first)).toBeLessThanOrEqual(1);
-    await override(page, { [T('label-typescale-font')]: '' });
+    await override(page, typeRole(T('label-typescale'), ''));
     // RTL: the label is at the inline end, which is the left.
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     const [rc, rl] = [await bounds(container(page, 'unselected')), await bounds(labelOf(page, 'unselected'))];

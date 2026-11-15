@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('one-time-code-input');
@@ -1252,8 +1252,7 @@ test.describe('behavior', () => {
     // The text alone enlarged (a layer that sets a larger text style): the spec's verify — one row at 288, cells at
     // least container.height high and of one width.
     await page.evaluate(() => (document.documentElement.style.fontSize = ''));
-    await rootTokens(page, { [T('input-typescale-font')]: '400 32px/1.625 system-ui' });
-    await rootTokens(page, { [T('input-typescale-font-size')]: '32px' });
+    await rootTokens(page, typeRole(T('input-typescale'), '400 32px/1.625 system-ui'));
     await page.addStyleTag({ content: '.stage { inline-size: 288px !important; }' });
     const enlarged = await check('six', 'text alone at 288');
     expect(rowsOf(enlarged)).toEqual([6]);
@@ -1287,9 +1286,7 @@ test.describe('behavior', () => {
     await page.mouse.up();
     // The hit area: with cells lower than the target, the native element reaches the target's height, centred.
     await rootTokens(page, { [T('container-height')]: '24px' });
-    await rootTokens(page, { [T('input-typescale-font')]: '400 12px/1.5 system-ui' });
-    await rootTokens(page, { [T('input-typescale-font-size')]: '12px' });
-    await rootTokens(page, { [T('input-typescale-line-height')]: '1.5' });
+    await rootTokens(page, typeRole(T('input-typescale'), '400 12px/1.5 system-ui'));
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     const [cell, hit] = [await box(cells(page, 'code').nth(0)), await box(native(page, 'code'))];
     near(cell.height, 24, 'the cell keeps its visual size');

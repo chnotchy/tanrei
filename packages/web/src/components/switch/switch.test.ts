@@ -21,6 +21,7 @@ import {
   tab,
   tabTo,
   rootTokens,
+  typeRole,
 } from '../../../test/harness.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -1789,7 +1790,7 @@ test.describe('accessibility', () => {
     });
     expect(Math.abs((await center(trackOf(page, 'long'))).y - (await firstLine('long')))).toBeLessThanOrEqual(1);
     // …and a line taller than the track moves the track down to the line's middle.
-    await override(page, { [T('label-typescale-font')]: '400 40px/1.5 Inter' });
+    await override(page, typeRole(T('label-typescale'), '400 40px/1.5 Inter'));
     expect(Math.abs((await center(trackOf(page, 'long'))).y - (await firstLine('long')))).toBeLessThanOrEqual(1);
   });
 

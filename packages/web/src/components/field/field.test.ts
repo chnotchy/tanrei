@@ -4,7 +4,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, mountFixtureAsInAll, typeRole } from '../../../test/harness.js';
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -1873,12 +1873,13 @@ test.describe('the value text', () => {
     }
     // The text style is the value text's own token.
     const family = await css(part(page, 'slider-value-text', '.value-text'), 'font-family');
-    await override(page, { [T('value-text-typescale-font')]: `italic 700 24px/32px ${family}` });
+    await override(page, typeRole(T('value-text-typescale'), `700 24px/32px ${family}`));
     expect(await css(part(page, 'slider-value-text', '.value-text'), 'font-size')).toBe('24px');
-    expect(await css(part(page, 'slider-value-text', '.value-text'), 'font-style')).toBe('italic');
+    expect(await css(part(page, 'slider-value-text', '.value-text'), 'line-height')).toBe('32px');
+    expect(await css(part(page, 'slider-value-text', '.value-text'), 'font-weight')).toBe('700');
     // A text of another size still stands on the label's baseline — beside a glyph too.
     for (const id of ['slider-value-text', 'slider-label-icon']) near(await baseline(part(page, id, '.value-text')), await baseline(part(page, id, '.label')), `${id}: the baseline, with a larger value text`);
-    await rootTokens(page, { '--tanrei-comp-field-value-text-typescale-font': '' });
+    await rootTokens(page, typeRole(T('value-text-typescale'), ''));
     // The label wraps in the room that is left, and the tag moves whole to a line of its own after it (FLD-5).
     const [label, tag, value] = [await box(part(page, 'long-label', '.label')), await box(part(page, 'long-label', '.required-tag')), await box(part(page, 'long-label', '.value-text'))];
     expect(label.height, 'the label wraps').toBeGreaterThan(2 * Number.parseFloat(await css(part(page, 'long-label', '.label'), 'line-height')) - 1);

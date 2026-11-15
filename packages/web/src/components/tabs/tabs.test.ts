@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll, typeRole } from '../../../test/harness.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -2748,7 +2748,7 @@ test.describe('the indicator at the first paint', () => {
     // Larger content: text twice as large, a label many times as long, and a tab made tall by the row (a capsule still,
     // never a rounded rectangle).
     await holders(page, '');
-    await override(page, { [T('label-typescale-font')]: '600 28px/40px Inter', [T('container-height-medium')]: '96px', [T('container-height-with-icon')]: '132px' });
+    await override(page, { ...typeRole(T('label-typescale'), '600 28px/40px Inter'), [T('container-height-medium')]: '96px', [T('container-height-with-icon')]: '132px' });
     await page.evaluate(async () => {
       for (const each of document.querySelectorAll<any>('tanrei-tab[value="overview"]')) each.label = 'Overview of everything in the project';
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));

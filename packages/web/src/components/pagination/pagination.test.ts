@@ -6,7 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo, typeRole } from '../../../test/harness.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { settledCss } from '../../../test/motions.js';
@@ -526,7 +526,7 @@ test.describe('what is drawn', () => {
     await stage(page, 'big').evaluate((el, w) => (el.style.cssText = `box-sizing: content-box; inline-size: ${w}px`), Math.ceil(before));
     expect(await row(page, 'big')).toHaveLength(9);
     // 200 % text: the number's text style at twice its size. The grown row no longer fits the same width: compact.
-    await override(page, { [T('label-typescale-font')]: `${await token(page, T('label-typescale-font-weight'))} ${size * 2}px/${line * 2}px ${await token(page, T('label-typescale-font-family'))}` });
+    await override(page, typeRole(T('label-typescale'), `${size * 2}px/${line * 2}px`));
     await expect.poll(async () => (await row(page, 'big')).length).toBe(3);
     // Room for it: the grown numbered row.
     await stage(page, 'big').evaluate((el) => (el.style.cssText = ''));

@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
@@ -903,7 +903,7 @@ test.describe('the time', () => {
     await expect(selector(page, 'ja', 'hour')).toHaveAttribute('aria-valuetext', '午前 7');
     // A longer name is not cut: the selector grows.
     await mount(page, [opened('es', { mode: 'time', value: '19:30', hourCycle: 'h12', locale: 'es-ES', entryMode: 'dial' })]);
-    await override(page, { [T('period-container-width')]: '10px', [T('period-label-typescale-font')]: '500 28px/1.2 sans-serif' });
+    await override(page, { [T('period-container-width')]: '10px', ...typeRole(T('period-label-typescale'), '500 28px/1.2 sans-serif') });
     const [cell, word] = [await bounds(period(page, 'es')), await bounds(period(page, 'es').locator('.name:not([data-off])'))];
     expect(cell.width).toBeGreaterThanOrEqual(word.width - 0.5);
     expect(word.x).toBeGreaterThanOrEqual(cell.x - 0.5);
@@ -1864,7 +1864,7 @@ test.describe('states, press, corners and focus style', () => {
 
   test('DTM-32: selectors and range fields are at least the target in each dimension, a wheel’s rows at least the target tall', async ({ page }) => {
     await mount(page, [opened('a', { mode: 'time', range: true, start: '09:00', end: '17:30', entryMode: 'dial' }), opened('w', { mode: 'time', value: '07:30' })]);
-    await override(page, { [T('selector-container-width')]: '10px', [T('selector-container-height')]: '10px', [T('wheel-row-height')]: '10px', [T('range-field-container-height')]: '10px', [T('range-field-container-padding-inline')]: '0px', [T('range-field-label-typescale-font')]: '400 2px/1 sans-serif' });
+    await override(page, { [T('selector-container-width')]: '10px', [T('selector-container-height')]: '10px', [T('wheel-row-height')]: '10px', [T('range-field-container-height')]: '10px', [T('range-field-container-padding-inline')]: '0px', ...typeRole(T('range-field-label-typescale'), '400 2px/1 sans-serif') });
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     const s = await bounds(selector(page, 'a', 'hour'));
     expect(Math.min(s.width, s.height)).toBeGreaterThanOrEqual(target - 0.5);
@@ -3083,7 +3083,7 @@ test.describe('the range fields and typed entries', () => {
     // Enlarged text: the field grows to hold it.
     await mount(page, [opened('g', { mode: 'time', range: true, start: '09:00', end: '17:30', hourCycle: 'h12' })]);
     const before = await bounds(field(page, 'g', 'start'));
-    await override(page, { [T('range-field-label-typescale-font')]: '500 40px/1.5 Inter' });
+    await override(page, typeRole(T('range-field-label-typescale'), '500 40px/1.5 Inter'));
     const after = await bounds(field(page, 'g', 'start'));
     expect(after.height).toBeGreaterThan(before.height);
     expect(after.width).toBeGreaterThan(before.width);

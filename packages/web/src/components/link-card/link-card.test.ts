@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { acmeSystemCss, declarations, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, typeRole } from '../../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
@@ -1329,7 +1329,7 @@ test.describe('states, focus and press', () => {
     expect(smallest.height).toBeGreaterThanOrEqual(target);
     expect(await px(part(page, 'title-only', 'body'), 'top', '::before')).toBe(0);
     // A system with no padding: the card is one line of text high, and the hit area is the target.
-    await setStage(page, 'title-only', `${T('container-padding')}: 0px; ${T('title-typescale-font')}: 400 12px/16px sans-serif; inline-size: 24px;`);
+    await setStage(page, 'title-only', `${T('container-padding')}: 0px; ${declarations(typeRole(T('title-typescale'), '400 12px/16px sans-serif'))} inline-size: 24px;`);
     const small = await box(card(page, 'title-only'));
     expect(small.height).toBeLessThan(target);
     const body = part(page, 'title-only', 'body');

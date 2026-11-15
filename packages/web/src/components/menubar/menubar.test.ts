@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, typeRoleOf } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -189,7 +189,7 @@ test.describe('the row and a title', () => {
     }
     // The label's style is the token's: another role changes it.
     const before = await px(container(page, 'default', 'File').locator('.label'), 'font-size');
-    await override(page, { [T('label-typescale-font')]: 'var(--tanrei-sys-typescale-headline-font)' });
+    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline'));
     expect(await px(container(page, 'default', 'File').locator('.label'), 'font-size')).toBeGreaterThan(before);
   });
 
