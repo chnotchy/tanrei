@@ -54,10 +54,16 @@ const state = (locator: Locator) =>
     };
   });
 
-/** The run's motion of the text: its timing and keyframes. */
-const run = (locator: Locator) =>
-  locator.evaluate((el) => {
-    const animation = el.shadowRoot!.querySelector('.track')!.getAnimations()[0];
+/** Where `keepMotionAtLeave` keeps the motion of the text that the pointer's leaving started. */
+type KeptAtLeave = { motionAtLeave?: Animation | null };
+
+/**
+ * The run's motion of the text: its timing and keyframes. `atLeave`: the motion `keepMotionAtLeave` kept, the one the
+ * pointer's leaving started, which may have ended by now (its timing and keyframes are still its own).
+ */
+const run = (locator: Locator, atLeave = false) =>
+  locator.evaluate((el, kept) => {
+    const animation = kept ? (el as unknown as KeptAtLeave).motionAtLeave : el.shadowRoot!.querySelector('.track')!.getAnimations()[0];
     if (!animation) return null;
     const effect = animation.effect as KeyframeEffect;
     const timing = effect.getTiming();
@@ -70,6 +76,24 @@ const run = (locator: Locator) =>
       playState: animation.playState,
       currentTime: Number(animation.currentTime),
     };
+  }, atLeave);
+
+/**
+ * Keeps the motion of the text that the pointer's leaving starts, taken in the task that starts it: by a listener on the
+ * line, added after the line's own (the line is its own trigger area where nothing around it takes presses), so it hears
+ * the leave just after the line has started its return. A read in a later task may come after the return has ended: it
+ * lasts return-duration, and a loaded runner — or harsh mode, 300 ms after every input — answers later than that.
+ * The first leave the line hears (`pointerleave`, or `mouseleave` where Chromium sends no `pointerleave`) is the one kept.
+ */
+const keepMotionAtLeave = (locator: Locator) =>
+  locator.evaluate((el) => {
+    const kept = el as unknown as KeptAtLeave;
+    delete kept.motionAtLeave;
+    const keep = () => {
+      if (!('motionAtLeave' in kept)) kept.motionAtLeave = el.shadowRoot!.querySelector('.track')!.getAnimations()[0] ?? null;
+    };
+    el.addEventListener('pointerleave', keep, { once: true });
+    el.addEventListener('mouseleave', keep, { once: true });
   });
 
 /**
@@ -179,12 +203,15 @@ test.describe('behavior', () => {
     // Without iterations, passes go on while the trigger holds (the owner's choice for a hover and a focus).
     expect(passes).toMatchObject({ iterations: 'Infinity', delay: 0 });
     await seek(line, passes.duration / 4);
+    await keepMotionAtLeave(line);
     await away(page);
-    // The return: from where the text stood, over the return duration with the return easing.
-    const back = (await run(line))!;
-    expect(back.duration).toBe(await resolveToken(page, T('motion-return-duration'), 'duration'));
-    expect(back.easing).toBe(await easingOf(page, T('motion-return-easing')));
-    expect(back.frames.at(-1)!.translate).toBe(0);
+    // The return: from where the text stood, over the return duration with the return easing — read as the leave
+    // started it, since by the time this test asks it may be over.
+    const back = await run(line, true);
+    expect(back, 'a return started by the leave').not.toBeNull();
+    expect(back!.duration).toBe(await resolveToken(page, T('motion-return-duration'), 'duration'));
+    expect(back!.easing).toBe(await easingOf(page, T('motion-return-easing')));
+    expect(back!.frames.at(-1)!.translate).toBe(0);
     await motionEnded(line);
     await expect.poll(() => state(line)).toMatchObject({ playing: false, animations: 0, ellipsis: 'ellipsis', translate: 0 });
   });
