@@ -987,6 +987,12 @@ test.describe('behavior', () => {
     // Closed by the person: every motion held at its start, the callout still drawn whole.
     await page.locator('#before').focus();
     await tabTo(page, close(page, id));
+    // The frame is frozen from rest. Tab passed the action on its way here: its focus came and went, and WebKit ends
+    // that turned-back state-layer transition as soon as it begins, then sends its run event in the next frame and its
+    // start and end in the one after. Frozen before those frames, the sampler sees a motion begin and end that no
+    // frame shows. So the motions Tab began end (the close button's focus arriving), and two frames send their events.
+    await motionEnded(stage(page, id));
+    await frames(page, 2);
     const closing = await freezeFirstFrame(stage(page, id), () => page.keyboard.press('Enter'));
     expect(await heightOf(callout), 'still drawn whole').toBeGreaterThan(80);
     expect(await focused(page), 'CLO-12').toBe('a#before');
