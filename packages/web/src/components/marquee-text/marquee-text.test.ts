@@ -54,10 +54,16 @@ const state = (locator: Locator) =>
     };
   });
 
-/** The run's motion of the text: its timing and keyframes. */
-const run = (locator: Locator) =>
-  locator.evaluate((el) => {
-    const animation = el.shadowRoot!.querySelector('.track')!.getAnimations()[0];
+/** Where `keepMotionAtLeave` keeps the motion of the text that the pointer's leaving started. */
+type KeptAtLeave = { motionAtLeave?: Animation | null };
+
+/**
+ * The run's motion of the text: its timing and keyframes. `atLeave`: the motion `keepMotionAtLeave` kept, the one the
+ * pointer's leaving started, which may have ended by now (its timing and keyframes are still its own).
+ */
+const run = (locator: Locator, atLeave = false) =>
+  locator.evaluate((el, kept) => {
+    const animation = kept ? (el as unknown as KeptAtLeave).motionAtLeave : el.shadowRoot!.querySelector('.track')!.getAnimations()[0];
     if (!animation) return null;
     const effect = animation.effect as KeyframeEffect;
     const timing = effect.getTiming();
@@ -70,6 +76,24 @@ const run = (locator: Locator) =>
       playState: animation.playState,
       currentTime: Number(animation.currentTime),
     };
+  }, atLeave);
+
+/**
+ * Keeps the motion of the text that the pointer's leaving starts, taken in the task that starts it: by a listener on the
+ * line, added after the line's own (the line is its own trigger area where nothing around it takes presses), so it hears
+ * the leave just after the line has started its return. A read in a later task may come after the return has ended: it
+ * lasts return-duration, and a loaded runner — or harsh mode, 300 ms after every input — answers later than that.
+ * The first leave the line hears (`pointerleave`, or `mouseleave` where Chromium sends no `pointerleave`) is the one kept.
+ */
+const keepMotionAtLeave = (locator: Locator) =>
+  locator.evaluate((el) => {
+    const kept = el as unknown as KeptAtLeave;
+    delete kept.motionAtLeave;
+    const keep = () => {
+      if (!('motionAtLeave' in kept)) kept.motionAtLeave = el.shadowRoot!.querySelector('.track')!.getAnimations()[0] ?? null;
+    };
+    el.addEventListener('pointerleave', keep, { once: true });
+    el.addEventListener('mouseleave', keep, { once: true });
   });
 
 /**
@@ -179,12 +203,15 @@ test.describe('behavior', () => {
     // Without iterations, passes go on while the trigger holds (the owner's choice for a hover and a focus).
     expect(passes).toMatchObject({ iterations: 'Infinity', delay: 0 });
     await seek(line, passes.duration / 4);
+    await keepMotionAtLeave(line);
     await away(page);
-    // The return: from where the text stood, over the return duration with the return easing.
-    const back = (await run(line))!;
-    expect(back.duration).toBe(await resolveToken(page, T('motion-return-duration'), 'duration'));
-    expect(back.easing).toBe(await easingOf(page, T('motion-return-easing')));
-    expect(back.frames.at(-1)!.translate).toBe(0);
+    // The return: from where the text stood, over the return duration with the return easing — read as the leave
+    // started it, since by the time this test asks it may be over.
+    const back = await run(line, true);
+    expect(back, 'a return started by the leave').not.toBeNull();
+    expect(back!.duration).toBe(await resolveToken(page, T('motion-return-duration'), 'duration'));
+    expect(back!.easing).toBe(await easingOf(page, T('motion-return-easing')));
+    expect(back!.frames.at(-1)!.translate).toBe(0);
     await motionEnded(line);
     await expect.poll(() => state(line)).toMatchObject({ playing: false, animations: 0, ellipsis: 'ellipsis', translate: 0 });
   });
@@ -198,6 +225,42 @@ test.describe('behavior', () => {
     await away(page);
     await pastStartDelay(page);
     expect(await state(line)).toMatchObject({ playing: false, animations: 0 });
+  });
+
+  test('MRQ-3: a pointer entering again while it is over the line is no new trigger — the start delay is not begun again, and the line does not decide again', async ({ page }) => {
+    await mount(page, only('default'));
+    await holdClock(page);
+    const line = host(page, 'default');
+    const delay = await resolveToken(page, T('motion-start-delay'), 'duration');
+    // The enter again that Chromium sends a line the pointer rests on (the whole chain of boundary events), sent here
+    // at a moment of the test's own.
+    const enterAgain = () => line.evaluate((el) => void el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' })));
+    await hover(page, line);
+    await page.clock.runFor(delay / 2);
+    await enterAgain();
+    // The delay counts from the first enter: the passes begin at its end, not half a delay later.
+    await page.clock.runFor(delay - delay / 2);
+    await expect.poll(async () => (await state(line)).animations).toBe(2);
+    // A run held from outside the line shows whether it decided again: deciding plays on a run it did not hold itself
+    // (MRQ-9 holds only a line that moves all the time, or a paused one). Held, entered again and read in one task.
+    const passes = (await run(line))!;
+    const at = passes.duration / 4;
+    const after = await line.evaluate((el, t) => {
+      const root = el.shadowRoot!;
+      const runs = [...root.querySelector('.track')!.getAnimations(), ...root.querySelector('.viewport')!.getAnimations()];
+      for (const animation of runs) {
+        animation.pause();
+        animation.currentTime = t;
+      }
+      el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      return runs.map((a) => ({ state: a.playState, time: Number(a.currentTime) }));
+    }, at);
+    // Where it was held, to the grain of the engine's clock: Firefox gives a time back to 20 µs, a whole millisecond
+    // set included (4256 read back as 4255.98).
+    expect(after).toEqual([
+      { state: 'paused', time: expect.closeTo(at, 1) },
+      { state: 'paused', time: expect.closeTo(at, 1) },
+    ]);
   });
 
   test('MRQ-3: iterations plays that many passes, then the line rests at its start while the trigger still holds; a new trigger plays them again', async ({ page }) => {
