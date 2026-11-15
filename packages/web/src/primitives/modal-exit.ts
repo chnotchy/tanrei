@@ -1,5 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
-import { afterFirstPaint, documentPainted, startFromNextFrame, startTogetherFromNextFrame } from './motion.js';
+import { afterFirstPaint, documentPainted, holdStillPointer, startFromNextFrame, startTogetherFromNextFrame } from './motion.js';
 import { deepActive, modalLayer } from './modal.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
@@ -295,6 +295,8 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  */
 export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [], keep = null }: { instant?: boolean; moves?: ModalMoves; keep?: HTMLElement | null } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;
+  // MOT-3: what a pointer at rest is over as it opens is drawn hovered at once, however late the engine hovers it.
+  holdStillPointer(dialog);
   if (instant) {
     atOnce(dialog, () => show(dialog, keep));
     if (!documentPainted()) quietUntilPainted(dialog);
