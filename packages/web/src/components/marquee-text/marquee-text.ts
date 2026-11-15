@@ -482,6 +482,9 @@ export class TanreiMarqueeText extends TanreiElement {
 
   private readonly onEnter = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+    // An enter while the pointer is already over the area (Chromium sends the whole chain of boundary events again to
+    // an element the pointer rests on) is no new trigger: nothing to decide, as a leave without a hover is nothing.
+    if (this.hovering) return;
     this.hovering = true;
     this.decide();
   };
