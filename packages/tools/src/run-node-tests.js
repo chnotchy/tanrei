@@ -179,4 +179,9 @@ export function runNodeTests(args, { cwd = process.cwd(), env = process.env, std
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exitCode = runNodeTests(process.argv.slice(2));
+  // A signal that reached this process while spawnSync held it (Ctrl-C reaches the whole process group; a job's
+  // timeout may signal this process alone) is pending, and its listener in test-tmp.js — sweep, then end by that
+  // signal — runs only when the event loop polls once more. Without this turn the process would exit first, with the
+  // run's status instead of the signal.
+  setImmediate(() => {});
 }
