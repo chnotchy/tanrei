@@ -1,6 +1,6 @@
 // <tanrei-navigation-drawer> over the content under a scroll bar that takes room in the window
 // (specs/navigation-drawer.spec.json, NVD-97): the room over the content — the window from where the drawer starts, less
-// sys.target.touch — is taken from the window as the page has it, less such a bar, never from `100vw`, which counts it.
+// sys.target.touch — is taken from the window's own box, less such a bar, never from `100vw`, which counts it.
 // The panel is held to its containing block, the window exactly, so a room taken from `100vw` laid the rows out a bar's
 // width wider than the panel, and their ends (a trailing text, the end of the active indicator) were cut there. Every
 // length is read back from the tokens.
@@ -12,11 +12,17 @@
 //   styled with `::-webkit-scrollbar` then takes its width in every OS. On Linux (CI's container) Chromium keeps a gutter
 //   of its width while the scroll is held, so the window stays that much narrower than `100vw` while the drawer is open;
 //   on macOS it pads the root instead, and the window widens while the scroll is held and narrows again as the drawer
-//   leaves, when the hold gives the bar back during its slide out.
+//   leaves, when the hold gives the bar back during its slide out. Chromium on macOS keeps no gutter for a styled bar, not
+//   even where the root keeps a stable gutter of its own (page-scroll-hold.test.ts), so the gutter branch runs on Linux.
 // - WebKit: a styled bar takes its width; WebKit pads the root as Chromium on macOS does: the slide out is drawn with the
 //   bar back.
 // - Firefox: headless Firefox under Playwright draws no scroll bar (its driver's sheet sets `scrollbar-width: none`) and
 //   has no `::-webkit-scrollbar`, so the window is never narrower than `100vw` there: skipped, with that reason.
+//
+// "The window" is the window's own box, the containing block of what is fixed to it, where the panel and its scrim are
+// laid out: read here as the drawer reads it, from an element fixed across the window. Not the root's `clientWidth`,
+// which Chromium does not narrow by the gutter its scroll hold keeps: there it reads the whole window while the strip of
+// scrim, and the panel held to its containing block, end at the gutter.
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, mountFixtures, resolveToken } from '../../../test/harness.js';
 import { sampleFrames } from '../../../test/frames.js';
@@ -42,7 +48,8 @@ const setOpen = (page: P, open: boolean) =>
 
 /**
  * The dialog and its rows as one frame paints them, while the dialog is drawn (open, or sliding out in the top layer),
- * and the window's width as the page has it then: the window less a scroll bar that takes room in it.
+ * and the window's own box then — read from an element fixed across it, for the instant it is measured: the window less
+ * a scroll bar that takes room in it, or the gutter kept for one.
  */
 const look = (root: Element) => {
   const host = root.querySelector('tanrei-navigation-drawer')!;
@@ -51,8 +58,15 @@ const look = (root: Element) => {
   const box = dialog.getBoundingClientRect();
   const tenth = (n: number) => Math.round(n * 10) / 10;
   const rows = [...host.querySelectorAll('tanrei-navigation-drawer-item')].map((item) => item.shadowRoot!.querySelector('.row > .container')!.getBoundingClientRect());
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position: fixed; left: 0; right: 0; top: 0; height: 0; margin: 0; padding: 0; border: 0; visibility: hidden; pointer-events: none';
+  document.documentElement.append(probe);
+  const win = probe.getBoundingClientRect();
+  probe.remove();
   return {
-    window: document.documentElement.clientWidth,
+    window: tenth(win.width),
+    windowLeft: tenth(win.left),
+    windowRight: tenth(win.right),
     width: tenth(box.width),
     left: tenth(box.left),
     // Every row's width, and how far the widest reaches past the dialog's content box at either side.
@@ -63,7 +77,7 @@ const look = (root: Element) => {
 };
 
 for (const dir of ['ltr', 'rtl'] as const) {
-  test(`NVD-97, NVD-19, NVD-22: under a scroll bar that takes room in the window (${dir}), a modal drawer in a window narrower than container.width, sys.target.touch and the bar together lays its rows out at its own width — open, and in every frame of its slide out, as the page’s scroll is given back and the bar with it — every row inside the drawer, never cut by the bar’s width, and the strip of scrim beside its end edge at least a touch target wide`, async ({ page, browserName }) => {
+  test(`NVD-97, NVD-19, NVD-22: under a scroll bar that takes room in the window (${dir}), a modal drawer in a window narrower than container.width, sys.target.touch and the bar together lays its rows out at its own width — open, resized while open, and in every frame of its slide out, as the page’s scroll is given back and the bar with it — every row inside the drawer, never cut by the bar’s width, and the strip of scrim beside its end edge at least a touch target wide`, async ({ page, browserName }) => {
     test.skip(browserName === 'firefox', 'headless Firefox draws no scroll bar and has no ::-webkit-scrollbar (see the head of this file)');
     // 270 less the bar (10) less the touch target (36) is 224, narrower than container.width (240); 270 less 36 is not.
     // Taller than the drawer's stage (560): the page has no scroll bar until the bar's style is in it (WebKit keeps the
@@ -84,14 +98,29 @@ for (const dir of ['ltr', 'rtl'] as const) {
     const expectRoom = (p: Record<string, unknown>, what: string, { resting }: { resting: boolean }) => {
       const room = Math.min(full, Number(p.window) - touch);
       expect(p.width, `${what}: as wide as the window less the touch target`).toBe(room);
-      if (resting) expect(p.left, `${what}: at the window’s start edge`).toBe(dir === 'rtl' ? Number(p.window) - room : 0);
+      if (resting) expect(p.left, `${what}: at the window’s start edge`).toBe(dir === 'rtl' ? Number(p.windowRight) - room : Number(p.windowLeft));
       expect(p.rows, `${what}: the rows laid out at its width`).toBe(Array.from({ length: MAIL.length }, () => room - 2 * pad).join(' '));
       expect([p.rowLeft, p.rowRight], `${what}: every row inside the drawer`).toEqual([pad, pad]);
     };
+    const fixture = page.locator('[data-fixture="m"]');
+    // Where Chromium keeps the bar's gutter while the scroll is held (off macOS), the window stays the bar's width
+    // narrower than the page's own width while the drawer is open; where the hold pads the root instead (WebKit, Chromium
+    // on macOS), the window widens by the bar.
+    const gutter = browserName === 'chromium' && process.platform !== 'darwin';
     await setOpen(page, true);
     await motionEnded(page);
-    expectRoom(await page.locator('[data-fixture="m"]').evaluate(look), 'open', { resting: true });
-    const closing = await sampleFrames(page.locator('[data-fixture="m"]'), () => setOpen(page, false), { probe: look, elements: false });
+    const open = await fixture.evaluate(look);
+    expect(open.window, gutter ? 'open: the gutter the scroll hold keeps is left out of the window' : 'open: the window widens by the bar as the hold pads the root').toBe(gutter ? 260 : 270);
+    expectRoom(open, 'open', { resting: true });
+    // The window resized while the drawer is open: the drawer measures the window again, and the scroll hold its room
+    // (MDL-2) — 280 wide, so that the room is still narrower than container.width where the gutter is kept.
+    for (const width of [280, 270]) {
+      await page.setViewportSize({ width, height: 640 });
+      await expect.poll(() => fixture.evaluate(look).then((p) => p.window), `resized to ${width}: the window`).toBe(gutter ? width - 10 : width);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      expectRoom(await fixture.evaluate(look), `open, resized to ${width}`, { resting: true });
+    }
+    const closing = await sampleFrames(fixture, () => setOpen(page, false), { probe: look, elements: false });
     expect(closing.complete).toBe(true);
     const drawn = closing.frames.filter((f) => f.probe.width !== undefined);
     expect(drawn.length, 'the slide out is drawn').toBeGreaterThan(2);

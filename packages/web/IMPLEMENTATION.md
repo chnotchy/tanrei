@@ -7806,18 +7806,23 @@ inset included, so that a strip of scrim a touch target wide is always left to p
 The width its parts are laid out at (`--_nvd-w`, read in the drawer's own shadow root and in its items') is
 `min(container.width, the window − where it starts − the start inset − sys.target.touch)`, where it starts being the
 window's start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an
-app shell holds (`--_nvd-from`, measured where it opens, as its place is). The window is its width as the page has it,
-less a scroll bar that takes room in it (`--_nvd-window`): while the drawer is over the content, a resize observer of the
+app shell holds (`--_nvd-from`, measured where it opens, as its place is). The window is the window's own box — the
+containing block of what is fixed to it, which the panel and its scrim are laid out in — less a scroll bar that takes
+room in it or the gutter kept for one (`--_nvd-window`): while the drawer is over the content, a resize observer of the
 root element's border box — which changes with the window's width, and with a scroll bar that comes, goes, or gives its
-room to the root's padding while the page's scroll is held — reads the root's `clientWidth`, the window less its scroll
-bar, and writes it on the host in the frame it changes; until then, and without script, it is `100vw`. Not `100vw`
-itself: that counts a classic scroll bar, or the gutter the scroll hold keeps (Chromium on Linux and Windows), as the
-window's, and the rows were laid out that much wider than the panel and cut at their ends — while the drawer was open
-where the gutter is kept, and through its slide out where the hold pads the root instead (WebKit; Chromium on macOS), since
-the hold gives the bar back as the slide begins — in a window narrower than `container.width`, a touch target and the bar
-together. The root and its `clientWidth`, never the drawer: the drawer's width follows the room, and the root's
-`clientWidth` is the window's whatever margins the root has; a root given a width of its own, which a window's resize does
-not change, is not followed until something else changes its box. A custom property cannot hold a percentage of the window
+room to the root's padding while the page's scroll is held — reads the width of an element fixed across the window for
+the instant it is measured (`windowBox()`, as the scroll hold reads it) and writes it on the host in the frame it
+changes; until then, and without script, it is `100vw`. Not `100vw` itself: that counts a classic scroll bar, or the
+gutter the scroll hold keeps (Chromium on Linux and Windows), as the window's, and the rows were laid out that much wider
+than the panel and cut at their ends — while the drawer was open where the gutter is kept, and through its slide out
+where the hold pads the root instead (WebKit; Chromium on macOS), since the hold gives the bar back as the slide begins —
+in a window narrower than `container.width`, a touch target and the bar together. Nor the root's `clientWidth`, the
+window less a scroll bar that is drawn: Chromium does not narrow it by the gutter its scroll hold keeps, so a drawer that
+measured it while the scroll was held (the window resized under the open drawer, or a drawer made modal under another
+surface) laid its rows out a bar's width wider than the panel. Where the hold keeps a gutter, the root's box and the
+window's own box both stay as they were, so the observer has nothing to answer. Never the drawer: the drawer's width
+follows the room; a root given a width of its own, which a window's resize does not change, is not followed until
+something else changes its box. A custom property cannot hold a percentage of the window
 for parts in other boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is
 also held to `100%` of its containing block less the same, which is the window exactly, so that the strip stays whole
 whatever the rows are laid out at. The slide is `translate` by the panel's own width, so it starts and ends wholly outside

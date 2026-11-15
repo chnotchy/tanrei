@@ -47,6 +47,7 @@ import {
   modalLayer,
   openModal,
   openerFor,
+  windowBox,
   type ModalMoves,
 } from '../../primitives/index.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
@@ -156,7 +157,7 @@ const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
 const SECTION = 'tanrei-navigation-drawer-section';
 const DRAWER = 'tanrei-navigation-drawer';
-/** NVD-97: the window's measured width less a scroll bar that takes room in it, for the styles (\`windowWatch\`). */
+/** NVD-97: the width of the window's own box, measured, less a scroll bar or a gutter kept for one, for the styles (\`windowWatch\`). */
 const WINDOW = '--_nvd-window';
 /** The drawer's cells: its destinations and its groups' rows. */
 const CELLS = `${ITEM}, ${GROUP}`;
@@ -2095,16 +2096,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private instantFrame = 0;
   private readonly sizes = new ResizeObserver(() => this.measure());
   /**
-   * NVD-97: the window's width as the page has it, while the drawer is over the content — less a scroll bar that takes
-   * room in it, which \`100vw\` counts (a classic one, or the gutter the page's scroll hold keeps) — for the styles
-   * (\`--_nvd-window\`): the room over the content, at which every part of the drawer and its items lay their rows out, is
-   * reckoned from it, as the panel itself is held to its containing block, the window exactly. Watched on the root
-   * element's box, which changes with the window's width and with a scroll bar that comes, goes or gives its room to the
-   * root's padding while the page's scroll is held, and then read off the root as the window's width less its scroll
-   * bar; never off the drawer, whose width follows it.
+   * NVD-97: the width of the window's own box while the drawer is over the content — the box the panel and its scrim are
+   * laid out in, less a scroll bar that takes room in it, which \`100vw\` counts (a classic one, or the gutter the page's
+   * scroll hold keeps) — for the styles (\`--_nvd-window\`): the room over the content, at which every part of the drawer
+   * and its items lay their rows out, is reckoned from it, as the panel itself is held to its containing block, that box
+   * exactly. Watched on the root element's box, which changes with the window's width and with a scroll bar that comes,
+   * goes or gives its room to the root's padding while the page's scroll is held, and then read as the box of an element
+   * fixed to the window (\`windowBox()\`) — not as the root's \`clientWidth\`, which Chromium does not narrow by the
+   * gutter its scroll hold keeps (Linux, Windows), so that a drawer that measured the window while the scroll was held
+   * laid its rows out a bar's width wider than the panel; and never off the drawer, whose width follows it. Where the
+   * hold keeps a gutter the root's box and the window's own box stay as they were, and so does the value.
    */
   private readonly windowWatch = new ResizeObserver(() => {
-    const value = `${document.documentElement.clientWidth}px`;
+    const { left, right } = windowBox(document.documentElement);
+    const value = `${right - left}px`;
     if (this.style.getPropertyValue(WINDOW) !== value) this.style.setProperty(WINDOW, value);
   });
   private watchingWindow = false;
