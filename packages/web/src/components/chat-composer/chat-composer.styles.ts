@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { heldFocusGlow } from '../../primitives/focus-ring.js';
-import { rowTargets } from '../../primitives/target.js';
+import { TARGET_CAPS, rowTargets } from '../../primitives/target.js';
 import { heldRadius, heldShape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -275,10 +275,10 @@ export const styles = css`
   /* Stacked, the line and the row beneath stand container.row-gap apart: what each holds reaches toward the other no
      further than the middle of it (the line's and the row's caps, inherited by every Button in them). */
   .line:has(+ .row) {
-    --tanrei-target-cap-bottom: calc(${t('container-row-gap')} / 2);
+    ${unsafeCSS(TARGET_CAPS.bottom)}: calc(${t('container-row-gap')} / 2);
   }
   .row {
-    --tanrei-target-cap-top: calc(${t('container-row-gap')} / 2);
+    ${unsafeCSS(TARGET_CAPS.top)}: calc(${t('container-row-gap')} / 2);
   }
   /* CCM-35: the glyph that goes out while the send and the stop button change places, drawn in place over the one that
      comes in (the Button centres both in its icon box) until its fade has ended. */
