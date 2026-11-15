@@ -88,6 +88,10 @@ async function overreaching(): Promise<string[]> {
     };
     const kin = (a: Element, b: Element) => a === b || holds(a, b) || holds(b, a);
     const inside = (r: DOMRect, x: number, y: number) => x >= r.left - 0.5 && x <= r.right + 0.5 && y >= r.top - 0.5 && y <= r.bottom + 0.5;
+    // Where a box is drawn, as Chromium hit-tests a point between whole pixels: it may give a point less than a pixel
+    // short of a box's edge to the box (measured: a point 0.9 px before an icon-only Button's drawn start, where its hit
+    // area does not reach, is the Button's). A press that close to what a neighbour draws is a press on its drawing.
+    const drawnAt = (r: DOMRect, x: number, y: number) => x > r.left - 1 && x < r.right + 1 && y > r.top - 1 && y < r.bottom + 1;
     stage.scrollIntoView({ block: 'start' });
     await frame();
     const shown = all.filter((el) => {
@@ -118,7 +122,7 @@ async function overreaching(): Promise<string[]> {
           // Drawn there is the layout's, not a reach; a part drawn inside this pressable (a chip's remove action, a
           // file item's action) is the pressable's own business.
           const part = q.left >= r.left - 0.5 && q.right <= r.right + 0.5 && q.top >= r.top - 0.5 && q.bottom <= r.bottom + 0.5;
-          if (!inside(q, x, y) && !part) out.push(`${stage.dataset.fixture}: ${describe(p)}, ${side} edge: a press there goes to ${describe(o)}`);
+          if (!drawnAt(q, x, y) && !part) out.push(`${stage.dataset.fixture}: ${describe(p)}, ${side} edge: a press there goes to ${describe(o)}`);
         }
         // The gap beyond this edge, to the first pressable drawn that way within 24 px.
         const from = dx ? (dx > 0 ? r.right : r.left) : dy > 0 ? r.bottom : r.top;
@@ -147,9 +151,11 @@ async function overreaching(): Promise<string[]> {
 const ALL: Setting[] = ['default', 'm3-like', '2px apart', '8px apart'];
 const CHEVRON = {
   settings: ALL,
-  line: /tanrei-combobox › input .*goes to tanrei-combobox › button/,
+  // What stands at the end of the input's line: the input, or, while several values are chosen, the chip that ends a line
+  // of entries (CMB-74) — in either direction, at whatever place the fonts of the machine wrap the entries.
+  line: /(tanrei-combobox › input|tanrei-chip › button) .*goes to tanrei-combobox › button/,
   reason:
-    'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less. The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input.',
+    'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
   breadcrumbs: [
