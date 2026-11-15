@@ -45,6 +45,35 @@ test('the check itself: what stays is reported, what a child process makes is sw
   }
 });
 
+test('the check leaves out what an earlier process with the same id left: a runner killed before its exit sweep', () => {
+  // The child stands for a test file whose id a killed process had: an entry with its tag is there before the module
+  // loads. The check must not count it — and a directory the child makes after that is still counted.
+  const helper = path.join(pkg, 'src/test-tmp.js');
+  const script = `
+    import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
+    const stale = path.join(os.tmpdir(), 'tanrei-node-test-p' + process.pid + '-stale');
+    fs.mkdirSync(stale);
+    console.log(stale);
+    const { ownTempDirs, sweepTempDirs } = await import(${JSON.stringify(helper)});
+    const before = sweepTempDirs();
+    const stray = path.join(os.tmpdir(), 'tanrei-stray-p' + process.pid + '-manual');
+    fs.mkdirSync(stray);
+    const after = ownTempDirs();
+    fs.rmdirSync(stray);
+    console.log(JSON.stringify({ before, after, stale: path.basename(stale), stray: path.basename(stray) }));`;
+  const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8' });
+  const [stalePath, json] = child.stdout.trim().split('\n');
+  try {
+    assert.equal(child.status, 0, child.stderr);
+    const seen = JSON.parse(json);
+    assert.deepEqual(seen.before, [], `${seen.stale} was left by an earlier process, not by this one`);
+    assert.deepEqual(seen.after, [seen.stray], 'a directory made with the tag after the module loaded is still reported');
+    assert.ok(fs.existsSync(stalePath), 'the earlier process\'s entry is left alone, not removed');
+  } finally {
+    if (stalePath) fs.rmSync(stalePath, { recursive: true, force: true });
+  }
+});
+
 /** This process's environment for a child `node --test` of its own (not a subtest of this run). */
 function childEnv() {
   const env = { ...process.env };
