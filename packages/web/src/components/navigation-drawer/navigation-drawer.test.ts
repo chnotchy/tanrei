@@ -5473,6 +5473,48 @@ test.describe('the room over the content and a column’s room', () => {
       await expect.poll(() => dialogOf(page, 'mc').count()).toBe(0);
       expect((await bounds(panel(page, 'mc'))).width, 'the column again').toBe(room);
     });
+
+    test(`NVD-97, NVD-35, NVD-18: in a parent narrower than its column (${dir}) a standard drawer unfolds from the room it is drawn at and folds back to it — in every frame of the change of form its panel is no wider than the room, laid out from its start edge and nothing past its parent, never the column’s own width for a frame — and sliding in, it starts no motion of its panel when the slide ends`, async ({ page }) => {
+      await page.setViewportSize({ width: 280, height: 640 });
+      await mount(page, [rail('c', MAIL)], { dir });
+      expect(await px(page, T('collapsed-container-width-regular'))).toBe(72);
+      // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
+      const room = 56;
+      const stage = page.locator('[data-fixture="c"]');
+      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
+      /** The panel against its host and the parent's content box, to a tenth, in each frame. */
+      const against = (root: Element) => {
+        const host = root.querySelector('tanrei-navigation-drawer')!;
+        const panel = host.shadowRoot!.querySelector('.drawer')!.getBoundingClientRect();
+        const box = host.getBoundingClientRect();
+        const style = getComputedStyle(root);
+        const parent = root.getBoundingClientRect();
+        const tenth = (n: number) => Math.round(n * 10) / 10;
+        return {
+          left: tenth(panel.left - box.left),
+          right: tenth(box.right - panel.right),
+          width: tenth(panel.width),
+          pastParent: tenth(Math.max(panel.right - (parent.right - Number.parseFloat(style.paddingRight)), parent.left + Number.parseFloat(style.paddingLeft) - panel.left)),
+        };
+      };
+      const expectAtRoom = (seen: Frames, what: string) => {
+        expect(seen.complete, what).toBe(true);
+        expect(seen.frames.length, `${what}: drawn over frames`).toBeGreaterThan(2);
+        for (const f of [...seen.frames, seen.rest]) expect(f.probe, `${what}: frame ${f.index}`).toEqual({ left: 0, right: 0, width: room, pastParent: 0 });
+      };
+      // The change of form: the host is the room throughout, and so is its panel (the rows inside cross-fade, NVD-35).
+      expectAtRoom(await sampleFrames(stage, () => setProps(page, 'c', { expanded: true }), { probe: against, elements: false }), 'unfolding');
+      expectAtRoom(await sampleFrames(stage, () => setProps(page, 'c', { expanded: false }), { probe: against, elements: false }), 'folding');
+      // Closed and opened again: the panel slides in with the host and, at rest, is the room from its start edge — by no
+      // motion of its own when the slide ends (NVD-18: the host's width is the only motion of the slide).
+      await setProps(page, 'c', { open: false });
+      await motionEnded(page);
+      const opening = await sampleFrames(stage, () => setProps(page, 'c', { open: true }), { probe: against, elements: false });
+      expect(opening.complete).toBe(true);
+      expect(opening.motions.filter((m) => m.on.startsWith('nav.drawer') || m.on.includes('.drawer')).map((m) => `${m.on} ${m.name}`), 'no motion of the panel').toEqual([]);
+      expect(opening.rest.probe, 'slid in: the room from its start edge').toEqual({ left: 0, right: 0, width: room, pastParent: 0 });
+    });
   }
 });
 

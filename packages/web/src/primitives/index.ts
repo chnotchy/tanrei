@@ -124,6 +124,8 @@
 //                 openerFor(): where focus goes back when a region of the page opened now under modal surfaces closes;
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
+//                 windowBox(): where the window's own box stands, which what is fixed to it is laid out in — not the root's
+//                 clientWidth, which leaves out no gutter the scroll hold keeps (Chromium);
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
 //                 hasFocusVisibleOption(): whether focus() reads `focusVisible`, before a focus is given as a pointer's;
 //                 pressGivesFocus(): where it does not, a press on the element that has focus gives it again, as a pointer's
@@ -326,7 +328,7 @@ export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
 export { cssZoom, layoutScale } from './layout-scale.js';
-export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus } from './modal.js';
+export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus, windowBox } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, atOnce, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
 export { SCRIM_FILTER, type SheetScrimOptions, scrimFilter, sheetScrimStyles } from './scrim.js';
