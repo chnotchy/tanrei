@@ -147,6 +147,23 @@ Un botón de solo icono tiene tres anchos. Su altura nunca cambia con ellos, y u
 
 Un botón estrecho mide exactamente su glifo más el margen interior de cada lado, así que el glifo nunca toca el borde de la cápsula, y el botón sigue al glifo cuando un sistema de diseño le cambia el tamaño. Se dibuja más estrecho que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende más allá de sus bordes visibles. Déjale espacio junto al botón, o coloca los botones estrechos en una [barra de herramientas](/es/components/toolbar/) o en un [grupo de botones](/es/components/button-group/), que espacian sus elementos.
 
+### Botones que colocas uno junto a otro
+
+Un botón dibujado más pequeño que el objetivo, como un botón estrecho de solo icono, o cualquier botón en un sistema de diseño cuyos objetivos son mayores que sus controles, tiene un área de pulsación que se extiende más allá de sus bordes visibles. Un [grupo de botones](/es/components/button-group/), una [barra de herramientas](/es/components/toolbar/) y cualquier otro componente que coloca botones en una fila propia detienen cada área en la mitad del espacio entre ellos, de modo que una pulsación sobre un botón es siempre de ese botón, y una pulsación en el espacio va al más cercano. Pon en uno de ellos los botones que van juntos.
+
+Cuando colocas botones en una fila propia, nada les dice dónde están sus vecinos. Da entonces los límites a la fila. En la web, `--tanrei-target-cap-start` y `--tanrei-target-cap-end` dicen hasta dónde puede extenderse un área de pulsación más allá del inicio y del final de un botón. Se heredan, así que una sola declaración en la fila llega a todos sus botones. Dales la mitad del espacio de la fila:
+
+```css
+.card-actions {
+  display: flex;
+  gap: var(--tanrei-sys-space-space100);
+  --tanrei-target-cap-start: calc(var(--tanrei-sys-space-space100) / 2);
+  --tanrei-target-cap-end: calc(var(--tanrei-sys-space-space100) / 2);
+}
+```
+
+En una columna, `--tanrei-target-cap-top` y `--tanrei-target-cap-bottom` hacen lo mismo. En React, da a la fila la misma clase. Un lado sin límite llega al objetivo entero, y un límite nunca hace un área de pulsación más pequeña que lo que se dibuja. Un grupo de botones o una barra de herramientas dentro de la fila conserva sus propios límites entre sus botones, y toma los tuyos en sus extremos exteriores.
+
 ### Ocupado, y deshabilitado pero alcanzable
 
 Mientras la acción que inició un botón está en curso, define `busy` en lugar de `disabled`. Un botón ocupado conserva su tamaño, su lugar en el orden del foco y el foco de la persona. Dibuja el arco del indicador de carga en lugar de su etiqueta y rechaza cualquier pulsación, así que un botón de envío no puede enviar su formulario dos veces; también detiene Enter en los campos del formulario. La tecnología de apoyo oye `busy-label` («Desplegando») una vez, cuando el botón pasa a estar ocupado. Di qué ha pasado cuando la acción termine: el botón no anuncia nada entonces.
@@ -429,7 +446,7 @@ Un botón sin `variant` es filled, con una excepción: colocado como acción de 
 - No pongas un enlace en rojo, ni des a un botón `href` y `destructive` a la vez. Un enlace solo lleva a otro lugar, así que el botón ignora `destructive` y dibuja el enlace de su variante.
 - No trunques las etiquetas. Deja que el botón crezca o escribe una etiqueta más corta.
 - No dejes un botón de solo icono sin `label`: el glifo no es un nombre.
-- No juntes a mano botones estrechos de solo icono borde con borde. Sus objetivos se extienden más allá de sus bordes y se solaparían.
+- No coloques botones uno junto a otro a mano sin limitar sus objetivos. El objetivo de un botón estrecho de solo icono se extiende más allá de sus bordes, y dos de ellos se solaparían: ponlos en un grupo de botones o en una barra de herramientas, o fija los límites (consulta [Botones que colocas uno junto a otro](#botones-que-colocas-uno-junto-a-otro)).
 
 ### Contenido
 
@@ -462,3 +479,4 @@ Las etiquetas no llevan puntuación final. Procura que tengan una o dos palabras
 - Donde varios botones dibujen la misma palabra, da a cada uno un `label` que contenga la palabra y diga sobre qué actúa el botón (consulta [Un nombre más largo que la etiqueta](#un-nombre-más-largo-que-la-etiqueta)).
 - Cuando el botón de envío de un formulario esté deshabilitado, di en la página qué falta todavía. El botón deshabilitado también detiene Enter y, por sí solo, no explica nada.
 - Da nombre a todos los botones de solo icono con `label`. Un [tooltip](/es/components/tooltip/) puede mostrar el mismo texto a quienes usan un puntero, pero nunca sustituye a `label`.
+- Cuando colocas tú mismo botones uno junto a otro, fuera de un grupo de botones o de una barra de herramientas, fija en su fila los límites del objetivo en la mitad del espacio (consulta [Botones que colocas uno junto a otro](#botones-que-colocas-uno-junto-a-otro)). Si no, donde se dibujan más pequeños que el objetivo, una pulsación pensada para un botón puede ir a su vecino.
