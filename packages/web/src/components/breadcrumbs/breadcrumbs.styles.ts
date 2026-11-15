@@ -69,6 +69,15 @@ export const styles = css`
   ol.wrap li {
     flex: 0 1 auto;
   }
+  /* BRC-23: where a wrapped trail has a line above or below a level (the element measures where it wraps), the level's
+     hit area reaches no further that way than halfway to it — half the row gap. A level's anchor inherits the caps
+     from its list item (src/styles/breadcrumbs.css reads them); a side with no line beyond it keeps the whole target. */
+  ol.wrap li[data-lines~='above'] {
+    --_brc-cap-top: calc(${t('row-gap')} / 2);
+  }
+  ol.wrap li[data-lines~='below'] {
+    --_brc-cap-bottom: calc(${t('row-gap')} / 2);
+  }
   /* BRC-8: each label on one line. (A rule on a slotted element reads that element's own cascade: only tokens.) */
   ol.collapse ::slotted(*) {
     white-space: nowrap;

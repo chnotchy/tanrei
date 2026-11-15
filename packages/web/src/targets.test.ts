@@ -160,14 +160,6 @@ const CHEVRON = {
     'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  breadcrumbs: [
-    {
-      settings: ['default', 'm3-like', '8px apart'],
-      line: /long-trail-wrap: .*(bottom edge|gap at the bottom)/,
-      reason:
-        'BRC-23 stops a level’s hit area halfway to its neighbours along the trail only: where the trail wraps, the levels of one line reach over the line below. Stopping between lines needs to know where the trail wraps (a cap no single rule can give the first and the last line), or lines drawn at the target’s height.',
-    },
-  ],
   calendar: [
     {
       settings: ['2px apart', '8px apart'],

@@ -1203,6 +1203,54 @@ test.describe('states', () => {
     // For touch the target is sys.target.touch: the stylesheet's and the element's own condition.
     expect(fs.readFileSync(path.join(pkg, 'dist/breadcrumbs.css'), 'utf8')).toMatch(/@media \(pointer: coarse\) \{\s*--_brc-target: var\(--tanrei-sys-target-touch\)/);
   });
+
+  test('BRC-23: in a trail that wraps, a level reaches across the lines no further than halfway to a line above or below it — half comp.breadcrumbs.row-gap — so a press on its edge or in the nearer half of the row gap is its own; a level of the first line keeps the whole target above it and one of the last line below it, and a trail that no longer wraps reaches the whole target again', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('long-trail-wrap') });
+    // Room above and below the trail, so that the hit areas lie in the page.
+    await page.addStyleTag({ content: '.stage { padding-block: 40px !important; }' });
+    await give(page, 'long-trail-wrap', 320);
+    const [target, gap] = [await resolveToken(page, SYS('target-pointer')), await resolveToken(page, T('row-gap'))];
+    /** Each level of the trail: its box, and for a link how far its hit area reaches above and below it. */
+    const levels = () =>
+      host(page, 'long-trail-wrap').evaluate((el) =>
+        [...el.querySelectorAll(':scope > :is(a, span)')].map((a) => {
+          const [box, after] = [a.getBoundingClientRect(), getComputedStyle(a, '::after')];
+          return { link: a.matches('a[href]'), label: a.textContent!.trim(), left: box.left, top: box.top, bottom: box.bottom, height: box.height, above: -Number.parseFloat(after.top), below: -Number.parseFloat(after.bottom) };
+        }),
+      );
+    const links = async () => (await levels()).filter((level) => level.link);
+    const hit = (x: number, y: number) =>
+      page.evaluate(([px, py]) => document.elementFromPoint(px!, py!)?.closest('a')?.textContent?.trim() ?? '', [x, y] as const);
+    const all = await levels();
+    const [first, last] = [Math.min(...all.map((level) => level.top)), Math.max(...all.map((level) => level.top))];
+    const wrapped = all.filter((level) => level.link);
+    expect(last - first, 'the trail runs over several lines').toBeGreaterThan(gap);
+    for (const link of wrapped) {
+      const reach = Math.max(0, (target - link.height) / 2);
+      expect(reach, link.label).toBeGreaterThan(gap / 2);
+      near(link.above, link.top - first < 0.5 ? reach : gap / 2, 0.1);
+      near(link.below, last - link.top < 0.5 ? reach : gap / 2, 0.1);
+    }
+    // A level of the first line, above a line: its bottom edge and the nearer half of the row gap below it are its own,
+    // and the farther half is not.
+    const home = wrapped[0]!;
+    expect(home.top - first).toBeLessThan(0.5);
+    const x = home.left + 4;
+    expect(await hit(x, home.bottom - 1.5)).toBe(home.label);
+    expect(await hit(x, home.bottom + gap / 4)).toBe(home.label);
+    expect(await hit(x, home.bottom + gap / 2 + 1)).not.toBe(home.label);
+    // Above the first line, the whole target.
+    expect(await hit(x, home.top - Math.max(0, (target - home.height) / 2) + 1)).toBe(home.label);
+    // A trail that fits on one line again: every level reaches the whole target above and below.
+    await give(page, 'long-trail-wrap', 4000);
+    const one = await links();
+    expect(new Set(one.map((link) => Math.round(link.top))).size).toBe(1);
+    for (const link of one) {
+      const reach = Math.max(0, (target - link.height) / 2);
+      near(link.above, reach, 0.1);
+      near(link.below, reach, 0.1);
+    }
+  });
 });
 
 test.describe('when the underline is shown', () => {
