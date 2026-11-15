@@ -238,11 +238,12 @@ let heldRoom: [property: string, value: string][] = [];
 export const SCROLL_HOLD_INSET = { left: '--tanrei-scroll-hold-inset-left', right: '--tanrei-scroll-hold-inset-right' } as const;
 
 /**
- * Where the window's own box stands — the containing block of an element in `position: fixed` — read from such an
- * element, a child of the root, for the instant it is measured. The root's `clientWidth` does not say it: Chromium keeps a
- * stable gutter and reports it as no room taken.
+ * Where the window's own box stands — the containing block of an element in `position: fixed`, and the box the top layer
+ * and its backdrop are laid out in — read from such an element, a child of the root, for the instant it is measured. The
+ * root's `clientWidth` does not say it: Chromium keeps a stable gutter and reports it as no room taken. The scroll hold
+ * reads it, and so does what is sized against the window while the scroll is held (the drawer over the content, NVD-97).
  */
-function windowBox(root: HTMLElement) {
+export function windowBox(root: HTMLElement) {
   const probe = document.createElement('div');
   probe.style.cssText = 'position: fixed; left: 0; right: 0; top: 0; height: 0; margin: 0; padding: 0; border: 0; visibility: hidden; pointer-events: none';
   root.append(probe);
