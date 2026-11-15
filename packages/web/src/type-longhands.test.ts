@@ -111,3 +111,82 @@ for (const c of CASES) {
     }
   });
 }
+
+// What the longhands draw is what the role's composite drew, wherever nothing is overridden below the root: at the
+// reader's text size (the root's font size, which the size tokens are in rem of), with the type dial turned, and for a
+// size the active design system does not have — each longhand falls back to the default size's, as the composite fell
+// back to the default size's composite. A probe set with `font: var(<role>-font)` beside the text, under the same
+// parent, draws as the composite would.
+interface Same {
+  name: string;
+  fixture: string;
+  /** Props set over the fixture's: a size no design system has. */
+  props?: Record<string, string>;
+  /** The role's composite: the default size's for an unknown size. */
+  composite: string;
+  text: string;
+}
+
+const UNKNOWN = { size: 'not-a-size' };
+const SAME: readonly Same[] = [
+  ...CASES.map(({ name, fixture, base, text }) => ({ name, fixture, composite: `${base}-font`, text })),
+  { name: 'badge', fixture: 'count-double', composite: '--tanrei-comp-badge-label-typescale-font', text: '.label' },
+  { name: 'pagination', fixture: 'default', composite: '--tanrei-comp-pagination-label-typescale-font', text: '.item.current' },
+  { name: 'list-row', fixture: 'three-line', composite: '--tanrei-comp-list-row-headline-typescale-font', text: '.headline' },
+  { name: 'swatch', fixture: 'default', composite: '--tanrei-comp-swatch-label-typescale-medium-font', text: '.label' },
+  { name: 'swatch', fixture: 'default', props: UNKNOWN, composite: '--tanrei-comp-swatch-label-typescale-medium-font', text: '.label' },
+  { name: 'button', fixture: 'filled-medium', props: UNKNOWN, composite: '--tanrei-comp-button-label-typescale-medium-font', text: '[part="container"]' },
+  { name: 'chip', fixture: 'action-outlined', props: UNKNOWN, composite: '--tanrei-comp-chip-label-typescale-medium-font', text: '[part="label"]' },
+];
+
+/** The reader's settings that enlarge text, as the root's inline style. */
+const SETTINGS = {
+  'the default text size': '',
+  '200 % text': 'font-size: 200%',
+  'the type dial turned up': '--tanrei-dial-type-base: 1.5rem; --tanrei-dial-type-contrast: 1.25',
+} as const;
+
+/** What a role sets through the shorthand (a component's own `font-variant-numeric`, set after it, is not the role's). */
+const FONT = ['font-family', 'font-size', 'font-weight', 'line-height', 'font-style', 'font-stretch'] as const;
+
+for (const c of SAME) {
+  test(`${c.name}${c.props ? ' at a size no design system has' : ''}: its text is drawn as ${c.composite} draws it, at every text size`, async ({ page }) => {
+    const spec = loadSpec(c.name);
+    const fixture = spec.fixtures.find((f) => f.id === c.fixture)!;
+    await mountFixtures(page, spec, { reducedMotion: true, fixtures: [{ ...fixture, props: { ...fixture.props, ...c.props } }] });
+    let initial = 0;
+    for (const [setting, root] of Object.entries(SETTINGS)) {
+      const [text, probe] = await page.evaluate(
+        async ([id, tag, selector, composite, style, font]) => {
+          document.documentElement.style.cssText = style;
+          for (let i = 0; i < 2; i++) await new Promise(requestAnimationFrame);
+          const host = document.querySelector(`[data-fixture="${id}"] ${tag}`) as HTMLElement;
+          const find = (root: ParentNode): Element | null => {
+            const here = root.querySelector(selector);
+            if (here) return here;
+            for (const el of root.querySelectorAll('*')) {
+              const inner = el.shadowRoot && find(el.shadowRoot);
+              if (inner) return inner;
+            }
+            return null;
+          };
+          const el = (host.shadowRoot && find(host.shadowRoot)) || find(host);
+          if (!el?.parentNode) throw new Error(`no ${selector} in ${tag}`);
+          const probe = document.createElement('span');
+          probe.style.cssText = `font: var(${composite})`;
+          el.parentNode.insertBefore(probe, el);
+          const read = (e: Element) => font.map((p) => getComputedStyle(e).getPropertyValue(p));
+          const both = [read(el), read(probe)];
+          probe.remove();
+          return both;
+        },
+        [c.fixture, `tanrei-${c.name}`, c.text, c.composite, root, FONT] as const,
+      );
+      expect(text, setting).toEqual(probe);
+      // And the setting reaches the text: larger than at the default text size.
+      const size = Number.parseFloat(text[1]);
+      if (setting === 'the default text size') initial = size;
+      else expect(size, setting).toBeGreaterThan(initial);
+    }
+  });
+}
