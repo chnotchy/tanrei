@@ -19,6 +19,16 @@ that keeps a size in private properties keeps one per longhand.
   composite carried the build's weight, line height and family, and only the size followed.
 - The composite `--…-<role>-font` is still generated, for a product's own rules; it is the root's, so a product that
   wants a local override reads the longhands as the components do.
+- **What broke: setting a role's composite no longer restyles a component.** A product that set
+  `--tanrei-comp-badge-label-typescale-font: 500 2rem/1.5 Inter`, on the root or anywhere, saw the badge's label change;
+  now it changes nothing, because no component reads the composite. Set the longhands instead (`-font-weight`,
+  `-font-size`, `-line-height`, `-font-family`), on the root for every instance or on an element for one. The two
+  cannot both hold: the composite's default is declared on the root, so where it is read nothing tells an override of
+  it from that default. A style the composite could carry and no longhand names (`italic`) is no longer reachable
+  through a role's tokens.
+- Enlarged text is drawn as before: at the reader's text size (the root's font size, 200 % included), with the type
+  dial turned, and for a size the active design system does not have (each longhand falls back to the default size's),
+  every element of every fixture has the same computed type as before, in Chromium, Firefox and WebKit.
 - The emphasized weight is a longhand of its own (`-font-weight-emphasized`): text drawn emphasized (a selected tab's
   label, where the system emphasizes it) follows an override of that longhand, not of `-font-weight`.
 
