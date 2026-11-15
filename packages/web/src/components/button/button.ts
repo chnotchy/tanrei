@@ -96,6 +96,10 @@ export interface TanreiButtonChangeDetail {
  * @csspart container - The native button that holds the label and the icon; with `href`, the anchor in its place.
  * @csspart label - The label text wrapper.
  * @csspart icon - The box the icon is drawn in (hidden from assistive technology); also the mark of a link that opens a new context.
+ * @cssprop --tanrei-target-cap-start - Inherited: how far the hit area may reach past the visible bounds at the start of the row (BTN-5). Set it, with `--tanrei-target-cap-end`, to half the gap on the product's own container of buttons laid out side by side outside a button group or a toolbar, so that a press on one never goes to its neighbour. Unset, the side reaches the whole target; a Tanrei row sets its own.
+ * @cssprop --tanrei-target-cap-end - Inherited: the same at the end of the row.
+ * @cssprop --tanrei-target-cap-top - Inherited: the same at the top, for buttons stacked in a column.
+ * @cssprop --tanrei-target-cap-bottom - Inherited: the same at the bottom.
  * @attr {boolean} confirming - A mark for the component that places this button as an action (a button group, a dialog, a popover, a side sheet): the action completes the task, and is placed at the end of a row and at the top of a column (BGR-13, BGR-14). Read by that component as an attribute; the button draws nothing for it and has no property of the name.
  * @attr {boolean} dismissive - The same mark for the action that backs out of the task: placed at the start of a row and at the bottom of a column. With `confirming` as well, the button is placed as one with neither (BGR-18).
  * @attr {string} form - The id of the form the button belongs to, where it stands outside it (a dialog's actions, a page header): the platform's own attribute, which then wins over a form around the button (BTN-29). The `form` property is read-only and returns the form element.

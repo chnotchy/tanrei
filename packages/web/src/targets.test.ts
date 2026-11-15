@@ -13,7 +13,9 @@
 // Buttons laid out 2 px apart, the closest a layer can set them, where every reach that does not stop overlaps), and
 // every gap 8 px wide under targets of 48 (`8px apart`, where a press a quarter of the gap from either side shows which
 // way it goes). A press is `elementFromPoint` through the shadow roots: the hit-testing a pointer gets, in Chromium
-// (hit-testing is the layout's and the same in every engine; the components' own tests press in all three).
+// (hit-testing is the layout's and the same in every engine; the components' own tests press in all three). Two
+// Buttons a product lays out side by side itself, outside any Tanrei row, are pressed the same way, with and without the
+// caps the product may set on its row (BTN-5).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -220,6 +222,36 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
   ],
 };
 
+/**
+ * Two narrow icon-only Buttons (32 wide, under targets of 48: each side lacks 8) that a product lays out itself, `gap` px
+ * apart in a row of its own, outside any Tanrei row; `capped`: with the caps the product sets on that row (BTN-5), half
+ * the gap toward each other, inherited by both. Every fixture's stage is taken out first, so the row is all the check
+ * presses.
+ */
+function productRow([gap, capped]: [number, boolean]) {
+  for (const stage of document.querySelectorAll('.stage[data-fixture]')) stage.remove();
+  const stage = document.createElement('div');
+  stage.className = 'stage';
+  stage.dataset.fixture = 'product-row';
+  const row = document.createElement('div');
+  row.style.cssText = `display: flex; gap: ${gap}px`;
+  if (capped) {
+    row.style.setProperty('--tanrei-target-cap-start', `calc(${gap}px / 2)`);
+    row.style.setProperty('--tanrei-target-cap-end', `calc(${gap}px / 2)`);
+  }
+  for (const label of ['First', 'Second']) {
+    const button = document.createElement('tanrei-button');
+    button.setAttribute('variant', 'tonal');
+    button.setAttribute('width', 'narrow');
+    button.setAttribute('label', label);
+    button.innerHTML = '<span slot="icon">add</span>';
+    row.append(button);
+  }
+  stage.append(row);
+  document.body.append(stage);
+  return Promise.all([...row.children].map((button) => (button as unknown as { updateComplete: Promise<unknown> }).updateComplete));
+}
+
 test.describe('targets', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'hit-testing is the layout’s, the same in every engine; the components’ own tests press in all three');
   for (const name of NAMES) {
@@ -234,6 +266,29 @@ test.describe('targets', () => {
         const known = (KNOWN[name] ?? []).filter((entry) => entry.settings.includes(setting));
         expect(found.filter((line) => !known.some((entry) => entry.line.test(line)))).toEqual([]);
         for (const entry of known) expect(found.some((line) => entry.line.test(line)), `${name} (${setting}) no longer matches ${entry.line}: take it out of KNOWN`).toBe(true);
+      });
+    }
+  }
+
+  // Buttons a product lays out beside each other itself: no Tanrei row caps them, so their hit areas reach the whole
+  // target and the later one takes a press on the earlier one's end (2 px apart) or in the nearer half of the gap to it
+  // (8 px apart), until the product sets the caps on its row.
+  for (const setting of ['2px apart', '8px apart'] as const) {
+    const gap = setting === '2px apart' ? 2 : 8;
+    for (const capped of [false, true]) {
+      test(`BTN-5: two Buttons a product places side by side, ${setting}, ${capped ? 'stop at the middle of the gap with the caps it sets on their row' : 'reach over each other without caps'}`, async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await mountFixtures(page, loadSpec('button'), { icons: true });
+        await rootTokens(page, SETTINGS[setting].tokens!);
+        await page.evaluate(productRow, [gap, capped] as [number, boolean]);
+        const found = await page.evaluate(overreaching);
+        if (capped) expect(found).toEqual([]);
+        else
+          expect(found).toEqual([
+            gap === 2
+              ? 'product-row: tanrei-button › button "First", right edge: a press there goes to tanrei-button › button "Second"'
+              : 'product-row: a press in the gap at the right of tanrei-button › button "First", nearer it, goes to tanrei-button › button "Second"',
+          ]);
       });
     }
   }

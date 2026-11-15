@@ -173,6 +173,73 @@ test.describe('behavior', () => {
     expect(await page.evaluate(() => (window as any).clicks)).toBe(1);
   });
 
+  // A product's own row of Buttons, outside any Tanrei row: under targets of 48, two narrow icon-only Buttons (32 wide,
+  // so each side lacks 8) laid 2 px apart reach over each other, and a press just inside the first one's end is the
+  // second's — until the product gives them the caps, half the gap toward each other, on the row (inherited) or on the
+  // Buttons. A Tanrei row inside a capped container keeps the caps it sets between its own items.
+  test('BTN-5: buttons a product places side by side stop at the caps it sets on their row or on them, and a Tanrei row inside keeps its own between its items', async ({ page }) => {
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
+    await page.evaluate(async () => {
+      const stage = document.createElement('div');
+      const icon = '<span slot="icon">add</span>';
+      const group = `<tanrei-button-group><tanrei-button width="narrow" label="Grouped">${icon}</tanrei-button><tanrei-button width="narrow" label="Other">${icon}</tanrei-button></tanrei-button-group>`;
+      stage.innerHTML = `
+        <div id="row" style="display: flex; gap: 2px">
+          <tanrei-button id="first" variant="tonal" width="narrow" label="First">${icon}</tanrei-button>
+          <tanrei-button id="second" variant="tonal" width="narrow" label="Second">${icon}</tanrei-button>
+        </div>
+        <div id="around" style="--tanrei-target-cap-start: 0px; --tanrei-target-cap-end: 0px">${group}</div>
+        <div id="bare">${group}</div>`;
+      document.body.prepend(stage);
+      const all = [...stage.querySelectorAll('tanrei-button, tanrei-button-group')] as unknown as { updateComplete: Promise<unknown> }[];
+      await Promise.all(all.map((el) => el.updateComplete));
+      (window as unknown as { pressed: string[] }).pressed = [];
+      for (const id of ['first', 'second']) document.getElementById(id)!.addEventListener('click', () => (window as unknown as { pressed: string[] }).pressed.push(id));
+    });
+    const first = page.locator('#first');
+    const drawn = (await first.locator('button').boundingBox())!;
+    expect(drawn.width).toBe(32);
+    // Just inside the first one's visible end: the press each setting gives it to.
+    const pressAtEnd = async () => {
+      await page.evaluate(() => ((window as unknown as { pressed: string[] }).pressed = []));
+      await page.mouse.click(drawn.x + drawn.width - 1.5, drawn.y + drawn.height / 2);
+      return page.evaluate(() => (window as unknown as { pressed: string[] }).pressed);
+    };
+    const caps = (el: string, value: string) =>
+      page.evaluate(
+        ([selector, v]) => {
+          for (const node of document.querySelectorAll<HTMLElement>(selector!)) {
+            for (const side of ['start', 'end']) {
+              if (v) node.style.setProperty(`--tanrei-target-cap-${side}`, v);
+              else node.style.removeProperty(`--tanrei-target-cap-${side}`);
+            }
+          }
+        },
+        [el, value],
+      );
+    expect(await pressAtEnd(), 'without caps the second reaches over the first').toEqual(['second']);
+    await caps('#row', 'calc(2px / 2)');
+    expect(await pressAtEnd(), 'caps on the row').toEqual(['first']);
+    await caps('#row', '');
+    await caps('#row > tanrei-button', '1px');
+    expect(await pressAtEnd(), 'caps on the Buttons').toEqual(['first']);
+    await caps('#row > tanrei-button', '');
+    expect(await pressAtEnd(), 'caps taken off').toEqual(['second']);
+    // The button group sets its items' caps toward each other (BGR-4), nearer than the product's 0 around it: there the
+    // first item reaches as the same group with nothing around it does. Its start, the outer end of the group, the
+    // group leaves open: the product's cap reaches it, and stops it at what is drawn.
+    const reach = (selector: string) =>
+      page.locator(`${selector} tanrei-button[label="Grouped"]`).evaluate((el) => {
+        const s = getComputedStyle(el.shadowRoot!.querySelector('button')!, '::before');
+        return { start: 0 - Number.parseFloat(s.left), end: 0 - Number.parseFloat(s.right) };
+      });
+    const around = await reach('#around');
+    const bare = await reach('#bare');
+    expect(bare.start).toBeGreaterThan(0);
+    expect(bare.end).toBeGreaterThan(0);
+    expect(around).toEqual({ start: 0, end: bare.end });
+  });
+
   test('BTN-6: disabled renders from the disabled tokens of its variant', async ({ page }) => {
     const styles = await page.locator(button('filled-disabled')).evaluate((el) => {
       const s = getComputedStyle(el.shadowRoot!.querySelector('button')!);

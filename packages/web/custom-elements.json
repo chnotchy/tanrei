@@ -2900,6 +2900,24 @@
           "kind": "class",
           "description": "Lets people take an action, or switch something on and off, with one tap or click — named by a label, an icon, or both.\n\nContract: specs/button.spec.json. Every visual value comes from `--tanrei-comp-button-*`\ntokens, one set per state and, for a toggle, per selection: how a state looks is the active design system's decision,\nnot this component's. How a press is answered and how keyboard focus is drawn are the system's choices of kind\n(`--tanrei-sys-behavior-*`), and how far its corners ease is the system's amount\n(`--tanrei-sys-shape-corner-smoothing`); all are read from the cascade, so they follow `data-tanrei-system`.\n\nThe icon is the `icon` slot: a glyph of the system's icon set, given as its ligature text (`<span slot=\"icon\">favorite</span>`)\nor a `.tanrei-icon`, `<svg>` or `<img>`. With a label it sits on the side `icon-position` names; alone it is the\nbutton's only content, the button is as wide as it is high, and `label` is its accessible name.\n\nIn a right-to-left layout a glyph given by name is drawn mirrored when the system's icon set says it shows a direction\n(`arrow_forward`, `chevron_right`, `send`; never `check`, `search` or `play_arrow`) — in its own box, on the side\n`icon-position` names (BTN-19). `data-mirror=\"never\"` or `\"always\"` on the slotted element decides for\none use; an `<svg>` or `<img>` is never mirrored for you.\n\nWith `href` it is a link and not a button (BTN-22): the shadow root holds an `<a href>` in place of the\n`<button>` — the same part, drawn from the same tokens in every state — so the browser's own link is what people get\n(a new tab, the address to copy, the status bar). Enter activates it and Space does not; `click` fires first and\ncancelling it (`preventDefault()`) cancels the navigation, which is how a router takes it. `target=\"new\"` opens a new\ntab, safely (`noopener`), draws the icon set's `open_in_new` after the label unless your own icon is there, and reads\n`target-label` as the link's description. A toggle takes no destination.\n\nIn a form it is one of the form's controls (BTN-29), and `type` says what a press does to the form: nothing\n(`button`, the default), send it (`submit`) or put it back as it was (`reset`). The form is the one around it, or the\none the `form` attribute names by id. A submit button is pressed by Enter in a field of its form while it is the\nform's first submit button, and stops that key while it is disabled (BTN-30); its `name` and `value` are sent when\nit is the button pressed (BTN-31). `label` is the whole accessible name whenever it is given — also beside a drawn\nlabel, which it must contain (BTN-16).",
           "name": "TanreiButton",
+          "cssProperties": [
+            {
+              "description": "Inherited: how far the hit area may reach past the visible bounds at the start of the row (BTN-5). Set it, with `--tanrei-target-cap-end`, to half the gap on the product's own container of buttons laid out side by side outside a button group or a toolbar, so that a press on one never goes to its neighbour. Unset, the side reaches the whole target; a Tanrei row sets its own.",
+              "name": "--tanrei-target-cap-start"
+            },
+            {
+              "description": "Inherited: the same at the end of the row.",
+              "name": "--tanrei-target-cap-end"
+            },
+            {
+              "description": "Inherited: the same at the top, for buttons stacked in a column.",
+              "name": "--tanrei-target-cap-top"
+            },
+            {
+              "description": "Inherited: the same at the bottom.",
+              "name": "--tanrei-target-cap-bottom"
+            }
+          ],
           "cssParts": [
             {
               "description": "The native button that holds the label and the icon; with `href`, the anchor in its place.",
