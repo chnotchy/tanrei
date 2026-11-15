@@ -6,7 +6,11 @@
 // Every directory carries the id of the process that made it, so a test file can tell ITS directories from those of
 // the files and packages that run next to it (node:test runs each file in its own process, turbo runs packages in
 // parallel). When the file's tests have ended, everything it made is removed and the file FAILS if an entry with its
-// tag is still in `os.tmpdir()`. A process that dies before that still sweeps on exit.
+// tag is still in `os.tmpdir()`. A process that dies before that still sweeps on exit — unless a signal or a kill
+// ends it, and then its directories stay, tagged with an id the system gives out again. An entry that already has
+// this process's tag when this module loads was left by such an earlier process: it is not this file's, and the
+// check leaves it out. It does not remove it either: where processes of other pid namespaces share the temporary
+// directory, a live process may carry the same id.
 //
 // Why per file and not once per run: Node 22 (the version this repository pins) has no `--test-global-setup`, and a
 // before/after count of all `tanrei-*` entries would fail whenever another package's suite runs at the same time.
@@ -19,6 +23,9 @@ import path from 'node:path';
 export const TEMP_PREFIX = 'tanrei-';
 const TAG = `-p${process.pid}-`;
 const made = new Set();
+const tagged = () => fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith(TEMP_PREFIX) && name.includes(TAG));
+/** Entries with this process's tag from before it made any: an earlier process with the same id left them (see above). */
+const inherited = new Set(tagged());
 
 function sweep() {
   for (const dir of made) fs.rmSync(dir, { recursive: true, force: true });
@@ -53,8 +60,8 @@ export function forgetHookRepository() {
 }
 const GIT_LOCATION = new Set(['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_COMMON_DIR', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_PREFIX', 'GIT_NAMESPACE', 'GIT_CEILING_DIRECTORIES', 'GIT_DISCOVERY_ACROSS_FILESYSTEM']);
 
-/** Entries of `os.tmpdir()` that this process made and that are still there. */
-export const ownTempDirs = () => fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith(TEMP_PREFIX) && name.includes(TAG));
+/** Entries of `os.tmpdir()` that this process made and that are still there (not those an earlier process with its id left). */
+export const ownTempDirs = () => tagged().filter((name) => !inherited.has(name));
 
 /**
  * Remove what this process made, then report what is STILL there (a removal that failed, a directory made with this
