@@ -1,5 +1,5 @@
 import { type CSSResultGroup, type CSSResultOrNative, LitElement, ReactiveElement } from 'lit';
-import { settleStyles } from '../styles/motion.js';
+import { settleStyles, stillPointerStyles } from '../styles/motion.js';
 import { Settle } from './motion.js';
 
 // The base every element of this package extends, so that what each of them owes from its first frame is written once.
@@ -11,8 +11,10 @@ import { Settle } from './motion.js';
 // What they carry: MOT-3 (docs/architecture/motion.md) — the element settles from each time it is connected until two
 // frames after its first update there (`Settle`, src/primitives/motion.ts), and nothing in it starts a transition
 // meanwhile. In a shadow root the rule is `settleStyles`, composed after the component's own styles here, so no
-// component lists it; a light-DOM element's stylesheet has the same rule written into it by the build
-// (`settleRule()`, scripts/build.js), because its rules are the document's.
+// component lists it — and after it `stillPointerStyles`, which holds a hover under a pointer at rest in a surface that
+// opened (`holdStillPointer()`), left out of an element that draws nothing under a pointer (`drawsHover`). A light-DOM
+// element's stylesheet has both written into it by the build as one rule (`settleRule()`, scripts/build.js), because its
+// rules are the document's.
 //
 // Settling is no substitute for a first state written where the element renders (`willUpdate`): a state written late
 // still shows wrong for the frame it is late, only without fading. The element that appears — a surface an overlay
@@ -116,8 +118,18 @@ export abstract class TanreiElement extends LitElement {
     this.focus(kept.options);
   }
 
+  /**
+   * `false` where the element draws nothing under a pointer: its spec gives it no hovered state and no state layer (an
+   * avatar, a swatch). Its shadow root then carries no rule for a hover — not the one that holds a hover under a
+   * pointer at rest (`stillPointerStyles`, src/styles/motion.ts), which would hold nothing there. Unset, it draws one.
+   * Declared, not initialized: a static field with a value would keep this class, and Lit's element with it, in the
+   * bundle of every light-DOM element that imports this module.
+   */
+  protected declare static readonly drawsHover?: false;
+
   protected static override finalizeStyles(styles?: CSSResultGroup): CSSResultOrNative[] {
-    return [...super.finalizeStyles(styles), settleStyles];
+    const own = [...super.finalizeStyles(styles), settleStyles];
+    return this.drawsHover === false ? own : [...own, stillPointerStyles];
   }
 }
 

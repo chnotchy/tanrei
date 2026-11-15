@@ -249,6 +249,8 @@ export class TanreiCodeBlock extends TanreiElement {
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
   static override styles = styles;
+  /** COD-26: it has no hovered state (its Copy button is an element of its own), so it carries no rule for a hover. */
+  protected static override readonly drawsHover = false;
 
   static override properties: PropertyDeclarations = {
     code: { type: String },
