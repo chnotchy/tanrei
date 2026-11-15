@@ -40,7 +40,8 @@ export function minimumTarget(on: string): CSSResult {
  * group's standard item, BGR-4; a split button's half, SPB-6; pagination's item, PGN-20; a toolbar's measured reach,
  * TBR-9 — `inherit` where it has no neighbour there), else whatever lays the element out (`rowTargets()`, set on the
  * element itself, which reaches the `::before` in its shadow tree — so a Button in another component's row stops there
- * without that component touching its parts), else nothing: the side reaches the whole target.
+ * without that component touching its parts), else the product's, inherited from its own container of the row (BTN-5),
+ * else nothing: the side reaches the whole target.
  *
  * A cap larger than what the side lacks changes nothing, so where the drawn box is at least the target (the default
  * system's controls) nothing moves; a cap below 0 (two drawn boxes that overlap) is 0: the hit area is never smaller
@@ -75,8 +76,11 @@ export function neighbourTarget(on: string): CSSResult {
 
 /**
  * The caps `neighbourTarget()` reads: how far an element's hit area may reach past its visible bounds toward each side.
- * Inherited, so a row sets them on the element it lays out and they reach that element's shadow tree; an internal
- * contract between a Tanrei element and what lays it out, not a styling API.
+ * Inherited, so a row sets them on the element it lays out and they reach that element's shadow tree. They are public
+ * under these names (BTN-5): a product that lays Buttons out beside each other itself sets them on its own container of
+ * the row — half its gap toward each neighbour, as `rowTargets()` writes them — and a Tanrei row's own, set on its
+ * items, is nearer and wins where it sets one (a button group's `inherit` leaves its outer ends to the product's).
+ * Renaming one is a change to the Button spec.
  */
 export const TARGET_CAPS = {
   start: '--tanrei-target-cap-start',
