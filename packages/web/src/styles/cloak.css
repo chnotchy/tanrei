@@ -22,10 +22,11 @@
  *   image preview, a modal layer) draws nothing where it stands once it is defined, and takes no room before.
  * - Held: a control whose height is a token of its own — its container height or container size, by its `size` (the
  *   default's where it names none) and, for an input box, by its `variant` — is the box it will be: `inline-block`
- *   where the element is inline, `block` where it is a block, at least that tall. Its width is not held: it is the
- *   width of the words and glyphs the element draws, so words that follow a control on the same line of text move
- *   sideways when it is defined. Controls that stand side by side in a row of their own (a flex or grid row with a
- *   gap, as a toolbar is) move nothing that was painted.
+ *   where the element is inline, `block` where it is a block, at least that tall, and what is written inside it adds
+ *   no line of the page's text to that height (a line of the page's face can be taller than a small control). Its
+ *   width is not held: it is the width of the words and glyphs the element draws, so words that follow a control on
+ *   the same line of text move sideways when it is defined. Controls that stand side by side in a row of their own
+ *   (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
  * What it does not hold: a height that depends on what the element draws in its shadow root (a field's label and
  * supporting text, a list's rows, a composer's attachments, a swatch's label, a multiline input's rows beyond its
@@ -36,8 +37,10 @@
  * stylesheet. src/fouce.test.ts holds every fixture of every control held here to the height it is drawn at.
  *
  * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for the heights an input box chooses
- * from). Every selector has no specificity (`:where()`) and styles the element it asks about, never its children; an
- * element that is `hidden` keeps the browser's `display: none`; and nothing matches once an element is defined.
+ * from) or a keyword; the one number is `line-height: 0`, which takes the page's text written inside a control out
+ * of its height rather than giving it one. Every selector has no specificity (`:where()`) and styles the element it
+ * asks about, never its children; an element that is `hidden` keeps the browser's `display: none`; and nothing
+ * matches once an element is defined.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -52,16 +55,24 @@
     display: none;
   }
 
-  /* An inline control: a box on the line, centred on it. */
+  /* An inline control: a box on the line, centred on it. Inside it and inside a block control, what is written between
+     the tags (a glyph's name in a slot, a label) is laid out in the page's text until the element is defined, and
+     takes no height of its own (`line-height: 0`): a line of the page's text is as tall as the face the page resolves
+     to makes it — `line-height: normal` is the face's ascent, descent and line gap — and that can be taller than the
+     control (in Firefox and WebKit on Linux, a line of the default face is 21px where a small tag is 20px). So a
+     control is held at its token's height whatever face the page's text resolves to, and its width, which is not
+     held, is the same. */
   :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut, tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
     display: inline-block;
     box-sizing: border-box;
     vertical-align: middle;
+    line-height: 0;
   }
   /* A block control: the width of its place. */
   :where(tanrei-color-input, tanrei-combobox, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
     display: block;
     box-sizing: border-box;
+    line-height: 0;
   }
 
   /* The Button, and the elements drawn as one: the container height of their size. */
