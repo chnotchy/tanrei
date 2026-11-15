@@ -215,7 +215,8 @@
     },
     {
       "id": "BTN-5",
-      "text": "WHERE the visual size is below the minimum target THE button SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+      "text": "WHERE the visual size is below the minimum target THE button SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHERE a component lays the button out beside another control — in a row or a column of its own, as a button group, a toolbar, the actions of a dialog, the controls of a snackbar or a field's own buttons do — THE button SHALL extend its hit area toward that neighbour no further than the middle of the gap between their visible bounds, and toward a side where nothing of the row stands as far as the row's own place allows, so that a press on a neighbour's visible bounds is never the button's and a press in the gap goes to the nearer of the two.",
+      "verify": "Under a layer whose targets are 48, with every gap of every component 2 px wide and again 8 px wide, every fixture of every component: a press on any control's visible bounds goes to that control, and a press a quarter of a gap from one side goes to that side's control or to neither (on the web, src/targets.test.ts, which names each place that does not yet). The same under the m3-like preset, whose targets are larger than its smallest controls."
     },
     {
       "id": "BTN-6",

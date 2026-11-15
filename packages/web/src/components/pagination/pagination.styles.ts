@@ -6,7 +6,6 @@ import {
   conditionStates,
   focusRing,
   iconGlyph,
-  minimumTarget,
   neighbourTarget,
   pressHold,
   rippleStyles,
@@ -151,17 +150,16 @@ export const styles = css`
 
   /* PGN-20: the hit area reaches the minimum target above and below, and along the row toward a neighbour no further
      than half the gap between them, so that no two hit areas overlap; at the row's two ends it reaches the whole target. */
-  ${minimumTarget('.item')}
   ${neighbourTarget('.item')}
   .item {
-    --_cap-start: calc(var(--_gap) / 2);
-    --_cap-end: calc(var(--_gap) / 2);
+    --tanrei-target-cap-start: calc(var(--_gap) / 2);
+    --tanrei-target-cap-end: calc(var(--_gap) / 2);
   }
   .slot:first-child > .item {
-    --_cap-start: initial;
+    --tanrei-target-cap-start: inherit;
   }
   .slot:last-child > .item {
-    --_cap-end: initial;
+    --tanrei-target-cap-end: inherit;
   }
 
   /* PGN-4, PGN-13, PGN-16: each state paints from that state's tokens of the item's part (item, or current); pressed >

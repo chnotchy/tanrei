@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, minimumTarget, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focusGlowEnds, minimumTarget, stateRules } from '../../primitives/index.js';
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -296,6 +296,12 @@ export const styles = css`
   }
   .picker-button {
     flex: none;
+  }
+  /* BTN-5: toward the input the picker button reaches its target no further than the middle of container.gap between
+     their boxes, so that a press on the value is never the picker's; it is drawn wider than its box, so what it
+     overflows the box by is given back (100% is the Button's width where the cap is read). */
+  .picker {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_gap) / 2 - (100% - var(--_swatch)) / 2);
   }
   /* Until the icon set can draw the glyph nothing stands in its place — never its name — and its box is kept. The
      palette glyph is not one the icon set mirrors, and the color input mirrors nothing (CLI-27). */

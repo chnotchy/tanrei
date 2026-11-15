@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
+import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -215,8 +215,7 @@ export const styles = css`
     --tanrei-group-end-radius: var(--_inner);
     --tanrei-group-seam-end: 1;
     --tanrei-group-outer-start: var(${P}-container-outer-inset);
-    --_cap-start: initial;
-    --_cap-end: var(--_half-gap);
+    --tanrei-target-cap-end: var(--_half-gap);
   }
   /* SPB-12: with an icon, the start padding is its own token (a step tighter in the default system, as Button's). */
   .leading.with-icon {
@@ -233,8 +232,7 @@ export const styles = css`
     --tanrei-group-end-radius: initial;
     --tanrei-group-seam-start: 1;
     --tanrei-group-outer-end: var(${P}-container-outer-inset);
-    --_cap-start: var(--_half-gap);
-    --_cap-end: initial;
+    --tanrei-target-cap-start: var(--_half-gap);
   }
   /* SPB-13: while open, the trailing half's inner corners are inner-shape-open — the same corners as closed where the
      token has inner-shape's value, as in the default system: the trailing half then keeps its shape and the chevron
@@ -304,7 +302,6 @@ export const styles = css`
   /* SPB-6: the hit area meets the minimum target on both axes without changing the visual size — outward past the start
      edge for the leading half and past the end edge for the trailing half — and toward the other half no further than
      the middle of the gap between them. */
-  ${minimumTarget('button')}
   ${neighbourTarget('button')}
   /* SPB-6: what a half cannot reach toward the other half it reaches outward, so a narrow trailing half still has its
      whole target without being drawn wider. */
