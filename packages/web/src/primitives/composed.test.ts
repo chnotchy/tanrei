@@ -935,7 +935,8 @@ for (const written of COMPOSED) {
       // W3: nothing in the element's own tree sets a custom property, and its own sheet writes none and reads none
       // of a member's: only its own group (`--tanrei-comp-<its name>-…`), where it has one, and the system's. The one
       // name it may write is a cap of a hit area (`TARGET_CAPS`, BTN-5), which a row sets on what it lays out: no
-      // member's custom property and no token a product sets, but the channel `neighbourTarget()` alone reads.
+      // member's custom property and no token, but the channel `neighbourTarget()` alone reads (a product may set it on
+      // its own rows too, BTN-5).
       const written = await element(page).evaluate(
         (el, [own, caps]) => {
           const other = (name: string) => !(caps as readonly string[]).includes(name);

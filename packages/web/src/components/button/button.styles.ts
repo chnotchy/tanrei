@@ -287,7 +287,8 @@ const buttonStyles = css`
 
   /* BTN-5: the hit area meets the minimum target without changing the visual size, and toward a neighbour stops at the
      middle of the gap between them: at the cap its group gives it (BGR-4, TBR-9), else at the cap of the row it is laid
-     out in (TARGET_CAPS: a snackbar's controls, a field's own buttons, a dialog's actions …), else nowhere short. */
+     out in (TARGET_CAPS: a snackbar's controls, a field's own buttons, a dialog's actions …), else at the cap the
+     product sets on its own row of buttons (the same properties, inherited), else nowhere short. */
   ${neighbourTarget('button')}
 
   /* BTN-3, BTN-6, BTN-8, BTN-9: each state paints from that state's tokens; pressed > focused > hovered, disabled over all.
