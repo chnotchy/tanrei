@@ -275,15 +275,30 @@ test.describe('slider field', () => {
       };
       requestAnimationFrame(look);
     });
+    // Each move is followed by a frame: an engine may deliver several moves between two frames (WebKit takes all twelve
+    // within one), and a frame that never comes between two inputs cannot show the text of the first.
+    const frame = () => page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
     const rail = await box(slider(page, 'a').locator('.rail'));
     await page.mouse.move(rail.x + rail.width * 0.4, rail.y + rail.height / 2);
     await page.mouse.down();
-    for (let step = 1; step <= 12; step++) await page.mouse.move(rail.x + rail.width * (0.4 + step * 0.04), rail.y + rail.height / 2);
+    await frame();
+    const steps: [string, string | null][] = [[await drawn('a'), await spoken('a')]];
+    for (let step = 1; step <= 12; step++) {
+      await page.mouse.move(rail.x + rail.width * (0.4 + step * 0.04), rail.y + rail.height / 2);
+      await frame();
+      steps.push([await drawn('a'), await spoken('a')]);
+    }
     await page.mouse.up();
     await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const seen = await page.evaluate(() => ((window as unknown as { watching: boolean }).watching = false, (window as unknown as { seen: [string, string][] }).seen));
-    expect(seen.length).toBeGreaterThan(2);
-    expect(new Set(seen.map(([text]) => text)).size, 'the text changed through the drag').toBeGreaterThan(2);
+    // At every input of the drag the text is new (each move is a twenty-fifth of the rail, more than one value) and is
+    // the handle's value text.
+    for (const [index, [text, said]] of steps.entries()) {
+      expect(text, `the drawn text is the handle's value text after move ${index}`).toBe(said);
+      if (index > 0) expect(text, `move ${index} changed the text`).not.toBe(steps[index - 1]![0]);
+    }
+    expect(seen.length).toBeGreaterThan(steps.length);
+    expect(new Set(seen.map(([text]) => text)).size, 'the frames show the text of every input').toBeGreaterThanOrEqual(steps.length);
     for (const [text, said] of seen) expect(text, 'the drawn text is the handle\'s value text in every frame').toBe(said);
     expect(await drawn('a')).toBe(await spoken('a'));
     // By a key.
