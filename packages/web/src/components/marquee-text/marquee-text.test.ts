@@ -227,6 +227,42 @@ test.describe('behavior', () => {
     expect(await state(line)).toMatchObject({ playing: false, animations: 0 });
   });
 
+  test('MRQ-3: a pointer entering again while it is over the line is no new trigger — the start delay is not begun again, and the line does not decide again', async ({ page }) => {
+    await mount(page, only('default'));
+    await holdClock(page);
+    const line = host(page, 'default');
+    const delay = await resolveToken(page, T('motion-start-delay'), 'duration');
+    // The enter again that Chromium sends a line the pointer rests on (the whole chain of boundary events), sent here
+    // at a moment of the test's own.
+    const enterAgain = () => line.evaluate((el) => void el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' })));
+    await hover(page, line);
+    await page.clock.runFor(delay / 2);
+    await enterAgain();
+    // The delay counts from the first enter: the passes begin at its end, not half a delay later.
+    await page.clock.runFor(delay - delay / 2);
+    await expect.poll(async () => (await state(line)).animations).toBe(2);
+    // A run held from outside the line shows whether it decided again: deciding plays on a run it did not hold itself
+    // (MRQ-9 holds only a line that moves all the time, or a paused one). Held, entered again and read in one task.
+    const passes = (await run(line))!;
+    const at = passes.duration / 4;
+    const after = await line.evaluate((el, t) => {
+      const root = el.shadowRoot!;
+      const runs = [...root.querySelector('.track')!.getAnimations(), ...root.querySelector('.viewport')!.getAnimations()];
+      for (const animation of runs) {
+        animation.pause();
+        animation.currentTime = t;
+      }
+      el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      return runs.map((a) => ({ state: a.playState, time: Number(a.currentTime) }));
+    }, at);
+    // Where it was held, to the grain of the engine's clock: Firefox gives a time back to 20 µs, a whole millisecond
+    // set included (4256 read back as 4255.98).
+    expect(after).toEqual([
+      { state: 'paused', time: expect.closeTo(at, 1) },
+      { state: 'paused', time: expect.closeTo(at, 1) },
+    ]);
+  });
+
   test('MRQ-3: iterations plays that many passes, then the line rests at its start while the trigger still holds; a new trigger plays them again', async ({ page }) => {
     await mount(page, [fixture('two', { iterations: 2 })]);
     await holdClock(page);
