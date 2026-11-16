@@ -106,14 +106,15 @@ export function triggerTokens(parts: Readonly<Record<string, string>>, members: 
 }
 
 /**
- * Where each state of the trigger is read (for `stateRules()`): hover is the container's; focused is the field's own
- * mark (`data-focused`: it has focus, however that was gained, or its list is open), and disabled is the field's. The
- * trigger has no press, so the pressed conditions name a mark it never sets. `:where()` keeps every state rule at the
- * resting rule's specificity, so the order `stateRules()` writes them in is the precedence.
+ * Where each state of the trigger is read (for `stateRules()`): hover is the container's, or that of a control that
+ * stands over it from outside it — a select's clear button, `.clear` (SEL-72): the pointer on it is on the select —;
+ * focused is the field's own mark (`data-focused`: it has focus, however that was gained, or its list is open), and
+ * disabled is the field's. The trigger has no press, so the pressed conditions name a mark it never sets. `:where()`
+ * keeps every state rule at the resting rule's specificity, so the order `stateRules()` writes them in is the precedence.
  */
 export const triggerOn = (state: string) =>
   state === ':hover'
-    ? '.field:where(:has(.container:hover))'
+    ? '.field:where(:has(.container:hover, .clear:hover))'
     : state === ':focus-visible'
       ? '.field:where([data-focused])'
       : state === ':disabled'

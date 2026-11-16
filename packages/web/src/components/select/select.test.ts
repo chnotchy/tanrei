@@ -3344,6 +3344,28 @@ test.describe('the clear button', () => {
     expect(m.glyph.x + m.glyph.width).toBeLessThan(value.x);
     expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
   });
+
+  test('SEL-72, SEL-20, SEL-22: the select is hovered while the pointer rests on the clear button, which stands over its container — the box keeps its hovered paint; the room kept while nothing is chosen is the container’s own, hovered with it, and a press there opens the list', async ({ page }) => {
+    await mount(page, [fx('c', { value: 'jp', clearable: true, clearLabel: 'Clear country' }), fx('empty', { clearable: true, clearLabel: 'Clear country' })], { system: 'm3-like', reducedMotion: true });
+    const [rest, hovered] = [await color(page, 'stacked-container-color'), await color(page, 'stacked-hovered-container-color')];
+    expect(hovered, 'the state layer shows on the container').not.toBe(rest);
+    const paint = (id: string) => css(container(page, id), 'background-color');
+    // Over the container, then over the clear button that stands over it: hovered all the way.
+    await container(page, 'c').hover({ position: { x: 8, y: 8 } });
+    await expect.poll(() => paint('c')).toBe(hovered);
+    await clear(page, 'c').locator('button').hover();
+    await expect.poll(() => paint('c'), 'the pointer on the clear button').toBe(hovered);
+    expect(await css(part(page, 'c', '.value'), 'color')).toBe(await color(page, 'stacked-hovered-input-color'));
+    await page.mouse.move(700, 500);
+    await expect.poll(() => paint('c'), 'the pointer gone').toBe(rest);
+    // Nothing chosen: the room the button will stand in is the container's, for the pointer as for a press.
+    const room = await box(roomOf(page, 'empty'));
+    await page.mouse.move(room.x + room.width / 2, room.y + room.height / 2);
+    await expect.poll(() => paint('empty'), 'the pointer in the empty room').toBe(hovered);
+    await page.mouse.down();
+    await page.mouse.up();
+    await shownList(page, 'empty').toBe(true);
+  });
 });
 
 test.describe('the size a container sets', () => {
