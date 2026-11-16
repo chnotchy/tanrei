@@ -940,6 +940,8 @@ export class TanreiSearch extends TanreiElement {
   /** SRC-23, MOT-3: the view and the results marked as a view opened (`firstFrames()`), and the last opening's number. */
   private readonly firstFramesMarked = new Set<HTMLElement>();
   private firstFramesRun = 0;
+  /** MOT-3: what the shown view listed when it last held a pointer at rest (`holdNewRows()`). */
+  private heldRows: unknown[] = [];
   /** SRC-9, SRC-40: the modal view is to open with the reads of the turn (`presentFull()`), and has not yet. */
   private presenting = false;
   /**
@@ -1283,6 +1285,7 @@ export class TanreiSearch extends TanreiElement {
     );
     if (content !== this.hasContent) this.hasContent = content;
     this.decideIconColumn(suggestions);
+    this.holdNewRows();
     this.checkSuggestions();
     this.checkResults();
     // SRC-51: the result that had focus was removed or replaced — or its control was, by content the product put in the
@@ -2250,11 +2253,12 @@ export class TanreiSearch extends TanreiElement {
    * opens (SRC-14, SRC-57: the query row; SRC-49: the first result) is decided once focus is in the input — in a modal
    * view, after the view is shown — and a result draws it in its own update: unmarked, it faded into the focused state
    * after the view was first styled. A row the person makes current later (an arrow key) still moves. What a pointer at
-   * rest is over in it as it opens (a back button, a result) is drawn hovered at once, however late the engine hovers it
-   * (`holdStillPointer()`, until the person acts).
+   * rest is over in it as it opens (a back button, a result, one of the search's own rows) is drawn hovered at once,
+   * however late the engine hovers it (`holdStillPointer()`, until the person acts).
    */
   private firstFrames(view: HTMLElement) {
     holdStillPointer(view);
+    this.heldRows = this.listedRows();
     const run = ++this.firstFramesRun;
     const results = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
     for (const element of [view, ...results]) {
@@ -2266,6 +2270,26 @@ export class TanreiSearch extends TanreiElement {
       for (const element of this.firstFramesMarked) element.removeAttribute(FIRST_FRAMES);
       this.firstFramesMarked.clear();
     });
+  }
+
+  /** MOT-3: what the view lists, as a pointer at rest is over it: the query row, the suggestions, the status row, the results. */
+  private listedRows(): unknown[] {
+    return [this.queryRowShown, this.statusShown, ...this.suggestions, ...this.entries, ...this.rows];
+  }
+
+  /**
+   * MOT-3: the shown view comes to list other rows — the product answered what the person typed, or its search ended —
+   * and a new row the pointer rests over is drawn hovered at once, as in a view that opens: the key that asked for them
+   * ended the hold of the opening, and the engines hover the new row as late (WebKit after its two frames of settling;
+   * the search's own rows do not settle at all). So the view holds a pointer at rest again, until the person next acts.
+   */
+  private holdNewRows() {
+    const view = this.fullShown ? this.dialog : this.viewShown ? this.view : null;
+    if (!view) return;
+    const rows = this.listedRows();
+    if (rows.length === this.heldRows.length && rows.every((row, i) => row === this.heldRows[i])) return;
+    this.heldRows = rows;
+    holdStillPointer(view);
   }
 
   /**
@@ -2530,6 +2554,7 @@ export class TanreiSearch extends TanreiElement {
     this.internals.setFormValue(this.disabled ? null : this.value, this.value);
     this.syncView();
     this.syncFull();
+    this.holdNewRows();
     // SRC-23: closed with no exit to play (motion reduced, drawn in place, no view shown), it lists nothing at once.
     this.letGo();
     this.listen(this.expanded && !this.inert_ && !this.modal && !this.inline);

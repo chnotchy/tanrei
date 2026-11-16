@@ -3,7 +3,7 @@ import type { OpenAxis } from '../../primitives/index.js';
 import { SCRIM_FILTER, TARGET_CAPS, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, modalExitStyles, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
-import { reducedMotion } from '../../styles/motion.js';
+import { STILL_POINTER, reducedMotion } from '../../styles/motion.js';
 
 // Every visual value is a token (tokens/comp/search.tokens.json). The search has one condition, `standard`, whose state
 // tokens color the bar's parts and a suggestion row's parts; the outline width and the opacity are the component's per
@@ -853,6 +853,14 @@ export const styles = css`
   :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *,
   :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *::before,
   :is(.view, .full)[${unsafeCSS(FIRST_FRAMES)}] *::after {
+    ${unsafeCSS(QUIET)}
+  }
+  /* MOT-3: a row of the search's own that a pointer at rest is over as the view opens, or as the rows it lists change,
+     is drawn hovered at once, however late the engine hovers it: the view carries the still-pointer mark until the
+     person next acts (holdStillPointer), and a hovered row under it starts no transition. The rows are not elements of
+     their own, so the rule every element carries for its hover does not reach them. Nothing of a row moves in a
+     pseudo-element (its focus ring is never animated). */
+  :is(.view, .full)[${unsafeCSS(STILL_POINTER)}] :is(.option:hover, .option:hover *) {
     ${unsafeCSS(QUIET)}
   }
 

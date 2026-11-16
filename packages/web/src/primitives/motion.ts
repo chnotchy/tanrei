@@ -1056,8 +1056,10 @@ export class Settle implements ReactiveController {
 // at once, whenever the engine gets to it. The marks come off at the person's next act, heard in the capturing phase
 // before anything handles it, by the frame that draws it: a pointer that moves (every engine's later hover is from there,
 // and moves as always), a press, a wheel, a key. An element connected inside the surface before then (a row the view lists as it opens) is marked as it
-// connects. Nothing else changes: a marked element that is not hovered moves as always, and the surface's own entrance
-// (`data-tanrei-appear`) is never held.
+// connects. The surface itself carries the mark too, whatever it is: a component that draws what the surface holds in
+// its own shadow root rather than as elements of this package (the search's suggestion rows) holds those with a rule of
+// its own under that mark. Nothing else changes: a marked element that is not hovered moves as always, and the
+// surface's own entrance (`data-tanrei-appear`) is never held.
 
 /** The elements that settle (each `Settle` host while connected): what a surface that opens may mark. */
 const settlers = new WeakSet<Element>();
@@ -1097,12 +1099,15 @@ const letGo = () => {
  * MOT-3: `surface` opens. Until the person next acts (moves the pointer, presses, turns a wheel, presses a key), each
  * element of this package inside it — in its flat tree, slotted content included — starts no transition while it is
  * hovered: what a pointer at rest is over as the surface opens is drawn hovered at once, whenever the engine hits it.
- * Call it in the task that opens the surface, before its first frame (`openModal()` and `AppearController` do).
+ * The surface carries the mark itself, for what its component draws there in its own shadow root. Call it in the task
+ * that opens the surface, before its first frame (`openModal()` and `AppearController` do), or that changes what it
+ * holds under a pointer the person has not moved (the search's rows, as the product answers a key).
  */
 export function holdStillPointer(surface: Element): void {
   if (typeof window === 'undefined') return;
   if (!stillSurfaces.size) for (const act of ACTS) window.addEventListener(act, letGo, { capture: true, passive: true });
   stillSurfaces.add(surface);
+  if (surface instanceof HTMLElement) mark(surface);
   const walk: Element[] = [surface];
   while (walk.length) {
     const at = walk.pop()!;
