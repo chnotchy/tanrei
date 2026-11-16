@@ -228,6 +228,44 @@ test.describe('presentation and focus', () => {
     await expect(host(page, 'fixed')).toHaveAttribute('closedby', 'none');
   });
 
+  test('DLG-5: back is reported as back right after an Escape that was another dialog’s — one the dialog above answered with its own keys, or one whose close request it took', async ({ page }) => {
+    await mount(page, [f('d'), f('e')]);
+    await page.evaluate(() => {
+      const reasons: string[] = ((window as any).reasons = []);
+      for (const id of ['d', 'e']) {
+        document.querySelector(`[data-fixture="${id}"] tanrei-dialog`)!.addEventListener('cancel', (e) => reasons.push(`${id}:${(e as CustomEvent<{ reason: string }>).detail.reason}`));
+      }
+    });
+    const reasons = () => page.evaluate(() => (window as any).reasons as string[]);
+    // The platform's back: a close request without a key, which reaches the native dialog as cancel.
+    const back = (id: string) => dialog(page, id).evaluate((el) => el.dispatchEvent(new Event('cancel', { cancelable: true })));
+    const openAbove = async () => {
+      await open(page, 'd');
+      await host(page, 'e').evaluate((el: any) => (el.open = true));
+      await expect.poll(() => isOpen(page, 'e')).toBe(true);
+    };
+    // Focus in the dialog above: its own keys answer Escape. The back that follows at once is the dialog below's.
+    await openAbove();
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'e')).toBe(false);
+    await back('d');
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    expect(await reasons()).toEqual(['e:escape', 'd:back']);
+    // Focus on no element: the Escape reaches the dialog above as its close request, and the back after it is still back.
+    await openAbove();
+    await page.evaluate(() => {
+      let active = document.activeElement as HTMLElement | null;
+      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement as HTMLElement;
+      active?.blur();
+    });
+    expect(await page.evaluate(() => document.activeElement?.localName)).toBe('body');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'e')).toBe(false);
+    await back('d');
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    expect(await reasons()).toEqual(['e:escape', 'd:back', 'e:escape', 'd:back']);
+  });
+
   test('DLG-6: activating an action does not close the dialog', async ({ page }) => {
     await mount(page, [f('d')]);
     await open(page, 'd');
