@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { drawnSizeAt, drawnSizeAxis, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
+import { TARGET_CAPS, drawnSizeAt, drawnSizeAxis, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -80,6 +80,16 @@ export const listStyles = css`
   }
   :host([gap='large']) {
     --_gap: ${unsafeCSS(T('gap-large'))};
+  }
+  /* LST-32: where an item's start faces the item before it — along a line, or across the columns or lines of a grid —
+     the gap there, for the handle's cap (itemStyles); nothing in a single column, whose items' starts face the list's
+     own edge. Reset on every list, so a list in an item of another does not take the outer list's. */
+  :host {
+    --_lst-line-gap: initial;
+  }
+  :host([orientation='horizontal']),
+  :host([wrap]) {
+    --_lst-line-gap: var(--_gap);
   }
   /* LST-1: a column from the top, each item as wide as the list; LST-5: logical, so right-to-left mirrors a line. */
   .items {
@@ -226,6 +236,17 @@ export const itemStyles = css`
   .handle {
     flex: none;
     touch-action: none;
+  }
+  /* LST-32, BTN-5: the handle's hit area reaches toward the content no further than the middle of container.gap, and,
+     where the item before it stands at its start (a line or a grid), toward that item no further than the middle of
+     the list's gap past the item's own padding — so a press beside it goes to the nearer of the two. Where the list
+     names no gap there (a single column), that side reaches the whole target. */
+  .handle {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_lst-line-gap) / 2);
+    ${unsafeCSS(TARGET_CAPS.end)}: calc(${unsafeCSS(T('container-gap'))} / 2);
+  }
+  .row.p > .handle {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(var(--_lst-line-gap) / 2 + ${unsafeCSS(T('container-padding-inline-start'))});
   }
   .handle-glyph {
     display: inline-block;

@@ -535,6 +535,51 @@ test.describe('items', () => {
     expect((await hit('close', 0)).right).toBeCloseTo((await bounds(inner(page, 'close', 0))).x + s0.width + reach, 1);
   });
 
+  test('TBR-9: the hit areas follow the gaps when the tokens change them — also where the toolbar keeps its length, wider spaces between a group’s items making up for a narrower line between two groups — and the overflow button’s, as an item’s, stops at the middle of the gap to the item before it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'inline-separation-gap' || f.id === 'inline-overflow-pinned') });
+    // Targets that every item lacks (48 over 40), and a layer that narrows the inline gap and the gap of a line to 2:
+    // a group’s items move apart to keep their lengths (TBR-16), the line between the groups narrows, and in the
+    // default system the two make up for each other.
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px', [T('container-gap-inline')]: '2px', [T('group-gap')]: '2px' });
+    const reaches = (id: string) =>
+      bar(page, id).evaluate((toolbar) => {
+        const buttons: HTMLElement[] = [];
+        const walk = (root: ParentNode) => {
+          for (const el of root.querySelectorAll('*')) {
+            if (el.localName === 'tanrei-button' && el.shadowRoot) buttons.push(el.shadowRoot.querySelector('button')!);
+            if (el.shadowRoot && el.localName !== 'tanrei-button') walk(el.shadowRoot);
+          }
+        };
+        walk(toolbar);
+        walk(toolbar.shadowRoot!);
+        return buttons
+          .map((el) => {
+            const box = el.getBoundingClientRect();
+            const r = getComputedStyle(el, '::before');
+            return { name: el.getAttribute('aria-label') ?? el.textContent!.trim(), start: box.left, end: box.right, reachStart: box.left + Number.parseFloat(r.left), reachEnd: box.right - Number.parseFloat(r.right) };
+          })
+          .filter((b) => b.end - b.start > 0)
+          .sort((a, b) => a.start - b.start);
+      });
+    for (const id of ['inline-separation-gap', 'inline-overflow-pinned']) {
+      // Between every two neighbours: neither hit area passes the middle of the gap between their visible bounds.
+      const past = async () => {
+        const row = await reaches(id);
+        return row.slice(1).flatMap((b, n) => {
+          const a = row[n];
+          const middle = (a.end + b.start) / 2;
+          return [...(a.reachEnd > middle + 0.01 ? [`${a.name} reaches past the middle toward ${b.name}`] : []), ...(b.reachStart < middle - 0.01 ? [`${b.name} reaches past the middle toward ${a.name}`] : [])];
+        });
+      };
+      await expect.poll(past, `${id}: no hit area passes the middle of a gap`).toEqual([]);
+    }
+    // The overflow button is shown in the pinned fixture, and reaches what it lacks where the room allows: its whole target past its end.
+    const row = await reaches('inline-overflow-pinned');
+    const overflow = row.find((b) => b.name === 'More actions')!;
+    expect(overflow, 'the overflow button is shown').toBeTruthy();
+    expect(overflow.reachEnd - overflow.end).toBeCloseTo((48 - (overflow.end - overflow.start)) / 2, 1);
+  });
+
   test('TBR-9: under a coarse pointer every item of a floating toolbar keeps its whole touch target in the default system — the hit areas of two neighbours meet where their kept lengths meet — whatever its size', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'touch emulation through CDP');
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('small', ['edit', 'ink_highlighter', 'ink_eraser'].map((g) => a(g, { size: 'small' })), { variant: 'floating' })] });

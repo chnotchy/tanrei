@@ -738,6 +738,46 @@ test.describe('reordering', () => {
     expect(await focused(page)).toBe('Noto Sans JP:handle');
   });
 
+  test('LST-32: where the handle is smaller than the minimum target its hit area reaches toward the content no further than the middle of container.gap and, in a line or a grid, toward the item before it no further than the middle of the list’s gap, so a press between them goes to the nearer one; in a single column it reaches its whole target toward the list’s start edge', async ({ page }) => {
+    // Under a 48 target the small handle lacks some of it on each side; narrowed gaps leave it less than that.
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px', [T('container-gap')]: '4px', [T('gap-medium')]: '4px' });
+    const reach = (id: string, n: number) =>
+      handle(page, id, n)
+        .locator('button')
+        .evaluate((el) => {
+          const r = getComputedStyle(el, '::before');
+          return { start: -Number.parseFloat(r.left), end: -Number.parseFloat(r.right), width: el.getBoundingClientRect().width };
+        });
+    const vertical = await reach('reorderable', 0);
+    const lacks = (48 - vertical.width) / 2;
+    expect(lacks, 'the handle lacks more than half the narrowed gap').toBeGreaterThan(2);
+    // A single column: the whole target toward the list’s start edge, half of container.gap toward the content.
+    await expect.poll(() => reach('reorderable', 0)).toEqual({ start: lacks, end: 2, width: vertical.width });
+    // A grid: half of the list’s gap toward the item before it on the line as well.
+    const [before, after] = [await bounds(item(page, 'reorderable-wrap', 0)), await bounds(item(page, 'reorderable-wrap', 1))];
+    expect(after.y, 'the two items stand on one line').toBeCloseTo(before.y, 0);
+    expect(after.x - (before.x + before.width), 'the list’s gap lies between them').toBeCloseTo(4, 1);
+    expect(await reach('reorderable-wrap', 1)).toEqual({ start: 2, end: 2, width: vertical.width });
+    // A press in the gap, nearer the item before, is not the handle’s; nearer the handle, it is.
+    const h = await bounds(handle(page, 'reorderable-wrap', 1).locator('button'));
+    const pressed = (x: number, y: number) =>
+      page.evaluate(
+        ([px, py]) => {
+          let at: Element | null = document.elementFromPoint(px, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(px, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          return (at?.getRootNode() as ShadowRoot | undefined)?.host?.classList.contains('handle') ?? false;
+        },
+        [x, y] as const,
+      );
+    const y = h.y + h.height / 2;
+    expect(await pressed(before.x + before.width + 1, y), 'nearer the item before').toBe(false);
+    expect(await pressed(h.x - 1, y), 'nearer the handle').toBe(true);
+  });
+
   test('LST-33: the handle opens the move menu — four moves with their glyphs, those that move nothing disabled; choosing emits move once; Escape moves nothing; focus returns to the handle', async ({ page }) => {
     await product(page, 'reorderable', 'ignore');
     await handle(page, 'reorderable', 0).click();

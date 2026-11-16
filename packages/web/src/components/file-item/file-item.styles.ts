@@ -534,6 +534,13 @@ export const styles = css`
     --_toward-end: ${t('tile-action-inset')};
     --_toward-start: var(--_lacks);
   }
+  /* FIT-18: in a tile the action before another — the retry — reaches toward the start no further than the inset
+     around it either: a tile at its least width (FIT-3) holds it tile.action.inset from its start edge, so a hit area
+     that reached further would stand past the tile, over the gap to the tile before it. What it lacks there it has
+     toward the action after it, whose half of the space between them is at least that much. */
+  ${unsafeCSS(on('tile'))} .action:not(:last-child)::before {
+    inset-inline-start: calc(-1 * min(var(--_lacks) / 2, ${t('tile-action-inset')}));
+  }
   .item .action + .action:last-child::before {
     --_toward-start: calc(var(--_action-gap) / 2);
   }

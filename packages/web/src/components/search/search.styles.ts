@@ -357,6 +357,15 @@ export const styles = css`
   .clear {
     ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
   }
+  /* BTN-5: so does the trailing slot's first Button where no clear button stands before it: it is then the first action
+     button, container.gap after the input. (The first in the slot's order, which is the host's children's order among
+     those slotted there; the buttons after it keep their targets apart by the space above, not by a cap.) The clear
+     button, while it is drawn, is the element right before the trailing box, as the rule above has it; so its absence is
+     read from the sibling before that box, not by asking :has() of the bar for the sake of a slotted element, which
+     src/styles/has.test.ts holds no rule does. */
+  :not(.clear) + .trailing ::slotted(:nth-child(1 of [slot='trailing'])) {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
+  }
 
   ${unsafeCSS(inputStyles)}
 

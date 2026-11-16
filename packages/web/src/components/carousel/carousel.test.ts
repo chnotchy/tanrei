@@ -2902,7 +2902,7 @@ test.describe('behavior', () => {
     expect(stuck, 'every fill played on, nothing left pending, and moved on from where it was held').toEqual([]);
   });
 
-  test('CRL-37: the playback control’s hit area is the target, centred; the indicator’s is the controls row’s height and at least sys.target.touch wide', async ({ page }) => {
+  test('CRL-37: the playback control’s hit area is the target, centred; the indicator’s is the controls row’s height and at least sys.target.touch wide; where the controls row is taller than the controls, both reach toward the row of items no further than halfway across the space above them', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: only('autoplay') });
     const [pointer, touch, controls] = [await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('controls-height'))];
     const hit = (locator: Locator) => locator.evaluate((el) => [Number.parseFloat(getComputedStyle(el, '::before').width), Number.parseFloat(getComputedStyle(el, '::before').height)]);
@@ -2915,6 +2915,35 @@ test.describe('behavior', () => {
     await override(page, { [T('dot-size')]: '2px', [T('dot-active-width')]: '2px', [T('dot-gap')]: '2px', [T('controls-indicator-padding-inline')]: '0px' });
     expect((await bounds(indicator(page, 'autoplay'))).width).toBeLessThan(touch);
     expect((await hit(indicator(page, 'autoplay')))[0]).toBe(touch);
+    // Targets taller than the controls make the controls row taller than they are (controls.height): it leaves a space
+    // above each control, between it and the row of items, which ends where the controls row starts. Each control
+    // reaches across half that space toward the items, and down to the row's bottom edge or its own half target.
+    await override(page, { '--tanrei-sys-target-pointer': `${button + 8}px`, '--tanrei-sys-target-touch': `${button + 8}px` });
+    const row = await bounds(carousel(page, 'autoplay').locator('.controls'));
+    expect(row.height).toBe(button + 8);
+    const space = (row.height - button) / 2;
+    const reach = (locator: Locator) => locator.evaluate((el) => [-Number.parseFloat(getComputedStyle(el, '::before').top), -Number.parseFloat(getComputedStyle(el, '::before').bottom)]);
+    expect(await reach(indicator(page, 'autoplay')), 'the indicator: half the space up, the whole of it down').toEqual([space / 2, space]);
+    expect(await reach(playback(page, 'autoplay')), 'the playback control: half the space up, its half target down').toEqual([space / 2, space]);
+    const pressed = (x: number, y: number) =>
+      page.evaluate(
+        ([px, py]) => {
+          let at: Element | null = document.elementFromPoint(px, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(px, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          return at?.closest('.indicator') ? 'indicator' : at?.closest('.playback') ? 'playback' : 'neither';
+        },
+        [x, y] as const,
+      );
+    for (const control of ['indicator', 'playback'] as const) {
+      const box = await bounds(control === 'indicator' ? indicator(page, 'autoplay') : playback(page, 'autoplay'));
+      const x = box.x + box.width / 2;
+      expect(await pressed(x, row.y + space / 4), `${control}: a press in the nearer half of the space to the items is not the control’s`).toBe('neither');
+      expect(await pressed(x, row.y + (space * 3) / 4), `${control}: a press in the nearer half of the space to the control is the control’s`).toBe(control);
+    }
   });
 
   test('CRL-38: until the icon set can draw the glyph, the playback control keeps its box and shows nothing', async ({ page }) => {
