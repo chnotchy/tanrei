@@ -2,8 +2,10 @@
 // (packages/tools/src/test-tmp.js): tagged with the process that made them, removed when the test file ends, and the
 // file fails if one stays. This file is the other half: no code of this package makes one in any other way.
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { after, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -71,6 +73,107 @@ test('the check leaves out what an earlier process with the same id left: a runn
     assert.ok(fs.existsSync(stalePath), 'the earlier process\'s entry is left alone, not removed');
   } finally {
     if (stalePath) fs.rmSync(stalePath, { recursive: true, force: true });
+  }
+});
+
+/**
+ * Start a child that runs this module source with the helper's `tempDir` imported, wait for the first line it prints,
+ * and hand back the child and that line.
+ */
+async function startChild(source) {
+  const helper = path.join(pkg, 'src/test-tmp.js');
+  const child = spawn(process.execPath, ['--input-type=module', '-e', `import { tempDir } from ${JSON.stringify(helper)};\n${source}`], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let out = '';
+  let err = '';
+  child.stderr.on('data', (chunk) => (err += chunk));
+  const line = await new Promise((resolve, reject) => {
+    child.stdout.on('data', (chunk) => {
+      out += chunk;
+      if (out.includes('\n')) resolve(out.split('\n')[0]);
+    });
+    child.on('exit', (code, signal) => reject(new Error(`the child ended (${signal ?? code}) before it printed a line: ${err}`)));
+  });
+  return { child, line, stderr: () => err };
+}
+
+for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP']) {
+  test(`a process ended by ${signal} sweeps its directories and still ends by ${signal}`, async () => {
+    // The child makes a directory and waits; the signal arrives while it is idle, as from a terminal or a job's timeout.
+    const { child, line: dir, stderr } = await startChild(`console.log(tempDir('signalled')); setInterval(() => {}, 1000);`);
+    try {
+      assert.match(path.basename(dir), /^tanrei-signalled-p\d+-/);
+      assert.ok(fs.existsSync(dir), 'the directory is there while the child runs');
+      const ended = once(child, 'exit');
+      child.kill(signal);
+      const [code, by] = await ended;
+      assert.equal(by, signal, `ended by the signal, not by an exit (code ${code}): ${stderr()}`);
+      assert.equal(fs.existsSync(dir), false, 'swept before the child ended');
+    } finally {
+      child.kill('SIGKILL');
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}
+
+test('a process with a listener of its own for the signal ends as that listener says, swept as well', async () => {
+  const { child, line: dir, stderr } = await startChild(`process.on('SIGTERM', () => process.exit(3)); console.log(tempDir('signalled')); setInterval(() => {}, 1000);`);
+  try {
+    const ended = once(child, 'exit');
+    child.kill('SIGTERM');
+    const [code, by] = await ended;
+    assert.deepEqual({ code, by }, { code: 3, by: null }, stderr());
+    assert.equal(fs.existsSync(dir), false);
+  } finally {
+    child.kill('SIGKILL');
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a process that only imports the module reacts to a signal as it did without it', async () => {
+  // No directory, no listener: the default action ends the process.
+  const { child, line, stderr } = await startChild(`console.log(process.listenerCount('SIGTERM')); setInterval(() => {}, 1000);`);
+  assert.equal(line, '0');
+  const ended = once(child, 'exit');
+  child.kill('SIGTERM');
+  const [, by] = await ended;
+  assert.equal(by, 'SIGTERM', stderr());
+});
+
+test('the runner, signalled while it waits for node --test, sweeps its report directory once the run returns and ends by the signal', async () => {
+  // The runner is blocked in spawnSync and runs no listener until node --test returns. The test file below says it has
+  // started, then waits for a file this test writes only after it has signalled the runner (the runner alone, not its
+  // child), so the signal is sure to arrive while the runner waits.
+  const dir = tempDir('runner-signal');
+  const started = path.join(dir, 'started');
+  const release = path.join(dir, 'release');
+  fs.writeFileSync(path.join(dir, 'wait.test.mjs'), `
+    import fs from 'node:fs'; import { test } from 'node:test';
+    test('waits for the parent', async () => {
+      fs.writeFileSync(${JSON.stringify(started)}, '');
+      while (!fs.existsSync(${JSON.stringify(release)})) await new Promise((resolve) => setTimeout(resolve, 20));
+    });`);
+  const before = new Set(fs.readdirSync(os.tmpdir()));
+  const runner = spawn(process.execPath, [path.join(pkg, 'src/run-node-tests.js'), 'wait.test.mjs'], { cwd: dir, env: childEnv(), stdio: ['ignore', 'pipe', 'pipe'] });
+  let output = '';
+  runner.stdout.on('data', (chunk) => (output += chunk));
+  runner.stderr.on('data', (chunk) => (output += chunk));
+  const ended = once(runner, 'exit');
+  try {
+    while (!fs.existsSync(started)) {
+      assert.equal(runner.exitCode, null, `the runner ended before the test file started: ${output}`);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    const tag = `-p${runner.pid}-`;
+    const mine = () => fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('tanrei-') && name.includes(tag) && !before.has(name));
+    assert.equal(mine().length, 1, 'the runner made its report directory');
+    runner.kill('SIGTERM');
+    fs.writeFileSync(release, '');
+    const [code, by] = await ended;
+    assert.equal(by, 'SIGTERM', `ended by the signal (code ${code}): ${output}`);
+    assert.deepEqual(mine(), [], 'its report directory was swept');
+  } finally {
+    fs.writeFileSync(release, '');
+    runner.kill('SIGKILL');
   }
 });
 
