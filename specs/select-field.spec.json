@@ -2990,7 +2990,7 @@
             "leadingIcon": "leadingIcon",
             "disabled": "disabled"
           },
-          "notes": "`<tanrei-option>` children of `<tanrei-select-field>`, exactly as of `<tanrei-select>`: the product's elements in the light DOM, passed to the select inside through the default slot and read by it as data (web-options.md)."
+          "notes": "`<tanrei-option>` children of `<tanrei-select-field>`, exactly as of `<tanrei-select>`: the product's elements in the light DOM, passed to the select inside through the default slot and read by it as data, as a select reads its own children."
         },
         "option-group": {
           "name": "tanrei-option-group",

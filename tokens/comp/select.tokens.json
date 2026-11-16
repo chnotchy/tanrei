@@ -469,7 +469,7 @@
             }
           },
           "selected-option": {
-            "$description": "The chosen option's row: the quiet selection's role under its own content color, and the check in the mark color. The default system values the fill as a layer of the row's content color, as it does the menu's checked row (tokens.md, \"Rules\").",
+            "$description": "The chosen option's row: the quiet selection's role under its own content color, and the check in the mark color. The default system values the fill as a layer of the row's content color, as it does the menu's checked row.",
             "container": {
               "color": {
                 "$type": "color",
