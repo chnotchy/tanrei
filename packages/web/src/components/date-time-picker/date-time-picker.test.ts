@@ -2088,6 +2088,22 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
   });
 
+  test('DTM-35 (MDL-7, MOT-6): where motion is reduced a modal picker’s scrim fades in and out with its container, over sys.motion.role.reduced — not over the modal open and close motions', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    expect(await resolveToken(page, T('modal-motion-open-duration'), 'duration')).not.toBe(reduced);
+    expect(await resolveToken(page, T('modal-motion-close-duration'), 'duration')).not.toBe(reduced);
+    // Every fade on the picker's dialog: the container's and the scrim's (`::backdrop`; WebKit leaves its pseudo-element unnamed).
+    const fades = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.name === 'opacity').map((motion) => `${motion.on} ${motion.duration}`);
+    const opening = fades(await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe, elements: false }));
+    const closing = fades(await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = false)), { probe: appearProbe, elements: false }));
+    for (const [name, seen] of [['opening', opening], ['closing', closing]] as const) {
+      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(2);
+      expect(seen.every((fade) => fade.endsWith(` ${reduced}`)), `${name}: ${seen.join(', ')}`).toBe(true);
+    }
+  });
+
   test('DTM-35: a modal picker opened at the end of a task that outlasts its open motion appears from the first frame drawn after that task — its surface and its scrim at their start, none of it over before it is drawn', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it, which stands still while the task runs:
     // a picker whose calendar took longer to render than its open motion lasts had its scrim drawn whole in its first
