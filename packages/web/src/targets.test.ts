@@ -170,13 +170,6 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
       reason: 'A link item’s visible bounds are its title’s container, wider than the anchor this check measures: the anchor’s hit area (MBR-17) is the title’s, and covers the title’s own padding, which the check counts as gap.',
     },
   ],
-  search: [
-    {
-      settings: ['2px apart'],
-      line: /bar-slots: .*goes to tanrei-button › button "mic"/,
-      reason: 'The trailing slot’s first Button stops toward the clear button where there is one (SRC-34 keeps their lengths); with no clear button and container.gap at 2 px, it reaches over the end of the input.',
-    },
-  ],
   toolbar: [
     {
       settings: ['2px apart'],

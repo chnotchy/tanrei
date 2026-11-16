@@ -357,6 +357,12 @@ export const styles = css`
   .clear {
     ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
   }
+  /* BTN-5: so does the trailing slot's first Button where no clear button stands before it: it is then the first action
+     button, container.gap after the input. (The first in the slot's order, which is the host's children's order among
+     those slotted there; the buttons after it keep their targets apart by the space above, not by a cap.) */
+  .bar:not(:has(> .clear)) .trailing ::slotted(:nth-child(1 of [slot='trailing'])) {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
+  }
 
   ${unsafeCSS(inputStyles)}
 

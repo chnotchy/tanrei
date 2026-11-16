@@ -2249,6 +2249,41 @@ test.describe('states', () => {
     expect((await bounds(row(page, 'docked', 0))).height).toBeGreaterThanOrEqual(touch - 0.01);
   });
 
+  test('SRC-25: the first action button — the clear button, or where none is shown the trailing slot’s first Button — reaches toward the input no further than the middle of container.gap, so a press on the input’s end is the input’s, and the trailing Button after it keeps the length SRC-34 keeps for it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: spec.fixtures.filter((f) => f.id === 'bar-slots' || f.id === 'bar-value-slots') });
+    // Targets that leave every action button short (a 48 target over 36 and 40), and a layer’s gap narrowed to 2.
+    await override(page, { '--tanrei-sys-target-touch': '48px', '--tanrei-sys-target-pointer': '48px', [T('container-gap')]: '2px' });
+    const gap = await resolveToken(page, T('container-gap'));
+    expect(gap).toBe(2);
+    const reach = (button: Locator) => button.evaluate((el) => -Number.parseFloat(getComputedStyle(el, '::before').left));
+    const pressed = (x: number, y: number) =>
+      page.evaluate(
+        ([px, py]) => {
+          let at: Element | null = document.elementFromPoint(px, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(px, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          const owner = (at?.getRootNode() as ShadowRoot | undefined)?.host;
+          return at?.localName === 'input' ? 'input' : owner?.localName === 'tanrei-button' ? (owner.getAttribute('slot') ?? 'clear') : at?.classList.contains('clear') ? 'clear' : 'neither';
+        },
+        [x, y] as const,
+      );
+    for (const [id, first] of [['bar-slots', 'trailing'], ['bar-value-slots', 'clear']] as const) {
+      const trailing = host(page, id).locator('tanrei-button[slot="trailing"]');
+      const firstButton = (first === 'clear' ? host(page, id).locator('.bar > .clear') : trailing.nth(0)).locator('button');
+      await expect.poll(() => reach(firstButton), `${id}: the first action button reaches half the gap toward the input`).toBe(gap / 2);
+      const field = await bounds(input(page, id));
+      const y = field.y + field.height / 2;
+      expect(await pressed(field.x + field.width - 1.5, y), `${id}: a press on the input’s end`).toBe('input');
+      // The next trailing Button stands where SRC-34 keeps it, and reaches what it lacks toward the button before it.
+      const next = trailing.nth(first === 'clear' ? 0 : 1).locator('button');
+      const lacks = (48 - (await bounds(next)).width) / 2;
+      expect(await reach(next), `${id}: the next action button keeps its length`).toBe(lacks);
+    }
+  });
+
   test('SRC-25: the slots’ icon buttons keep their own tokens and semantics and their own focus stops — the leading one before the input, the trailing ones after the clear button — and the full-screen header draws neither slot (their targets: SRC-34’s test)', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
