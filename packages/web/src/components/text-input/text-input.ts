@@ -1845,7 +1845,9 @@ export class TanreiTextInput extends TanreiElement {
     const anchor = input ?? this.renderRoot.querySelector<HTMLElement>('.segment') ?? undefined;
     if (entry) {
       const flag = entry.reason === 'invalid' ? 'badInput' : entry.side === 'under' ? 'rangeUnderflow' : entry.side === 'listed' ? 'customError' : 'rangeOverflow';
-      this.says.validity({ [flag]: true }, this.refusalText || this.frame.description() || entry.reason, anchor);
+      // The words of the refusal, else what its Field shows, else its name, else the row as drawn (never empty while an
+      // entry error lasts, and the flag needs a message) — never a name of the API.
+      this.says.validity({ [flag]: true }, this.refusalText || this.frame.description() || this.name_ || entry.text, anchor);
       return;
     }
     if (this.row) {
