@@ -94,6 +94,26 @@ async function overreaching(): Promise<string[]> {
     // short of a box's edge to the box (measured: a point 0.9 px before an icon-only Button's drawn start, where its hit
     // area does not reach, is the Button's). A press that close to what a neighbour draws is a press on its drawing.
     const drawnAt = (r: DOMRect, x: number, y: number) => x > r.left - 1 && x < r.right + 1 && y > r.top - 1 && y < r.bottom + 1;
+    // What draws `el` at no opacity, itself or what holds it, while it still takes presses (a carousel's previous and
+    // next controls until it is hovered, a time picker's dial numbers between hours and minutes); none when it is drawn.
+    const veil = (el: Element) => {
+      for (let at: Element | null = el; at; at = flatParent(at)) if (Number(getComputedStyle(at).opacity) === 0) return at as HTMLElement | SVGElement;
+      return null;
+    };
+    // What a press at a point goes to once what is drawn there at no opacity lets it through: what a person sees there.
+    // Not whatever lies under a veil — a time picker's faded numbers lie over its own dial, which hides what is under
+    // the dialog. Each veil takes presses again before this returns.
+    const seen = (x: number, y: number) => {
+      const lifted: [HTMLElement | SVGElement, string][] = [];
+      let at = hit(x, y);
+      for (let over = at && veil(at); over && lifted.length < 8; over = at && veil(at)) {
+        lifted.push([over, over.style.pointerEvents]);
+        over.style.pointerEvents = 'none';
+        at = hit(x, y);
+      }
+      for (const [el, value] of lifted.reverse()) el.style.pointerEvents = value;
+      return at;
+    };
     stage.scrollIntoView({ block: 'start' });
     await frame();
     const shown = all.filter((el) => {
@@ -101,9 +121,15 @@ async function overreaching(): Promise<string[]> {
       if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
       const s = getComputedStyle(el);
       if (s.visibility !== 'visible' || Number(s.opacity) === 0) return false;
-      // Only what a press at its middle reaches: a pressable under another surface is not pressed here.
-      const middle = owner(hit(r.left + r.width / 2, r.top + r.height / 2));
-      return !!middle && kin(el, middle);
+      // Only what a press at its middle reaches: a pressable under another surface is not pressed here. A surface drawn
+      // at no opacity hides nothing: what is seen through it is pressed too, and is a neighbour whose gap is measured (a
+      // carousel's items, under its previous and next controls until it is hovered).
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      const middle = owner(hit(x, y));
+      if (middle && kin(el, middle)) return true;
+      const through = owner(seen(x, y));
+      return !!through && kin(el, through);
     });
     const rects = new Map(shown.map((el) => [el, el.getBoundingClientRect()]));
     for (const p of shown) {
@@ -122,9 +148,11 @@ async function overreaching(): Promise<string[]> {
         if (o && !kin(p, o)) {
           const q = o.getBoundingClientRect();
           // Drawn there is the layout's, not a reach; a part drawn inside this pressable (a chip's remove action, a
-          // file item's action) is the pressable's own business.
+          // file item's action) is the pressable's own business, and so is a control drawn at no opacity over it (a
+          // carousel's previous and next controls over the items that scroll under them): it lies on it, not beside it.
           const part = q.left >= r.left - 0.5 && q.right <= r.right + 0.5 && q.top >= r.top - 0.5 && q.bottom <= r.bottom + 0.5;
-          if (!drawnAt(q, x, y) && !part) out.push(`${stage.dataset.fixture}: ${describe(p)}, ${side} edge: a press there goes to ${describe(o)}`);
+          const over = !!veil(o) && q.left < r.right && q.right > r.left && q.top < r.bottom && q.bottom > r.top;
+          if (!drawnAt(q, x, y) && !part && !over) out.push(`${stage.dataset.fixture}: ${describe(p)}, ${side} edge: a press there goes to ${describe(o)}`);
         }
         // The gap beyond this edge, to the first pressable drawn that way within 24 px.
         const from = dx ? (dx > 0 ? r.right : r.left) : dy > 0 ? r.bottom : r.top;
