@@ -177,13 +177,6 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
   combobox: [CHEVRON],
   'combobox-field': [CHEVRON],
   field: [CHEVRON],
-  'file-item': [
-    {
-      settings: ['m3-like', '8px apart'],
-      line: /tanrei-file-item › (a|button) "[^"]*",? .*goes to tanrei-file-item › button "(Remove|Retry)/,
-      reason: 'FIT-18 lets a row’s last action reach toward the texts as far as row.container-gap; where the item’s body is pressable, that reaches over the body’s end. It should stop at the middle of the gap to the body.',
-    },
-  ],
   'file-upload': [
     {
       settings: ['2px apart', '8px apart'],
