@@ -7,7 +7,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -389,6 +389,19 @@ test.describe('the drag handle', () => {
     expect(await handleHost(page).evaluate((el: HTMLElement) => el.inert)).toBe(true);
     await expect(handle(page, 'empty')).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('BSH-11')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/handle-label is empty and the product's words have no handleLabel: the drag handle has no accessible name/);
+  });
+
+  test('BSH-11: a drag handle named by no one is the missing word handleLabel — reported once for the page however many sheets lack it, naming handle-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('s', { variant: 'standard', handleLabel: '' }, LONG), fx('t', { variant: 'standard', handleLabel: '' }, LONG)]);
+    await expect(handle(page, 's')).toBeVisible();
+    await expect(handle(page, 't')).toBeVisible();
+    expect(seen.filter((w) => w.includes('BSH-11'))).toEqual([expect.stringMatching(/<tanrei-bottom-sheet>: handle-label is empty and the product's words have no handleLabel: the drag handle has no accessible name; .*setWords\(\) \(BSH-11\)/)]);
+    expect(await missingWords(page)).toContain('handleLabel');
+    await setWords(page, { handleLabel: 'Resize sheet' });
+    await expect(page.getByRole('button', { name: 'Resize sheet', exact: true })).toHaveCount(2);
+    expect(await missingWords(page)).not.toContain('handleLabel');
   });
 
   test('BSH-13: each state draws the handle’s box, grip and opacity from that state’s tokens, pressed over focused over hovered, and the grip at the Handle’s length and thickness in use; a pointer gives it no focus; a drag from the handle keeps it pressed while the sheet follows', async ({ page }) => {
@@ -1301,7 +1314,19 @@ test.describe('the header and the close button', () => {
     await mount(page, [fx('s', { headline: 'Share photo', closable: true, closeLabel: '' })]);
     await expect(close(page)).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('BSH-29')).length).toBe(1);
-    expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
+    expect(seen.join('\n')).toMatch(/close-label is empty and the product's words have no closeLabel: the close button has no accessible name/);
+  });
+
+  test('BSH-29: a close button named by no one is the missing word closeLabel — reported once for the page however many sheets lack it, naming close-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('s', { variant: 'standard', headline: 'Share photo', closable: true, closeLabel: '' }), fx('t', { variant: 'standard', headline: 'Filters', closable: true, closeLabel: '' })]);
+    await expect(close(page, 's')).toBeVisible();
+    await expect(close(page, 't')).toBeVisible();
+    expect(seen.filter((w) => w.includes('BSH-29'))).toEqual([expect.stringMatching(/<tanrei-bottom-sheet>: close-label is empty and the product's words have no closeLabel: the close button has no accessible name; .*setWords\(\) \(BSH-29\)/)]);
+    expect(await missingWords(page)).toContain('closeLabel');
+    await setWords(page, { closeLabel: 'Close' });
+    await expect(page.getByRole('button', { name: 'Close', exact: true })).toHaveCount(2);
+    expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
   test('BSH-29: under m3-like and m3-expressive-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {

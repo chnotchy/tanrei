@@ -3,7 +3,7 @@
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage, setWords } from '../../../test/harness.js';
 import { type Turn, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing } from '../../../test/appear.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Frame, type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -1611,6 +1611,18 @@ test.describe('the bar', () => {
     expect(seen.join('\n')).toMatch(/status-label is empty/);
     expect(seen.join('\n')).toMatch(/expand-label is empty/);
     expect(seen.join('\n')).toMatch(/offer it elsewhere too/);
+  });
+
+  test('SNK-20: a close button named by no one is the missing word closeLabel — reported once for the page however many snackbars lack it, naming close-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: [f('a', { closable: true, duration: 'indefinite' }), f('b', { message: 'Draft saved', closable: true, duration: 'indefinite' })] });
+    await expect(part(page, 'a', 'close')).toBeVisible();
+    await expect(part(page, 'b', 'close')).toBeVisible();
+    expect(seen.filter((w) => w.includes('SNK-20'))).toEqual([expect.stringMatching(/<tanrei-snackbar>: close-label is empty and the product's words have no closeLabel: the close button has no accessible name; .*setWords\(\) \(SNK-20\)/)]);
+    expect(await missingWords(page)).toContain('closeLabel');
+    await setWords(page, { closeLabel: 'Close' });
+    await expect(page.getByRole('button', { name: 'Close', exact: true })).toHaveCount(2);
+    expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
   test('SNK-21: each status form, not drawn inverse, draws its bar, title, message, glyph and controls from its own status’s tokens, in every scheme; the default form reads the unprefixed tokens; the glyph is hidden and statusLabel is text before the title', async ({ page }) => {
