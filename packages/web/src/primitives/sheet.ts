@@ -111,17 +111,24 @@ export class SheetDrag {
   }
 }
 
-/** The last Escape key seen in this window, so a native `cancel` can tell Escape from the platform's back. */
-let lastEscape = Number.NEGATIVE_INFINITY;
+/**
+ * The last Escape key seen in this window that no close request has taken yet, so a native `cancel` can tell Escape
+ * from the platform's back.
+ */
+let lastEscape: KeyboardEvent | null = null;
 let watching = false;
 
 /**
  * Why a modal sheet's native `<dialog>` fired `cancel` (a close request): `escape` when an Escape key has just been
  * pressed (focus was somewhere the sheet's own `keydown` did not see it), otherwise the platform's `back` (Android's
- * back gesture or button). Call `watchEscape()` once a sheet can be shown.
+ * back gesture or button). An Escape is the reason of the one close request it made, never of another surface's: one
+ * that something answered (its `keydown` cancelled, as a surface's own keys do) made none, and the first close request
+ * that reads it takes it. Call `watchEscape()` once a sheet can be shown.
  */
 export function closeRequestReason(event: Event): 'escape' | 'back' {
-  return event.timeStamp - lastEscape < 1000 ? 'escape' : 'back';
+  const escape = lastEscape;
+  lastEscape = null;
+  return escape && !escape.defaultPrevented && event.timeStamp - escape.timeStamp < 1000 ? 'escape' : 'back';
 }
 
 /**
@@ -148,7 +155,7 @@ export function watchEscape() {
   window.addEventListener(
     'keydown',
     (event) => {
-      if (event.key === 'Escape') lastEscape = event.timeStamp;
+      if (event.key === 'Escape') lastEscape = event;
     },
     { capture: true },
   );
