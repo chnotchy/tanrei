@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { fixturesDocument, loadSpec } from '../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec } from '../test/harness.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = (file: string) => fs.readFileSync(path.join(here, '../dist', file), 'utf8');
@@ -31,20 +31,67 @@ function tagsWith(declaration: RegExp): string[] {
   const tags = new Set<string>();
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!declaration.test(body!)) continue;
-    for (const [tag] of selector!.matchAll(/tanrei-[a-z-]+/g)) if (tag !== 'tanrei-tab') tags.add(tag);
+    for (const [tag] of selector!.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
   }
-  return [...tags].sort();
+  // An element that stands only inside another (a tab, a stepper's step) is tested in its container's fixtures.
+  return [...tags].filter((tag) => fs.existsSync(path.join(here, '../../../specs', `${tag.replace(/^tanrei-/, '')}.spec.json`))).sort();
 }
 
 /**
- * The fixtures whose element the cloak holds lower than it will be drawn, by spec, with why: the cloak holds a
- * control's one row, and these grow past it by what they draw once they are defined. None is held higher than it will
- * be (the test asks that of them), so what is below one moves down, never up. The list only shrinks.
+ * The elements whose height the page gives them (their fixtures' stages give it): the cloak lays each out as the box it
+ * will be, so that the page's size holds before it is defined, and they are tested with the controls it holds.
  */
-const GROWS: Record<string, { grows: (props: Record<string, unknown>) => boolean; why: string }> = {
-  combobox: { grows: (props) => props.selection === 'multiple', why: 'a combobox of several values draws them as chips, on as many rows as they need' },
-  'text-input': { grows: (props) => !!props.multiline, why: 'a multiline input is as tall as its rows' },
+const SIZED_BY_THE_PAGE = ['tanrei-scroll-area', 'tanrei-split-view'];
+
+/**
+ * The fixtures whose element the cloak holds lower than it will be drawn, by spec, with why: the cloak holds a
+ * control's one row, and these grow past it by what they draw once they are defined — by what no token says (how many
+ * rows, chips or attachments there are, or how wide the words are). None is held higher than it will be (the test asks
+ * that of them), so what is below one moves down, never up. A reason leaves the list when the cloak learns to hold it.
+ */
+type Grows = { grows: (props: Record<string, unknown>, fixture: Fixture) => boolean; why: string };
+const CHIPS: Grows = { grows: (props) => props.selection === 'multiple', why: 'a combobox of several values draws them as chips, on as many rows as they need' };
+const ROWS: Grows = { grows: (props) => !!props.multiline, why: 'a multiline input is as tall as its rows' };
+const ENTRIES: Grows = { grows: (props) => (Array.isArray(props.value) && props.value.length > 0) || (Array.isArray(props.entries) && props.entries.length > 0), why: 'its entries are drawn as chips in its box, on as many rows as they need' };
+const VALUE_LINE: Grows = { grows: (_props, fixture) => fixture.id.endsWith('long-value-text'), why: 'a value text too long to share the label’s line takes a line of its own under it' };
+/** A Field's control, the fixture's one item: by the reasons its own spec has. */
+const CONTROL: Grows = {
+  grows: (_props, fixture) => {
+    const item = fixture.items?.[0];
+    const props = (item?.props ?? {}) as Record<string, unknown>;
+    return (!!item && ['chat-composer', 'file-picker', 'file-upload'].includes(item.kind)) || [CHIPS, ROWS, ENTRIES].some((reason) => reason.grows(props, fixture));
+  },
+  why: 'its control is one the cloak holds no higher than its one row (a multiline input, chips) or does not hold (a chat composer, a file picker, a file upload)',
 };
+const ROW_OF_CHOICES: Grows = { grows: (props) => props.orientation === 'horizontal', why: 'a row of choices wraps where they do not fit, and their widths are not held' };
+const GROWS: Record<string, Grows[]> = {
+  'chat-composer': [
+    {
+      grows: (props, fixture) => !!fixture.items?.length || String(props.value ?? '') !== '',
+      why: 'its attachments are drawn above the line, and its text takes as many lines as it needs',
+    },
+  ],
+  'checkbox-group': [ROW_OF_CHOICES],
+  'chip-field': [ENTRIES],
+  combobox: [CHIPS],
+  'combobox-field': [CHIPS],
+  'embedded-text-input': [ROWS],
+  field: [CONTROL, VALUE_LINE],
+  'field-group': [ROW_OF_CHOICES],
+  'radio-group': [ROW_OF_CHOICES],
+  'slider-field': [VALUE_LINE],
+  snackbar: [{ grows: (props) => !!props.action, why: 'an action that does not fit beside the text takes a row of its own under it' }],
+  'text-input': [ROWS],
+  'text-field': [ROWS],
+};
+
+/**
+ * Why any fixture may be held lower than it is drawn: a text the element draws, or one of the elements it lays out
+ * draws — a field's label, its help or its error text, a step's label, a choice's label — that wraps onto more lines
+ * than one where it is drawn (`stages()` reads it from the drawn element in each engine). The cloak holds a text at one
+ * line: how many lines it takes is a matter of the words, the width and the face, which no token says.
+ */
+const WRAPS = 'a text it draws wraps onto more lines than one, and the cloak holds one';
 
 /** The page as a server sends it: `markup` with no script, and the cloak's stylesheet when `cloak` is set; the scripts it held back. */
 function withoutScripts(markup: string, cloak: boolean): { page: string; scripts: string[] } {
@@ -111,9 +158,18 @@ async function define<T>(page: Page, scripts: string[], read: () => Promise<T>):
 
 /**
  * Runs in the page: each fixture's element (by the spec's tag) — its height, its visibility, whether a rule holds its
- * height (a `min-block-size` that is not `0px`) — and its stage's height.
+ * height (a `min-block-size`, or a padding, that is not `0px`), whether a text it draws wraps — and its stage's height.
  */
-function stages(tag: string) {
+function stages({ tag, sized }: { tag: string; sized: boolean }) {
+  /**
+   * A text drawn in a shadow tree under `root` — the element's own, its children's (a stepper's steps) — that is a
+   * label, a description, a help, an error text or a value text, on more lines than one.
+   */
+  const wraps = (root: Element | ShadowRoot): boolean =>
+    [...root.querySelectorAll('*')].some((el) => {
+      if (el.matches('[part~="label"], [part~="description"], [part~="supporting-text"], [part~="error-text"], [part~="value-text"]') && el.getBoundingClientRect().height > 1.5 * parseFloat(getComputedStyle(el).lineHeight)) return true;
+      return !!el.shadowRoot && wraps(el.shadowRoot);
+    });
   return [...document.querySelectorAll('[data-fixture]')].map((stage) => {
     const element = stage.querySelector(tag);
     const style = element ? getComputedStyle(element) : undefined;
@@ -122,7 +178,10 @@ function stages(tag: string) {
       stage: stage.getBoundingClientRect().height,
       height: element?.getBoundingClientRect().height ?? 0,
       visibility: style?.visibility ?? '',
-      held: !!style && !['0px', 'auto'].includes(style.minBlockSize),
+      // A rule holds its height: a minimum, or a row it keeps the room of (a field's label and supporting rows) — or, for
+      // an element the page sizes, the box the size applies to.
+      held: !!style && (!['0px', 'auto'].includes(style.minBlockSize) || style.paddingBlockStart !== '0px' || style.paddingBlockEnd !== '0px' || (sized && style.display !== 'inline')),
+      wraps: !!element && ((!!element.shadowRoot && wraps(element.shadowRoot)) || wraps(element)),
     };
   });
 }
@@ -140,10 +199,11 @@ async function mountedLate(first: Page, tag: string, browserName: string) {
   await page.evaluate(() => document.fonts.ready);
   await frames(page, 2);
   expect(await page.evaluate((t) => !!customElements.get(t), tag)).toBe(false);
-  const before = await page.evaluate(stages, tag);
+  const sized = SIZED_BY_THE_PAGE.includes(tag);
+  const before = await page.evaluate(stages, { tag, sized });
   expect(before.length).toBe(spec.fixtures.length);
   if (browserName === 'chromium') await observeShifts(page);
-  const after = await define(page, scripts, () => page.evaluate(stages, tag));
+  const after = await define(page, scripts, () => page.evaluate(stages, { tag, sized }));
   return { spec, page, before, after };
 }
 
@@ -167,11 +227,13 @@ test.describe('an element whose surface is in the top layer takes no room before
 });
 
 test.describe('the cloak holds every control it names at the height it will be drawn', () => {
-  const tags = tagsWith(/min-block-size:/);
-  test('it holds the controls whose height is a token of their own', () => {
+  const tags = [...new Set([...tagsWith(/min-block-size:|padding-block-(?:start|end):/), ...SIZED_BY_THE_PAGE])].sort();
+  test('it holds the controls whose height is a token of their own, and lays out the elements the page sizes', () => {
     // The list the tests below go through: a rule of the stylesheet that no longer holds anything would shrink it.
-    expect(tags.length).toBeGreaterThan(20);
-    for (const tag of ['tanrei-button', 'tanrei-checkbox', 'tanrei-text-input', 'tanrei-select', 'tanrei-tabs']) expect(tags).toContain(tag);
+    expect(tags.length).toBeGreaterThan(40);
+    for (const tag of ['tanrei-button', 'tanrei-checkbox', 'tanrei-text-input', 'tanrei-select', 'tanrei-tabs', 'tanrei-text-field', 'tanrei-field-group']) expect(tags).toContain(tag);
+    // An element the page sizes is given its box by a rule of its own.
+    expect(SIZED_BY_THE_PAGE.filter((tag) => !tagsWith(/display: (?:block|flex)/).includes(tag))).toEqual([]);
   });
 
   for (const tag of tags) {
@@ -184,18 +246,23 @@ test.describe('the cloak holds every control it names at the height it will be d
       // Each fixture the cloak holds is as high as it will be (within a device pixel's rounding) and so is its stage,
       // so nothing below it moves; one that grows by what it draws is held no higher than it will be. One it does not
       // hold (a vertical slider, a key drawn as plain text, an open search) is left as it is.
-      const props = new Map(spec.fixtures.map((fixture) => [fixture.id, (fixture.props ?? {}) as Record<string, unknown>]));
-      const grows = (id: string) => !!GROWS[name]?.grows(props.get(id) ?? {});
+      const fixtures = new Map(spec.fixtures.map((fixture) => [fixture.id, fixture]));
+      const growth = (i: number) => {
+        const fixture = fixtures.get(before[i]!.id)!;
+        const why = GROWS[name]?.find((reason) => reason.grows((fixture.props ?? {}) as Record<string, unknown>, fixture))?.why;
+        return why ?? (after[i]!.wraps ? WRAPS : undefined);
+      };
       const wrong = before.flatMap((stage, i) => {
         const drawn = after[i]!;
         if (!stage.held) return [];
-        if (grows(stage.id) ? stage.height <= drawn.height + 0.5 : Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
-        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px${grows(stage.id) ? ` (it grows: ${GROWS[name]!.why})` : ''}`];
+        const why = growth(i);
+        if (why ? stage.height <= drawn.height + 0.5 : Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px${why ? ` (it grows: ${why})` : ''}`];
       });
       expect(wrong).toEqual([]);
       expect(before.filter((stage) => stage.held).length, 'the cloak holds some of the fixtures').toBeGreaterThan(0);
       // Chromium's own measure, for a spec whose every fixture is held as it will be drawn: within the budget.
-      if (browserName === 'chromium' && before.every((stage) => stage.held && !grows(stage.id))) {
+      if (browserName === 'chromium' && before.every((stage, i) => stage.held && !growth(i))) {
         const { sum, moved } = await shifts(page);
         expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
       }
@@ -220,6 +287,7 @@ const PRODUCT_PAGE = `
     <tanrei-tab value="billing" label="Billing"></tanrei-tab>
   </tanrei-tabs>
   <tanrei-text-input label="Project name" value="Tanrei"></tanrei-text-input>
+  <tanrei-text-field label="Notification email" supporting-text="Build results are sent to this address." value="team@example.com"></tanrei-text-field>
   <tanrei-select label="Region" value="eu">
     <tanrei-option value="eu" label="Europe"></tanrei-option>
     <tanrei-option value="us" label="United States"></tanrei-option>
@@ -264,7 +332,7 @@ test.describe('a page whose elements are defined late', () => {
       await page.evaluate(() => document.fonts.ready);
       await frames(page, 2);
       const before = await page.evaluate(productPage);
-      expect(before.elements.length).toBe(12);
+      expect(before.elements.length).toBe(13);
       if (browserName === 'chromium') await observeShifts(page);
       const after = await define(page, scripts, () => page.evaluate(productPage));
       const shift = browserName === 'chromium' ? await shifts(page) : undefined;
