@@ -12,6 +12,7 @@ import {
   SEPARATION_VALUES,
   type SeparationProp,
   SizeProviderController,
+  TARGET_CAPS,
   containedWheel,
   deepActive,
   flatParent,
@@ -640,7 +641,10 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       container.classList.toggle('scrolls', over);
       const before = this.folded;
       this.folded = hidden;
-      this.watch(units.filter((unit) => unit.item && !hidden.has(unit.item)).map((unit) => unit.item!));
+      this.watch([
+        ...units.filter((unit) => unit.item && !hidden.has(unit.item)).map((unit) => unit.item!),
+        ...units.filter((unit) => unit.kind === 'space' || unit.kind === 'sep').map((unit) => unit.node),
+      ]);
       this.placeItems(shown);
       const changed = before.size !== hidden.size || [...hidden].some((item) => !before.has(item));
       if (changed) this.hiddenChanged(before);
@@ -696,7 +700,10 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
   /**
    * The lengths the toolbar watches: its container (whose length follows the spaces, which follow the tokens), each item
-   * shown — a hidden one is drawn as nothing and is not watched — and every box that holds it, up to the root, whose
+   * shown — a hidden one is drawn as nothing and is not watched —, each space and line between them (TBR-9: the reach it
+   * measured follows the gaps, and a change of the tokens can change the gaps and leave the container's length as it
+   * was — wider spaces between the items of a group and a narrower line between two groups — so the container alone
+   * would leave the reach measured for the old gaps), and every box that holds it, up to the root, whose
    * lengths are the room an inline or a floating toolbar may take (TBR-18). The parent alone is not enough: a parent as
    * long as its content (an inline-block, a flex item, a float, an absolutely placed box) is as long as the items still
    * shown, and stays so when a box further up is given more room — the toolbar would never show its items again. Which
@@ -721,7 +728,8 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     }
     for (const element of items) {
       if (this.watched.has(element)) continue;
-      resize.observe(element);
+      // The border box: a line's length is its padding (group.gap on each side), which the content box leaves out.
+      resize.observe(element, { box: 'border-box' });
       this.watched.add(element);
     }
     const holders = new Set<Element>();
@@ -747,12 +755,14 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     const rtl = getComputedStyle(this).direction === 'rtl';
     const laid = shown
       .filter((unit) => unit.kind === 'item' || unit.kind === 'other' || unit.kind === 'overflow')
-      .map((unit) => ({ element: (unit.item ?? unit.node) as Element, box: (unit.item ?? unit.node).getBoundingClientRect() }));
+      .map((unit) => ({ element: (unit.item ?? unit.node) as Element, box: (unit.item ?? unit.node).getBoundingClientRect(), overflow: unit.kind === 'overflow' }));
     const gaps = laid.slice(1).map(({ box: b }, n) => {
       const a = laid[n].box;
       return Math.max(0, block ? b.top - a.bottom : rtl ? a.left - b.right : b.left - a.right);
     });
-    laid.forEach(({ element }, n) => {
+    laid.forEach(({ element, overflow }, n) => {
+      // The overflow button is the toolbar's own Button, no item of the product's: its caps are written on it here.
+      if (overflow) return this.capOverflow(element as HTMLElement, n > 0 ? hundredths(gaps[n - 1] / 2) : null, n < laid.length - 1 ? hundredths(gaps[n] / 2) : null);
       if (element.localName !== BUTTON || !this.owns(element)) return;
       const place: GroupPlace = {
         variant: 'row',
@@ -769,6 +779,21 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       (element as Item)[GROUP_ITEM]?.set(place);
     });
     for (const element of [...this.places.keys()]) if (!this.owns(element)) this.places.delete(element);
+  }
+
+  /**
+   * TBR-9, TBR-19: the overflow button's hit area reaches toward the item before it no further than the middle of the
+   * gap between them, as an item's does — the caps `neighbourTarget()` reads, along the toolbar's axis, written on the
+   * Button and inherited by its target; a side with no neighbour reaches its whole target.
+   */
+  private capOverflow(button: HTMLElement, start: number | null, end: number | null) {
+    const block = this.axis === 'block';
+    const [before, after] = block ? [TARGET_CAPS.top, TARGET_CAPS.bottom] : [TARGET_CAPS.start, TARGET_CAPS.end];
+    for (const name of block ? [TARGET_CAPS.start, TARGET_CAPS.end] : [TARGET_CAPS.top, TARGET_CAPS.bottom]) button.style.removeProperty(name);
+    for (const [name, value] of [[before, start], [after, end]] as const) {
+      if (value == null) button.style.removeProperty(name);
+      else if (button.style.getPropertyValue(name) !== `${value}px`) button.style.setProperty(name, `${value}px`);
+    }
   }
 
   /**

@@ -170,13 +170,6 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
       reason: 'A link item’s visible bounds are its title’s container, wider than the anchor this check measures: the anchor’s hit area (MBR-17) is the title’s, and covers the title’s own padding, which the check counts as gap.',
     },
   ],
-  toolbar: [
-    {
-      settings: ['2px apart'],
-      line: /inline-(overflow-pinned|separation-gap): a press in the gap/,
-      reason: 'The toolbar measures each gap (TBR-9); where a separator or the pinned overflow button stands between two items, at 2 px the measured half is not the middle of what the check sees as the gap.',
-    },
-  ],
 };
 
 /**
