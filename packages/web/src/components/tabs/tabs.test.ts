@@ -1351,6 +1351,43 @@ test.describe('concentric at every size', () => {
     }
   });
 
+  test('TAB-5, TAB-14, TAB-34: a minimum target changed after the row is drawn (a layer swapped in at runtime) places the end tabs again — each circle track.padding from its end of the track, the first and the last tab ending at the track’s edges, every tab as wide as the target — whether it grows, grows further or falls back', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => ['primary-icon-only', 'primary-small-icon-only'].includes(f.id)) });
+    const [inset, half] = [await resolveToken(page, T('track-padding')), await halfPixel(page)];
+    const check = async (step: string) => {
+      const target = await resolveToken(page, '--tanrei-sys-target-pointer');
+      for (const id of ['primary-icon-only', 'primary-small-icon-only']) {
+        const at = `${id} at a ${target} target (${step})`;
+        const last = (await tabs(page, id).count()) - 1;
+        const circle = (await seat(page, id, 0)).width;
+        // How far each end tab reaches into the track's inset: half of what it is wider than its circle, at most the inset.
+        const reach = Math.min(inset, (Math.max(circle, target) - circle) / 2);
+        const [edge, first, end] = [await bounds(track(page, id)), await bounds(tabAt(page, id, 0)), await bounds(tabAt(page, id, last))];
+        const [a, b] = [await insets(page, id, await seat(page, id, 0)), await insets(page, id, await seat(page, id, last))];
+        expect(Math.abs(a.start - inset), `${at}: the first circle is ${a.start} from the track's start`).toBeLessThanOrEqual(half);
+        expect(Math.abs(b.end - inset), `${at}: the last circle ends ${b.end} before the track's end`).toBeLessThanOrEqual(half);
+        expect(first.x - edge.x, `${at}: the first tab`).toBeCloseTo(inset - reach, 1);
+        expect(edge.x + edge.width - (end.x + end.width), `${at}: the last tab`).toBeCloseTo(inset - reach, 1);
+        // Each tab is the larger of its circle and the target, less what lies beyond an end of the track.
+        for (let n = 0; n <= last; n++) {
+          const beyond = n === 0 || n === last ? Math.max(0, (Math.max(circle, target) - circle) / 2 - inset) : 0;
+          expect((await bounds(tabAt(page, id, n))).width, `${at}: tab ${n}`).toBeCloseTo(Math.max(circle, target) - beyond, 1);
+        }
+        // Nothing scrolls for it: the track is as wide as its tabs.
+        expect(await track(page, id).evaluate((el) => el.scrollWidth - el.clientWidth), at).toBeLessThanOrEqual(0.5);
+      }
+    };
+    await check('as first drawn');
+    // A system whose targets are larger (a platform guideline's 44, then 48, then the default system's again), each
+    // written after the row has drawn and measured its tabs, and read in the frame after the one whose resize observer
+    // placed the row again.
+    for (const [step, value] of [['grown', '44px'], ['grown further', '48px'], ['fallen back', '']] as const) {
+      await rootTokens(page, { '--tanrei-sys-target-pointer': value });
+      await frames(page);
+      await check(step);
+    }
+  });
+
   test('TAB-34: in every fixture the selected indicator lies track.padding from the track’s top, from its bottom and — with the first tab selected, then the last — from the track’s end, within half a device pixel; the track’s corner less track.padding is the indicator’s corner, so the two ends are concentric: rows 48 tall, 64 with stacked icons, rows that fill, circles', async ({ page }) => {
     test.setTimeout(120_000);
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
@@ -3783,8 +3820,12 @@ test.describe('variants, the track, sizes and the transition', () => {
     }
     expect(await log(page)).toEqual(['activity:activity', 'settings:settings', 'activity:activity', 'settings:settings']);
     // TAB-34: a small row of circles — the end tabs end at the track's edge, and a press just beyond it is theirs.
-    // Under a 44 pointer target (a platform guideline's; the default system's is 36), set before the row is drawn.
-    await mountFixtures(page, spec, { icons: true, fixtures: only('primary-small-icon-only'), lead: '<style>:root { --tanrei-sys-target-pointer: 44px; }</style>' });
+    // Under a 44 pointer target (a platform guideline's; the default system's is 36), set once the row is drawn: the row
+    // places its end tabs again when the target changes.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('primary-small-icon-only') });
+    await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
+    // Read in the frame after the one whose resize observer placed the row again.
+    await frames(page);
     const wide = 44; // the platform guideline's pointer target this part was written for (the default system's is 36)
     const circles = 'primary-small-icon-only';
     const [edge, firstTab, lastTab, firstSeat] = [await bounds(track(page, circles)), await bounds(tabAt(page, circles, 0)), await bounds(tabAt(page, circles, 2)), await seat(page, circles, 0)];
