@@ -599,10 +599,20 @@ test.describe('opening and closing', () => {
     await header(page, 'exclusive', 3).click();
     expect(await toggles(page)).toEqual(['3:closed']);
     expect(await state('exclusive')).toEqual([false, false, false]);
-    // The product sets open: the same.
-    await item(page, 'exclusive', 1).evaluate((el: HTMLDetailsElement) => (el.open = true));
+    // The product sets open: the same. The first item's toggle is awaited before the second opens: the browser queues
+    // a details element's toggle as a task and folds a change made before it fires into it (HTML, "queue a details
+    // toggle event task"), so a close that follows the open within that time is sent as one toggle of closed — in
+    // every engine, as soon as the second set reaches the page before the task has run, as it once did on a busy runner.
+    await item(page, 'exclusive', 1).evaluate(
+      (el: HTMLDetailsElement) =>
+        new Promise<void>((resolve) => {
+          el.addEventListener('toggle', () => resolve(), { once: true });
+          el.open = true;
+        }),
+    );
+    expect(await toggles(page)).toEqual(['1:open']);
     await item(page, 'exclusive', 2).evaluate((el: HTMLDetailsElement) => (el.open = true));
-    expect((await toggles(page)).sort()).toEqual(['1:closed', '1:open', '2:open'].sort());
+    expect((await toggles(page)).sort()).toEqual(['1:closed', '2:open']);
     expect(await state('exclusive')).toEqual([false, true, false]);
     // The name is the accordion's own, and each accordion has another.
     const names = await page.evaluate(() => [...document.querySelectorAll('tanrei-accordion[exclusive]')].map((el) => el.querySelector('details')!.getAttribute('name')));
