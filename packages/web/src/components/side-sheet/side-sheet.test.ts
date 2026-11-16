@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
@@ -582,7 +582,19 @@ test.describe('the close button', () => {
     await mount(page, [fx('s', { closeLabel: '' })]);
     await expect(close(page)).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('SSH-5')).length).toBe(1);
-    expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
+    expect(seen.join('\n')).toMatch(/close-label is empty and the product's words have no closeLabel: the close button has no accessible name/);
+  });
+
+  test('SSH-5: a close button named by no one is the missing word closeLabel — reported once for the page however many sheets lack it, naming close-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('s', { variant: 'standard', closeLabel: '' }), fx('t', { variant: 'standard', closeLabel: '' })]);
+    await expect(close(page, 's')).toBeVisible();
+    await expect(close(page, 't')).toBeVisible();
+    expect(seen.filter((w) => w.includes('SSH-5'))).toEqual([expect.stringMatching(/<tanrei-side-sheet>: close-label is empty and the product's words have no closeLabel: the close button has no accessible name; .*setWords\(\) \(SSH-5\)/)]);
+    expect(await missingWords(page)).toContain('closeLabel');
+    await setWords(page, { closeLabel: 'Close' });
+    await expect(page.getByRole('button', { name: 'Close', exact: true })).toHaveCount(2);
+    expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
   test('SSH-5: closable defaults to true — a sheet with no closable draws the close button, in either variant; the attribute not-closable, or the property set to false, draws none; without a close-label the default sheet is reported', async ({ page }) => {

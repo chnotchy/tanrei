@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -1144,6 +1144,18 @@ test.describe('size and layout', () => {
     await expect.poll(() => seen.filter((text) => text.includes('POP-13')).length).toBe(1);
     expect(seen.find((text) => text.includes('POP-13'))).toContain('close-label is empty');
     await expect(button).toHaveCount(1);
+  });
+
+  test('POP-13: a close button named by no one is the missing word closeLabel — reported once for the page however many popovers lack it, naming close-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, `${anchorAt(200, 60)}${popover('headline="Storage" closable', 'Trash counts.', 'p')}${popover('headline="Trash" closable', 'Trash counts.', 'q')}`);
+    await open(page, 'q');
+    await expect(part(page, 'tanrei-button.close', 'q')).toHaveCount(1);
+    expect(seen.filter((text) => text.includes('POP-13'))).toEqual([expect.stringMatching(/<tanrei-popover>: close-label is empty and the product's words have no closeLabel: the close button has no accessible name; .*setWords\(\) \(POP-13\)/)]);
+    expect(await missingWords(page)).toContain('closeLabel');
+    await setWords(page, { closeLabel: 'Close' });
+    await expect(page.getByRole('button', { name: 'Close', exact: true })).toHaveCount(1);
+    expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
   test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
