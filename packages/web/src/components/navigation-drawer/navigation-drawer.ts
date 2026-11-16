@@ -2293,17 +2293,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
     void this.updateComplete.then(() => (this.pressedMenu = null));
   }
 
-  /**
-   * @internal APS-6, NVD-19: the app shell's menu button showed the drawer that was hidden beside the content, and is no
-   * longer shown itself: focus goes into the drawer as it does when the drawer opens — to the selected destination, or
-   * else its first focusable element — once the update that shows it is drawn.
-   */
-  focusFromShell() {
-    void this.updateComplete.then(() => {
-      if (!this.modal && this.isOpen) this.focusInside();
-    });
-  }
-
   private get labelsMode(): TanreiNavigationDrawerCollapsedLabels {
     return this.collapsedLabels === 'selected' || this.collapsedLabels === 'always' ? this.collapsedLabels : 'never';
   }

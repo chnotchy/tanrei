@@ -199,7 +199,8 @@
     position: static;
   }
   /* APS-34: a frame without a header has its menu button alone in the header's place, the gutter of the class from the
-     top of that place and from the frame's start edge, inside the insets, with no band, fill or edge around it. While
+     top of that place and from the frame's start edge, inside the insets, with no band, fill or edge around it; the
+     rows below the header's (the navigation, the main region, the aside) begin below it while it is shown. While
      the page scrolls it is kept the same gutter from the top of the window, whatever header-position says: its margin
      and its inset are one length, so it rests where it sticks. Over every region, as a sticky header is (APS-32). */
   :where(tanrei-app-shell) > :where([slot='menu-button']) {
@@ -477,10 +478,11 @@
     :where(tanrei-app-shell):where(:has(> [slot='navigation']:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
-    /* APS-6, APS-34: …but a responsive drawer with no collapsed form that is hidden beside the content (expanded false,
-       NVD-53) has no place in the layout either, and nothing of its own to be shown again by: the menu button is shown
-       to bring it back — the header's, or the menu-button slot's in the header's place — whatever the placement says. */
-    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not([collapsible]))) {
+    /* APS-6, APS-34: …but a responsive drawer with no collapsed form, which expanded shows and hides beside the content
+       (NVD-53), has no menu button of its own: the frame's is shown, whether the drawer is shown or hidden, so that the
+       button that shows it stays in its place to hide it again — the header's, or the menu-button slot's in the header's
+       place, which the navigation then begins below as the main region does — whatever the placement says. */
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][responsive]:not([collapsible]))) {
       --_aps-menu: shown;
     }
     /* APS-24: a drawer that is not defined yet keeps its place — at the width a product gives back as

@@ -1258,49 +1258,83 @@ test.describe('the menu button', () => {
     }
   });
 
-  test('APS-6, APS-34, NVD-37, NVD-53: 1280 wide, a drawer with no collapsed form hidden beside the content (expanded false) is shown again by the frame’s menu button — without a header the menu-button slot’s, alone in the header’s place gutter.expanded from the top and the start, the main region below it; with menuButtonPlacement drawer the header’s — which says collapsed; activated, the drawer is shown with one expandedChange and no navigationOpenChange, the button is no longer shown and focus is in the drawer; hidden again by the product, the button is back', async ({ page }) => {
+  test('APS-5, APS-6, APS-7, APS-34, NVD-37, NVD-53: 1280 wide, a responsive drawer with no collapsed form is shown and hidden by the frame’s menu button, which stays drawn in its place whether the drawer is shown or hidden — without a header the menu-button slot’s, alone in the header’s place gutter.expanded from the top and the start, with the drawer and the main region below it and the drawer kept below it while the page scrolls; with menuButtonPlacement drawer the header’s — each activation from the keyboard emitting one expandedChange and no navigationOpenChange and leaving focus on the button, which says expanded while the drawer is shown and collapsed while it is hidden', async ({ page }) => {
     const hidden = DRAWER('responsive expanded="false"');
     const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
     const width = async () => (await edges(drawer(page))).width;
     const offset = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-app-shell-scroll-offset').trim());
+    const forms = () => page.evaluate(() => (window as unknown as { __forms: boolean[] }).__forms);
+    const atCentre = (box: { left: number; top: number; width: number; height: number }) =>
+      page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest('[slot="menu-button"], [data-app-shell-menu]'), [box.left + box.width / 2, box.top + box.height / 2] as const);
     for (const header of [false, true]) {
       const what = header ? 'menuButtonPlacement drawer' : 'no header';
-      await mount(page, real({ header, navigation: hidden, sections: 2, props: header ? { menuButtonPlacement: 'drawer' } : {} }), { width: 1280 });
+      await mount(page, real({ header, navigation: hidden, sections: 4, props: header ? { menuButtonPlacement: 'drawer' } : {} }), { width: 1280 });
       const log = await record(page);
       await drawer(page).evaluate((el) => {
         const seen: boolean[] = ((window as unknown as { __forms: boolean[] }).__forms = []);
         el.addEventListener('expandedchange', (event) => seen.push((event as CustomEvent).detail.expanded));
       });
+      // Hidden: the button is drawn, and says collapsed.
       expect(await width(), what).toBe(0);
       expect(await shown(menu(page)), what).toBe(true);
       await expect.poll(expanded, what).toBe('false');
       // Where the browser has no style queries the element says the same.
       expect([null, 'shown'], what).toContain(await shell(page).getAttribute('data-menu'));
-      const results = await new AxeBuilder({ page }).include(header ? `${TAG} > [slot="header"]` : `${TAG} > [slot="menu-button"]`).analyze();
-      expect(results.violations.map((v) => v.id), what).toEqual([]);
+      const gutter = await resolveToken(page, T('gutter-expanded'));
+      const at = await edges(menu(page));
       if (!header) {
-        const gutter = await resolveToken(page, T('gutter-expanded'));
-        const at = await edges(menu(page));
         expect([at.left, at.top], what).toEqual([gutter, gutter]);
         expect((await edges(main(page))).top, what).toBe(at.bottom);
         await expect.poll(offset, what).toBe(`${gutter + at.height}px`);
       }
-      // Activated from the keyboard: the drawer is shown, and focus goes into it from the button that is no longer shown.
+      // Activated from the keyboard: the drawer is shown, and the button stays where it was, with focus, saying expanded.
       await menu(page).evaluate((el) => (el as HTMLElement).focus());
       await page.keyboard.press('Enter');
       await expect.poll(width, what).toBeGreaterThan(0);
       await motionEnded(page);
-      expect(await shown(menu(page)), what).toBe(false);
-      expect([null, 'hidden'], what).toContain(await shell(page).getAttribute('data-menu'));
-      await expect.poll(() => active(page), what).toContain('tanrei-navigation-drawer');
+      expect(await shown(menu(page)), what).toBe(true);
+      expect([null, 'shown'], what).toContain(await shell(page).getAttribute('data-menu'));
+      expect(await edges(menu(page)), what).toEqual(at);
+      await expect.poll(() => active(page), what).toContain('menu');
+      await expect.poll(expanded, what).toBe('true');
       await expect(page.getByRole('navigation', { name: 'Documentation' }), what).toHaveCount(1);
-      expect(await page.evaluate(() => (window as unknown as { __forms: boolean[] }).__forms), what).toEqual([true]);
+      expect(await forms(), what).toEqual([true]);
       expect(await log(), what).toEqual([]);
-      if (!header) await expect.poll(offset, what).toBe('');
-      // Hidden again by the product: the button is back, and says collapsed.
-      await drawer(page).evaluate((el) => ((el as unknown as { expanded: boolean }).expanded = false));
-      await expect.poll(() => shown(menu(page)), what).toBe(true);
+      // The drawer stands below the button's place — the header, or the menu button alone in a frame without one — and
+      // never over the button.
+      const above = header ? (await edges(region(page, 'header'))).bottom : at.bottom;
+      expect((await edges(drawer(page))).top, what).toBe(above);
+      expect(await atCentre(at), what).toBe(true);
+      if (!header) await expect.poll(offset, what).toBe(`${gutter + at.height}px`);
+      const results = await new AxeBuilder({ page }).include(header ? `${TAG} > [slot="header"]` : `${TAG} > [slot="menu-button"]`).include(`${TAG} > tanrei-navigation-drawer`).analyze();
+      expect(results.violations.map((v) => v.id), what).toEqual([]);
+      // Scrolled: the button is kept where it is, and the drawer below what is kept over the top of the page.
+      await page.evaluate(() => window.scrollTo(0, 300));
+      await frame(page);
+      expect(await scrollY(page), what).toBe(300);
+      const kept = Number.parseFloat(await offset());
+      near((await edges(drawer(page))).top, kept);
+      const stuck = await edges(menu(page));
+      if (!header) expect([stuck.left, stuck.top], what).toEqual([gutter, gutter]);
+      expect(stuck.bottom, what).toBeLessThanOrEqual(kept + 0.5);
+      expect(await atCentre(stuck), what).toBe(true);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await frame(page);
+      // Activated again: the same button, in the same place, hides the drawer, keeps focus and says collapsed.
+      await page.keyboard.press('Enter');
+      await expect.poll(width, what).toBe(0);
+      await motionEnded(page);
+      expect(await shown(menu(page)), what).toBe(true);
+      expect(await edges(menu(page)), what).toEqual(at);
+      await expect.poll(() => active(page), what).toContain('menu');
       await expect.poll(expanded, what).toBe('false');
+      expect(await forms(), what).toEqual([true, false]);
+      expect(await log(), what).toEqual([]);
+      // Shown by the product: the button stays, and says expanded.
+      await drawer(page).evaluate((el) => ((el as unknown as { expanded: boolean }).expanded = true));
+      await expect.poll(width, what).toBeGreaterThan(0);
+      expect(await shown(menu(page)), what).toBe(true);
+      await expect.poll(expanded, what).toBe('true');
     }
   });
 
