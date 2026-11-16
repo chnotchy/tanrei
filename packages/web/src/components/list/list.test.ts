@@ -1039,13 +1039,19 @@ test.describe('reordering', () => {
     const duration = await reorderWindow(page);
     await page.waitForTimeout(100);
     const before = await bounds(item(page, 'reorderable-wrap', 0));
-    await list(page, 'reorderable-wrap').evaluate((el) => el.append(el.firstElementChild!));
-    const motion = await item(page, 'reorderable-wrap', 4).evaluate((el) => el.getAnimations().map((a) => (a.effect as KeyframeEffect).getTiming().duration));
+    // The motion is read in the task that starts it, once the list's updates (microtasks) have run: read in a later
+    // task, a loaded machine can have played it to its end in between.
+    const { motion, startFrame } = await list(page, 'reorderable-wrap').evaluate(async (el) => {
+      const moved = el.firstElementChild!;
+      el.append(moved);
+      for (let turn = 0; turn < 200; turn++) await null;
+      const effects = moved.getAnimations().map((a) => a.effect as KeyframeEffect);
+      return { motion: effects.map((effect) => effect.getTiming().duration), startFrame: effects[0]?.getKeyframes()[0]?.transform as string | undefined };
+    });
     expect(motion).toEqual([duration]);
-    const startFrame = await item(page, 'reorderable-wrap', 4).evaluate((el) => ((el.getAnimations()[0].effect as KeyframeEffect).getKeyframes()[0].transform as string));
     expect(startFrame).toMatch(/translate\(-?\d+(\.\d+)?px, -?\d+(\.\d+)?px\)/);
     expect(startFrame).not.toBe('translate(0px, 0px)');
-    await page.waitForTimeout(duration + 50);
+    await motionEnded(list(page, 'reorderable-wrap'));
     expect((await bounds(item(page, 'reorderable-wrap', 4))).y).toBeGreaterThan(before.y);
   });
 
