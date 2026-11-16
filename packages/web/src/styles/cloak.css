@@ -2,9 +2,9 @@
  * The cloak (opt in): Tanrei's elements before their script defines them. An element draws in its shadow root, so
  * until its module has run, a page shows only what is written between its tags — a glyph's name, an option's words,
  * a label that is not yet a button — and moves when the element is defined and takes the room it will have. This
- * stylesheet hides every Tanrei element that is not defined yet, and gives each control whose height is a token of
- * its own that height, so that the page's first paint has nothing unstyled in it and what is around a control stays
- * where it is:
+ * stylesheet hides every Tanrei element that is not defined yet, and gives each element whose height its tokens give
+ * that height, so that the page's first paint has nothing unstyled in it and what is around an element stays where it
+ * is:
  *
  *   import '@tanrei/web/tokens.css';
  *   import '@tanrei/web/cloak.css';
@@ -20,27 +20,40 @@
  *   defined.
  * - Out of the page: an element whose surface is in the top layer (a dialog, a popover, a date and time picker, an
  *   image preview, a modal layer) draws nothing where it stands once it is defined, and takes no room before.
- * - Held: a control whose height is a token of its own — its container height or container size, by its `size` (the
- *   default's where it names none) and, for an input box, by its `variant` — is the box it will be: `inline-block`
- *   where the element is inline, `block` where it is a block, at least that tall, and what is written inside it adds
- *   no line of the page's text to that height (a line of the page's face can be taller than a small control). Its
- *   width is not held: it is the width of the words and glyphs the element draws, so words that follow a control on
- *   the same line of text move sideways when it is defined. Controls that stand side by side in a row of their own
- *   (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
+ * - Held: an element whose height its tokens give is the box it will be — `inline-block` where the element is inline,
+ *   `block` (or the flex box it will be) where it is a block — at least that tall, and what is written inside it adds
+ *   no line of the page's text to that height (a line of the page's face can be taller than a small control):
+ *   - a control whose height is a token of its own — its container height or container size, by its `size` (the
+ *     default's where it names none) and, for an input box, by its `variant`;
+ *   - a field and a group of fields: the control's box, or the column of controls, between the rows the field draws
+ *     from its tokens — the label's line and gap above, the supporting text's gap and line below — each where the
+ *     attributes say it is drawn;
+ *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
+ *     text input's line; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
+ *     vertical tabs; a progress indicator's and a meter's bar or ring;
+ *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to.
+ *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
+ *   and the page below it moves down by the lines it adds. The width is not held: it is the width of the words and
+ *   glyphs the element draws, so words that follow a control on the same line of text move sideways when it is
+ *   defined. Controls that stand side by side in a row of their own (a flex or grid row with a gap, as a toolbar is)
+ *   move nothing that was painted.
  *
- * What it does not hold: a height that depends on what the element draws in its shadow root (a field's label and
- * supporting text, a list's rows, a composer's attachments, a swatch's label, a multiline input's rows beyond its
- * first line, a combobox's chips, a docked search's results, vertical tabs and sliders), a size or a variant a design
- * system added (held at the default's), and a size an element takes from its container rather than its own `size`.
- * The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`, `avatar.css`,
- * `menu.css`, `menubar.css`, `callout.css`, `empty-state.css`, `code.css`) are hidden here and held by that
- * stylesheet. src/fouce.test.ts holds every fixture of every control held here to the height it is drawn at.
+ * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
+ * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
+ * resizable frame's size, which its attributes give, a card's and a tab view's content, a multiline input's rows
+ * beyond its first line, a combobox's chips, a docked search's results, vertical sliders, a row of choices or of tags
+ * that wraps), a size or a variant a design system added (held at the default's), a size an element takes from its
+ * container rather than its own `size`, and the larger target of a coarse pointer where it makes a vertical step
+ * taller. The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`,
+ * `avatar.css`, `menu.css`, `menubar.css`, `callout.css`, `empty-state.css`, `code.css`) are hidden here and held by
+ * that stylesheet. src/fouce.test.ts holds every fixture of every element held here to the height it is drawn at.
  *
- * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for the heights an input box chooses
- * from) or a keyword; the one number is `line-height: 0`, which takes the page's text written inside a control out
- * of its height rather than giving it one. Every selector has no specificity (`:where()`) and styles the element it
- * asks about, never its children; an element that is `hidden` keeps the browser's `display: none`; and nothing
- * matches once an element is defined.
+ * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for heights worked out from them, some of
+ * which a container gives the elements it lays out: a stepper its steps, vertical tabs their tabs), arithmetic on
+ * them (twice a padding, half a difference), or a keyword; the one value of its own is `line-height: 0`, which takes
+ * the page's text written inside an element out of its height rather than giving it one. Every selector has no specificity (`:where()`) and styles the
+ * element it asks about, never its children; an element that is `hidden` keeps the browser's `display: none`; and
+ * nothing matches once an element is defined.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -69,10 +82,38 @@
     line-height: 0;
   }
   /* A block control: the width of its place. */
-  :where(tanrei-color-input, tanrei-combobox, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
+  :where(tanrei-color-input, tanrei-combobox, tanrei-list-row, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
     display: block;
     box-sizing: border-box;
     line-height: 0;
+  }
+  /* A field and a group of fields: a block whose rows are its paddings, around its control's box or its controls
+     (below). The Field and a group hold the product's controls between their tags: a column of them, each a block that
+     its own rule holds, gap.controls apart in a group (gap.fields where the group says it holds fields). */
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: content-box;
+    line-height: 0;
+  }
+  :where(tanrei-field, tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined):not([hidden])) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-sizing: content-box;
+    line-height: 0;
+  }
+  :where(tanrei-field, tanrei-field-group[spacing='fields']):where(:not(:defined):not([hidden])) {
+    align-items: stretch;
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined):not([hidden])) {
+    row-gap: var(--tanrei-comp-field-group-gap-controls);
+  }
+  :where(tanrei-field-group[spacing='fields']):where(:not(:defined):not([hidden])) {
+    row-gap: var(--tanrei-comp-field-group-gap-fields);
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where([orientation='horizontal']):where(:not(:defined):not([hidden])) {
+    flex-flow: row wrap;
+    column-gap: var(--tanrei-comp-field-group-gap-inline);
   }
 
   /* The Button, and the elements drawn as one: the container height of their size. */
@@ -175,32 +216,114 @@
     min-block-size: var(--tanrei-comp-loading-indicator-container-size-large);
   }
 
-  /* Input boxes. A stacked box (the default) is its stacked height; an outlined or a filled box its container height,
-     and a filled box with a label at least the floated label's line and the input's line between the paddings that
-     go with a label. The three heights are worked out for the size, then one of them is taken by the variant. A box
+  /* Input boxes, alone and in the fields built from them. A stacked box (the default) is its stacked height; an
+     outlined or a filled box its container height, and a filled box whose label floats in it (a label that is not
+     hidden) at least the floated label's line and the input's line between the paddings that go with a label. The
+     three heights are worked out for the size, then one of them is taken by the variant (`--_cloak-control`). A box
      that grows when it is defined (a multiline text input's rows, a combobox's chips of several values) is held at
      its one line. */
-  :where(tanrei-color-input:not(:defined), tanrei-combobox:not(:defined), tanrei-number-input:not(:defined), tanrei-select:not(:defined), tanrei-text-input:not(:defined)) {
+  :where(tanrei-color-input:not(:defined), tanrei-combobox:not(:defined), tanrei-number-input:not(:defined), tanrei-select:not(:defined), tanrei-text-input:not(:defined), tanrei-chip-field:not(:defined), tanrei-color-field:not(:defined), tanrei-combobox-field:not(:defined), tanrei-number-field:not(:defined), tanrei-select-field:not(:defined), tanrei-text-field:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-medium);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-medium);
     --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size) + var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size));
-    min-block-size: var(--_cloak-stacked);
+    --_cloak-control: var(--_cloak-stacked);
+    min-block-size: var(--_cloak-control);
   }
-  :where(tanrei-color-input[size='small']:not(:defined), tanrei-combobox[size='small']:not(:defined), tanrei-number-input[size='small']:not(:defined), tanrei-select[size='small']:not(:defined), tanrei-text-input[size='small']:not(:defined)) {
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='small']):where(:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-small);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-small);
     --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + var(--tanrei-comp-input-box-label-floated-typescale-small-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size) + var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size));
   }
-  :where(tanrei-color-input[size='large']:not(:defined), tanrei-combobox[size='large']:not(:defined), tanrei-number-input[size='large']:not(:defined), tanrei-select[size='large']:not(:defined), tanrei-text-input[size='large']:not(:defined)) {
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='large']):where(:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-large);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-large);
     --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + var(--tanrei-comp-input-box-label-floated-typescale-large-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size) + var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size));
   }
-  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):where([variant='outlined'], [variant='filled']):where(:not(:defined)) {
-    min-block-size: var(--_cloak-box);
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([variant='outlined'], [variant='filled']):where(:not(:defined)) {
+    --_cloak-control: var(--_cloak-box);
   }
-  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):where([variant='filled'][label]:not([label=''])):where(:not(:defined)) {
-    min-block-size: max(var(--_cloak-box), var(--_cloak-labelled));
+  :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([variant='filled'][label]:not([label=''], [label-hidden])):where(:not(:defined)) {
+    --_cloak-control: max(var(--_cloak-box), var(--_cloak-labelled));
+  }
+
+  /* A field's control that is not an input box: the slider's container, the one-time code input's. */
+  :where(tanrei-slider-field:not(:defined)) {
+    min-block-size: var(--tanrei-comp-slider-container-size);
+  }
+  :where(tanrei-one-time-code-field:not(:defined)) {
+    min-block-size: var(--tanrei-comp-one-time-code-input-container-height);
+  }
+
+  /* A field: its control's box between the field's rows, which are drawn from the Field's tokens (a composed field has
+     none of its own: its Field reads `--tanrei-comp-field-*`). Each row is a padding of the element, so that the rows
+     add up whichever of them are drawn; the box is the content's height (`content-box`), its control's — the control's
+     own rule's for a Field, which holds the control between its tags.
+     - The label row, where the field draws it: a label that is not empty and not hidden, over a control that does not
+       float it in its own box (a stacked one) — one line of the label's text role, and the label's gap below it. A
+       glyph before the label, a requirement tag after it and a value text at its end are drawn within that line.
+     - The supporting row, where it is drawn: a help, an error text while the field is in error, or a count — the
+       supporting text's gap, then one line of its text role. Under the `replace` placement (the first value) the
+       error text stands in the help's place; under `append` it is drawn below the help, the error text's gap
+       between.
+     A label or a text longer than its line wraps when the field is defined, and is held at one line. */
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden], [variant='outlined'], [variant='filled'])) {
+    padding-block-start: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap));
+  }
+  :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:not(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):is([variant='outlined'], [variant='filled'])))) {
+    padding-block-start: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap));
+  }
+  /* A Field around a filled box: the box floats the Field's label (not hidden) in it, and is then as high as a filled
+     box with a label — which the box's own rule cannot know, its label being the Field's. The Field keeps what that
+     adds above the box. */
+  :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'])) {
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-medium);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size) + var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size));
+  }
+  :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'][size='small'])) {
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-small);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + var(--tanrei-comp-input-box-label-floated-typescale-small-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size) + var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size));
+  }
+  :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'][size='large'])) {
+    --_cloak-box: var(--tanrei-comp-input-box-container-height-large);
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + var(--tanrei-comp-input-box-label-floated-typescale-large-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size) + var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size));
+  }
+  :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled']:not([label]:not([label=''])))) {
+    padding-block-start: calc(max(var(--_cloak-box), var(--_cloak-labelled)) - var(--_cloak-box));
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text=''])) {
+    padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size));
+  }
+  @container style(--tanrei-comp-field-error-text-placement: append) {
+    :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text=''])) {
+      padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + 2 * var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size) + var(--tanrei-comp-field-error-text-gap));
+    }
+  }
+
+  /* A group of fields or of choices: its controls between its rows, from the group's tokens — the label row (a label
+     that is not empty and not hidden: one line of its text role), the description under it (a help: the supporting
+     text's gap, then one line), the label's gap between them and the first control; and the error text under the
+     last control while the group is in error (the error text's gap, then one line). A checkbox group's checkbox that
+     selects all of them stands first, a control like the others. */
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden])) {
+    --_cloak-rows: calc(var(--tanrei-comp-field-group-label-typescale-line-height) * var(--tanrei-comp-field-group-label-typescale-font-size) + var(--tanrei-comp-field-group-label-gap));
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])) {
+    --_cloak-rows: calc(var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size) + var(--tanrei-comp-field-group-label-gap));
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where([supporting-text]:not([supporting-text=''])) {
+    --_cloak-rows: calc(var(--tanrei-comp-field-group-label-typescale-line-height) * var(--tanrei-comp-field-group-label-typescale-font-size) + var(--tanrei-comp-field-group-supporting-text-gap) + var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size) + var(--tanrei-comp-field-group-label-gap));
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden]), [supporting-text]:not([supporting-text=''])) {
+    padding-block-start: var(--_cloak-rows);
+  }
+  :where(tanrei-checkbox-group[select-all-label]:not([select-all-label='']):not(:defined)) {
+    padding-block-start: calc(var(--tanrei-comp-checkbox-container-size) + var(--tanrei-comp-field-group-gap-controls));
+  }
+  :where(tanrei-checkbox-group[select-all-label]:not([select-all-label='']):not(:defined)):where([label]:not([label=''], [label-hidden]), [supporting-text]:not([supporting-text=''])) {
+    padding-block-start: calc(var(--_cloak-rows) + var(--tanrei-comp-checkbox-container-size) + var(--tanrei-comp-field-group-gap-controls));
+  }
+  :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([error][error-text]:not([error-text=''])) {
+    padding-block-end: calc(var(--tanrei-comp-field-group-error-text-gap) + var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size));
   }
   :where(tanrei-one-time-code-input:not(:defined)) {
     min-block-size: var(--tanrei-comp-one-time-code-input-container-height);
@@ -225,6 +348,22 @@
   :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden]))) {
     min-block-size: var(--tanrei-comp-tabs-container-height-with-icon);
   }
+  /* Vertical tabs: a column of its tabs, each the container height of the row's size. */
+  :where(tanrei-tabs[orientation='vertical']):where(:not(:defined):not([hidden])) {
+    display: flex;
+    flex-direction: column;
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined)) {
+    --_cloak-tab: var(--tanrei-comp-tabs-container-height-medium);
+    min-block-size: var(--_cloak-tab);
+  }
+  :where(tanrei-tabs[orientation='vertical'][size='small']:not(:defined)) {
+    --_cloak-tab: var(--tanrei-comp-tabs-container-height-small);
+  }
+  :where(tanrei-tab):where(:not(:defined):not([hidden])) {
+    display: block;
+    min-block-size: var(--_cloak-tab);
+  }
   :where(tanrei-pagination:not(:defined)) {
     min-block-size: var(--tanrei-comp-pagination-container-height-medium);
   }
@@ -233,5 +372,250 @@
   }
   :where(tanrei-navigation-bar:not(:defined)) {
     min-block-size: var(--tanrei-comp-navigation-bar-container-height);
+  }
+
+  /* A list row: the least height of its number of lines, for its own size — one (a headline), two (an overline or a
+     supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). */
+  :where(tanrei-list-row:not(:defined)) {
+    --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-medium);
+    --_cloak-two: var(--tanrei-comp-list-row-container-height-two-line-medium);
+    --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-medium);
+    min-block-size: var(--_cloak-one);
+  }
+  :where(tanrei-list-row[size='small']:not(:defined)) {
+    --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-small);
+    --_cloak-two: var(--tanrei-comp-list-row-container-height-two-line-small);
+    --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-small);
+  }
+  :where(tanrei-list-row:not(:defined)):where([overline]:not([overline='']), [supporting-text]:not([supporting-text=''])) {
+    min-block-size: var(--_cloak-two);
+  }
+  :where(tanrei-list-row:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([overline]:not([overline='']), [supporting-lines='2']) {
+    min-block-size: var(--_cloak-three);
+  }
+
+  /* A stepper: its steps side by side (horizontal, the default) or one under another (vertical), each step held by the
+     height its stepper's layout gives it — the container's padding around the marker, the marker's gap and the label's
+     line, under it (horizontal) or beside it (vertical), and the description's gap and line under the label where the
+     step has one; a row of steps is as high as its highest. The compact form: the bar, the position's gap and line
+     where the stepper has words for it, and the current step's label; its steps are not drawn. */
+  :where(tanrei-stepper):where(:not(:defined):not([hidden])) {
+    display: flex;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-stepper:not(:defined)) {
+    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + var(--tanrei-comp-stepper-marker-size) + var(--tanrei-comp-stepper-marker-gap) + var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size));
+    --_cloak-step-described: calc(var(--_cloak-step) + var(--tanrei-comp-stepper-description-gap) + var(--tanrei-comp-stepper-description-typescale-line-height) * var(--tanrei-comp-stepper-description-typescale-font-size));
+    min-block-size: var(--_cloak-step);
+  }
+  :where(tanrei-stepper[layout='vertical']:not(:defined)) {
+    flex-direction: column;
+    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + max(var(--tanrei-comp-stepper-marker-size), var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size)));
+    --_cloak-step-label: calc(var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size));
+    --_cloak-step-description: calc(var(--tanrei-comp-stepper-description-gap) + var(--tanrei-comp-stepper-description-typescale-line-height) * var(--tanrei-comp-stepper-description-typescale-font-size));
+    /* The text starts half of what the marker is higher than the label's line below the top, so that the marker is
+       centred on that line: the text is then (marker + line) / 2 high to the end of the label's line. */
+    --_cloak-step-described: calc(2 * var(--tanrei-comp-stepper-container-padding) + max(var(--tanrei-comp-stepper-marker-size), var(--_cloak-step-label) + var(--_cloak-step-description), (var(--tanrei-comp-stepper-marker-size) + var(--_cloak-step-label)) / 2 + var(--_cloak-step-description)));
+  }
+  :where(tanrei-stepper[layout='compact']:not(:defined)) {
+    --_cloak-step: initial;
+    --_cloak-step-described: initial;
+    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size));
+  }
+  :where(tanrei-stepper[layout='compact'][position-text]:not([position-text='']):not(:defined)) {
+    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + var(--tanrei-comp-stepper-position-gap) + var(--tanrei-comp-stepper-position-typescale-line-height) * var(--tanrei-comp-stepper-position-typescale-font-size) + var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size));
+  }
+  :where(tanrei-stepper-step):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+    min-block-size: var(--_cloak-step);
+  }
+  :where(tanrei-stepper-step[description]:not([description='']):not(:defined)) {
+    min-block-size: var(--_cloak-step-described);
+  }
+
+  /* A snackbar drawn in place (one in a host is shown in the top layer, and takes no room before it is defined): its
+     least height, or its padding above the first line — more where half of the least height left by that line is
+     more — then its text and the padding below it. The text: one line of the message, or one of the title over one of
+     the message, the title's gap between. A message or a title that wraps, an action on a row of its own, and a text
+     shown whole (expanded) are held at those lines. */
+  :where(tanrei-snackbar):where(:not(:defined):not([hidden]):not([popover])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-snackbar:not([popover]):not(:defined)) {
+    --_cloak-message: calc(var(--tanrei-comp-snackbar-supporting-text-typescale-line-height) * var(--tanrei-comp-snackbar-supporting-text-typescale-font-size));
+    min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-message)) / 2) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
+  }
+  :where(tanrei-snackbar[headline]:not([headline='']):not([popover]):not(:defined)) {
+    --_cloak-title: calc(var(--tanrei-comp-snackbar-title-typescale-line-height) * var(--tanrei-comp-snackbar-title-typescale-font-size));
+    min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-title)) / 2) + var(--_cloak-title) + var(--tanrei-comp-snackbar-title-gap) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
+  }
+
+  /* A swatch: inline, centred on the line, as high as its sample or as its text beside it where that is higher — the
+     label's line, the supporting text's line under it — for its size. A swatch whose label is hidden, or that is
+     decorative, draws its sample alone. */
+  :where(tanrei-swatch):where(:not(:defined):not([hidden])) {
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: middle;
+    line-height: 0;
+  }
+  :where(tanrei-swatch:not(:defined)) {
+    --_cloak-side: var(--tanrei-comp-swatch-container-size-medium);
+    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-medium-line-height) * var(--tanrei-comp-swatch-label-typescale-medium-font-size));
+    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size));
+    min-block-size: var(--_cloak-side);
+  }
+  :where(tanrei-swatch[size='small']:not(:defined)) {
+    --_cloak-side: var(--tanrei-comp-swatch-container-size-small);
+    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-small-line-height) * var(--tanrei-comp-swatch-label-typescale-small-font-size));
+    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size));
+  }
+  :where(tanrei-swatch[size='large']:not(:defined)) {
+    --_cloak-side: var(--tanrei-comp-swatch-container-size-large);
+    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-large-line-height) * var(--tanrei-comp-swatch-label-typescale-large-font-size));
+    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size));
+  }
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])) {
+    min-block-size: max(var(--_cloak-side), var(--_cloak-label));
+  }
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text=''])) {
+    min-block-size: max(var(--_cloak-side), var(--_cloak-supporting));
+  }
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])):where([supporting-text]:not([supporting-text=''])) {
+    min-block-size: max(var(--_cloak-side), var(--_cloak-label) + var(--_cloak-supporting));
+  }
+
+  /* An embedded text input: one line of its input's text role (a multiline one grows to its rows when it is defined,
+     and is held at one). */
+  :where(tanrei-embedded-text-input):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-embedded-text-input:not(:defined)) {
+    min-block-size: calc(var(--tanrei-comp-embedded-text-input-input-typescale-line-height) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size));
+  }
+
+  /* An element the page sizes — a scroll area, a split view: the box it will be (a block; a scroll area a column that
+     clips), so that the size the page gives it holds before it is defined. What is written inside it keeps its own
+     line height: unsized, it is as tall as its content, as it will be. */
+  :where(tanrei-split-view):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+  :where(tanrei-scroll-area):where(:not(:defined):not([hidden])) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* A progress indicator and a meter: a bar of its size's thickness across its place (linear, the default), or a ring
+     of its size, inline and centred on the line (circular). */
+  :where(tanrei-meter, tanrei-progress-indicator):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-meter, tanrei-progress-indicator):where([variant='circular']):where(:not(:defined):not([hidden])) {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  :where(tanrei-progress-indicator:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-linear-thickness-medium);
+  }
+  :where(tanrei-progress-indicator[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-linear-thickness-small);
+  }
+  :where(tanrei-progress-indicator[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-linear-thickness-large);
+  }
+  :where(tanrei-progress-indicator[variant='circular']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-circular-size-medium);
+  }
+  :where(tanrei-progress-indicator[variant='circular'][size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-circular-size-small);
+  }
+  :where(tanrei-progress-indicator[variant='circular'][size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-progress-indicator-circular-size-large);
+  }
+  :where(tanrei-meter:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-linear-thickness-medium);
+  }
+  :where(tanrei-meter[size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-linear-thickness-small);
+  }
+  :where(tanrei-meter[size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-linear-thickness-large);
+  }
+  :where(tanrei-meter[variant='circular']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-circular-size-medium);
+  }
+  :where(tanrei-meter[variant='circular'][size='small']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-circular-size-small);
+  }
+  :where(tanrei-meter[variant='circular'][size='large']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-meter-circular-size-large);
+  }
+
+  /* A chat composer laid out inline: its least height, or one line of its typing area (an embedded text input's) with
+     the input's and the container's paddings above and below it where that is more. One laid out stacked, one that
+     holds attachments and one whose text takes more lines grow past it when they are defined. */
+  :where(tanrei-chat-composer):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-chat-composer:not([layout='stacked']):not(:defined)) {
+    min-block-size: max(var(--tanrei-comp-chat-composer-container-height), var(--tanrei-comp-embedded-text-input-input-typescale-line-height) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size) + 2 * var(--tanrei-comp-chat-composer-input-padding-block) + 2 * var(--tanrei-comp-chat-composer-container-padding-block));
+  }
+
+  /* A carousel: its row of items, and the controls row under it where it draws one — an indicator, or the playback
+     control of an autoplay that the product leaves it and that motion allows. */
+  :where(tanrei-carousel):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+    line-height: 0;
+  }
+  :where(tanrei-carousel:not(:defined)) {
+    min-block-size: var(--tanrei-comp-carousel-layout-height);
+  }
+  :where(tanrei-carousel:not(:defined)):where([indicator], [autoplay]:not([no-playback-control])) {
+    min-block-size: calc(var(--tanrei-comp-carousel-layout-height) + var(--tanrei-comp-carousel-controls-height));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(tanrei-carousel[autoplay]:not([indicator]):not(:defined)) {
+      min-block-size: var(--tanrei-comp-carousel-layout-height);
+    }
+  }
+
+  /* A toolbar laid out along a line: at least its variant's container size, its items (which their own rules hold)
+     centred across it. A vertical one is as long as its items, and is not held. */
+  :where(tanrei-toolbar):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    vertical-align: middle;
+    line-height: 0;
+  }
+  :where(tanrei-toolbar[variant='docked']):where(:not(:defined):not([hidden])) {
+    display: flex;
+  }
+  /* A group of a toolbar's items lays them out in the toolbar's line, as its own box would not. */
+  :where(tanrei-toolbar-group):where(:not(:defined):not([hidden])) {
+    display: contents;
+  }
+  :where(tanrei-toolbar:not(:defined)):where([variant='docked'], :not([orientation='vertical'])) {
+    min-block-size: var(--tanrei-comp-toolbar-container-size-inline);
+  }
+  :where(tanrei-toolbar[variant='docked']:not(:defined)) {
+    min-block-size: var(--tanrei-comp-toolbar-container-size-docked);
+  }
+  :where(tanrei-toolbar[variant='floating']:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--tanrei-comp-toolbar-container-size-floating);
   }
 }
