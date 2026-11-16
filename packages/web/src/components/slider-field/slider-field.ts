@@ -10,7 +10,7 @@ import { TanreiSlider, type TanreiSliderChangeDetail, type TanreiSliderSize, typ
 // The members' own types are the slider field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
 
-/** SLF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** SLF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * SLF-2: the props that are the Slider's, and the product's function for a value's words (SLD-18). `endLabel` is the
@@ -19,7 +19,7 @@ const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', '
 const SLIDER = ['value', 'startValue', 'range', 'min', 'max', 'step', 'origin', 'stops', 'size', 'valueIndicator', 'valueText', 'startValueText', 'startLabel', 'formatValue'] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. No name is shared by the two. The Field's `counter`
+ * Each member's documented parts, from the member's own list. No name is shared by the two. The Field's `counter`
  * is left out: a slider field gives its Field no count, so the part is never drawn in it.
  */
 const FIELD_PARTS = exported(TanreiField, {}, ['counter']);
@@ -239,7 +239,7 @@ export class TanreiSliderField extends ComposedControl<number> {
   /** Does not draw the value at the end of the label row (`value-hidden`). For a slider set by feel, whose number means nothing to the person (a volume, a brightness). The handle still says its value to assistive technology, and `value-indicator` still shows it. */
   valueHidden = false;
 
-  /** W5, for the second value of a range: the start value last set on the element, while the Slider has not taken it. */
+  /** For the second value of a range, as for the value: the start value last set on the element, while the Slider has not taken it. */
   private startGiven: number | undefined;
   private startPending = false;
 
@@ -251,18 +251,18 @@ export class TanreiSliderField extends ComposedControl<number> {
     return this.slider;
   }
 
-  /** W6, item 4: the value a form's reset returns to — the `value` attribute, as a number; 0 without one, as the Slider's. */
+  /** The value a form's reset returns to — the `value` attribute, as a number; 0 without one, as the Slider's. */
   protected override firstValue(): number {
     return this.hasAttribute('value') ? Number(this.getAttribute('value')) : 0;
   }
 
-  /** W6, item 4: a range resets its start value too, to the `start-value` attribute. */
+  /** A form's reset returns a range's start value too, to the `start-value` attribute. */
   override formResetCallback() {
     super.formResetCallback();
     this.startValue = this.hasAttribute('start-value') ? Number(this.getAttribute('start-value')) : 0;
   }
 
-  /** W6, item 5: the Slider restores both values; both are then the Slider's. */
+  /** A restore is passed on: the Slider restores both values; both are then the Slider's. */
   override formStateRestoreCallback(state: FormEntry, mode: 'restore' | 'autocomplete') {
     super.formStateRestoreCallback(state, mode);
     if (!this.slider) return;
@@ -289,7 +289,7 @@ export class TanreiSliderField extends ComposedControl<number> {
   }
 
   protected override updated(changed: PropertyValues) {
-    // W5: the render that has just ended gave the Slider the start value that was set; from here it is the Slider's.
+    // The render that has just ended gave the Slider the start value that was set; from here it is the Slider's.
     this.startPending = false;
     this.startGiven = undefined;
     super.updated(changed);
@@ -303,8 +303,8 @@ export class TanreiSliderField extends ComposedControl<number> {
 
   // SLF-1, SLF-2: a Field whose one control is a Slider, exactly as a product writes the two — and nothing else but
   // the passage of the Field's label glyph. No text stands between the tags: the Field's control is its one child
-  // without a slot. The Slider carries the element's `name` because a range's two entries are said under it (W6, item
-  // 2); it stands in a shadow root, outside every form, and submits nothing itself.
+  // without a slot. The Slider carries the element's `name` because a range's two entries are said under it, and the
+  // element repeats them as they are; it stands in a shadow root, outside every form, and submits nothing itself.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
       >${this.pass('label-icon')}<tanrei-slider part="slider" exportparts=${SLIDER_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, SLIDER)} .label=${this.range ? this.endLabel : ''} .name=${this.name}></tanrei-slider

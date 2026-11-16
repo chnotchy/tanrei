@@ -1,10 +1,10 @@
 // <tanrei-select-field>, driven by specs/select-field.spec.json: a composed element — a Field around one
-// select. What a composed element is, is held once for every such element by src/primitives/composed.test.ts (W13-1 to
-// W13-8: declarations, passing, parts, events and the value, the form, focus, the twins — each of the fifty-seven
+// select. What a composed element is, is held once for every such element by src/primitives/composed.test.ts
+// (declarations, passing, parts, events and the value, the form, focus, the twins — each of the fifty-seven
 // fixtures the same pixels and the same control as the Field's fixture `select-<id>` — and reports). The members' own
 // sentences are the members' tests (select.test.ts, SEL-1 to SEL-64; field.test.ts, FLD-1 to FLD-28). This file holds
 // what the select field's own sentences add, SEF-1 to SEF-5, with the tests of
-// the mechanism's (the options read through a slot: O1 to O9), and repeats no test of a member.
+// the mechanism's (the options read through a slot), and repeats no test of a member.
 // SEF-6: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
@@ -142,7 +142,7 @@ test.describe('behavior', () => {
 
   test('SEF-1: it gives its select every option and option group the product gives it, in the order given, as that select’s own — read through the default slot exactly as a select reads its children, and read again for every change a select answers: an option added, removed or moved, its label by attribute or by text, its value, supporting text, glyph, disabled, lang and dir, a group’s label, an option added to or removed from a group', async ({ page }) => {
     const GIVEN = `<tanrei-option value="a">Alpha</tanrei-option><tanrei-option value="b" label="Beta">ignored</tanrei-option><tanrei-option-group label="More"><tanrei-option value="c" supporting-text="Third" leading-icon="star" disabled>Gamma</tanrei-option></tanrei-option-group>`;
-    // One list of cases, run twice: the options as children of a select, and as children of a select field (O4).
+    // One list of cases, run twice: the options as children of a select, and as children of a select field.
     await mountHtml(page, `<tanrei-select id="direct" label="Letters" value="b">${GIVEN}</tanrei-select><${TAG} id="through" label="Letters" value="b">${GIVEN}</${TAG}>`);
     const both = async () => {
       await settle(page);
@@ -210,7 +210,7 @@ test.describe('behavior', () => {
     await page.locator('#deep').evaluate((el) => (el.insertAdjacentHTML('afterbegin', '<tanrei-option value="z">Zeta</tanrei-option>'), (el.querySelector('[value="b"]')!.textContent = 'Second')));
     await settle(page);
     expect(await drawn(deep)).toEqual({ list: ['Zeta', 'Alpha', '[More: Second]'], value: 'Second' });
-    // The same door for a product's own element around a bare select (O7).
+    // The same door for a product's own element around a bare select.
     expect(await drawn(page.locator('#door').locator('tanrei-select'))).toEqual({ list: ['Alpha', 'Beta'], value: 'Beta' });
     await page.locator('#door').evaluate((el) => el.querySelector('[value="a"]')!.remove());
     await settle(page);
@@ -226,7 +226,7 @@ test.describe('behavior', () => {
     });
     await expect(select(late).locator('.value')).toHaveText('Japan');
     expect(await page.evaluate(() => (window as unknown as { changes: number }).changes)).toBe(0);
-    // Language and direction (O5): the option's own, or its group's, and nothing of the owner or of the page above it.
+    // Language and direction: the option's own, or its group's, and nothing of the owner or of the page above it.
     expect((await drawn(one(page, 'said'))).list).toEqual(['Plain', 'Ελληνικά||||el', '[Right to left: العربية||||ar|rtl]']);
   });
 

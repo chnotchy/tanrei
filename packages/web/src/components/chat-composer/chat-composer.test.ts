@@ -1,6 +1,6 @@
 // <tanrei-chat-composer>, driven by specs/chat-composer.spec.json: every behaviour id (CCM-1…44) is cited by a test
 // title, every fixture has a baseline, and every length and color is read back from the tokens — never from a number
-// written here. What the web's way of composing asks of every composed element (W13) is held by the shared test
+// written here. What the web's way of composing asks of every composed element is held by the shared test
 // (src/primitives/composed.test.ts); this file holds the chat composer's own sentences — the capsule, the two
 // layouts, what can be sent, the files, the form — and, in the twin's place, the comparison of each
 // member with the same member written by hand.
@@ -1948,7 +1948,7 @@ test.describe('behavior', () => {
   });
 });
 
-test.describe('the value, the form and focus, which a feature holds itself (W5, W6, W7)', () => {
+test.describe('the value, the form and focus, which a feature holds itself', () => {
   test('the value is the typing area’s at every moment: what was last set until the typing area has taken it, and from then on what it holds — already the new text in a capturing listener of input on an ancestor — and a value that is set emits no input', async ({ page }) => {
     await mount(page, [fx('a', {})]);
     const read = await host(page, 'a').evaluate(async (el) => {

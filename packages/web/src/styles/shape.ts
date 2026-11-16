@@ -70,7 +70,7 @@ export const cornerRadius = (token: `--${string}`) => `
 /**
  * The same corner for a box that HOLDS other components — the container of a composed element: the rule
  * written out for one selector, with no custom property. A custom property on such a box is inherited by every member
- * inside it, and a composed element's stylesheet writes none (web-composing.md W3), so it cannot carry
+ * inside it, and a composed element's stylesheet writes none (src/primitives/composed.ts), so it cannot carry
  * `data-tanrei-shape`. `radius` is the box's radius as a CSS length expression, and `pill` the emitter's
  * `<token>-pill` mark of its shape token, as a CSS number expression (`var(--tanrei-comp-…-container-shape-pill, 0)`).
  * What is concentric with the box gets its radius from `heldRadius()`, and its pseudo-elements inherit the curve.

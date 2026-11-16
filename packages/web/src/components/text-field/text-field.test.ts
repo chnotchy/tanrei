@@ -1,6 +1,6 @@
 // <tanrei-text-field>, driven by specs/text-field.spec.json: a composed element — a Field around one text
-// input. What a composed element is, is held once for every such element by src/primitives/composed.test.ts (W13-1 to
-// W13-8: declarations, passing, parts, events and the value, the form, focus, the twins — each of the ninety fixtures
+// input. What a composed element is, is held once for every such element by src/primitives/composed.test.ts
+// (declarations, passing, parts, events and the value, the form, focus, the twins — each of the ninety fixtures
 // the same pixels and the same control as the Field's fixture `text-<id>` — and reports). The members' own sentences
 // are the members' tests (text-input.test.ts, TXI-1 to TXI-63; field.test.ts, FLD-1 to FLD-28). This file holds what
 // the text field's own sentences add, TXF-62 to TXF-67, and repeats no test of a member.

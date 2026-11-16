@@ -91,7 +91,7 @@ const SLOTS = ['leading', 'trailing', 'attach', 'send', 'stop'] as const;
 type SlotName = (typeof SLOTS)[number];
 
 /**
- * W4: each member's documented parts, from the member's own list, each under the member's name: `container`, `label`
+ * Each member's documented parts, from the member's own list, each under the member's name: `container`, `label`
  * and `icon` are parts of two or three of them, and `container` is the chat composer's own.
  */
 const prefixed = (member: { readonly parts: readonly string[] }, prefix: string) => exported(member, Object.fromEntries(member.parts.map((part) => [part, { as: `${prefix}-${part}` }])));
@@ -364,7 +364,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   };
 
   /** @from tanrei-embedded-text-input.value */
-  // W5: the value is the typing area's at every moment — what was last set here until the typing area has taken it,
+  // The value is the typing area's at every moment — what was last set here until the typing area has taken it,
   // and from then on what it holds, so that `event.target.value` is the new text in every listener of `input`.
   get value(): string {
     if (this.pending) return this.given;
@@ -504,7 +504,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     plain: () => null,
   });
 
-  /** W5: the value last set on the element, while the typing area has not taken it. */
+  /** The value last set on the element, while the typing area has not taken it. */
   private given = '';
   private pending = false;
   /** CCM-22: the files it keeps while `attachments` is `own`, in order — handles, never read (CCM-40). */
@@ -614,7 +614,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     return this.renderRoot?.querySelector<HTMLElement>('.capsule') ?? null;
   }
 
-  /** W7: focus is the typing area's (CCM-5). */
+  /** Focus goes to the typing area (CCM-5). */
   protected override get control(): HTMLElement | null {
     return this.input;
   }
@@ -818,7 +818,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   // ─── The typing area (CCM-5, CCM-12, CCM-42) ──────────────────────────────────────────────────────────────────
 
-  /** The person changed the text: the event leaves as it is (W5); the counter, the limit and what can be sent follow. */
+  /** The person changed the text: the event leaves as it is, never copied; the counter, the limit and what can be sent follow. */
   private readonly onInput = () => {
     this.requestUpdate();
   };
@@ -829,7 +829,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.requestSend(true);
   };
 
-  /** W5: the embedded text input's `change` and `rowschange` are not events of the chat composer. */
+  /** The embedded text input's `change` and `rowschange` are not events of the chat composer: they are stopped at the shadow root. */
   private readonly stop = (event: Event) => event.stopPropagation();
 
   /** CCM-42: the capsule's edge is the focus indication of the typing area, however its focus was given. */
@@ -1760,7 +1760,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    // W5: the render that has just ended gave the typing area what was set; from here the value is its own.
+    // The render that has just ended gave the typing area what was set; from here the value is its own.
     this.pending = false;
     super.updated(changed);
     this.provider.sync();

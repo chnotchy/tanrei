@@ -18,13 +18,13 @@ export interface TanreiCheckboxGroupChangeDetail {
   value: string[];
 }
 
-/** CKG-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with a disabled fieldset's (W6). */
+/** CKG-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with a disabled fieldset's. */
 const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
 
-/** W4: the field group's documented parts, under its own names (`::part(label)` is the set's label, as one level down). */
+/** The field group's documented parts, under its own names (`::part(label)` is the set's label, as one level down). */
 const GROUP_PARTS = exported(TanreiFieldGroup);
 /**
- * W4: the select-all checkbox's documented parts. Each is exported with the part's own name after `select-all-`: the
+ * The select-all checkbox's documented parts. Each is exported with the part's own name after `select-all-`: the
  * field group has a `label` too, drawn at the same time, and a bare `box` would read as every box of the set — whose
  * checkboxes are the product's own elements, styled as they are anywhere (`tanrei-checkbox::part(box)`).
  */
@@ -37,7 +37,7 @@ const SETS = 'tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group';
 
 type Asking = Record<symbol, { ask?: () => void } | undefined>;
 
-/** W8: under the key a control keeps its side of the field's connection, what a frame defined later calls to be asked again. */
+/** Under the key a control keeps its side of the field's connection, what a frame defined later calls to be asked again. */
 function keepAsking(host: Element, ask: () => void) {
   (host as unknown as Asking)[FIELD_CONTROL] = { ask };
 }
@@ -179,7 +179,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   selectAllLabel = '';
 
   private readonly fieldset = new FormDisabledController(this);
-  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
   }
@@ -215,7 +215,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
 
   constructor() {
     super();
-    // W8: a frame defined after the group has the group ask again — the group itself, and the field group inside it.
+    // A frame defined after the group has the group ask again — the group itself, and the field group inside it.
     keepAsking(this, () => {
       this.outer.ask();
       for (const member of this.members) (member as unknown as Asking)[FIELD_CONTROL]?.ask?.();
@@ -224,8 +224,8 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   }
 
   /**
-   * W8, read for members the product places: a checkbox of the set asks its frame when it is connected, which may be
-   * before the group has drawn the field group that answers it. A question that reaches the host from the product's own
+   * The Field's connection, read for members the product places: a checkbox of the set asks its frame when it is
+   * connected, which may be before the group has drawn the field group that answers it. A question that reaches the host from the product's own
    * elements was answered by nobody inside: it goes no further — a field or a field group around the checkbox group is
    * not the frame of its checkboxes — and is asked again once the field group is there (`askAgain`). The questions of
    * the group itself and of the field group in its shadow root, to a frame around the group, pass.
@@ -236,7 +236,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     event.stopPropagation();
   };
 
-  /** W8: every control among the product's own elements that has no frame yet asks the field group, now that it is drawn. */
+  /** Every control among the product's own elements that has no frame yet asks the field group, now that it is drawn. */
   private askAgain() {
     for (const element of this.querySelectorAll('*')) (element as unknown as Asking)[FIELD_CONTROL]?.ask?.();
   }
@@ -277,7 +277,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     return checkboxes.filter((checkbox) => !checkbox.disabled && checkbox.entry !== null);
   }
 
-  /** CKG-5, W7: the first enabled checkbox it shows — the select-all checkbox where one is drawn. */
+  /** CKG-5: focus goes to the first enabled checkbox it shows — the select-all checkbox where one is drawn. */
   protected override get control(): HTMLElement | null {
     if (this.isDisabled) return null;
     const all = this.selectAll;
@@ -285,7 +285,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     return this.checkboxes.find((checkbox) => !checkbox.disabled) ?? null;
   }
 
-  /** W7, item 2: what has focus among its checkboxes loses it — they are the product's children, outside the shadow root. */
+  /** What has focus among its checkboxes loses it — they are the product's children, outside the shadow root. */
   override blur() {
     this.forgetKeptFocus();
     let active = (this.getRootNode() as Document | ShadowRoot).activeElement;
@@ -456,7 +456,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
       // The product's words: a browser has a sentence for one unchecked box and none for a set. The
       // last resort is the required mark itself, a mark and not a word, so that the flag is never refused.
       const message = [this.errorText, this.words.get('requiredText', this.requiredText), this.label].find((text) => text.trim() !== '') ?? '*';
-      // W6, item 3: anchored on the first enabled checkbox — its own native element, which is what takes focus.
+      // The browser's message is anchored on the first enabled checkbox — its own native element, which is what takes focus.
       const anchor = (this.control as TanreiCheckbox | null)?.validationAnchor;
       if (anchor) this.internals.setValidity({ valueMissing: true }, message, anchor);
       else this.internals.setValidity({ valueMissing: true }, message);
@@ -488,7 +488,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     this.check(checkboxes);
     // CHK-23: a checkbox that was drawn before the group was defined is the group's from here.
     for (const checkbox of fresh) checkbox.requestUpdate();
-    // W8: the checkboxes that asked before the field group was drawn ask it now.
+    // The checkboxes that asked before the field group was drawn ask it now.
     this.askAgain();
     this.syncForm(checkboxes);
     this.reports(checkboxes);

@@ -15,13 +15,13 @@ import {
 // The members' own types are the color field's: it has no detail type and no type for a prop of its own.
 export type { TanreiColorInputEntryErrorDetail, TanreiColorInputPickerRequestDetail, TanreiColorInputSize, TanreiColorInputVariant, TanreiFieldRequiredMark };
 
-/** CLF-43: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** CLF-43: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CLF-43: the six props that are the color input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = ['variant', 'size', 'value', 'invalidText', 'picker', 'pickerLabel'] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
+ * Each member's documented parts, from the member's own list. Two names are shared — `label` and
  * `requirement-label` — and each is exported with its member's name before it, always, and under the bare name from
  * both: the two are one thing to a person and are never drawn at once. FLD-25 is the sentence that holds it — while
  * its control draws the label itself the Field draws no label row and no requirement tag — and a stacked input draws
@@ -201,8 +201,8 @@ export class TanreiColorField extends ComposedControl<string> {
 
   /**
    * CLF-44: a form's reset reaches the color input. The value is the one this element was first given — its `value`
-   * attribute (W6, item 4) — and with it go the text as typed and an entry error, as they do when the input stands in
-   * the form by hand: a value that is what the input already holds would otherwise leave the text as the person typed
+   * attribute, where the first value is written — and with it go the text as typed and an entry error, as they do
+   * when the input stands in the form by hand: a value that is what the input already holds would otherwise leave the text as the person typed
    * it (CLI-21). The input takes it the way it takes a restored value, and its value is then this element's.
    */
   override formResetCallback() {

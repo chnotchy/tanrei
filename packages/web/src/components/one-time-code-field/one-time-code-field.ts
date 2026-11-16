@@ -7,13 +7,13 @@ import { TanreiOneTimeCodeInput, type TanreiOneTimeCodeInputDetail, type TanreiO
 // The members' own types are the one-time-code field's: it has no detail type and no type for `type` of its own.
 export type { TanreiFieldRequiredMark, TanreiOneTimeCodeInputDetail, TanreiOneTimeCodeInputType };
 
-/** OTF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** OTF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** OTF-2: the props that are the One-time-code input's. Its own `label`, `error` and `disabled` are never set. */
 const INPUT = ['value', 'length', 'type', 'groupSize', 'mask', 'readOnly'] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. No name is shared by the two. The Field's `counter`
+ * Each member's documented parts, from the member's own list. No name is shared by the two. The Field's `counter`
  * and `value-text` are left out: a one-time-code field gives its Field no count and no value text, so neither part is
  * ever drawn in it.
  */

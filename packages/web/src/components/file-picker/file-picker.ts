@@ -91,7 +91,7 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
   static override styles = styles;
 
   /**
-   * Its documented parts, once: what a composed element exports them from (src/primitives/composed.ts, W4).
+   * Its documented parts, once: what a composed element exports them from (src/primitives/composed.ts).
    *
    * @internal
    */

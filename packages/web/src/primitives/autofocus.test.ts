@@ -4,7 +4,7 @@
 // The browser looks for what to focus when it first draws the page, before a module script has defined the element:
 // the host has no shadow root to delegate to yet, nothing is focused, and it does not look again. So the element
 // focuses itself when it first renders, where the page has given focus to nothing else (src/primitives/autofocus.ts;
-// a composed element does the same through its base, W7 item 4).
+// a composed element does the same through its base, for its control).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

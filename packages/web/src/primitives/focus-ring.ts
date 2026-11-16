@@ -216,7 +216,7 @@ export function focusGlowEnds(on: FocusSelector, radius: string): CSSResult {
 
 /**
  * The glow alone, as `focusGlow()` draws it, for a box that HOLDS other components — the container of a composed
- * element, whose stylesheet writes no custom property (W3; `heldShape()` in src/styles/shape.ts): the
+ * element, whose stylesheet writes no custom property — every member would inherit it (`heldShape()` in src/styles/shape.ts): the
  * halo is the box's `::after`, at the radius the caller gives — the box's own, as a CSS length expression for each of
  * the two cases `heldShape()` has — and nothing of it is a custom property. `on(focus)` is as `focusGlow()`'s.
  */

@@ -6,7 +6,7 @@
 // after a removal, the form, what it gives every file item — and that it passes on what is a member's. What a member
 // draws and does by itself is held in the member's own file (`file-picker.test.ts`, FPK; `file-item.test.ts`, FIT), and
 // that the file upload is the same picture and the same tree as the two written by hand is held, for every fixture, by
-// the twin in `src/primitives/composed.test.ts` (W13-7) with the rest of the web's way of composing (W13-1 to W13-8).
+// the twin in `src/primitives/composed.test.ts`, with the rest of the web's way of composing.
 //
 // A file is chosen through the browser's own picker (Playwright's filechooser event), and a drag is a DragEvent that
 // carries a DataTransfer the page made. Every length is read back from the tokens — never from a number written here.
@@ -1261,7 +1261,7 @@ test.describe('behavior', () => {
     await choose(page, id, [PNG]);
     // selectionText: the file upload's to fill, from emptyText, while the list holds no row (FUP-2).
     expect(await get(picker(page, 'none'), ['selectionText'])).toEqual(['No file chosen']);
-    // Its own tokens: a value set on the file upload is inherited, and the file upload writes none (W3).
+    // Its own tokens: a value set on the file upload is inherited, and the file upload writes none.
     await host(page, id).evaluate((el) => el.style.setProperty('--tanrei-comp-file-picker-container-gap', '37px'));
     await expect.poll(() => css(chooser(page, id), 'row-gap')).toBe('37px');
     expect(await picker(page, id).evaluate((el) => (el as HTMLElement).style.length), 'nothing is written on the member').toBe(0);

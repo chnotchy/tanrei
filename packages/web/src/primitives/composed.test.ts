@@ -3,23 +3,22 @@
 // (`resolveFrom`, through the harness's `loadSpec`). A composed element's own test file adds only what its own spec
 // adds; what a composed element is, is held here:
 //
-//   W13-1 declarations · W13-2 passing · W13-3 parts · W13-4 events and the value · W13-5 the form · W13-6 focus ·
-//   W13-7 the twin · W13-8 reports
+//   declarations · passing · parts · events and the value · the form · focus · the twin · reports
 //
 // and, before them, the primitives themselves: `exported()`, `FormSays`, `formOf()`, and the list of parts each class
 // that can be a member keeps.
 //
 // **The next composed element adds one entry to `DRIVEN`** — how a person causes each of its events — and nothing else.
 //
-// A feature is built the same way (W14, last row) and is held here too. Where it has no value member and no frame member
-// (the file upload: its control is the product's own trigger, and the form's value is its own state), the tests that
+// A feature is built the same way, its state held by the element and never by a member, and is held here too. Where it
+// has no value member and no frame member (the file upload: its control is the product's own trigger, and the form's value is its own state), the tests that
 // need one — the value, the form, focus through the value member — are not defined for it, and its own test file holds
 // those of its sentences; where a prop reaches members that are not one element of its shadow root (the file upload's
 // file items, given through an internal channel), `DRIVEN` says how the prop is read; and where its spec's fixtures name
 // no twin, `DRIVEN` writes one by hand for every fixture.
 //
 // Where the members that hold the value are the product's own children (a checkbox group's checkboxes, a radio group's
-// radio buttons: `placed`) and the fixtures name twins, W13-7 compares the set and not one control: what the frame's
+// radio buttons: `placed`) and the fixtures name twins, the twin compares the set and not one control: what the frame's
 // own element says of the set, what each control of the set says of itself, in order, and — in Chromium — the two
 // accessibility trees, which hold one group.
 import fs from 'node:fs';
@@ -86,7 +85,7 @@ interface Driven {
   /** The children of a plain instance, where the element is not whole without one (the file upload's trigger). */
   children?: string;
   /**
-   * W13-2, for props that are not a property of one member element of the shadow root: the instance they are read in,
+   * Passing, for props that are not a property of one member element of the shadow root: the instance they are read in,
    * and for each such prop the value given and what the members then draw of it — polled, since the members that take
    * it may be the product's own children, which the element's `updateComplete` does not wait for.
    */
@@ -97,7 +96,7 @@ interface Driven {
    * combobox's list opening): it is heard on the element and by capturing listeners above it, and by no bubbling one on an ancestor.
    */
   events: Record<string, { before?: (page: Page, element: Locator) => Promise<unknown>; act: (page: Page, element: Locator) => Promise<void>; value: unknown; detail?: unknown; bubbles?: false; /** The event is a member's own and leaves as it is, though the spec writes it whole and names no `from` (the chat composer's `input`). */ member?: boolean }>;
-  /** A value the value member changes when it is given it, and what it keeps (W5). Only where the spec forwards `value`. */
+  /** A value the value member changes when it is given it, and what it keeps: the element's value is read back as the member kept it. Only where the spec forwards `value`. */
   kept?: { given: unknown; kept: unknown };
   /** A value for the forms: the `value` attribute, and another the product sets later. Only where the spec forwards `value`. */
   values?: [string, string];
@@ -105,22 +104,22 @@ interface Driven {
   valuesRead?: [unknown, unknown];
   /**
    * Attributes, children and an act after which every exported part is drawn — or several such instances that draw
-   * every part between them, where no one instance draws them all: two parts that are never drawn at once (W4, item 2:
-   * a label the frame draws in one look and the control in another), or a layout that has a part another has not.
+   * every part between them, where no one instance draws them all: two parts that are never drawn at once (a label
+   * the frame draws in one look and the control in another), or a layout that has a part another has not.
    * The instances stand in one page, and each act is given its own.
    */
   allParts: Instance | Instance[];
   /** Exported parts that no instance of the element can draw, each with why: held by the member's `exportparts` alone. */
   neverDrawn?: Record<string, string>;
-  /** Whether Enter in the control presses the form's default button (W6, item 7). */
+  /** Whether Enter in the control presses the default button of the element's form. */
   enterSubmits?: boolean;
-  /** The value member is never empty and so never invalid (a slider always has a value): the steps of W13-5 that empty a required control are not taken. */
+  /** The value member is never empty and so never invalid (a slider always has a value): the steps of the form's tests that empty a required control are not taken. */
   neverEmpty?: boolean;
   /** What the platform hands back to restore a value, where the value member's state is not the value itself (a slider's is its two values). */
   restoreState?: (value: string) => string;
   /**
    * A feature that forwards `value` and `label` from one member and still has no value member and no frame member
-   * (the chat composer, W14: it sets its own form value, and its capsule is its own part): the tests of a value
+   * (the chat composer: it sets its own form value, and its capsule is its own part): the tests of a value
    * member — the value read back, the form by hand, focus through the member — are not defined for it, and it holds
    * those of its own sentences in its own test file.
    */
@@ -132,18 +131,18 @@ interface Driven {
    * hears.)
    */
   strays?: Record<string, string>;
-  /** The fixtures that report by design (a fixture of missing words): W13-8 holds that they do, and that no other fixture does. */
+  /** The fixtures that report by design (a fixture of missing words): the test of reports holds that they do, and that no other fixture does. */
   reporting?: string[];
   /**
-   * W13-7 where the spec's fixtures name no twin: the twin of EVERY fixture, written by hand. `mount` adds its stage
+   * The twin, where the spec's fixtures name none: the twin of EVERY fixture, written by hand. `mount` adds its stage
    * (`data-twin-of`) to the page the fixture is mounted in; `control` is, as source, a function from a stage to the
    * native element a person operates; `tree` reads a stage's accessibility tree without what the element adds and its
    * twin cannot have (`ours`), and the twin's with what stands in its place there (`twin`), so that the rest is compared.
    */
   twin?: { mount: (page: Page, fixture: Fixture) => Promise<void>; control: string; tree: (stage: Locator, of: 'ours' | 'twin') => Promise<string> };
   /**
-   * The members that hold the value are the product's own children, passed through a slot (W1: "a member the product
-   * places stays the product's child"; a checkbox group's checkboxes, given as `children`), and the value is the
+   * The members that hold the value are the product's own children, passed through a slot (a member the product places
+   * stays the product's child; a checkbox group's checkboxes, given as `children`), and the value is the
    * element's own: no prop of the spec is `from` a value member, so the tests of a value member are not defined for it
    * and its own test file holds what they hold, for its case.
    */
@@ -152,7 +151,7 @@ interface Driven {
     propertyOnly: string[];
     /** Events the spec's web note names beside the spec's own. */
     events: string[];
-    /** A member whose part is not named for its component: the anatomy id it is named by (W4, item 1). */
+    /** A member whose part is not named for its component — where a component brings two members of one kind: the anatomy id it is named by. */
     parts: Record<string, string>;
     /**
      * Members that stand among the product's own children and nowhere in the shadow root (a radio group's radio
@@ -161,7 +160,7 @@ interface Driven {
     light?: string[];
   };
   /**
-   * W13-7 where the spec's fixtures name their twins and the element adds to the accessibility tree what its twin
+   * The twin, where the spec's fixtures name their twins and the element adds to the accessibility tree what its twin
    * cannot have (the chip field's list around its entries, CHF-21): a stage's tree without that, in place of the whole.
    */
   tree?: (stage: Locator, of: 'ours' | 'twin') => Promise<string>;
@@ -359,7 +358,7 @@ const DRIVEN: Record<string, Driven> = {
   },
   // The slider field: a Field and a Slider. Its value is a number and is never empty, so it is never
   // invalid; a key on the handle is one change, an `input` and then a `change`; and what the platform restores it from
-  // is the Slider's two values. The range of W13-2 is named at both handles, so that neither member has a case to report.
+  // is the Slider's two values. The range of the passing test is named at both handles, so that neither member has a case to report.
   'slider-field': {
     attributes: { frame: 'label="Volume" supporting-text="Applies to alerts and media."', member: 'min="0" max="100"' },
     passing: { attributes: 'start-label="Lowest volume" end-label="Highest volume"', children: '', reads: {} },
@@ -378,7 +377,7 @@ const DRIVEN: Record<string, Driven> = {
     },
   },
   // The chat composer: a feature of an embedded text input, a file picker, file items and Buttons,
-  // around a capsule of its own. It forwards `value` and `label` from its typing area and has no value member (W14):
+  // around a capsule of its own. It forwards `value` and `label` from its typing area and has no value member:
   // it sets its own form value. Its events are its own — but `input`, which is the typing area's and leaves as it is —
   // and its file picker's two never leave it. It has no twin that is a picture: its own
   // test file compares each member, box for box.
@@ -699,7 +698,7 @@ function warnings(page: Page) {
 // ─── The primitives ──────────────────────────────────────────────────────────────────────────────────────────────
 
 test.describe('the primitives of a composed element', () => {
-  test('exported(): a member\'s parts as an exportparts value — under their own names, and for a name two members share, the prefixed name always and the bare name only where it is asked (W4)', () => {
+  test('exported(): a member\'s parts as an exportparts value — under their own names, and for a name two members share, the prefixed name always and the bare name only where it is asked', () => {
     const member = { parts: ['label', 'label-icon', 'supporting-text'] };
     expect(exported(member)).toEqual({ attribute: 'label, label-icon, supporting-text', names: ['label', 'label-icon', 'supporting-text'] });
     // A part the composed element never draws is left out.
@@ -710,7 +709,7 @@ test.describe('the primitives of a composed element', () => {
     });
   });
 
-  test('exportparts names one part twice (`label, label: field-label`): both names style it, in every engine; a part exported under another name only is not reached by its own (W4, item 2)', async ({ page }) => {
+  test('exportparts names one part twice (`label, label: field-label`): both names style it, in every engine; a part exported under another name only is not reached by its own', async ({ page }) => {
     const twice = exported({ parts: ['label', 'supporting-text'] }, { label: { as: 'field-label', bare: true }, 'supporting-text': { as: 'field-help' } }).attribute;
     expect(twice).toBe('label, label: field-label, supporting-text: field-help');
     await mount(
@@ -732,7 +731,7 @@ test.describe('the primitives of a composed element', () => {
     expect(colors[0]!.help, 'exported as field-help only').not.toBe('rgb(0, 255, 0)');
   });
 
-  test('every class that lists its parts lists exactly the parts it documents (W4, item 3): the list a composed element exports from is the manifest\'s', async ({ page }) => {
+  test('every class that lists its parts lists exactly the parts it documents: the list a composed element exports from is the manifest\'s, never written by hand', async ({ page }) => {
     await mount(page, '', 'tanrei-field');
     const tags = declarations.filter((declaration) => declaration.tagName).map((declaration) => declaration.tagName!);
     const listed = await page.evaluate((all) => Object.fromEntries(all.map((tag) => [tag, (customElements.get(tag) as unknown as { parts?: string[] } | undefined)?.parts]).filter(([, parts]) => parts)), tags);
@@ -741,7 +740,7 @@ test.describe('the primitives of a composed element', () => {
     for (const [tag, parts] of Object.entries(listed)) expect([...(parts as string[])].sort(), `<${tag}>`).toEqual((declared(tag)!.cssParts ?? []).map((part) => part.name).sort());
   });
 
-  test('FormSays: what a control tells its form is heard by whoever listens — the last word at once, then each later one, with the value, the state, the flags, the message and the control\'s own anchor (W6, items 2 and 3)', async ({ page }) => {
+  test('FormSays: what a control tells its form is heard by whoever listens — the last word at once, then each later one, with the value, the state, the flags, the message and the control\'s own anchor', async ({ page }) => {
     await mount(page, `<form><tanrei-field label="Code" required><tanrei-one-time-code-input id="c" name="code" value="12"></tanrei-one-time-code-input></tanrei-field></form>`, 'tanrei-one-time-code-input');
     const heard = await page.evaluate(async () => {
       const control = document.getElementById('c') as HTMLElement & { value: string; updateComplete: Promise<unknown>; validity: ValidityState };
@@ -767,7 +766,7 @@ test.describe('the primitives of a composed element', () => {
     expect(heard.own).toEqual({ missing: false, form: [['code', '34']] });
   });
 
-  test('formOf(): Enter in a control submits its own form; in the shadow root of an element that is not form-associated it has none, as before (W6, item 7)', async ({ page }) => {
+  test('formOf(): Enter in a control submits its own form; in the shadow root of an element that is not form-associated it has none, as before', async ({ page }) => {
     await mount(
       page,
       `<form id="own"><tanrei-one-time-code-input id="in" label="Code"></tanrei-one-time-code-input><button>Send</button></form>
@@ -787,7 +786,7 @@ test.describe('the primitives of a composed element', () => {
   });
 });
 
-test('forwardedOwnSize(): a composed element whose size is an input box’s and sets none leaves its box without one, and the box draws the size its container sets (TXI-73, NMI-49, CLI-47, SEL-73, CMB-83); a size set on the element, medium included, is the box’s own and reflected on both, and given back from both (W2)', async ({ page }) => {
+test('forwardedOwnSize(): a composed element whose size is an input box’s and sets none leaves its box without one, and the box draws the size its container sets (TXI-73, NMI-49, CLI-47, SEL-73, CMB-83); a size set on the element, medium included, is the box’s own and reflected on both, and given back from both', async ({ page }) => {
   const BOXES = /^(text-input|number-input|color-input|select|combobox)\.size$/;
   const fields = COMPOSED.filter((spec) => forwardedProps(spec as Resolved).some((prop) => prop.name === 'size' && BOXES.test(prop.from!)));
   expect(fields.map((spec) => spec.name).sort()).toEqual(['chip-field', 'color-field', 'combobox-field', 'number-field', 'select-field', 'text-field']);
@@ -816,7 +815,7 @@ test('forwardedOwnSize(): a composed element whose size is an input box’s and 
   expect(await read(null), 'given back').toEqual(each({ size: 'medium', attribute: null, boxAttribute: null, drawn: 'small' }));
 });
 
-// ─── W13, for every composed element ─────────────────────────────────────────────────────────────────────────────
+// ─── The tests of the mechanism, for every composed element ──────────────────────────────────────────────────────
 
 test('the tests of the mechanism run over at least the first composed element, and each has its entry', () => {
   expect(COMPOSED.map((spec) => spec.name)).toEqual(expect.arrayContaining(['one-time-code-field', 'text-field', 'file-upload']));
@@ -832,7 +831,7 @@ for (const written of COMPOSED) {
   const driven = DRIVEN[spec.name]!;
   const element = (page: Page) => page.locator('#composed');
   const plain = (rest = '', children = '') => `<${tag} id="composed" ${driven.attributes.frame} ${driven.attributes.member} ${rest}>${driven.children ?? ''}${children}</${tag}>`;
-  // W5, W6, W7: the tests of a value member — the value, the form's message, focus through the member — are defined
+  // The tests of a value member — the value, the form's message, focus through the member — are defined
   // only where the spec forwards `value`, and the one that places the pair in a form by hand only where it also
   // forwards `label` (a frame member). A feature without them holds those of its own sentences in its own test file.
   const forwardsFrom = (name: string) => forwardedProps(spec).some((prop) => prop.name === name);
@@ -845,7 +844,7 @@ for (const written of COMPOSED) {
   const shadowMembers = (spec.builtFrom ?? []).filter((name) => !driven.placed?.light?.includes(name));
 
   test.describe(`${spec.name}: the web's way of composing`, () => {
-    test(`${spec.name} W13-1 declarations: each forwarded prop is a property with its member's attribute name, type, reflection and default, and the manifest shows it with the member's description, type and default; each event, slot and part is there with the member's (W2, W11)`, async ({ page }) => {
+    test(`${spec.name} declarations: each forwarded prop is a property with its member's attribute name, type, reflection and default, and the manifest shows it with the member's description, type and default; each event, slot and part is there with the member's`, async ({ page }) => {
       await mount(page, '', tag);
       const ours = declared(tag)!;
       for (const prop of forwardedProps(spec)) {
@@ -866,7 +865,7 @@ for (const written of COMPOSED) {
         // attribute of its own name; everything else — type, reflection, default — is the member's.
         const renamed = name !== at.property;
         expect(both[0], `${prop.name} is declared as ${prop.from} is`).toEqual(renamed ? { ...both[1]!, attribute: kebab(name) } : both[1]);
-        // W11: the manifest's entry is the member's own.
+        // The manifest's entry is the member's own.
         const theirs = declared(at.tag)!;
         const [mine, member] = [ours.members?.find((m) => m.name === name), theirs.members?.find((m) => m.name === at.property)];
         expect(member?.description, `${prop.from} is documented`).toBeTruthy();
@@ -891,9 +890,9 @@ for (const written of COMPOSED) {
         const theirs = declared(from(slot).tag)!.slots!.find((s) => s.name === from(slot).name)!;
         expect(ours.slots?.find((s) => s.name === slot.name), `the slot ${slot.name}`).toEqual(theirs);
       }
-      // A component whose items are the product's own children (R7) has the default slot they stand in.
+      // A component whose items are the product's own children has the default slot they stand in.
       expect((ours.slots ?? []).map((s) => s.name).sort(), 'no slot the spec does not name').toEqual([...(spec.slots ?? []).map((s) => s.name), ...(spec.items?.length ? [''] : [])].sort());
-      // The member parts, named for the members (W4, item 1), and every part each member documents, with its description.
+      // The member parts, named for the members, and every part each member documents, with its description.
       for (const name of shadowMembers) {
         expect(ours.cssParts?.find((part) => part.name === memberPart(name)), `the member part ${memberPart(name)}`).toBeTruthy();
         // (But a part the element says it never draws: its own list of parts, which the manifest is held equal to.)
@@ -908,7 +907,7 @@ for (const written of COMPOSED) {
       for (const name of spec.builtFrom ?? []) expect(ours.description!.split(/\n\s*\n/)[0], 'the first paragraph names each member').toContain(`<${loadSpec(name).platforms.web.name}>`);
     });
 
-    test(`${spec.name} W13-2 passing: each prop set on the element is on its member after the update, as a property and unchanged — a value the member does not know too — and the element writes no custom property (W2, W3)`, async ({ page }) => {
+    test(`${spec.name} passing: each prop set on the element is on its member after the update, as a property and unchanged — a value the member does not know too — and the element writes no custom property`, async ({ page }) => {
       const seen = warnings(page);
       await mount(page, plain(driven.passing?.attributes, driven.passing?.children), tag);
       for (const prop of forwardedProps(spec).filter((p) => p.name !== 'value')) {
@@ -932,7 +931,7 @@ for (const written of COMPOSED) {
         );
         expect(got, `${prop.name} reaches ${prop.from}`).toEqual(given);
       }
-      // W3: nothing in the element's own tree sets a custom property, and its own sheet writes none and reads none
+      // Nothing in the element's own tree sets a custom property, and its own sheet writes none and reads none
       // of a member's: only its own group (`--tanrei-comp-<its name>-…`), where it has one, and the system's. The one
       // name it may write is a cap of a hit area (`TARGET_CAPS`, BTN-5), which a row sets on what it lays out: no
       // member's custom property and no token, but the channel `neighbourTarget()` alone reads (a product may set it on
@@ -954,7 +953,7 @@ for (const written of COMPOSED) {
       expect(seen.filter((text) => text.includes(`<${tag}>`))).toEqual([]);
     });
 
-    test(`${spec.name} W13-3 parts: each member's host is a part named for its component, and each documented part of each member is styled from outside under its exported name — a name two members share reaches the drawn one of the two, and a name with a member's before it that member's alone (W4)`, async ({ page }) => {
+    test(`${spec.name} parts: each member's host is a part named for its component, and each documented part of each member is styled from outside under its exported name — a name two members share reaches the drawn one of the two, and a name with a member's before it that member's alone`, async ({ page }) => {
       const names = declared(tag)!.cssParts!.map((part) => part.name);
       expect(new Set(names).size, 'each exported name once').toBe(names.length);
       // Each instance draws some of the parts; together they draw every part an instance can draw.
@@ -1043,7 +1042,7 @@ for (const written of COMPOSED) {
 
     const eventName = (name: string) => (spec.platforms.web as { events?: Record<string, string> }).events?.[name] ?? name;
     for (const event of spec.events ?? []) {
-      test(`${spec.name} W13-4 events: ${event.name} is heard once on the element for one act, with the element as its target and its value already new — in a bubbling listener and in a capturing one on an ancestor — and nothing is heard twice (W5)`, async ({ page }) => {
+      test(`${spec.name} events: ${event.name} is heard once on the element for one act, with the element as its target and its value already new — in a bubbling listener and in a capturing one on an ancestor — and nothing is heard twice`, async ({ page }) => {
         const how = driven.events[event.name];
         expect(how, `DRIVEN says how ${event.name} is caused`).toBeTruthy();
         await mount(page, `<div id="around">${plain()}</div>`, tag);
@@ -1092,7 +1091,7 @@ for (const written of COMPOSED) {
       });
     }
 
-    valued(`${spec.name} W13-4 the value: a value set on the element is read back at once as it was set and, after its update, as the value member holds it — changed where the member changed it — with no event; the same value set again changes nothing (W5)`, async ({ page }) => {
+    valued(`${spec.name} the value: a value set on the element is read back at once as it was set and, after its update, as the value member holds it — changed where the member changed it — with no event; the same value set again changes nothing`, async ({ page }) => {
       await mount(page, plain(), tag);
       const member = valueMember(spec);
       const read = await element(page).evaluate(
@@ -1122,7 +1121,7 @@ for (const written of COMPOSED) {
       expect(read.events, 'no event for a value the product set').toBe(0);
     });
 
-    framed(`${spec.name} W13-5 form: under its name the element submits exactly what its value member submits when it is placed in the form by hand, and no member adds an entry; reset, restore, a disabled fieldset, checkValidity() and the validation message are the member's by hand (W6)`, async ({ page }) => {
+    framed(`${spec.name} form: under its name the element submits exactly what its value member submits when it is placed in the form by hand, and no member adds an entry; reset, restore, a disabled fieldset, checkValidity() and the validation message are the member's by hand`, async ({ page }) => {
       const [frame, member] = [frameMember(spec), valueMember(spec)];
       const [first, second] = driven.values!;
       const byHand = (id: string, rest: string) => `<${frame.tag} ${driven.attributes.frame} required><${member.tag} id="${id}" name="code" ${driven.attributes.member} ${rest}>${driven.children ?? ''}</${member.tag}></${frame.tag}>`;
@@ -1190,7 +1189,7 @@ for (const written of COMPOSED) {
       expect((await snapshot())[0]).toMatchObject({ entries: [`code=${second}`], disabled: false });
     });
 
-    (driven.neverEmpty ? (((..._: unknown[]) => {}) as unknown as typeof test) : valued)(`${spec.name} W13-5 form: the browser's message is anchored to the member's own native element, two shadow roots down — reportValidity() is false, tells the element it is invalid and focuses the control, and the form is not submitted (W6, item 3)`, async ({ page }) => {
+    (driven.neverEmpty ? (((..._: unknown[]) => {}) as unknown as typeof test) : valued)(`${spec.name} form: the browser's message is anchored to the member's own native element, two shadow roots down — reportValidity() is false, tells the element it is invalid and focuses the control, and the form is not submitted`, async ({ page }) => {
       await mount(page, `<form id="form">${plain('name="code" required')}<button id="send">Send</button></form><script>window.submitted = 0; document.getElementById('form').addEventListener('submit', (event) => { event.preventDefault(); window.submitted++; });</script>`, tag);
       const member = valueMember(spec);
       const reported = await element(page).evaluate((el) => {
@@ -1207,7 +1206,7 @@ for (const written of COMPOSED) {
     });
 
     if (driven.enterSubmits) {
-      test(`${spec.name} W13-5 form: Enter in the control presses the default button of the element's form — its click, then the submission — and nothing while action is cancelled (W6, item 7)`, async ({ page }) => {
+      test(`${spec.name} form: Enter in the control presses the default button of the element's form — its click, then the submission — and nothing while action is cancelled`, async ({ page }) => {
         await mount(
           page,
           `<form id="form">${plain(`name="code" value="${driven.values![0]}"`)}<button id="send" name="via" value="send">Send</button></form>
@@ -1225,7 +1224,7 @@ for (const written of COMPOSED) {
       });
     }
 
-    valued(`${spec.name} W13-6 focus: focus() on the element focuses the control and blur() takes it away; Tab makes one stop; a press on text that is not a control moves no focus; a page's label for the element moves focus to the control, once; the shadow root delegates nothing and the host is not focusable (W7)`, async ({ page }) => {
+    valued(`${spec.name} focus: focus() on the element focuses the control and blur() takes it away; Tab makes one stop; a press on text that is not a control moves no focus; a page's label for the element moves focus to the control, once; the shadow root delegates nothing and the host is not focusable`, async ({ page }) => {
       await mount(page, `<button id="before">Before</button><label id="label" for="composed">The page's own label</label>${plain()}<button id="after">After</button>`, tag);
       const member = valueMember(spec);
       expect(await element(page).evaluate((el) => ({ delegates: el.shadowRoot!.delegatesFocus, tabindex: el.getAttribute('tabindex'), tabIndex: el.tabIndex }))).toEqual({ delegates: false, tabindex: null, tabIndex: -1 });
@@ -1266,7 +1265,7 @@ for (const written of COMPOSED) {
     });
 
     for (const fixture of spec.fixtures.filter((f) => f.twin)) {
-      test(`${spec.name} W13-7 the twin: ${fixture.id} and ${fixture.twin}, mounted in one run, are the same pixels and the same control to assistive technology — role, name, description, invalid, required, disabled, read-only (R6)`, async ({ page, browserName }) => {
+      test(`${spec.name} the twin: ${fixture.id} and ${fixture.twin}, mounted in one run, are the same pixels and the same control to assistive technology — role, name, description, invalid, required, disabled, read-only`, async ({ page, browserName }) => {
         const seen = warnings(page);
         await mountFixtures(page, spec, { fixtures: [fixture], twins: true, icons: true });
         await settle(page);
@@ -1432,13 +1431,13 @@ for (const written of COMPOSED) {
         let different = 0;
         for (let index = 0; index < a.data.length; index++) if (a.data[index] !== b.data[index]) different++;
         expect(different, 'differing color channels').toBe(0);
-        // W13-8: and neither said anything the other did not.
+        // And neither said anything the other did not.
         expect(reports(seen)).toEqual([]);
       });
     }
 
     for (const fixture of driven.twin ? spec.fixtures : []) {
-      test(`${spec.name} W13-7 the twin by hand: ${fixture.id} and the same thing written one level down, mounted in one run, are the same pixels, the same control to assistive technology — name, description, invalid, required, disabled — and, apart from what the element adds, the same accessibility tree (R6)`, async ({ page, browserName }) => {
+      test(`${spec.name} the twin by hand: ${fixture.id} and the same thing written one level down, mounted in one run, are the same pixels, the same control to assistive technology — name, description, invalid, required, disabled — and, apart from what the element adds, the same accessibility tree`, async ({ page, browserName }) => {
         const twin = driven.twin!;
         const seen = warnings(page);
         await mountFixtures(page, spec, { fixtures: [fixture], icons: true });
@@ -1505,12 +1504,12 @@ for (const written of COMPOSED) {
         let different = 0;
         for (let index = 0; index < a.data.length; index += 4) if (a.data[index] !== b.data[index] || a.data[index + 1] !== b.data[index + 1] || a.data[index + 2] !== b.data[index + 2] || a.data[index + 3] !== b.data[index + 3]) different++;
         expect(different, 'differing pixels').toBe(0);
-        // W13-8: the element said nothing — but in a fixture that lacks its words by design, where each says what it lacks.
+        // The element said nothing — but in a fixture that lacks its words by design, where each says what it lacks.
         if (!driven.reporting?.includes(fixture.id)) expect(seen.filter((text) => text.includes('[tanrei]'))).toEqual([]);
       });
     }
 
-    test(`${spec.name} W13-8 reports: no member reports a case the composed element cannot be in, in any fixture; the element itself reports only an ARIA name on its host (W8, W10)`, async ({ page }) => {
+    test(`${spec.name} reports: no member reports a case the composed element cannot be in, in any fixture; the element itself reports only an ARIA name on its host`, async ({ page }) => {
       const seen = warnings(page);
       // A fixture that reports by design — one drawn without its words — is mounted last, by itself.
       const byDesign = spec.fixtures.filter((fixture) => driven.reporting?.includes(fixture.id));

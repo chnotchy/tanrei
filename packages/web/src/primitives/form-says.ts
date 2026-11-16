@@ -1,5 +1,5 @@
-// What a form-associated control tells its form, said where a composed element can hear it (W6, items 2
-// and 3).
+// What a form-associated control tells its form — its value and state, its validity flags, message and anchor — said
+// where a composed element can hear it.
 //
 // A form finds its controls in its own tree. A control that is a member of a composed element stands in that element's
 // shadow root, outside every form: what it tells its own `ElementInternals` reaches no form. The composed element is
