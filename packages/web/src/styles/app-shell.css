@@ -463,6 +463,12 @@
     :where(tanrei-app-shell):where(:has(> [slot='navigation']:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
+    /* APS-6, APS-34: …but a responsive drawer with no collapsed form that is hidden beside the content (expanded false,
+       NVD-53) has no place in the layout either, and nothing of its own to be shown again by: the menu button is shown
+       to bring it back — the header's, or the menu-button slot's in the header's place — whatever the placement says. */
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not([collapsible]))) {
+      --_aps-menu: shown;
+    }
     /* APS-24: a drawer that is not defined yet keeps its place — at the width a product gives back as
        --tanrei-navigation-drawer-width (NVD-103), held between the drawer's least and greatest width. */
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation']:not(:defined)) {
