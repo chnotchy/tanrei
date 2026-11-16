@@ -30,5 +30,7 @@ minimumReleaseAgeExclude:
   - '@turbo/windows-64@2.11.2'
   - '@turbo/windows-arm64@2.11.2'
   - turbo@2.11.2
+  # Renovate security update: astro@7.4.7
+  - astro@7.4.7
 patchedDependencies:
   '@terrazzo/parser@2.7.1': patches/@terrazzo__parser@2.7.1.patch
