@@ -77,6 +77,31 @@ test('leaves interpolations alone, with the whitespace that may separate them fr
   assert.deepEqual(minifyCssParts(['x { width: calc(', ' - ', '); }']), ['x{width:calc(', ' - ', ');}']);
 });
 
+test('compacts a rule whose selector starts with an interpolation and a pseudo-class, and every rule after it', () => {
+  // `${selector}:not(…) {` is a rule, not a custom property named by the interpolation: what follows it is compacted.
+  assert.deepEqual(minifyCssParts(['\n  .a {\n    --x: 1;\n  }\n  ', ':not([b]) .c ~ .d::before {\n    e: calc(1px - 2px);\n  }\n  .f  .g {\n    h: i ;\n  }\n']), [
+    ' .a{--x: 1;}',
+    ':not([b]) .c ~ .d::before{e:calc(1px - 2px);}.f .g{h:i;}',
+  ]);
+  assert.deepEqual(minifyCssParts(['', '::before ,\n  ', ':hover {\n  content: " a  b ";\n}\n']), ['', '::before,', ':hover{content:" a  b ";}']);
+  // A selector that ends with an interpolation keeps the space that may be a descendant combinator before it.
+  assert.deepEqual(minifyCssParts(['.a ', ' {\n  b: c;\n}\n.d', ' .e {\n  f: g;\n}']), ['.a ', '{b:c;}.d', ' .e{f:g;}']);
+  // In a block of its own (a media query) too.
+  assert.deepEqual(minifyCssParts(['@media (forced-colors: active) {\n  ', ':not(.a) .b {\n    c: d;\n  }\n  .e {\n    f: g;\n  }\n}']), [
+    '@media (forced-colors: active){',
+    ':not(.a) .b{c:d;}.e{f:g;}}',
+  ]);
+});
+
+test('still reads an interpolation followed by a colon in a declaration as a custom property name', () => {
+  assert.deepEqual(minifyCssParts(['x {\n  ', ': 1px ,  2px;\n  y: z ;\n}']), ['x{', ': 1px , 2px;y:z;}']);
+  assert.deepEqual(minifyCssParts(['x {\n  ', ':a  b;\n}']), ['x{', ':a b;}']);
+  assert.deepEqual(minifyCssParts(['x {\n  ', ': { a: b };\n  y: z ;\n}']), ['x{', ': { a: b };y:z;}']);
+  assert.deepEqual(minifyCssParts(['x {\n  ', ':a  b\n}']), ['x{', ':a b }']);
+  // A colon and a name, then a `;` before any `{`: a declaration, even where a pseudo-class could have started.
+  assert.deepEqual(minifyCssParts(['x {\n  ', ':hover  , a;\n}']), ['x{', ':hover , a;}']);
+});
+
 test('finds css templates in code, and not in comments, strings, regular expressions or other templates', () => {
   const source = [
     "import { css } from 'lit';",
