@@ -9,7 +9,9 @@
 //   `(` and after `:` (but not in parentheses: `(forced-colors: active)` keeps its space), and before `)`. A space is kept wherever it may separate tokens: around `+`, `-`, `>` and `~`, around an
 //   interpolation, before `(` (`and (` is not `and(`), after an escape (`\31 0`), at either end of the template.
 // - In the value of a custom property (`--name: …`, read back as text by script and by `@property`), a run of whitespace
-//   only becomes one space: the value stays the same tokens with the same spaces between them.
+//   only becomes one space: the value stays the same tokens with the same spaces between them. An interpolation
+//   followed by a colon is taken for a custom property's name unless what follows is a rule's selector
+//   (`${selector}:not(…) {`).
 // - Strings, `url(…)` and escapes are copied as they are, and so is every `${…}`.
 // A template the stripper cannot read to the end (a comment around an interpolation) is left as it is.
 
@@ -19,6 +21,34 @@ const DROP_BEFORE = new Set(['{', '}', ';', ',', ')']);
 const NAME = /[\w\-\u0080-￿\\]/;
 
 class Unreadable extends Error {}
+
+/**
+ * Whether the text from `parts[index][from]` on reaches a `{` before a `;` or a `}` — outside strings, comments,
+ * parentheses and brackets, and stepping over every interpolation. A selector does; a declaration does not.
+ */
+function opensBlock(parts, index, from) {
+  let quote = null;
+  let nesting = 0;
+  for (let p = index; p < parts.length; p++) {
+    const part = parts[p];
+    for (let i = p === index ? from : 0; i < part.length; i++) {
+      const c = part[i];
+      if (c === '\\') i++;
+      else if (quote) {
+        if (c === quote) quote = null;
+      } else if (c === '"' || c === "'") quote = c;
+      else if (c === '/' && part[i + 1] === '*') {
+        const end = part.indexOf('*/', i + 2);
+        if (end < 0) return false;
+        i = end + 1;
+      } else if (c === '(' || c === '[') nesting++;
+      else if ((c === ')' || c === ']') && nesting > 0) nesting--;
+      else if (nesting === 0 && c === '{') return true;
+      else if (nesting === 0 && (c === ';' || c === '}')) return false;
+    }
+  }
+  return false;
+}
 
 /**
  * The static parts of one `css` template, raw (as written in the source, escapes and all), with comments and
@@ -125,8 +155,12 @@ export function minifyCssParts(parts) {
         else if ((c === ';' || c === '}') && depth === 0) custom = false;
         continue;
       }
-      // A custom property's value starts here: its name is the identifier just written, or an interpolation.
-      if (c === ':' && (/(?:^|[^\w-])--[\w-]*:$/.test(out) || (out.endsWith(':') && out.length === 1 && index > 0))) {
+      // A custom property's value starts here: its name is the identifier just written, or an interpolation. A colon
+      // just after an interpolation may as well start a pseudo-class or a pseudo-element (`${selector}:not(…) {`): it is
+      // a selector, not a declaration, when a name or a second colon follows the colon at once and a `{` comes before
+      // the next `;` or `}` — and then its whitespace goes the same way as any other rule's.
+      const pseudo = out === ':' && index > 0 && (part[i + 1] === ':' || NAME.test(part[i + 1] ?? '')) && opensBlock(parts, index, i + 1);
+      if (c === ':' && (/(?:^|[^\w-])--[\w-]*:$/.test(out) || (out === ':' && index > 0 && !pseudo))) {
         custom = true;
         depth = 0;
       }
