@@ -494,6 +494,31 @@ test.describe('opening and closing', () => {
     await expect.poll(() => focus(page, 'none')).toBe('item:About');
   });
 
+  test('MBR-9: a menu whose every item is in a group, and one that mixes groups with loose items, opens by a press, Enter, Space and Down Arrow with focus on its first enabled item and by Up Arrow on its last, each inside a group past the disabled items around it', async ({ page }) => {
+    const group = (items: string) => `<tanrei-menu-group>${items}</tanrei-menu-group>`;
+    const menus = [
+      m('Groups', group(it('Undo', 'disabled') + it('Redo')) + group(it('Cut') + it('Copy')) + group(it('Paste') + it('Clear', 'disabled'))),
+      m('Mixed', it('New', 'disabled') + group(it('Open') + it('Save')) + it('Print') + group(it('Close')) + it('Quit', 'disabled')),
+    ];
+    await mountFixtures(page, spec, { fixtures: [fx('grouped', menus)], reducedMotion: true });
+    for (const [label, first, last] of [
+      ['Groups', 'item:Redo', 'item:Paste'],
+      ['Mixed', 'item:Open', 'item:Close'],
+    ] as const) {
+      for (const key of ['Enter', ' ', 'ArrowDown', 'ArrowUp']) {
+        await focusTitle(page, 'grouped', label);
+        await page.keyboard.press(key);
+        await expect.poll(() => state(page, 'grouped'), `${label}: ${JSON.stringify(key)}`).toMatchObject({ focus: key === 'ArrowUp' ? last : first, open: [label] });
+        await page.keyboard.press('Escape');
+        await expect.poll(() => state(page, 'grouped'), `${label}: ${JSON.stringify(key)}`).toMatchObject({ focus: `title:${label}`, open: [] });
+      }
+      await title(page, 'grouped', label).click();
+      await expect.poll(() => state(page, 'grouped'), `${label}: a press`).toMatchObject({ focus: first, open: [label] });
+      await page.keyboard.press('Escape');
+      await expect.poll(() => state(page, 'grouped'), `${label}: a press`).toMatchObject({ focus: `title:${label}`, open: [] });
+    }
+  });
+
   test('MBR-10: at most one menu is shown — opening one closes the other first, with its toggle; a press on the open title closes it and keeps focus on the title; open set by the product opens and closes without that menu’s toggle; of several the product opens, the first is shown and it is reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { fixtures: [editor()], reducedMotion: true });

@@ -279,6 +279,34 @@ test.describe('overlay', () => {
     expect(await focused(page)).toBe('Delete');
   });
 
+  // Groups among loose items: the first row is loose and disabled, the first enabled row is in a group, and so is the
+  // first row of that group, disabled too.
+  const MIXED = overlay('mixed', [it('Undo', { disabled: true }), group({}, [it('Cut', { disabled: true }), it('Copy')]), it('Paste'), group({}, [it('Delete')])]);
+
+  test('MNU-1: opened by a press or by Enter on its anchor, a menu whose every item is in a group, and one that mixes groups with loose items, focuses its first enabled item inside a group, past the disabled ones before it', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [GROUPS_ONLY, MIXED] });
+    await wire(page);
+    for (const [id, first] of [
+      ['groups-only', 'Name'],
+      ['mixed', 'Copy'],
+    ] as const) {
+      // A press on the anchor, as a product opens its menu.
+      await anchor(page, id).click();
+      await expect.poll(() => isOpen(page, id), id).toBe(true);
+      await expect.poll(() => focused(page), `${id}: a press`).toBe(first);
+      await page.keyboard.press('Escape');
+      await expect.poll(() => isOpen(page, id), id).toBe(false);
+      expect(await focused(page), id).toBe(`a-${id}`);
+      // Enter on the anchor, which has focus again.
+      await page.keyboard.press('Enter');
+      await expect.poll(() => isOpen(page, id), id).toBe(true);
+      await expect.poll(() => focused(page), `${id}: Enter`).toBe(first);
+      await page.keyboard.press('Escape');
+      await expect.poll(() => isOpen(page, id), id).toBe(false);
+    }
+    expect(await log(page)).toEqual(['close:escape', 'close:escape', 'close:escape', 'close:escape']);
+  });
+
   test('MNU-2: placed offset from the anchor by placement, flipped and shifted to stay in the viewport, scrolled when too tall, following the anchor, mirrored in RTL', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
     const fixtures = (['bottom-start', 'bottom-end', 'top-start', 'top-end'] as const).map((placement) => overlay(placement, EDIT, { placement }));
