@@ -1178,6 +1178,52 @@ test.describe('the menu button', () => {
     }
   });
 
+  test('APS-6, APS-34, NVD-37, NVD-53: 1280 wide, a drawer with no collapsed form hidden beside the content (expanded false) is shown again by the frame’s menu button — without a header the menu-button slot’s, alone in the header’s place gutter.expanded from the top and the start, the main region below it; with menuButtonPlacement drawer the header’s — which says collapsed; activated, the drawer is shown with one expandedChange and no navigationOpenChange, the button is no longer shown and focus is in the drawer; hidden again by the product, the button is back', async ({ page }) => {
+    const hidden = DRAWER('responsive expanded="false"');
+    const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
+    const width = async () => (await edges(drawer(page))).width;
+    const offset = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-app-shell-scroll-offset').trim());
+    for (const header of [false, true]) {
+      const what = header ? 'menuButtonPlacement drawer' : 'no header';
+      await mount(page, real({ header, navigation: hidden, sections: 2, props: header ? { menuButtonPlacement: 'drawer' } : {} }), { width: 1280 });
+      const log = await record(page);
+      await drawer(page).evaluate((el) => {
+        const seen: boolean[] = ((window as unknown as { __forms: boolean[] }).__forms = []);
+        el.addEventListener('expandedchange', (event) => seen.push((event as CustomEvent).detail.expanded));
+      });
+      expect(await width(), what).toBe(0);
+      expect(await shown(menu(page)), what).toBe(true);
+      await expect.poll(expanded, what).toBe('false');
+      // Where the browser has no style queries the element says the same.
+      expect([null, 'shown'], what).toContain(await shell(page).getAttribute('data-menu'));
+      const results = await new AxeBuilder({ page }).include(header ? `${TAG} > [slot="header"]` : `${TAG} > [slot="menu-button"]`).analyze();
+      expect(results.violations.map((v) => v.id), what).toEqual([]);
+      if (!header) {
+        const gutter = await resolveToken(page, T('gutter-expanded'));
+        const at = await edges(menu(page));
+        expect([at.left, at.top], what).toEqual([gutter, gutter]);
+        expect((await edges(main(page))).top, what).toBe(at.bottom);
+        await expect.poll(offset, what).toBe(`${gutter + at.height}px`);
+      }
+      // Activated from the keyboard: the drawer is shown, and focus goes into it from the button that is no longer shown.
+      await menu(page).evaluate((el) => (el as HTMLElement).focus());
+      await page.keyboard.press('Enter');
+      await expect.poll(width, what).toBeGreaterThan(0);
+      await motionEnded(page);
+      expect(await shown(menu(page)), what).toBe(false);
+      expect([null, 'hidden'], what).toContain(await shell(page).getAttribute('data-menu'));
+      await expect.poll(() => active(page), what).toContain('tanrei-navigation-drawer');
+      await expect(page.getByRole('navigation', { name: 'Documentation' }), what).toHaveCount(1);
+      expect(await page.evaluate(() => (window as unknown as { __forms: boolean[] }).__forms), what).toEqual([true]);
+      expect(await log(), what).toEqual([]);
+      if (!header) await expect.poll(offset, what).toBe('');
+      // Hidden again by the product: the button is back, and says collapsed.
+      await drawer(page).evaluate((el) => ((el as unknown as { expanded: boolean }).expanded = false));
+      await expect.poll(() => shown(menu(page)), what).toBe(true);
+      await expect.poll(expanded, what).toBe('false');
+    }
+  });
+
   test('APS-34: with a header, what the menu-button slot holds is not shown — no box, no stop of the keyboard — and a debug build reports it', async ({ page }) => {
     const seen = warnings(page);
     const markup = real().content!.replace('<main id="main"', '<tanrei-button slot="menu-button" variant="text" label="Other"><span slot="icon">menu</span></tanrei-button><main id="main"');

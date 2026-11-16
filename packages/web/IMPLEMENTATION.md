@@ -9682,7 +9682,9 @@ A region you leave out takes no space and adds no landmark.
 `<tanrei-button slot="menu-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>`. It is
 shown only where the navigation has no place in the layout — as `menu-button-placement="drawer"` shows the header's,
 whatever that attribute says: in the column and beside the content the drawer runs from the top of the frame and its
-own first header button stands for it. Shown, it stands alone at the top start corner, the class's gutter from the top
+own first header button stands for it. A responsive drawer with no collapsed form that is hidden beside the content
+(`expanded="false"`) has no place in the layout either, so the button is shown to bring it back; once its press has
+shown the drawer the button is no longer shown, and focus goes into the drawer, as when it opens. Shown, it stands alone at the top start corner, the class's gutter from the top
 (inside the top inset) and from the start edge, with no band, fill or edge around it, and the main region begins below
 it; it is `position: sticky` at the same distance, so it stays there while the page scrolls under it, over every
 region as the header is (level 3), and the element publishes the gutter and its height as the scroll offset. The
@@ -9713,7 +9715,7 @@ size) moves the frame to a narrower class before its columns are too narrow to r
 |---|---|---|---|---|---|---|
 | `compact` | under 600 | over the content below the header, when opened | above or below `<main>` | shown | shown | 16 |
 | `medium` | 600 to 1023 | its column where the drawer is `collapsible`; else as compact | above or below | shown for a drawer (`menu-button-placement="drawer"`: unless the column is) | not shown | 24 |
-| `expanded` | 1024 and wider | beside the content, in the form the drawer's `expanded` gives it | beside it, at the end edge | shown for a drawer, unless `menu-button-placement="drawer"` | not shown | 32 |
+| `expanded` | 1024 and wider | beside the content, in the form the drawer's `expanded` gives it | beside it, at the end edge | shown for a drawer; with `menu-button-placement="drawer"` or no header, only while a drawer with no collapsed form is hidden (`expanded="false"`) | not shown | 32 |
 
 What the frame holds follows the class without script: it inherits `--tanrei-app-shell-window-class`
 (`@container style(--tanrei-app-shell-window-class: compact) { … }`).
@@ -9736,7 +9738,9 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
   place (or only its column) its press opens it (`navigationOpen` and the drawer's `open` become true, the drawer takes
   focus) and a second press, or Escape on the button, closes it; where the navigation stands beside the content it
   collapses and expands a collapsible drawer and hides and shows one that is not (its `expanded`, with
-  `expandedchange`). It follows the drawer's `close` (false again, focus back on the button) and writes `aria-expanded`
+  `expandedchange`). With `menu-button-placement="drawer"` a drawer that is not collapsible and is hidden there has no
+  place either, so the button is shown to bring it back, and focus goes into the drawer once it is shown and the
+  button is not. It follows the drawer's `close` (false again, focus back on the button) and writes `aria-expanded`
   — open over the content, or expanded beside it — and the drawer as what it controls on the button it draws. Its
   glyph is the product's and does not change;
 - **the navigation open over the content is drawn below the header**: the drawer and its scrim cover the frame from
