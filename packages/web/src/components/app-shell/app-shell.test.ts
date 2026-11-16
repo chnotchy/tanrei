@@ -1091,6 +1091,86 @@ test.describe('the menu button', () => {
     expect(seen.filter((message) => message.includes('NVD-37'))).toEqual([]);
   });
 
+  test('NVD-20, MDL-6, APS-7: below the header the platform’s back closes the open navigation — one close, one navigationOpenChange with false, focus back on the menu button, nothing inert — while an Escape that nothing took in a field of the header leaves it open, and back closes it after that too; closed, or beside the content, the drawer takes no back', async ({ page }) => {
+    await mount(page, real(), { width: 400 });
+    await page.evaluate(() => document.querySelector('[slot="header"]')!.insertAdjacentHTML('beforeend', '<input id="header-field" aria-label="Find">'));
+    // The platform's back reaches a page as a close request (Android's back gesture or button), which every engine here
+    // delivers to a CloseWatcher. Every one made from now on is kept, so that the test can ask it to close as back does
+    // (`requestClose()`).
+    const native = await page.evaluate(() => {
+      type Watcher = EventTarget & { requestClose(): void; destroy(): void };
+      const w = window as unknown as { CloseWatcher?: new () => Watcher; __watchers: (Watcher & { gone: boolean })[]; __closes: number };
+      w.__watchers = [];
+      w.__closes = 0;
+      document.querySelector('tanrei-navigation-drawer')!.addEventListener('close', () => w.__closes++);
+      const Native = w.CloseWatcher;
+      if (!Native) return false;
+      w.CloseWatcher = class extends Native {
+        gone = false;
+        constructor() {
+          super();
+          w.__watchers.push(this);
+          this.addEventListener('close', () => (this.gone = true));
+        }
+        override destroy() {
+          this.gone = true;
+          super.destroy();
+        }
+      };
+      return true;
+    });
+    expect(native).toBe(true);
+    const watching = () => page.evaluate(() => (window as unknown as { __watchers: { gone: boolean }[] }).__watchers.filter((watcher) => !watcher.gone).length);
+    const made = () => page.evaluate(() => (window as unknown as { __watchers: unknown[] }).__watchers.length);
+    const back = () => page.evaluate(() => (window as unknown as { __watchers: { gone: boolean; requestClose(): void }[] }).__watchers.filter((watcher) => !watcher.gone).at(-1)!.requestClose());
+    const closes = () => page.evaluate(() => (window as unknown as { __closes: number }).__closes);
+    const log = await record(page);
+    const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
+    // Closed, the drawer watches nothing: back is the page's.
+    expect(await watching()).toBe(0);
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    expect(await watching()).toBe(1);
+    await back();
+    await expect.poll(drawerOpen).toBe(false);
+    expect(await closes()).toBe(1);
+    expect(await log()).toEqual([
+      ['navigationopenchange', true],
+      ['navigationopenchange', false],
+    ]);
+    await expect.poll(() => active(page)).toContain('menu');
+    expect(await page.evaluate(() => document.querySelectorAll('[inert]').length)).toBe(0);
+    expect(await watching()).toBe(0);
+
+    // An Escape in a field of the header, which the field does not take, makes a close request too (it ends the watcher
+    // in every engine): NVD-20 closes the navigation on Escape only while focus is in the drawer or on the menu button,
+    // so the drawer stays open, and watches for back again.
+    await menu(page).click();
+    await expect.poll(drawerOpen).toBe(true);
+    await page.locator('#header-field').focus();
+    await page.evaluate(() => window.addEventListener('keydown', (event) => ((window as unknown as { __escapeAt: number }).__escapeAt = event.timeStamp), { once: true, capture: true }));
+    await page.keyboard.press('Escape');
+    await frame(page);
+    expect(await drawerOpen()).toBe(true);
+    expect(await closes()).toBe(1);
+    await expect.poll(() => active(page)).toContain('#header-field');
+    expect(await made()).toBe(3);
+    expect(await watching()).toBe(1);
+    // Back closes it then — once a second has passed since that Escape: a close request within a second of an Escape is
+    // that Escape's (the reason MDL-6 reads for every modal surface's native cancel).
+    await expect.poll(() => page.evaluate(() => performance.now() - (window as unknown as { __escapeAt: number }).__escapeAt)).toBeGreaterThan(1000);
+    await back();
+    await expect.poll(drawerOpen).toBe(false);
+    expect(await closes()).toBe(2);
+    expect(await watching()).toBe(0);
+    expect((await log()).map(([, value]) => value)).toEqual([true, false, true, false]);
+
+    // Beside the content the drawer is over nothing, and watches nothing.
+    await resize(page, 1280);
+    await motionEnded(page);
+    expect(await watching()).toBe(0);
+  });
+
   test('APS-34, APS-21, APS-22: without a header, at 400 wide the menu button stands alone in the header’s place — gutter.compact (16) from the top and the start of the window, no band, the main region below it — and stays there while the page scrolls under it, drawn over the content; its gutter and height are what the frame keeps over the top; it adds no landmark and is reached after the skip link; 800 wide it is drawn for a drawer that is not collapsible and not for the column, and 1280 wide not at all', async ({ page, browserName }) => {
     await mount(page, real({ header: false, sections: 4 }), { width: 400 });
     const gutter = await resolveToken(page, T('gutter-compact'));
