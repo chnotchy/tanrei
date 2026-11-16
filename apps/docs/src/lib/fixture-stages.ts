@@ -1,13 +1,13 @@
 // What the gallery of fixtures does in the browser (components/fixtures/FixtureGallery.astro): drawing each fixture of
 // the page from the web package's document of it when its stage comes near the view (the frame says so,
-// lib/example.ts `NEAR_EVENT`), and the document's step in script for it; each stage's width handle; its scheme;
+// lib/example.ts `whenNear`), and the document's step in script for it; each stage's width handle; its scheme;
 // opening a fixture drawn closed; writing each window's document when the window comes near the view and emptying it
 // when it is far from it, drawing it again, and its scale where it is wider than the column. A stage is placed and
 // sized by its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own
 // actions — the code, its copy, the direction — are the frame's (lib/example.ts).
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { CONTRAST_ATTR, THEME_ATTR } from './appearance';
-import { NEAR_EVENT } from './example';
+import { whenNear } from './example';
 import windowSheet from '../styles/fixture-window.css?url';
 
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
@@ -571,5 +571,5 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   holdScheme(box);
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   if (stage.dataset.stage === 'window') windowStage(stage, box, canvas, handle);
-  stage.addEventListener(NEAR_EVENT, () => near(stage), { once: true });
+  whenNear(stage, () => near(stage));
 }

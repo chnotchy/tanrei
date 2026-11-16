@@ -5,7 +5,7 @@
 //
 // Before the element is defined, a value is written as the attribute a product writes; once it is, as its property —
 // the attribute of a prop the element does not reflect would otherwise be read only once.
-import { NEAR_EVENT, SOURCE_EVENT } from './example';
+import { SOURCE_EVENT, whenNear } from './example';
 import { attributeOf, hashEntries, hashOf, PRESENT, propertyOf, stateFromHash, writeHash, type Control, type State, type Value } from './visuals/playground-state';
 
 interface Data {
@@ -152,9 +152,7 @@ function setUp(frame: HTMLElement) {
   });
 
   // The controls are defined with the stage (lib/define-on-demand.ts leaves what a marked part holds alone).
-  const release = () => holder.removeAttribute('data-example-pending');
-  if (stage.hasAttribute('data-example-pending')) frame.addEventListener(NEAR_EVENT, release, { once: true });
-  else release();
+  whenNear(frame, () => holder.removeAttribute('data-example-pending'));
 }
 
 for (const frame of document.querySelectorAll<HTMLElement>('[data-example][data-playground]')) setUp(frame);
