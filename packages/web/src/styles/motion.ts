@@ -30,7 +30,8 @@ export const SETTLING = 'data-tanrei-settling';
 export const APPEARING = 'data-tanrei-appear';
 /**
  * The attribute of an element inside a surface that opened, until the person next acts: while it is hovered meanwhile,
- * it starts no transition (`holdStillPointer()`, src/primitives/motion.ts).
+ * it starts no transition (`holdStillPointer()`, src/primitives/motion.ts). The surface carries it too, so that a
+ * component that draws rows there in its own shadow root (the search) holds them with a rule of its own.
  */
 export const STILL_POINTER = 'data-tanrei-still-pointer';
 
