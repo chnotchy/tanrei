@@ -66,4 +66,10 @@ try {
     status ||= 1;
   }
 }
-process.exit(status);
+process.exitCode = status;
+// Not process.exit(): a signal that reached this process while spawnSync held it (Ctrl-C reaches the whole process
+// group; a job's timeout may signal this process alone) is pending, and its listener in test-tmp.js — sweep, then end
+// by that signal — runs only when the event loop polls once more. This turn lets it; an exit here would end the
+// process first, with the run's status instead of the signal. Everything above is synchronous and leaves no handle
+// open, so the process ends on its own after the turn.
+setImmediate(() => {});
