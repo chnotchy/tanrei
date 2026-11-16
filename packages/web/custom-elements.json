@@ -6633,7 +6633,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -6642,7 +6642,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -7290,7 +7290,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus among its checkboxes loses it — they are the product's children, outside the shadow root.",
+              "description": "What has focus among its checkboxes loses it — they are the product's children, outside the shadow root.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -7380,7 +7380,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -8483,7 +8483,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -8492,7 +8492,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -10625,7 +10625,7 @@
             {
               "kind": "method",
               "name": "formResetCallback",
-              "description": "CLF-44: a form's reset reaches the color input. The value is the one this element was first given — its `value`\nattribute (W6, item 4) — and with it go the text as typed and an entry error, as they do when the input stands in\nthe form by hand: a value that is what the input already holds would otherwise leave the text as the person typed\nit (CLI-21). The input takes it the way it takes a restored value, and its value is then this element's.",
+              "description": "CLF-44: a form's reset reaches the color input. The value is the one this element was first given — its `value`\nattribute, where the first value is written — and with it go the text as typed and an entry error, as they do\nwhen the input stands in the form by hand: a value that is what the input already holds would otherwise leave the text as the person typed\nit (CLI-21). The input takes it the way it takes a restored value, and its value is then this element's.",
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -10671,7 +10671,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -10770,7 +10770,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -10779,7 +10779,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -12377,7 +12377,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -12484,7 +12484,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -12493,7 +12493,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -20339,7 +20339,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -20348,7 +20348,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -31080,7 +31080,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -31179,7 +31179,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -31188,7 +31188,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -33618,7 +33618,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -33725,7 +33725,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -33734,7 +33734,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -37276,7 +37276,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus among its radio buttons loses it — they are the product's children, outside the shadow root.",
+              "description": "What has focus among its radio buttons loses it — they are the product's children, outside the shadow root.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -37314,7 +37314,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -41210,7 +41210,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -41317,7 +41317,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -41326,7 +41326,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -43458,7 +43458,7 @@
             {
               "kind": "method",
               "name": "formResetCallback",
-              "description": "W6, item 4: a range resets its start value too, to the `start-value` attribute.",
+              "description": "A form's reset returns a range's start value too, to the `start-value` attribute.",
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -43481,7 +43481,7 @@
                   }
                 }
               ],
-              "description": "W6, item 5: the Slider restores both values; both are then the Slider's.",
+              "description": "A restore is passed on: the Slider restores both values; both are then the Slider's.",
               "inheritedFrom": {
                 "name": "ComposedControl",
                 "module": "src/primitives/composed.ts"
@@ -43522,7 +43522,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -43599,7 +43599,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -43608,7 +43608,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -49793,7 +49793,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComposedControl",
@@ -49900,7 +49900,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -49909,7 +49909,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -54090,7 +54090,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "The base of a composed element (W1, W7, W8, W9). A subclass renders its members' own elements —\n`<tanrei-field part=\"field\" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)}>` — and says which of them\nfocus goes to (`control`).\n\nThe shadow root does not delegate focus (W7): a press on text that is not a control must move no focus. The host is\nnever focusable; `focus()` and `blur()` are the control's, a click that arrives on the host itself — a page's own\n`<label for>` — moves focus to the control, and `autofocus` on the host reaches the control when the element first\nrenders.",
+          "description": "The base of a composed element. A subclass renders its members' own elements —\n`<tanrei-field part=\"field\" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)}>` — and says which of them\nfocus goes to (`control`).\n\nThe shadow root does not delegate focus: a press on text that is not a control must move no focus. The host is\nnever focusable; `focus()` and `blur()` are the control's, a click that arrives on the host itself — a page's own\n`<label for>` — moves focus to the control, and `autofocus` on the host reaches the control when the element first\nrenders.",
           "name": "ComposedElement",
           "members": [
             {
@@ -54105,12 +54105,12 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's."
+              "description": "Focuses the control: the host itself is never focusable."
             },
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs)."
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs)."
             }
           ],
           "superclass": {
@@ -54120,7 +54120,7 @@
         },
         {
           "kind": "class",
-          "description": "A composed element with a value member (W5, W6). The subclass names the member (`valueMember`) and writes the\n`value` accessor in place, on these two:\n\n    get value(): string { return this.memberValue(''); }\n    set value(value: string) { this.giveValue(value); }\n\n**The value is the member's at every moment** (W5): what was last set on the element until the member has taken it\n— the element's next render — and from then on what the member holds. So in every listener of a member's event,\ncapturing or bubbling, `event.target.value` is the new value, and a value the member changed is read back changed.\n\n**The element is the form's control** (W6): its class says `static formAssociated = true`; it takes `name` and `form`, and repeats on its own\ninternals what its value member tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the\nstate as they are, the validity flags, the message and the member's own anchor. It resets to its `value` attribute\n(`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` (`formDisabled`,\nsrc/primitives/form-disabled.ts) with its own `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).",
+          "description": "A composed element with a value member. The subclass names the member (`valueMember`) and writes the\n`value` accessor in place, on these two:\n\n    get value(): string { return this.memberValue(''); }\n    set value(value: string) { this.giveValue(value); }\n\n**The value is the member's at every moment**: what was last set on the element until the member has taken it\n— the element's next render — and from then on what the member holds. So in every listener of a member's event,\ncapturing or bubbling, `event.target.value` is the new value, and a value the member changed is read back changed.\n\n**The element is the form's control** — the member stands in a shadow root, outside every form: its class says\n`static formAssociated = true`; it takes `name` and `form`, and repeats on its own internals what its value member\ntells its own through `FormSays` (src/primitives/form-says.ts) — the value and the state as they are, the validity\nflags, the message and the member's own anchor. It resets to its `value` attribute (`firstValue()`), passes a restore\non to the member, and joins a disabled `<fieldset>` (`formDisabled`, src/primitives/form-disabled.ts) with its own\n`disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).",
           "name": "ComposedControl",
           "members": [
             {
@@ -54157,7 +54157,7 @@
               "type": {
                 "text": "ValidityState"
               },
-              "description": "The element's validity: its value member's (W6, item 3).",
+              "description": "The element's validity: its value member's, repeated on the element's own internals.",
               "readonly": true
             },
             {
@@ -54232,7 +54232,7 @@
                   }
                 }
               ],
-              "description": "W7, item 2: focus is the control's.",
+              "description": "Focuses the control: the host itself is never focusable.",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
@@ -54241,7 +54241,7 @@
             {
               "kind": "method",
               "name": "blur",
-              "description": "W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
+              "description": "What has focus inside the control loses it (an engine does not take it from inside a host it blurs).",
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"

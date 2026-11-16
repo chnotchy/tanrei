@@ -22,15 +22,15 @@ export interface TanreiRadioGroupChangeDetail {
   value: string;
 }
 
-/** RGP-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with what the host takes from outside (W6). */
+/** RGP-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with what the host takes from outside. */
 const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
 
-/** W4: the field group's documented parts, under its own names — the names this element's parts had before it was built from the field group's element. */
+/** The field group's documented parts, under its own names — the names this element's parts had before it was built from the field group's element. */
 const GROUP_PARTS = exported(TanreiFieldGroup);
 
 type Asking = Record<symbol, { ask?: () => void } | undefined>;
 
-/** W8: under the key a control keeps its side of the field's connection, what a frame defined later calls to be asked again. */
+/** Under the key a control keeps its side of the field's connection, what a frame defined later calls to be asked again. */
 function keepAsking(host: Element, ask: () => void) {
   (host as unknown as Asking)[FIELD_CONTROL] = { ask };
 }
@@ -167,7 +167,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   orientation: TanreiFieldGroupOrientation = 'vertical';
 
   private readonly fieldset = new FormDisabledController(this);
-  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
   }
@@ -186,7 +186,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   /**
    * FGR-15: inside a field group the radio group is one member and follows that group's `disabled`, and takes nothing
    * else from it. The host asks, and not the field group in its shadow root (below): what a form is told is the host's
-   * to say (RGP-9), and the field group inside is given the three together (W6, item 6).
+   * to say (RGP-9), and the field group inside is given the three together, so that the label follows.
    */
   private readonly outer = new FieldControlController(this, { takes: 'disabled', framed: true, named: () => true });
 
@@ -196,13 +196,14 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   constructor() {
     super();
     this.addEventListener('keydown', this.onKeyDown);
-    // W8: a frame defined after the group has the group itself ask again. The field group inside asks nobody (below).
+    // A frame defined after the group has the group itself ask again. The field group inside asks nobody (below).
     keepAsking(this, () => this.outer.ask());
     this.addEventListener(FIELD_CONNECT, this.onQuestion as EventListener);
   }
 
   /**
-   * W8, read for this element (the spec's web note). Two questions end at the host, and the host's own passes:
+   * The Field's connection, read for this element (the spec's web note). Two questions end at the host, and the host's
+   * own passes:
    *
    * - the field group's in its shadow root, to a group around the radio group. Let through, an outer field group would
    *   count two members — the radio group and a field group — where it holds one; the host gives the field group
@@ -217,7 +218,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     event.stopPropagation();
   };
 
-  /** W8: every control among the product's own elements that has no frame yet asks the field group, now that it is drawn. */
+  /** Every control among the product's own elements that has no frame yet asks the field group, now that it is drawn. */
   private askAgain() {
     for (const element of this.querySelectorAll('*')) (element as unknown as Asking)[FIELD_CONTROL]?.ask?.();
   }
@@ -269,12 +270,12 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     return this.internals.reportValidity();
   }
 
-  /** RGP-6, W7: focus asked of the group goes to the radio button that is its stop; the group itself is never one. */
+  /** RGP-6: focus asked of the group goes to the radio button that is its stop; the group itself is never one. */
   protected override get control(): HTMLElement | null {
     return this.stop() ?? null;
   }
 
-  /** W7, item 2: what has focus among its radio buttons loses it — they are the product's children, outside the shadow root. */
+  /** What has focus among its radio buttons loses it — they are the product's children, outside the shadow root. */
   override blur() {
     this.forgetKeptFocus();
     let active = (this.getRootNode() as Document | ShadowRoot).activeElement;
@@ -374,7 +375,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     if (!off && !this.readOnly && this.required && this.value === '') {
       // The browser's own words for an unanswered set of radio buttons; where it has none, the product's.
       const message = missingValueMessage('radio', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
-      // W6, item 3: anchored on the radio button that is the stop — its own native element, which is what takes focus.
+      // The browser's message is anchored on the radio button that is the stop — its own native element, which is what takes focus.
       const anchor = this.stop(options)?.validationAnchor;
       if (anchor) this.internals.setValidity({ valueMissing: true }, message, anchor);
       else this.internals.setValidity({ valueMissing: true }, message);
@@ -406,7 +407,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
       this.known.add(option);
       if (option.checked !== (option === selected)) option.checked = option === selected;
     }
-    // W8: the radio buttons that asked before the field group was drawn ask it now; it gives each `disabled`, and takes
+    // The radio buttons that asked before the field group was drawn ask it now; it gives each `disabled`, and takes
     // it back from one that left (RGP-7, RGP-11; FGR-14, FGR-23).
     this.askAgain();
     // RGP-6, RGP-10: the tab stop and each position, from the selection and the disabled states as they are now.

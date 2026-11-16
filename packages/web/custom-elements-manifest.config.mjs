@@ -177,7 +177,7 @@ function declaredAttributes() {
  *     @exportparts tanrei-field label: field-label, label    …but `label` as `field-label`, and — named again — bare too
  *     @exportparts tanrei-field -counter                     …and not `counter`, which this element never draws
  *
- * Where two members export a part under one bare name (W4, item 2: the two are never drawn at once), the manifest has
+ * Where two members export a part under one bare name (only where the two are never drawn at once), the manifest has
  * that name once, with both members' descriptions — the second after the tag of the member it is from — and each
  * member's own description under its prefixed name.
  *

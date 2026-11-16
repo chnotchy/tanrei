@@ -29,7 +29,7 @@ export const styles = css`
   }
   /* FPK-22, as the file picker has it for a trigger of its own: a trigger alone on its line is never wider than that
      line, and then wraps its label as the Button says. Said again here because the trigger reaches the file picker
-     through a slot that is passed on (W9), and a rule on what is slotted stops at that slot. */
+     through a slot that is passed on, and a rule on what is slotted stops at that slot. */
   ::slotted([slot='trigger']) {
     max-inline-size: 100%;
     min-inline-size: min-content;

@@ -1,23 +1,24 @@
-// The web's way of composing (W1 to W14), built once. A composed element is a custom element whose shadow root holds its members' OWN custom
+// The web's way of composing, built once. A composed element is a custom element whose shadow root holds its members' OWN custom
 // elements, by their tags — never a copy of what they draw. What is here is everything such an element needs besides
 // its template (README "Composed elements" is the builder's guide):
 //
-//   ComposedElement  — the base of every composed element: focus passed to the control without delegating it (W7), a
-//                      slot passed on only while it is filled (W9), the Field's connection left alone and asked again
-//                      through the element (W8), `updateComplete` that waits for the members.
-//   ComposedControl  — a composed element with a value member: the value that is the member's at every moment (W5) and
+//   ComposedElement  — the base of every composed element: focus passed to the control without delegating it, a
+//                      slot passed on only while it is filled, the Field's connection left alone and asked again
+//                      through the element, `updateComplete` that waits for the members.
+//   ComposedControl  — a composed element with a value member: the value that is the member's at every moment and
 //                      the form — the element is the form's control and repeats what its value member tells its own
-//                      internals (W6). `memberUpdated()` is where an element fills a member's prop from what its value
-//                      member holds (W14, `fills`).
+//                      internals. `memberUpdated()` is where an element fills a member's prop from what its value
+//                      member holds (the spec's `fills`).
 //   forward()        — src/primitives/forward.ts: a directive on a member's tag — each named property of the composed
-//                      element set on the member, as a property, on every render (W2).
-//   exported()       — a member's documented parts as an `exportparts` value, from the list its class keeps (W4).
+//                      element set on the member, as a property, on every render.
+//   exported()       — a member's documented parts as an `exportparts` value, from the list its class keeps.
 //
 //   fieldDelegatesAria() — a composed element's host moves the product's ARIA to data-aria-* and passes it on to the
 //                      member that carries its role (`${delegatedAria(this, {})}` on the member's tag), but for its
-//                      name, which is `label` (W8): a composed field's control, a checkbox group's field group.
+//                      name, which is `label`: a composed field's control, a checkbox group's field group.
 //
-// The element writes no custom property and reads no token of a member (W3): nothing here touches a style.
+// The element writes no custom property and reads no token of a member — a member's tokens reach it by inheritance,
+// as they do anywhere: nothing here touches a style.
 import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
 import { type DelegatedName, delegatesAria, ownedNames } from './delegated-aria.js';
 import { FIELD_CONTROL } from './field.js';
@@ -30,9 +31,9 @@ import { TanreiElement } from './element.js';
 
 export { forward } from './forward.js';
 
-// ─── W4: parts ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ─── Parts ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** What a class that can be a member offers for W4: its documented parts, once (`static readonly parts`). */
+/** What a class that can be a member offers so that its parts are exported: its documented parts, once (`static readonly parts`). */
 export interface WithParts {
   readonly parts: readonly string[];
 }
@@ -41,12 +42,12 @@ export interface WithParts {
 export interface Collision {
   /** The name it is always exported under: the member's name before the part's (`field-label`). */
   as: string;
-  /** Also under the bare name: only where the two parts are one thing to a person and never drawn at once (W4, item 2). */
+  /** Also under the bare name: only where the two parts are one thing to a person and never drawn at once — where both can be, a rule written for one would restyle the other. */
   bare?: boolean;
 }
 
 /**
- * W4: a member's documented parts for the composed element — `attribute` is the member's `exportparts`, `names` what
+ * A member's documented parts for the composed element — `attribute` is the member's `exportparts`, `names` what
  * `::part()` on the composed element can then name. Made from the member's own list, never written by hand. `collisions`
  * says, for a part whose name two members share, the prefixed name it is always exported under and whether the bare
  * name is exported too (`exportparts="label, label: field-label"`). `omit` names the parts of the member that the
@@ -75,7 +76,7 @@ export function exported(member: WithParts, collisions: Record<string, Collision
 
 // ─── The base ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** W1: a composed element's own stylesheet where it has no part and no arrangement of its own — the host is a block. */
+/** A composed element's own stylesheet where it has no part and no arrangement of its own — the host is a block. */
 export const composedHost = css`
   :host {
     display: block;
@@ -86,7 +87,7 @@ type Updating = Element & { updateComplete?: Promise<unknown> };
 type Asking = Record<symbol, { ask?: () => void } | undefined>;
 
 /**
- * W8: a frame defined after the controls inside it asks each of its descendants to ask again (`FIELD_CONTROL`), and
+ * A frame defined after the controls inside it asks each of its descendants to ask again (`FIELD_CONTROL`), and
  * cannot see into a shadow root: the composed element keeps, under the same key a control does, a way to have its
  * members ask. One that has its answer already does nothing; the frame member's own question then leaves the element.
  */
@@ -95,11 +96,11 @@ function passAsking(host: Element, members: () => Element[]) {
 }
 
 /**
- * The base of a composed element (W1, W7, W8, W9). A subclass renders its members' own elements —
+ * The base of a composed element. A subclass renders its members' own elements —
  * `<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)}>` — and says which of them
  * focus goes to (`control`).
  *
- * The shadow root does not delegate focus (W7): a press on text that is not a control must move no focus. The host is
+ * The shadow root does not delegate focus: a press on text that is not a control must move no focus. The host is
  * never focusable; `focus()` and `blur()` are the control's, a click that arrives on the host itself — a page's own
  * `<label for>` — moves focus to the control, and `autofocus` on the host reaches the control when the element first
  * renders.
@@ -107,17 +108,17 @@ function passAsking(host: Element, members: () => Element[]) {
 export abstract class ComposedElement extends TanreiElement {
   static override styles: CSSResultGroup = [composedHost, hiddenHost];
 
-  /** W7: the member focus goes to, once rendered. */
+  /** The member focus goes to, once rendered. */
   protected abstract get control(): HTMLElement | null;
 
-  /** W9: the names of the slots it has passed on, and the watch on its own children for them. */
+  /** The names of the slots it has passed on, and the watch on its own children for them. */
   private readonly passing = new Set<string>();
   private children_: MutationObserver | null = null;
   private focusedAtFirst = false;
 
   constructor() {
     super();
-    // W7, item 3: a click on the host itself is not a press inside it (whose first target is a member's): it is what a
+    // A click on the host itself is not a press inside it (whose first target is a member's): it is what a
     // page's `<label for>` sends its control.
     this.addEventListener('click', (event) => {
       if (event.composedPath()[0] === this) this.control?.focus();
@@ -130,13 +131,13 @@ export abstract class ComposedElement extends TanreiElement {
     return [...(this.renderRoot?.querySelectorAll('*') ?? [])].filter((element) => element.localName.includes('-'));
   }
 
-  /** W7, item 2: focus is the control's. */
+  /** Focuses the control: the host itself is never focusable. */
   override focus(options?: FocusOptions) {
     if (this.keepFocusUntilRendered(options)) return;
     this.control?.focus(options);
   }
 
-  /** W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs). */
+  /** What has focus inside the control loses it (an engine does not take it from inside a host it blurs). */
   override blur() {
     this.forgetKeptFocus();
     let active = this.shadowRoot?.activeElement ?? null;
@@ -145,7 +146,7 @@ export abstract class ComposedElement extends TanreiElement {
   }
 
   /**
-   * W9: a slot of a member, passed on — `${this.pass('label-icon')}` among that member's children. Rendered only while
+   * A slot of a member, passed on — `${this.pass('label-icon')}` among that member's children. Rendered only while
    * the element has a child for it: a member that draws room for a filled slot would take a passing slot that is
    * always there for content.
    */
@@ -184,7 +185,7 @@ export abstract class ComposedElement extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     super.updated(changed);
-    // W7, item 4: `autofocus` on the host. The browser focuses nothing for it — the host is not focusable — so the
+    // `autofocus` on the host. The browser focuses nothing for it — the host is not focusable — so the
     // element gives the control focus itself, once, when it first renders, and only where the page has given focus to
     // nothing else (as the browser's own autofocus does).
     if (!this.focusedAtFirst) {
@@ -202,7 +203,7 @@ export abstract class ComposedElement extends TanreiElement {
 
 // ─── The product's ARIA on a composed field ──────────────────────────────────────────────────────────────────────
 
-/** What a composed element says itself: its name is its frame's `label` (W8), and its disabled state its `disabled`. */
+/** What a composed element says itself: its name is its frame's `label`, and its disabled state its `disabled`. */
 const FIELD_OWNS: readonly DelegatedName[] = ['aria-label', 'aria-labelledby', 'aria-disabled'];
 const NAME_INSTEAD = 'name it with label (labelHidden keeps the name and draws none)';
 
@@ -223,7 +224,7 @@ export function fieldDelegatesAria(element: { prototype: HTMLElement }, control:
   });
 }
 
-// ─── W5, W6: a composed element with a value ─────────────────────────────────────────────────────────────────────
+// ─── A composed element with a value ─────────────────────────────────────────────────────────────────────────────
 
 /** What a value member is: a control with a `value`, which a form restores by the platform's own callback. */
 export interface ValueMember<V> extends HTMLElement {
@@ -232,21 +233,22 @@ export interface ValueMember<V> extends HTMLElement {
 }
 
 /**
- * A composed element with a value member (W5, W6). The subclass names the member (`valueMember`) and writes the
+ * A composed element with a value member. The subclass names the member (`valueMember`) and writes the
  * `value` accessor in place, on these two:
  *
  *     get value(): string { return this.memberValue(''); }
  *     set value(value: string) { this.giveValue(value); }
  *
- * **The value is the member's at every moment** (W5): what was last set on the element until the member has taken it
+ * **The value is the member's at every moment**: what was last set on the element until the member has taken it
  * — the element's next render — and from then on what the member holds. So in every listener of a member's event,
  * capturing or bubbling, `event.target.value` is the new value, and a value the member changed is read back changed.
  *
- * **The element is the form's control** (W6): its class says `static formAssociated = true`; it takes `name` and `form`, and repeats on its own
- * internals what its value member tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the
- * state as they are, the validity flags, the message and the member's own anchor. It resets to its `value` attribute
- * (`firstValue()`), passes a restore on to the member, and joins a disabled `<fieldset>` (`formDisabled`,
- * src/primitives/form-disabled.ts) with its own `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).
+ * **The element is the form's control** — the member stands in a shadow root, outside every form: its class says
+ * `static formAssociated = true`; it takes `name` and `form`, and repeats on its own internals what its value member
+ * tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the state as they are, the validity
+ * flags, the message and the member's own anchor. It resets to its `value` attribute (`firstValue()`), passes a restore
+ * on to the member, and joins a disabled `<fieldset>` (`formDisabled`, src/primitives/form-disabled.ts) with its own
+ * `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).
  */
 export abstract class ComposedControl<V = string> extends ComposedElement {
   static override properties: PropertyDeclarations = {
@@ -256,15 +258,15 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
   /** Web only: the name the value is submitted under. */
   name = '';
 
-  // `disabled` is the subclass's own (W6, item 6).
+  // `disabled` is the subclass's own; a disabled fieldset around the host joins it for the frame (`formDisabled`).
   private readonly fieldset = new FormDisabledController(this as this & { readonly disabled: boolean });
 
-  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it. */
+  /** A disabled `<fieldset>` around the element, as the platform says it: with `disabled`, what the frame member is given, so that the label follows. */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
   }
 
-  /** W5: the member that holds the value, once rendered. */
+  /** The member that holds the value, once rendered. */
   protected abstract get valueMember(): ValueMember<V> | null;
 
   abstract get value(): V;
@@ -276,21 +278,21 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
 
   protected readonly internals = this.attachInternals();
 
-  /** W5: the value last set on the element, while the member has not taken it. */
+  /** The value last set on the element, while the member has not taken it. */
   private given: V | undefined;
   private pending = false;
   private heard: Element | null = null;
   private unhear: (() => void) | undefined;
   private restored: [FormEntry, 'restore' | 'autocomplete'] | null = null;
 
-  /** W5: what `value` returns — `initial` is the member's own default, for an element that has not rendered and was given nothing. */
+  /** What `value` returns — `initial` is the member's own default, for an element that has not rendered and was given nothing. */
   protected memberValue(initial: V): V {
     if (this.pending) return this.given as V;
     const member = this.valueMember;
     return member ? member.value : initial;
   }
 
-  /** W5: what `value` is set with. The member takes it at the element's next render; what the member holds already changes nothing. */
+  /** What `value` is set with. The member takes it at the element's next render; what the member holds already changes nothing. */
   protected giveValue(value: V) {
     const member = this.valueMember;
     if (!this.pending && member && Object.is(member.value, value)) return;
@@ -298,7 +300,7 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
     this.pending = true;
   }
 
-  /** W6, item 4: the value a form's reset returns to — the `value` attribute, where the first value is written. */
+  /** The value a form's reset returns to — the `value` attribute, where the first value is written. An element whose first value is elsewhere overrides it. */
   protected firstValue(): V {
     return (this.getAttribute('value') ?? '') as V;
   }
@@ -308,7 +310,7 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
     return this.internals.form;
   }
 
-  /** The element's validity: its value member's (W6, item 3). */
+  /** The element's validity: its value member's, repeated on the element's own internals. */
   get validity(): ValidityState {
     return this.internals.validity;
   }
@@ -341,7 +343,7 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
       return;
     }
     member.formStateRestoreCallback?.(state, mode);
-    // W6, item 5: the member's value is the element's.
+    // The member has restored its value; from here the member's value is the element's.
     this.pending = false;
     this.given = undefined;
   }
@@ -350,7 +352,11 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
     this.fieldset.formDisabledCallback();
   }
 
-  /** W6, items 2 and 3: the same value and state, the same flags and message, and the member's own anchor. */
+  /**
+   * What the value member told its own internals, repeated on the element's: the same value and state, as they are —
+   * nothing worked out here — and the same flags and message, with the member's own anchor, the native element inside
+   * it, so that the browser's message points, and focus goes, where they do one level down.
+   */
   private repeat(word: FormWord) {
     this.internals.setFormValue(word.value, word.state);
     if (word.anchor) this.internals.setValidity(word.flags, word.message, word.anchor);
@@ -359,16 +365,16 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
   }
 
   /**
-   * W14 (`fills`): called after each word the value member tells its form — when the element first hears it, and after
-   * each of the member's updates, which is when a member speaks. An element whose spec names a member's prop it fills
-   * itself from state the value member holds (a text field: its Field's count text, from its input's count) sets it
-   * here; it reads the member and writes the other member's property, and computes nothing of its own. Does nothing
-   * otherwise.
+   * For the spec's `fills`: called after each word the value member tells its form — when the element first hears it,
+   * and after each of the member's updates, which is when a member speaks. An element whose spec names a member's prop
+   * it fills itself from state the value member holds (a text field: its Field's count text, from its input's count)
+   * sets it here; it reads the member and writes the other member's property, and computes nothing of its own. Does
+   * nothing otherwise.
    */
   protected memberUpdated() {}
 
   protected override updated(changed: PropertyValues) {
-    // W5: the render that has just ended gave the member what was set; from here the value is the member's.
+    // The render that has just ended gave the member what was set; from here the value is the member's.
     this.pending = false;
     this.given = undefined;
     const member = this.valueMember;
@@ -386,6 +392,6 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
   }
 }
 
-// W6, item 6: an element's `disabled` attribute, written while it holds focus, waits until focus has left — a frame at
+// An element's `disabled` attribute, written while it holds focus, waits until focus has left — a frame at
 // most —, so a composed element lets go of focus as the platform's own control does.
 disabledWaitsWhileFocused(ComposedControl);

@@ -475,7 +475,7 @@ export class TanreiSlider extends TanreiElement {
     const detail: TanreiSliderChangeDetail = this.range ? { value: end, startValue: start } : { value: end };
     // Each event dispatched under its literal name, so the manifest (and the React wrapper made from it) sees `input` and
     // `change` rather than an event called `type`. Both are composed: they leave the shadow root of an element
-    // composed around the slider with that element as their target (src/primitives/composed.ts, W5).
+    // composed around the slider with that element as their target (src/primitives/composed.ts).
     if (type === 'input') this.dispatchEvent(new CustomEvent<TanreiSliderChangeDetail>('input', { bubbles: true, composed: true, detail }));
     else this.dispatchEvent(new CustomEvent<TanreiSliderChangeDetail>('change', { bubbles: true, composed: true, detail }));
   }

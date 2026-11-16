@@ -1,6 +1,6 @@
 // <tanrei-color-field>, driven by specs/color-field.spec.json: a composed element — a Field around one color
-// input. What a composed element is, is held once for every such element by src/primitives/composed.test.ts (W13-1 to
-// W13-8: declarations, passing, parts, events and the value, the form, focus, the twins — each of the thirty-nine
+// input. What a composed element is, is held once for every such element by src/primitives/composed.test.ts
+// (declarations, passing, parts, events and the value, the form, focus, the twins — each of the thirty-nine
 // fixtures the same pixels and the same control as the Field's fixture `color-<id>` — and reports). The members' own
 // sentences are the members' tests (color-input.test.ts, CLI-1 to CLI-44; field.test.ts, FLD-1 to FLD-28). This file
 // holds what the color field's own sentences add, CLF-43 to CLF-47, and repeats no test of a member.
@@ -426,7 +426,8 @@ test.describe('behavior', () => {
     }
     expect(visited).toEqual(['tanrei-color-field#plain input#input.input', 'tanrei-color-field#plain button.has-icon', 'tanrei-color-field#floating input#input.input', 'button#after button#after']);
     // Focused for its Field while either stop has focus (FLD-13). The default system's focused label has the color of
-    // the resting one, so the test gives the Field's focused label a color of its own, on the color field itself (W3).
+    // the resting one, so the test gives the Field's focused label a color of its own, on the color field itself, which
+    // the Field inside inherits.
     await plain.evaluate((el: HTMLElement) => el.style.setProperty('--tanrei-comp-field-standard-focused-label-color', 'rgb(1, 2, 3)'));
     const frame = field(plain).locator('.frame');
     const labelColor = () => css(field(plain).locator('.label-row > .label'), 'color');

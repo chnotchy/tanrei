@@ -1,7 +1,7 @@
 // <tanrei-slider-field>, driven by specs/slider-field.spec.json: SLF-1 to SLF-13, each cited by a test title. It is a
 // composed element, so what a composed element is — declarations, passing, parts, events and the value, the
 // form, focus, the twin of each fixture, reports — is held once, for every composed element, by
-// src/primitives/composed.test.ts (W13-1 to W13-8), and its members' own behaviour by their own files (a
+// src/primitives/composed.test.ts, and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member; FLD-29 and FLD-30, the value text, are the Field's). What is here is
 // the thirteen sentences of its own, as they hold of THIS element.
 // SLF-14: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -635,7 +635,7 @@ test.describe('slider field', () => {
   });
 
   test('SLF-12: it is what a Field holding a Slider is when the product writes the two by hand and keeps the Field\'s value text in step — the same picture and the same handles to assistive technology after a change too, where the fixture\'s twin holds the first picture alone', async ({ page, browserName }) => {
-    // (Each fixture against the twin it names, as mounted: src/primitives/composed.test.ts, W13-7, in three engines.)
+    // (Each fixture against the twin it names, as mounted: the twin in src/primitives/composed.test.ts, in three engines.)
     await mount(page, spec.fixtures.filter((f) => ['supporting', 'range-words'].includes(f.id)), { twins: true });
     await settle(page);
     // The same change on both, the twin's value text written by its product from its Slider's own words.

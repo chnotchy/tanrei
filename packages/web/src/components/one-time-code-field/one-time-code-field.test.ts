@@ -1,7 +1,7 @@
 // <tanrei-one-time-code-field>, driven by specs/one-time-code-field.spec.json: OTF-1 to OTF-8, each cited by a test
 // title. It is a composed element, so what a composed element is — declarations, passing, parts, events
 // and the value, the form, focus, the twin, reports — is held once, for every composed element, by
-// src/primitives/composed.test.ts (W13-1 to W13-8), and its members' own behaviour by their own files (a
+// src/primitives/composed.test.ts, and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member). What is here is the eight sentences, as they hold of THIS element, and the browser behaviours the element is built on.
 // OTF-9: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
@@ -94,7 +94,7 @@ test.describe('one-time-code field', () => {
       const control = frame.querySelector('tanrei-one-time-code-input')!;
       const box = (element: Element) => element.getBoundingClientRect();
       return {
-        // R1, R7: the members' real elements, by their tags and of their registered classes — not a copy of what they draw.
+        // The members' real elements, by their tags and of their registered classes — not a copy of what they draw.
         elements: [...root.querySelectorAll('*')].map((element) => element.localName),
         frame: frame instanceof customElements.get('tanrei-field')!,
         control: control instanceof customElements.get('tanrei-one-time-code-input')! && control.parentElement === frame,
@@ -385,7 +385,7 @@ test.describe('one-time-code field', () => {
     }));
     expect(drawn).toEqual({ slots: [], controls: [INPUT], second: [0, 0], framed: [null, null] });
     expect(seen.filter((text) => text.includes('FLD-15') || text.includes('FLD-23'))).toEqual([]);
-    // The one place for a child: the Field's label glyph, passed on while it is there and not a moment longer (W9).
+    // The one place for a child: the Field's label glyph, passed on while it is there and not a moment longer.
     const passed = () => host(page, 'code').evaluate(async (el) => {
       await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
       const frame = el.shadowRoot!.querySelector('tanrei-field')!;
@@ -458,7 +458,7 @@ test.describe('one-time-code field', () => {
     expect(await inner('grouped')).toMatchObject({ disabled: false });
   });
 
-  test('OTF-6: a Field defined after the one-time-code field inside it still hears it — the element passes the frame\'s call to ask again on to its members (W8)', async ({ page }) => {
+  test('OTF-6: a Field defined after the one-time-code field inside it still hears it — the element passes the frame\'s call to ask again on to its members', async ({ page }) => {
     await page_(page, `<late-frame id="late"><${TAG} id="code" label="Verification code"></${TAG}></late-frame>`);
     // A frame of the product's own that speaks the Field's protocol, defined late: it asks every descendant to ask again.
     const answered = await page.evaluate(async () => {

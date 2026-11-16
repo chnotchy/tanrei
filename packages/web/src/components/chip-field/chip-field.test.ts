@@ -1,6 +1,6 @@
 // <tanrei-chip-field>, driven by specs/chip-field.spec.json: a composed element — a Field around one Text
 // input, with a Chip for each entry in the Text input's entries place. What a composed element is, is held once for
-// every such element by src/primitives/composed.test.ts (W13-1 to W13-8: declarations, passing, parts, events, the
+// every such element by src/primitives/composed.test.ts (declarations, passing, parts, events, the
 // twins — each of the twenty-seven fixtures the same pixels and the same control as the Field's fixture
 // `entries-<id>` — and reports). The members' own sentences are the members' tests (field.test.ts, text-input.test.ts
 // with TXI-64 to TXI-66, chip.test.ts with CHP-38). This file holds the chip field's own sentences, CHF-1 to CHF-30 —
