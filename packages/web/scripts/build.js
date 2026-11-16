@@ -59,7 +59,9 @@ const tags = JSON.parse(fs.readFileSync('custom-elements.json', 'utf8'))
 // of its own (`:where(<name>:not(:defined))`, which an engine files under the name), so a new component is cloaked
 // without anyone editing a list. scripts/stylesheets.js keeps it out of tanrei.css.
 const CLOAK_ELEMENTS = ':where(tanrei-elements:not(:defined))';
-const cloakSource = fs.readFileSync('src/styles/cloak.css', 'utf8');
+// Its reduced form (a carousel that draws no playback control) is written again under the root's style query, as every
+// light-DOM stylesheet's is (`writeReducedMotion()`).
+const cloakSource = writeReducedMotion(fs.readFileSync('src/styles/cloak.css', 'utf8'));
 if (cloakSource.split(CLOAK_ELEMENTS).length !== 2) throw new Error(`cloak.css: expected one ${CLOAK_ELEMENTS} to write the element names into`);
 fs.writeFileSync('dist/cloak.css', cloakSource.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
