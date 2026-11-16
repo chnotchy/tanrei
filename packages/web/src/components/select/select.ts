@@ -828,7 +828,7 @@ export class TanreiSelect extends TanreiElement {
   /** What a debug build tells the developer; the select still renders. */
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
-    // SEL-64: what left the element with the frame — the six attributes and a child for `label-icon` — is the Field's,
+    // SEL-64: what left the element with the frame — the seven attributes and a child for `label-icon` — is the Field's,
     // and draws nothing here. Said once for each element, permanently: nothing is kept for them in a production build.
     if (!this.reportedLeft) {
       const left = [...LEFT_ATTRIBUTES.filter((name) => this.hasAttribute(name)), ...(this.querySelector(':scope > [slot="label-icon"]') ? ['a child for the label-icon slot'] : [])];
