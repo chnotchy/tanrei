@@ -14,3 +14,7 @@ it.
   capped like an item.
 
 TBR-9 now says both. Nothing is drawn differently.
+
+The toolbar's bundle budget is raised to hold what this fix adds (162 bytes gzip): it stood 76 bytes under its budget
+before. The budget of `@tanrei/web/all` is raised to hold what the five hit-area fixes released with it add together
+(414 bytes gzip).

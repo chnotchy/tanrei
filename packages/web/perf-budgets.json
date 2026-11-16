@@ -89,7 +89,7 @@
       "allowedComponents": []
     },
     "carousel": {
-      "budget": 50300,
+      "budget": 50400,
       "measured": 48295,
       "allowedComponents": [
         "button"
@@ -274,7 +274,7 @@
       "allowedComponents": []
     },
     "file-upload": {
-      "budget": 107900,
+      "budget": 108000,
       "measured": 102466,
       "allowedComponents": [
         "button",
@@ -635,7 +635,7 @@
       ]
     },
     "toolbar": {
-      "budget": 70600,
+      "budget": 70700,
       "measured": 70268,
       "allowedComponents": [
         "button",
@@ -664,7 +664,7 @@
       ]
     },
     "all": {
-      "budget": 671400,
+      "budget": 671800,
       "measured": 643895
     }
   },

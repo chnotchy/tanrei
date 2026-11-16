@@ -14,3 +14,6 @@ File item and List: hit areas no longer reach over a neighbouring tile or item w
   still reaches its whole target toward the list's start edge. LST-32 now says this.
 
 Nothing is drawn differently.
+
+The file upload's bundle budget is raised to hold what these two fixes add to it (93 bytes gzip): it stood 27 bytes
+under its budget before.
