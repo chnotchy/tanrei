@@ -160,13 +160,6 @@ const CHEVRON = {
     'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  calendar: [
-    {
-      settings: ['2px apart', '8px apart'],
-      line: /year: a press in the gap at the top of tanrei-calendar › button "\d+"/,
-      reason: 'The view toggle’s hit area (CAL-5) reaches down past the middle of the gap to the first row of years when that gap is narrowed: the toggle stops toward nothing below it.',
-    },
-  ],
   carousel: [
     {
       settings: ['m3-like', '2px apart', '8px apart'],
