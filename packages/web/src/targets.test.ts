@@ -160,49 +160,14 @@ const CHEVRON = {
     'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  calendar: [
-    {
-      settings: ['2px apart', '8px apart'],
-      line: /year: a press in the gap at the top of tanrei-calendar › button "\d+"/,
-      reason: 'The view toggle’s hit area (CAL-5) reaches down past the middle of the gap to the first row of years when that gap is narrowed: the toggle stops toward nothing below it.',
-    },
-  ],
-  carousel: [
-    {
-      settings: ['m3-like', '2px apart', '8px apart'],
-      line: /a press in the gap at the bottom of tanrei-carousel-item/,
-      reason: 'CRL-37 gives the indicator the whole height of the controls row, which reaches up past the middle of the gap to the items when the controls row is taller than the indicator.',
-    },
-  ],
   combobox: [CHEVRON],
   'combobox-field': [CHEVRON],
   field: [CHEVRON],
-  'file-upload': [
-    {
-      settings: ['2px apart', '8px apart'],
-      line: /tiles[a-z-]*: /,
-      reason: 'Between tiles the actions’ caps are FIT-18’s own (tile.action-inset) and the reorder Button is placed by the upload, not in a row the upload caps: with the gaps narrowed they reach past the middle.',
-    },
-  ],
   menubar: [
     {
       settings: ALL,
       line: /goes to a "/,
       reason: 'A link item’s visible bounds are its title’s container, wider than the anchor this check measures: the anchor’s hit area (MBR-17) is the title’s, and covers the title’s own padding, which the check counts as gap.',
-    },
-  ],
-  search: [
-    {
-      settings: ['2px apart'],
-      line: /bar-slots: .*goes to tanrei-button › button "mic"/,
-      reason: 'The trailing slot’s first Button stops toward the clear button where there is one (SRC-34 keeps their lengths); with no clear button and container.gap at 2 px, it reaches over the end of the input.',
-    },
-  ],
-  toolbar: [
-    {
-      settings: ['2px apart'],
-      line: /inline-(overflow-pinned|separation-gap): a press in the gap/,
-      reason: 'The toolbar measures each gap (TBR-9); where a separator or the pinned overflow button stands between two items, at 2 px the measured half is not the middle of what the check sees as the gap.',
     },
   ],
 };

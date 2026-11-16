@@ -385,6 +385,41 @@ test.describe('layout and drawing', () => {
     await expect(toggle(page, 'c')).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test('CAL-6, CAL-7: where the navigation row, one cell tall, leaves space below the view toggle, the toggle’s hit area reaches across all of it in the day view, but in the year view toward the first row of years no further than halfway, so a press in the nearer half of that space is not the toggle’s', async ({ page }) => {
+    await mount(page, [f('c', { value: '2026-09-17' })]);
+    const cellSize = await resolveToken(page, T('cell-size'));
+    // A target taller than the cell makes the cell, and the navigation row, that tall.
+    await override(page, { '--tanrei-sys-target-pointer': `${cellSize + 8}px`, '--tanrei-sys-target-touch': `${cellSize + 8}px` });
+    const nav = await bounds(host(page, 'c').locator('.nav'));
+    const t = await bounds(toggle(page, 'c'));
+    const space = nav.y + nav.height - (t.y + t.height);
+    expect(space, 'the toggle is shorter than the row').toBeGreaterThan(4);
+    const below = () => toggle(page, 'c').evaluate((el) => -Number.parseFloat(getComputedStyle(el, '::before').bottom));
+    expect(await below(), 'the day view: the weekday row below takes no press, and the toggle reaches across the whole space').toBe(space);
+    await toggle(page, 'c').click();
+    await expect(toggle(page, 'c')).toHaveAttribute('aria-expanded', 'true');
+    await settled(page, 'c');
+    expect(await below(), 'the year view: half the space toward the first row of years').toBe(space / 2);
+    const pressed = (x: number, y: number) =>
+      page.evaluate(
+        ([px, py]) => {
+          let at: Element | null = document.elementFromPoint(px, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(px, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          return at?.closest('.toggle') ? 'toggle' : at?.closest('.year') ? 'year' : 'neither';
+        },
+        [x, y] as const,
+      );
+    const x = t.x + t.width / 2;
+    const end = nav.y + nav.height;
+    expect(await pressed(x, end - space / 4), 'a press in the nearer half of the space to the years').not.toBe('toggle');
+    expect(await pressed(x, end - (space * 3) / 4), 'a press in the nearer half of the space to the toggle').toBe('toggle');
+    expect(await pressed(x, end + 1.5), 'a press on the first row of years').toBe('year');
+  });
+
   test('CAL-6, CAL-7: the years are drawn while the year view is shown and until it has faded out — a calendar in its day view holds none of them, at once where motion is reduced', async ({ page }) => {
     await mount(page, [f('c', { value: '2026-09-17' })]);
     const years = host(page, 'c').locator('.year');

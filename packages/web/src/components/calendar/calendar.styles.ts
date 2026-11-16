@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, conditionStates, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, rowTargets } from '../../primitives/index.js';
+import { TARGET_CAPS, conditionBlock, conditionStates, focusRing, iconGlyph, neighbourTarget, pressHold, rippleStyles, rowTargets } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -329,7 +329,20 @@ export const styles = css`
     white-space: normal;
     ${unsafeCSS(cornerRadius(`${PREFIX}-view-toggle-container-shape`))}
   }
-  ${minimumTarget('.toggle')}
+  ${neighbourTarget('.toggle')}
+  /* CAL-6: the toggle stands beside none of the product's rows, so no cap from outside reaches it: each side reaches the
+     whole target — but in the year view, toward the first row of years (CAL-7), whose cells start where the navigation
+     row ends. There it stops halfway across what lies between its visible bounds and that row: half of what the row,
+     one cell tall, leaves below the toggle centred in it. */
+  .toggle {
+    ${unsafeCSS(TARGET_CAPS.start)}: initial;
+    ${unsafeCSS(TARGET_CAPS.end)}: initial;
+    ${unsafeCSS(TARGET_CAPS.top)}: initial;
+    ${unsafeCSS(TARGET_CAPS.bottom)}: initial;
+  }
+  .toggle[aria-expanded='true'] {
+    ${unsafeCSS(TARGET_CAPS.bottom)}: max(0px, (var(--_cell) - 100%) / 4);
+  }
   /* CAL-6: the chevron, an unselected glyph at view-toggle.icon.size, turned half a turn while the year view is shown. */
   ${iconGlyph('.chevron', { size: `${PREFIX}-view-toggle-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .chevron {
