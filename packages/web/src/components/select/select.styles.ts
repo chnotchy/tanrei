@@ -320,7 +320,9 @@ export const styles = css`
 
   /* SEL-72: the clear button is a Button — its own tokens, press, focus ring and target — after the combobox and not
      in it, placed over the room the container keeps for it: a glyph's box centred on the container's height, its glyph
-     where a glyph of the row stands. Later in the tree and positioned, it paints over the container. */
+     where a glyph of the row stands. Later in the tree and positioned, it paints over the container. The room itself
+     is the container's (SEL-20, SEL-22): only the Button takes the pointer, so that the room, empty or around the
+     Button's target, is hovered with the container and a press there opens the list. */
   .clear {
     position: absolute;
     inset-block: 0;
@@ -329,9 +331,11 @@ export const styles = css`
     align-items: center;
     justify-content: center;
     inline-size: var(--_icon);
+    pointer-events: none;
   }
   .clear > tanrei-button {
     flex: none;
+    pointer-events: auto;
   }
   /* BTN-5: the clear button reaches its target toward the value no further than the middle of container.gap, and toward
      the chevron no further than the middle of container.action-gap, so that a press on either is never the clear
