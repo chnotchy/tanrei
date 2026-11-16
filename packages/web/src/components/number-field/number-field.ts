@@ -25,7 +25,7 @@ export type {
   TanreiNumberInputVariant,
 };
 
-/** NUM-47: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** NUM-47: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** NUM-47: the nineteen props that are the number input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
@@ -51,7 +51,7 @@ const INPUT = [
 ] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
+ * Each member's documented parts, from the member's own list. Two names are shared — `label` and
  * `requirement-label` — and each is exported with its member's name before it, always, and under the bare name from
  * both: the two are one thing to a person and are never drawn at once. FLD-25 is the sentence that holds it — while
  * its control draws the label itself the Field draws no label row and no requirement tag — and a stacked input draws
@@ -296,7 +296,7 @@ export class TanreiNumberField extends ComposedControl<number | null> {
     this.input?.select();
   }
 
-  /** NUM-48 (W6, item 4): the first value is the `value` attribute, read as the number input reads it — a plain decimal number, or none. */
+  /** NUM-48: the value a form's reset returns to, the first value, is the `value` attribute, read as the number input reads it — a plain decimal number, or none. */
   protected override firstValue(): number | null {
     return numberOrNull(this.getAttribute('value'));
   }

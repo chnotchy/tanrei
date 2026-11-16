@@ -6,7 +6,7 @@
 // product's radio buttons. What every composed element owes is held by `src/primitives/composed.test.ts` — the
 // declarations, the forwarded props, the parts, the one `change`, the reports, and the twins: each of the twenty
 // fixtures is the same pixels and the same radio group as the field group's `radio-buttons-*` fixture it names, in
-// three engines (W13-7). The frame's own sentences are the field group's tests (FGR-1 … FGR-25). What is here is what
+// three engines. The frame's own sentences are the field group's tests (FGR-1 … FGR-25). What is here is what
 // the group adds — the value, the event, the keys and the stop, the form — and, for the sentences that cite the field
 // group, that the frame inside the group is drawn and exposed as they say.
 // RGP-21: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -274,7 +274,7 @@ test.describe('behavior', () => {
     const own = await host(page, id).evaluate((el) => el.shadowRoot!.adoptedStyleSheets.flatMap((sheet) => [...sheet.cssRules].map((rule) => rule.cssText)).join('\n'));
     expect(own.match(/--[\w-]+/g) ?? [], 'no custom property is read or written').toEqual([]);
     expect(own.match(/[^{}]+(?=\{)/g)!.map((selector) => selector.trim()).every((selector) => selector.startsWith(':host')), own).toBe(true);
-    // A field group token set on the radio group is read by the field group inside (W3).
+    // A field group token set on the radio group is read by the field group inside.
     await host(page, 'default').evaluate((el) => (el as HTMLElement).style.setProperty('--tanrei-comp-field-group-gap-controls', '40px'));
     const [first_, second_] = [await box(option(page, 'default', 0)), await box(option(page, 'default', 1))];
     near(second_.y - (first_.y + first_.height), 40, 'the gap set on the radio group');

@@ -31,7 +31,7 @@ export type {
   TanreiFieldRequiredMark,
 };
 
-/** CBF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** CBF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * CBF-1: the props that are the combobox's, and `inline`, its web-only attribute that draws an open list in
@@ -62,7 +62,7 @@ const COMBOBOX = [
 ] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
+ * Each member's documented parts, from the member's own list. Two names are shared — `label` and
  * `requirement-label` — and each is exported with its member's name before it, always, and under the bare name from
  * both: the two are one thing to a person and are never drawn at once. FLD-25 is the sentence that holds it — while
  * its control draws the label itself the Field draws no label row and no requirement tag — and a stacked combobox
@@ -356,8 +356,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
 
   // CBF-1, CBF-2: a Field whose one control is a combobox, exactly as a product writes the two. The unnamed slot is the
   // combobox's child and is always there — the product's options are assigned to it and the combobox reads through it
-  // (web-options.md, O2) — beside the passage of the Field's label glyph and of the combobox's leading glyph. No text
-  // stands between the tags: the Field's control is its one child without a slot.
+  // as a select reads its own children — beside the passage of the Field's label glyph and of the combobox's leading
+  // glyph. No text stands between the tags: the Field's control is its one child without a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
       >${this.pass('label-icon')}<tanrei-combobox part="combobox" exportparts=${COMBOBOX_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, COMBOBOX)}

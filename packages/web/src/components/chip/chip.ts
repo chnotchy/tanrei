@@ -92,7 +92,7 @@ export class TanreiChip extends TanreiElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   /**
-   * Its documented parts, once: what an element composed of it exports (src/primitives/composed.ts, W4).
+   * Its documented parts, once: what an element composed of it exports (src/primitives/composed.ts).
    *
    * @internal
    */

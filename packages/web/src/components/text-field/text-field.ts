@@ -34,7 +34,7 @@ export type {
   TanreiTextInputVariant,
 };
 
-/** TXF-62: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** TXF-62: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** TXF-62: the thirty-four props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
@@ -75,7 +75,7 @@ const INPUT = [
 ] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
+ * Each member's documented parts, from the member's own list. Two names are shared — `label` and
  * `requirement-label` — and each is exported with its member's name before it, always, and under the bare name from
  * both: the two are one thing to a person and are never drawn at once. FLD-25 is the sentence that holds it — while
  * its control draws the label itself the Field draws no label row and no requirement tag — and a stacked input draws
@@ -287,7 +287,7 @@ export class TanreiTextField extends ComposedControl<string> {
   revealable = false;
 
   /**
-   * W5: `revealed` is the text input's at every moment, as `value` is — what was last set on the element until the
+   * `revealed` is the text input's at every moment, as `value` is — what was last set on the element until the
    * input has taken it (the element's next render), and from then on what the input holds. So it is already new in a
    * listener of `revealchange`, and when the input hides the value itself (TXI-72) with no event.
    */
@@ -394,12 +394,12 @@ export class TanreiTextField extends ComposedControl<string> {
     const field = this.renderRoot?.querySelector<TanreiField>('tanrei-field');
     const input = this.renderRoot?.querySelector<TanreiTextInput>('tanrei-text-input');
     if (field && input && field.countText !== input.countText) field.countText = input.countText;
-    // W5: the reflected `revealed` follows the input's — the person showed or hid the value, or the input hid it.
+    // The reflected `revealed` follows the input's — the person showed or hid the value, or the input hid it.
     if (input && this.hasUpdated && this.revealedGiven === undefined && this.hasAttribute('revealed') !== input.revealed) this.requestUpdate('revealed', !input.revealed);
   }
 
   protected override updated(changed: PropertyValues) {
-    // W5: the render that has just ended gave the input what was set; from here `revealed` is the input's.
+    // The render that has just ended gave the input what was set; from here `revealed` is the input's.
     this.revealedGiven = undefined;
     super.updated(changed);
   }

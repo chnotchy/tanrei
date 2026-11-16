@@ -141,7 +141,7 @@ function readOption(element: Element, index: number, owner: Element | null): Opt
   };
 }
 
-/** What a reading went through to find its options (O4): `OptionsController` hears and observes these. */
+/** What a reading went through to find its options: `OptionsController` hears and observes these. */
 interface Passage {
   /** Whether the field has a `<slot>` among its children that stands for the elements assigned to it. */
   slots: boolean;
@@ -179,7 +179,7 @@ export function readOptions(host: Element, through?: Passage): OptionModel {
       }
     }
   };
-  // O5: an option's own words are looked for up to its owner — the element it is a child of in the page.
+  // An option's own language and direction are looked for up to its owner — the element it is a child of in the page.
   const top = (child: Element) => {
     const owner = child.parentElement;
     if (child.localName === OPTION_TAG) entries.push({ kind: 'option', option: take(child, owner) });
@@ -229,7 +229,7 @@ const OBSERVED: MutationObserverInit = { childList: true, subtree: true, charact
  * `<tanrei-option-group>` is added, removed, moved or changed (an attribute the field reads, or the text that is its
  * label). The host is rendered again; `changed` is told first.
  *
- * Options that reach the field through a slot (`readOptions()`, O4) are not its descendants, so the
+ * Options that reach the field through a slot (`readOptions()`) are not its descendants, so the
  * one observer does not see them: the controller also hears `slotchange` on the host — the event of a slot among its
  * children bubbles to it, and so does that of a slot assigned to that slot, at any depth — and observes each element
  * assigned through a slot as it observes the host's own children, the set rebuilt when a reading finds it changed.
@@ -240,7 +240,7 @@ export class OptionsController implements ReactiveController {
   // An attribute of the host itself is no option's: its `disabled`, which its own update writes, reads nothing again.
   private readonly observer =
     typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => records.some((record) => record.type !== 'attributes' || record.target !== this.host) && this.read());
-  /** O4: the elements observed because they reach the host through a slot. */
+  /** The elements observed because they reach the host through a slot. */
   private assigned: Element[] = [];
   private readonly onSlotChange = (event: Event) => {
     // The host's own shadow tree is not heard here (a `slotchange` is not composed); a slot that names one of the
@@ -297,7 +297,7 @@ export class OptionsController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  /** O4: each element that came through a slot is observed as a child is; one that no longer comes is let go. */
+  /** Each element that came through a slot is observed as a child is; one that no longer comes is let go. */
   private observe(assigned: Element[]) {
     const was = this.assigned;
     if (!this.observer || (assigned.length === was.length && assigned.every((element, index) => element === was[index]))) return;

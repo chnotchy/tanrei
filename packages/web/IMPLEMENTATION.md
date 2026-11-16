@@ -443,28 +443,29 @@ property one step late), so a Button enabled by its property is enabled by that 
 The web is `lagging` on this revision of the spec: the fixtures, tests and baselines of the icon-only form and the toggle
 are not built yet.
 
-## Composed elements (W1 to W14)
+## Composed elements
 
 A composed component — a text field, a select field, a one-time-code field — is on the web **a custom element whose
 shadow root holds its members' own custom elements**, by their tags. It copies nothing a member draws, writes none of
-a member's custom properties and reads none of its tokens. Its rules are the clauses W1 to W14 (tests cite them; the
-table below names where each is kept); this section is how to build one without reading
+a member's custom properties and reads none of its tokens. Its rules are the table, the list of what a member offers
+and the checklist below, and the shared tests of `src/primitives/composed.test.ts` hold them for every composed element;
+this section is how to build one without reading
 `<tanrei-one-time-code-field>`, the first. `<tanrei-file-upload>` is the second that is built: two kinds of member —
 one file picker, and a list of file items — and no value member, so it extends `ComposedElement` and is
 form-associated by its own `ElementInternals`.
 
 **What to call** (`src/primitives/composed.ts`, `forward.ts`, `form-says.ts`, `default-button.ts`):
 
-| | What it is | Clause |
-|---|---|---|
-| `ComposedElement` | The base class of every composed element. Gives: `focus()` and `blur()` passed to `control`; a click that arrives on the host itself (a page's `<label for>`) focusing the control; `autofocus` on the host; `pass(name)` for a slot passed on; `updateComplete` that waits for the members; the frame's "ask again" passed to the members (`FIELD_CONTROL`); the debug report for an ARIA name on the host (`hostNameSentence`) of a composed element that is not a field. The subclass says `control`. Styles: `[composedHost, hiddenHost]` — the host is a block | W1, W7, W8, W9 |
-| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset around the host, `FormDisabledController`). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` | W5, W6 |
-| `forward(this, NAMES)` | A directive on a member's tag: each named property of the element set on that member, as a property, on every render | W2 |
-| `exported(Member, collisions?)` | `{ attribute, names }`: the member's `exportparts` and the names `::part()` can then use, made from the member's `static parts`. For a part name two members share: `{ label: { as: 'field-label', bare: true } }` — the prefixed name always, the bare one only where the spec has the sentence by which the two are never drawn at once | W4 |
-| `FormSays` | What a form-associated **member** calls where it called `internals.setFormValue()` and `internals.setValidity()`: `says.value(value, state)`, `says.validity(flags, message, anchor)`. Each does that call, and tells the element composed around it | W6, items 2 and 3 |
-| `formOf(this, this.form)` | What a **member** that submits on Enter asks for its form: its own, or — in the shadow root of a form-associated element — that element's | W6, item 7 |
-| `fieldDelegatesAria(Class, Control, sentence)` | After a composed field's class: the product's `aria-*` on the host moves to `data-aria-*` and is passed on to the control — `${delegatedAria(this, {})}` on the control's tag — which moves and exposes it, but for the name (the frame's `label`, `sentence`), the disabled state and what the control owns, which are reported in a debug build | W8 |
-| `memberUpdated()` | A hook of `ComposedControl`, called after each word the value member tells its form — after each of its updates. An element whose spec has `fills` sets the other member's property there, from what the value member holds (the text field: `field.countText = input.countText`) | W14, `fills` |
+| | What it is |
+|---|---|
+| `ComposedElement` | The base class of every composed element. Gives: `focus()` and `blur()` passed to `control`; a click that arrives on the host itself (a page's `<label for>`) focusing the control; `autofocus` on the host; `pass(name)` for a slot passed on; `updateComplete` that waits for the members; the frame's "ask again" passed to the members (`FIELD_CONTROL`); the debug report for an ARIA name on the host (`hostNameSentence`) of a composed element that is not a field. The subclass says `control`. Styles: `[composedHost, hiddenHost]` — the host is a block |
+| `ComposedControl<V>` | `ComposedElement` with a value member. Gives: `memberValue(initial)` and `giveValue(value)` for the `value` accessor; `name`; `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`; reset (`firstValue()`: the `value` attribute), restore passed to the member, `formDisabled` (a disabled fieldset around the host, `FormDisabledController`). It repeats on its own `ElementInternals` what the value member tells its own. The subclass says `valueMember` and writes `static formAssociated = true` |
+| `forward(this, NAMES)` | A directive on a member's tag: each named property of the element set on that member, as a property, on every render |
+| `exported(Member, collisions?)` | `{ attribute, names }`: the member's `exportparts` and the names `::part()` can then use, made from the member's `static parts`. For a part name two members share: `{ label: { as: 'field-label', bare: true } }` — the prefixed name always, the bare one only where the spec has the sentence by which the two are never drawn at once |
+| `FormSays` | What a form-associated **member** calls where it called `internals.setFormValue()` and `internals.setValidity()`: `says.value(value, state)`, `says.validity(flags, message, anchor)`. Each does that call, and tells the element composed around it |
+| `formOf(this, this.form)` | What a **member** that submits on Enter asks for its form: its own, or — in the shadow root of a form-associated element — that element's |
+| `fieldDelegatesAria(Class, Control, sentence)` | After a composed field's class: the product's `aria-*` on the host moves to `data-aria-*` and is passed on to the control — `${delegatedAria(this, {})}` on the control's tag — which moves and exposes it, but for the name (the frame's `label`, `sentence`), the disabled state and what the control owns, which are reported in a debug build |
+| `memberUpdated()` | A hook of `ComposedControl`, called after each word the value member tells its form — after each of its updates. An element whose spec has `fills` sets the other member's property there, from what the value member holds (the text field: `field.countText = input.countText`) |
 
 **What a member must offer** — three small changes to its element, and none to its spec; outside a composed element
 it behaves exactly as before:
@@ -473,7 +474,7 @@ it behaves exactly as before:
    lines (`src/primitives/composed.test.ts` holds the two equal for every class that has the list).
 2. Where it is form-associated: `private readonly says = new FormSays(this, this.internals)`, and every
    `setFormValue` / `setValidity` through it. Its `value` is a property a reader can read back at once, and it holds
-   its new value **before** it dispatches (W5 rests on that: the element's `value` is the member's at every moment).
+   its new value **before** it dispatches (the element's `value` is the member's at every moment, and rests on that).
 3. Where it submits on Enter: `pressDefaultButton(formOf(this, this.form))`.
 
 Its events are composed, bubbling `CustomEvent`s already (every Tanrei control's are): they leave the composed
@@ -533,48 +534,48 @@ fieldDelegatesAria(TanreiTextField, TanreiTextInput, 'TXF-62');
 
 **The checklist.**
 
-- [ ] The module imports each member's module, so where the element is defined its members are (W1). The shadow root
+- [ ] The module imports each member's module, so where the element is defined its members are. The shadow root
       holds the members' tags and the component's own parts; no text stands between a frame and its control (the
       frame's control is its one child without a slot).
 - [ ] Every prop of the spec with `from` is in `static properties` **in place** with the member's own options, has a
       field with the member's default and `/** @from <member tag>.<property> */`, and is in the list `forward()` is
-      given for that member (W2). `disabled` is not in the frame's list: the frame is given `disabled || formDisabled`
-      (W6, item 6). A property with no attribute is declared `attribute: false`, as the member declares it.
-- [ ] The member's own `label`, `error` and `disabled` are never set where the frame says them (W2).
-- [ ] `value` is the accessor above, never a field (W5). A first value that is not the `value` attribute: override
-      `firstValue()` (W6, item 4).
+      given for that member. `disabled` is not in the frame's list: the frame is given `disabled || formDisabled`, so
+      that the label follows a disabled fieldset too. A property with no attribute is declared `attribute: false`, as the member declares it.
+- [ ] The member's own `label`, `error` and `disabled` are never set where the frame says them: they reach it through the Field's connection.
+- [ ] `value` is the accessor above, never a field. A first value that is not the `value` attribute: override
+      `firstValue()`, which a form's reset returns to.
 - [ ] `static formAssociated = true` is written in the element's class — `src/primitives/form-disabled.test.ts` and
       the React wrappers' test find form-associated elements by it — and the element has an entry in that test's
       `SUBJECTS` and in the list of `packages/react/test/marks.test.mjs`.
 - [ ] `part` on each member's tag, named for its component; `exportparts` from `exported()`; `static parts` on the
       element; `@exportparts <member tag>` in the class comment — with the same renames where two members share a
-      name: `@exportparts tanrei-field label: field-label, label` (W4).
+      name: `@exportparts tanrei-field label: field-label, label`.
 - [ ] Each event and each slot passed on is in the class comment as `@fires <name> - => <member tag>` and
-      `@slot <name> - => <member tag>`; each slot is `${this.pass('<name>')}` among that member's children (W9, W11).
-      An event of a member that is not in the spec is stopped at the shadow root, and the spec says so (W5).
-- [ ] The shadow root does not delegate focus where the element holds text a press must not act on (W7): leave
+      `@slot <name> - => <member tag>`; each slot is `${this.pass('<name>')}` among that member's children.
+      An event of a member that is not in the spec is stopped at the shadow root, and the spec says so.
+- [ ] The shadow root does not delegate focus where the element holds text a press must not act on: leave
       `shadowRootOptions` alone. The host takes no `tabindex` and no role, and keeps no ARIA attribute: a field moves the product's to its control
-      (`fieldDelegatesAria()`), and any other composed element names the sentence of its `label` in `hostNameSentence` (W8).
+      (`fieldDelegatesAria()`), and any other composed element names the sentence of its `label` in `hostNameSentence`.
 - [ ] The element dispatches no event, holds no `FieldProviderController` or `FieldControlController`, writes no
-      custom property (W3, W5, W8) — but the caps of a hit area (`TARGET_CAPS`, set with `rowTargets()`) on what it lays
+      custom property — but the caps of a hit area (`TARGET_CAPS`, set with `rowTargets()`) on what it lays
       out in a row (BTN-5): no member's custom property and no token, the channel `neighbourTarget()` alone reads (which a product may set too, on its own rows).
 - [ ] `pnpm --filter @tanrei/web generate` — the analyzer's plugin (`custom-elements-manifest.config.mjs`,
       `tanrei-composed-from`) puts each member's own description, type and default in the manifest and stops on a
-      source it cannot find (W11); the React wrapper is generated from that (W12), and the member's detail types are
+      source it cannot find; the React wrapper is generated from that, and the member's detail types are
       re-exported from the element's module (`export type { … }`).
 - [ ] `test/harness.ts`: a `STAGING` entry that gives the stage the width its twins are drawn at. One entry in
       `DRIVEN` of `src/primitives/composed.test.ts`: how a person causes each event, a value the member changes, an
-      instance in which every part is drawn. The tests W13-1 to W13-8 then run for the element — the twins among them:
+      instance in which every part is drawn. The shared tests then run for the element — the twins among them:
       the same pixels as the fixture each `twin` names, and the same control to assistive technology, in three engines.
 - [ ] The element's own test file cites its own sentences and repeats no test of a member.
 
 **Where the members that hold the value are the product's own children** — a set of checkboxes, of radio buttons —
 the element extends `ComposedElement`, not `ComposedControl`: the frame member's own element stands in the shadow
-root around a `<slot>`, the value is the element's own, and the form is the element's to tell. Which clauses fit as
+root around a `<slot>`, the value is the element's own, and the form is the element's to tell. Which rules fit as
 written and which were read for that case is "`<tanrei-checkbox-group>`", below; its `DRIVEN` entry gives the product's children as
 `children` and carries `placed` (the props that are properties only, the events the web note adds, the part its
 member's host is named by, and — `light` — a member that stands among the product's children alone and so is no part
-of the element: a radio group's radio buttons). Where such an element's fixtures name twins, W13-7 compares the set
+of the element: a radio group's radio buttons). Where such an element's fixtures name twins, the twin compares the set
 and not one control: what the frame's own element says of the set — its role, the texts that name and describe it,
 required, invalid, orientation, disabled — and what each control of the set says of itself, in order, with its checked
 state, its position and whether it is the stop; in Chromium the two accessibility trees line by line
@@ -611,7 +612,8 @@ select and the combobox are built this way). Do it in four steps, each green bef
 2. **The Field's side first**, if your control says something the Field does not hear yet. What exists:
    `FieldSays { drawsLabel, inset, refusal, drawnFocused }` upward (`FieldControlOptions.says`, read by the Field whenever it draws,
    said again through `FieldConnection.said`), `labelHidden` and `requiredMark` downward. A new value is a sentence of
-   the Field's spec first (W8's three conditions), then one member of `FieldSays` or `FieldState`, optional, so that a
+   the Field's spec first — built in the one primitive, the same one level down, and ignored by a frame that does
+   not know it — then one member of `FieldSays` or `FieldState`, optional, so that a
    control and a frame that do not know it keep working.
 3. **Take the frame out of the input.** Delete the label row, the tag, the help, the error text and the drawn count
    from its template and its styles; the host becomes `display: block`. Then:
@@ -1822,7 +1824,7 @@ whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row wi
 - **`countText`** (read-only) is the count it keeps while `counter` is set — `12/40`, or `12` without `maxlength` —
   new in its own `input` event and at once for a value or a `maxlength` the product sets. It is described and announced
   (after a one-second pause) by the input, and drawn by nobody but a Field that is given it (TXI-19, FLD-27).
-- **`value` is the person's at every moment** (W5): the browser's own `input` event is composed and
+- **`value` is the person's at every moment**: the browser's own `input` event is composed and
   reaches a capturing listener on an ancestor before the element's own listener has run, so `value` reads what the
   person has just done to the native element — cut to `maxlength` as the element is about to cut it — until the element
   has taken it. `event.target.value` is the new value in every listener, of this element and of one composed around it.
@@ -2376,7 +2378,7 @@ already selected. Methods: `focus()` (moves focus to the radio button that is th
 - **The host takes `disabled` from outside itself** — a field group around it (its own `FieldControlController`,
   `takes: 'disabled'`), a disabled `<fieldset>` — and gives the field group inside the three together. **The inner
   field group's own question to a group around it is stopped at the host**, so that an outer field group counts one
-  member, the radio group (FGR-15). This is the one departure from W8, where a frame's question leaves the element.
+  member, the radio group (FGR-15). This is the one departure from the rule of every other composed element, where a frame's question leaves the element.
 - **One value.** `value` decides which radio button is `checked`; the first of two with one value, none for a value no
   radio button has (it is kept: the option may arrive later). `checked` set on a radio button by the product becomes the
   group's value; taken off the chosen one, it is shown selected again at once. A radio button that arrives marked
@@ -2420,7 +2422,7 @@ the label row stands in a `<legend>`, whose box is as wide as the label and its 
 reports about the frame's own props — an unknown `required`, `optional`, `required-mark` or `orientation`, missing words, an
 empty label — are the field group's, under its ids (FGR-22, FGR-24, FGR-10).
 
-**What the three engines do** (each is held by a test of `primitives/composed.test.ts`, `W13-7 the twin`, or of
+**What the three engines do** (each is held by a test of `primitives/composed.test.ts`, `the twin`, or of
 `radio-group.test.ts`): the nineteen fixtures are the same pixels as their twins among the field group's
 `radio-buttons-*` fixtures, and say the same of the set and of each radio button — role, name, description, required,
 invalid, orientation, disabled, checked, position and tab stop — in Chromium, Firefox and WebKit; in Chromium the two
@@ -2628,7 +2630,7 @@ Neither draws anything or takes focus. The select observes its children (element
 attributes, `lang` and `dir`, a text that is a label) and renders the rows itself, in its own shadow root, so that the
 combobox, its `aria-controls` list box and its `aria-activedescendant` option are in one tree.
 
-**The options may reach the select through a slot** (clauses O1 to O9; `readOptions()` and
+**The options may reach the select through a slot** (`readOptions()` and
 `OptionsController` in `src/primitives/option-list.ts`, for the combobox too). A `<slot>` among the select's children
 that has no `slot` attribute stands for the elements assigned to it, flattened, in order — to any depth, with the
 slot's own fallback children where nothing is assigned. That is how a select field's options, which stay the product's
@@ -2756,22 +2758,22 @@ The shadow root, and nothing else in it:
 
 ```html
 <tanrei-field part="field" exportparts="…">
-  <slot name="label-icon" slot="label-icon"></slot>           <!-- only while the host has such a child (W9) -->
+  <slot name="label-icon" slot="label-icon"></slot>           <!-- only while the host has such a child -->
   <tanrei-select part="select" exportparts="…">
-    <slot></slot>                                             <!-- always: the product's options (O2) -->
+    <slot></slot>                                             <!-- always: the product's options -->
     <slot name="leading-icon" slot="leading-icon"></slot>     <!-- only while the host has such a child -->
   </tanrei-select>
 </tanrei-field>
 ```
 
-| | For this element (the list W14 asks for) |
+| | For this element (what every composed element's section gives) |
 |---|---|
 | Members | `tanrei-field` holding `tanrei-select`; the product places none, and gives the options |
 | Value member | `tanrei-select` |
 | Props from the field | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` |
 | Props from the select | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` — and the `inline` attribute, for tests and fixtures, which is no prop: the element has no property for it, watches the attribute and gives its select what it says |
 | Props of one name on both | `label`, `labelHidden`, `error`, `disabled`: the field's. The select's own are never set |
-| Read through, never copied | `value` (W5) and `open`, by an accessor of the same kind: what was last set until the select has taken it, then what the select holds. Both are new in every listener of `change` and `toggle`, and when the select takes `open` back with no event; the reflected `open` attribute follows the select |
+| Read through, never copied | `value` and `open`, by an accessor of the same kind: what was last set until the select has taken it, then what the select holds. Both are new in every listener of `change` and `toggle`, and when the select takes `open` back with no event; the reflected `open` attribute follows the select |
 | Events | `change` (composed, bubbling) and `toggle` (composed, **not bubbling**), the select's own, with the host as their target. None is stopped, none is copied |
 | Slots | `label-icon` to the field, `leading-icon` and the default slot to the select |
 | Parts | `field`, `select`; from the field `label-icon`, `supporting-text`, `counter` (never drawn: a select keeps no count); from the select every part of its own. `label` and `requirement-label` are on both members: each is exported as `field-label` / `select-label` and `field-requirement-label` / `select-requirement-label`, always, and under the bare name from both, because the two are never drawn at once (FLD-25) |
@@ -2958,7 +2960,7 @@ or not it has focus, so that the Field's rows are drawn focused with it (FLD-13)
 needed, which the select says too. It keeps no count and reports no refusal. The label row is outside the combobox:
 a press on it while the list is open closes the list with the reason `outside`, and FLD-12 gives the input focus.
 
-**The options through a slot (clauses O1 to O9; `src/primitives/option-list.ts`).** A child
+**The options through a slot (`src/primitives/option-list.ts`).** A child
 that is a `<slot>` with no `slot` attribute stands for the elements assigned to it, flattened, in its place: each is
 read as though it were the combobox's own child there. That is how `<tanrei-combobox-field>` — and a product's own
 element — gives the combobox the options written as *its* children, which are never moved or copied. The reader hears
@@ -3077,7 +3079,7 @@ attributes, children and listeners of a framed combobox, name for name.
 </tanrei-field>
 ```
 
-Built as "Composed elements" above says (`ComposedControl`; W1 to W13); what follows is what differs (W14).
+Built as "Composed elements" above says (`ComposedControl`); what follows is what differs.
 
 | | |
 |---|---|
@@ -3089,7 +3091,7 @@ Built as "Composed elements" above says (`ComposedControl`; W1 to W13); what fol
 | Parts | `field`, `combobox`; the Field's without `counter`; the combobox's nineteen. `label` and `requirement-label` collide: `field-label`, `combobox-label`, `field-requirement-label`, `combobox-requirement-label` always, and the bare names from both — the two are never drawn at once (FLD-25) |
 | Methods | `focus()`, `blur()`, `select()` go to the combobox; the form's are the element's own |
 
-**Three props the combobox writes itself (CBF-3; W5).** `value`, `inputValue` and `open` are at every moment the
+**Three props the combobox writes itself (CBF-3).** `value`, `inputValue` and `open` are at every moment the
 combobox's: `value` by `memberValue()` / `giveValue()`, and `inputValue` and `open` by accessors of the same form —
 what the product has just set until the next render has given it to the combobox, and from then on what the combobox
 holds. So each is the new one in every listener, and where no event reports it: a text given up on leaving is written
@@ -3655,8 +3657,8 @@ text for separators, and it has one live region.
 - **Twenty-seven properties**: ten are the Field's, seven the Text input's (`variant`, `size`, `type`, `placeholder`,
   `readonly`, `autocomplete`, and `input-value`, the Text input's `value`), ten its own (`value`, `separators`,
   `max-entries`, `invalid-text`, `duplicate-text`, `limit-text`, `remove-label`, `added-text`, `added-count-text`,
-  `removed-text`). Four forwarded props are joined, each by a sentence of the spec: `disabled` with a fieldset's (W6),
-  `error` and `errorText` with the entry error (CHF-6; W2), `placeholder` given only while the list
+  `removed-text`). Four forwarded props are joined, each by a sentence of the spec: `disabled` with a fieldset's,
+  `error` and `errorText` with the entry error (CHF-6), `placeholder` given only while the list
   is empty (CHF-17), `type` given as `text` unless it is `text`, `email`, `tel` or `url` (CHF-26).
 - **`value` is an array property** (assign a new array); the `value` attribute is read once, as a JSON array, and is
   what a reset returns to — a list first given as a property is what a reset returns to where there is no attribute.
@@ -4282,7 +4284,7 @@ The Text input's own height routine was not moved onto `auto-height.ts` in this 
 
 ## `<tanrei-chat-composer>`
 
-A feature (specs/chat-composer.spec.json, CCM-1 to CCM-44), built the web's way of composing (W1 to W14): its shadow
+A feature (specs/chat-composer.spec.json, CCM-1 to CCM-44), built the web's way of composing: its shadow
 root holds the capsule — `part="container"`, its own — and in it the strip (`part="strip"`: a default slot for the
 product's `<tanrei-file-item>`s while `attachments="given"`, or the file items it draws itself while it is `own`), a
 `<tanrei-file-picker>` around its trigger, a `<tanrei-embedded-text-input multiline>`, the counter
@@ -4291,14 +4293,14 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 | | |
 |---|---|
 | The value member | None: it is a feature. `value` is the typing area's at every moment (an accessor over the member), and the form value is its own — a `FormData` with the text under `name` and each kept file under `files-name` |
-| Focus (W7) | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
+| Focus | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
 | The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
-| No custom property (W3) | The capsule holds its members, and a custom property on it would be inherited by each. The one property written for the members is the cap of their hit areas (`TARGET_CAPS`, `rowTargets()`, BTN-5), on each Button, File picker and slotted control and on the line and the row that hold them, never on the capsule: no member's token, the channel by which a row tells what it lays out how far to reach. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
+| No custom property | The capsule holds its members, and a custom property on it would be inherited by each. The one property written for the members is the cap of their hit areas (`TARGET_CAPS`, `rowTargets()`, BTN-5), on each Button, File picker and slotted control and on the line and the row that hold them, never on the capsule: no member's token, the channel by which a row tells what it lays out how far to reach. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
 | What can be sent (CCM-9) | `reasons()`, read on demand; `sendablechange` after each update in which the answer or the reasons changed. The element's own `disabled` is read with the platform's present answer (`:disabled`), so that unsetting it says one change and not two |
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
-| Stopped at the shadow root (W5) | The embedded text input's `action`, `change` and `rowschange`; the file picker's `select` and `reject`; `remove`, `retry` and `click` of a file item it drew. The typing area's `input` leaves as it is |
-| Parts (W4) | `embedded-text-input`, `file-picker`, `file-item`, `button` (each Button it brings; also `attach-button`, `send-button`, `stop-button`); every member's part under the member's name: `input-input`, `picker-…`, `item-…`, `attach-…`, `send-…` |
+| Stopped at the shadow root | The embedded text input's `action`, `change` and `rowschange`; the file picker's `select` and `reject`; `remove`, `retry` and `click` of a file item it drew. The typing area's `input` leaves as it is |
+| Parts | `embedded-text-input`, `file-picker`, `file-item`, `button` (each Button it brings; also `attach-button`, `send-button`, `stop-button`); every member's part under the member's name: `input-input`, `picker-…`, `item-…`, `attach-…`, `send-…` |
 | The strip's motion (CCM-35) | The strip stands in a `.strip-box` whose height follows its items through `AnimatedSize`, anchored at its start, over `--tanrei-comp-chat-composer-motion-resize-duration` and `-resize-easing` (`role.resize.large`, `easing.spatial`): the items that stay keep their place against the capsule's top edge and the row of the typing area follows the box's end, so it keeps its place against the bottom edge (and, where the capsule's bottom edge is fixed, does not move). What was drawn is read before the change is drawn — in `willUpdate` for its own items, and for the product's in the mutation observer's callback, in one task: each item the product took away is put back where it stood and each one it added is set `data-tanrei-away` (`display: none !important`), every item's box and opacity is read, and the two are undone — then, once the new items have rendered, an item that leaves stands `position: absolute` in the strip at the box it was drawn in and fades out (`inert`, `aria-hidden`, `data-leaving`; the product's element is then removed and given back its `inert`, `aria-hidden` and `style`), an item that arrives fades in, and one whose place changed moves there (`translate`), all by `animate()` on the same tokens, their times read through the inert `.timing` carrier. A strip that holds only leaving items is `data-empty`: no padding and no margin, so the box closes to nothing. A change while it moves goes on from what is drawn |
 | The glyph between send and stop (CCM-35) | The Button it brings is the same element for both; when its glyph's text changes, a copy of the glyph that goes out is put after it in the icon slot (`data-leaving`, `position: absolute`, centred by the Button's icon box) and fades out while the new one fades in, over `--tanrei-comp-chat-composer-motion-glyph-fade-duration` (`role.state.compact`) with `motion-state-easing`. The part, the name, the action and `disabled` change at once; the send button's colours move by the Button's own state transition (its medium `state-duration`). Under reduced motion and while it settles (MOT-3), every one of these changes is at once |
 
@@ -8812,7 +8814,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `afterClick(fire)` (`after-click.ts`) | runs `fire` once the click being dispatched has gone through the page (a one-time window listener, or the next task when the click was stopped): `change` after `click`, as a native checkbox (CHP-11, BTN-14) | the dispatch of `change` |
 | `pressDefaultButton(form)`, `defaultButton(form)`, `watchNativeInputs()`, `SUBMIT_BUTTON` (`default-button.ts`) | a form's default button — its first submit button, the platform's own or a Tanrei Button of type `submit` — pressed for Enter in a control of the form: its `click()`, nothing while it is disabled, `form.requestSubmit()` only where the form has none (BTN-30). Every control that submits its form on Enter calls it in place of `form.requestSubmit()`; a Button answers `[SUBMIT_BUTTON]` with whether it submits and whether it is disabled, and registers its form for Enter in the platform's own controls, where the browser presses a hidden submit button the Button holds for the length of the key | the element's own event for the key (`action`), and whether it was cancelled |
 | `ComposedElement`, `ComposedControl`, `exported()`, `composedHost` (`composed.ts`), `forward()` (`forward.ts`) | a composed element ("Composed elements", above): its members' own elements in its shadow root — focus passed to the control without delegating it, a slot passed on while it is filled, the value that is the value member's at every moment, the form's control repeating what the member tells its own internals, each forwarded property set on its member on every render, the members' parts exported from each member's own list | the members, the lists of forwarded names, the `value` accessor, the template |
-| `FormSays`, `formSaysOf()` (`form-says.ts`), `formOf()` (`default-button.ts`) | what a form-associated control tells its form — `setFormValue` and `setValidity` — said where an element composed around it hears it, and the form a control submits on Enter where it stands in such an element's shadow root (W6) | the value, the state, the flags, the message and the anchor |
+| `FormSays`, `formSaysOf()` (`form-says.ts`), `formOf()` (`default-button.ts`) | what a form-associated control tells its form — `setFormValue` and `setValidity` — said where an element composed around it hears it, and the form a control submits on Enter where it stands in such an element's shadow root | the value, the state, the flags, the message and the anchor |
 | `fileKind(mediaType, name)`, `KIND_GLYPH`, `nameParts(name)`, `acceptList()`, `acceptConverter` (`file-format.ts`, imported by its path) | what is known of a file without reading it: the kind of its format in ten kinds, by its media type and then by the ending of its name, from the closed lists of FIT-5, and each kind's glyph; where a tile's name is cut (FIT-9); `accept` read and written one way, as the comma-separated list a native file input takes (FPK-9) | the media type and the name; the `accept` value |
 | `giveFileItem(item, gift)`, `fileItemGiven(item)`, `FILE_ITEM_TAKE_FOCUS`, `FILE_ITEM_UPDATE`, `FILE_PICKER_ARRIVAL`, `notifyArrival()` (`file-item-holder.ts`, imported by its path) | the internal channel between a component that holds file items and each of them (FIT-19, FUP-25, FUP-58): what every row shares, kept beside the item and never on it, so none of it is a prop, an attribute or in the manifest; the way a holder moves focus into an item after a row left (FUP-30); the item's word that it arrived or changed; and the event a file picker ends one arrival with (FUP-57) | the holder: the gift, or `null` when it holds the item no longer; the item: reading each key in place of its own prop |
 | `waitsWhileFocused(host, write)`, `endsWaiting(host)` (`disabled-while-focused.ts`) | a form-associated element disabled while it holds focus gives focus up when the platform's own control does, at the next frame in every engine: its `disabled` attribute — the platform's word, which one engine answers by taking focus inside the call — is written when focus has left, a frame later at most; the property and the native control are disabled at once (BTN-2) | `setAttribute`, `toggleAttribute` and `removeAttribute` overridden to ask it for `disabled` |
@@ -11123,7 +11125,7 @@ is read from the body, which carries the tokens on properties that move nothing:
 Shows one picture of a set over the whole window, to be looked at closely: enlarged and back, moved about while
 enlarged, moved on to the next picture or back, until it is closed. Contract: `specs/image-preview.spec.json`
 (IMP-1 to IMP-43). A **feature**: its stage and its pager are its own; its five controls are real
-`<tanrei-button>` elements and its placeholder a real `<tanrei-skeleton>`, as small parts (R1) — it has no member, so
+`<tanrei-button>` elements and its placeholder a real `<tanrei-skeleton>`, as small parts, never a copy of them — it has no member, so
 no prop is forwarded, there is no `from` and no twin, and it takes no part in a form.
 
 ```html
@@ -11167,7 +11169,7 @@ history entry is written (IMP-7).
 **Parts.** `container`, `bar`, `count`, `stage`, `image`, `placeholder`, `error`, `caption`; each control's host under
 its name (`zoom-out`, `zoom-in`, `close`, `previous`, `next`), and each Button's own parts under the control's name
 before theirs (`close-container`, `next-icon`) — made with `exported()` from the Button's `static parts`, as a
-composed element's are (W4). The Buttons read `comp.button.*` and the Skeleton `comp.skeleton.*` by inheritance; the
+composed element's are. The Buttons read `comp.button.*` and the Skeleton `comp.skeleton.*` by inheritance; the
 element writes none of their custom properties. The variant of each goes through the Button's channel (BTN-10,
 `giveVariant()`): `comp.image-preview.bar.button.variant` and `comp.image-preview.navigation.button.variant`, read
 when it opens and at each update while it is open.

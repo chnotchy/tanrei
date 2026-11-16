@@ -1,4 +1,4 @@
-// W2 of the web's way of composing (src/primitives/composed.ts): a forwarded prop is
+// The web's way of composing (src/primitives/composed.ts): a forwarded prop is
 // set on the member it is from, as a property, on every render. Kept apart from the base classes so that the analyzer
 // of the manifest, which reads that module for what composed elements inherit, meets no class that is not an element's.
 import { noChange } from 'lit';
@@ -29,7 +29,7 @@ class Forward extends Directive {
 const readers = new WeakMap<object, Map<string, () => unknown>>();
 
 /**
- * W2: `forward()` passes `read()` under `name`, not what reading the property gives. The one case is a size the
+ * `forward()` passes `read()` under `name`, not what reading the property gives. The one case is a size the
  * member takes from its containers while it sets none (`forwardedOwnSize()`, size-cascade.ts): the element's `size`
  * reads as the default's name while the product set none, and the member is given none, so that it still takes its
  * containers' size. The member is still given the value as it is set, unchanged.
@@ -41,7 +41,7 @@ export function forwardAs(from: object, name: string, read: () => unknown) {
 }
 
 /**
- * W2: on a member's tag, sets each named property of `from` — the composed element — on that member as a property, on
+ * On a member's tag, sets each named property of `from` — the composed element — on that member as a property, on
  * every render: `<tanrei-field ${forward(this, FIELD)}>`. Nothing is read, changed, validated or given another
  * default on the way; a value the member does not know reaches it as given, and the member answers it.
  */

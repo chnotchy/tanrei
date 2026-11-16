@@ -47,7 +47,7 @@ export interface TanreiChipFieldRejectDetail {
   message: string;
 }
 
-/** CHF-1: the props that are the Field's, given to it unchanged. `disabled`, `error` and `errorText` are the Field's too, each joined with what the chip field holds (W2, W6). */
+/** CHF-1: the props that are the Field's, given to it unchanged. `disabled`, `error` and `errorText` are the Field's too, each joined with what the chip field holds. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CHF-1: the props that are the Text input's, given to it unchanged. `type`, `placeholder` and `inputValue` are its too (CHF-26, CHF-17, CHF-3). */
 const INPUT = ['variant', 'size', 'readOnly', 'autocomplete'] as const;
@@ -56,7 +56,7 @@ const INPUT = ['variant', 'size', 'readOnly', 'autocomplete'] as const;
 const LINE_TYPES: readonly string[] = ['text', 'email', 'tel', 'url'];
 
 /**
- * W4: each member's documented parts, from the member's own list. `label` and `requirement-label` are the Field's in
+ * Each member's documented parts, from the member's own list. `label` and `requirement-label` are the Field's in
  * the stacked look and the Text input's in a floating one, never both (FLD-25): each under its member's name, and
  * bare from both. The Chip's leave under the prefix `entry-` — its `label` is a third thing, drawn beside the others.
  * Left out, because a chip field never draws them: the Field's count; the Text input's segments, affixes, icons,
@@ -263,7 +263,7 @@ export class TanreiChipField extends ComposedElement {
     this.refusal = null;
   }
 
-  /** W5: the text last set on the element, while the Text input has not taken it. */
+  /** The text last set on the element, while the Text input has not taken it. */
   private typed: string | undefined;
 
   /**
@@ -366,7 +366,7 @@ export class TanreiChipField extends ComposedElement {
   protected refusal: Refused | null = null;
 
   private readonly fieldset = new FormDisabledController(this);
-  /** W6, item 6: a disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
+  /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
   }
@@ -875,7 +875,7 @@ export class TanreiChipField extends ComposedElement {
 
   protected override updated(changed: PropertyValues) {
     super.updated(changed);
-    // W5: the render that has just ended gave the Text input the text that was set; from here the text is its own.
+    // The render that has just ended gave the Text input the text that was set; from here the text is its own.
     if (this.typed !== undefined) {
       this.seen = this.typed;
       this.typed = undefined;

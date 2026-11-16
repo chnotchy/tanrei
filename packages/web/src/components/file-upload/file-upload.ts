@@ -79,7 +79,7 @@ const SHARED: readonly (readonly [prop: 'itemForm' | 'itemPreview' | 'itemFit' |
   ['retryLabel', 'retry-label'],
 ];
 
-/** W4: each member's documented parts, from the member's own list. A made file item's leave under the prefix `item-`: three of them have a file picker's name. */
+/** Each member's documented parts, from the member's own list. A made file item's leave under the prefix `item-`: three of them have a file picker's name. */
 const PICKER_PARTS = exported(TanreiFilePicker);
 const ITEM_PARTS = exported(TanreiFileItem, Object.fromEntries(TanreiFileItem.parts.map((part) => [part, { as: `item-${part}` }])));
 /** FIT-18: what lies between two rows of the file upload's column — its own distance, given to each file item through the internal channel. */
@@ -517,7 +517,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     return this.querySelector<HTMLElement>(':scope > [slot="trigger"]');
   }
 
-  /** W7: the file upload's first stop — the product's own trigger. */
+  /** Focus goes to the file upload's first stop — the product's own trigger. */
   protected override get control(): HTMLElement | null {
     return this.trigger;
   }

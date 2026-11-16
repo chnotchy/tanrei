@@ -2,8 +2,8 @@
 //
 // It is a composed element whose value members are the product's own children: the field group's own
 // element in its shadow root, around the select-all checkbox and a slot. What every composed element is —
-// declarations, passing, parts, the one event, reports — is held by src/primitives/composed.test.ts (W13-1 to W13-4,
-// W13-8); what that file cannot ask of members the product places — the value, the form, focus, the twins — is held
+// declarations, passing, parts, the one event, reports — is held by src/primitives/composed.test.ts; what that
+// file cannot ask of members the product places — the value, the form, focus, the twins — is held
 // here, with the fourteen sentences. Its members' own behaviour is held by their own files: nothing of
 // the field group's frame or of a checkbox's look is measured again, but through the twins.
 //
@@ -285,7 +285,7 @@ test.describe('checkbox group', () => {
       let different = 0;
       for (let index = 0; index < a.data.length; index++) if (a.data[index] !== b.data[index]) different++;
       expect(different, 'differing color channels').toBe(0);
-      // And neither said anything: no member reports a case the group cannot be in (W10).
+      // And neither said anything: no member reports a case the group cannot be in.
       expect(reportsOf(seen)).toEqual([]);
     });
   }
@@ -1151,7 +1151,7 @@ test.describe('checkbox group', () => {
     expect(await host(page, 'required-error').evaluate((el) => [...el.querySelectorAll('tanrei-checkbox')].map((each) => each.shadowRoot!.querySelector('input')!.getAttribute('aria-invalid')))).toEqual(['true', 'true', 'true']);
   });
 
-  test('FGR-15, W8: inside a field group it is one member — the field group passes it disabled, and neither its error nor its requirement; its checkboxes are the checkboxes of the field group in its own shadow root, never of a frame around the group, though they ask before that field group is drawn; disabled by the field group around it, it submits nothing', async ({ page }) => {
+  test('FGR-15: inside a field group it is one member — the field group passes it disabled, and neither its error nor its requirement; its checkboxes are the checkboxes of the field group in its own shadow root, never of a frame around the group, though they ask before that field group is drawn; disabled by the field group around it, it submits nothing', async ({ page }) => {
     const seen = warnings(page);
     await page_(page, `<form id="f"><${FRAME} id="outer" label="Contact" spacing="fields" error error-text="Something here is wrong." required required-text="Required">${group_('name="notify" select-all-label="All of these"', BOXES.replace('id="email"', 'id="email" checked'))}</${FRAME}></form>`);
     const boxes = () => g(page).evaluate((el) => [el.shadowRoot!.querySelector('tanrei-checkbox')!, ...el.querySelectorAll('tanrei-checkbox')].map((each) => [each.shadowRoot!.querySelector('input')!.disabled, each.shadowRoot!.querySelector('input')!.getAttribute('aria-invalid'), each.shadowRoot!.querySelector('input')!.getAttribute('aria-description')].join(' | ')));

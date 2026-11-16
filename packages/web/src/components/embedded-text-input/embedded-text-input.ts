@@ -121,7 +121,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   /**
-   * Its documented parts, once: what an element composed around it exports them from (src/primitives/composed.ts, W4).
+   * Its documented parts, once: what an element composed around it exports them from (src/primitives/composed.ts).
    *
    * @internal
    */

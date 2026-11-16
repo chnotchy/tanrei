@@ -11,7 +11,7 @@ import { TanreiSelect, type TanreiSelectIconSpace, type TanreiSelectSeparation, 
 // The members' own types are the select field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSelectIconSpace, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectStatus, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
 
-/** SEF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
+/** SEF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's. */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * SEF-1: the eleven props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
@@ -20,7 +20,7 @@ const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', '
 const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'clearable', 'clearLabel', 'open', 'separation', 'iconSpace', 'status', 'statusText', 'emptyText'] as const;
 
 /**
- * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
+ * Each member's documented parts, from the member's own list. Two names are shared — `label` and
  * `requirement-label` — and each is exported with its member's name before it, always, and under the bare name from
  * both: the two are one thing to a person and are never drawn at once. FLD-25 is the sentence that holds it — while
  * its control draws the label itself the Field draws no label row and no requirement tag — and a stacked select draws
@@ -227,7 +227,7 @@ export class TanreiSelectField extends ComposedControl<string> {
   clearLabel = '';
 
   /**
-   * W5: `open` is the select's at every moment, as `value` is — what was last set on the element until the select has
+   * `open` is the select's at every moment, as `value` is — what was last set on the element until the select has
    * taken it (the element's next render), and from then on what the select holds. So it is already new in every
    * listener of `toggle`, and when the select takes it back with no event (disabled, read-only or without its last
    * option while open: SEL-36).
@@ -279,10 +279,10 @@ export class TanreiSelectField extends ComposedControl<string> {
   }
 
   protected override updated(changed: PropertyValues) {
-    // W5: the render that has just ended gave the select what was set; from here `open` is the select's.
+    // The render that has just ended gave the select what was set; from here `open` is the select's.
     this.openGiven = undefined;
     super.updated(changed);
-    // O9: a child that is neither an option, a group of options nor a child for one of the two named slots is not
+    // A child that is neither an option, a group of options nor a child for one of the two named slots is not
     // rendered; said once for the element.
     if (!this.strayReported) {
       const stray = [...this.children].find((child) => child.localName !== OPTION_TAG && child.localName !== OPTION_GROUP_TAG && !PASSED_SLOTS.includes(child.slot));

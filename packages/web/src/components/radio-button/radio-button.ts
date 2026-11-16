@@ -70,7 +70,7 @@ export class TanreiRadioButton extends TanreiElement {
   static formAssociated = true;
 
   /**
-   * The parts this element documents: the one list a composed element exports from (W4, item 3), held to the
+   * The parts this element documents: the one list a composed element exports from, never written by hand, held to the
    * `@csspart` lines above by src/primitives/composed.test.ts.
    *
    * @internal
