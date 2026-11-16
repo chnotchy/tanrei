@@ -823,6 +823,28 @@ test.describe('behavior', () => {
     await expect.poll(() => menuOpen(page, 'menu')).toBe(false);
   });
 
+  test('SPB-15, MNU-1: a menu whose every item is in a group, and one that mixes groups with loose items, opened by a press, Enter, Space or Down Arrow on the trailing half, takes focus on its first enabled item inside a group, past the disabled ones before it', async ({ page }) => {
+    const row = (label: string, extra = '') => `<tanrei-menu-item label="${label}" ${extra}></tanrei-menu-item>`;
+    const groupsOnly = `<tanrei-menu-group slot="menu">${row('Save as…', 'disabled')}${row('Save a copy')}</tanrei-menu-group><tanrei-menu-group slot="menu">${row('Export')}</tanrei-menu-group>`;
+    const mixed = `<tanrei-menu-item slot="menu" label="Save all" disabled></tanrei-menu-item><tanrei-menu-group slot="menu">${row('Save as…', 'disabled')}${row('Save a copy')}</tanrei-menu-group><tanrei-menu-item slot="menu" label="Export"></tanrei-menu-item>`;
+    await mountFixtures(page, spec, { icons: true, fixtures: [withMenu('groups-only', {}, groupsOnly), withMenu('mixed', {}, mixed)] });
+    await wire(page);
+    for (const id of ['groups-only', 'mixed']) {
+      for (const how of ['press', 'Enter', 'Space', 'ArrowDown']) {
+        if (how === 'press') await trailing(page, id).click();
+        else {
+          await trailing(page, id).focus();
+          await page.keyboard.press(how);
+        }
+        await expect.poll(() => menuOpen(page, id), `${id}: ${how}`).toBe(true);
+        await expect.poll(() => focused(page), `${id}: ${how}`).toBe('tanrei-menu-item[Save a copy]');
+        await page.keyboard.press('Escape');
+        await expect.poll(() => menuOpen(page, id), `${id}: ${how}`).toBe(false);
+        await expect.poll(() => focused(page), `${id}: ${how}`).toBe('button.trailing');
+      }
+    }
+  });
+
   test('SPB-15: the menu slot holds the menu’s own item kinds — a group is divided from what is next to it, and a radio item sets its group', async ({ page }) => {
     const content = `<tanrei-menu-item slot="menu" label="Save as…"></tanrei-menu-item><tanrei-menu-group slot="menu" label="Format" value="pdf"><tanrei-menu-radio-item value="pdf" label="PDF"></tanrei-menu-radio-item><tanrei-menu-radio-item value="png" label="PNG"></tanrei-menu-radio-item></tanrei-menu-group><tanrei-menu-checkbox-item slot="menu" label="Compress"></tanrei-menu-checkbox-item>`;
     await mountFixtures(page, spec, { icons: true, fixtures: [withMenu('kinds', {}, content)] });
