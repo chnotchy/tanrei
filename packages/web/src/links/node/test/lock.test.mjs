@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { asked } from './helpers/network.mjs';
-import { fetcher, links, pkg, pureIsStandIn } from './helpers/module.mjs';
+import { fetcher, links, pkg } from './helpers/module.mjs';
 import { PUBLIC, ask, optionsIn, page, scratch, serve } from './helpers/server.mjs';
 import { imageStep, png } from './helpers/picture-files.mjs';
 
@@ -386,7 +386,7 @@ test('LKD-2: the pure functions live in a module without a Node dependency, and 
   assert.equal(api.isExternal, pure.isExternal);
   assert.equal(api.displayHost, pure.displayHost);
   const text = fs.readFileSync(path.join(pkg, 'dist/links/index.js'), 'utf8');
-  assert.doesNotMatch(text, /from\s+['"]node:|require\(|process\.|\bfs\b|import\s*\(/, pureIsStandIn ? '(the tests\' stand-in)' : 'src/links/index.ts');
+  assert.doesNotMatch(text, /from\s+['"]node:|require\(|process\.|\bfs\b|import\s*\(/, 'src/links/index.ts');
   assert.equal(pure.isExternal('https://example.org/', { site: ['https://docs.test'] }), true);
   assert.equal(pure.isExternal('https://docs.test/a', { site: ['https://docs.test'] }), false);
 });

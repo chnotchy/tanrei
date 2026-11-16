@@ -6,10 +6,11 @@
 // Every directory carries the id of the process that made it, so a test file can tell ITS directories from those of
 // the files and packages that run next to it (node:test runs each file in its own process, turbo runs packages in
 // parallel). When the file's tests have ended, everything it made is removed and the file FAILS if an entry with its
-// tag is still in `os.tmpdir()`. A process that dies before that still sweeps on exit — unless a signal or a kill
-// ends it, and then its directories stay, tagged with an id the system gives out again. An entry that already has
-// this process's tag when this module loads was left by such an earlier process: it is not this file's, and the
-// check leaves it out. It does not remove it either: where processes of other pid namespaces share the temporary
+// tag is still in `os.tmpdir()`. A process that dies before that still sweeps on exit, and on SIGINT, SIGTERM or
+// SIGHUP (a runner stopped with Ctrl-C, a job that timed out): it sweeps, then ends by that same signal, so its exit
+// status and its parent's view are as they were. A kill no process can catch (SIGKILL, a crash) still leaves its
+// directories, tagged with an id the system gives out again. An entry that already has this process's tag when this
+// module loads was left by such an earlier process: it is not this file's, and the check leaves it out. It does not remove it either: where processes of other pid namespaces share the temporary
 // directory, a live process may carry the same id.
 //
 // Why per file and not once per run: Node 22 (the version this repository pins) has no `--test-global-setup`, and a
@@ -33,11 +34,33 @@ function sweep() {
 }
 process.on('exit', sweep);
 
+// The 'exit' event is not emitted when a signal ends the process. A listener for a signal takes away its default
+// action (ending the process), so this one gives it back: sweep, stop listening, and raise the same signal again. It
+// is installed with the first directory, so a process that makes none reacts to signals as it always did. When the
+// process has listeners of its own for that signal, they decide how it ends; this one only sweeps. A process blocked
+// in synchronous work (the runner in `spawnSync`, waiting for `node --test`) runs the listener when that work returns:
+// from a terminal the signal reaches the whole process group, so the child ends first and the runner then follows it.
+const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'];
+let listening = false;
+function sweepAndRaise(signal) {
+  sweep();
+  if (process.listenerCount(signal) > 1) return;
+  for (const name of SIGNALS) process.removeListener(name, sweepAndRaise);
+  listening = false;
+  process.kill(process.pid, signal);
+}
+function sweepOnSignals() {
+  if (listening) return;
+  listening = true;
+  for (const name of SIGNALS) process.on(name, sweepAndRaise);
+}
+
 /** A new, empty directory that is removed when the calling test file (or script) ends. `purpose` names what it is for. */
 export function tempDir(purpose) {
   if (!/^[a-z][a-z0-9-]*$/.test(purpose)) throw new Error(`tempDir("${purpose}"): the purpose is a short lowercase name, e.g. "product"`);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `${TEMP_PREFIX}${purpose}${TAG}`));
   made.add(dir);
+  sweepOnSignals();
   return dir;
 }
 
