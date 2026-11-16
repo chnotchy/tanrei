@@ -21,6 +21,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('select');
@@ -999,6 +1000,18 @@ test.describe('behavior: the list', () => {
     // The container goes out of sight: closed, with the reason.
     await host(page, 'one').evaluate((el) => (el.style.display = 'none'));
     await expect.poll(() => heard(page)).toEqual(['toggle false anchor-hidden']);
+    expect((await read(page, 'one')).open).toBe(false);
+  });
+
+  test('SEL-24: a select whose box content-visibility hides with the list open closes with the reason anchor-hidden, and the list is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'fr' })]);
+    await listen(page, 'one');
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await arrived(page, 'one');
+    await heard(page);
+    await expectGoneWhileSkipped(part(page, 'one', '.surface'), stage(page, 'one'), 'the list');
+    expect(await heard(page)).toEqual(['toggle false anchor-hidden']);
     expect((await read(page, 'one')).open).toBe(false);
   });
 

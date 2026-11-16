@@ -701,6 +701,10 @@ export class TanreiTooltip extends TanreiElement {
     followed: () => [this.anchor ?? this],
     sized: () => [this.surface],
     check: this.follow,
+    // TIP-9: no longer drawn with its box where it was — Firefox keeps the last box of an anchor `content-visibility`
+    // skips, so the check found nothing moved and the tooltip stayed open — it closes (`place()` finds it gone).
+    anchor: () => this.anchor ?? this,
+    undrawn: () => this.place(),
   });
 
   private stopFollowing() {

@@ -21,6 +21,7 @@ import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -577,6 +578,18 @@ test.describe('overlay', () => {
     await page.evaluate(() => (document.getElementById('box-edit')!.style.paddingTop = '30px'));
     await expect.poll(async () => (await bounds(surface(page, 'edit'))).y).toBeCloseTo((await bounds(anchor(page, 'edit'))).y + (await bounds(anchor(page, 'edit'))).height + offset, 0);
     expect(await log(page)).toEqual([]);
+  });
+
+  test('MNU-65: a menu held in the box of its anchor, which content-visibility hides while it is open, emits close once with the reason anchor-hidden, and is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await wire(page);
+    expect(await page.locator('[data-fixture="edit"]').evaluate((stage) => !!stage.querySelector('#a-edit') && !!stage.querySelector('tanrei-menu')), 'the anchor and the menu in one box').toBe(true);
+    await anchor(page, 'edit').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+    await motionEnded(surface(page, 'edit'));
+    await expectGoneWhileSkipped(surface(page, 'edit'), page.locator('[data-fixture="edit"]'), 'the menu');
+    expect(await log(page)).toEqual(['close:anchor-hidden']);
   });
 
   test('MNU-65: an anchor taken out of the page in the task the menu was shown in — before any frame has looked at it — closes the menu once with the reason anchor-hidden', async ({ page }) => {

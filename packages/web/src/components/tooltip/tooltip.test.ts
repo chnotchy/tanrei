@@ -10,6 +10,7 @@ import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 
 const spec = loadSpec('tooltip');
 type P = Page;
@@ -761,6 +762,15 @@ test.describe('placement', () => {
       expect(a.x + a.width, id).toBeGreaterThan(0);
     }
     expect(await log(page)).toEqual(['hidden:false', 'window:false', 'scroller:false', 'across:false']);
+  });
+
+  test('TIP-9: a tooltip whose box content-visibility hides while it is shown closes, and is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mount(page, [f('one', {})]);
+    await openIt(page, 'one');
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await expectGoneWhileSkipped(surface(page, 'one'), page.locator('[data-fixture="one"]'), 'the tooltip');
+    expect(await isOpen(page, 'one')).toBe(false);
+    expect(await log(page)).toEqual(['one:false']);
   });
 
   test('TIP-19: when the layout direction of an ancestor changes while it is shown it is placed again by the new direction at once, staying open', async ({ page }) => {

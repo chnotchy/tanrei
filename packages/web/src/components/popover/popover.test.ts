@@ -18,6 +18,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('popover');
@@ -689,6 +690,14 @@ test.describe('placement', () => {
     await open(page);
     await page.locator('#a').evaluate((el) => el.remove());
     await expect.poll(() => log(page)).toEqual(['p:anchor-hidden']);
+  });
+
+  test('POP-5: a popover held in the box of its anchor, which content-visibility hides while it is open, emits close once with the reason anchor-hidden, and is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mount(page, `<div id="box">${anchorAt(300, 200)}${popover('label="Storage"')}</div>`, { reducedMotion: false });
+    await open(page);
+    await expectGoneWhileSkipped(surface(page), page.locator('#box'), 'the popover');
+    expect(await log(page)).toEqual(['p:anchor-hidden']);
+    expect(await isOpen(page)).toBe(false);
   });
 
   test('POP-36: while the on-screen keyboard is shown its top edge is an edge of the window: the popover flips, shifts or shortens so that no part of it is under the keyboard, and takes its place again when the keyboard hides', async ({ page }) => {
