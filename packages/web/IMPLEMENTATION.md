@@ -7598,9 +7598,15 @@ navigation landmark named by `label`, keeps no focus inside it and makes nothing
 presentation moves the same panel over `motion.expand` (`data-moving`); while it is open over the content, closing, or
 moving, the host carries `data-over`, which the frame's stylesheet reads to draw it over the main region and under the
 header. Nothing is replaced or removed when a closing ends: the scrim has faded and the panel has left the window or is
-its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move). **The platform's back
-action does not close a drawer the frame holds** (NVD-20, MDL-6 ask that it do): it reached a modal drawer as its
-`<dialog>`'s native `cancel`, and the held panel is no dialog.
+its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move).
+The platform's back (NVD-20, MDL-6), which reaches a modal drawer as its `<dialog>`'s native `cancel`, reaches the held
+panel — no dialog — through a `CloseWatcher` the drawer makes while it is open over the content and destroys as it
+closes, stacked with the page's other close watchers (a dialog or a popover opened above it hears back first). An Escape
+that nothing took makes a close request too; Escape in the drawer and on the menu button is taken by their keys, so one
+that reaches the watcher was typed elsewhere (a field of the header) and NVD-20 leaves it there: the drawer stays open
+and makes its watcher again. It tells the two apart as every modal surface tells its `cancel` (`closeRequestReason()`):
+a close request within a second of an Escape is that Escape's. Where the browser has no `CloseWatcher` it has no back
+to deliver.
 
 **A site's sidebar (NVD-57…64).** Give every destination an `href` and the drawer the page's own address as `value`:
 
