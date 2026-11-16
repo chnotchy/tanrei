@@ -114,8 +114,30 @@ async function overreaching(): Promise<string[]> {
       for (const [el, value] of lifted.reverse()) el.style.pointerEvents = value;
       return at;
     };
+    // Pressed where each box rests, not in a frame of a motion: a narrowed gap starts some (a chat composer's
+    // attachments resize to it, over many frames where motion plays slowly). Where a box moved over the two frames after
+    // the stage scrolled into view, the boxes are read once they have stood still for three frames in a row; frames are
+    // counted, not time, so this holds at any playback rate. A stage at rest costs no frame more (a field has hundreds).
+    const boxes = () =>
+      all
+        .map((el) => {
+          const b = el.getBoundingClientRect();
+          return `${b.x} ${b.y} ${b.width} ${b.height}`;
+        })
+        .join();
     stage.scrollIntoView({ block: 'start' });
+    const scrolled = boxes();
     await frame();
+    let frames = 0;
+    if (boxes() !== scrolled) {
+      for (let last = boxes(), same = 0; same < 3 && frames < 600; frames++) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        const now = boxes();
+        same = now === last ? same + 1 : 0;
+        last = now;
+      }
+    }
+    if (frames === 600) out.push(`${stage.dataset.fixture}: its pressables did not stand still in ${frames} frames`);
     const shown = all.filter((el) => {
       const r = el.getBoundingClientRect();
       if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
