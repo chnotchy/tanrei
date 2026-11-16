@@ -72,21 +72,52 @@ function serverProps(elementClass: Declared, attributes: ServerAttributes, props
   return html;
 }
 
+/** The ref `focusedAtMount` gives the element for each of the product's: the map itself stands for no ref. */
+const focusing = new WeakMap<object, (element: HTMLElement | null) => unknown>();
+
+/**
+ * React's `autoFocus`, given as React gives it to a native control: the element is focused when it mounts, whatever had
+ * focus, and not when the page is hydrated (the server's HTML carries the attribute, which the element answers at load).
+ * React leaves a custom element's `autoFocus` to the browser's `autofocus`, which the browser answers only while nothing
+ * has focus: a field revealed by a press on a button stayed unfocused. The attribute is still written, so that a dialog
+ * or a sheet that opens later gives focus to the control marked with it. Returns the ref to give the element, which
+ * then calls the product's.
+ *
+ * An element the client mounts is attached before its first update, and keeps a `focus()` called then until it has
+ * drawn. An element of a hydrated page has drawn by then, and so has one attached again (a ref given anew at a render):
+ * React's own focuses neither. No hook, so that the wrapper's render stays a plain function of its props; one ref for
+ * each of the product's, so that a ref that stays the same between renders is not detached and attached again at each.
+ */
+function focusedAtMount(ref: React.ForwardedRef<unknown>) {
+  let own = focusing.get(ref ?? focusing);
+  if (!own) {
+    own = (element: (HTMLElement & { hasUpdated?: boolean }) | null) => {
+      if (element?.hasUpdated === false) element.focus();
+      if (typeof ref === 'function') return ref(element);
+      if (ref) ref.current = element;
+    };
+    focusing.set(ref ?? focusing, own);
+  }
+  return own;
+}
+
 /**
  * A wrapper that renders on a server as well as in the browser. Where there is a document it renders `Component`, which
- * sets the props as properties once the element mounts (`@lit/react`). Where there is none (a server: Node, Deno, Bun,
- * an edge runtime) it renders the element's tag with each prop the element reads from an attribute written as that
- * attribute — under the attribute's name, by the element's own converter — so the HTML carries the label, the value
- * and the states before any script runs. The attributes the client hydrates over are not a mismatch: `@lit/react`
- * suppresses the warning for the element. Only the tag is rendered, not the element's shadow root.
+ * sets the props as properties once the element mounts (`@lit/react`), and gives React's `autoFocus` (`focusedAtMount`).
+ * Where there is none (a server: Node, Deno, Bun, an edge runtime) it renders the element's tag with each prop the
+ * element reads from an attribute written as that attribute — under the attribute's name, by the element's own
+ * converter — so the HTML carries the label, the value and the states before any script runs. The attributes the
+ * client hydrates over are not a mismatch: `@lit/react` suppresses the warning for the element. Only the tag is
+ * rendered, not the element's shadow root.
  */
 export function withServerAttributes<C>(Component: C, tagName: string, elementClass: { prototype: object }, attributes: ServerAttributes): C {
   const client = Component as unknown as { render: (props: object, ref: unknown) => React.ReactNode; displayName?: string };
-  const Wrapper = React.forwardRef<unknown, Record<string, unknown>>((props, ref) =>
+  const Wrapper = React.forwardRef<unknown, Record<string, unknown>>((props, ref) => {
     // Whether there is a document never changes while a page or a server runs, so the hooks the client's render calls
     // are called at every render of the wrapper, or at none.
-    typeof document === 'undefined' ? React.createElement(tagName, serverProps(elementClass as Declared, attributes, props), props.children as React.ReactNode) : client.render(props, ref),
-  );
+    if (typeof document === 'undefined') return React.createElement(tagName, serverProps(elementClass as Declared, attributes, props), props.children as React.ReactNode);
+    return client.render(props, props.autoFocus ? focusedAtMount(ref) : ref);
+  });
   Wrapper.displayName = client.displayName;
   return Wrapper as unknown as C;
 }
