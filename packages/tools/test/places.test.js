@@ -24,30 +24,30 @@ const problemsOf = (...specs) => placesProblems(specs);
 test('a word with places is read from left to right: a doubled brace, then a place, then a brace that opens nothing', () => {
   const names = ['headline', 'position', 'count'];
   const filled = (sentence) => fillPlaces(sentence, { headline: 'Body font', position: '2', count: '3' });
-  // §1.4: every occurrence is filled, and a place may be left out.
+  // Every occurrence is filled, and a place may be left out.
   assert.equal(filled('{headline}: {position} of {count}'), 'Body font: 2 of 3');
   assert.equal(filled('{count} 件中 {position} 番目、{count} 件'), '3 件中 2 番目、3 件');
   assert.equal(filled('Moved'), 'Moved');
   assert.deepEqual(readPlaces('{headline}: {position}', names).runs, [{ place: 'headline' }, { text: ': ' }, { place: 'position' }]);
   assert.deepEqual([...readPlaces('{count} {count}', names).used], ['count']);
-  // §4.1: an unknown place is kept as written, and named once however often it is written.
+  // An unknown place is kept as written, and named once however often it is written.
   assert.equal(filled('{headline} {place}'), 'Body font {place}');
   assert.deepEqual(readPlaces('{place} {place} { count }', names).unknown, ['{place}', '{ count }']);
   assert.equal(filled('{ count }'), '{ count }', 'a name has no spaces');
   assert.equal(filled('{}'), '{}');
-  // §4.2: a brace that opens or closes nothing is kept and counted.
+  // A brace that opens or closes nothing is kept and counted.
   assert.equal(filled('{headline} {'), 'Body font {');
   assert.equal(readPlaces('{headline} {', names).stray, 1);
   assert.equal(readPlaces('} {count', names).stray, 2);
   assert.equal(filled('{a{count}'), '{a3');
   assert.deepEqual({ stray: readPlaces('{a{count}', names).stray, unknown: readPlaces('{a{count}', names).unknown }, { stray: 1, unknown: [] });
-  // §5: a brace written twice is one brace, and nothing between doubled braces is filled.
+  // A brace written twice is one brace, and nothing between doubled braces is filled.
   assert.equal(filled('{{headline}} {position}'), '{headline} 2');
   assert.equal(filled('{{'), '{');
   assert.equal(filled('}}'), '}');
   assert.equal(filled('{count}}}'), '3}');
   assert.deepEqual({ stray: readPlaces('{{count}} {count}}}', names).stray, unknown: readPlaces('{{count}} {count}}}', names).unknown }, { stray: 0, unknown: [] });
-  // §2.2: what fills a place is not read again.
+  // What fills a place is not read again.
   assert.equal(fillPlaces('{headline}', { headline: '{count} {{', count: '3' }), '{count} {{');
 });
 

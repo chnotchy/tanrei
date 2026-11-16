@@ -11,8 +11,9 @@
 // from coming back is a rule of `validate` (`validateSharedSets` in packages/tools/src/checks.js): no reader's group
 // holds a name of the set. What is counted here is what each of the five keeps as its own.
 //
-// The names are still the ones the text field had before its split (tokens.md, "The rule"):
-// `reference()` says where each is now. A rule or a preset pin the reference has and a group lacks fails here, by name.
+// The names are still the ones the text field had before its split. A name went where what reads it went — the box
+// and what is in it to the input, a row outside the box to the Field: `reference()` says where each is now. A rule
+// or a preset pin the reference has and a group lacks fails here, by name.
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -24,7 +25,8 @@ const TEXT_INPUT = `${NS}.text-input`;
 const INPUT_BOX = `${NS}.input-box`;
 const FIELD = `${NS}.field`;
 
-// Where a name of the text field before its split is now (tokens.md, "The rule"). The names a component
+// Where a name of the text field before its split is now: with the input when the box reads it, with the Field when
+// a row outside the box does. The names a component
 // of FRAMES is held by are still those: its own split renames them.
 const LOOKS = new Set(['stacked', 'filled', 'outlined']);
 const STATES = new Set(['hovered', 'focused', 'disabled']);

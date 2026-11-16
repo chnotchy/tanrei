@@ -242,8 +242,8 @@
 .ts-source {
   direction: ltr;
 }
-/* The run is left-to-right; its place is still the layout's (§3.2): a value keeps the end edge of its row, a line of
-   CSS and an id typed into a field keep the start edge. */
+/* The run is left-to-right; its place is still the layout's, as any product text is placed and aligned by the layout
+   direction: a value keeps the end edge of its row, a line of CSS and an id typed into a field keep the start edge. */
 .ts-value:dir(rtl) {
   text-align: start;
 }
