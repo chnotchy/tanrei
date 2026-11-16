@@ -160,13 +160,6 @@ const CHEVRON = {
     'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  carousel: [
-    {
-      settings: ['m3-like', '2px apart', '8px apart'],
-      line: /a press in the gap at the bottom of tanrei-carousel-item/,
-      reason: 'CRL-37 gives the indicator the whole height of the controls row, which reaches up past the middle of the gap to the items when the controls row is taller than the indicator.',
-    },
-  ],
   combobox: [CHEVRON],
   'combobox-field': [CHEVRON],
   field: [CHEVRON],

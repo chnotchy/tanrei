@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { directionProbeStyles, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, directionProbeStyles, focusRing, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -357,12 +357,14 @@ export const carouselStyles = css`
     /* CRL-30: a horizontal drag along the dots is the indicator's; a vertical one still scrolls the page. */
     touch-action: pan-y;
   }
-  /* CRL-37: the indicator's hit area is as tall as the controls row and as wide as its container, at least
-     sys.target.touch wide. */
+  /* CRL-37: the indicator's hit area reaches down to the controls row's bottom edge and up toward the row of items,
+     which ends where the controls row starts, no further than halfway across the space between them — half of what the
+     row leaves above the indicator centred in it — and is as wide as its container, at least sys.target.touch wide. */
   .indicator::before {
     content: '';
     position: absolute;
-    inset-block: calc((${t('controls-button-size')} - ${t('controls-height')}) / 2);
+    inset-block-start: calc((${t('controls-button-size')} - ${t('controls-height')}) / 4);
+    inset-block-end: calc((${t('controls-button-size')} - ${t('controls-height')}) / 2);
     inset-inline: min(0px, calc((100% - var(--tanrei-sys-target-touch)) / 2));
   }
   /* CRL-29: each dot dot.size tall with round ends, stretched toward dot.active-width by its closeness w to the
@@ -435,8 +437,16 @@ export const carouselStyles = css`
   .icon.loading {
     visibility: hidden;
   }
-  /* CRL-37: the playback control's hit area meets the target without changing its visual size. */
-  ${minimumTarget('.playback')}
+  /* CRL-37: the playback control's hit area meets the target without changing its visual size, centred on it — but
+     toward the row of items above it, as the indicator's, no further than halfway across the space the controls row
+     leaves above it. It stands in no row of the product's, so no cap from outside reaches it. */
+  ${neighbourTarget('.playback')}
+  .playback {
+    ${unsafeCSS(TARGET_CAPS.start)}: initial;
+    ${unsafeCSS(TARGET_CAPS.end)}: initial;
+    ${unsafeCSS(TARGET_CAPS.top)}: calc((${t('controls-height')} - ${t('controls-button-size')}) / 4);
+    ${unsafeCSS(TARGET_CAPS.bottom)}: initial;
+  }
 
   /* CRL-2, CRL-5, CRL-6: each state paints the control from that state's tokens; pressed > focused > hovered. The other
      dots keep dot.color in every state. */
