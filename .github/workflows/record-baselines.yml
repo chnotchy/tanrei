@@ -8,11 +8,15 @@
 #
 #   web           Chromium in mcr.microsoft.com/playwright (the image and the version ci.yml runs), the `snapshot: …`
 #                 tests only, `--update-snapshots=changed`: a baseline within the comparison's tolerance (its pixels,
-#                 and where it is drawn: packages/web/test/baseline.ts) is kept
+#                 and where it is drawn: packages/web/test/baseline.ts) is kept. With `rewrite_all`,
+#                 `--update-snapshots=all`: every baseline the filter selects is written again, for a fix whose picture
+#                 moves within that tolerance (it would otherwise keep the old picture, and a return to it would pass)
 #   flutter       ubuntu-24.04, Flutter 3.32.8, `flutter test --update-goldens`
 #   compose       ubuntu-24.04, JDK 17, `./gradlew :tanrei:recordRoborazziDebug` (the snapshot test classes only)
 #   react-native  ubuntu-24.04, `TANREI_RECORD_SNAPSHOTS=1 jest` (render trees are platform independent)
 #   swiftui       macos-26 with XCODE_VERSION (the runner ci.yml's SwiftUI job verifies on), `TANREI_RECORD_SNAPSHOTS=1 swift test`
+#
+# The native record commands already write every snapshot they run, so `rewrite_all` changes only the web job.
 #
 # Each platform job uploads only the files that changed under its baseline directories; the commit job adds only
 # those directories, so nothing else can reach the branch. A push made with GITHUB_TOKEN starts no push or
@@ -42,6 +46,11 @@ on:
         required: false
         type: string
         default: ""
+      rewrite_all:
+        description: "Web: write every selected baseline again, not only those outside the comparison's tolerance (for a fix whose picture moves within it). Look at every image. Native platforms always do"
+        required: false
+        type: boolean
+        default: false
       start_ci:
         description: "Start a three-engine CI run on the branch after committing (off: the merge train runs it)"
         required: false
@@ -77,6 +86,7 @@ jobs:
           PLATFORMS: ${{ inputs.platforms }}
           REASON: ${{ inputs.reason }}
           FILTER: ${{ inputs.filter }}
+          REWRITE_ALL: ${{ inputs.rewrite_all }}
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -101,6 +111,7 @@ jobs:
           done
           echo "components=$components" >> "$GITHUB_OUTPUT"
           echo "Recording:$selected— components: ${components:-every one}"
+          [ "$REWRITE_ALL" != true ] || echo "Web: every selected baseline is written again (rewrite_all)"
 
   web:
     name: Record · web (Chromium, Linux container)
@@ -135,8 +146,11 @@ jobs:
         env:
           TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
           COMPONENTS: ${{ needs.plan.outputs.components }}
+          # `changed` writes a baseline only where a comparison fails (baseline.ts adds a moved drawn box); `all` writes
+          # every one the run reaches, so a picture that moved within the tolerance is recorded too.
+          UPDATE_MODE: ${{ inputs.rewrite_all && 'all' || 'changed' }}
         run: |
-          record() { pnpm exec playwright test --project=chromium --update-snapshots=changed "$@"; }
+          record() { pnpm exec playwright test --project=chromium --update-snapshots="$UPDATE_MODE" "$@"; }
           if [ -z "$COMPONENTS" ]; then
             record --grep 'snapshot: '
           else
@@ -340,6 +354,7 @@ jobs:
           REASON: ${{ inputs.reason }}
           BRANCH: ${{ github.ref_name }}
           START_CI: ${{ inputs.start_ci }}
+          REWRITE_ALL: ${{ inputs.rewrite_all }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -361,6 +376,10 @@ jobs:
           outside=$(cd "$src" && find . -type f "${exclude[@]}" | head -n 5)
           [ -z "$outside" ] || { echo "::error::the recorded artifacts hold files outside the baseline directories: $outside"; exit 1; }
           echo "Downloaded: $(cd "$src" && find . -type f | wc -l) file(s)"
+          mode_note=""
+          if [ "$REWRITE_ALL" = true ]; then
+            mode_note="Every selected web baseline was written again (rewrite_all), not only those outside the tolerance."
+          fi
           made=0
           for platform in web flutter compose react-native swiftui; do
             dir=${dirs[$platform]}
@@ -374,7 +393,9 @@ jobs:
 
           $REASON
 
-          Recorded by the record-baselines workflow: $RUN_URL
+          ${mode_note:+$mode_note
+
+          }Recorded by the record-baselines workflow: $RUN_URL
           EOF
             made=$((made + 1))
           done
