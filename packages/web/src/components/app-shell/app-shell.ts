@@ -88,6 +88,8 @@ type Drawer = HTMLElement & {
   shellChanged?: () => void;
   /** APS-7, NVD-37: the frame's menu button was activated (by `button`, from a pointer where `pointer`). */
   menuFromShell?: (button: HTMLElement | null, pointer: boolean) => void;
+  /** APS-6, NVD-19: the menu button that showed the drawer hidden beside the content is gone: focus goes into the drawer. */
+  focusFromShell?: () => void;
   /** APS-7, MDL-2: holds the page's scroll for the frame, `holder`, as a modal layer does (the drawer's module carries the code). */
   holdShellScroll?: (holder: Element, hold: boolean) => void;
   /** APS-33: a drawer that filters its items, its chord, and the request to focus its field (NVD-87, NVD-88). */
@@ -184,7 +186,9 @@ let ids = 0;
  *   drawer's `close` makes them false again; where it stands beside the content it collapses and expands it, or hides
  *   and shows one with no collapsed form. The button says `aria-expanded` and what it controls. A frame without a
  *   header takes it from its `menu-button` slot instead, and shows it only where the navigation has no place in the
- *   layout, alone in the header's place and kept at the top of the window (APS-34);
+ *   layout, alone in the header's place and kept at the top of the window (APS-34). A drawer with no collapsed form
+ *   hidden beside the content has no place either, so the button is shown to bring it back, and focus goes into the
+ *   drawer it shows;
  * - **the navigation open over the content**, drawn below the header with its scrim (the drawer is then no dialog
  *   and keeps no focus): the skip link, the main region, the aside, the footer and the navigation bar are inert and
  *   the page does not scroll, until closing begins. The header and the announcement stay usable;
@@ -755,12 +759,13 @@ export class TanreiAppShell extends TanreiLightElement {
 
   /**
    * APS-6: whether the menu button is shown: in every class while the navigation region holds a navigation drawer and
-   * `menuButtonPlacement` is not `drawer`; otherwise only while the navigation has no place in the layout. APS-34: a
-   * frame without a header shows its menu-button slot's button as `drawer` does.
+   * `menuButtonPlacement` is not `drawer`; otherwise only while the navigation has no place in the layout — the modal
+   * presentation, and a drawer with no collapsed form hidden beside the content, which has nothing of its own to be
+   * shown again by. APS-34: a frame without a header shows its menu-button slot's button as `drawer` does.
    */
   private get menuShown(): boolean {
     if (this.header && this.drawer && this.menuButtonPlacement !== 'drawer') return true;
-    return this.presentation === 'modal';
+    return this.presentation === 'modal' || this.hiddenBeside;
   }
 
   /** APS-4, APS-7: whether the navigation is open over the content: a drawer open in the column or the modal presentation. */
@@ -769,10 +774,13 @@ export class TanreiAppShell extends TanreiLightElement {
     return !!this.drawer?.open && (presentation === 'column' || presentation === 'modal');
   }
 
-  /** APS-33, NVD-53: the drawer stands beside the content with no collapsed form and is hidden (its expanded false). */
+  /**
+   * APS-6, APS-33, NVD-53: the drawer stands beside the content with no collapsed form and is hidden (its expanded
+   * false) — which only a responsive drawer is.
+   */
   private get hiddenBeside(): boolean {
     const drawer = this.drawer;
-    return this.presentation === 'standard' && !!drawer && !drawer.collapsible && drawer.expanded === false;
+    return this.presentation === 'standard' && !!drawer?.responsive && !drawer.collapsible && drawer.expanded === false;
   }
 
   /**
@@ -837,10 +845,14 @@ export class TanreiAppShell extends TanreiLightElement {
   private activateMenu(button: HTMLElement | null, pointer: boolean) {
     const drawer = this.drawer;
     if (drawer && this.presentation && drawer.menuFromShell) {
+      const hidden = this.hiddenBeside;
       drawer.menuFromShell(button, pointer);
       this.pullOpen();
       this.stateMenu();
       this.syncChord();
+      // APS-6: the button that showed a drawer hidden beside the content, and is no longer shown once it is, leaves
+      // focus in the drawer, never on a button that is not drawn.
+      if (button && hidden && !this.menuShown) drawer.focusFromShell?.();
       return;
     }
     this.setOpen(true, true);
