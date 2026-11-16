@@ -786,6 +786,17 @@ test.describe('layout', () => {
     expect(await innerStrokeAtEdges(page, scroll), 'scrolled to its end').toEqual({ top: true, bottom: true });
   });
 
+  test('DLG-11: where the focus style is glow, the keyboard focus of the scrolling part is the same two focus colors as a halo inside its edges, and no line — in a browser without style queries too', async ({ page }) => {
+    await mount(page, [closed('scrolling')]);
+    await rootTokens(page, { '--tanrei-sys-behavior-focus-style': 'glow' });
+    await open(page, 'scrolling');
+    const scroll = dialog(page, 'scrolling').locator('.scroll');
+    await tabTo(page, scroll);
+    const ring = dialog(page, 'scrolling').locator('.scroll ~ .focus');
+    expect(await css(ring, 'outline-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(ring, 'box-shadow', '::after')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+  });
+
   test('DLG-11: long content scrolls between the fixed header and actions; under always both dividers stand for as long as it scrolls, at its top included; none while everything fits', async ({ page }) => {
     await mount(page, [closed('scrolling'), closed('basic')]);
     await open(page, 'scrolling');

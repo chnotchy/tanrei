@@ -973,6 +973,16 @@ test.describe('forms, focus and dismissal', () => {
     expect(await innerStrokeAtEdges(page, c), 'scrolled to its end').toEqual({ top: true, bottom: true });
   });
 
+  test('BSH-10: where the focus style is glow, the keyboard focus of a content that scrolls is the same two focus colors as a halo inside its edges, and no line — in a browser without style queries too', async ({ page }) => {
+    await mount(page, [fx('s', { handle: false }, LONG)]);
+    await override(page, { '--tanrei-sys-behavior-focus-style': 'glow' });
+    const c = content(page);
+    await tabTo(page, c);
+    const ring = host(page).locator('.content ~ .focus');
+    expect(await css(ring, 'outline-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(ring, 'box-shadow', '::after')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+  });
+
   test('BSH-10: the content scrolls inside the container at either height, by keyboard too; a drag up on it first raises the sheet to full, then scrolls it; a drag down first scrolls it to its top, then lowers the sheet', async ({ page }) => {
     await mount(page, [fx('s', {}, LONG)]);
     await wire(page);
