@@ -356,6 +356,22 @@ test.describe('presentation and focus', () => {
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
   });
 
+  test('DLG-13 (MDL-7, MOT-6): where motion is reduced the scrim fades in and out with the container, over sys.motion.role.reduced — not over the dialog’s own motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [f('d')]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    expect(await resolveToken(page, T('motion-enter-duration'), 'duration')).not.toBe(reduced);
+    expect(await resolveToken(page, T('motion-exit-duration'), 'duration')).not.toBe(reduced);
+    // Every fade on the dialog: the container's and the scrim's (`::backdrop`; WebKit leaves its pseudo-element unnamed).
+    const fades = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.name === 'opacity').map((motion) => `${motion.on} ${motion.duration}`);
+    const opening = fades(await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe }));
+    const closing = fades(await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe }));
+    for (const [name, seen] of [['opening', opening], ['closing', closing]] as const) {
+      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(2);
+      expect(seen.every((fade) => fade.endsWith(` ${reduced}`)), `${name}: ${seen.join(', ')}`).toBe(true);
+    }
+  });
+
   test('DLG-13 (MOT-6): data-tanrei-motion="reduce" on the root, with no media query, reduces the container and its scrim exactly as prefers-reduced-motion does', async ({ page }) => {
     // Every motion on the dialog, its scrim (`::backdrop`) included, by where it runs, what it moves and for how long.
     const all = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog')).map((motion) => [motion.on, motion.name, motion.duration].join(' ')).sort();
