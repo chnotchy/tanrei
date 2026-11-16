@@ -50,6 +50,8 @@ const settled = (page: P) =>
 
 /** IMP-14, IMP-24: the web's interval for a double press — two `pointerup`s within 300 ms (the spec's web notes). */
 const DOUBLE_PRESS = 300;
+/** IMP-15, IMP-21: a wheel names no end of its gesture; the web's preview ends one that has been still this long, in ms. */
+const WHEEL_END = 160;
 /**
  * Two presses of a mouse at `at`, within the interval on any machine, and then the interval run out. The page's clock is
  * held — its timers and the presses' own times (`event.timeStamp`) — so no page time passes between the two however
@@ -1005,6 +1007,8 @@ test.describe('the stage and the zoom', () => {
     await mount(page, fx({}, [LANDSCAPE]));
     const fit = await look(page);
     const at = { x: fit.image!.x + fit.image!.width * 0.75, y: fit.image!.y + fit.image!.height * 0.45 };
+    // The gesture's end is a wait on the page's clock, held still: "not yet" and "now" are asked at exact page times.
+    await holdClock(page);
     expect(await wheel(page, at.x, at.y, { deltaY: -45, ctrlKey: true }), 'the browser’s own zoom of the page does not take it').toBe(true);
     expect(await running(page, SHOWN), 'it follows the gesture: no motion of its own').toEqual([]);
     let seen = await look(page);
@@ -1016,10 +1020,13 @@ test.describe('the stage and the zoom', () => {
     await wheel(page, at.x, at.y, { deltaY: -10, metaKey: true });
     expect((await look(page)).image!.width).toBeGreaterThan(seen.image!.width);
     // The element's zoom is written once the gesture has ended — and not at a step.
+    await page.clock.runFor(WHEEL_END - 1);
     expect((await look(page)).zoom).toBe(1);
     expect(await events(page, 'zoomchange')).toEqual([]);
-    await expect.poll(async () => (await look(page)).zoom).toBeGreaterThan(1.5);
+    await page.clock.runFor(1);
+    await releaseClock(page);
     seen = await look(page);
+    expect(seen.zoom).toBeGreaterThan(1.5);
     near(seen.zoom, Math.exp(0.55), 'where the wheel left it', 0.01);
     expect(await events(page, 'zoomchange')).toEqual([{ type: 'zoomchange', detail: { zoom: seen.zoom } }]);
     // Never above the greatest value, never below 1.
@@ -1504,9 +1511,14 @@ test.describe('moving between images', () => {
 
   test('IMP-21: zoom is set and zoomchange fired once when a gesture, a step or a return has ended, not for each frame of it; controlsHidden is set and controlshiddenchange fired when the person hides or shows the controls; what the product sets is taken at once and fires nothing', async ({ page }) => {
     await mount(page, fx({ index: 1 }));
+    // The gesture's end is a wait on the page's clock, held still: "not yet" and "now" are asked at exact page times.
+    await holdClock(page);
     for (let turn = 0; turn < 5; turn++) await wheel(page, 320, 340, { deltaY: -20, ctrlKey: true });
+    await page.clock.runFor(WHEEL_END - 1);
     expect(await events(page, 'zoomchange')).toEqual([]);
-    await expect.poll(async () => (await events(page, 'zoomchange')).length).toBe(1);
+    await page.clock.runFor(1);
+    await releaseClock(page);
+    expect((await events(page, 'zoomchange')).length).toBe(1);
     const { zoom } = await look(page);
     near(zoom, Math.E, 'the zoom the gesture ended at', 0.01);
     expect((await events(page, 'zoomchange'))[0].detail.zoom).toBe(zoom);
