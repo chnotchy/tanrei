@@ -43,6 +43,8 @@ import {
   takesText,
   documentPainted,
   closeModal,
+  closeRequestReason,
+  watchEscape,
   isLeaving,
   modalLayer,
   openModal,
@@ -152,6 +154,13 @@ const DEEPEST = 3;
  * their transitions — held as shown where it changes hands (closeModal, openModal).
  */
 const WIDENING: ModalMoves = ['width', 'background-color', 'box-shadow', 'border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius'];
+
+/** HTML's `CloseWatcher`, as far as a held drawer uses it (NVD-20, MDL-6): TypeScript's DOM library does not declare it. */
+interface CloseWatcher extends EventTarget {
+  destroy(): void;
+}
+/** The browser's `CloseWatcher`, or null where it has none. */
+const closeWatcher = (): (new () => CloseWatcher) | null => (globalThis as { CloseWatcher?: new () => CloseWatcher }).CloseWatcher ?? null;
 
 const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
@@ -1596,8 +1605,9 @@ interface Snapshot {
  * Held by an app shell whose header slot is filled (NVD-19, NVD-23, NVD-54): the drawer is one `<nav>` in every
  * presentation, never a `<dialog>`. Open over the content it is drawn below the header with a scrim of its own that
  * covers only what lies below the header, keeps no focus inside it and makes nothing inert itself — the shell makes the
- * regions under the scrim inert and holds the page's scroll — and stays the navigation landmark. A change of
- * presentation moves that one panel to its new place and form over `motion.expand`.
+ * regions under the scrim inert and holds the page's scroll — and stays the navigation landmark. The platform's back
+ * reaches it through a `CloseWatcher` while it is open over the content. A change of presentation moves that one panel
+ * to its new place and form over `motion.expand`.
  *
  * Resizable (NVD-96…104), on by default: where the drawer stands beside the content it has a resize handle on its end
  * edge — a `<tanrei-handle reach="edge">`, out of sight until a fine pointer comes over the edge or it has focus, and one
@@ -4183,6 +4193,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.leavingHeld = false;
     this.overRun++;
     this.syncOver();
+    this.watchBack(true);
     this.applyOffset();
     // NVD-19, NVD-40: the slide (or the widening), the scrim's fade and the colors of the cell that took focus and of
     // what focus left (the app shell's menu button, outside it) begin in the first frame drawn after this task.
@@ -4212,6 +4223,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
    */
   private withdrawHeld(restore: boolean, notify: boolean) {
     this.shown = false;
+    this.watchBack(false);
     this.drag = null;
     const panel = this.panel;
     panel?.classList.remove('dragging');
@@ -4272,6 +4284,40 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private readonly onHeldScrim = () => {
     if (this.shown) this.dismiss();
   };
+
+  /** NVD-20, MDL-6: the close watcher through which the platform's back reaches a held drawer open over the content. */
+  private backWatcher: CloseWatcher | null = null;
+
+  /**
+   * NVD-20, MDL-6: the platform's back (Android's back gesture or button) closes a held drawer open over the content. It
+   * arrives as a close request, which reached a modal drawer as its `<dialog>`'s native `cancel`; the held panel is a
+   * `<nav>`, so a `CloseWatcher` takes it while the drawer is shown — stacked with the page's other close watchers, so
+   * that a dialog or a popover opened above the drawer hears back first. An Escape that nothing took makes a close request
+   * too: one with focus in the drawer or on the menu button never does (the drawer's keys and the app shell's take it),
+   * so one that arrives was typed elsewhere — a field of the header — and NVD-20 leaves it there: the watcher, which a
+   * close request ends, is made again. Where the browser has no `CloseWatcher` it has no back to deliver.
+   */
+  private watchBack(on: boolean) {
+    const watcher = this.backWatcher;
+    if (on === !!watcher) return;
+    this.backWatcher = null;
+    if (!on) {
+      watcher?.destroy();
+      return;
+    }
+    const Watcher = closeWatcher();
+    if (!Watcher) return;
+    watchEscape();
+    const next = new Watcher();
+    next.addEventListener('close', (event: Event) => {
+      if (this.backWatcher !== next) return;
+      this.backWatcher = null;
+      if (!this.shown) return;
+      if (closeRequestReason(event) === 'escape') this.watchBack(true);
+      else this.dismiss();
+    });
+    this.backWatcher = next;
+  }
 
   /** The change of form's duration, read through a real property (0 where motion is reduced). */
   private expandDuration(): number {
