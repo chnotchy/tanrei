@@ -262,6 +262,7 @@ export class TanreiCombobox extends TanreiElement {
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
+    spoken: { state: true },
   };
 
   /** The look, as the text inputs beside it: `stacked` is a filled box that draws no label — the label above it is the row of the Field that frames it; `filled` and `outlined` float the label inside the box. Use one style per form. A value the combobox does not know by name is laid out as stacked. Reflected. */
@@ -421,6 +422,8 @@ export class TanreiCombobox extends TanreiElement {
   private readonly says = new FormSays(this, this.internals);
   /** Whether the list is presented: open, usable, and beside a container in the page. */
   private presented = false;
+  /** CMB-33: the list has been shown, so the status row's live regions hold its text; empty while it is closed. */
+  private spoken = false;
   private unregister: (() => void) | null = null;
 
   // ── CMB-17: the two things the combobox holds ─────────────────────────────────────────────────────────────────
@@ -1178,6 +1181,9 @@ export class TanreiCombobox extends TanreiElement {
   private present() {
     if (!this.anchored.show()) return;
     this.presented = true;
+    // CMB-33: the regions are given their text once the list is shown, so that what the row already says is read.
+    // Not cancelled when the list closes: the frame reads whether it is shown then.
+    requestAnimationFrame(() => (this.spoken = this.presented));
     // CMB-23: the whole of the chosen option is in view when the list opens.
     this.list.reveal();
     if (!this.inline) this.dismiss.start();
@@ -1187,6 +1193,7 @@ export class TanreiCombobox extends TanreiElement {
   private withdraw(fade = true) {
     if (!this.presented) return;
     this.presented = false;
+    this.spoken = false;
     if (this.dismiss.active) {
       this.dismiss.closeOwned();
       this.dismiss.stop();
@@ -1419,6 +1426,7 @@ export class TanreiCombobox extends TanreiElement {
     // The controllers take the surface out of the top layer and stop listening.
     this.presented = false;
     this.focused = false;
+    this.spoken = false;
   }
 
   protected override willUpdate(changed: PropertyValues) {
@@ -1566,17 +1574,19 @@ export class TanreiCombobox extends TanreiElement {
   };
 
   /**
-   * CMB-32, CMB-33: the status row, after the last option. Its two live regions exist from the moment the list opens —
-   * the polite one holds statusText, or the empty text, while idle; the assertive one statusText while the source
-   * failed; while loading both are empty, so nothing is announced, and the loading indicator, named by statusText,
-   * stands in the text's place.
+   * CMB-32, CMB-33: the status row, after the last option. It draws the text — statusText, or the empty text — or,
+   * while loading, the loading indicator named by statusText in its place. Its two live regions are always there and
+   * are given the row's text once the list has been shown (`spoken`), so that what the row already says as the list
+   * opens is read: the polite one while idle, the assertive one while the source failed; while loading both are empty,
+   * so nothing is announced. The drawn text is kept from assistive technology, which reads the regions.
    */
   private renderStatus() {
     const status = this.statusNow;
-    const said = status === 'idle' ? this.statusText || (this.emptyShown ? this.emptyWords : '') : '';
+    const text = status === 'loading' ? '' : this.statusText || (status === 'idle' && this.emptyShown ? this.emptyWords : '');
+    const said = this.spoken ? text : '';
     return html`<div part="status" class=${status === 'error' ? 'status error' : 'status'} ?data-shown=${this.statusShown || this.emptyShown}>
-      ${status === 'loading' ? html`<tanrei-loading-indicator class="spinner" size="small" label=${this.statusText}></tanrei-loading-indicator>` : nothing}<span class="said" role="status">${said}</span
-      ><span class="said" role="alert">${status === 'error' ? this.statusText : ''}</span>
+      ${status === 'loading' ? html`<tanrei-loading-indicator class="spinner" size="small" label=${this.statusText}></tanrei-loading-indicator>` : nothing}<span class="said" aria-hidden="true">${text}</span
+      ><span class="live" role="status">${status === 'error' ? '' : said}</span><span class="live" role="alert">${status === 'error' ? said : ''}</span>
     </div>`;
   }
 
