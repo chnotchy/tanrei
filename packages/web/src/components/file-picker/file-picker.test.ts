@@ -717,6 +717,26 @@ test.describe('behavior', () => {
     expect((await order()).slice(2)).toEqual(['select:brief.pdf:true:true:false:tanrei-file-picker', 'reject:notes.txt:true:true:false:tanrei-file-picker']);
   });
 
+  test('FPK-9: a file picker that stands alone in the page tells a choice by select and reject alone — the event by which a component that holds it learns the arrival is over is heard on the picker, after the two, and bubbles to no listener of the document or the window', async ({ page }) => {
+    await mount(page, [fx('a', { label: 'A', multiple: true, accept: ['.pdf'], constraintsText: 'PDF' })]);
+    await host(page, 'a').evaluate((picker) => {
+      const log: string[] = [];
+      (window as unknown as { __log: string[] }).__log = log;
+      for (const type of ['select', 'reject', 'tanrei-file-picker-arrival']) {
+        picker.addEventListener(type, () => log.push(`picker ${type}`));
+        document.addEventListener(type, () => log.push(`document ${type}`));
+        window.addEventListener(type, () => log.push(`window ${type}`));
+      }
+    });
+    const log = () => page.evaluate(() => (window as unknown as { __log: string[] }).__log.splice(0));
+    for (const files of [[TXT, PDF], [PDF], [TXT]]) {
+      await choose(page, 'a', files);
+      await turn(page);
+      const told = [...(files.includes(PDF) ? ['select'] : []), ...(files.includes(TXT) ? ['reject'] : [])];
+      expect(await log(), files.map((f) => f.name).join('+')).toEqual([...told.flatMap((type) => [`picker ${type}`, `document ${type}`, `window ${type}`]), 'picker tanrei-file-picker-arrival']);
+    }
+  });
+
   test('FPK-10: the drop area answers a press as sys.behavior.pressed-feedback names — overlay paints the pressed tokens at once, ripple grows the pressed layer from the point of contact, dim keeps the container color and takes the pressed opacity, none changes nothing; the ripple runs over motion.feedback-duration and appears whole where motion is reduced', async ({ page }) => {
     for (const reduced of [false, true]) {
       await mount(page, [fx('a', { label: 'A', layout: 'drop-area', multiple: true, dropText: 'Drag files here' })], { reducedMotion: reduced });

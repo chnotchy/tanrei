@@ -3945,10 +3945,11 @@ Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reas
   room a full list has left. `judge(files)` (FPK-31) answers with `{ accepted, refused }`, emits nothing, keeps
   nothing and works while disabled — disabled stops the person, not the product.
 - **One arrival** is `select` where a file passed, `reject` where one was refused, and then one internal event
-  (`tanrei-file-picker-arrival`, `FILE_PICKER_ARRIVAL`; it bubbles, is not composed, and is not in the manifest) by
-  which a component that holds the picker answers the two as one. Nothing is emitted when the person leaves the
-  picker without choosing. The hidden input's own `input`, `change` and `cancel` stay inside the element: a file
-  picker has no value, so no event of a control with one leaves it.
+  (`tanrei-file-picker-arrival`, `FILE_PICKER_ARRIVAL`; it neither bubbles nor is composed, and is not in the
+  manifest) by which a component that holds the picker, listening on the picker itself, answers the two as one: a
+  picker that stands alone is in the product's DOM, and the event never reaches the page's bubbling listeners.
+  Nothing is emitted when the person leaves the picker without choosing. The hidden input's own `input`, `change` and
+  `cancel` stay inside the element: a file picker has no value, so no event of a control with one leaves it.
 - **A group only while it is named** (FPK-17). `role="group"` and `aria-label` are on an element of the shadow root,
   and only while `label` or a field gives a name; with neither there is no group and no role, and nothing is reported
   — the trigger is the button it is. The host takes no role.
