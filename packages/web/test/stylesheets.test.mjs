@@ -97,6 +97,8 @@ test('the cloak is exported on its own, hides every element the package defines,
     for (const selector of selectors(list)) {
       assert.match(outside(selector), /^(?::where)+$/, selector);
       assert.match(selector, /:not\(:defined\)/, selector);
+      // A rule that gives an element a box leaves one that is `hidden` to the browser's `display: none`.
+      if (/(?:^|;)\s*display:\s*(?!\s|none\b)/.test(body)) assert.match(selector, /:not\([^)]*\[hidden\]/, selector);
     }
     // A value is a token's (or a private name's that holds one), a keyword, or arithmetic on them: no length, color or
     // time of its own.

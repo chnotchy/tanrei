@@ -182,9 +182,11 @@ in it, and neither is the cloak.
 ## Before the elements are defined
 
 Until its script has run, an element is unknown to the browser: the page shows what is written between its tags,
-unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds a
-control whose height is a token of its own (a button, a text input, a checkbox, tabs…) at that height, and takes an
-element whose surface is in the top layer (a dialog, a popover) out of the page:
+unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds
+each element whose height its tokens give at that height — a control (a button, a text input, a checkbox, tabs…), a
+field with its label and its help (a text field, a select field…), a group of fields or of choices, a list row, a
+stepper, a snackbar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
+the page:
 
 ```js
 import '@tanrei/web/cloak.css';
@@ -192,8 +194,9 @@ import '@tanrei/web/cloak.css';
 
 Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
 defined — on a page whose script never arrives, its content is never shown. A control's width is not held, so lay out
-controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. The
-stylesheet's comment lists what it does not hold.
+controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. A text is
+held at one line: a label or a help that wraps moves what is below it by the lines it adds. The stylesheet's comment
+lists what it does not hold.
 
 ## Browser support
 
