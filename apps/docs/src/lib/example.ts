@@ -19,8 +19,9 @@ export const NEAR_EVENT = 'docs-example-near';
  */
 export const SOURCE_EVENT = 'docs-example-source';
 
-/** How near the view a frame is drawn: within half a window of it. */
-const NEAR = '50% 0px';
+/** How near the view a frame is drawn: within half a window of it, above or below; `NEAR` is the observer's margin for it. */
+const NEAR_SHARE = 0.5;
+const NEAR = `${NEAR_SHARE * 100}% 0px`;
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
 const LEAST = 160;
 /** Where the code's flavor a reader chose is kept, for every example of every page. */
@@ -207,10 +208,24 @@ function widthHandle(stage: HTMLElement) {
   });
 }
 
+/** The frames that have come near the view and been drawn. */
+const reached = new WeakSet<HTMLElement>();
+
+/**
+ * Runs `then` once `frame` has come near the view: now, if it already has, else when it does (`NEAR_EVENT`). A page's
+ * script that runs after this module may find its frame drawn already (below), so it asks here rather than waiting
+ * for the event alone.
+ */
+export function whenNear(frame: HTMLElement, then: () => void) {
+  if (reached.has(frame)) then();
+  else frame.addEventListener(NEAR_EVENT, then, { once: true });
+}
+
 /** A frame near the view: its elements are defined, its actions drawn, and a page's script told (`NEAR_EVENT`). */
 function draw(frame: HTMLElement) {
   const stage = stageOf(frame);
   if (!stage) return;
+  reached.add(frame);
   // What it holds is defined now (lib/define-on-demand.ts watches the mark).
   stage.removeAttribute('data-example-pending');
   drawActions(frame, stage);
@@ -237,6 +252,24 @@ for (const frame of frames()) {
     changed.set(frame, (event as CustomEvent<{ source: string }>).detail.source);
     if (drawn.has(frame) || frame.querySelector('[data-example-code-panel]')) void writeCode(frame);
   });
+}
+// The frames near the view already are drawn now, not at the observer's first notice: Firefox gives that notice only
+// once the page's later scripts have run (it runs those that have arrived one after another, before any other task,
+// a timer's included), so on a component's page, with the gallery's, the tables' and the diagrams' scripts after this
+// one, the frame the reader is looking at would wait for all of them before even asking for its elements. The
+// observer is left the frames further down.
+for (const frame of frames()) {
+  if (!nearNow(frame)) continue;
+  near.unobserve(frame);
+  draw(frame);
+}
+
+/** Whether a frame is near the view now, as the observer reckons it (`NEAR`): a box, within half a window of the view. */
+function nearNow(frame: HTMLElement) {
+  if (!frame.getClientRects().length) return false;
+  const { top, bottom, left, right } = frame.getBoundingClientRect();
+  const margin = innerHeight * NEAR_SHARE;
+  return bottom >= -margin && top <= innerHeight + margin && right >= 0 && left <= innerWidth;
 }
 // The reader's choice of system, wherever it is made (the header's menu, the index's select), is the root's attribute.
 new MutationObserver(() => {
