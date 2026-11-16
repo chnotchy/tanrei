@@ -228,12 +228,15 @@ gh workflow run record-baselines.yml --ref <branch> \
   -f reason="<what changed and why>" \
   -f filter=button-group,toolbar     # optional: spec names; empty records every baseline
   # -f start_ci=true                 # optional: start a three-engine CI run on the branch afterwards
+  # -f rewrite_all=true              # optional, web: write every selected baseline again (below)
 ```
 
-It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_REASON` set to the reason, and commits only the changed files under the baseline directories above to the branch — one commit per platform, `test(<platform>): record baselines — <reason>`. It refuses the default branch. While native CI is paused its default is the web alone. Then:
+It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_REASON` set to the reason, and commits only the changed files under the baseline directories above to the branch — one commit per platform, `test(<platform>): record baselines — <reason>`. It refuses the default branch. While native CI is paused its default is the web alone.
+
+The web job writes only the baselines whose comparison fails: fewer than 1 % of the pixels changed, and the drawn box moved no more than its tolerance (`packages/web/test/baseline.ts`), keeps the old picture. A fix whose picture moves within that tolerance — an element shifted a few pixels on a large fixture — therefore records nothing, and the baseline still shows the bug, so a return to it would pass. For such a fix, set `rewrite_all=true` with a `filter` naming the components it touched: every baseline the filter selects is written again (Playwright's `--update-snapshots=all`), and every one whose bytes differ is committed, including pictures that differ only by rendering noise. The native platforms ignore it; their record commands already write every snapshot they run. Then:
 
 1. **CI does not start by itself.** A branch's three-engine run comes with the merge train it joins: up to about eight pull requests whose Chromium runs are green are merged on one `train/<n>` branch, CI runs there once in all three engines, and each pull request then merges on its own. A run per recording (about 38 jobs) would fill the account's runners for everyone. Set `start_ci=true` to start one on the branch anyway. The pull request's own runs queued by the bot's push wait for approval; do not approve them.
-2. **Look at every image** in the commits (the pull request's file view shows them) — a baseline is evidence.
+2. **Look at every image** in the commits (the pull request's file view shows them) — a baseline is evidence. After a `rewrite_all` run, that is every rewritten image, not a sample: each one should show the fix, or look the same as before. An image that changed in a way the fix does not explain is a finding, not a baseline.
 3. Repeat the reason in the changeset.
 
 To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/IMPLEMENTATION.md` ("Tests"); Flutter and Compose — a Linux machine or VM with the versions above.
