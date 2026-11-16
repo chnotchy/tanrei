@@ -346,9 +346,13 @@ test.describe('layout', () => {
     // The widest is Month, measured with the check: padding, check, gap, label, padding.
     const month = await seg(page, 'single-none', 2).locator('.label').evaluate((el) => el.getBoundingClientRect().width);
     expect(natural[0]).toBeCloseTo(pad + check + gap + month + pad, 0);
-    // Selecting a segment (the check comes) changes no width.
+    // Selecting a segment (the check comes) changes no width — read once the check has fully opened, the moment the
+    // claim is about: the selection's motion ended, not a fixed time after it began.
     await set(page, 'single-none').evaluate((el: any) => (el.value = 'month'));
-    await page.waitForTimeout(400);
+    await expect(btn(page, 'single-none', 2)).toHaveClass(/\blead-open\b/);
+    await motionEnded(set(page, 'single-none'));
+    const lead = await btn(page, 'single-none', 2).locator('.lead').evaluate((el) => el.getBoundingClientRect().width);
+    expect(lead, 'the check has fully opened').toBeCloseTo(check + gap, 1);
     expect(await widths('single-none')).toEqual(natural);
     // More room: shared equally.
     const wide = await widths('wide');
