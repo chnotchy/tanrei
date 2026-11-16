@@ -17,6 +17,7 @@ import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('date-time-picker');
@@ -324,6 +325,14 @@ test.describe('presentation, focus and closing', () => {
     await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
     expect(await isOpen(page, 'm')).toBe(true);
     expect(await log(page)).toEqual([]);
+  });
+
+  test('DTM-51: a docked picker held in the box of its anchor, which content-visibility hides while it is open, emits close once with the reason anchor-hidden, and is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    expect(await page.locator('[data-fixture="d"]').evaluate((stage) => !!stage.querySelector('#a-d') && !!stage.querySelector('tanrei-date-time-picker')), 'the anchor and the picker in one box').toBe(true);
+    await open(page, 'd');
+    await expectGoneWhileSkipped(surface(page, 'd'), page.locator('[data-fixture="d"]'), 'the picker');
+    expect(await log(page)).toEqual(['close:anchor-hidden']);
   });
 
   test('DTM-51: an anchor taken out of the page in the task the docked picker was shown in — before any frame has looked at it — closes the picker once with the reason anchor-hidden', async ({ page }) => {

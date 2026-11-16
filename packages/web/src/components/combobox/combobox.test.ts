@@ -20,6 +20,7 @@ import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, iconFaceArrives, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('combobox');
@@ -1111,6 +1112,19 @@ test.describe('behavior: the list', () => {
     await heard(page);
     await host(page, 'one').evaluate((el) => (el.style.display = 'none'));
     await expect.poll(() => heard(page)).toEqual(['toggle false anchor-hidden']);
+    expect((await read(page, 'one')).open).toBe(false);
+  });
+
+  test('CMB-22: a combobox whose box content-visibility hides with the list open closes with the reason anchor-hidden, and the list is out of the top layer within its exit: nothing of it is drawn there', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'lisbon' })]);
+    await listen(page, 'one');
+    await focusInput(page, 'one');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'one').toBe(true);
+    await motionEnded(part(page, 'one', '.motion'));
+    await heard(page);
+    await expectGoneWhileSkipped(part(page, 'one', '.surface'), stage(page, 'one'), 'the list');
+    expect(await heard(page)).toEqual(['toggle false anchor-hidden']);
     expect((await read(page, 'one')).open).toBe(false);
   });
 

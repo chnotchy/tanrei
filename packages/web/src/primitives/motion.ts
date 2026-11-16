@@ -718,7 +718,8 @@ export class AppearController implements ReactiveController {
 
   /**
    * The surface closes: resolves with true once its exit has played (at once where there is none: reduced to nothing,
-   * not drawn, before the first paint, or `instant` — made in this task where no update is pending), or with false
+   * not drawn — out of the page, or in a subtree `content-visibility` skips —, before the first paint, or `instant` —
+   * made in this task where no update is pending), or with false
    * when it was told to open before that.
    */
   async exit(instant = false): Promise<boolean> {
@@ -740,15 +741,19 @@ export class AppearController implements ReactiveController {
     for (;;) {
       if (run !== this.run) return false;
       const motion = this.options.motion();
-      if (!motion?.isConnected) return true;
-      if (instant || !documentPainted()) {
+      if (!motion) return true;
+      // Not drawn — taken out of the page, or in a subtree `content-visibility` skips: an exit has nothing to show there,
+      // and an engine that starts its transitions in a skipped subtree never plays them (Firefox left them pending until
+      // the subtree was drawn again, and the surface stood in the top layer, drawn nowhere, all that while).
+      if (instant || !documentPainted() || !motion.checkVisibility({ contentVisibilityAuto: true })) {
         atOnce(motion);
         return true;
       }
       // Asking flushes style: the exit's transitions exist now. A cancelled one (turned round, or replaced) settles too,
-      // and the loop asks again: what replaced it is waited for, and a surface opened again ends the wait.
+      // and the loop asks again: what replaced it is waited for, and a surface opened again ends the wait (the run was
+      // asked at the top of this turn, and nothing since has run a script).
       const running = appearing(motion);
-      if (!running.length) return run === this.run;
+      if (!running.length) return true;
       // The exit begins in the first frame drawn after the task that closed it, as an entrance does (`fromNextFrame`):
       // WebKit dated it from the frame drawn before that task, and a surface closed at the end of a task longer than its
       // exit was gone in the first frame after it, with no frame of its motion.
