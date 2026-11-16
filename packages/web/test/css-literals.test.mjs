@@ -102,6 +102,22 @@ test('still reads an interpolation followed by a colon in a declaration as a cus
   assert.deepEqual(minifyCssParts(['x {\n  ', ':hover  , a;\n}']), ['x{', ':hover , a;}']);
 });
 
+test('reads an interpolation followed by the rest of a name and a colon as a custom property name', () => {
+  // `${PREFIX}-track-shape: …` — the value keeps its spaces, and the declaration ends at its `;`.
+  assert.deepEqual(minifyCssParts([':host {\n  ', '-track-shape: 0 1px ,  2px;\n  y: a , b ;\n}']), [':host{', '-track-shape: 0 1px , 2px;y:a,b;}']);
+  assert.deepEqual(minifyCssParts(['x {\n  ', '-a:b ,c\n}']), ['x{', '-a:b ,c }']);
+  // A name made of several interpolations.
+  assert.deepEqual(minifyCssParts(['x {\n  ', '-', '-shape: var(--a, 0) ;\n  y: var(--b , 0);\n}']), ['x{', '-', '-shape: var(--a, 0) ;y:var(--b,0);}']);
+  // The same name and a colon then a `{` before any `;`: a rule's selector (`${selector}-end:hover {`), compacted.
+  assert.deepEqual(minifyCssParts(['', '-end:hover ,\n  .a  .b {\n  c: d , e;\n}\n']), ['', '-end:hover,.a .b{c:d,e;}']);
+  assert.deepEqual(minifyCssParts(['', '-end::before {\n  content: " a  b ";\n}\n']), ['', '-end::before{content:" a  b ";}']);
+  // In parentheses the colon is a container feature's, as `style(${PREFIX}-focus-style: glow)` writes it.
+  assert.deepEqual(minifyCssParts(['@container style(', '-focus-style: glow) {\n  .a {\n    b: c , d;\n  }\n}']), [
+    '@container style(',
+    '-focus-style: glow){.a{b:c,d;}}',
+  ]);
+});
+
 test('finds css templates in code, and not in comments, strings, regular expressions or other templates', () => {
   const source = [
     "import { css } from 'lit';",
