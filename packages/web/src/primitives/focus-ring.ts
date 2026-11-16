@@ -24,18 +24,18 @@ export interface FocusRingOptions {
   color?: string;
 }
 
-// focus-style: glow — the same two focus colors as a soft halo instead of a hard line.
+// focus-style: glow — the same two focus colors as a soft halo instead of a hard line. The outline is transparent, not
+// none: forced-colors mode repaints it in a system color, where a box-shadow is dropped. The halo starts where the ring
+// would, after the offset, and is the ring's two colors, from the control outwards, each blurred by its own width.
+// (Why each rule is there is said here, not in the CSS: a comment inside the string ships in every bundle.)
 const glow = (selector: string, color = SYSTEM_COLOR) => `
   ${selector} {
-    /* Transparent, not none: forced-colors mode repaints it in a system color, where a box-shadow is dropped. */
     outline-color: transparent;
   }
   ${selector}::after {
-    /* The halo starts where the ring would: after the offset. */
     inset: calc(var(--tanrei-sys-focus-offset) * -1);
     border: 0;
     border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale) + var(--tanrei-sys-focus-offset));
-    /* The same two colors as the ring, from the control outwards, each blurred by its own width. */
     box-shadow:
       0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
       0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) ${color};
@@ -71,6 +71,8 @@ export function focusRing(on: FocusSelector, { inside = false, within, color = S
   if (within !== undefined) return heldRing(on, within, color);
   if (inside) return insideRing(on, color);
   const focused = on(':focus-visible');
+  // focus-style: glow, read by a style container query, and, for browsers without style queries, from
+  // data-focus-style (syncFocusStyle).
   return unsafeCSS(`
   ${focused} {
     --_focus-inner-edge: calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width));
@@ -86,10 +88,8 @@ export function focusRing(on: FocusSelector, { inside = false, within, color = S
     pointer-events: none;
   }
 
-  /* focus-style: glow, read by a style container query… */
   @container style(${BEHAVIOR}-focus-style: glow) {${glow(focused, color)}
   }
-  /* …and, for browsers without style queries, from data-focus-style (syncFocusStyle). */
   ${glow(on("[data-focus-style='glow']:focus-visible"), color)}
 `);
 }
