@@ -24,7 +24,7 @@ import {
 } from '../../../test/harness.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded, settledCss } from '../../../test/motions.js';
+import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('stepper');
@@ -448,8 +448,9 @@ test.describe('pressing a step', () => {
     }
   });
 
-  // A step is drawn without motion for its first two frames (`.still`). The rule that turns its transitions off must
-  // not reach press-hold, which the step's `.hold` carries as a transition-delay: the `transition` shorthand would set
+  // A step is drawn without motion while it settles (MOT-3: until two frames after its first update). The rule that
+  // turns its transitions off must not reach press-hold, which the step's `.hold` carries as a transition-delay: the
+  // `transition` shorthand would set
   // that delay to 0s, and a press in those frames would end with the key. The page's clock is held, so the first frames
   // never pass: the press lands in them on any machine, as a fast one in WebKit did on a loaded one.
   test('SPR-14: a step pressed in its first frames, while it is drawn without motion, is held for press-hold too', async ({ page }) => {
@@ -468,7 +469,8 @@ test.describe('pressing a step', () => {
         });
         await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
         const b = btn(page, 'pressable-visited', 0);
-        expect(await b.evaluate((el) => el.classList.contains('still')), `${name}: the step is in its first frames`).toBe(true);
+        await expect(step(page, 'pressable-visited', 0), `${name}: the step is in its first frames`).toHaveAttribute('data-tanrei-settling');
+        expect(await css(b, 'transition-property'), `${name}: drawn without motion`).toBe('none');
         await step(page, 'pressable-visited', 0).focus();
         const pressed = () => b.evaluate((el) => el.hasAttribute('data-pressed'));
         await activate();
@@ -481,6 +483,38 @@ test.describe('pressing a step', () => {
         await releaseClock(page);
       }
     }
+  });
+
+  // Settling starts each time the step is connected, not only the first: a step the product moves in the page is drawn
+  // as it stands for its first frames there too. The page's clock is held, so those frames never pass until it runs.
+  test('SPR-17, MOT-3: a step connected again — its stepper moved in the page — draws a change of condition in its first frames at once, neither a transition nor the old colors run out, and over the state motion after them', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
+    await rootTokens(page, { [T('motion-state-duration')]: '60000ms' });
+    const first = step(page, 'pressable-visited', 0);
+    await expect(first).not.toHaveAttribute('data-tanrei-settling');
+    const motions = () => Promise.all([0, 1].map((n) => motionCount(marker(page, 'pressable-visited', n))));
+    const show = (value: string) =>
+      stepper(page, 'pressable-visited').evaluate(async (el, v) => {
+        const host = el as HTMLElement & { value: string; updateComplete: Promise<unknown> };
+        host.value = v;
+        await host.updateComplete;
+        await Promise.all([...el.children].map((child) => (child as unknown as { updateComplete: Promise<unknown> }).updateComplete));
+      }, value);
+    await holdClock(page);
+    try {
+      await page.locator('[data-fixture="pressable-visited"]').evaluate((stage) => stage.append(stage.querySelector('tanrei-stepper')!));
+      await expect(first, 'connected again: settling').toHaveAttribute('data-tanrei-settling');
+      expect(await css(box(page, 'pressable-visited', 0), 'transition-property'), 'drawn without motion').toBe('none');
+      // The first step becomes current: its button becomes a plain box, and the second step is no longer complete.
+      await show('account');
+      await expect(marker(page, 'pressable-visited', 0)).toHaveText('1');
+      expect(await motions(), 'nothing runs in the first frames').toEqual([0, 0]);
+    } finally {
+      await releaseClock(page);
+    }
+    await expect(first, 'settled after its first frames').not.toHaveAttribute('data-tanrei-settling');
+    await show('payment');
+    await expect.poll(motions, 'after them, a change of condition runs over the state motion').not.toEqual([0, 0]);
   });
 
   test('SPR-15: overlay (default), ripple (m3-like), dim (cupertino) and none each answer the press; an unknown name is the first', async ({ page }) => {
@@ -559,7 +593,7 @@ test.describe('pressing a step', () => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
     const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
     const b = btn(page, 'pressable-visited', 0);
-    await expect(b).not.toHaveClass(/\bstill\b/);
+    await expect(step(page, 'pressable-visited', 0)).not.toHaveAttribute('data-tanrei-settling');
     const properties = (await css(b, 'transition-property')).split(', ');
     const durations = (await css(b, 'transition-duration')).split(', ').map((v) => Number.parseFloat(v) * 1000);
     for (const p of ['background-color', 'color']) {
@@ -579,7 +613,7 @@ test.describe('pressing a step', () => {
     expect(await running(1)).toContain(60000);
     // A step that stays plain transitions as any element does.
     await mountFixtures(page, spec, { icons: true, fixtures: [fx('horizontal')] });
-    await expect(box(page, 'horizontal', 1)).not.toHaveClass(/\bstill\b/);
+    await expect(step(page, 'horizontal', 1)).not.toHaveAttribute('data-tanrei-settling');
     await rootTokens(page, { [T('motion-state-duration')]: '60000ms' });
     await stepper(page, 'horizontal').evaluate((el: any) => (el.value = 'account'));
     await expect.poll(() => marker(page, 'horizontal', 1).evaluate((el) => el.getAnimations().some((a) => (a as CSSTransition).transitionProperty === 'background-color'))).toBe(true);

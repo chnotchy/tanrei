@@ -18,6 +18,7 @@ import {
 } from '../../primitives/index.js';
 import { type StepCondition, stepStyles, stepperStyles } from './stepper.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { SETTLING } from '../../styles/motion.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** How the steps are laid out (SPR-4, SPR-5, SPR-6). A closed set: anything else is horizontal. */
@@ -107,8 +108,6 @@ export class TanreiStepperStep extends TanreiElement {
   disabled = false;
 
   private context: StepContext = { condition: 'incomplete', current: false, pressable: false, unavailable: false, number: 0, vertical: false, last: true, statusText: '' };
-  /** The first frames after it connected, when the stepper's first word is drawn without motion. */
-  private still = true;
 
   /** SPR-14, SPR-15: the step's pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   private readonly press = new PressController(this, {
@@ -132,17 +131,6 @@ export class TanreiStepperStep extends TanreiElement {
         }
       },
       { capture: true },
-    );
-  }
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this.still = true;
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        this.still = false;
-        this.renderRoot?.querySelector('.container')?.classList.remove('still');
-      }),
     );
   }
 
@@ -187,7 +175,9 @@ export class TanreiStepperStep extends TanreiElement {
   protected override willUpdate(changed: PropertyValues<this>) {
     const before = changed.get('context' as keyof TanreiStepperStep) as StepContext | undefined;
     const button = (context: StepContext) => context.pressable || context.unavailable;
-    if (!before || !this.hasUpdated || this.still || button(before) === button(this.context)) return;
+    // Not while the step settles (MOT-3: from each time it is connected until two frames after its first update there),
+    // when its first condition is drawn, not run.
+    if (!before || !this.hasUpdated || this.hasAttribute(SETTLING) || button(before) === button(this.context)) return;
     this.carried = new Map();
     for (const selector of CARRIED) {
       const element = this.renderRoot.querySelector(selector);
@@ -235,7 +225,7 @@ export class TanreiStepperStep extends TanreiElement {
 
   protected override render() {
     const { condition, pressable, unavailable, vertical, last } = this.context;
-    const classes = classMap({ container: true, root: true, [condition]: condition !== 'incomplete', still: this.still });
+    const classes = classMap({ container: true, root: true, [condition]: condition !== 'incomplete' });
     const container =
       pressable || unavailable
         ? html`<button
