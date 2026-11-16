@@ -9,3 +9,6 @@ closes. Back closes it once, as the scrim does: `close` fires, the frame fires o
 nothing stays inert, and focus goes back to the menu button. A dialog or a popover opened above the drawer hears back
 first. An Escape typed in a field of the header still leaves the drawer open, as before. Where the browser has no
 `CloseWatcher` nothing changes.
+
+The bundle budget of `@tanrei/web/all` is raised by what this fix adds (145 bytes gzip, 671705 to 671850): it stood
+95 bytes under its budget before, so the budget is raised by those bytes, rounded up to the next 100: 672000.
