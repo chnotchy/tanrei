@@ -8,3 +8,6 @@ where it stands alone) no longer reaches over the body's end. Under a system who
 `comp.file-item.row.container.outset`, so a press on the end of the body went to the action. It now stops halfway
 across the space between the two, in both directions. Beside a body that is not pressable the action still reaches as
 far as the gap. FIT-18 now says this in words. Nothing is drawn differently.
+
+The bundle budgets of file-upload and of `@tanrei/web/all` are raised by what this fix and the wrapped breadcrumbs' fix
+add (129 and 361 bytes gzip): each stood within 60 bytes of its budget before.
