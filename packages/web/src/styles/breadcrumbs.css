@@ -33,6 +33,9 @@
  *   dir="auto" (on the last level)       while its label is cut: it is cut at the end of its own direction (BRC-28)
  *   data-empty (on the element)          it has no level: nothing is drawn (BRC-1)
  *
+ * and, from its own list item, two names a level inherits: `--_brc-cap-top` and `--_brc-cap-bottom`, how far the hit
+ * area may reach above and below the level where a wrapped trail has a line there (BRC-23).
+ *
  * A glyph and the separators drawn here need icons.css (the page that loads it has the icon font); without it their
  * room is kept and nothing is drawn in it, so nothing moves when it arrives.
  *
@@ -426,11 +429,16 @@
 
   /* ── The hit area (BRC-23), once the element is defined: the minimum target above and below the line, and along
      the trail halfway to the entry beside it — half a separator and its gap — so that a press on a separator
-     reaches the nearer of its two neighbours and no two hit areas overlap ───────────────────────────────────────── */
+     reaches the nearer of its two neighbours and no two hit areas overlap. Where a wrapped trail has a line above or
+     below the level, the element's list item caps that side (`--_brc-cap-top`, `--_brc-cap-bottom`: half the row gap),
+     so that a level reaches no further than halfway to the line beside it ──────────────────────────────────────── */
   :where(tanrei-breadcrumbs:defined) > :where(a:any-link:not([href=''], [href^='javascript:' i]))::after {
     content: '';
     position: absolute;
-    inset-block: min(0px, calc((100% - var(--_brc-target)) / 2));
+    /* What each side lacks of the target (`100%` is the level's height where a block inset reads it). */
+    --_brc-reach: max(0px, (var(--_brc-target) - 100%) / 2);
+    inset-block-start: calc(-1 * min(var(--_brc-reach), var(--_brc-cap-top, var(--_brc-reach))));
+    inset-block-end: calc(-1 * min(var(--_brc-reach), var(--_brc-cap-bottom, var(--_brc-reach))));
     inset-inline: calc((var(--tanrei-comp-breadcrumbs-separator-size) / 2 + var(--tanrei-comp-breadcrumbs-separator-gap)) * -1);
   }
   /* The trail's two ends have no entry beside them: there the hit area ends with the level, so that a trail which

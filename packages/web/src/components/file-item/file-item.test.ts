@@ -2023,6 +2023,46 @@ test.describe('behavior', () => {
     }
   });
 
+  test('FIT-18: where a row’s body is pressable and the actions stand beside it, the action next to the body reaches toward it no further than halfway across the space between them — half of row.container.gap less the row.container.outset the body is grown by — so a press on the body’s visible bounds is the body’s and one in the nearer half of the space is not the action’s, with one action or two and in a right-to-left row; beside a body that is not pressable the action still reaches as far as row.container.gap', async ({ page }) => {
+    const error = { status: 'error', errorText: 'Lost.', retryable: true };
+    await mount(page, [
+      fx('one', { name: 'a.pdf', interactive: true, ...WORDS }),
+      fx('two', { name: 'a.pdf', interactive: true, ...error, ...WORDS }),
+      fx('two-rtl', { name: 'a.pdf', interactive: true, ...error, ...WORDS }, { direction: 'rtl' }),
+      fx('still', { name: 'a.pdf', ...WORDS }),
+    ]);
+    const [size, gap, outset] = [await token(page, 'action-size'), await token(page, 'row-container-gap'), await token(page, 'row-container-outset')];
+    // A target that leaves the action more than the gap short on each side: more than the gap can give it.
+    await override(page, { '--tanrei-sys-target-pointer': `${size + 2 * gap + 2}px` });
+    const half = Math.max(0, (gap - outset) / 2);
+    await listen(page);
+    for (const [id, next, rtl] of [['one', 'remove', false], ['two', 'retry', false], ['two-rtl', 'retry', true]] as const) {
+      expect(await host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.item')!.hasAttribute('data-stacked')), `${id}: the actions stand beside the body`).toBe(false);
+      const [body, action] = [await box(own(page, id, 'body')), await box(own(page, id, next))];
+      const space = rtl ? body.x - (action.x + action.width) : action.x - (body.x + body.width);
+      near(space, gap - outset, `${id}: row.container.gap less the outset lies between the body’s visible bounds and the action`);
+      const reach = -Number.parseFloat(await css(own(page, id, next), rtl ? 'right' : 'left', '::before'));
+      near(reach, half, `${id}: the action reaches halfway toward the body`);
+      const edge = rtl ? body.x : body.x + body.width;
+      const toward = rtl ? -1 : 1;
+      const y = action.y + action.height / 2;
+      for (const [x, expected] of [
+        [edge - toward * 1.5, 'click'],
+        [edge + (toward * space) / 4, null],
+        [edge + (toward * space * 3) / 4, next],
+      ] as const) {
+        await forget(page);
+        await page.mouse.click(x, y);
+        const types = (await heard(page)).map((each) => each.type);
+        if (expected === 'click') expect(types, `${id}: a press on the body’s visible bounds`).toEqual(['click']);
+        else if (expected === null) expect(types, `${id}: a press in the nearer half of the space to the body`).not.toContain(next);
+        else expect(types, `${id}: a press in the nearer half of the space to the action`).toEqual([next]);
+      }
+    }
+    // A body that is not pressable takes no press: the action reaches toward the texts as far as the gap, as before.
+    near(-Number.parseFloat(await css(own(page, 'still', 'remove'), 'left', '::before')), gap, 'still: the whole gap toward texts that take no press');
+  });
+
   test('FIT-18: the hit area of the action at a file item’s end reaches no further than the item’s own end edge, in both directions and at 200 % text — it takes what it lacks toward the start, as far as half of what lies between it and another action or as what lies between it and the texts — so a file item that ends at the edge of a window 320 wide widens nothing and the page does not scroll sideways (FIT-24)', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 1200 });
     const fixtures = spec.fixtures.filter((f) => ['row-format', 'row-error-retryable', 'tile-error-retryable'].includes(f.id));

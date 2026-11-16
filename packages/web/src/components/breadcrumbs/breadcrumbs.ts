@@ -97,6 +97,21 @@ function mark(element: Element, name: string, value: string | null) {
 const flagged = (element: Element, name: string) => element.hasAttribute(name) && element.getAttribute(name) !== 'false';
 const width = (element: Element | null | undefined) => element?.getBoundingClientRect().width ?? 0;
 
+/** How near, in CSS pixels, an entry's edge may come to another line's and still be on that line: less than any row gap a trail draws apart, more than the engine's rounding. */
+const LINE_SLACK = 0.5;
+
+/**
+ * BRC-23: for each list item of a wrapped trail, where a line of the trail stands beside it — `above` where an entry
+ * ends before it begins, `below` where one begins after it ends (an entry whose label runs over several lines stands
+ * on all of them) — or `''` where neither does. Read from where the items are drawn, in the block direction.
+ */
+function linesBeside(items: HTMLElement[]): string[] {
+  const boxes = items.map((item) => item.getBoundingClientRect());
+  const firstEnd = Math.min(...boxes.map((box) => box.bottom));
+  const lastStart = Math.max(...boxes.map((box) => box.top));
+  return boxes.map((box) => [firstEnd <= box.top + LINE_SLACK ? 'above' : '', lastStart >= box.bottom - LINE_SLACK ? 'below' : ''].filter(Boolean).join(' '));
+}
+
 /**
  * BRC-9: the levels that are out of a trail of `count` levels when `out` of them are — first those between the first
  * and the last, beginning next to the first; then the first. The last is never among them.
@@ -376,9 +391,14 @@ export class TanreiBreadcrumbs extends TanreiElement {
     for (const { list } of live) list.classList.add('measure');
     const read = live.map(({ list }) => ({ widths: [...list.querySelectorAll('li.level')].map(width), button: width(list.querySelector('li.more')), room: width(list) }));
     for (const { list } of live) list.classList.remove('measure');
+    // BRC-23: where each wrapped trail breaks into lines, read as it is drawn — after the widths, in one more layout.
+    const lines = live.map(({ trail, list }) => (trail.wraps ? linesBeside([...list.querySelectorAll<HTMLElement>('li.level')]) : null));
     // After the layout the reads forced: a face the labels first asked for in it is loading now.
     for (const { trail } of live) trail.faces.measured();
-    live.forEach(({ trail }, index) => trail.take(read[index]!, observed));
+    live.forEach(({ trail, list }, index) => {
+      trail.take(read[index]!, observed);
+      list.querySelectorAll<HTMLElement>('li.level').forEach((item, at) => mark(item, 'data-lines', lines[index]?.[at] || null));
+    });
   }
 
   /** The writing half of `decide()`: what follows from the widths that were read. */

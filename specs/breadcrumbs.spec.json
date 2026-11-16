@@ -243,8 +243,8 @@
     },
     {
       "id": "BRC-23",
-      "text": "WHERE the visual size of a level that is a link or of the overflow button is below the minimum target THE breadcrumbs SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes, and on the axis of the trail no further than halfway to the entry beside it, so that no two hit areas overlap; a platform that cannot tell the input type SHALL use sys.target.touch.",
-      "verify": "Under the default system a level is 22 high and takes presses 36 high. A press on a separator reaches the nearer of its two neighbours."
+      "text": "WHERE the visual size of a level that is a link or of the overflow button is below the minimum target THE breadcrumbs SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes, on the axis of the trail no further than halfway to the entry beside it, and, WHILE the trail runs over several lines (BRC-15), across them no further than half comp.breadcrumbs.row-gap toward a line above or below that level, so that no two hit areas overlap; a platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Under the default system a level is 22 high and takes presses 36 high. A press on a separator reaches the nearer of its two neighbours. In the fixture long-trail-wrap a press on a level's bottom edge, or in the nearer half of the row gap below it, goes to that level and not to the level on the line below; a level of the first line still reaches the whole target above it, and one of the last line below it."
     },
     {
       "id": "BRC-24",
