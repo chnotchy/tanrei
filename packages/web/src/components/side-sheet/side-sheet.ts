@@ -727,8 +727,8 @@ export class TanreiSideSheet extends TanreiElement {
     if ((changed.has('headline') || changed.has('variant')) && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'SSH-12', `headline is empty, so the ${this.modal ? 'modal dialog' : 'complementary region'} has no accessible name; give it a headline`);
     }
-    if ((changed.has('notClosable') || changed.has('closeLabel')) && !this.notClosable && this.words.lacks('closeLabel', this.closeLabel)) {
-      report(this, 'SSH-5', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+    if ((changed.has('notClosable') || changed.has('closeLabel')) && !this.notClosable && !this.words.get('closeLabel', this.closeLabel)) {
+      this.words.missing('closeLabel', { id: 'SSH-5', effect: 'the close button has no accessible name' });
     }
     // SSH-23: a divider visibility the sheet does not define is drawn as auto (no rule matches it).
     if (changed.has('dividerVisibility')) {

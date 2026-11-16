@@ -1378,8 +1378,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if (changed.has('crossOffset') && cross !== null && cross !== undefined && !Number.isFinite(cross)) {
       report(this, 'POP-4', `cross-offset ${JSON.stringify(String(cross))} is not a finite number; 0 is used in its place`);
     }
-    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
-      report(this, 'POP-13', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
+      this.words.missing('closeLabel', { id: 'POP-13', effect: 'the close button has no accessible name' });
     }
     if (changed.has('open') && this.open && !this.headline.trim() && !this.label.trim() && !this.empty && !namedByProduct(this)) {
       report(this, 'POP-29', 'headline and label are both empty, so the dialog has no accessible name; give it a headline, or a label where it draws none');
