@@ -537,6 +537,17 @@ export const styles = css`
   .item .action + .action:last-child::before {
     --_toward-start: calc(var(--_action-gap) / 2);
   }
+  /* FIT-18: where the body beside the actions is pressable, the action next to it — the first of a row's actions, or
+     its only one — reaches toward the body no further than halfway across what lies between them: row.container.gap,
+     less the row.container.outset the body's bounds are grown by (FIT-14), so that a press on the body's visible bounds
+     is the body's and a press between the two goes to the nearer one. (Not while the actions stand on a line of their
+     own, FIT-24: the body is then above them, not beside.) */
+  ${unsafeCSS(on('row'))}:not([data-stacked]) .body.pressable ~ .end .action:first-child::before {
+    --_toward-start: max(0px, (${t('row-container-gap')} - ${t('row-container-outset')}) / 2);
+  }
+  ${unsafeCSS(on('row'))}:not([data-stacked]) .body.pressable ~ .end .action:first-child:not(:last-child)::before {
+    inset-inline-start: calc(-1 * min(var(--_lacks) / 2, var(--_toward-start)));
+  }
 
   /* FIT-14, FIT-21: each state paints the action from that state's tokens of its form; pressed > focused > hovered, disabled over all. */
   ${unsafeCSS(
