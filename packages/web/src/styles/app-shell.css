@@ -300,23 +300,37 @@
 
   /* APS-9: the aside, in the main region's column while the window is compact or medium: above the main content
      (`aside-order="before"`) or below it, aside.gap from it, with the main region's gutters, width and centring.
-     The space between the two is the aside's: it reaches into the main region's own padding by a margin, so the
-     main region is the same with and without an aside. APS-18: the line stands in the middle of that space. */
+     The space between the two is shared: half of it, less half the line, is the aside's padding, and the other half
+     the main region's in place of its own padding on that side (below), so the two boxes abut and neither reaches
+     into the other — a press, a fill the product gives the main region and the outline a screen reader draws around
+     a landmark keep to their own region. APS-18: the line, along the edge they share, stands in the middle of it. */
   :where(tanrei-app-shell) > :where([slot='aside']) {
     grid-area: after / main-start / auto / frame-end;
     box-sizing: border-box;
     min-inline-size: 0;
+    margin-block: 0;
     margin-inline: max(var(--_aps-main-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
-    margin-block-start: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2 - var(--tanrei-comp-app-shell-main-padding-block));
     border-block-start: var(--_aps-line) solid var(--_aps-line-color);
     padding-block: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2) var(--tanrei-comp-app-shell-main-padding-block);
   }
   :where(tanrei-app-shell[aside-order='before']) > :where([slot='aside']) {
     grid-row: before;
-    margin-block: 0 calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2 - var(--tanrei-comp-app-shell-main-padding-block));
     border-block-start: 0;
     border-block-end: var(--_aps-line) solid var(--_aps-line-color);
     padding-block: var(--tanrei-comp-app-shell-main-padding-block) calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
+  }
+  /* APS-8, APS-9: …and the main region's half, on the aside's side. Asked of the main region itself, with the aside
+     written where APS-22 puts it: after the main region (`:has(~ …)`), or before it while `aside-order` is `before`
+     (`~`). Not for a side sheet, which draws its own edge and takes no inset of the frame's (APS-10); not while the
+     aside stands beside the main region (an expanded window); and not while the main region is the scrolling view
+     (APS-15), where its padding is the end of what it scrolls and the aside keeps its own space. */
+  @media (width < token(comp.app-shell.breakpoint.expanded)) {
+    :where(tanrei-app-shell:not([scroll='main'], [aside-order='before'])) > :where(main, [role='main']):where(:has(~ [slot='aside']:not(tanrei-side-sheet, [hidden]))) {
+      padding-block-end: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
+    }
+    :where(tanrei-app-shell[aside-order='before']:not([scroll='main'])) > :where([slot='aside']:not(tanrei-side-sheet, [hidden])) ~ :where(main, [role='main']) {
+      padding-block-start: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
+    }
   }
 
   /* APS-11: the footer, after the row, across the frame's whole width; the frame lays out nothing inside it. */
@@ -558,7 +572,6 @@
   }
   /* An aside above or below the main region keeps its place beside the scrolling view; its space is its own. */
   :where(tanrei-app-shell[scroll='main']) > :where([slot='aside']) {
-    margin-block: 0;
     padding-block: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
   }
   @media (width >= token(comp.app-shell.breakpoint.expanded)) {
@@ -573,11 +586,11 @@
   /* ── APS-18: gap — no line, and the same spaces. Read from the cascade by a style query; `data-separation` is
      the element's word for it where the browser has none ───────────────────────────────────────────────────────── */
   @container style(--_aps-separation: gap) {
-    :where(tanrei-app-shell) > :where([slot='aside'], [slot='footer']) {
+    :where(tanrei-app-shell) > :where([slot='aside'], [slot='footer'], main, [role='main']) {
       --_aps-line: 0px;
     }
   }
-  :where(tanrei-app-shell[data-separation='gap']) > :where([slot='aside'], [slot='footer']) {
+  :where(tanrei-app-shell[data-separation='gap']) > :where([slot='aside'], [slot='footer'], main, [role='main']) {
     --_aps-line: 0px;
   }
 

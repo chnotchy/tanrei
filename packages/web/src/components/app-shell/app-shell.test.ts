@@ -1666,6 +1666,46 @@ test.describe('the main region, the aside, the footer', () => {
     expect([(await contentBox(region(page, 'aside'))).width, (await contentBox(main(page))).width]).toEqual([768, 768]);
   });
 
+  // APS-8, APS-9, APS-18: an aside above or below the main region and the main region share the space between them —
+  // aside.gap from the main content to the aside's, with the line in its middle — and neither box reaches into the
+  // other: the aside begins where the main region ends (or ends where it begins), so a press, a fill the product gives
+  // the main region and the outline a screen reader draws around a landmark keep to their own region. The main region
+  // keeps main.padding-block on its other side. Each case in a page of the real components, and in a fixture.
+  const stacked = [
+    { name: 'a real page, compact, after', f: () => real(), width: 400, before: false },
+    { name: 'a real page, compact, before', f: () => real({ props: { asideOrder: 'before' } }), width: 400, before: true },
+    { name: 'a real page, medium, after', f: () => real(), width: 800, before: false },
+    { name: 'a real page, medium, before', f: () => real({ props: { asideOrder: 'before' } }), width: 800, before: true },
+    { name: 'gap, compact, after', f: () => own('gap', { separation: 'gap', asideLabel: 'Related' }, '<main id="main">Main</main><aside slot="aside">Aside</aside><footer slot="footer">Footer</footer>'), width: 400, before: false },
+    { name: 'gap, compact, before', f: () => own('gap', { separation: 'gap', asideOrder: 'before', asideLabel: 'Related' }, '<aside slot="aside">Aside</aside><main id="main">Main</main><footer slot="footer">Footer</footer>'), width: 400, before: true },
+    ...(['compact', 'compact-no-header', 'compact-aside-before', 'medium', 'medium-aside-before'] as const).map((id) => ({ name: `the fixture ${id}`, f: () => fixture(id), width: undefined, before: id.endsWith('before') })),
+  ];
+  for (const c of stacked) {
+    test(`APS-8, APS-9, APS-18: a stacked aside and the main region abut — neither box reaches into the other — with aside.gap between their contents and the line in its middle, and main.padding-block on the main region’s other side: ${c.name}`, async ({ page }) => {
+      await mount(page, c.f(), c.width ? { width: c.width } : {});
+      const [gap, block] = [await resolveToken(page, T('aside-gap')), await resolveToken(page, T('main-padding-block'))];
+      const aside = region(page, 'aside');
+      const [asideBox, asideContent, mainBox, mainContent] = [await edges(aside), await contentBox(aside), await edges(main(page)), await contentBox(main(page))];
+      const line = await px(aside, c.before ? 'border-bottom-width' : 'border-top-width');
+      if (c.before) {
+        near(mainBox.top, asideBox.bottom, 0.01);
+        near(mainContent.top - asideContent.bottom, gap, 0.01);
+        near(asideBox.bottom - line / 2, (asideContent.bottom + mainContent.top) / 2, 0.01);
+        near(mainBox.bottom - mainContent.bottom, block, 0.01);
+      } else {
+        near(asideBox.top, mainBox.bottom, 0.01);
+        near(asideContent.top - mainContent.bottom, gap, 0.01);
+        near(asideBox.top + line / 2, (mainContent.bottom + asideContent.top) / 2, 0.01);
+        near(mainContent.top - mainBox.top, block, 0.01);
+      }
+      // What a press reaches on either side of the edge they share.
+      const x = (mainContent.left + mainContent.right) / 2;
+      const shared = c.before ? mainBox.top : mainBox.bottom;
+      const hit = (y: number) => page.evaluate(([px, py]) => document.elementFromPoint(px!, py!)?.closest('main, [slot="aside"]')?.localName ?? null, [x, y]);
+      expect([await hit(shared + (c.before ? 1 : -1)), await hit(shared + (c.before ? -1 : 1))], c.name).toEqual(['main', 'aside']);
+    });
+  }
+
   test('APS-10: a standard side sheet in the aside gives the aside its own width, with no inset and no edge of the frame’s beside it; a modal one takes no space in any class; the frame never changes the sheet’s variant', async ({ page }) => {
     const sheet = (variant: string, open = true) => `<tanrei-side-sheet slot="aside" variant="${variant}" headline="Details" close-label="Close details"${open ? ' open' : ''}>Details of the selected thing.</tanrei-side-sheet>`;
     await mount(page, real({ aside: sheet('standard') }), { width: 1280 });
