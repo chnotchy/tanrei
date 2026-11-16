@@ -2063,6 +2063,34 @@ test.describe('behavior', () => {
     near(-Number.parseFloat(await css(own(page, 'still', 'remove'), 'left', '::before')), gap, 'still: the whole gap toward texts that take no press');
   });
 
+  test('FIT-18: in a tile the action before another — the retry — reaches toward the tile’s start edge no further than tile.action-inset, as the action at the end reaches toward the end edge, so that neither stands past the tile over the space to a neighbouring tile; it takes what it lacks toward the action after it and keeps at least the minimum target, in both directions', async ({ page }) => {
+    const tile = spec.fixtures.find((f) => f.id === 'tile-error-retryable')!;
+    await mount(page, [fx('ltr', tile.props), fx('rtl', tile.props, { direction: 'rtl' })]);
+    const [size, inset] = [await token(page, 'action-size'), await token(page, 'tile-action-inset')];
+    // A target that leaves each action twice the inset short on each side: more than the inset can give it.
+    const target = size + 4 * inset;
+    await override(page, { '--tanrei-sys-target-pointer': `${target}px`, '--tanrei-sys-target-touch': `${target}px` });
+    for (const [id, rtl] of [['ltr', false], ['rtl', true]] as const) {
+      const item = await box(own(page, id, 'item'));
+      const [retry, remove] = await Promise.all((['retry', 'remove'] as const).map((name) =>
+        own(page, id, name).evaluate((el) => {
+          const r = getComputedStyle(el, '::before');
+          const b = el.getBoundingClientRect();
+          return { start: b.left, end: b.right, left: b.left + Number.parseFloat(r.left), right: b.right - Number.parseFloat(r.right) };
+        }),
+      ));
+      // The retry stands first in reading order: at the left, or at the right in a right-to-left tile.
+      const reachStart = rtl ? retry.right - retry.end : retry.start - retry.left;
+      near(reachStart, inset, `${id}: the retry reaches tile.action-inset toward the tile’s start edge`);
+      expect(rtl ? retry.right : retry.left, `${id}: the retry’s hit area stays inside the tile`)[rtl ? 'toBeLessThanOrEqual' : 'toBeGreaterThanOrEqual'](rtl ? item.x + item.width + 0.5 : item.x - 0.5);
+      expect(retry.right - retry.left, `${id}: the retry keeps at least the minimum target`).toBeGreaterThanOrEqual(target - 0.5);
+      expect(rtl ? remove.left : remove.right, `${id}: the remove action’s stays inside the tile`)[rtl ? 'toBeGreaterThanOrEqual' : 'toBeLessThanOrEqual'](rtl ? item.x - 0.5 : item.x + item.width + 0.5);
+      // The two never overlap.
+      if (rtl) expect(remove.right).toBeLessThanOrEqual(retry.left + 0.5);
+      else expect(retry.right).toBeLessThanOrEqual(remove.left + 0.5);
+    }
+  });
+
   test('FIT-18: the hit area of the action at a file item’s end reaches no further than the item’s own end edge, in both directions and at 200 % text — it takes what it lacks toward the start, as far as half of what lies between it and another action or as what lies between it and the texts — so a file item that ends at the edge of a window 320 wide widens nothing and the page does not scroll sideways (FIT-24)', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 1200 });
     const fixtures = spec.fixtures.filter((f) => ['row-format', 'row-error-retryable', 'tile-error-retryable'].includes(f.id));

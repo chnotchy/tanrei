@@ -163,13 +163,6 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
   combobox: [CHEVRON],
   'combobox-field': [CHEVRON],
   field: [CHEVRON],
-  'file-upload': [
-    {
-      settings: ['2px apart', '8px apart'],
-      line: /tiles[a-z-]*: /,
-      reason: 'Between tiles the actions’ caps are FIT-18’s own (tile.action-inset) and the reorder Button is placed by the upload, not in a row the upload caps: with the gaps narrowed they reach past the middle.',
-    },
-  ],
   menubar: [
     {
       settings: ALL,
