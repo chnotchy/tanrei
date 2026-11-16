@@ -541,6 +541,30 @@ test.describe('appearStyles and AppearController', () => {
     expect((await runs(host)).filter((run) => run.startsWith('motion:'))).toEqual([]);
   });
 
+  test('exit() of a surface that content-visibility skips — its box hidden, or auto and out of the window — resolves true at once with the surface in its closed state: nothing of it is drawn, and Firefox left its transitions pending there until the box was drawn again', async ({ page }) => {
+    for (const [how, style] of [
+      ['hidden', 'content-visibility: hidden'],
+      ['auto, out of the window', 'content-visibility: auto; margin-block-start: 3000px'],
+    ] as const) {
+      await open(page, '<div id="stage"><div id="box"><x-appear id="a" open></x-appear></div></div>');
+      await painted(page);
+      const seen = await page.locator('#a').evaluate(async (el: HTMLElement & { open: boolean; left: Promise<boolean>; updateComplete: Promise<unknown> }, css) => {
+        const twoFrames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        el.parentElement!.style.cssText = css;
+        // Two frames drawn, in which the engine decides that the box is skipped (auto: out of the window).
+        await twoFrames();
+        const skipped = !el.checkVisibility({ contentVisibilityAuto: true });
+        el.open = false;
+        await el.updateComplete;
+        let settled: boolean | undefined;
+        void el.left.then((left) => (settled = left));
+        await twoFrames();
+        return { skipped, settled, opacity: getComputedStyle(el.shadowRoot!.querySelector('.motion')!).opacity };
+      }, style);
+      expect(seen, how).toEqual({ skipped: true, settled: true, opacity: '0' });
+    }
+  });
+
   test('drawAtOnce(): a surface placed on another side after its style was read starts its entrance from that side, not from the one its style gave it before', async ({ page }) => {
     await open(page, '<div id="stage"><x-anchored id="a"></x-anchored></div>');
     await painted(page);

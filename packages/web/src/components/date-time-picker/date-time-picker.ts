@@ -2563,7 +2563,9 @@ export class TanreiDateTimePicker extends TanreiElement {
       // DTM-35: the exit too begins in the first frame drawn after this task (startFromNextFrame), played there even
       // where a page clock holds frame callbacks: the picker leaves the top layer only once it has ended.
       startFromNextFrame(running, { leaving: true });
-      if (running.length === 0) finish();
+      // Not drawn (its box skipped by `content-visibility`), it has nothing to play: the engines start its exit there and
+      // never play it (`AppearController.exit`).
+      if (!running.length || !surface.checkVisibility({ contentVisibilityAuto: true })) finish();
       else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
     }
     if (restoreFocus && inside) this.returnFocus();
