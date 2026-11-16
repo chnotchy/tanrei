@@ -138,8 +138,8 @@
 //                 its scrim are drawn open at once (MOT-4); atOnce(): a change of a dialog with no transition on it or
 //                 its scrim (a dialog drawn in place, opened before that paint)
 //   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
-//                 a blur to draw (MDL-1); sheetScrimStyles(): a sliding sheet's scrim, fading in step with its slide
-//                 (MDL-7), over the cross-fade that replaces it where motion is reduced (MOT-6)
+//                 a blur to draw (MDL-1); sheetScrimStyles(): a sliding sheet's or a centred dialog's scrim, fading in
+//                 step with its motion (MDL-7), over the cross-fade that replaces it where motion is reduced (MOT-6)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
