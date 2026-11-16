@@ -10,7 +10,7 @@
 // documentation, with the page sheet's worker — into a temporary directory of its own (`TANREI_STUDIO_HOST`).
 //
 //   TANREI_STUDIO_APP=<dir>   use an app that is already built (e.g. dist-app) instead of building one
-//   node test/browser/run.mjs typefaces        only the test files whose name contains "typefaces"
+//   node test/browser/run.mjs typeface         only the test files whose name contains "typeface" (none: the run fails)
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,6 +27,11 @@ const seconds = (since) => `${((performance.now() - since) / 1000).toFixed(1)} s
 let appDir = process.env.TANREI_STUDIO_APP && path.resolve(process.env.TANREI_STUDIO_APP);
 let status = 1;
 try {
+  const only = process.argv.slice(2);
+  const files = fs.readdirSync(here).filter((name) => name.endsWith('.test.js') && (!only.length || only.some((word) => name.includes(word)))).map((name) => path.join('test/browser', name));
+  // Before anything is built: given no file, `node --test` would run every file of the package (harness.js and the
+  // node tests included) instead of none.
+  if (!files.length) throw new Error(`no test file in test/browser matches ${only.map((word) => `"${word}"`).join(' or ')}`);
   if (!appDir) {
     appDir = tempDir('studio-app');
     // The two steps of `build:app` (package.json), with another outDir. (`--check-systems` stays with build:app: it
@@ -42,8 +47,6 @@ try {
     console.log(`# app built in ${seconds(started)}`);
   }
   if (!fs.existsSync(path.join(appDir, 'index.html'))) throw new Error(`${appDir} holds no built app`);
-  const only = process.argv.slice(2);
-  const files = fs.readdirSync(here).filter((name) => name.endsWith('.test.js') && (!only.length || only.some((word) => name.includes(word)))).map((name) => path.join('test/browser', name));
   // A host that is a documentation (test/browser/host/), for the tests that need one: built apart, in a directory of its own.
   let hostDir = '';
   if (files.some((file) => file.endsWith('share.test.js'))) {
