@@ -38631,6 +38631,12 @@
         },
         {
           "kind": "variable",
+          "name": "FIRST_ACTION_CAP",
+          "default": "`calc(${T('container-gap')} / 2)`",
+          "description": "BTN-5, SRC-25: how far the first action button reaches toward the input — the middle of container.gap, so that a\npress on the query is never a button's. The clear button's rule reads it, and the search writes it on the trailing\nslot's first Button where no clear button stands before it (src/primitives/kept-length.ts)."
+        },
+        {
+          "kind": "variable",
           "name": "CORE_SIZES",
           "type": {
             "text": "['small', 'medium']"
@@ -38673,6 +38679,14 @@
           "name": "FIRST_FRAMES",
           "declaration": {
             "name": "FIRST_FRAMES",
+            "module": "src/components/search/search.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FIRST_ACTION_CAP",
+          "declaration": {
+            "name": "FIRST_ACTION_CAP",
             "module": "src/components/search/search.styles.ts"
           }
         },
