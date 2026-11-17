@@ -1036,6 +1036,21 @@ test.describe('behavior: the number', () => {
     expect((await read(page, 'field-error')).invalid).toBe(true);
   });
 
+  test('NMI-21: with no invalidText and no Field to show words for it, the form is told the input’s name as the message of an entry error, else the text as the person left it — never the browser’s words for a missing value, which say something else', async ({ page }) => {
+    await mount(page, [fx('named', {}), fx('nameless', { label: '' })], { reducedMotion: true });
+    for (const id of ['named', 'nameless']) {
+      await retype(page, id, '12 apples');
+      await blurInput(page, id);
+    }
+    const validity = (id: string) =>
+      host(page, id).evaluate((el: HTMLElement) => {
+        const control = el as unknown as { validity: ValidityState; validationMessage: string };
+        return [control.validity.badInput, control.validity.valueMissing, control.validationMessage];
+      });
+    expect(await validity('named')).toEqual([true, false, 'Quantity']);
+    expect(await validity('nameless')).toEqual([true, false, '12 apples']);
+  });
+
   test('NMI-22: a step starts from the number the text reads as and goes to the next number on the step’s grid counted from min, held within min and max and computed in decimal; it becomes the value, is written with the caret at its end, and emits input and then change; an empty field takes the number nearest to zero the limits allow; a step that would not change the value does and emits nothing; a step of 0 or less steps by 1 and is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('five', { value: 12, min: 0, step: 5 }), fx('tenth', { value: 0.2, step: 0.1 }), fx('from-ten', { min: 10, max: 20 }), fx('around', { min: -5, max: 5 }), fx('free', {}), fx('bad', { value: 3, step: 0 }), fx('typed', { value: 1, max: 100 })]);

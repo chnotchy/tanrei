@@ -583,9 +583,13 @@ export class TanreiNumberInput extends TanreiElement {
     this.says.value(this.inert_ ? null : plain, plain);
     const missing = this.frame.required && this.ownValue === null;
     if ((this.entryError || missing) && !this.inert_ && !this.readOnly) {
-      const missingMessage = missingValueMessage('text', { errorText: '', requiredText: this.frame.state?.requiredText ?? '', label: this.name_ });
-      // The words of the refusal: the input's own, else what its Field shows for it (its errorText, or its help).
-      const message = this.entryError ? this.invalidText || this.frame.description() || missingMessage : missingMessage;
+      const name = this.name_;
+      // The words of the refusal: the input's own, else what its Field shows for it (its errorText, or its help), else its
+      // name, else the text as the person left it — never the browser's words for a missing value, which say something
+      // else; the flag needs a message.
+      const message = this.entryError
+        ? this.invalidText || this.frame.description() || name || this.text
+        : missingValueMessage('text', { errorText: '', requiredText: this.frame.state?.requiredText ?? '', label: name });
       this.says.validity({ badInput: this.entryError, valueMissing: missing }, message, this.input ?? undefined);
     } else this.says.validity();
   }
