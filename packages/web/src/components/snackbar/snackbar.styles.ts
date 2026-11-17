@@ -111,17 +111,27 @@ export const styles = css`
     ${unsafeCSS(INVERSE_PROPERTY)}: off;
   }
   /* SNK-13: shown by its host as a manual popover — in the top layer and, at the bottom (the default, and what an
-     unknown placement is), at the bottom of the window, centred, the margin above the bottom edge (and the keyboard, and
-     the safe area) and from the sides. None of the browser's popover box. Its sides are the window's less the room the
-     window gains while a modal overlay holds the page's scroll (MDL-2), so that it does not move then. */
+     unknown placement is), at the bottom of the window, centred between the side insets and the margin inside them, the
+     margin above the higher of the safe area's bottom inset and what the frame keeps over the bottom of the window (the
+     navigation bar of <tanrei-app-shell>, APS-17, or a product's own bar that sets the same property), and above the
+     keyboard by as much again, so it never covers a bottom navigation bar. None of the browser's popover box. Each side
+     inset is the safe area's on that side with the room the window gains there while a modal overlay holds the page's
+     scroll (MDL-2), so that it does not move then. */
   :host([popover]) {
+    --_inset-left: calc(env(safe-area-inset-left, 0px) + ${held('left')});
+    --_inset-right: calc(env(safe-area-inset-right, 0px) + ${held('right')});
+    /* What the frame keeps over the top of the window (a sticky header, APS-17) and over its bottom, or the safe area's
+       inset where that is more. */
+    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
+    --_inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--tanrei-app-shell-scroll-offset-end, 0px));
     box-sizing: border-box;
     position: fixed;
-    inset: auto ${held('right')} calc(${t('container-margin')} + env(safe-area-inset-bottom, 0px) + var(--tanrei-snackbar-keyboard, 0px)) ${held('left')};
+    inset: auto var(--_inset-right) calc(${t('container-margin')} + var(--_inset-bottom) + var(--tanrei-snackbar-keyboard, 0px)) var(--_inset-left);
     inline-size: fit-content;
-    max-inline-size: calc(100% - 2 * ${t('container-margin')});
-    /* SNK-25: the host's area — the window less the margin above and below, inside the safe area, above the keyboard. */
-    max-block-size: calc(100dvh - 2 * ${t('container-margin')} - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--tanrei-snackbar-keyboard, 0px));
+    max-inline-size: calc(100% - 2 * ${t('container-margin')} - var(--_inset-left) - var(--_inset-right));
+    /* SNK-25: the host's area — the window less the margin above and below, inside the safe area, clear of what the
+       frame keeps over its top and its bottom, above the keyboard. */
+    max-block-size: calc(100dvh - 2 * ${t('container-margin')} - var(--_inset-top) - var(--_inset-bottom) - var(--tanrei-snackbar-keyboard, 0px));
     margin: 0 auto;
     border: 0;
     padding: 0;
@@ -129,10 +139,11 @@ export const styles = css`
     background: transparent;
     color: inherit;
   }
-  /* In the window, "the space it has" is the window less the margin on each side. */
+  /* In the window, "the space it has" is the window less the margin on each side, inside the safe area's side insets. */
   :host([popover]) .bar {
-    min-inline-size: min(${t('container-min-width')}, 100vw - 2 * ${t('container-margin')});
-    max-inline-size: min(${t('container-max-width')}, 100vw - 2 * ${t('container-margin')});
+    --_room: calc(100vw - 2 * ${t('container-margin')} - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    min-inline-size: min(${t('container-min-width')}, var(--_room));
+    max-inline-size: min(${t('container-max-width')}, var(--_room));
   }
   :host([popover]:not(:popover-open)) {
     display: none;
@@ -140,11 +151,11 @@ export const styles = css`
   /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
      the frame keeps over the top of the window (a sticky header of <tanrei-app-shell>, APS-17, or a product's own frame
      that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the
-     safe-area inset on that side, with the room the window gains on that side while the page's scroll is held (MDL-2). */
+     safe-area inset on that side, with the room the window gains on that side while the page's scroll is held (MDL-2).
+     Its area (SNK-25, SNK-37) is the one every placement has: below what the frame keeps over the top of the window. */
   :host([popover][placement='top-end']) {
-    --_inset-start: calc(env(safe-area-inset-left, 0px) + ${held('left')});
-    --_inset-end: calc(env(safe-area-inset-right, 0px) + ${held('right')});
-    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
+    --_inset-start: var(--_inset-left);
+    --_inset-end: var(--_inset-right);
     inset: calc(${t('container-margin')} + var(--_inset-top)) auto auto auto;
     inset-inline-end: calc(${t('container-margin')} + var(--_inset-end));
     margin: 0;
@@ -154,12 +165,10 @@ export const styles = css`
        breakpoint, and × 100000 turns any such amount into more than a window is wide — a step, without a media query,
        which cannot read a custom property. */
     min-inline-size: min(100% - 2 * ${t('container-margin')} - var(--_inset-start) - var(--_inset-end), (${t('breakpoint-medium')} - 100vw) * 100000);
-    /* SNK-25, SNK-37: the host's area is measured from below what the frame keeps over its top. */
-    max-block-size: calc(100dvh - 2 * ${t('container-margin')} - var(--_inset-top) - env(safe-area-inset-bottom, 0px) - var(--tanrei-snackbar-keyboard, 0px));
   }
   :host([popover][placement='top-end']:dir(rtl)) {
-    --_inset-start: calc(env(safe-area-inset-right, 0px) + ${held('right')});
-    --_inset-end: calc(env(safe-area-inset-left, 0px) + ${held('left')});
+    --_inset-start: var(--_inset-right);
+    --_inset-end: var(--_inset-left);
   }
   /* SNK-35: shown, the bar fills its host's box, which is as wide as the bar's content within its bounds and, in a compact
      window, as wide as the window less the margins (above), and stands at its end where max-width holds it narrower.
