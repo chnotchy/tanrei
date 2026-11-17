@@ -15,6 +15,7 @@
 //   element is shown, a change that comes after the page has settled — each with its rule. It only shrinks.
 // - `KNOWN`: a fixture that moves at load, a defect not fixed yet, with what it shows. Each is expected to fail
 //   (`test.fail`): once it is fixed it fails as passing, and leaves the list. The list only shrinks.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

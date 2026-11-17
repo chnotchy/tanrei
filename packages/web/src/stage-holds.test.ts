@@ -9,6 +9,7 @@
 // (test/harness.ts): for a shadow, the reach of the component's elevation in the system it is drawn under.
 //
 // Not checked: a fixture whose baseline is its whole window (`WINDOW`) — what is outside a window is drawn nowhere.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

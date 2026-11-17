@@ -5,6 +5,7 @@
 // What "drawn as disabled" is differs by element (a native input's `disabled`, `aria-disabled`, `data-disabled` on a
 // part), so each element is read beside a twin that is never disabled by itself: the two are drawn alike exactly when
 // they are in the same condition.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

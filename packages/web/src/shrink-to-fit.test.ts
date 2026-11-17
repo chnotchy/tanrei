@@ -10,6 +10,7 @@
 // ran out of passes in between. A component that sizes its parts from its own measured box needs a width of its own
 // for this case — one that nothing it places inside itself changes (`contain: inline-size` with an intrinsic size, as
 // the carousel's row has).
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

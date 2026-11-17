@@ -21,6 +21,7 @@
 // radio buttons: `placed`) and the fixtures name twins, the twin compares the set and not one control: what the frame's
 // own element says of the set, what each control of the set says of itself, in order, and — in Chromium — the two
 // accessibility trees, which hold one group.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

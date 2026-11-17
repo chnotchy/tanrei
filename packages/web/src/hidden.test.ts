@@ -10,6 +10,7 @@
 //
 // Three places an element can stand: the document; a product's own shadow root, where no rule of the document reaches
 // it; and a page that loaded every stylesheet of the package before the elements were defined.
+// affected: every component — every element of the package on one page, read from disk: a change to any of them can fail any test here.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

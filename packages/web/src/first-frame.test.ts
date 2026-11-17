@@ -7,6 +7,7 @@
 // Each subject is one fixture of a spec, appended to a page whose system chooses the form that is not the default one:
 // when the element has updated nothing is in transition, in the first frame it is in the form it rests in, and where
 // there are no style queries it carries the name. The titles carry the ids the `firefox-no-style-queries` project runs.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures } from '../test/harness.js';
 

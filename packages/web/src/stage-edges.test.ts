@@ -7,6 +7,7 @@
 //
 // Every fixture page of every component with a web implementation is mounted, and the box a picture of each stage is
 // clipped to must not reach a stage of another color.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

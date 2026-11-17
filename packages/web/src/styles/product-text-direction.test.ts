@@ -9,6 +9,7 @@
 //
 // A text that does not fit is cut at the end of its own direction. The second table holds it for the boxes that
 // cut a text and have no test of their own for it (ownDirection()).
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, mountFixtures } from '../../test/harness.js';
 
