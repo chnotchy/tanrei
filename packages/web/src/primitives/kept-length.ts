@@ -26,7 +26,9 @@ import { type CSSResult, unsafeCSS } from 'lit';
 //        a spacer `KeptLengths` puts in the box, in the cell before that element's — never a margin on the product's
 //        element. A page's rules beat the rules a shadow root gives what it slots (`::slotted()`), whatever their
 //        layer, so a reset such as `* { margin: 0 }` would take such a margin away; the box and its spacers are out of
-//        the page's reach.
+//        the page's reach. The box lays out what its slot holds as it is flattened (a product's own slot may forward
+//        its children to it), text among the elements included: a spacer's cell counts the cells of those other
+//        items, so the space stands right before its element wherever text stands.
 //    The row's own `gap` between these elements is 0 (the gap token is inside the margin or the spacer). Until the
 //    lengths arrive a spacer is the gap and a margin is none.
 //
@@ -84,6 +86,13 @@ export function keptSpaces(selector: string, { gap, axis = 'inline' }: { gap: st
 `);
 }
 
+/**
+ * Whether a box lays this text out: a grid or a flex box draws a run of text that is not only white space as an
+ * anonymous item of its own, and nothing for one that is. A product's slot that forwards its children to a box's slot
+ * brings their text along, which no slot of a name takes otherwise.
+ */
+export const drawnText = (node: Node): node is Text => node.nodeType === Node.TEXT_NODE && /[^ \t\n\r\f]/.test((node as Text).data);
+
 /** Rounded to a hundredth of a pixel, so that a measurement that did not change writes nothing. */
 const hundredths = (value: number) => Math.round(value * 100) / 100;
 
@@ -132,7 +141,11 @@ export class KeptLengths {
   ) {}
 
   set(row: readonly HTMLElement[], axis: 'inline' | 'block' = 'inline') {
-    if (axis === this.axis && row.length === this.row.length && row.every((element, i) => element === this.row[i])) return;
+    if (axis === this.axis && row.length === this.row.length && row.every((element, i) => element === this.row[i])) {
+      // The same row, but what else the box lays out among its elements (text) may have changed: the spacers' cells follow.
+      if (this.spaces && this.row.length && observer) this.write();
+      return;
+    }
     for (const element of this.row) if (!row.includes(element)) this.forget(element);
     const before = this.row;
     this.row = [...row];
@@ -185,10 +198,12 @@ export class KeptLengths {
     };
     const px = (element: HTMLElement) => (this.lengths.has(element) ? `${this.lengths.get(element)}px` : null);
     const box = this.spaces?.() ?? null;
-    // The spacers the box needs: the cell each stands in (counted along the box, its elements' cells included) and the
-    // lengths of its two neighbours.
+    // The spacers the box needs: the cell each stands in (counted along the box, the cells of its elements and of the
+    // other items it lays out included) and the lengths of its two neighbours.
+    const others = box ? this.othersBefore(box) : null;
     const spacers: Spacer[] = [];
     let cell = 0;
+    let counted = 0;
     let before: HTMLElement | null = null;
     for (const element of this.row) {
       // An element that takes no room is not laid out: it keeps nothing and is no one's neighbour.
@@ -196,9 +211,11 @@ export class KeptLengths {
         for (const property of PROPERTIES) put(element, property, null);
         continue;
       }
-      const slot = element.assignedSlot;
-      if (box && slot && box.contains(slot)) {
+      const ahead = others?.get(element);
+      if (ahead !== undefined) {
         for (const property of PROPERTIES) put(element, property, null);
+        cell += ahead - counted;
+        counted = ahead;
         if (before) spacers.push({ cell: ++cell, length: px(element), before: px(before) });
         cell += 1;
       } else {
@@ -210,6 +227,48 @@ export class KeptLengths {
     }
     if (this.place(spacers, box, put)) wrote = true;
     return wrote;
+  }
+
+  /**
+   * For each element of the row that the box lays out, how many of the box's other items come before it: an item that
+   * is no element of the row's takes a cell of its own, which the spacers' cells must count. Such an item is a run of
+   * text — the box makes one anonymous item of each run of text that is not only white space, as a product's slot
+   * forwards it, or an element of `display: contents` holds it — or an element of the box that takes no length along
+   * the row or that the row does not hold. The box's children are read as it lays them out: a slot, and an element of
+   * `display: contents`, give way to what they hold. An element's style is read only where its length cannot tell.
+   */
+  private othersBefore(box: HTMLElement): Map<HTMLElement, number> {
+    const before = new Map<HTMLElement, number>();
+    const row = new Set(this.row);
+    let others = 0;
+    let text = false;
+    const walk = (parent: Node) => {
+      const children = parent instanceof HTMLSlotElement && parent.assignedNodes().length ? parent.assignedNodes() : ((parent as Element).shadowRoot ?? parent).childNodes;
+      for (const node of children) {
+        if (node instanceof HTMLSlotElement) walk(node);
+        else if (node instanceof Text) {
+          if (!drawnText(node)) continue;
+          if (!text) others += 1;
+          text = true;
+        } else if (node instanceof Element && !this.spacers.includes(node as HTMLElement)) {
+          const length = this.lengths.get(node as HTMLElement);
+          if (row.has(node as HTMLElement) && length !== 0) {
+            before.set(node as HTMLElement, others);
+          } else {
+            const display = getComputedStyle(node).display;
+            if (display === 'none') continue;
+            if (display === 'contents') {
+              walk(node);
+              continue;
+            }
+            others += 1;
+          }
+          text = false;
+        }
+      }
+    };
+    walk(box);
+    return before;
   }
 
   /** The box's spacers made, placed and given their neighbours' lengths; the ones it no longer needs taken out. */

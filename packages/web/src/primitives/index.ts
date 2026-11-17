@@ -325,7 +325,7 @@ export {
 } from './selection.js';
 export { TARGET_CAPS, minimumTarget, neighbourTarget, rowTargets } from './target.js';
 export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
-export { KeptLengths, keptLength, keptSpaces } from './kept-length.js';
+export { KeptLengths, drawnText, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { type LabelBegins, RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';

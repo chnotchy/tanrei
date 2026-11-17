@@ -8336,7 +8336,9 @@ buttons (the clear button, then the trailing slot's) `container.button-gap` from
 and two of them further apart only as far as each needs to keep `sys.target.touch` of length along the row (SRC-34: the
 small clear button and a medium Button 12 apart, two medium Buttons 8, two of 48 or more touching; the search measures
 its buttons and lays the space before each trailing button as an element of its own trailing box,
-`src/primitives/kept-length.ts`, writing nothing on the product's buttons, so a page's reset leaves it) — the last one
+`src/primitives/kept-length.ts`, writing nothing on the product's buttons, so a page's reset leaves it; the box reads
+what its slot holds as it is flattened, so Buttons a product's own slot forwards are spaced too, and text among them —
+reported, SRC-27 — takes a cell of its own that the spacers count) — the last one
 `container.padding-inline-with-button` from the end when it is a button, `container.padding-inline` when it is the input;
 mirrored in right-to-left. Its edge is a border inside the bar in the state's outline color and width — clear at rest in
 the default system, the focused outline under focus by pointer or keyboard (never a ring; a glow as well under
