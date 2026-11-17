@@ -189,10 +189,14 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
  * at one class's specificity, would otherwise override.
  */
 export const ICON_VISIBILITY = '--tanrei-icon-visibility';
-export const GLYPH_VISIBILITY = `visibility: var(${ICON_VISIBILITY}, inherit);`;
+/** The declaration a glyph's rule writes. Marked pure: a bundler keeps a template with a value in it, read or not. */
+export const GLYPH_VISIBILITY = /* @__PURE__ */ (() => `visibility: var(${ICON_VISIBILITY}, inherit);`)();
 
-/** `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. */
-export const ICONS_CSS = `/*
+/**
+ * `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. A function the build calls, not a value made at the
+ * top of the module: a component that imports this module for `iconGlyph()` would otherwise carry the whole stylesheet.
+ */
+export const iconsCss = (): string => `/*
  * Tanrei icons on the web. Token-driven; no icon is bundled.
  *
  * The default design system draws icons with Material Symbols Rounded at weight 300. Load that font in your
