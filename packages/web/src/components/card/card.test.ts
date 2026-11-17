@@ -1,4 +1,4 @@
-// <tanrei-card>, driven by specs/card.spec.json: a test's title cites each behaviour id it checks, every fixture
+// <tanrei-card>, driven by specs/card.spec.json: every behaviour id is cited by a test title, every fixture
 // has a baseline, and every variant, state and choice of kind is read back from the tokens — never from a number written
 // here.
 // CRD-24: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -11,13 +11,14 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, painted, settledPaint } from '../../../test/links.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('card');
 type P = Page;
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-card`);
+const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const inner = (page: P, id: string) => host(page, id).locator('.container');
 const clip = (page: P, id: string) => host(page, id).locator('.clip');
 const edge = (page: P, id: string) => host(page, id).locator('.outline');
@@ -441,6 +442,70 @@ test.describe('behavior', () => {
     expect(origin[1]).toBeCloseTo(10, 0);
     await page.mouse.move(0, 0);
     await page.mouse.up();
+  });
+
+  test('CRD-18: the direction is the nearest ancestor’s — not the root’s and not a setting of the card’s own; when it changes while the card is shown it is drawn for the new direction at once, without a motion, keeping what it shows and its state', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const ids = ['rtl-interactive', 'rtl-link', 'rtl-disabled'];
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { ...of('outlined-interactive'), id: 'rtl-interactive', direction: 'rtl' },
+        { ...of('outlined-link'), id: 'rtl-link', direction: 'rtl' },
+        { ...of('outlined-disabled'), id: 'rtl-disabled', direction: 'rtl' },
+      ],
+    });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    const padding = await resolveToken(page, T('container-padding'));
+    /** Where the content's lines end: the right edge of its text from the container's right edge, and its left edge from the container's left. */
+    const lines = (id: string) =>
+      host(page, id).evaluate((el) => {
+        const card = el.shadowRoot!.querySelector('.container')!.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(el.firstElementChild!);
+        const rects = [...range.getClientRects()].filter((r) => r.width > 0);
+        const first = rects[0];
+        return { direction: getComputedStyle(el.firstElementChild!).direction, right: Math.round((card.right - first.right) * 100) / 100, left: Math.round((first.left - card.left) * 100) / 100 };
+      });
+    const shown: Record<string, unknown> = {};
+    for (const id of ids) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+      const rtl = await lines(id);
+      expect(rtl.direction, id).toBe('rtl');
+      // The first line starts at the right, padding inside the container.
+      expect(rtl.right, `${id}: right-to-left starts at the right`).toBeCloseTo(padding, 0);
+      shown[id] = [await stage(page, id).ariaSnapshot(), await drawn(page, id)];
+    }
+    // The card's state: keyboard focus on the interactive one, its ring drawn.
+    await tabTo(page, host(page, 'rtl-interactive'));
+    await expect(inner(page, 'rtl-interactive')).toHaveCSS('outline-style', 'solid');
+    await motionEnded(host(page, 'rtl-interactive'));
+    const focused = await drawn(page, 'rtl-interactive');
+    // Changed on the ancestors after the first render: no transition starts, nothing moves.
+    for (const id of ids) await watchTransitions(host(page, id));
+    await page.evaluate(async (list) => {
+      for (const id of list) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, ids);
+    for (const id of ids) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await motionCount(host(page, id)), `${id}: nothing moves`).toBe(0);
+    }
+    for (const id of ids) {
+      const ltr = await lines(id);
+      expect(ltr.direction, id).toBe('ltr');
+      expect(ltr.left, `${id}: left-to-right starts at the left`).toBeCloseTo(padding, 0);
+      expect(await stage(page, id).ariaSnapshot(), `${id}: what it shows and tells`).toBe((shown[id] as unknown[])[0]);
+      if (id !== 'rtl-interactive') expect(await drawn(page, id), `${id}: drawn in the same state`).toEqual((shown[id] as unknown[])[1]);
+    }
+    // The focus and its ring are kept, and the card is still drawn as focused.
+    expect(await host(page, 'rtl-interactive').evaluate((el) => document.activeElement === el || el.matches(':focus-within'))).toBe(true);
+    await expect(inner(page, 'rtl-interactive')).toHaveCSS('outline-style', 'solid');
+    expect(await drawn(page, 'rtl-interactive')).toEqual(focused);
+    // Where no ancestor sets one, the document's.
+    await stage(page, 'rtl-link').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect((await lines('rtl-link')).right).toBeCloseTo(padding, 0);
   });
 });
 
