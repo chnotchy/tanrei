@@ -12,6 +12,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('table-of-contents');
 type P = Page;
@@ -1263,11 +1264,30 @@ test.describe('accessibility', () => {
     const disclosure = open.getByRole('button', { name: 'On this page', exact: true });
     await expect(disclosure).toHaveCount(1);
     await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-    expect(await disclosure.evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls')!)!.contains((el.getRootNode() as ShadowRoot).querySelector('slot:not([name])')))).toBe(true);
+    // Open, it names the product's list, exposed; closed, nothing (the next test).
+    expect(await controlledElements(disclosure)).toEqual([{ found: true, role: 'list', exposed: true }]);
+    expect(await disclosure.evaluate((el) => (el as HTMLElement & { ariaControlsElements?: Element[] | null }).ariaControlsElements?.[0] === (el.getRootNode() as ShadowRoot).host.querySelector(':scope > ul'))).toBe(true);
     expect(await disclosure.evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-describedby')!)!.textContent)).toBe('Label');
     await expect(disclosure.locator('.chevron')).toHaveAttribute('aria-hidden', 'true');
     await expect(open.getByRole('navigation', { name: 'On this page' })).toHaveCount(1);
     await expect(host(page, 'compact-closed-no-current').getByRole('button', { name: 'On this page', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(host(page, 'compact-closed-no-current').getByRole('button', { name: 'On this page', exact: true }))).toBeNull();
+  });
+
+  test('TOC-31: compact, the row names the product’s list by aria-controls while the list is open — a list in the accessibility tree, never the box around it, which no engine exposes — and nothing while it is closed and the list is inert', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'compact-open') });
+    const row = host(page, 'compact-open').getByRole('button', { name: 'On this page', exact: true });
+    await expect(row).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(row)).toEqual([{ found: true, role: 'list', exposed: true }]);
+    // What the engine computed: the relation reaches the list, in the tree.
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'On this page', 'button')).toMatchObject([{ inTree: true, role: 'list' }]);
+    await row.click();
+    await expect(row).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(row)).toBeNull();
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'On this page', 'button')).toEqual([]);
+    await row.click();
+    await expect(row).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(row)).toEqual([{ found: true, role: 'list', exposed: true }]);
   });
 
   test('TOC-31: no axe violations in light and dark', async ({ page }) => {

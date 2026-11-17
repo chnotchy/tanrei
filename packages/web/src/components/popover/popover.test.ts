@@ -19,6 +19,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('popover');
@@ -1318,7 +1319,7 @@ test.describe('opening and focus', () => {
   test('POP-18: it is shown exactly while open is true; with the default trigger, press, hovering, focusing or long-pressing the anchor emits nothing, a press on the opener asks through toggle to open with press and, while open, to close with press; the opener says it opens a dialog, whether it is open and which it is, and keeps its name and role; a named opener carries them instead of the anchor, and they are taken back when the popover leaves the page', async ({ page }) => {
     await mount(page, `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button> <tanrei-button id="t" variant="outlined">Filters</tanrei-button></div>${popover('label="Storage"')}<${TAG} id="q" anchor="t" label="Filters">Filters.</${TAG}>`);
     const states = (selector: string) => page.locator(selector).evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls')]);
-    expect(await states('#a')).toEqual(['dialog', 'false', 'p']);
+    expect(await states('#a')).toEqual(['dialog', 'false', null]);
     // Hover, focus and a long press: open stays false and nothing is emitted.
     await page.locator('#a').hover();
     await page.locator('#a').focus();
@@ -1327,7 +1328,7 @@ test.describe('opening and focus', () => {
     await page.waitForTimeout(700);
     await page.evaluate(() => document.querySelector('#a')!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' })));
     await page.waitForTimeout(700);
-    expect([await isOpen(page), await log(page), await requests(page), await states('#a')]).toEqual([false, [], [], ['dialog', 'false', 'p']]);
+    expect([await isOpen(page), await log(page), await requests(page), await states('#a')]).toEqual([false, [], [], ['dialog', 'false', null]]);
     // The default trigger, press: the opener activated — by pointer, Enter or Space — asks once to open it, and the
     // product sets open; activated again, it asks once to close it, with the reason press.
     await page.locator('#a').click();
@@ -1335,7 +1336,7 @@ test.describe('opening and focus', () => {
     expect([await requests(page), await log(page), await states('#a')]).toEqual([['p:press'], [], ['dialog', 'true', 'p']]);
     await page.locator('#a').click();
     await expect.poll(() => isOpen(page)).toBe(false);
-    expect([await requests(page), await log(page), await states('#a')]).toEqual([['p:press'], ['p:press'], ['dialog', 'false', 'p']]);
+    expect([await requests(page), await log(page), await states('#a')]).toEqual([['p:press'], ['p:press'], ['dialog', 'false', null]]);
     for (const key of ['Enter', 'Space']) {
       await page.locator('#a').focus();
       await page.keyboard.press(key);
@@ -1359,7 +1360,7 @@ test.describe('opening and focus', () => {
     await close(page, 'q');
     // A separate opener: it carries the states, and the container is placed against the anchor.
     await mount(page, `<div style="padding: 80px 200px"><span id="field" style="display: inline-block; inline-size: 240px; border: 1px solid">Field <button id="o" type="button">Open</button></span></div><${TAG} id="p" anchor="field" opener="o" label="Suggestions">Trash counts.</${TAG}>`);
-    expect(await states('#o')).toEqual(['dialog', 'false', 'p']);
+    expect(await states('#o')).toEqual(['dialog', 'false', null]);
     expect(await states('#field')).toEqual([null, null, null]);
     await page.locator('#o').click();
     await expect.poll(() => isShown(page)).toBe(true);
@@ -1378,6 +1379,22 @@ test.describe('opening and focus', () => {
     // Disconnected: what it wrote on the opener is removed.
     await host(page).evaluate((el) => el.remove());
     expect(await states('#o')).toEqual([null, null, null]);
+  });
+
+  test('POP-18: the opener names the popover by aria-controls while it is shown and nothing while it is not — closed, the popover is a box whose surface is not displayed — and what it names is exposed, the shown dialog in it', async ({ page, browserName }) => {
+    await mount(page, `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button></div>${popover('label="Storage"')}`);
+    const opener = page.locator('#a');
+    expect(await controlledElements(opener)).toBeNull();
+    await open(page);
+    await expect(opener).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(opener)).toEqual([{ found: true, role: TAG, exposed: true }]);
+    await expect(host(page).getByRole('dialog', { name: 'Storage' })).toHaveCount(1);
+    // What the engine computed: the relation reaches the popover, in the tree.
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Storage', 'button')).toMatchObject([{ inTree: true }]);
+    await close(page);
+    await expect(opener).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(opener)).toBeNull();
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Storage', 'button')).toEqual([]);
   });
 
   test('POP-19: opening moves focus to the element marked autofocus, or to the container, at once and not when the motion ends, with a focus indicator on the container only when it was opened from the keyboard; initialFocus anchor leaves focus where it is; a popover mounted open moves no focus', async ({ page }) => {
@@ -2641,7 +2658,7 @@ test.describe('triggers', () => {
 
   test('POP-18, POP-45, POP-46: the triggers combine — hover, focus and press each ask with their own reason, and the opener says it opens a dialog because a press does', async ({ page }) => {
     await mount(page, `<button id="before" type="button">Before</button>${anchorAt(200, 100)}${popover('label="Storage" trigger="hover focus press" show-delay="0"')}`);
-    expect(await states(page)).toEqual(['dialog', 'false', 'p']);
+    expect(await states(page)).toEqual(['dialog', 'false', null]);
     await onAnchor(page);
     await expect.poll(() => requests(page)).toEqual(['p:hover']);
     await expect.poll(() => isShown(page)).toBe(true);
@@ -2800,7 +2817,7 @@ test.describe('triggers', () => {
     // None it defines: a press opens it, and the opener says so.
     await mount(page, `${anchorAt(200, 100)}${popover('label="Storage" trigger="tap"')}`);
     expect(seen.some((text) => text.includes('POP-37') && text.includes('opens on a press'))).toBe(true);
-    expect(await states(page)).toEqual(['dialog', 'false', 'p']);
+    expect(await states(page)).toEqual(['dialog', 'false', null]);
     await page.locator('#a').click();
     await expect.poll(() => requests(page)).toEqual(['p:press']);
   });

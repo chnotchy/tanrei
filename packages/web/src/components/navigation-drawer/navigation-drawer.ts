@@ -1294,7 +1294,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         ?disabled=${this.disabled}
         ${delegatedAria(this, { 'aria-label': this.label, 'aria-description': description })}
         aria-expanded=${expandable || collapsed ? String(shown) : nothing}
-        aria-controls="items"
+        aria-controls=${shown ? 'items' : nothing}
         @click=${this.onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -1408,7 +1408,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           ?disabled=${this.disabled}
           aria-label=${this.label || nothing}
           aria-expanded=${String(shown)}
-          aria-controls="items"
+          aria-controls=${shown ? 'items' : nothing}
           @click=${this.onToggle}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
@@ -4523,7 +4523,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }
     if (this.collapses) {
       button.ariaExpanded = String(!this.collapsed);
-      if ('ariaControlsElements' in button) button.ariaControlsElements = [this];
+      // It names the drawer except while the drawer is open as its own modal dialog: in the top layer, that dialog keeps
+      // everything outside it — the drawer's host too — out of the accessibility tree, and the button, inside the
+      // dialog, cannot name the dialog in the drawer's shadow root, so the reference would reach nothing. (Where the
+      // drawer is not shown at all, neither is the button in its header.)
+      if ('ariaControlsElements' in button) button.ariaControlsElements = this.modal && !this.held && this.open ? null : [this];
     } else {
       button.ariaExpanded = null;
       if ('ariaControlsElements' in button) button.ariaControlsElements = null;
@@ -4706,7 +4710,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       }
     }
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;
-    if (form || has(changed, 'hasButtons')) this.syncMenuButton();
+    if (form || has(changed, 'hasButtons') || has(changed, 'held')) this.syncMenuButton();
     if (form) this.syncMainAction();
     // NVD-39: the column the main action is placed on changed width (the form, the density): told again where it does not fit.
     if (form || changed.has('density')) {

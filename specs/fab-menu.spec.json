@@ -214,7 +214,7 @@
     },
     {
       "id": "FBM-20",
-      "text": "THE FAB menu SHALL expose the toggle as a button named by label that opens a menu, with whether the menu is open where the platform has those properties, and while open SHALL expose the items as a menu named by label, each a menu item named by its own label with its position and the number of items; the icons SHALL be hidden."
+      "text": "THE FAB menu SHALL expose the toggle as a button named by label that opens a menu, with whether the menu is open where the platform has those properties, and WHILE the menu is open which element it is — aria-controls naming the menu on the web WHILE it is open and absent WHILE it is closed, so that the toggle never names an element that is not exposed —, and while open SHALL expose the items as a menu named by label, each a menu item named by its own label with its position and the number of items; the icons SHALL be hidden."
     },
     {
       "id": "FBM-21",

@@ -18,6 +18,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('date-time-picker');
@@ -2232,6 +2233,26 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await expect(a).toHaveAttribute('aria-expanded', 'true');
     await expect(a).toHaveAttribute('aria-controls', (await host(page, 'd').getAttribute('id'))!);
     await expect(surface(page, 'd')).toHaveAttribute('role', 'dialog');
+  });
+
+  test('DTM-37: a docked picker’s opener names it by aria-controls while it is open and nothing while it is closed — closed, the picker is a box whose surface is not displayed — and what it names is exposed, the shown dialog in it', async ({ page, browserName }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    const a = opener(page, 'd');
+    await expect(a).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(a)).toBeNull();
+    const name = (await a.textContent())!.trim();
+    if (browserName === 'chromium') expect(await controlledInTree(page, name, 'button')).toEqual([]);
+    await open(page, 'd');
+    await expect(a).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(a)).toEqual([{ found: true, role: 'tanrei-date-time-picker', exposed: true }]);
+    // What the engine computed: the relation reaches the picker, in the tree.
+    if (browserName === 'chromium') expect(await controlledInTree(page, name, 'button')).toMatchObject([{ inTree: true }]);
+    await host(page, 'd').evaluate((el) => {
+      (el as HTMLElement & { open: boolean }).open = false;
+    });
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    await expect(a).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(a)).toBeNull();
   });
 
   test('DTM-38: names, digits, forms, the separator and the clock come from locale (else the nearest lang)', async ({ page }) => {

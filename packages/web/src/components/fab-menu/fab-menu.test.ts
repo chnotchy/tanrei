@@ -14,6 +14,7 @@ import { entrances, loadOpen, mountOpenAgain } from '../../../test/mounted-open.
 import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -986,18 +987,22 @@ test.describe('behavior', () => {
     }
   });
 
-  test('FBM-20: the toggle is a button named by label that opens a menu and says whether it is open; open, the items are a menu named by label of menu items with their positions; the icons are hidden', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+  test('FBM-20: the toggle is a button named by label that opens a menu and says whether it is open, and names the menu by aria-controls only while it is open — closed or disabled, the menu is a popover that is not displayed; open, the items are a menu named by label of menu items with their positions; the icons are hidden', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu'), fixture('off', { disabled: true, open: true, label: 'Off' })] });
     await wire(page);
     const button = host(page, 'menu').getByRole('button', { name: 'Create' });
     await expect(button).toHaveCount(1);
     await expect(button).toHaveAttribute('aria-haspopup', 'menu');
     await expect(button).toHaveAttribute('aria-expanded', 'false');
-    expect(await toggle(page, 'menu').evaluate((el) => !!(el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls')!)?.matches('[role="menu"]'))).toBe(true);
+    expect(await controlledElements(toggle(page, 'menu'))).toBeNull();
+    expect(await controlledElements(toggle(page, 'off')), 'disabled, open set').toBeNull();
     await expect(host(page, 'menu').getByRole('menu')).toHaveCount(0);
     await toggle(page, 'menu').click();
-    // Open: the same name, now expanded.
+    // Open: the same name, now expanded, naming the menu it shows.
     await expect(host(page, 'menu').getByRole('button', { name: 'Create' })).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(toggle(page, 'menu'))).toEqual([{ found: true, role: 'menu', exposed: true }]);
+    // What the engine computed: the relation reaches the menu, in the tree, named by label.
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Create', 'button')).toMatchObject([{ inTree: true, role: 'menu', name: 'Create' }]);
     const menu = page.getByRole('menu', { name: 'Create' });
     await expect(menu).toBeVisible();
     // The items are the menu's in the accessibility tree (the flat tree: slotted into the list), in order.
@@ -1016,6 +1021,10 @@ test.describe('behavior', () => {
     expect(await host(page, 'menu').evaluate((el) => [el.shadowRoot!.querySelector('.icon')!.getAttribute('aria-hidden'), ...[...el.querySelectorAll('tanrei-fab-menu-item')].map((it) => it.shadowRoot!.querySelector('.icon')!.getAttribute('aria-hidden'))])).toEqual(['true', 'true', 'true', 'true']);
     // Nothing but the items and the toggle is exposed: no name from the glyphs.
     await expect(page.getByRole('menuitem', { name: 'description' })).toHaveCount(0);
+    // Closed again: it names nothing.
+    await toggle(page, 'menu').click();
+    await expect(host(page, 'menu').getByRole('button', { name: 'Create' })).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(toggle(page, 'menu'))).toBeNull();
   });
 
   test('FBM-21: the toggle casts its variant’s elevation, closed and open, outside itself, unclipped; colors and elevation change over the state motion, at once where reduced', async ({ page }) => {

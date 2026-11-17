@@ -253,7 +253,7 @@
     },
     {
       "id": "SPB-17",
-      "text": "THE button with menu SHALL expose two buttons in reading order, each its own Tab stop: the leading half named by label, and the trailing half named by menuLabel, exposing that it opens a menu and whether the menu is open where the platform has those properties, however it opened; the icon and the chevron (expand_more or a chevron slot's glyph) SHALL be hidden, and the button with menu SHALL expose no element of its own around them."
+      "text": "THE button with menu SHALL expose two buttons in reading order, each its own Tab stop: the leading half named by label, and the trailing half named by menuLabel, exposing that it opens a menu and whether the menu is open where the platform has those properties, however it opened, and WHILE the menu is open which element it is — naming nothing WHILE it is closed, as MNU-24 says; the icon and the chevron (expand_more or a chevron slot's glyph) SHALL be hidden, and the button with menu SHALL expose no element of its own around them."
     },
     {
       "id": "SPB-18",

@@ -812,6 +812,17 @@ export class TanreiAppShell extends TanreiLightElement {
     return this.presentation === 'standard' && !!drawer?.responsive && !drawer.collapsible;
   }
 
+  /**
+   * APS-7: whether the navigation is shown — open over the content, standing beside it, or as its column — and not
+   * modal and closed, hidden beside the content, or something other than a drawer where only a drawer can present it.
+   */
+  private get navigationShown(): boolean {
+    const presentation = this.presentation;
+    if (!presentation) return false;
+    if (presentation !== 'standard' && !this.drawer) return false;
+    return !((presentation === 'modal' && !this.navigationOpen) || this.hiddenBeside);
+  }
+
   /** APS-33, NVD-53: …and is hidden (its expanded false). */
   private get hiddenBeside(): boolean {
     return this.shownOrHiddenBeside && this.drawer?.expanded === false;
@@ -983,8 +994,14 @@ export class TanreiAppShell extends TanreiLightElement {
     const drawer = this.drawer;
     const expanded = this.presentation === 'standard' && drawer ? drawer.expanded !== false : this.navigationOpen;
     mark(target, 'aria-expanded', String(expanded));
-    const controlled = this.navigation;
-    if (!controlled) return;
+    // It names the navigation only while it is shown: not shown, the navigation is a box with nothing exposed in it (a
+    // drawer whose panel is put away) or one that is not displayed at all, and the reference would reach nothing.
+    const controlled = this.navigationShown ? this.navigation : null;
+    if (!controlled) {
+      if (target.hasAttribute('aria-controls')) target.removeAttribute('aria-controls');
+      if ('ariaControlsElements' in target) (target as unknown as { ariaControlsElements: Element[] | null }).ariaControlsElements = null;
+      return;
+    }
     if (target.getRootNode() === controlled.getRootNode()) {
       if (!controlled.id) controlled.id = `tanrei-app-shell-navigation-${++ids}`;
       mark(target, 'aria-controls', controlled.id);
