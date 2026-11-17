@@ -2,7 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
-import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, MirrorWordController, OpenAxesController, SizeConsumerController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, MirrorWordController, OpenAxesController, hearsMirrorWord, SizeConsumerController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
 import type { TanreiListRowSizeRegistry } from '../../registry.js';
 import type { TanreiListItemFrame } from '../list/list.js';
 import '../tooltip/tooltip.js';
@@ -377,6 +377,7 @@ export class TanreiListRow extends TanreiElement {
   }
 }
 
+hearsMirrorWord(TanreiListRow);
 if (!customElements.get('tanrei-list-row')) customElements.define('tanrei-list-row', TanreiListRow);
 
 declare global {

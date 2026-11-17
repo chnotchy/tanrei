@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FocusedStop, GlyphMirrorController, MirrorWordController, OpenAxesController, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FocusedStop, GlyphMirrorController, MirrorWordController, OpenAxesController, hearsMirrorWord, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
@@ -536,6 +536,7 @@ export class TanreiRating extends TanreiElement {
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiRating);
+hearsMirrorWord(TanreiRating);
 if (!customElements.get('tanrei-rating')) customElements.define('tanrei-rating', TanreiRating);
 
 declare global {
