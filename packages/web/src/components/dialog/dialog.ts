@@ -25,6 +25,7 @@ import {
   readTogether,
   report,
   syncDividerVisibility,
+  syncFocusStyle,
   trapFocus,
   watchEscape,
 } from '../../primitives/index.js';
@@ -758,7 +759,7 @@ export class TanreiDialog extends TanreiElement {
           </div>
         </div>
         <div class="middle" ?hidden=${!middle}>
-          <div part="scroll" class="scroll" data-tanrei-shape @scroll=${this.onScroll}>
+          <div part="scroll" class="scroll" data-tanrei-shape @scroll=${this.onScroll} @focus=${(event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement)}>
             ${supporting ? html`<p id="supporting" part="supporting-text" class="supporting">${this.supportingText}</p>` : nothing}
             <div part="content" class="content" ?hidden=${!this.filled.content}><slot></slot></div>
           </div>

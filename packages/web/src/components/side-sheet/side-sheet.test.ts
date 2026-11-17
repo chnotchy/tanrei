@@ -386,6 +386,16 @@ test.describe('drawing', () => {
     expect(await innerStrokeAtEdges(page, c), 'scrolled to its end').toEqual({ top: true, bottom: true });
   });
 
+  test('SSH-10: where the focus style is glow, the keyboard focus of a content that scrolls is the same two focus colors as a halo inside its edges, and no line — in a browser without style queries too', async ({ page }) => {
+    await mount(page, [fx('long', { variant: 'standard' }, LONG, ACTIONS)]);
+    await override(page, { '--tanrei-sys-behavior-focus-style': 'glow' });
+    const c = content(page, 'long');
+    await tabTo(page, c);
+    const ring = host(page, 'long').locator('.content ~ .focus');
+    expect(await css(ring, 'outline-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(ring, 'box-shadow', '::after')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+  });
+
   test('SSH-11: with an action, a divider.width hairline in divider.color across the full width (hidden) whether or not the content scrolls; fill — the actions share the row equally, dismissive at the start and confirming at the end, actions.gap apart, padding-inline from the edges and actions.padding-block above and below; focus follows the placed order', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'standard' }, TEXT, GIVEN), fx('long', { variant: 'standard' }, LONG, ACTIONS), fx('none', { variant: 'standard' })]);
     expect(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('actions-arrangement'))).toBe('fill');

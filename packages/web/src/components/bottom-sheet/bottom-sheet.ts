@@ -29,6 +29,7 @@ import {
   returnFocus,
   sheetFocusTarget,
   syncDividerVisibility,
+  syncFocusStyle,
   watchEscape,
   WordsController,
 } from '../../primitives/index.js';
@@ -951,7 +952,7 @@ export class TanreiBottomSheet extends TanreiElement {
       ${!this.noHandle ? html`<div class="row" @click=${this.onClickCapture}>${this.handleTemplate()}</div>` : nothing}
       ${this.headerTemplate()}
       <div class="middle">
-        <div part="content" class=${classMap({ content: true, inset: !this.flush })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture} @wheel=${containedWheel}>
+        <div part="content" class=${classMap({ content: true, inset: !this.flush })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture} @wheel=${containedWheel} @focus=${(event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement)}>
           <div class="inner"><slot @slotchange=${() => this.measure()}></slot></div>
         </div>
         <span class="focus" data-tanrei-shape></span>
