@@ -41,7 +41,7 @@ La hoja emite `close` solo mientras `dismissible` es true, y exactamente una vez
 
 La hoja tiene dos formas en `variant`. **Modal**, la predeterminada, es una superposición modal: atenúa toda la ventana, mantiene el foco dentro y lo devuelve cuando se cierra. **Estándar** es una región del diseño de página, no una superposición: cubre la parte inferior del padre en el que la colocas, no dibuja ningún velo y deja que la persona siga trabajando en el contenido que hay encima.
 
-Lo que va dentro de la hoja es cosa tuya. La hoja separa su contenido del borde con su margen interior (pon `inset` en false para una lista cuyas filas llevan su propio margen interior), lo recorta, le entrega un color de contenido y lo desplaza. Dale un `headline` y dibuja una cabecera sobre el contenido: el titular, un encabezado que además da nombre a la hoja cuando `label` está vacío, y, con `closable` activado, un botón de cierre que recibe su nombre de `closeLabel`: un botón small, tonal en el sistema predeterminado, como todos los botones de cierre de Tanrei. Bajo la cabecera hay un divisor según indique `dividerVisibility`, y la cabecera no se mueve mientras el contenido se desplaza. `closable` está desactivado de forma predeterminada, porque el tirador y, en una hoja modal, el velo son las salidas de la hoja; actívalo en una hoja estándar o en una hoja sin tirador.
+Lo que va dentro de la hoja es cosa tuya. La hoja separa su contenido del borde con su margen interior (pon `inset` en false, `flush` en la web, para una lista cuyas filas llevan su propio margen interior), lo recorta, le entrega un color de contenido y lo desplaza. Dale un `headline` y dibuja una cabecera sobre el contenido: el titular, un encabezado que además da nombre a la hoja cuando `label` está vacío, y, con `closable` activado, un botón de cierre que recibe su nombre de `closeLabel`: un botón small, tonal en el sistema predeterminado, como todos los botones de cierre de Tanrei. Bajo la cabecera hay un divisor según indique `dividerVisibility`, y la cabecera no se mueve mientras el contenido se desplaza. `closable` está desactivado de forma predeterminada, porque el tirador y, en una hoja modal, el velo son las salidas de la hoja; actívalo en una hoja estándar o en una hoja sin tirador.
 
 Marca el elemento que debe recibir el foco cuando se abre la hoja con la marca propia de la plataforma: `autofocus` en la web, `.defaultFocus` o un `@AccessibilityFocusState` en SwiftUI, un `FocusRequester` pasado como `initialFocus` en Compose, `autofocus: true` en Flutter e `initialFocusRef` en React Native. Sin una marca, el foco va a la hoja en sí, de modo que su etiqueta se lee primero.
 
@@ -262,7 +262,7 @@ Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pu
 ### Recomendado
 
 - Deja a la vista la tarea de la hoja: un título en la parte superior del contenido, y un botón «Listo» o «Cerrar» cuando la hoja no tenga otra manera de cerrarse.
-- Desactiva `inset` para una lista cuyas filas llevan su propio margen interior, para que las filas lleguen hasta los bordes.
+- Desactiva `inset` (`flush` en la web) para una lista cuyas filas llevan su propio margen interior, para que las filas lleguen hasta los bordes.
 - Deja el tirador activado en toda hoja cuyo contenido pueda crecer por encima de su altura parcial, para que quienes usan el teclado o un pulsador puedan cambiar su altura.
 - Usa la forma estándar cuando la persona necesite el contenido que hay encima de la hoja mientras esta está abierta.
 
