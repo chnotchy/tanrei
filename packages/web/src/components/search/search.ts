@@ -12,6 +12,7 @@ import {
   type LaidOut,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   type KeyboardConvention,
   LinkController,
   type LinkForm,
@@ -2922,6 +2923,8 @@ export class TanreiSearch extends TanreiElement {
   }
 }
 
+hearsMirrorWord(TanreiSearchRow);
+hearsMirrorWord(TanreiSearchSuggestion);
 if (!customElements.get(RESULT)) customElements.define(RESULT, TanreiSearchResult);
 if (!customElements.get(RESULT_GROUP)) customElements.define(RESULT_GROUP, TanreiSearchResultGroup);
 if (!customElements.get('tanrei-search-suggestion')) customElements.define('tanrei-search-suggestion', TanreiSearchSuggestion);
