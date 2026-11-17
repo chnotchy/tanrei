@@ -8,6 +8,7 @@ import {
   DirectionController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   OpenAxesController,
   PressController,
   type PressedBy,
@@ -2682,6 +2683,7 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // TAB-22, TAB-62: a tab's host is the tab itself and keeps what is written on it, but for a name of the product's while
 // its label names it, which is held until label is empty (src/primitives/delegated-aria.ts).
 holdsProductName(TanreiTab);
+hearsMirrorWord(TanreiTab);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
 // The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts).
