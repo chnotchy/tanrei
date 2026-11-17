@@ -66,10 +66,16 @@ export const FILE_ITEM_TAKE_FOCUS = Symbol.for('tanrei.file-item.take-focus');
 /** The event a file item tells its holder with: it arrived, or something the holder reads of it changed. */
 export const FILE_ITEM_UPDATE = 'tanrei-file-item-update';
 
-/** The event a file picker ends one arrival with, after its `select` and `reject`, for the component that holds it (FUP-57). */
+/**
+ * The event a file picker ends one arrival with, after its `select` and `reject`, for the component that holds it
+ * (FUP-57), which listens on the picker itself.
+ */
 export const FILE_PICKER_ARRIVAL = 'tanrei-file-picker-arrival';
 
-/** Tells the holder of a file picker that the events of one arrival have all been emitted. */
+/**
+ * Tells the holder of a file picker that the events of one arrival have all been emitted. It does not bubble: a picker
+ * that stands alone is in the product's own DOM, and an event that is not in the manifest never reaches the page.
+ */
 export function notifyArrival(picker: HTMLElement): void {
-  picker.dispatchEvent(new Event(FILE_PICKER_ARRIVAL, { bubbles: true }));
+  picker.dispatchEvent(new Event(FILE_PICKER_ARRIVAL));
 }
