@@ -189,19 +189,20 @@ function stages({ tag, sized }: { tag: string; sized: boolean }) {
 /**
  * A spec's fixtures written with the cloak and no script, read in their first frames (`before`), then defined and read
  * again (`after`). In a new window: one that has run the bundle keeps its elements defined, whatever document is
- * written into it. Chromium's layout shifts are summed from just before the script runs.
+ * written into it. Chromium's layout shifts are summed from just before the script runs. `system` draws the page under
+ * a preset, and `fixtures` mounts those in place of the spec's.
  */
-async function mountedLate(first: Page, tag: string, browserName: string) {
+async function mountedLate(first: Page, tag: string, browserName: string, options: { system?: string; fixtures?: Fixture[] } = {}) {
   const spec = loadSpec(tag.replace(/^tanrei-/, ''));
   const page = await first.context().newPage();
-  const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true }), true);
+  const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true, ...options }), true);
   await page.setContent(markup);
   await page.evaluate(() => document.fonts.ready);
   await frames(page, 2);
   expect(await page.evaluate((t) => !!customElements.get(t), tag)).toBe(false);
   const sized = SIZED_BY_THE_PAGE.includes(tag);
   const before = await page.evaluate(stages, { tag, sized });
-  expect(before.length).toBe(spec.fixtures.length);
+  expect(before.length).toBe((options.fixtures ?? spec.fixtures).length);
   if (browserName === 'chromium') await observeShifts(page);
   const after = await define(page, scripts, () => page.evaluate(stages, { tag, sized }));
   return { spec, page, before, after };
@@ -268,6 +269,64 @@ test.describe('the cloak holds every control it names at the height it will be d
       }
       await page.close();
     });
+  }
+});
+
+/**
+ * The shipped presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root
+ * (the one layer without `extends`), as src/systems.test.ts discovers them.
+ */
+const repo = path.join(here, '../../..');
+const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
+const PRESETS = fs
+  .readdirSync(path.join(repo, 'tokens/systems'))
+  .filter((file) => file.endsWith('.system.json'))
+  .map((file) => ({ id: file.replace('.system.json', ''), layer: JSON.parse(fs.readFileSync(path.join(repo, 'tokens/systems', file), 'utf8')) }))
+  .filter(({ id, layer }) => id !== namespace && layer.extends)
+  .map(({ id }) => id)
+  .sort();
+
+test.describe('the cloak holds a slider as thick as it will be drawn, in every system and at every size', () => {
+  // SLD-7: a horizontal slider is as thick as the larger of comp.slider.container.size and its size's
+  // comp.slider.handle.height. In the m3 presets the handle (44, 44 and 52 at small, medium and large) is taller than
+  // the container (32), so a cloak that held the container alone held the slider 12 to 20 lower than it is drawn, and
+  // the page below it moved down when it was defined. Held here: a slider of each size, a slider field of each size
+  // (with its label row, without it, and with an always-shown value indicator's room, FLD-34), and a Field around a
+  // slider of each size, under the default system and each preset.
+  const SIZES = ['small', 'medium', 'large'];
+  const SUBJECTS: { tag: string; fixtures: Fixture[] }[] = [
+    { tag: 'tanrei-slider', fixtures: SIZES.map((size) => ({ id: size, props: { size, value: 40, label: 'Volume' } })) },
+    {
+      tag: 'tanrei-slider-field',
+      fixtures: SIZES.flatMap((size) => [
+        { id: size, props: { size, label: 'Volume', value: 40 } },
+        { id: `${size}-label-hidden`, props: { size, label: 'Volume', labelHidden: true, value: 40 } },
+        { id: `${size}-value-indicator`, props: { size, label: 'Volume', value: 40, valueIndicator: 'always' } },
+      ]),
+    },
+    { tag: 'tanrei-field', fixtures: SIZES.map((size) => ({ id: `slider-${size}`, props: { label: 'Volume', valueText: '40' }, items: [{ kind: 'slider', props: { size, value: 40 } }] })) },
+  ];
+  test('the presets are discovered from tokens/systems/', () => {
+    expect(PRESETS.length).toBeGreaterThan(0);
+  });
+  for (const system of [undefined, ...PRESETS]) {
+    for (const { tag, fixtures } of SUBJECTS) {
+      test(`${system ?? 'the default system'}, ${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each fixture is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+        const { page, before, after } = await mountedLate(first, tag, browserName, { ...(system ? { system } : {}), fixtures });
+        expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+        const wrong = before.flatMap((stage, i) => {
+          const drawn = after[i]!;
+          if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+        });
+        expect(wrong).toEqual([]);
+        if (browserName === 'chromium') {
+          const { sum, moved } = await shifts(page);
+          expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+        }
+        await page.close();
+      });
+    }
   }
 });
 
