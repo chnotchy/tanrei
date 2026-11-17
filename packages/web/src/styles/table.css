@@ -1,5 +1,5 @@
 /*
- * Table (specs/table.spec.json, TBL-1 to TBL-57): data that has rows and columns — named
+ * Table (specs/table.spec.json): data that has rows and columns — named
  * columns, optional row headers, a caption, footer rows — that scrolls in its own box when it does not fit. A column's
  * header can ask for the rows in its order, and rows can be chosen by a checkbox or a radio button each; the table itself never sorts,
  * filters, fetches or pages.

@@ -1,5 +1,5 @@
 /*
- * App shell (specs/app-shell.spec.json, APS-1 to APS-32): the frame of a page or an
+ * App shell (specs/app-shell.spec.json): the frame of a page or an
  * app. It places a header, the navigation, the main content, an aside and a footer, decides from the window's width
  * how each is shown, and lets a keyboard reach the content in one step. It draws the frame and none of what stands
  * in it.

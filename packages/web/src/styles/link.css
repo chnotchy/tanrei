@@ -1,5 +1,5 @@
 /*
- * Link (specs/link.spec.json, LNK-1 to LNK-35): text that leads somewhere — a phrase in a
+ * Link (specs/link.spec.json): text that leads somewhere — a phrase in a
  * sentence, a line by itself, a glyph alone — in the text style of where it sits, underlined as the design system
  * chooses (at rest, in the default system) and marked where it leaves the site. A class on the product's own anchor,
  * not an element: the anchor is in the document, so it is a link before any script runs (LNK-1).
