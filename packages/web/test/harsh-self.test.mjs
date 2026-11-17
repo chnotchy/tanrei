@@ -5,7 +5,9 @@
 // fails is a hole in harsh mode, and so is one that also fails with it off for another reason (it would prove nothing).
 //
 // How a race ends must not hang on how fast the machine is. Where a race can be built so, it is: a fade read a while
-// after it started, counted in the page from its start, passes with harsh mode off on any machine. Where it cannot — a
+// after it started, counted in the page from its start, passes with harsh mode off on any machine; read by the page
+// from the click, and run again while a loaded machine makes the read later than the slowed fade can end, it fails
+// where harsh mode slows it (test/harsh/self/motion.self.ts). Where it cannot — a
 // press-hold read after the click's round trip, a state written in the next frame read a fixed time after the click: a
 // loaded machine may take longer than the race allows — the race notes in the page whether the timing it takes for
 // granted held (the hold had not ended by the read, the frame had come by it), and says so when it did not
