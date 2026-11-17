@@ -3,6 +3,7 @@
 // in the tab's own pixels, whatever scales the row on the page — so a test can say that one thumb is drawn, where, and in
 // what shape, at the first paint (TAB-16, TAB-24).
 import { type Locator, expect } from '@playwright/test';
+import { EVERY_ANIMATION, HOLD_NOW } from './motions.js';
 
 /**
  * How far two boxes may be apart, in px: what a browser rounds a box on the page to (Firefox: a sixtieth of a pixel),
@@ -35,52 +36,62 @@ export interface ThumbPiece {
   cut: (Rect & { r: number }) | null;
 }
 
-/** Every tab's piece of the indicator in `row` (a `<tanrei-tabs>`), in order. */
+/**
+ * Every tab's piece of the indicator in `row` (a `<tanrei-tabs>`), in order — all of it at one moment: every motion of
+ * the page that runs is held while the boxes are read (`HOLD_NOW`) and played on after, so a row drawn through a running
+ * scale (a surface that grows in around it) is read through one scale. Read box by box while it ran, the scale worked
+ * out from the tab's box would not be the one the parts' boxes were drawn at, in WebKit.
+ */
 export const readThumb = (row: Locator) =>
-  row.evaluate((host): ThumbPiece[] =>
-    ([...host.querySelectorAll(':scope > tanrei-tab')] as HTMLElement[]).map((each) => {
-      const root = each.shadowRoot!;
-      const [tab, box, cover, content, plate] = ['.tab', '.box', '.cover', '.tab > .content', '.plate'].map((s) => root.querySelector<HTMLElement>(s)!);
-      const own = tab.getBoundingClientRect();
-      const style = getComputedStyle(tab);
-      const [sx, sy] = [own.width / Number.parseFloat(style.width) || 1, own.height / Number.parseFloat(style.height) || 1];
-      const local = (el: Element) => {
-        const r = el.getBoundingClientRect();
-        return { x: (r.left - own.left) / sx, y: (r.top - own.top) / sy, w: r.width / sx, h: r.height / sy };
-      };
-      const size = { w: own.width / sx, h: own.height / sy };
-      let clip: ThumbPiece['clip'] = null;
-      const inset = /^inset\((.*)\)$/.exec(getComputedStyle(cover).clipPath);
-      if (inset && !inset[1].includes('%')) {
-        const [edges, round] = inset[1].split(' round ');
-        const v = edges.trim().split(/\s+/).map(Number.parseFloat);
-        const [top, right, bottom, left] = v.length === 1 ? [v[0], v[0], v[0], v[0]] : v.length === 2 ? [v[0], v[1], v[0], v[1]] : v.length === 3 ? [v[0], v[1], v[2], v[1]] : v;
-        clip = { x: left, y: top, w: size.w - left - right, h: size.h - top - bottom, r: round ? Number.parseFloat(round) : 0 };
-      }
-      // path(evenodd, "M-99999 -99999H99999V99999H-99999Z M<x+r> <y>H<x+w-r>A<r> <r> 0 0 1 <x+w> <y+r>V<y+h-r>…"): the
-      // hole's numbers follow the five of the outer rectangle, in the content's coordinates.
-      let cut: ThumbPiece['cut'] = null;
-      const at = local(content);
-      const n = (content.style.clipPath.match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/g) ?? []).map(Number);
-      if (n.length >= 16) {
-        const r = n[8];
-        const [x, y, right, bottom] = [n[5] - r, n[6], n[13], n[15] + r];
-        cut = { x: x + at.x, y: y + at.y, w: right - x, h: bottom - y, r };
-      }
-      return {
-        selected: tab.classList.contains('selected'),
-        scale: sx,
-        scaleY: sy,
-        tab: size,
-        box: local(box),
-        content: at,
-        plate: plate.getBoundingClientRect().width / sx,
-        clip,
-        drawn: getComputedStyle(cover).visibility !== 'hidden' && !!clip && clip.w > 0 && clip.h > 0 && clip.x < size.w && clip.x + clip.w > 0,
-        cut,
-      };
-    }),
-  );
+  row.evaluate((host, [every, holdNow]): ThumbPiece[] => {
+    const resume = ((0, eval)(holdNow) as (motions: Animation[]) => () => void)(((0, eval)(every) as (root: Document) => Animation[])(document));
+    try {
+      return ([...host.querySelectorAll(':scope > tanrei-tab')] as HTMLElement[]).map((each) => {
+        const root = each.shadowRoot!;
+        const [tab, box, cover, content, plate] = ['.tab', '.box', '.cover', '.tab > .content', '.plate'].map((s) => root.querySelector<HTMLElement>(s)!);
+        const own = tab.getBoundingClientRect();
+        const style = getComputedStyle(tab);
+        const [sx, sy] = [own.width / Number.parseFloat(style.width) || 1, own.height / Number.parseFloat(style.height) || 1];
+        const local = (el: Element) => {
+          const r = el.getBoundingClientRect();
+          return { x: (r.left - own.left) / sx, y: (r.top - own.top) / sy, w: r.width / sx, h: r.height / sy };
+        };
+        const size = { w: own.width / sx, h: own.height / sy };
+        let clip: ThumbPiece['clip'] = null;
+        const inset = /^inset\((.*)\)$/.exec(getComputedStyle(cover).clipPath);
+        if (inset && !inset[1].includes('%')) {
+          const [edges, round] = inset[1].split(' round ');
+          const v = edges.trim().split(/\s+/).map(Number.parseFloat);
+          const [top, right, bottom, left] = v.length === 1 ? [v[0], v[0], v[0], v[0]] : v.length === 2 ? [v[0], v[1], v[0], v[1]] : v.length === 3 ? [v[0], v[1], v[2], v[1]] : v;
+          clip = { x: left, y: top, w: size.w - left - right, h: size.h - top - bottom, r: round ? Number.parseFloat(round) : 0 };
+        }
+        // path(evenodd, "M-99999 -99999H99999V99999H-99999Z M<x+r> <y>H<x+w-r>A<r> <r> 0 0 1 <x+w> <y+r>V<y+h-r>…"): the
+        // hole's numbers follow the five of the outer rectangle, in the content's coordinates.
+        let cut: ThumbPiece['cut'] = null;
+        const at = local(content);
+        const n = (content.style.clipPath.match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/g) ?? []).map(Number);
+        if (n.length >= 16) {
+          const r = n[8];
+          const [x, y, right, bottom] = [n[5] - r, n[6], n[13], n[15] + r];
+          cut = { x: x + at.x, y: y + at.y, w: right - x, h: bottom - y, r };
+        }
+        return {
+          selected: tab.classList.contains('selected'),
+          scale: sx,
+          scaleY: sy,
+          tab: size,
+          box: local(box),
+          content: at,
+          plate: plate.getBoundingClientRect().width / sx,
+          clip,
+          drawn: getComputedStyle(cover).visibility !== 'hidden' && !!clip && clip.w > 0 && clip.h > 0 && clip.x < size.w && clip.x + clip.w > 0,
+          cut,
+        };
+      });
+    } finally {
+      resume();
+    }
+  }, [EVERY_ANIMATION, HOLD_NOW] as const);
 
 /**
  * TAB-16, TAB-24: exactly one thumb is drawn in `row`, on the selected tab, at that tab's container; the container is

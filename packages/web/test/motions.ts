@@ -191,6 +191,40 @@ export const PRESS_LET_GO = `(() => {
 })()`;
 
 /**
+ * The source of an in-page function `(motions) => () => void` that holds each of `motions` that runs at the time it has
+ * now, and returns a function that puts each one it held back to that time and plays it again. Those that do not run
+ * (paused, finished, cancelled) are left as they are, by both.
+ *
+ * Reading in one task does not hold a running motion. Its `currentTime` stands still for the task, but WebKit computes
+ * and lays out a running transform, translate, rotate, scale, opacity or filter at the moment each is read: two reads
+ * back to back, or a read before a change and one after it, or a read beside a value worked out from `currentTime`, see
+ * two moments (a segment 0.05 to 0.2 px further on). `pause()` alone holds it at once in Chromium, Firefox and WebKit on
+ * macOS, but not in WebKit on Linux until the next frame; setting the current time completes the hold at once in every
+ * engine. So each is paused and given its own time again. A motion begun in this task (pending, at its start) is held
+ * there too. Between the hold and the call that ends it, the test may move the held motions to times of its own (a
+ * colour read at a moment it chooses): ending the hold puts them back. For a script the test writes into the page, as
+ * `EVERY_ANIMATION`:
+ *
+ *   const hold = (0, eval)(HOLD_NOW) as (motions: Animation[]) => () => void;
+ *   const resume = hold(el.getAnimations());
+ *   … // every read here is of one moment
+ *   resume();
+ */
+export const HOLD_NOW = `((motions) => {
+  const held = motions.filter((motion) => motion.playState === 'running').map((motion) => [motion, motion.currentTime]);
+  for (const [motion, time] of held) {
+    motion.pause();
+    motion.currentTime = time;
+  }
+  return () => {
+    for (const [motion, time] of held) {
+      motion.currentTime = time;
+      motion.play();
+    }
+  };
+})`;
+
+/**
  * Waits until nothing of `target` is in motion: the element's own motions, its subtree's, and those in every shadow
  * root inside it — or, given the page, every motion in it. Those it has when it is asked are waited for (asking
  * flushes style, so a motion the last change starts is among them), each until it finishes, is cancelled or is held —
