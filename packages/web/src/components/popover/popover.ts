@@ -838,7 +838,11 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   // ---- POP-18: the opener ----
 
-  /** POP-18: the opener says that it opens a dialog, whether that dialog is open, and which it is; what was written is taken back. */
+  /**
+   * POP-18: the opener says that it opens a dialog, whether that dialog is open, and — while it is — which it is: not
+   * presented, the popover is a box whose surface is not displayed, so the opener names nothing then. What was written
+   * is taken back.
+   */
   private state(target: HTMLElement | null) {
     const was = this.stated;
     if (was && was !== target) hostAria(was, { 'aria-haspopup': null, 'aria-expanded': null, 'aria-controls': null });
@@ -848,7 +852,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     hostAria(target, {
       'aria-haspopup': 'dialog',
       'aria-expanded': String(this.presented),
-      'aria-controls': target.getRootNode() === this.getRootNode() ? this.id : null,
+      'aria-controls': this.presented && target.getRootNode() === this.getRootNode() ? this.id : null,
     });
   }
 
