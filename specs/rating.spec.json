@@ -168,7 +168,7 @@
     },
     {
       "id": "RAT-16",
-      "text": "WHERE the layout direction is right-to-left THE rating SHALL draw its first mark at the right, the score growing leftward, and SHALL draw the glyph mirrored exactly when the system's icon set marks that glyph's name as mirrored; it SHALL take its layout direction from where it is used and have no direction setting of its own."
+      "text": "WHERE the layout direction is right-to-left THE rating SHALL draw its first mark at the right, the score growing leftward, and SHALL draw the glyph mirrored as RAT-19 says; it SHALL take its layout direction from where it is used and have no direction setting of its own."
     },
     {
       "id": "RAT-17",
@@ -177,6 +177,11 @@
     {
       "id": "RAT-18",
       "text": "WHILE label is empty THE rating SHALL still render and in debug builds report that it has no accessible name; WHILE optionLabels is not empty and does not hold exactly one entry for each score a person can give THE rating SHALL use the entries it has, name the others by their numbers, and in debug builds report the count; WHEN size names a value the active design system does not have THE rating SHALL render with medium's tokens and in debug builds report the unknown value; WHILE icon names no glyph of the system's icon set THE rating SHALL draw star and in debug builds report the name."
+    },
+    {
+      "id": "RAT-19",
+      "text": "WHERE the layout direction is right-to-left THE rating SHALL draw the glyph of its marks mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or — for the glyph icon names — the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside each mark's box, about the box's vertical centre line, changing neither the marks' places, sizes and colors nor the halves RAT-2 draws. The star the rating draws while icon is empty is its own glyph and takes no word of the product's. THE rating SHALL NOT mirror a mark itself.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, the marked one in left-to-right (never mirrored there), and the star with mirroring forced (not mirrored)."
     }
   ],
   "accessibility": {
@@ -346,7 +351,7 @@
         "mark": "mark",
         "focus-ring": "container@focus-ring"
       },
-      "notes": "Form-associated. As a radio group, the shadow root holds one element with `role=\"radiogroup\"` and `aria-label`, and one `role=\"radio\"` element per mark with a roving `tabindex` — not `<input type=\"radio\">`, whose name group cannot span shadow roots; as a slider, one `role=\"slider\"` element with `aria-valuemin=\"0\"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` while an entry names the value; read-only, one `role=\"img\"` element with `aria-label` and `aria-description`. `optionLabels` is an array property whose attribute `option-labels` is read as a JSON array. `allow-half`, `read-only`, `value-text` are the attributes. A half mark is two glyphs in one box, each clipped with `clip-path: inset()` on its half, the halves swapped in right-to-left. `change` and `preview` are CustomEvents whose `detail.value` is the score (null for preview's leaving). Every mark carries the `container` part and its glyphs the `mark` part."
+      "notes": "Form-associated. As a radio group, the shadow root holds one element with `role=\"radiogroup\"` and `aria-label`, and one `role=\"radio\"` element per mark with a roving `tabindex` — not `<input type=\"radio\">`, whose name group cannot span shadow roots; as a slider, one `role=\"slider\"` element with `aria-valuemin=\"0\"`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` while an entry names the value; read-only, one `role=\"img\"` element with `aria-label` and `aria-description`. `optionLabels` is an array property whose attribute `option-labels` is read as a JSON array. `allow-half`, `read-only`, `value-text` are the attributes. A half mark is two glyphs in one box, each clipped with `clip-path: inset()` on its half, the halves swapped in right-to-left. `change` and `preview` are CustomEvents whose `detail.value` is the score (null for preview's leaving). Every mark carries the `container` part and its glyphs the `mark` part. `data-mirror` (`auto`, the default; `always`; `never`) on the rating is the product's word on mirroring the glyph `icon` names (RAT-19), as on a glyph the product places itself; the star drawn while `icon` is empty takes none."
     },
     "swiftui": {
       "status": "planned",
